@@ -1,0 +1,10 @@
+.ipynb_checkpoints
+.DS_Store
+outdir
+Figure_1_Cf_spectra_O2.dat
+figure1.dat
+__pycache__
+*.mat
+*.gwf
+tutorials/data
+tests/results/
