@@ -82,23 +82,8 @@ python-3.7:
   image: python:3.7
 
 python-3.8:
-  stage: test
+  <<: *test-python
   image: python:3.8
-  before_script:
-    - apt-get -yqq install pandoc
-    - pip install --upgrade pip setuptools
-    - pip install coverage coverage-badge
-    - pip install pytest
-  script:
-    - pip install .
-    - pytest --cov src
-    - coverage html
-    - coverage-badge -o coverage_badge.svg
-
-  artifacts:
-    paths:
-      - htmlcov/
-      - coverage_badge.svg
 
 documentation:
   stage: documentation
