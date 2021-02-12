@@ -58,9 +58,9 @@ basic-3.8:
     # Run precommits (black, flake8, spellcheck, isort, no merge conflicts, etc)
     - pre-commit run --all-files --verbose --show-diff-on-failure
 
-precommits-py3.8:
+precommits-py3.7:
   <<: *precommits-python
-  image: python:3.8
+  image: python:3.7
 
 
 .test-python: &test-python
