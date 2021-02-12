@@ -56,7 +56,7 @@ basic-3.8:
     - pip install pre-commit
 
     # Run precommits (black, flake8, spellcheck, isort, no merge conflicts, etc)
-    - pre-commit run --all-files --verbose --show-diff-on-failure
+    - pre-commit run --files **.py --verbose --show-diff-on-failure
 
 precommits-py3.7:
   <<: *precommits-python
