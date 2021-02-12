@@ -81,7 +81,7 @@ python-3.7:
 python-3.8:
   stage: test
   image: python3.8
-  before-script:
+  before_script:
     - apt-get -yqq install pandoc
     - pip install --upgrade pip setuptools
     - pip install coverage coverage-badge
@@ -99,7 +99,7 @@ python-3.8:
 documentation:
   stage: documentation
   image: python3.8
-  before-script:
+  before_script:
     - apt-get -yqq update
     - apt-get -yqq install pandoc
     - pip install --upgrade pip setuptools
