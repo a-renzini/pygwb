@@ -94,7 +94,7 @@ python-3.8:
   artifacts:
     paths:
       - htmlcov/
-      -coverage_badge.svg
+      - coverage_badge.svg
 
 documentation:
   stage: documentation
@@ -117,111 +117,15 @@ documentation:
     paths:
       docs/_build
 
-#python-3.7:
-#  stage: test
-#  image: quay.io/bilbydev/bilby_pipe-test-suite-python37
-#  script:
-#    - source activate python37
-#    - mkdir -p .pip37
-#    - pip install --upgrade pip
-#    - pip --cache-dir=.pip37 install --upgrade bilby
-#    - pip --cache-dir=.pip37 install .
-#
-#    # Run tests and collect coverage data
-#    - pytest --cov bilby_pipe
-#    - coverage html
-#    - coverage-badge -o coverage_badge.svg -f
-
-#  artifacts:
-#    paths:
-#      - htmlcov/
-#      - coverage_badge.svg
-
-# Test that the examples build properly
-#example-ini-file-builds:
-#  stage: test
-#  image: quay.io/bilbydev/bilby_pipe-test-suite-python37
-#  script:
-#    - source activate python37
-#    - mkdir -p .pip37
-#    - pip --cache-dir=.pip37 install --upgrade bilby
-#    - pip --cache-dir=.pip37 install .
-#    - cd examples/event
-#    - bilby_pipe GW150914.ini
-#    - cd outdir_GW150914/
-#    - bilby_pipe GW150914_config_complete.ini --overwrite-outdir # Check that the completed config file compiles
-#    - cd ../../gaussian_noise
-#    - bilby_pipe *ini
-#    - cd ../injection
-#    - bilby_pipe *ini
-#    - cd ../gps_times
-#    - bilby_pipe gps_times_from_file.ini
-#    - bilby_pipe gps_times_from_tuple.ini
-#    - cd ../slurm
-#    - bilby_pipe slurm_GW150914.ini
-
-# Test that the review tests build properly
-#review-test-build:
-#  stage: test
-#  image: quay.io/bilbydev/bilby_pipe-test-suite-python37
-#  script:
-#    - source activate python37
-#    - mkdir -p .pip37
-#    - pip --cache-dir=.pip37 install --upgrade bilby
-#    - pip --cache-dir=.pip37 install .
-#    - mkdir TEST_REVIEW_FILES
-#    - cd TEST_REVIEW_FILES
-#
-#    - bilby_pipe_review --prior 4s --bbh --marginalization distance phase --nact 5 --directory TEST
-#    - if [[ ! -f TEST/review_fiducial_bbh_4s_dynesty_distance-phase_nact5.ini ]] ; then exit 1; else echo "Webpage exists"; fi
-#
-#    - bilby_pipe_review --prior 4s --pp-test --marginalization distance phase --sampler cPnEst --nact 5 --directory TEST
-#    - if [[ ! -f TEST/review_pp_test_4s_cpnest_distance-phase_nact5.ini ]] ; then exit 1; else echo "Webpage exists"; fi
-#    - cd ..
-#    - rm TEST_REVIEW_FILES -r
-
-#documentation:
-#  stage: test
-#  image: quay.io/bilbydev/bilby_pipe-test-suite-python37
-#  script:
-#    - source activate python37
-#    - mkdir -p .pip37
-#    - pip --cache-dir=.pip37 install .
-#
-#    # Make the documentation
-#    - apt-get update
-#    - apt-get -y install graphviz
-#    # Sphinx-multiversion needs to be run on the git repo itself
-#    - cd ../
-#    - rm bilby_pipe/ -r
-#    - git clone https://git.ligo.org/lscsoft/bilby_pipe.git
-#    - cd bilby_pipe/
-#    # Installation and clean up
-#    - cd docs
-#    - pip install -r requirements.txt
-#    - make clean
-#    - bilby_pipe_write_default_ini default.ini
-#    - bilby_pipe_gracedb --json ../examples/gracedb/G298936.json --output ini --outdir .
-#    # Sphinx-multiversion needs to be run from the top-level
-#    - cd ..
-#    - git fetch origin master
-#    - git status
-#    - git branch
-#    - sphinx-multiversion docs/ docs/_build/
-#
-#  artifacts:
-#    paths:
-#      - docs/_build/
-
 #pages:
 #  stage: deploy
 #  dependencies:
-#    - python-3.7
+#    - python-3.8
 #    - documentation
 #  script:
 #    - mkdir public/
 #    - mv htmlcov/ public/
-#    - mv /builds/RatesAndPopulations/stochastic_lite/coverage_badge.svg public/
+#    - mv /builds/andrew.matas/stochastic_lite/coverage_badge.svg public/
 #    - mv docs/_build/* public/
 #  artifacts:
 #    paths:
