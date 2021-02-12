@@ -66,6 +66,9 @@ precommits-py3.7:
 .test-python: &test-python
   stage: test
   image: python
+  before_script:
+    - pip install --upgrade pip setuptools
+    - pip install pytest
   script:
     - pip install .
     - pytest
@@ -80,11 +83,12 @@ python-3.7:
 
 python-3.8:
   stage: test
-  image: python3.8
+  image: python:3.8
   before_script:
     - apt-get -yqq install pandoc
     - pip install --upgrade pip setuptools
     - pip install coverage coverage-badge
+    - pip install pytest
   script:
     - pip install .
     - pytest --cov src
