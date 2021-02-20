@@ -115,7 +115,7 @@ All changes should be developed on a feature branch in order to keep them separa
 
 When you feel that your work is finished, you should create a merge request to propose that your changes be merged into the main (`upstream`) repository.
 
-After you have pushed your new feature branch to `origin`, you should find a new button on the [LALSuite repository home page](https://git.ligo.org/lscsoft/lalsuite/) inviting you to create a merge request out of your newly pushed branch. (If the button does not exist, you can initiate a merge request by going to the `Merge Requests` tab on your fork website on git.ligo.org and clicking `New merge request`)
+After you have pushed your new feature branch to `origin`, you should find a new button on the [stochastic_lite repository home page](https://git.ligo.org/stochastic_lite/stochastic_lite/) inviting you to create a merge request out of your newly pushed branch. (If the button does not exist, you can initiate a merge request by going to the `Merge Requests` tab on your fork website on git.ligo.org and clicking `New merge request`)
 
 You should click the button, and proceed to fill in the title and description boxes on the merge request page.
 It is recommended that you check the box to `Remove source branch when merge request is accepted`; this will result in the branch being automatically removed from your fork when the merge request is accepted. 
