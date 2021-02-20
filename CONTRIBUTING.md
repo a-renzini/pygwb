@@ -41,7 +41,9 @@ git clone git@git.ligo.org:<namespace>/stochastic_lite.git
 
 Link your clone to the main (`upstream`) repository so that you can `fetch` changes, `merge` them with your clone, and `push` them to your fork. Do *not* make changes on your master branch. 
 
-1. Link your fork to the main repository:
+1. First record that you will do the work on the [issue tracker](https://git.ligo.org/stochastic_lite/stochastic_lite/-/issues). First check if the issue already exists (and make sure no one else is already working on it). If an issue exists, and is not actively being worked on, you can assign yourself to the issue. If it doesn't exist, please open a new issue. We would like to have one person take charge of a given issue, but others may want to follow progress and offer help and suggestions. While one person should take responsibility who can be a point of contact, we also encourage (but don't require) people to work in small teams (for example, teams of two) so one person can do the coding and the other person can do checking.
+
+2. Link your fork to the main repository:
 
     ```bash
     cd stochastic_lite
@@ -50,7 +52,7 @@ Link your clone to the main (`upstream`) repository so that you can `fetch` chan
 
    You need only do this step once. 
 
-2. Fetch new changes from the `upstream` repository, merge them with your master branch, and push them to your fork on git.ligo.org:
+3. Fetch new changes from the `upstream` repository, merge them with your master branch, and push them to your fork on git.ligo.org:
 
     ```bash
     git checkout master
@@ -59,7 +61,7 @@ Link your clone to the main (`upstream`) repository so that you can `fetch` chan
     git push
     ```
 
-3. You can see which remotes are configured using
+4. You can see which remotes are configured using
 
    ```bash
    git remote -v
@@ -113,11 +115,12 @@ All changes should be developed on a feature branch in order to keep them separa
 
 ### Open a merge request
 
-When you feel that your work is finished, you should create a merge request to propose that your changes be merged into the main (`upstream`) repository.
+When you feel that your work is finished (meaning, the code is complete and documented, and you have performed a set of tests and documented these), you should create a merge request to propose that your changes be merged into the main (`upstream`) repository.
 
 After you have pushed your new feature branch to `origin`, you should find a new button on the [stochastic_lite repository home page](https://git.ligo.org/stochastic_lite/stochastic_lite/) inviting you to create a merge request out of your newly pushed branch. (If the button does not exist, you can initiate a merge request by going to the `Merge Requests` tab on your fork website on git.ligo.org and clicking `New merge request`)
 
 You should click the button, and proceed to fill in the title and description boxes on the merge request page.
+Please link to any relevant git issues in your description.
 It is recommended that you check the box to `Remove source branch when merge request is accepted`; this will result in the branch being automatically removed from your fork when the merge request is accepted. 
 
 Once the request has been opened, one of the maintainers will assign someone to review the change. There may be suggestions and/or discussion with the reviewer. These interactions are intended to make the resulting changes better. The reviewer will merge your request.
