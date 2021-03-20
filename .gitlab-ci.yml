@@ -14,7 +14,7 @@ stages:
   - initial
   - test
   - documentation
-#  - deploy
+  - deploy
 
 .basic-python: &basic-python
   stage: initial
@@ -106,19 +106,19 @@ documentation:
     paths:
       - docs/_build
 
-#pages:
-#  stage: deploy
-#  dependencies:
-#    - python-3.8
-#    - documentation
-#  script:
-#    - mkdir public/
-#    - mv htmlcov/ public/
-#    - mv /builds/andrew.matas/stochastic_lite/coverage_badge.svg public/
-#    - mv docs/_build/* public/
-#  artifacts:
-#    paths:
-#      - public
-#    expire_in: 30 days
-#  only:
-#  - master
+pages:
+  stage: deploy
+  dependencies:
+    - python-3.8
+    - documentation
+  script:
+    - mkdir public/
+    - mv htmlcov/ public/
+    - mv coverage_badge.svg public/
+    - mv docs/_build/* public/
+  artifacts:
+    paths:
+      - public
+    expire_in: 30 days
+  only:
+  - master
