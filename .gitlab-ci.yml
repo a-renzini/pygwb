@@ -1,0 +1,124 @@
+# This script is an edited version of the example found at
+# https://git.ligo.org/lscsoft/example-ci-project/blob/python/.gitlab-ci.yml
+# Each 0th-indendation level is a job that will be run within GitLab CI
+# The only exception are a short list of reserved keywords
+#
+# https://docs.gitlab.com/ee/ci/yaml/#gitlab-ci-yml
+
+# stages is a reserved keyword that defines job dependencies and
+# parallelization. each stage runs in parallel but must complete
+# before the next stage begins
+# This file was copied from bilby_pipe
+
+stages:
+  - initial
+  - test
+  - documentation
+  - deploy
+
+.basic-python: &basic-python
+  stage: initial
+  image: python
+  before_script:
+    - pip install --upgrade pip
+  script:
+    - pip install --ignore-installed .
+    - cd ..
+    - python -c "import stochastic_lite"
+    - python -c "import stochastic_lite.constants"
+    - python -c "import stochastic_lite.cross_correlation"
+    - python -c "import stochastic_lite.pe"
+    - python -c "import stochastic_lite.postprocessing"
+    - python -c "import stochastic_lite.util"
+
+# test basic setup on python3
+basic-3.6:
+  <<: *basic-python
+  image: python:3.6
+
+
+basic-3.7:
+  <<: *basic-python
+  image: python:3.7
+
+
+basic-3.8:
+  <<: *basic-python
+  image: python:3.8
+
+
+.precommits-python: &precommits-python
+  stage: initial
+  image: python
+  script:
+    - pip install --upgrade pip
+    - pip install .
+    - pip install pre-commit
+
+    # Run precommits (black, flake8, spellcheck, isort, no merge conflicts, etc)
+    - pre-commit run --files **.py --verbose --show-diff-on-failure
+
+precommits-py3.7:
+  <<: *precommits-python
+  image: python:3.7
+
+
+.test-python: &test-python
+  stage: test
+  image: python
+  before_script:
+    - pip install --upgrade pip setuptools
+    - pip install pytest
+  script:
+    - pip install .
+    - pytest
+
+python-3.6:
+  <<: *test-python
+  image: python:3.6
+
+python-3.7:
+  <<: *test-python
+  image: python:3.7
+
+python-3.8:
+  <<: *test-python
+  image: python:3.8
+
+documentation:
+  stage: documentation
+  image: python:3.8
+  before_script:
+    - apt-get -yqq update
+    - apt-get -yqq install pandoc
+    - pip install --upgrade pip setuptools
+    - pip install sphinx numpydoc nbsphinx sphinx_rtd_theme sphinx-tabs autodoc
+    - pip install .
+
+  script:
+    - cd docs
+    - cp ../tutorials/*.ipynb ./
+    - make clean
+    - make html
+    - cd -
+
+  artifacts:
+    paths:
+      - docs/_build
+
+pages:
+  stage: deploy
+  dependencies:
+    - python-3.8
+    - documentation
+  script:
+    - mkdir public/
+    - mv htmlcov/ public/
+    - mv coverage_badge.svg public/
+    - mv docs/_build/* public/
+  artifacts:
+    paths:
+      - public
+    expire_in: 30 days
+  only:
+  - master
