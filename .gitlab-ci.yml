@@ -113,8 +113,8 @@ pages:
     - documentation
   script:
     - mkdir public/
-    - mv htmlcov/ public/
-    - mv coverage_badge.svg public/
+#    - mv htmlcov/ public/
+#    - mv coverage_badge.svg public/
     - mv docs/_build/* public/
   artifacts:
     paths:
