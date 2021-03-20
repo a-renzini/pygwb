@@ -1,5 +1,5 @@
 function compute_stats(dir,fileprefixes,outputFileName,h0,bias,notches)
-% Computes point estimate and error bar given pointers to the sensitivity integrand and point esitmate integrand and a notchlist
+% Computes point estimate and error bar given pointers to the sensitivity integrand and point estimate integrand and a notchlist
 % Written by Andrew Matas (andrew.matas@ligo.org) Mar 6, 2017
 
 if nargin==5  
