@@ -73,9 +73,10 @@ setup(
     author_email="andrew.matas@ligo.org",
     license="MIT",
     version=VERSION,
-    packages=find_packages(exclude=["test", "venv", "tutorials", "src", "docs"])
-    + ["stochastic_lite"],
-    package_dir={"stochastic_lite": "src"},
+    packages=["stochastic_lite", "stochastic_lite.orfs"]
+    # packages=find_packages(exclude=["test", "venv", "tutorials", "src", "docs"])
+    # + ["stochastic_lite"],
+    package_dir={"stochastic_lite": "src", "stochastic_lite.orfs": "src/orfs"},
     package_data={"stochastic_lite": [".version"]},
     install_requires=["numpy", "matplotlib", "scipy", "bilby"],
     classifiers=[
