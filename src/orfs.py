@@ -93,8 +93,29 @@ def Sminus(alpha, beta):
     ) * np.cos(beta / 2) ** 4
 
 
-def calc_orfs(
-    freqs, det1_vertex, det2_vertex, det1_xarm, det2_xarm, det1_yarm, det2_yarm
+def tangent_vector(vector1, vector2):
+    return np.subtract(
+        vector2,
+        np.multiply(np.dot(vector1, vector2) / np.dot(vector1, vector1), vector1),
+    )
+
+
+def omega_tangent_bisector(bisector, tangent_vector):
+    return np.arccos(
+        np.dot(bisector, tangent_vector)
+        / (np.linalg.norm(bisector) * np.linalg.norm(tangent_vector))
+    )
+
+
+def calc_orf(
+    freqs,
+    det1_vertex,
+    det2_vertex,
+    det1_xarm,
+    det2_xarm,
+    det1_yarm,
+    det2_yarm,
+    polarization="tensor",
 ):
     """
     Calculates the tensor, scalar, and vector overlap reduction funtions
@@ -129,42 +150,32 @@ def calc_orfs(
         np.dot(det1_vertex, det2_vertex)
         / (np.linalg.norm(det1_vertex) * np.linalg.norm(det2_vertex))
     )
-    tan_det1 = np.subtract(
-        det2_vertex,
-        np.multiply(
-            np.dot(det1_vertex, det2_vertex) / np.dot(det1_vertex, det1_vertex),
-            det1_vertex,
-        ),
-    )
+    tan_det1 = tangent_vector(det1_vertex, det2_vertex)
     bisector_det1 = np.add(det1_xarm, det1_yarm)
-    omega_det1 = np.arccos(
-        np.dot(bisector_det1, tan_det1)
-        / (np.linalg.norm(bisector_det1) * np.linalg.norm(tan_det1))
-    )
+    omega_det1 = omega_tangent_bisector(bisector_det1, tan_det1)
 
     perp = np.cross(np.cross(det1_vertex, det2_vertex), det1_vertex)
-    tan_det2 = np.subtract(
-        perp,
-        np.multiply(
-            np.dot(det2_vertex, perp) / np.dot(det2_vertex, det2_vertex), det2_vertex
-        ),
-    )
+    tan_det2 = tangent_vector(det2_vertex, perp)
     bisector_det2 = np.add(det2_xarm, det2_yarm)
-    omega_det2 = np.arccos(
-        np.dot(bisector_det2, tan_det2)
-        / (np.linalg.norm(bisector_det2) * np.linalg.norm(tan_det2))
-    )
+    omega_det2 = omega_tangent_bisector(bisector_det2, tan_det2)
 
     omega_plus = (omega_det1 + omega_det2) / 2
     omega_minus = (omega_det1 - omega_det2) / 2
 
-    orf_T = Tplus(alpha, beta) * np.cos(4 * omega_plus) + Tminus(alpha, beta) * np.cos(
-        4 * omega_minus
-    )
-    orf_V = Vplus(alpha, beta) * np.cos(4 * omega_plus) + Vminus(alpha, beta) * np.cos(
-        4 * omega_minus
-    )
-    orf_S = Splus(alpha, beta) * np.cos(4 * omega_plus) + Sminus(alpha, beta) * np.cos(
-        4 * omega_minus
-    )
-    return orf_T, orf_V, orf_S
+    if polarization.lower() == "tensor":
+        overlap_reduction_function = Tplus(alpha, beta) * np.cos(
+            4 * omega_plus
+        ) + Tminus(alpha, beta) * np.cos(4 * omega_minus)
+    elif polarization.lower() == "vector":
+        overlap_reduction_function = Vplus(alpha, beta) * np.cos(
+            4 * omega_plus
+        ) + Vminus(alpha, beta) * np.cos(4 * omega_minus)
+    elif polarization.lower() == "scalar":
+        overlap_reduction_function = Splus(alpha, beta) * np.cos(
+            4 * omega_plus
+        ) + Sminus(alpha, beta) * np.cos(4 * omega_minus)
+    else:
+        raise ValueError(
+            "Unrecognized polarization! Must be either tensor, vector, or scalar"
+        )
+    return overlap_reduction_function
