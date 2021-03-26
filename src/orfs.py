@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.special import spherical_jn
-from ..constants import speed_of_light
+from .constants import speed_of_light
 
 
 def Tplus(alpha, beta):
