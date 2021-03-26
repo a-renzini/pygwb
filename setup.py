@@ -36,7 +36,7 @@ def write_version_file(version):
         print(f"Unable to obtain git version information, exception: {e}")
         git_status = ""
 
-    _version_file = "src/.version"
+    _version_file = "stochastic_lite/.version"
     if not os.path.isfile(_version_file):
         with open(_version_file, "w+") as f:
             f.write(f"{version}: {git_status}")
@@ -73,9 +73,7 @@ setup(
     author_email="andrew.matas@ligo.org",
     license="MIT",
     version=VERSION,
-    packages=find_packages(exclude=["test", "venv", "tutorials", "src", "docs"])
-    + ["stochastic_lite"],
-    package_dir={"stochastic_lite": "src"},
+    packages=find_packages(exclude=["test", "venv", "tutorials" "docs"]),
     package_data={"stochastic_lite": [".version"]},
     install_requires=["numpy", "matplotlib", "scipy", "bilby"],
     classifiers=[
