@@ -48,7 +48,7 @@ def Vplus(alpha, beta):
         * np.cos(beta)
         - (
             1.0 / 8 * spherical_jn(0, alpha)
-            - 5.0 / 122 * spherical_jn(2, alpha)
+            - 5.0 / 112 * spherical_jn(2, alpha)
             - 3.0 / 224 * spherical_jn(4, alpha)
         )
         * np.cos(2 * beta)
@@ -119,6 +119,7 @@ def calc_orf(
 ):
     """
     Calculates the tensor, scalar, and vector overlap reduction funtions
+    Following Section IVb of https://arxiv.org/abs/0903.0528
 
     Inputs:
     freqs: frequencies at which to evaluate the ORFs
