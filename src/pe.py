@@ -1,13 +1,25 @@
 import bilby
 import numpy as np
 from scipy.special import erf
+from .orfs import calc_orf
 
 
 class Baseline(object):
-    def __init__(self, name, Y_f, var_f, freqs, calibration_epsilon=0):
+    def __init__(
+        self,
+        name,
+        interferometer_1,
+        interferometer_2,
+        Y_f,
+        var_f,
+        freqs,
+        calibration_epsilon=0,
+    ):
         """
         Parameters
         ----------
+        interferometer_1/2: bilby Interferometer object
+            the two detectors spanning the baseline
         Y_f: array_like
             Y(f) (combined over time, remove zero frequency first)
         var_f: array_like
@@ -18,16 +30,54 @@ class Baseline(object):
             calibration uncertainty for this baseline
         """
         self.name = name
+        self.interferometer_1 = interferometer_1
+        self.interferometer_2 = interferometer_2
         self.Y_f = np.real(Y_f)  # only want real part for PE
         self.var_f = var_f
         self.freqs = freqs
         self.calibration_epsilon = calibration_epsilon
+        self._tensor_orf_calculated = False
+        self._vector_orf_calculated = False
+        self._scalar_orf_calculated = False
 
         # sanitize input
         finite_variance_filter = np.logical_not(np.isinf(var_f))
         self.freqs = self.freqs[finite_variance_filter]
         self.Y_f = self.Y_f[finite_variance_filter]
         self.var_f = self.var_f[finite_variance_filter]
+
+    @property
+    def overlap_reduction_function(self):
+        if not self._tensor_orf_calculated:
+            self._tensor_orf = self.calc_baseline_orf("tensor")
+            self._tensor_orf_calculated = True
+        return self._tensor_orf
+
+    @property
+    def vector_overlap_reduction_function(self):
+        if not self._vector_orf_calculated:
+            self._vector_orf = self.calc_baseline_orf("vector")
+            self._vector_orf_calculated = True
+        return self._vector_orf
+
+    @property
+    def scalar_overlap_reduction_function(self):
+        if not self._scalar_orf_calculated:
+            self._scalar_orf = self.calc_baseline_orf("scalar")
+            self._scalar_orf_calculated = True
+        return self._scalar_orf
+
+    def calc_baseline_orf(self, polarization):
+        return calc_orf(
+            self.freqs,
+            self.interferometer_1.vertex,
+            self.interferometer_2.vertex,
+            self.interferometer_1.x,
+            self.interferometer_2.x,
+            self.interferometer_1.y,
+            self.interferometer_2.y,
+            "scalar",
+        )
 
 
 class GWBLikelihood(bilby.Likelihood):
