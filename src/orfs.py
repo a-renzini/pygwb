@@ -120,6 +120,8 @@ def calc_orf(
     """
     Calculates the tensor, scalar, and vector overlap reduction funtions
     Following Section IVb of https://arxiv.org/abs/0903.0528
+    See Appendix A of https://arxiv.org/abs/1704.08373 for a
+    discussion of the normalization of the scalar ORF
 
     Inputs:
     freqs: frequencies at which to evaluate the ORFs
@@ -172,9 +174,14 @@ def calc_orf(
             4 * omega_plus
         ) + Vminus(alpha, beta) * np.cos(4 * omega_minus)
     elif polarization.lower() == "scalar":
-        overlap_reduction_function = Splus(alpha, beta) * np.cos(
-            4 * omega_plus
-        ) + Sminus(alpha, beta) * np.cos(4 * omega_minus)
+        overlap_reduction_function = (
+            1.0
+            / 3
+            * (
+                Splus(alpha, beta) * np.cos(4 * omega_plus)
+                + Sminus(alpha, beta) * np.cos(4 * omega_minus)
+            )
+        )
     else:
         raise ValueError(
             "Unrecognized polarization! Must be either tensor, vector, or scalar"

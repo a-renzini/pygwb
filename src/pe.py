@@ -76,7 +76,7 @@ class Baseline(object):
             self.interferometer_2.x,
             self.interferometer_1.y,
             self.interferometer_2.y,
-            "scalar",
+            polarization,
         )
 
 
