@@ -34,5 +34,5 @@ class TestCoarseGrain(unittest.TestCase):
     def test_coarse_grain_frequencies_matches_expected(self):
         self.assertTrue(np.array_equal(
             np.linspace(0, 1, 33)[2:-2:2],
-            coarse_grain_frequencies(np.linspace(0, 1, 33), 32, 2)
+            coarse_grain(np.linspace(0, 1, 33), 2)
         ))
