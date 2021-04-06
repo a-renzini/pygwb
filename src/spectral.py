@@ -43,8 +43,8 @@ def coarse_grain(data, coarsening_factor):
     if not coarsening_factor % 2:
         left_edges = data[coarsening_factor // 2 :: coarsening_factor][:-1]
         right_edges = data[int(coarsening_factor * 1.5) :: coarsening_factor]
-        coarsened += (left_edges - right_edges) / 2
-    return coarsened / coarsening_factor
+        coarsened += (left_edges - right_edges) / 2 / coarsening_factor
+    return coarsened
 
 
 def coarse_grain_exact(data, coarsening_factor):
