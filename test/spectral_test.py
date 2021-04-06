@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from stochastic_lite.spectral import coarse_grain, coarse_grain_exact, coarse_grain_frequencies
+from stochastic_lite.spectral import coarse_grain, coarse_grain_exact
 
 
 class TestCoarseGrain(unittest.TestCase):
