@@ -29,6 +29,7 @@ stages:
     - python -c "import stochastic_lite.cross_correlation"
     - python -c "import stochastic_lite.pe"
     - python -c "import stochastic_lite.postprocessing"
+    - python -c "import stochastic_lite.spectral"
     - python -c "import stochastic_lite.util"
 
 # test basic setup on python3

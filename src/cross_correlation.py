@@ -1,12 +1,12 @@
 import numpy as np
 from scipy.interpolate import CubicSpline
+from scipy.signal.spectral import welch
 
 from .constants import H0
 from .util import (
     FrequencySeries,
     calc_Y_sigma_from_Yf_varf,
     slice_time_series,
-    welch_psd,
     window_factors,
 )
 
@@ -109,25 +109,19 @@ def cross_correlation(
         c_cg = c.coarse_grain(deltaF, fmin, fmax)
 
         # compute power spectra [segment 1 + 3]
-        psd_freqs, P1_left = welch_psd(
+        psd_freqs, P1_left = welch(
             d1_left.data, window="hann", nperseg=int(d1_left.Fs / deltaF), fs=d1_left.Fs
         )
-        _, P1_right = welch_psd(
-            d1_right.data,
-            window="hann",
-            nperseg=int(d1_right.Fs / deltaF),
-            fs=d1_right.Fs,
+        _, P1_right = welch(
+            d1_right.data, window="hann", nperseg=int(d1_right.Fs / deltaF), fs=d1_right.Fs
         )
         P1 = FrequencySeries(psd_freqs, 0.5 * (P1_left + P1_right))
 
-        _, P2_left = welch_psd(
+        _, P2_left = welch(
             d2_left.data, window="hann", nperseg=int(d2_left.Fs / deltaF), fs=d2_left.Fs
         )
-        _, P2_right = welch_psd(
-            d2_right.data,
-            window="hann",
-            nperseg=int(d2_right.Fs / deltaF),
-            fs=d2_right.Fs,
+        _, P2_right = welch(
+            d2_right.data, window="hann", nperseg=int(d2_right.Fs / deltaF), fs=d2_right.Fs
         )
         P2 = FrequencySeries(psd_freqs, 0.5 * (P2_left + P2_right))
 
