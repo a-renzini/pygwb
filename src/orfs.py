@@ -108,7 +108,7 @@ def omega_tangent_bisector(bisector, tangent_vector):
 
 
 def calc_orf(
-    freqs,
+    frequencies,
     det1_vertex,
     det2_vertex,
     det1_xarm,
@@ -124,7 +124,7 @@ def calc_orf(
     discussion of the normalization of the scalar ORF
 
     Inputs:
-    freqs: frequencies at which to evaluate the ORFs
+    frequencies: frequencies at which to evaluate the ORFs
     det1_vertex: Coordinates of the vertex of detector 1
     det2_vertex: Coordinates of the vertex of detector 2
     det1_xarm: Coordinates of the x arm of detector 1
@@ -147,7 +147,7 @@ def calc_orf(
     """
 
     delta_x = np.subtract(det1_vertex, det2_vertex)
-    alpha = 2 * np.pi * freqs * np.linalg.norm(delta_x) / speed_of_light
+    alpha = 2 * np.pi * frequencies * np.linalg.norm(delta_x) / speed_of_light
 
     beta = np.arccos(
         np.dot(det1_vertex, det2_vertex)
@@ -155,15 +155,19 @@ def calc_orf(
     )
     tan_det1 = tangent_vector(det1_vertex, det2_vertex)
     bisector_det1 = np.add(det1_xarm, det1_yarm)
-    omega_det1 = omega_tangent_bisector(bisector_det1, tan_det1)
 
     perp = np.cross(np.cross(det1_vertex, det2_vertex), det1_vertex)
     tan_det2 = tangent_vector(det2_vertex, perp)
     bisector_det2 = np.add(det2_xarm, det2_yarm)
-    omega_det2 = omega_tangent_bisector(bisector_det2, tan_det2)
 
-    omega_plus = (omega_det1 + omega_det2) / 2
-    omega_minus = (omega_det1 - omega_det2) / 2
+    if np.linalg.norm(delta_x) != 0:
+        omega_det1 = omega_tangent_bisector(bisector_det1, tan_det1)
+        omega_det2 = omega_tangent_bisector(bisector_det2, tan_det2)
+        omega_plus = (omega_det1 + omega_det2) / 2
+        omega_minus = (omega_det1 - omega_det2) / 2
+    else:
+        omega_plus = 1
+        omega_minus = omega_tangent_bisector(bisector_det1, bisector_det2) / 2
 
     if polarization.lower() == "tensor":
         overlap_reduction_function = Tplus(alpha, beta) * np.cos(
