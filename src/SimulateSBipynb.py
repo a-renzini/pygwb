@@ -86,12 +86,12 @@ y=[float(datContent[i][1]) for i in range(len(datContent))]
 orf_f = interp1d(x, y, kind='cubic', fill_value='extrapolate')
 
 orf1 = gwpy.frequencyseries.FrequencySeries(orf_f(f), frequencies=f)
-orf=np.zeros(1,dtype=gwpy.frequencyseries.frequencyseries.FrequencySeries)
+orf=np.zeros(3,dtype=gwpy.frequencyseries.frequencyseries.FrequencySeries)
 orf[0]=orf1
-yData=simulate_data(noisePSD,OmegaGW,orf,Fs=512,segmentDuration=128,NSegments=NSegments)
 
-# Splice data to prevent issues with periodicity of the ifft
-xdata=splice_segments(yData)
+simul1 = simulation_GWB(noisePSD,OmegaGW,orf,Fs=None,segmentDuration=None,NSegments=NSegments)
+
+xdata = simul1.generate_data()
 
 d1=TimeSeries(t,xdata[0])
 d2=TimeSeries(t,xdata[1])
