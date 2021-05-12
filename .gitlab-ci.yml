@@ -24,13 +24,13 @@ stages:
   script:
     - pip install --ignore-installed .
     - cd ..
-    - python -c "import stochastic_lite"
-    - python -c "import stochastic_lite.constants"
-    - python -c "import stochastic_lite.cross_correlation"
-    - python -c "import stochastic_lite.pe"
-    - python -c "import stochastic_lite.postprocessing"
-    - python -c "import stochastic_lite.spectral"
-    - python -c "import stochastic_lite.util"
+    - python -c "import pygwb"
+    - python -c "import pygwb.constants"
+    - python -c "import pygwb.cross_correlation"
+    - python -c "import pygwb.pe"
+    - python -c "import pygwb.postprocessing"
+    - python -c "import pygwb.spectral"
+    - python -c "import pygwb.util"
 
 # test basic setup on python3
 basic-3.6:

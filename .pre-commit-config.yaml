@@ -17,7 +17,7 @@ repos:
     rev: v2.1.1
     hooks:
     -   id: seed-isort-config
-        args: [--application-directories, 'stochastic_lite']
+        args: [--application-directories, 'pygwb']
     repo: https://github.com/timothycrosley/isort
     rev: 4.3.21-2
     hooks:
