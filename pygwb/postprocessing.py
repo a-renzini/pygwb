@@ -1,6 +1,6 @@
 import numpy as np
 
-from util import calc_bias, window_factors
+from .util import calc_bias, window_factors
 
 
 def postprocessing(

@@ -4,15 +4,13 @@ from matplotlib import pyplot as plt
 import bilby
 import gwpy.timeseries
 
-import sys
-sys.path.insert(0,'../src')
-from util import *
-from cross_correlation import *
-from postprocessing import *
-from pe import *
-from constants import *
+from .util import *
+from .cross_correlation import *
+from .postprocessing import *
+from .pe import *
+from .constants import *
 
-from simulation import *
+from .simulation import *
 
 matplotlib.rcParams.update({'font.size':15})
 
