@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# stochastic_lite documentation build configuration file, created by
+# pygwb documentation build configuration file, created by
 # sphinx-quickstart on Fri May 25 12:08:01 2018.
 #
 # This file is execfile()d with the current directory set to its
@@ -19,7 +19,7 @@
 import os
 import sys
 
-import stochastic_lite
+import pygwb
 
 sys.path.insert(0, os.path.abspath("../"))
 
@@ -56,7 +56,7 @@ source_suffix = [".txt", ".rst", ".ipynb"]
 master_doc = "index"
 
 # General information about the project.
-project = u"stochastic_lite"
+project = u"pygwb"
 copyright = u"2021, Andrew Matas"
 author = u"Andrew Matas"
 
@@ -64,7 +64,7 @@ author = u"Andrew Matas"
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
-fullversion = stochastic_lite.__version__.split(":")[0]
+fullversion = pygwb.__version__.split(":")[0]
 
 # The short X.Y version.
 version = ".".join(fullversion.split(".")[:2])
@@ -128,7 +128,7 @@ html_sidebars = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "stochastic_litedoc"
+htmlhelp_basename = "pygwbdoc"
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -154,8 +154,8 @@ latex_elements = {
 latex_documents = [
     (
         master_doc,
-        "stochastic_lite.tex",
-        u"stochastic_lite Documentation",
+        "pygwb.tex",
+        u"pygwb Documentation",
         u"Andrew Matas",
         "manual",
     ),
@@ -167,7 +167,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, "stochastic_lite", u"stochastic_lite Documentation", [author], 1)
+    (master_doc, "pygwb", u"pygwb Documentation", [author], 1)
 ]
 
 
@@ -179,10 +179,10 @@ man_pages = [
 texinfo_documents = [
     (
         master_doc,
-        "stochastic_lite",
-        u"stochastic_lite Documentation",
+        "pygwb",
+        u"pygwb Documentation",
         author,
-        "stochastic_lite",
+        "pygwb",
         "Lightweight stochastic GWB",
         "Miscellaneous",
     ),

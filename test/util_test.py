@@ -1,6 +1,6 @@
 import unittest
 
-from stochastic_lite.util import calc_rho1
+from pygwb.util import calc_rho1
 
 
 class WindowTest(unittest.TestCase):

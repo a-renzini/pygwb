@@ -1,9 +1,9 @@
-stochastic_lite
+pygwb
 ==============================================
 
-.. currentmodule:: stochastic_lite
+.. currentmodule:: pygwb
 
-.. automodule:: stochastic_lite
+.. automodule:: pygwb
     :members:
 
 API:

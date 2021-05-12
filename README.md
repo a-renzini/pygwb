@@ -1,4 +1,4 @@
-# stochastic_lite
+# pygwb
 
 ## Installation instructions
 

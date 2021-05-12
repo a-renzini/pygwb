@@ -1,6 +1,6 @@
-# Contributing to stochastic_lite
+# Contributing to pygwb
 
-This page outlines the recommended procedure for contributing changes to the `stochastic_lite` repository. Please read the introduction to [GitLab on git.ligo.org](https://wiki.ligo.org/Computing/GitLigoOrg) before you start.
+This page outlines the recommended procedure for contributing changes to the `pygwb` repository. Please read the introduction to [GitLab on git.ligo.org](https://wiki.ligo.org/Computing/GitLigoOrg) before you start.
 
 This guide is based on the one for lalsuite, available [here](https://git.ligo.org/lscsoft/lalsuite/-/blob/master/CONTRIBUTING.md). 
 
@@ -13,16 +13,16 @@ If possible, please include a brief, self-contained code example that demonstrat
 
 ## Contributing code
 
-All contributions to `stochastic_lite` code must be made using the fork and [merge request](https://git.ligo.org/help/user/project/merge_requests/index.md) [workflow](https://git.ligo.org/help/workflow/forking_workflow.md), which must then be reviewed by one of the project maintainers.
+All contributions to `pygwb` code must be made using the fork and [merge request](https://git.ligo.org/help/user/project/merge_requests/index.md) [workflow](https://git.ligo.org/help/workflow/forking_workflow.md), which must then be reviewed by one of the project maintainers.
 
 If you wish to contribute new code, or changes to existing code, please follow this development workflow:
 
-### Make a fork (copy) of `stochastic_lite`
+### Make a fork (copy) of `pygwb`
 
 **You only need to do this once**
 
-1. Go to the [stochastic_lite repository home page](https://git.ligo.org/stochastic_lite/stochastic_lite)
-2. Click on the *Fork* button, that should lead you [here](https://git.ligo.org/stochastic_lite/stochastic_lite/forks/new)
+1. Go to the [pygwb repository home page](https://git.ligo.org/pygwb/pygwb)
+2. Click on the *Fork* button, that should lead you [here](https://git.ligo.org/pygwb/pygwb/forks/new)
 3. Select the namespace that you want to create the fork in, this will usually be your personal namespace
 
 If you can't see the *Fork* button, make sure that you are logged in by checking for your account profile photo in the top right-hand corner of the screen.
@@ -34,20 +34,20 @@ Make sure that you have installed and configured [git-lfs](https://wiki.ligo.org
 Then, clone your fork with 
 
 ```bash
-git clone git@git.ligo.org:<namespace>/stochastic_lite.git
+git clone git@git.ligo.org:<namespace>/pygwb.git
 ```
 
 ### Keeping your fork up to date
 
 Link your clone to the main (`upstream`) repository so that you can `fetch` changes, `merge` them with your clone, and `push` them to your fork. Do *not* make changes on your master branch. 
 
-1. First record that you will do the work on the [issue tracker](https://git.ligo.org/stochastic_lite/stochastic_lite/-/issues). First check if the issue already exists (and make sure no one else is already working on it). If an issue exists, and is not actively being worked on, you can assign yourself to the issue. If it doesn't exist, please open a new issue. We would like to have one person take charge of a given issue, but others may want to follow progress and offer help and suggestions. While one person should take responsibility who can be a point of contact, we also encourage (but don't require) people to work in small teams (for example, teams of two) so one person can do the coding and the other person can do checking.
+1. First record that you will do the work on the [issue tracker](https://git.ligo.org/pygwb/pygwb/-/issues). First check if the issue already exists (and make sure no one else is already working on it). If an issue exists, and is not actively being worked on, you can assign yourself to the issue. If it doesn't exist, please open a new issue. We would like to have one person take charge of a given issue, but others may want to follow progress and offer help and suggestions. While one person should take responsibility who can be a point of contact, we also encourage (but don't require) people to work in small teams (for example, teams of two) so one person can do the coding and the other person can do checking.
 
 2. Link your fork to the main repository:
 
     ```bash
-    cd stochastic_lite
-    git remote add upstream git@git.ligo.org:stochastic_lite/stochastic_lite.git
+    cd pygwb
+    git remote add upstream git@git.ligo.org:pygwb/pygwb.git
     ```
 
    You need only do this step once. 
@@ -117,7 +117,7 @@ All changes should be developed on a feature branch in order to keep them separa
 
 When you feel that your work is finished (meaning, the code is complete and documented, and you have performed a set of tests and documented these), you should create a merge request to propose that your changes be merged into the main (`upstream`) repository.
 
-After you have pushed your new feature branch to `origin`, you should find a new button on the [stochastic_lite repository home page](https://git.ligo.org/stochastic_lite/stochastic_lite/) inviting you to create a merge request out of your newly pushed branch. (If the button does not exist, you can initiate a merge request by going to the `Merge Requests` tab on your fork website on git.ligo.org and clicking `New merge request`)
+After you have pushed your new feature branch to `origin`, you should find a new button on the [pygwb repository home page](https://git.ligo.org/pygwb/pygwb/) inviting you to create a merge request out of your newly pushed branch. (If the button does not exist, you can initiate a merge request by going to the `Merge Requests` tab on your fork website on git.ligo.org and clicking `New merge request`)
 
 You should click the button, and proceed to fill in the title and description boxes on the merge request page.
 Please link to any relevant git issues in your description.

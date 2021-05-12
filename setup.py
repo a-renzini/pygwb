@@ -36,7 +36,7 @@ def write_version_file(version):
         print(f"Unable to obtain git version information, exception: {e}")
         git_status = ""
 
-    _version_file = "stochastic_lite/.version"
+    _version_file = "pygwb/.version"
     if not os.path.isfile(_version_file):
         with open(_version_file, "w+") as f:
             f.write(f"{version}: {git_status}")
@@ -64,20 +64,20 @@ version_file = write_version_file(VERSION)
 long_description = get_long_description()
 
 setup(
-    name="stochastic_lite",
+    name="pygwb",
     description="Lighweight python stochastic GWB",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="git.ligo.org/andrew.matas/stochastic_lite",
+    url="https://git.ligo.org/pygwb/pygwb",
     author="Andrew Matas",
     author_email="andrew.matas@ligo.org",
     license="MIT",
     version=VERSION,
-    packages=["stochastic_lite"],
+    packages=["pygwb"],
     # packages=find_packages(exclude=["test", "venv", "tutorials", "src", "docs"])
-    # + ["stochastic_lite"],
-    package_dir={"stochastic_lite": "src"},
-    package_data={"stochastic_lite": [".version"]},
+    # + ["pygwb"],
+    package_dir={"pygwb": "src"},
+    package_data={"pygwb": [".version"]},
     install_requires=["numpy", "matplotlib", "scipy", "bilby"],
     classifiers=[
         "Programming Language :: Python :: 3.6",
