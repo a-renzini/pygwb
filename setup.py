@@ -76,7 +76,7 @@ setup(
     packages=["pygwb"],
     # packages=find_packages(exclude=["test", "venv", "tutorials", "src", "docs"])
     # + ["pygwb"],
-    package_dir={"pygwb": "src"},
+    package_dir={"pygwb": "pygwb"},
     package_data={"pygwb": [".version"]},
     install_requires=["numpy", "matplotlib", "scipy", "bilby"],
     classifiers=[
