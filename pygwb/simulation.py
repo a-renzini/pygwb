@@ -3,63 +3,266 @@ from constants import H0
 from scipy.interpolate import interp1d
 import gwpy
 
-# Add dimension of arrays in the explanation?
+import h5py
+import sys
 
-class simulation_GWB(object):
-    def __init__(self, noisePSD, OmegaGW, orf, Fs=None, segmentDuration=None, NSegments=1):
+if sys.version_info >= (3, 0):
+    import configparser
+else:
+    import ConfigParser as configparser
+
+
+class initialize(object):
+    def __init__(self, param_file):
         """
+        Class that initializes the necessary parameters for the simulation
+        of an isotropic stochastic background.
+        
         Parameters
         ==========
-        
+        param_file: str
+            File containing the various parameter values used to simulate
+            an isotropic stochastic background.
+            
+        Returns
+        =======
         """
-        self.noisePSD = noisePSD
-        self.OmegaGW = OmegaGW
-        self.orf = orf
-        self.Fs = Fs
-        self.segmentDuration = segmentDuration
-        self.NSegments = NSegments
+        self.param_file = param_file
+        param = configparser.ConfigParser()
+        param.read(param_file)
         
-        self.freqs = OmegaGW.frequencies.value
-        self.Nf = OmegaGW.size
-        self.Nd = noisePSD.shape[0]
-        self.deltaF = OmegaGW.df.value
-    
-        if Fs==None:
-            self.Fs=(self.freqs[-1]+self.deltaF)*2 #Assumes freq is power of two
+        self.NSegments = param.getint('parameters','NSegments')
+        self.Fs = param.getfloat('parameters','Fs')
+        self.segmentDuration = param.getfloat('parameters','segmentDuration')
+        self.t0 = param.getfloat('parameters','t0')
+        self.TAvg = param.getfloat('parameters','TAvg')
+        self.Nd = param.getint('parameters','Nd')
         
-        if segmentDuration==None:
-            self.segmentDuration=1/(self.deltaF)
-
-#     OmegaGW_new, noisePSD_new, orf_new = pre_processing(OmegaGW,noisePSD,orf,Fs,segmentDuration)
-#     freqs_new = OmegaGW_new.frequencies.value
-    
-        self.NSamplesPerSegment = int(self.Fs*self.segmentDuration)
+        self.fref = param.getfloat('parameters','fref')
+        self.alpha = param.getfloat('parameters','alpha')
+        self.omegaRef = param.getfloat('parameters','omegaRef')
+        
+        self.NSamplesPerSegment = int(self.segmentDuration*self.Fs) 
         self.deltaT = 1/self.Fs
-    
-    def generate_data(self):
+        self.fNyquist = 1/(2*self.deltaT)
+        self.deltaF = 1/self.segmentDuration
+        self.deltaFStoch = 1/self.TAvg
+        self.NAvgs = 2 * int(self.segmentDuration / self.TAvg) - 1
+        self.jobDuration = self.NSegments * self.segmentDuration
+        self.N = self.NSegments*self.NSamplesPerSegment
+        
+        self.read_noise_file = param.getboolean('parameters','read_noise_file')
+        self.read_orf_file = param.getboolean('parameters','read_orf_file')
+            
+        
+    def make_freqs(self):
         """
+        Function that makes an array of frequencies given the sampling rate
+        and the segment duration specified in the initial parameter file.
+        
+        Parmeters
+        =========
+        
+        Returns
+        =======
+        freqs: array_like
+            Array of frequencies for which an isotropic stochastic background
+            will be simulated.
+        """
+        if self.NSamplesPerSegment%2==0:
+            numFreqs = self.NSamplesPerSegment/2-1
+        else:
+            numFreqs = (self.NSamplesPerSegment-1)/2
+
+        freqs = np.array([self.deltaF*(i+1) for i in range(int(numFreqs))])
+        return freqs
+    
+    def make_times(self):
+        """
+        Function that makes an array of times given thenumber of segments
+        and the sampling frequency specified in the initial parameter file.
         
         Parameters
         ==========
         
         Returns
         =======
+        times: array_like
+            Array of times for which an isotropic stochastic background
+            will be simulated.
         """
-        y = self.simulate_data()
-        data = self.splice_segments(y)
-        return data
+        T = self.N*self.deltaT
+        times = np.array([self.t0 + self.deltaT*i for i in range(int(self.N))])
+        return times
     
-    def orfToArray(self):
+    def make_omegaGW(self):
         """
-        Function that converts the list of overlap reduction functions into an array
-        to facilitate the correct implementation when computing the covariance matrix.
+        Parameters
+        ==========
+        
+        Returns
+        =======
+        omegaGW: gwpy.frequencyseries.FrequencySeries
+            A gwpy FrequencySeries containing the omegaGW spectrum of the 
+            isotropic stochastic background that will be simulated.
+        """
+        freqs = self.make_freqs()
+        omegaGW = self.omegaRef*(freqs/self.fref)**self.alpha
+        omegaGW = gwpy.frequencyseries.FrequencySeries(omegaGW, frequencies=freqs)
+        return omegaGW
+    
+    def make_noisePSD(self):
+        """
+        Function that creates the noise PSDs for the detectors that enter in
+        the simulation. Two options: either the noise PSDs are read in from
+        a file or they can be obtained from the intereferometers in bibly (still
+        needs to be implemented).
+        
+        Parameters
+        ==========
+        
+        Returns
+        =======
+        noisePSD_array: array_like
+            Array of size Nd, the number of detectors, containing gwpy FrequencySeries 
+            of the noisePSDs for each of the detectors.
+        """
+        if self.read_noise_file:
+            param = configparser.ConfigParser()
+            param.read(self.param_file)
+            paths = param.get('parameters','noisePSD_file')
+            filenames = paths.split(", ")
+            noisePSD_array = np.zeros(self.Nd, dtype=gwpy.frequencyseries.frequencyseries.FrequencySeries)
+            for ii in range(len(filenames)):
+                noisePSD = self.read_from_file(filenames[ii])
+                noisePSD_array[ii] = noisePSD
+            return noisePSD_array
+                
+        else: 
+            pass #Should then get noise PSD from other module
+        
+    def make_orf(self):
+        """
+        Function that creates the noise PSDs for the detectors that enter in
+        the simulation. Two options: either the noise PSDs are read in from
+        a file or they can be obtained from the Baseline class (still needs to
+        be implemented).
+        
         Parameters
         ==========
         
         Returns
         =======
         orf_array: array_like
+            Array containing gwpy FrequencySeries of the orfs for the various
+            baseline combinations that enter in the simulation.
+        """
+        if self.read_orf_file:
+            param = configparser.ConfigParser()
+            param.read(self.param_file)
+            paths = param.get('parameters','orf_file')
+            filenames = paths.split(", ")
+            orf_array = np.zeros(len(filenames), dtype=gwpy.frequencyseries.frequencyseries.FrequencySeries)
+            for ii in range(len(filenames)):
+                orf = self.read_from_file(filenames[ii])
+                orf_array[ii] = orf
+            return orf_array
+        
+        else: 
+            pass #Should then get orf from other module (Sylvia's)
+    
+    def read_from_file(self, filename):
+        """
+        Function that reads from file to produce frequency series of a
+        quantity of interest (e.g. noisePSD, orf, ...).
+        
+        Parameters
+        ==========
+        filename: str
+            File containing the frequency and corresponding quantity of 
+            interest (e.g. noisePSD, orf, ...).
             
+        Return
+        ======
+        freq_series: gwpy.frequencyseries.FrequencySeries
+            A gwpy FrequencySeries containing the quantity of interest
+            (e.g. noisePSD, orf, ...).
+        """
+        content = [i.strip().split() for i in open(filename).readlines()]
+        
+        freqs = [float(content[i][0]) for i in range(len(content))]
+        data = [float(content[i][1]) for i in range(len(content))]
+        
+        func = interp1d(freqs, data, kind='cubic', fill_value='extrapolate')
+        f = self.make_freqs()
+        freq_series = gwpy.frequencyseries.FrequencySeries(func(f), frequencies=f)
+        return freq_series
+        
+class simulation_GWB(object):
+    def __init__(self, noisePSD, omegaGW, orf, Fs, segmentDuration, NSegments):
+        """
+        Class that simulates an isotropic stochastic background.
+        
+        Parameters
+        ==========
+        
+        Returns
+        =======
+        """
+        self.noisePSD = noisePSD
+        self.OmegaGW = omegaGW
+        self.orf = orf
+        self.Fs = Fs
+        self.segmentDuration = segmentDuration
+        self.NSegments = NSegments
+        
+        self.freqs = omegaGW.frequencies.value
+        self.Nf = omegaGW.size
+        self.Nd = noisePSD.shape[0]
+        self.deltaF = omegaGW.df.value
+    
+        self.NSamplesPerSegment = int(self.Fs*self.segmentDuration)
+        self.deltaT = 1/self.Fs
+    
+    def generate_data(self):
+        """
+        Function that simulates an isotropic stochastic background given the 
+        input parameters. The data is simulated and spliced together to prevent 
+        periodicity artifacts related to IFFTs.
+        
+        Parameters
+        ==========
+        
+        Returns
+        =======
+        data: array_like
+            An array of size Nd (number of detectors) with gwpy TimeSeries with the 
+            data containing the simulated isotropic stochastic background.
+        """
+        y = self.simulate_data()
+        data = self.splice_segments(y)
+#         data = gwpy.timeseries.TimeSeries(data, times=t)
+        return data
+    
+    def orfToArray(self):
+        """
+        Function that converts the list of overlap reduction functions into an array
+        to facilitate the correct implementation when computing the covariance matrix.
+        
+        Parameters
+        ==========
+        
+        Returns
+        =======
+        orf_array: array_like
+            Array of shape Nd x Nd containing the orfs, where Nd is the number of 
+            detectors. The convention used for consistency with the remainder of the
+            simulation is as follows. Orfs are only present in the off-diagonal slots
+            in the array. Only the part below the diagonal is filled, after which this
+            is copied to the upper part by transposing and summing. The array is filled
+            by starting from the first free slot below the diagonal, from left to right,
+            until the diagonal is reached, after which the line below in the array is
+            filled analogously and so on.
         """
         index = 0
         orf_array = np.zeros((self.Nd,self.Nd), dtype=gwpy.frequencyseries.frequencyseries.FrequencySeries)
@@ -77,15 +280,12 @@ class simulation_GWB(object):
         
         Parameters
         ==========
-        omegaGW: gwpy.frequencyseries.FrequencySeries
-            A gwpy FrequencySeries containing the Omega spectrum
     
         Returns
         =======
         power: gwpy.frequencyseries.FrequencySeries
             A gwpy FrequencySeries conatining the GW power spectrum
         """
-        
         H_theor = (3*H0**2)/(10*np.pi**2)
         
         power = H_theor*self.OmegaGW.value*self.freqs**(-3)
@@ -107,7 +307,6 @@ class simulation_GWB(object):
             various detectors. Dimensions are Nd x Nd x Nf, where Nd is the 
             number of detectors and Nf the number of frequencies.
         """
-        
         GWBPower = self.omegaToPower()
         orf_array = self.orfToArray()
         
@@ -138,19 +337,20 @@ class simulation_GWB(object):
         Returns
         =======
         eigval: array_like
-            
+            Array of diagonal matrices containing the eigenvalues of the 
+            covariance matrix C.
         eigvec: array_like
+            Array of matrices containing the eigenvectors of the covariance
+            matrix C.
         """
-        
         eigval, eigvec = np.linalg.eig(C.transpose((2,0,1)))
         eigval = np.array([np.diag(x) for x in eigval])
-        
         return eigval, eigvec
     
     def generate_freq_domain_data(self):
         """
-        Function that generates the uncorrelated frequency domain data for the
-        stochastic background of gravitational waves.
+        Function that generates the uncorrelated frequency domain data with 
+        random phases for the stochastic background.
         
         Parameters
         ==========
@@ -158,6 +358,7 @@ class simulation_GWB(object):
         Returns
         =======
         z: array_like
+            Array of size Nf x Nd containing uncorrelated frequency domain data.
         """
         z = np.zeros((self.Nf, self.Nd), dtype = 'complex_')
         re = np.random.randn(self.Nf, self.Nd)
@@ -165,7 +366,7 @@ class simulation_GWB(object):
         z = re + im*1j
         return z
     
-    def transform_to_correlated_data(self, z, eigval, eigvec):
+    def transform_to_correlated_data(self, z, C):
         """
         Function that transforms the uncorrelated stochastic background 
         simulated data, to correlated data.
@@ -173,61 +374,52 @@ class simulation_GWB(object):
         Parameters
         ==========
         z: array_like
-            Array containing the uncorrelated data.
-        eigval: array_like
-        eigvec: array_like
+            Array containing the uncorrelated data with random phase.
+        C: array_like
+            Array of size Nd x Nd x Nf representing the covariance matrices
+            between detectors for a desired stochastic background, where Nd 
+            is the number of detectors and Nf is the number of frequencies.
+            
         Returns
         =======
         x: array_like
+            Array of size Nf x Nd, containing the correlated stochastic
+            background data.
         """
+        eigval, eigvec = self.compute_eigval_eigvec(C)
         
         A = np.einsum('...ij,jk...',np.sqrt(eigval),eigvec.transpose())
-        x = np.einsum('...j,...jk',z,A)
-            
+        x = np.einsum('...j,...jk',z,A)  
         return x
     
     def simulate_data(self):
         """
-        Function that simulates a stochastic background 
+        Function that simulates the data corresponding to an isotropic stochastic
+        background.
         
         Parameters
         ==========
-        noisePSD: array_like
-            Array of gwpy FrequencySeries containing the noise power spectral
-            density of the various detectors. Array of length Nd, the number
-            of detectors.
-        OmegaGW: gwpy.frequencyseries.FrequencySeries
-            The Omega spectrum of the stochastic background of gravitational
-            waves to be simulated.
-        orf: 
         
         Returns
         =======
-        y
-        
+        y: array_like
+            Array of size Nd x 2*(NSegments+1) x NSamplesPerSegment containing the
+            various segments with the simulated data.
         """
-
         C = self.covariance_matrix()
-        eigval, eigvec = self.compute_eigval_eigvec(C)
         
-        #Generate three time segments that will be spliced together to prevent periodicity of ifft
         y = np.zeros((self.Nd, 2*self.NSegments+1, self.NSamplesPerSegment), dtype=np.ndarray)
     
         for kk in range(2*self.NSegments+1):
             z = self.generate_freq_domain_data()
             
-            xtemp = self.transform_to_correlated_data(z, eigval, eigvec)
+            xtemp = self.transform_to_correlated_data(z, C)
         
             for ii in range(self.Nd):
-                # Set DC and Nyquist = 0, then add negative freq parts in proper order
                 if self.NSamplesPerSegment%2==0:
-                    # Note that most negative frequency is -f_Nyquist when N=even
                     xtilde = np.concatenate((np.array([0]), xtemp[:,ii],np.array([0]), np.flipud(np.conjugate(xtemp[:,ii]))))
                 else:
-                    print('inside else statement')
-                    # No Nyquist frequency when N=odd
                     xtilde = np.concatenate((np.array([0]), xtemp[:,ii], np.flipud(np.conjugate(xtemp[:,ii]))))
-                # Fourier transform back to time domain and take real part (imag part = 0)
                 y[ii,kk,:] = np.real(np.fft.ifft(xtilde))
         return y
     
@@ -240,18 +432,23 @@ class simulation_GWB(object):
         Parameters
         ==========
         segments: array_like
-            Nd x 2*NSegments+1 x NSamplesPerSegment
+            Array of size Nd x (2*NSegments+1) x NSamplesPerSegment containing the
+            various segments with the simulated data that need to be spliced
+            together, where Nd is the number of detectors.
+            
         Returns
         =======
-        data:
+        data: array_like
+            Array of size Nd x (NSegments*NSamplesPerSegment) containing the simulated 
+            data corresponding to an isotropic stochastic background for each of the 
+            detectors, where Nd is the number of detectors.
         """
-        
         w = np.zeros(self.NSamplesPerSegment)
         
         for ii in range(self.NSamplesPerSegment):
             w[ii] = np.sin(np.pi*ii/self.NSamplesPerSegment)
         
-        data = np.zeros((self.Nd,self.NSamplesPerSegment*self.NSegments),dtype=np.ndarray)
+        data = np.zeros((self.Nd,self.NSamplesPerSegment*self.NSegments), dtype = np.ndarray)
     
         for ii in range(self.Nd):
             for jj in range(self.NSegments):
@@ -261,45 +458,7 @@ class simulation_GWB(object):
                 
                 z0=np.concatenate((y0[int(self.NSamplesPerSegment/2):self.NSamplesPerSegment], np.zeros(int(self.NSamplesPerSegment/2))))
                 z1=y1[:]
-                z2=np.concatenate((np.zeros(int(self.NSamplesPerSegment/2)),y2[0:int(self.NSamplesPerSegment/2)]))
+                z2=np.concatenate((np.zeros(int(self.NSamplesPerSegment/2)), y2[0:int(self.NSamplesPerSegment/2)]))
                 
                 data[ii,jj*self.NSamplesPerSegment:(jj+1)*self.NSamplesPerSegment] = z0 + z1 + z2
-                
         return data
-
-# def pre_processing(omegaGW,noisePSD,orf,Fs,segmentDuration):
-#     """
-    
-#     Parameters
-#     ==========
-    
-#     Returns
-#     =======
-    
-#     """
-#     freqs=omegaGW.frequencies.value
-    
-#     deltaF_new = 1/segmentDuration
-#     fmax_new=Fs/2
-#     freqs_new=np.arange(deltaF_new,fmax_new,deltaF_new) #Check with Andrew!
-    
-#     omegaSpline=interp1d(freqs,omegaGW.value,kind='cubic',fill_value='extrapolate')
-#     omegaGW_new = omegaSpline(freqs_new)
-#     omegaGW_new = gwpy.frequencyseries.FrequencySeries(omegaGW_new, frequencies=freqs_new)
-    
-#     Nd = noisePSD.shape[0]
-#     noisePSD_new = np.zeros((Nd),dtype=gwpy.frequencyseries.frequencyseries.FrequencySeries)
-#     for ii in range(Nd):
-#         noiseSpline=interp1d(freqs,noisePSD[ii].value,kind='cubic',fill_value='extrapolate')
-#         noise_new=noiseSpline(freqs_new)
-#         noise_new = gwpy.frequencyseries.FrequencySeries(noise_new, frequencies=freqs_new)
-#         noisePSD_new[ii]=noise_new
-    
-#     orf_new_array = np.zeros((orf.shape[0]),dtype=gwpy.frequencyseries.frequencyseries.FrequencySeries)
-#     for ii in range(orf.shape[0]):
-#         print(type(orf[ii]))
-#         orfSpline=interp1d(freqs,orf[ii].value,kind='cubic',fill_value='extrapolate')
-#         orf_new = orfSpline(freqs_new)
-#         orf_new_array[ii] = gwpy.frequencyseries.FrequencySeries(orf_new, frequencies=freqs_new)
-    
-#     return omegaGW_new, noisePSD_new, orf_new_array
