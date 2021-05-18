@@ -52,22 +52,29 @@ class Baseline(object):
         return self._scalar_orf
 
     def set_frequencies(self, frequencies):
-        if frequencies:
+        frequencies_ifo_1 = (
+            self.interferometer_1.duration and self.interferometer_1.sampling_frequency
+        )
+        frequencies_ifo_2 = (
+            self.interferometer_2.duration and self.interferometer_2.sampling_frequency
+        )
+        if frequencies is not None:
             self.check_frequencies_match_baseline_ifos(frequencies)
             self.frequencies = frequencies
-        elif (
-            self.interferometer_1.frequency_array
-            and self.interferometer_2.frequency_array
-        ):
+            if not frequencies_ifo_1:
+                self.interferometer_1.frequency_array = frequencies
+            if not frequencies_ifo_2:
+                self.interferometer_2.frequency_array = frequencies
+        elif frequencies_ifo_1 and frequencies_ifo_2:
             self.check_ifo_frequencies_match()
             self.frequencies = self.interferometer_1.frequency_array
-        elif self.interferometer_1.frequency_array:
+        elif frequencies_ifo_1:
             self.frequencies = self.interferometer_1.frequency_array
             self.interferometer_2.duration = self.interferometer_1.duration
             self.interferometer_2.sampling_frequency = (
                 self.interferometer_1.sampling_frequency
             )
-        elif self.interferometer_2.frequency_array:
+        elif frequencies_ifo_2:
             self.frequencies = self.interferometer_2.frequency_array
             self.interferometer_1.duration = self.interferometer_2.duration
             self.interferometer_1.sampling_frequency = (
@@ -79,27 +86,34 @@ class Baseline(object):
             )
 
     def check_frequencies_match_baseline_ifos(self, frequencies):
-        if (
-            self.interferometer_1.frequency_array
-            and self.interferometer_2.frequency_array
-        ):
+        frequencies_ifo_1 = (
+            self.interferometer_1.duration and self.interferometer_1.sampling_frequency
+        )
+        frequencies_ifo_2 = (
+            self.interferometer_2.duration and self.interferometer_2.sampling_frequency
+        )
+        if frequencies_ifo_1 and frequencies_ifo_2:
             self.check_ifo_frequencies_match()
-            assert np.array_equal(
-                frequencies, self.interferometer_2.frequency_array
-            ), "Interferometer frequencies do not match given Baseline frequencies!"
-        elif self.interferometer_1.frequency_array:
-            assert np.array_equal(
-                frequencies, self.interferometer_1.frequency_array
-            ), "Interferometer_1 frequencies do not match given Baseline frequencies!"
-        elif self.interferometer_2.frequency_array:
-            assert np.array_equal(
-                frequencies, self.interferometer_2.frequency_array
-            ), "Interferometer_2 frequencies do not match given Baseline frequencies!"
+            if not np.array_equal(frequencies, self.interferometer_2.frequency_array):
+                raise AssertionError(
+                    "Interferometer frequencies do not match given Baseline frequencies!"
+                )
+        elif frequencies_ifo_1:
+            if not np.array_equal(frequencies, self.interferometer_1.frequency_array):
+                raise AssertionError(
+                    "Interferometer_1 frequencies do not match given Baseline frequencies!"
+                )
+        elif frequencies_ifo_2:
+            if not np.array_equal(frequencies, self.interferometer_2.frequency_array):
+                raise AssertionError(
+                    "Interferometer_2 frequencies do not match given Baseline frequencies!"
+                )
 
     def check_ifo_frequencies_match(self):
-        assert np.array_equal(
+        if not np.array_equal(
             self.interferometer_1.frequency_array, self.interferometer_2.frequency_array
-        ), "Interferometer frequencies do not match each other!"
+        ):
+            raise AssertionError("Interferometer frequencies do not match each other!")
 
     def calc_baseline_orf(self, polarization):
         return calc_orf(
