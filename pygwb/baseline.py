@@ -18,6 +18,9 @@ class Baseline(object):
             Name for the baseline, e.g H1H2
         interferometer_1/2: bilby Interferometer object
             the two detectors spanning the baseline
+        frequencies: array_like, optional
+            the frequency array for the Baseline and
+            interferometers
         calibration_epsilon: float
             calibration uncertainty for this baseline
         """
@@ -52,6 +55,24 @@ class Baseline(object):
         return self._scalar_orf
 
     def set_frequencies(self, frequencies):
+        '''Sets the frequencies for the Baseline and interferometers
+
+        If `frequencies` is passed, check that it matches the `frequency_array` 
+        in the interferometers, if present.
+        If not passed, check that the frequency_arrays in the interferometers 
+        match each other, if present, and set the Baseline frequencies from
+        the frequency_arrays.
+        If not passed and only one of the interferometers has the frequency_array
+        set, set the Baseline frequencies and frequency_array for the other
+        interferometer from that.
+        Requires that either `frequencies` is not None or at least one of the
+        interferometers has the `frequency_array` set.
+
+        Parameters
+        ==========
+        frequencies: array_like, optional
+            The frequencies to set for the Baseline and interferometers
+        '''
         frequencies_ifo_1 = (
             self.interferometer_1.duration and self.interferometer_1.sampling_frequency
         )
