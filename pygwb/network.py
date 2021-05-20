@@ -1,7 +1,7 @@
 import numpy as np
 import bilby
 from .baseline import Baseline
-from .simulation import Simulation_GWB
+from .simulation_AIR import simulation_GWB
 
 
 class Network(object):
@@ -23,7 +23,7 @@ class Network(object):
         freqs: array_like
             frequency array
         """
-        baselines = self.baselines
+        self.baselines = baselines
 
     @classmethod
     def from_interferometer_list(cls, ifo_list, freqs):
@@ -62,4 +62,4 @@ class Network(object):
         ini_file: path
             path to the injection .ini file containing injection parameters
         """
-        simulation_GWB.from_ini(self.baselines, ini_file)
+        simulation_GWB.from_ini_file(self.baselines, ini_file)
