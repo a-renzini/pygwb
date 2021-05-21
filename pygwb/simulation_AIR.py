@@ -145,6 +145,7 @@ class initialize(object):
 
         else:
             pass  # Should then get noise PSD from other module
+                  # return interferometer.noise_PSD
 
     def make_orf(self):
         """
@@ -218,12 +219,17 @@ class simulation_GWB(object):
         Returns
         =======
         """
+        # [detector attributes]
         self.noisePSD = noisePSD
         self.OmegaGW = omegaGW
         self.orf = orf
+
+        # [time/frequency handling]
         self.Fs = Fs
         self.segmentDuration = segmentDuration
         self.NSegments = NSegments
+        
+        #self.t0 = t0
 
         self.freqs = omegaGW.frequencies.value
         self.Nf = omegaGW.size
@@ -233,6 +239,9 @@ class simulation_GWB(object):
         self.NSamplesPerSegment = int(self.Fs * self.segmentDuration)
         self.deltaT = 1 / self.Fs
 
+        self.gen_data = self.generate_data()
+        self.save_data_to_npz()
+
     @classmethod
     def from_ini_file(cls, baselines, ini_file):
         params_ini = initialize(ini_file)
@@ -240,11 +249,23 @@ class simulation_GWB(object):
         return cls(
             params_ini.noise_PSD,
             params_ini.omegaGW,
-            baseline.orfs,
+            orfs,
             params_ini.Fs,
             params_ini.segmentDuration,
             params_ini.NSegments,
         )
+
+    def save_data_to_npz(self):
+        """
+        """
+        np.savez('data.npz', data = self.gen_data)
+
+    def save_data_h5(self):
+        """
+        """
+        timeseries_data = gwpy.timeseries.Timeseries.self.gen_data
+        timeseries_data.t0 = my_t0
+        Timeseries.write_to_h5(self.gen_data)
 
     def generate_data(self):
         """
@@ -342,7 +363,7 @@ class simulation_GWB(object):
                 if ii == jj:
                     C[ii, jj, :] = self.noisePSD[ii].value[:] + GWBPower.value[:]
                 else:
-                    C[ii, jj, :] = orf_array[ii, jj].value[:] * GWBPower.value[:]
+                    C[ii, jj, :] = orf_array[ii, jj] * GWBPower.value[:]
 
         C = self.NSamplesPerSegment / (self.deltaT * 4) * C
         return C
