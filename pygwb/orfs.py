@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.special import spherical_jn
+
 from .constants import speed_of_light
 
 
@@ -118,7 +119,7 @@ def calc_orf(
     polarization="tensor",
 ):
     """
-    Calculates the tensor, scalar, and vector overlap reduction funtions
+    Calculates the tensor, scalar, and vector overlap reduction functions
     Following Section IVb of https://arxiv.org/abs/0903.0528
     See Appendix A of https://arxiv.org/abs/1704.08373 for a
     discussion of the normalization of the scalar ORF
