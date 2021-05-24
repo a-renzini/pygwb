@@ -1,4 +1,5 @@
 import numpy as np
+
 from .orfs import calc_orf
 
 
@@ -55,11 +56,11 @@ class Baseline(object):
         return self._scalar_orf
 
     def set_frequencies(self, frequencies):
-        '''Sets the frequencies for the Baseline and interferometers
+        """Sets the frequencies for the Baseline and interferometers
 
-        If `frequencies` is passed, check that it matches the `frequency_array` 
+        If `frequencies` is passed, check that it matches the `frequency_array`
         in the interferometers, if present.
-        If not passed, check that the frequency_arrays in the interferometers 
+        If not passed, check that the frequency_arrays in the interferometers
         match each other, if present, and set the Baseline frequencies from
         the frequency_arrays.
         If not passed and only one of the interferometers has the frequency_array
@@ -72,7 +73,7 @@ class Baseline(object):
         ==========
         frequencies: array_like, optional
             The frequencies to set for the Baseline and interferometers
-        '''
+        """
         frequencies_ifo_1 = (
             self.interferometer_1.duration and self.interferometer_1.sampling_frequency
         )

@@ -113,7 +113,10 @@ def cross_correlation(
             d1_left.data, window="hann", nperseg=int(d1_left.Fs / deltaF), fs=d1_left.Fs
         )
         _, P1_right = welch(
-            d1_right.data, window="hann", nperseg=int(d1_right.Fs / deltaF), fs=d1_right.Fs
+            d1_right.data,
+            window="hann",
+            nperseg=int(d1_right.Fs / deltaF),
+            fs=d1_right.Fs,
         )
         P1 = FrequencySeries(psd_freqs, 0.5 * (P1_left + P1_right))
 
@@ -121,7 +124,10 @@ def cross_correlation(
             d2_left.data, window="hann", nperseg=int(d2_left.Fs / deltaF), fs=d2_left.Fs
         )
         _, P2_right = welch(
-            d2_right.data, window="hann", nperseg=int(d2_right.Fs / deltaF), fs=d2_right.Fs
+            d2_right.data,
+            window="hann",
+            nperseg=int(d2_right.Fs / deltaF),
+            fs=d2_right.Fs,
         )
         P2 = FrequencySeries(psd_freqs, 0.5 * (P2_left + P2_right))
 
