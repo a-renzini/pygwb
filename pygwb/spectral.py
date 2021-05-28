@@ -36,6 +36,7 @@ def coarse_grain(data, coarsening_factor):
         return coarse_grain_exact(data, coarsening_factor)
     elif coarsening_factor % 2:
         data = data[:-1]
+    coarsening_factor = int(coarsening_factor)
     coarsened = coarse_grain_naive(
         data=data[coarsening_factor // 2 + 1 : -(coarsening_factor // 2)],
         coarsening_factor=coarsening_factor,
@@ -106,6 +107,10 @@ def coarse_grain_naive(data, coarsening_factor):
     array-like
         The coarse-grained data
     """
+    coarsening_factor = int(coarsening_factor)
+    n_remove = len(data) % coarsening_factor
+    if n_remove > 0:
+        data = data[:-n_remove]
     coarsened = np.mean(data.reshape(-1, coarsening_factor), axis=-1)
     return coarsened
 
@@ -141,6 +146,7 @@ def coarse_grain_spectrogram(
     methods = dict(
         naive=coarse_grain_naive,
         full=coarse_grain,
+        running_mean=running_mean,
     )
 
     value = spectrogram.value
@@ -149,7 +155,8 @@ def coarse_grain_spectrogram(
         factor = delta_t / spectrogram.dt.value
         func = methods[time_method]
         value = np.apply_along_axis(func, axis=0, arr=value, coarsening_factor=factor)
-        coarse_times = func(spectrogram.times, coarsening_factor=factor)
+        coarse_times = func(spectrogram.times.value, coarsening_factor=factor)
+        coarse_times += spectrogram.times.value[0] - coarse_times[0]
     else:
         coarse_times = spectrogram.times
 
@@ -157,7 +164,9 @@ def coarse_grain_spectrogram(
         factor = delta_f / spectrogram.df.value
         func = methods[frequency_method]
         value = np.apply_along_axis(func, axis=1, arr=value, coarsening_factor=factor)
-        coarse_frequencies = func(spectrogram.frequencies, coarsening_factor=factor)
+        coarse_frequencies = func(
+            spectrogram.frequencies.value, coarsening_factor=factor
+        )
     else:
         coarse_frequencies = spectrogram.frequencies
 
@@ -180,3 +189,11 @@ def density(fft_gram_1, fft_gram_2):
         The spectral density
     """
     return np.conj(fft_gram_1) * fft_gram_2
+
+
+def running_mean(data, coarsening_factor=1):
+    coarsening_factor = int(coarsening_factor)
+    cumsum = np.cumsum(np.insert(data, 0, 0))
+    return (
+        cumsum[coarsening_factor:] - cumsum[:-coarsening_factor]
+    ) / coarsening_factor
