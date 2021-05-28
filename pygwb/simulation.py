@@ -1,10 +1,11 @@
 import numpy as np
-from constants import H0
-from scipy.interpolate import interp1d
-import gwpy
+from gwpy.frequencyseries import FrequencySeries
+
+from .constants import H0
 
 import h5py
 import sys
+
 
 if sys.version_info >= (3, 0):
     import configparser
@@ -229,10 +230,26 @@ class simulation_GWB(object):
         Function that simulates an isotropic stochastic background given the 
         input parameters. The data is simulated and spliced together to prevent 
         periodicity artifacts related to IFFTs.
-        
+        """
+        self.freqs = OmegaGW.frequencies.value
+        self.Nf = OmegaGW.size
+        self.Nd = noisePSD.shape[0]
+        self.deltaF = OmegaGW.df.value
+
+        if Fs == None:
+            self.Fs = (self.freqs[-1] + self.deltaF) * 2  # Assumes freq is power of two
+
+        if segmentDuration == None:
+            self.segmentDuration = 1 / (self.deltaF)
+
+        self.NSamplesPerSegment = int(self.Fs * self.segmentDuration)
+        self.deltaT = 1 / self.Fs
+
+    def generate_data(self):
+        """
         Parameters
         ==========
-        
+
         Returns
         =======
         data: array_like
@@ -243,7 +260,7 @@ class simulation_GWB(object):
         data = self.splice_segments(y)
 #         data = gwpy.timeseries.TimeSeries(data, times=t)
         return data
-    
+
     def orfToArray(self):
         """
         Function that converts the list of overlap reduction functions into an array
@@ -251,7 +268,7 @@ class simulation_GWB(object):
         
         Parameters
         ==========
-        
+
         Returns
         =======
         orf_array: array_like
@@ -265,75 +282,77 @@ class simulation_GWB(object):
             filled analogously and so on.
         """
         index = 0
-        orf_array = np.zeros((self.Nd,self.Nd), dtype=gwpy.frequencyseries.frequencyseries.FrequencySeries)
+        orf_array = np.zeros((self.Nd, self.Nd), dtype=FrequencySeries)
         for ii in range(self.Nd):
             for jj in range(ii):
-                orf_array[ii,jj] = self.orf[index]
+                orf_array[ii, jj] = self.orf[index]
                 index += 1
-        orf_array=orf_array+orf_array.transpose()
+        orf_array = orf_array + orf_array.transpose()
         return orf_array
-    
+
     def omegaToPower(self):
         """
-        Function that computes the GW power spectrum starting from the OmegaGW 
+        Function that computes the GW power spectrum starting from the OmegaGW
         spectrum.
-        
+
         Parameters
         ==========
-    
+        omegaGW: gwpy.frequencyseries.FrequencySeries
+            A gwpy FrequencySeries containing the Omega spectrum
+
         Returns
         =======
         power: gwpy.frequencyseries.FrequencySeries
-            A gwpy FrequencySeries conatining the GW power spectrum
+            A gwpy FrequencySeries containing the GW power spectrum
         """
-        H_theor = (3*H0**2)/(10*np.pi**2)
-        
-        power = H_theor*self.OmegaGW.value*self.freqs**(-3)
-        power = gwpy.frequencyseries.FrequencySeries(power, frequencies=self.freqs)
+        H_theor = (3 * H0 ** 2) / (10 * np.pi ** 2)
+
+        power = H_theor * self.OmegaGW.value * self.freqs ** (-3)
+        power = FrequencySeries(power, frequencies=self.freqs)
         return power
-    
+
     def covariance_matrix(self):
         """
-        Function to compute the covariance matrix corresponding to a stochastic 
+        Function to compute the covariance matrix corresponding to a stochastic
         background in the various detectors.
-        
+
         Parameters
         ==========
-        
+
         Returns
         =======
         C: array_like
-            Covariance matrix corresponding to a stochastic background in the 
-            various detectors. Dimensions are Nd x Nd x Nf, where Nd is the 
+            Covariance matrix corresponding to a stochastic background in the
+            various detectors. Dimensions are Nd x Nd x Nf, where Nd is the
             number of detectors and Nf the number of frequencies.
         """
         GWBPower = self.omegaToPower()
         orf_array = self.orfToArray()
-        
+
         C = np.zeros((self.Nd, self.Nd, self.Nf))
-        
+
         for ii in range(self.Nd):
             for jj in range(self.Nd):
-                if ii==jj:
-                    C[ii,jj,:] = self.noisePSD[ii].value[:]+GWBPower.value[:]
+                if ii == jj:
+                    C[ii, jj, :] = self.noisePSD[ii].value[:] + GWBPower.value[:]
                 else:
-                    C[ii,jj,:] = orf_array[ii,jj].value[:]*GWBPower.value[:]
-                    
-        C = self.NSamplesPerSegment/(self.deltaT*4)*C  
+                    C[ii, jj, :] = orf_array[ii, jj].value[:] * GWBPower.value[:]
+
+        C = self.NSamplesPerSegment / (self.deltaT * 4) * C
         return C
-    
+
     def compute_eigval_eigvec(self, C):
         """
         Function to compute the eigenvalues and eigenvectors of the covariance
         matrix corresponding to a stochastic background in the various detectors.
-        
+
         Parameters
         ==========
         C: array_like
-            Covariance matrix corresponding to a stochastic background in the 
-            various detectors. Dimensions are Nd x Nd x Nf, where Nd is the 
-            number of detectors and Nf the number of frequencies. 
-            
+            Covariance matrix corresponding to a stochastic background in the
+            various detectors. Dimensions are Nd x Nd x Nf, where Nd is the
+            number of detectors and Nf the number of frequencies.
+
         Returns
         =======
         eigval: array_like
@@ -343,34 +362,36 @@ class simulation_GWB(object):
             Array of matrices containing the eigenvectors of the covariance
             matrix C.
         """
-        eigval, eigvec = np.linalg.eig(C.transpose((2,0,1)))
+
+        eigval, eigvec = np.linalg.eig(C.transpose((2, 0, 1)))
         eigval = np.array([np.diag(x) for x in eigval])
+
         return eigval, eigvec
-    
+
     def generate_freq_domain_data(self):
         """
         Function that generates the uncorrelated frequency domain data with 
         random phases for the stochastic background.
-        
+
         Parameters
         ==========
-                
+
         Returns
         =======
         z: array_like
             Array of size Nf x Nd containing uncorrelated frequency domain data.
         """
-        z = np.zeros((self.Nf, self.Nd), dtype = 'complex_')
+        z = np.zeros((self.Nf, self.Nd), dtype="complex_")
         re = np.random.randn(self.Nf, self.Nd)
         im = np.random.randn(self.Nf, self.Nd)
-        z = re + im*1j
+        z = re + im * 1j
         return z
-    
+
     def transform_to_correlated_data(self, z, C):
         """
-        Function that transforms the uncorrelated stochastic background 
+        Function that transforms the uncorrelated stochastic background
         simulated data, to correlated data.
-        
+
         Parameters
         ==========
         z: array_like
@@ -391,7 +412,7 @@ class simulation_GWB(object):
         A = np.einsum('...ij,jk...',np.sqrt(eigval),eigvec.transpose())
         x = np.einsum('...j,...jk',z,A)  
         return x
-    
+
     def simulate_data(self):
         """
         Function that simulates the data corresponding to an isotropic stochastic
@@ -422,13 +443,13 @@ class simulation_GWB(object):
                     xtilde = np.concatenate((np.array([0]), xtemp[:,ii], np.flipud(np.conjugate(xtemp[:,ii]))))
                 y[ii,kk,:] = np.real(np.fft.ifft(xtilde))
         return y
-    
+
     def splice_segments(self, segments):
         """
-        This function splices together the various segments to prevent 
+        This function splices together the various segments to prevent
         artifacts related to the periodicity that can arise from inverse
         Fourier transforms.
-        
+
         Parameters
         ==========
         segments: array_like
@@ -444,7 +465,7 @@ class simulation_GWB(object):
             detectors, where Nd is the number of detectors.
         """
         w = np.zeros(self.NSamplesPerSegment)
-        
+
         for ii in range(self.NSamplesPerSegment):
             w[ii] = np.sin(np.pi*ii/self.NSamplesPerSegment)
         

@@ -12,13 +12,13 @@ repos:
     rev: v1.16.0
     hooks:
     -   id: codespell # Spellchecker
-        args: [-L, nd, --skip, "*.html,*.ipynb"]
+        args: [-L, nd, --skip, "*.html,*.ipynb", --ignore-words-list, "alog,hist"]
 -   repo: https://github.com/asottile/seed-isort-config
     rev: v2.1.1
     hooks:
     -   id: seed-isort-config
         args: [--application-directories, 'pygwb']
-    repo: https://github.com/timothycrosley/isort
+-   repo: https://github.com/timothycrosley/isort
     rev: 4.3.21-2
     hooks:
     -   id: isort # sort imports alphabetically and separates import into sections
