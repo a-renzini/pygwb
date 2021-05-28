@@ -123,19 +123,26 @@ def coarse_grain_spectrogram(
     frequency_method="full",
 ):
     """
-    Coarsen a spectrogram in time and/or frequency
+    Coarsen a spectrogram in time and/or frequency, e.g., Welch averaging /
+    coarse-graining
 
     The coarsening methods are either:
       - naive: this is equivalent to a Welch average
       - full: the full coarse-grain method
+      - running_mean:
 
     Parameters
     ==========
     spectrogram: gwpy.spectrogram.Spectrogram
+        Spectrogram object to be coarsened
     delta_t: float
+        Output time spacing
     delta_f: float
+        Output frequency spacing
     time_method: str
+        Should be one of the coarsening methods listed above
     frequency_method: str
+        Should be one of the coarsening methods listed above
 
     Returns
     =======
@@ -191,7 +198,24 @@ def density(fft_gram_1, fft_gram_2):
     return np.conj(fft_gram_1) * fft_gram_2
 
 
-def running_mean(data, coarsening_factor=1):
+def running_mean(data, coarsening_factor=1, axis=-1):
+    """
+    Compute the running mean of an array, this uses the default axis of numpy
+    cumsum.
+
+    Parameters
+    ----------
+    data: array-like
+        Array of size M to be average
+    coarsening_factor: int
+        Number of segments to average, default=1
+    axis:
+        Axis to apply the mean over, default=-1
+
+    Returns
+    -------
+    array-like: the averaged array of size M - coarsening factor
+    """
     coarsening_factor = int(coarsening_factor)
     cumsum = np.cumsum(np.insert(data, 0, 0))
     return (
