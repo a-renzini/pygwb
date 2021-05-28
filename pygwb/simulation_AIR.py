@@ -15,7 +15,7 @@ else:
 
 
 class initialize(object):
-    def __init__(self, param_file):
+    def __init__(self, param_file, baselines):
         """
         Class that initializes the necessary parameters for the simulation
         of an isotropic stochastic background.
@@ -25,6 +25,8 @@ class initialize(object):
         param_file: str
             File containing the various parameter values used to simulate
             an isotropic stochastic background.
+        baselines: Baseline object
+            List of baseline objects
 
         Returns
         =======
@@ -32,26 +34,33 @@ class initialize(object):
         self.param_file = param_file
         param = configparser.ConfigParser()
         param.read(param_file)
-
+    
+        # [Frequency handling]
         self.NSegments = param.getint("parameters", "NSegments")
         self.Fs = param.getfloat("parameters", "Fs")
+        self.TAvg = param.getfloat("parameters", "TAvg")
+        
+        # [Time handling]
         self.segmentDuration = param.getfloat("parameters", "segmentDuration")
         self.t0 = param.getfloat("parameters", "t0")
-        self.TAvg = param.getfloat("parameters", "TAvg")
-        self.Nd = param.getint("parameters", "Nd")
-
-        self.fref = param.getfloat("parameters", "fref")
-        self.alpha = param.getfloat("parameters", "alpha")
-        self.omegaRef = param.getfloat("parameters", "omegaRef")
-
+        
+        # [Derived quantities]
         self.NSamplesPerSegment = int(self.segmentDuration * self.Fs)
+        self.N = self.NSegments * self.NSamplesPerSegment
         self.deltaT = 1 / self.Fs
+        self.NAvgs = 2 * int(self.segmentDuration / self.TAvg) - 1
+        self.jobDuration = self.NSegments * self.segmentDuration
         self.fNyquist = 1 / (2 * self.deltaT)
         self.deltaF = 1 / self.segmentDuration
         self.deltaFStoch = 1 / self.TAvg
-        self.NAvgs = 2 * int(self.segmentDuration / self.TAvg) - 1
-        self.jobDuration = self.NSegments * self.segmentDuration
-        self.N = self.NSegments * self.NSamplesPerSegment
+        
+        # [Signal injection]
+        self.fref = param.getfloat("parameters", "fref")
+        self.alpha = param.getfloat("parameters", "alpha")
+        self.omegaRef = param.getfloat("parameters", "omegaRef")
+        
+        self.baselines=baselines
+        self.Nd = param.getint("parameters", "Nd")
 
         self.read_noise_file = param.getboolean("parameters", "read_noise_file")
         self.read_orf_file = param.getboolean("parameters", "read_orf_file")
@@ -110,7 +119,7 @@ class initialize(object):
         """
         freqs = self.make_freqs()
         omegaGW = self.omegaRef * (freqs / self.fref) ** self.alpha
-        omegaGW = gwpy.frequencyseries.FrequencySeries(omegaGW, frequencies=freqs)
+        omegaGW = gwpy.frequencyseries.FrequencySeries(omegaGW, f0=self.deltaF, df=self.deltaF)
         return omegaGW
 
     @property
@@ -144,10 +153,13 @@ class initialize(object):
             return noisePSD_array
 
         else:
+#             noisePSD_array = np.array([baseline.power_spectral_density_array for baseline in self.baselines])
+# Think about how to include the PSD only once for each detector. Looping over all baselines would include it more than once
             pass  # Should then get noise PSD from other module
                   # return interferometer.noise_PSD
-
-    def make_orf(self):
+            
+    @property
+    def orfs(self):
         """
         Function that creates the noise PSDs for the detectors that enter in
         the simulation. Two options: either the noise PSDs are read in from
@@ -178,7 +190,11 @@ class initialize(object):
             return orf_array
 
         else:
-            pass  # Should then get orf from other module (Sylvia's)
+            orf = np.array([baseline.overlap_reduction_function for baseline in self.baselines])
+            orf_array=np.zeros(orf.shape[0],dtype=gwpy.frequencyseries.FrequencySeries)
+            for ii in range(orf.shape[0]):
+                orf_array[ii] = gwpy.frequencyseries.FrequencySeries(orf[ii], f0=self.deltaF, df=self.deltaF)
+            return orf_array
 
     def read_from_file(self, filename):
         """
@@ -204,12 +220,12 @@ class initialize(object):
 
         func = interp1d(freqs, data, kind="cubic", fill_value="extrapolate")
         f = self.make_freqs()
-        freq_series = gwpy.frequencyseries.FrequencySeries(func(f), frequencies=f)
+        freq_series = gwpy.frequencyseries.FrequencySeries(func(f), f0=self.deltaF, df=self.deltaF)
         return freq_series
 
 
 class simulation_GWB(object):
-    def __init__(self, noisePSD, omegaGW, orf, Fs, segmentDuration, NSegments):
+    def __init__(self, noisePSD, omegaGW, orf, Fs, segmentDuration, NSegments, t0):
         """
         Class that simulates an isotropic stochastic background.
 
@@ -224,35 +240,48 @@ class simulation_GWB(object):
         self.OmegaGW = omegaGW
         self.orf = orf
 
-        # [time/frequency handling]
+        # [frequency handling]
         self.Fs = Fs
-        self.segmentDuration = segmentDuration
-        self.NSegments = NSegments
-        
-        #self.t0 = t0
-
         self.freqs = omegaGW.frequencies.value
         self.Nf = omegaGW.size
         self.Nd = noisePSD.shape[0]
         self.deltaF = omegaGW.df.value
-
+        
+        # [time handling]
+        self.segmentDuration = segmentDuration
+        self.NSegments = NSegments
+        self.t0 = t0
         self.NSamplesPerSegment = int(self.Fs * self.segmentDuration)
         self.deltaT = 1 / self.Fs
 
         self.gen_data = self.generate_data()
-        self.save_data_to_npz()
+        print(self.gen_data)
+#         self.save_data_to_npz()
 
     @classmethod
     def from_ini_file(cls, baselines, ini_file):
-        params_ini = initialize(ini_file)
-        orfs = np.array([baseline.overlap_reduction_function for baseline in baselines])
+        """
+        Initializes the class from an ini_file for a given list of baselines.
+        
+        Parameters
+        ==========
+        baselines: Baseline object
+            List of baseline objects.
+        ini_file: str
+            File containing the various parameter values used to simulate
+            an isotropic stochastic background. 
+        Returns
+        =======
+        """
+        params_ini = initialize(ini_file, baselines)
         return cls(
             params_ini.noise_PSD,
             params_ini.omegaGW,
-            orfs,
+            params_ini.orfs,
             params_ini.Fs,
             params_ini.segmentDuration,
             params_ini.NSegments,
+            params_ini.t0
         )
 
     def save_data_to_npz(self):
@@ -260,12 +289,12 @@ class simulation_GWB(object):
         """
         np.savez('data.npz', data = self.gen_data)
 
-    def save_data_h5(self):
-        """
-        """
-        timeseries_data = gwpy.timeseries.Timeseries.self.gen_data
-        timeseries_data.t0 = my_t0
-        Timeseries.write_to_h5(self.gen_data)
+#     def save_data_to_hdf5(self):
+#         """
+#         """
+#         timeseries_data = gwpy.timeseries.Timeseries.self.gen_data
+#         timeseries_data.t0 = my_t0
+#         Timeseries.write_to_h5(self.gen_data)
 
     def generate_data(self):
         """
@@ -283,9 +312,15 @@ class simulation_GWB(object):
             data containing the simulated isotropic stochastic background.
         """
         y = self.simulate_data()
-        data = self.splice_segments(y)
-        #         data = gwpy.timeseries.TimeSeries(data, times=t)
-        return data
+        datatemp = self.splice_segments(y)
+#         data = np.zeros(
+#             self.Nd, dtype=gwpy.timeseries.TimeSeries
+#         )
+       
+#         for ii in range(self.Nd):
+#             data[ii] = gwpy.timeseries.TimeSeries(datatemp[ii], t0=self.t0, dt=self.deltaT)
+            
+        return datatemp
 
     def orfToArray(self):
         """
@@ -335,7 +370,7 @@ class simulation_GWB(object):
         H_theor = (3 * H0 ** 2) / (10 * np.pi ** 2)
 
         power = H_theor * self.OmegaGW.value * self.freqs ** (-3)
-        power = gwpy.frequencyseries.FrequencySeries(power, frequencies=self.freqs)
+        power = gwpy.frequencyseries.FrequencySeries(power, f0= self.deltaF, df=self.deltaF)
         return power
 
     def covariance_matrix(self):
@@ -363,7 +398,7 @@ class simulation_GWB(object):
                 if ii == jj:
                     C[ii, jj, :] = self.noisePSD[ii].value[:] + GWBPower.value[:]
                 else:
-                    C[ii, jj, :] = orf_array[ii, jj] * GWBPower.value[:]
+                    C[ii, jj, :] = orf_array[ii, jj].value[:] * GWBPower.value[:]
 
         C = self.NSamplesPerSegment / (self.deltaT * 4) * C
         return C
@@ -539,4 +574,5 @@ class simulation_GWB(object):
                 ] = (
                     z0 + z1 + z2
                 )
-        r
+            
+        return data
