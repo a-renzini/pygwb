@@ -139,3 +139,70 @@ def cleanup_dir(outdir):
         shutil.rmtree(outdir)
     except OSError as e:
         pass  # directory doesn't exist
+
+
+def omegaToPower(OmegaGW, frequencies):
+    """
+    Function that computes the GW power spectrum starting from the OmegaGW
+    spectrum.
+
+    Parameters
+    ==========
+
+    Returns
+    =======
+    power: gwpy.frequencyseries.FrequencySeries
+        A gwpy FrequencySeries conatining the GW power spectrum
+    """
+    H_theor = (3 * H0 ** 2) / (10 * np.pi ** 2)
+
+    power = H_theor * OmegaGW * frequencies ** (-3)
+    power = gwpy.frequencyseries.FrequencySeries(power, frequencies=frequencies)
+    return power
+
+
+    def make_freqs(Nsamples, deltaF):
+        """
+        Function that makes an array of frequencies given the sampling rate
+        and the segment duration specified in the initial parameter file.
+
+        Parmeters
+        =========
+
+        Returns
+        =======
+        freqs: array_like
+            Array of frequencies for which an isotropic stochastic background
+            will be simulated.
+        """
+        if NSamples % 2 == 0:
+            numFreqs = NSamples / 2 - 1
+        else:
+            numFreqs = (NSamples- 1) / 2
+
+        freqs = np.array([deltaF * (i + 1) for i in range(int(numFreqs))])
+        return freqs
+
+
+
+    def make_freqs(self):
+        """
+        Function that makes an array of frequencies given the sampling rate
+        and the segment duration specified in the initial parameter file.
+
+        Parmeters
+        =========
+
+        Returns
+        =======
+        freqs: array_like
+            Array of frequencies for which an isotropic stochastic background
+            will be simulated.
+        """
+        if self.NSamplesPerSegment % 2 == 0:
+            numFreqs = self.NSamplesPerSegment / 2 - 1
+        else:
+            numFreqs = (self.NSamplesPerSegment - 1) / 2
+
+        freqs = np.array([self.deltaF * (i + 1) for i in range(int(numFreqs))])
+        return freqs

@@ -5,7 +5,7 @@ import h5py
 import sys
 
 from .constants import h0
-from .util import omegaToPower
+from .util import omegaToPower, make_freqs
 
 if sys.version_info >= (3, 0):
     import configparser
@@ -24,6 +24,7 @@ urgent
 
 less urgent
 -----------
+* I would change the way OmegaGW is in injected, as right now there is a risk of mismatch between frequencies in the detectors and in the OmegaGW file which is being read for the injection. We should probably discuss this.
 * write all the necessary import checks
 
 """
@@ -64,7 +65,7 @@ class Simulator(object):
         self.NSegments = NSegments
 
         # self.t0 = t0
-
+        
         self.freqs = omegaGW.frequencies.value
         self.Nf = omegaGW.size
         self.Nd = int(1 + np.sqrt(1 + 8 * len(self.baselines)))
