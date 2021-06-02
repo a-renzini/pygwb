@@ -31,7 +31,7 @@ less urgent
 
 class Simulator(object):
     def __init__(
-        baselines, omegaGW, save_to_file=False
+        baselines, omegaGW, Nsegments, save_to_file=False
     ):  # (self, noisePSD, omegaGW, orf, Fs, segmentDuration, NSegments):
         """
         Class that simulates an isotropic stochastic background.
@@ -61,9 +61,7 @@ class Simulator(object):
         self.segmentDuration = (
             baseline_1.segmentDuration
         )  # inherited from baselines/interferometer objects
-        self.NSegments = (
-            baseline_1.NSegments
-        )  # inherited from baselines/interferometer objects
+        self.NSegments = NSegments
 
         # self.t0 = t0
 
