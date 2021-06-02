@@ -5,7 +5,7 @@ import h5py
 import sys
 
 from .constants import h0
-import .util
+from .util import omegaToPower
 
 if sys.version_info >= (3, 0):
     import configparser
@@ -19,8 +19,8 @@ TODOS
 urgent
 -------
 * convert the output of simulate_data into a gwpy timeseries
-* link up the init with the baseline object
-* figure out where the noise_PSDs should be inherited from
+* link up the init with the baseline object -> waiting for Sylvia to open MR with modifications to baseline
+* check the PSD import in get_NoisePSD: correct format? correct import?
 
 less urgent
 -----------
@@ -28,34 +28,48 @@ less urgent
 
 """
 
+
 class Simulator(object):
-    def __init__(baselines, omegaGW, save_to_file = False): #(self, noisePSD, omegaGW, orf, Fs, segmentDuration, NSegments):
+    def __init__(
+        baselines, omegaGW, save_to_file=False
+    ):  # (self, noisePSD, omegaGW, orf, Fs, segmentDuration, NSegments):
         """
         Class that simulates an isotropic stochastic background.
 
         Parameters
         ==========
         baselines: list of baselines #make into dictionary
-        omegaGW: 
+        omegaGW:
 
         Returns
         =======
         """
+
+        self.baselines = baselines
         # [detector attributes]
-        self.noisePSD = noisePSD #inherited from baselines/interferometer objects
+        self.noisePSD = self.set_noisePSD
         self.OmegaGW = omegaGW
-        self.orf = np.array([baseline.overlap_reduction_function for baseline in baselines])
+        self.orf = np.array(
+            [baseline.overlap_reduction_function for baseline in baselines]
+        )
 
         # [time/frequency handling]
-        self.Fs = Fs #inherited from baselines/interferometer objects
-        self.segmentDuration = segmentDuration #inherited from baselines/interferometer objects
-        self.NSegments = NSegments #inherited from baselines/interferometer objects
-        
-        #self.t0 = t0
+        baseline_1 = self.baselines[0]
+        self.Fs = (
+            baseline_1.sampling_frequency
+        )  # inherited from baselines/interferometer objects
+        self.segmentDuration = (
+            baseline_1.segmentDuration
+        )  # inherited from baselines/interferometer objects
+        self.NSegments = (
+            baseline_1.NSegments
+        )  # inherited from baselines/interferometer objects
+
+        # self.t0 = t0
 
         self.freqs = omegaGW.frequencies.value
         self.Nf = omegaGW.size
-        self.Nd = noisePSD.shape[0]
+        self.Nd = int(1 + np.sqrt(1 + 8 * len(self.baselines)))
         self.deltaF = omegaGW.df.value
 
         self.NSamplesPerSegment = int(self.Fs * self.segmentDuration)
@@ -78,24 +92,32 @@ class Simulator(object):
             params_ini.NSegments,
         )
 
-
     def write(self):
         """
         TODO: develop write method; make decisions here
         """
+
         def save_data_to_npz(self):
-            """
-            """
-            np.savez('data.npz', data = self.gen_data)
+            """ """
+            np.savez("data.npz", data=self.gen_data)
 
         def save_data_h5(self):
-            """
-            """
+            """ """
             timeseries_data = gwpy.timeseries.Timeseries.self.gen_data
             timeseries_data.t0 = my_t0
             Timeseries.write_to_h5(self.gen_data)
-       
-    
+
+    def set_noisePSD(self):
+        """
+        TODO: implement check to see whether ifos have PSDs set; else give error
+        """
+        noisePSD = []
+        for baseline in baselines:
+            PSD_1 = baseline.interferometer_1.power_spectral_density_array
+            PSD_2 = baseline.interferometer_2.power_spectral_density_array
+            noisePSD.append([PSD_1, PSD_2])
+        return noise_PSD
+
     def timeseries_data(self):
         return self.gen_data
 
@@ -151,7 +173,6 @@ class Simulator(object):
         orf_array = orf_array + orf_array.transpose()
         return orf_array
 
-
     def covariance_matrix(self):
         """
         Function to compute the covariance matrix corresponding to a stochastic
@@ -167,7 +188,7 @@ class Simulator(object):
             various detectors. Dimensions are Nd x Nd x Nf, where Nd is the
             number of detectors and Nf the number of frequencies.
         """
-        GWBPower = util.omegaToPower(self.OmegaGW.value, self.freqs)
+        GWBPower = omegaToPower(self.OmegaGW.value, self.freqs)
         orf_array = self.orfToArray()
 
         C = np.zeros((self.Nd, self.Nd, self.Nf))
