@@ -3,7 +3,7 @@ import unittest
 import bilby.gw.detector
 import numpy as np
 
-import stochastic_lite.orfs as orfs
+import pygwb.orfs as orfs
 
 
 class OverlapReductionFunctionTest(unittest.TestCase):
