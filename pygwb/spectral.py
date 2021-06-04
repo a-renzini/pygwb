@@ -57,7 +57,7 @@ def coarse_grain_exact(data, coarsening_factor):
     This is done by evaluating the difference between the cumulative integral
     of the data at the beginning and end of each bin.
 
-    The ith bin covers
+    The i'th bin covers
     `[coarsening_factor * (ii - 0.5), coarsening_factor * (ii + 0.5)]`
     indexed for `1 <= ii < len(data) / coarsening_factor`.
 
