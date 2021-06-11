@@ -161,48 +161,39 @@ def omegaToPower(OmegaGW, frequencies):
     return power
 
 
-    def make_freqs(Nsamples, deltaF):
-        """
-        Function that makes an array of frequencies given the sampling rate
-        and the segment duration specified in the initial parameter file.
+def make_freqs(Nsamples, deltaF):
+    """
+    Function that makes an array of frequencies given the sampling rate
+    and the segment duration specified in the initial parameter file.
 
-        Parmeters
-        =========
+    Parmeters
+    =========
 
-        Returns
-        =======
-        freqs: array_like
-            Array of frequencies for which an isotropic stochastic background
-            will be simulated.
-        """
-        if NSamples % 2 == 0:
-            numFreqs = NSamples / 2 - 1
-        else:
-            numFreqs = (NSamples- 1) / 2
+    Returns
+    =======
+    freqs: array_like
+        Array of frequencies for which an isotropic stochastic background
+        will be simulated.
+    """
+    if NSamples % 2 == 0:
+        numFreqs = NSamples / 2 - 1
+    else:
+        numFreqs = (NSamples- 1) / 2
 
-        freqs = np.array([deltaF * (i + 1) for i in range(int(numFreqs))])
-        return freqs
+    freqs = np.array([deltaF * (i + 1) for i in range(int(numFreqs))])
+    return freqs
 
 
+def interpolate_frequencySeries(fSeries, new_frequencies):
+    """
+    Parameters
+    ==========
+    fSeries: FrequencySeries object
+    new_frequencies: array_like
+    """
+    spectrum = fSeries.value
+    frequencies = fSeries.frequencies.value
 
-    def make_freqs(self):
-        """
-        Function that makes an array of frequencies given the sampling rate
-        and the segment duration specified in the initial parameter file.
+    spectrum_func = scipy.interp1d(frequencies, spectrum)
 
-        Parmeters
-        =========
-
-        Returns
-        =======
-        freqs: array_like
-            Array of frequencies for which an isotropic stochastic background
-            will be simulated.
-        """
-        if self.NSamplesPerSegment % 2 == 0:
-            numFreqs = self.NSamplesPerSegment / 2 - 1
-        else:
-            numFreqs = (self.NSamplesPerSegment - 1) / 2
-
-        freqs = np.array([self.deltaF * (i + 1) for i in range(int(numFreqs))])
-        return freqs
+    return spectrum_func(new_frequencies)

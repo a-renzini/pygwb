@@ -5,7 +5,7 @@ import h5py
 import sys
 
 from .constants import h0
-from .util import omegaToPower, make_freqs
+from .util import omegaToPower, interpolate_frequencySeries
 
 if sys.version_info >= (3, 0):
     import configparser
@@ -19,7 +19,7 @@ TODOS
 urgent
 -------
 * convert the output of simulate_data into a gwpy timeseries
-* link up the init with the baseline object -> waiting for Sylvia to open MR with modifications to baseline
+* everything is initiated via baseline_1; how to change this?
 * check the PSD import in get_NoisePSD: correct format? correct import?
 
 less urgent
@@ -33,7 +33,7 @@ less urgent
 class Simulator(object):
     def __init__(
         baselines, omegaGW, Nsegments, save_to_file=False
-    ):  # (self, noisePSD, omegaGW, orf, Fs, segmentDuration, NSegments):
+    ):  # (self, noisePSD, omegaGW, orf, sampling_frequency, duration, NSegments):
         """
         Class that simulates an isotropic stochastic background.
 
@@ -49,30 +49,29 @@ class Simulator(object):
         self.baselines = baselines
         # [detector attributes]
         self.noisePSD = self.set_noisePSD
-        self.OmegaGW = omegaGW
         self.orf = np.array(
             [baseline.overlap_reduction_function for baseline in baselines]
         )
 
         # [time/frequency handling]
         baseline_1 = self.baselines[0]
-        self.Fs = (
+        self.sampling_frequency = (
             baseline_1.sampling_frequency
         )  # inherited from baselines/interferometer objects
-        self.segmentDuration = (
-            baseline_1.segmentDuration
+        self.duration = (
+            baseline_1.duration
         )  # inherited from baselines/interferometer objects
         self.NSegments = NSegments
-
+        self.frequencies = baseline_1.frequencies
+        self.Nf = len(self.frequencies)
         # self.t0 = t0
         
-        self.freqs = omegaGW.frequencies.value
-        self.Nf = omegaGW.size
         self.Nd = int(1 + np.sqrt(1 + 8 * len(self.baselines)))
-        self.deltaF = omegaGW.df.value
 
-        self.NSamplesPerSegment = int(self.Fs * self.segmentDuration)
-        self.deltaT = 1 / self.Fs
+        self.NSamplesPerSegment = int(self.sampling_frequency * self.duration)
+        self.deltaT = 1 / self.sampling_frequency
+
+        self.OmegaGW = interpolate_frequencySeries(omegaGW, frequencies)
 
         self.gen_data = self.generate_data()
 
@@ -86,8 +85,8 @@ class Simulator(object):
             params_ini.noise_PSD,
             params_ini.omegaGW,
             orfs,
-            params_ini.Fs,
-            params_ini.segmentDuration,
+            params_ini.sampling_frequency,
+            params_ini.duration,
             params_ini.NSegments,
         )
 
@@ -119,7 +118,7 @@ class Simulator(object):
 
     def timeseries_data(self):
         return self.gen_data
-
+    
     def generate_data(self):
         """
         Function that simulates an isotropic stochastic background given the
@@ -187,7 +186,7 @@ class Simulator(object):
             various detectors. Dimensions are Nd x Nd x Nf, where Nd is the
             number of detectors and Nf the number of frequencies.
         """
-        GWBPower = omegaToPower(self.OmegaGW.value, self.freqs)
+        GWBPower = omegaToPower(self.OmegaGW, self.frequencies)
         orf_array = self.orfToArray()
 
         C = np.zeros((self.Nd, self.Nd, self.Nf))
