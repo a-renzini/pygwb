@@ -156,7 +156,7 @@ def omegaToPower(OmegaGW, frequencies):
     Returns
     =======
     power: gwpy.frequencyseries.FrequencySeries
-        A gwpy FrequencySeries conatining the GW power spectrum
+        A gwpy FrequencySeries containing the GW power spectrum
     """
     H_theor = (3 * H0 ** 2) / (10 * np.pi ** 2)
 
@@ -172,7 +172,7 @@ def make_freqs(Nsamples, deltaF):
     Function that makes an array of frequencies given the sampling rate
     and the segment duration specified in the initial parameter file.
 
-    Parmeters
+    Parameters
     =========
 
     Returns

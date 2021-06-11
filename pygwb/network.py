@@ -2,7 +2,7 @@ import bilby
 import numpy as np
 
 from .baseline import Baseline
-from .simulation_AIR import simulation_GWB
+from .simulator import Simulator
 
 
 class Network(object):
