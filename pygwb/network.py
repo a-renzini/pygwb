@@ -42,10 +42,10 @@ class Network(object):
                     freqs,
                 )
             )
-        
+
         self.baselines = baselines
 
-       self.noise_PSD_array = get_noise_PSD_array() 
+        self.noise_PSD_array = get_noise_PSD_array()
 
     @classmethod
     def from_interferometer_list(cls, ifo_list, freqs):
@@ -76,10 +76,8 @@ class Network(object):
 
         return cls(baselines, freqs)
 
-
     def get_noise_PSD_array(self):
-        """
-        """
+        """ """
         noisePSDs = []
         for ifo in self.interferometers:
             psd = ifo.power_spectral_density_array
