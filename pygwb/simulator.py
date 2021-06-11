@@ -22,11 +22,10 @@ urgent
 -------
 * convert the output of simulate_data into a gwpy timeseries
 * everything is initiated via baseline_1; how to change this?
-* check the PSD import in get_NoisePSD: correct format? correct import?
+* discuss with group re- initialising with baselines vs ifos
 
 less urgent
 -----------
-* I would change the way OmegaGW is in injected, as right now there is a risk of mismatch between frequencies in the detectors and in the OmegaGW file which is being read for the injection. We should probably discuss this.
 * write all the necessary import checks
 
 """
