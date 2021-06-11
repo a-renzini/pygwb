@@ -196,4 +196,4 @@ def interpolate_frequencySeries(fSeries, new_frequencies):
 
     spectrum_func = scipy.interp1d(frequencies, spectrum)
 
-    return spectrum_func(new_frequencies)
+    return spectrum_func(new_frequs)

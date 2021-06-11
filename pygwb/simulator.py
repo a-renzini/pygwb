@@ -4,8 +4,8 @@ import gwpy
 import h5py
 import sys
 
-from .constants import h0
-from .util import omegaToPower, interpolate_frequencySeries
+from pygwb.constants import H0
+from pygwb.util import omegaToPower, interpolate_frequencySeries
 
 if sys.version_info >= (3, 0):
     import configparser
