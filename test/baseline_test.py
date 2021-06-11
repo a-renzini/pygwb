@@ -1,9 +1,11 @@
-import bilby
-from pygwb import baseline
-import numpy as np
-import unittest
 import copy
 import os
+import unittest
+
+import bilby
+import numpy as np
+
+from pygwb import baseline
 
 
 class TestBaseline(unittest.TestCase):

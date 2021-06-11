@@ -1,5 +1,6 @@
-import numpy as np
 import bilby
+import numpy as np
+
 from .baseline import Baseline
 from .simulation_AIR import simulation_GWB
 

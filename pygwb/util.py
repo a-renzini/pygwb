@@ -1,13 +1,13 @@
 import os
-from scipy.interpolate import interp1d
 import shutil
 
 import gwpy
 import numpy as np
-
-from .spectral import coarse_grain
+from scipy.interpolate import interp1d
 
 from pygwb.constants import H0
+
+from .spectral import coarse_grain
 
 
 class TimeSeries:

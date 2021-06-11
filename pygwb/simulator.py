@@ -1,13 +1,14 @@
-import numpy as np
-from scipy.interpolate import interp1d
-import gwpy
-import h5py
-import bilby
 import sys
 
-from pygwb.constants import H0
-from pygwb.util import omegaToPower, interpolate_frequencySeries
+import bilby
+import gwpy
+import h5py
+import numpy as np
+from scipy.interpolate import interp1d
+
 from pygwb.baseline import Baseline
+from pygwb.constants import H0
+from pygwb.util import interpolate_frequencySeries, omegaToPower
 
 if sys.version_info >= (3, 0):
     import configparser
