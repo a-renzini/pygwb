@@ -7,7 +7,7 @@ from .simulation_AIR import simulation_GWB
 class Network(object):
     def __init__(
         self,
-        baselines,
+        interferometers,
         freqs,
     ):
         """
@@ -23,7 +23,29 @@ class Network(object):
         freqs: array_like
             frequency array
         """
+
+        self.Nifo = len(interferometers)
+
+        combo_tuples = []
+        for j in range(1, len(ifo_list)):
+            for k in range(j):
+                combo_tuples.append((k, j))
+
+        baselines = []
+        for i, j in combo_tuples:
+            base_name = f"{ifo_list[i]} - {ifo_list[j]}"
+            baselines.append(
+                Baseline(
+                    base_name,
+                    interferometers[i],
+                    interferometers[j],
+                    freqs,
+                )
+            )
+        
         self.baselines = baselines
+
+       self.noise_PSD_array = get_noise_PSD_array() 
 
     @classmethod
     def from_interferometer_list(cls, ifo_list, freqs):
@@ -53,6 +75,18 @@ class Network(object):
             )
 
         return cls(baselines, freqs)
+
+
+    def get_noise_PSD_array(self):
+        """
+        """
+        noisePSDs = []
+        for ifo in self.interferometers:
+            psd = ifo.power_spectral_density_array
+            psd[np.isinf(psd)] = 1
+            noisePSDs.append(psd)
+
+        return np.array(noisePSDs)
 
     def inject_GWB(self, ini_file):
         """

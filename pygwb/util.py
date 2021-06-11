@@ -1,10 +1,13 @@
 import os
+from scipy.interpolate import interp1d
 import shutil
 
+import gwpy
 import numpy as np
 
 from .spectral import coarse_grain
 
+from pygwb.constants import H0
 
 class TimeSeries:
     def __init__(self, times, data):
@@ -158,6 +161,8 @@ def omegaToPower(OmegaGW, frequencies):
 
     power = H_theor * OmegaGW * frequencies ** (-3)
     power = gwpy.frequencyseries.FrequencySeries(power, frequencies=frequencies)
+    power[np.isnan(power)] = 0
+
     return power
 
 
@@ -194,6 +199,6 @@ def interpolate_frequencySeries(fSeries, new_frequencies):
     spectrum = fSeries.value
     frequencies = fSeries.frequencies.value
 
-    spectrum_func = scipy.interp1d(frequencies, spectrum)
+    spectrum_func = interp1d(frequencies, spectrum)
 
-    return spectrum_func(new_frequs)
+    return spectrum_func(new_frequencies)

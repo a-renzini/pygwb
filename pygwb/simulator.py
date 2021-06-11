@@ -2,10 +2,12 @@ import numpy as np
 from scipy.interpolate import interp1d
 import gwpy
 import h5py
+import bilby
 import sys
 
 from pygwb.constants import H0
 from pygwb.util import omegaToPower, interpolate_frequencySeries
+from pygwb.baseline import Baseline
 
 if sys.version_info >= (3, 0):
     import configparser
@@ -32,7 +34,7 @@ less urgent
 
 class Simulator(object):
     def __init__(
-        baselines, omegaGW, Nsegments, save_to_file=False
+        self, baselines, noise_PSD_array, omegaGW, NSegments, save_to_file=False
     ):  # (self, noisePSD, omegaGW, orf, sampling_frequency, duration, NSegments):
         """
         Class that simulates an isotropic stochastic background.
@@ -48,7 +50,8 @@ class Simulator(object):
 
         self.baselines = baselines
         # [detector attributes]
-        self.noisePSD = self.set_noisePSD
+        self.noise_PSD_array = noise_PSD_array
+
         self.orf = np.array(
             [baseline.overlap_reduction_function for baseline in baselines]
         )
@@ -65,30 +68,58 @@ class Simulator(object):
         self.frequencies = baseline_1.frequencies
         self.Nf = len(self.frequencies)
         # self.t0 = t0
-        
-        self.Nd = int(1 + np.sqrt(1 + 8 * len(self.baselines)))
+
+        self.Nd = (int(1 + np.sqrt(1 + 8 * len(self.baselines)))) // 2
 
         self.NSamplesPerSegment = int(self.sampling_frequency * self.duration)
         self.deltaT = 1 / self.sampling_frequency
 
-        self.OmegaGW = interpolate_frequencySeries(omegaGW, frequencies)
+        self.OmegaGW = interpolate_frequencySeries(omegaGW, self.frequencies)
 
         self.gen_data = self.generate_data()
 
         # if save_to_file = True: ...
 
     @classmethod
-    def from_ini_file(cls, baselines, ini_file):
-        params_ini = initialize(ini_file)
-        orfs = np.array([baseline.overlap_reduction_function for baseline in baselines])
-        return cls(
-            params_ini.noise_PSD,
-            params_ini.omegaGW,
-            orfs,
-            params_ini.sampling_frequency,
-            params_ini.duration,
-            params_ini.NSegments,
-        )
+    def from_ifo_list(
+        cls,
+        ifo_list,
+        omegaGW,
+        NSegments,
+        duration=None,
+        sampling_frequency=None,
+        save_to_file=False,
+    ):
+
+        interferometers = bilby.gw.detector.InterferometerList(ifo_list)
+
+        combo_tuples = []
+        for j in range(1, len(ifo_list)):
+            for k in range(j):
+                combo_tuples.append((k, j))
+
+        baselines = []
+        for i, j in combo_tuples:
+            base_name = f"{ifo_list[i]} - {ifo_list[j]}"
+            baselines.append(
+                Baseline(
+                    base_name,
+                    interferometers[i],
+                    interferometers[j],
+                    duration=duration,
+                    sampling_frequency=sampling_frequency,
+                )
+            )
+
+        noisePSDs = []
+        for ifo in interferometers:
+            psd = ifo.power_spectral_density_array
+            psd[np.isinf(psd)] = 1
+            noisePSDs.append(psd)
+
+        noisePSDs = np.array(noisePSDs)
+
+        return cls(baselines, noisePSDs, omegaGW, NSegments, save_to_file=save_to_file)
 
     def write(self):
         """
@@ -105,20 +136,9 @@ class Simulator(object):
             timeseries_data.t0 = my_t0
             Timeseries.write_to_h5(self.gen_data)
 
-    def set_noisePSD(self):
-        """
-        TODO: implement check to see whether ifos have PSDs set; else give error
-        """
-        noisePSD = []
-        for baseline in baselines:
-            PSD_1 = baseline.interferometer_1.power_spectral_density_array
-            PSD_2 = baseline.interferometer_2.power_spectral_density_array
-            noisePSD.append([PSD_1, PSD_2])
-        return noise_PSD
-
     def timeseries_data(self):
         return self.gen_data
-    
+
     def generate_data(self):
         """
         Function that simulates an isotropic stochastic background given the
@@ -194,7 +214,7 @@ class Simulator(object):
         for ii in range(self.Nd):
             for jj in range(self.Nd):
                 if ii == jj:
-                    C[ii, jj, :] = self.noisePSD[ii].value[:] + GWBPower.value[:]
+                    C[ii, jj, :] = self.noise_PSD_array[ii] + GWBPower.value[:]
                 else:
                     C[ii, jj, :] = orf_array[ii, jj] * GWBPower.value[:]
 
@@ -314,7 +334,7 @@ class Simulator(object):
                             np.flipud(np.conjugate(xtemp[:, ii])),
                         )
                     )
-                y[ii, kk, :] = np.real(np.fft.ifft(xtilde))
+                y[ii, kk, :] = np.real(np.fft.ifft(xtilde))[: self.NSamplesPerSegment]
         return y
 
     def splice_segments(self, segments):
@@ -372,4 +392,5 @@ class Simulator(object):
                 ] = (
                     z0 + z1 + z2
                 )
-        r
+
+        return data
