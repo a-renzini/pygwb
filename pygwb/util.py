@@ -9,6 +9,7 @@ from .spectral import coarse_grain
 
 from pygwb.constants import H0
 
+
 class TimeSeries:
     def __init__(self, times, data):
         self.times = times
@@ -183,7 +184,7 @@ def make_freqs(Nsamples, deltaF):
     if NSamples % 2 == 0:
         numFreqs = NSamples / 2 - 1
     else:
-        numFreqs = (NSamples- 1) / 2
+        numFreqs = (NSamples - 1) / 2
 
     freqs = np.array([deltaF * (i + 1) for i in range(int(numFreqs))])
     return freqs
