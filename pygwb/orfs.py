@@ -94,6 +94,13 @@ def Sminus(alpha, beta):
     ) * np.cos(beta / 2) ** 4
 
 
+def T_right_left(alpha, beta):
+    return -np.sin(beta / 2) * (
+        (-spherical_jn(1, alpha) + 7.0 / 8 * spherical_jn(3, alpha))
+        + (spherical_jn(1, alpha) + 3.0 / 8 * spherical_jn(3, alpha)) * np.cos(beta)
+    )
+
+
 def tangent_vector(vector1, vector2):
     return np.subtract(
         vector2,
@@ -142,9 +149,8 @@ def calc_orf(
     perp: vector at theta=90 along great circle with det1_vertex theta=0
 
     Outputs:
-    orf_T: tensor overlap reduction function at given frequencies
-    orf_V: vector ORF at given frequencies
-    orf_S: scalar ORF at given frequencies
+    overlap_reduction_function: overlap reduction function at given frequencies
+        for specified polarization
     """
 
     delta_x = np.subtract(det1_vertex, det2_vertex)
@@ -187,8 +193,10 @@ def calc_orf(
                 + Sminus(alpha, beta) * np.cos(4 * omega_minus)
             )
         )
+    elif polarization.lower() == "right_left":
+        overlap_reduction_function = T_right_left(alpha, beta) * np.sin(4 * omega_plus)
     else:
         raise ValueError(
-            "Unrecognized polarization! Must be either tensor, vector, or scalar"
+            "Unrecognized polarization! Must be either tensor, vector, scalar, or right_left"
         )
     return overlap_reduction_function
