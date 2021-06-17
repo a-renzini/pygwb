@@ -69,7 +69,6 @@ class Baseline(object):
             self._gamma_v_calculated = True
         return self._gamma_v
 
-
     def set_duration(self, duration):
         """Sets the duration for the Baseline and interferometers
 
