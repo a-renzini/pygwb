@@ -5,9 +5,10 @@ import gwpy
 import numpy as np
 from scipy.interpolate import interp1d
 
+from pygwb.baseline import Baseline
 from pygwb.constants import H0
 
-from pygwb.spectral import coarse_grain
+from .spectral import coarse_grain
 
 
 class TimeSeries:
@@ -200,6 +201,34 @@ def interpolate_frequencySeries(fSeries, new_frequencies):
     spectrum = fSeries.value
     frequencies = fSeries.frequencies.value
 
-    spectrum_func = interp1d(frequencies, spectrum, kind='cubic', fill_value='extrapolate')
+    spectrum_func = interp1d(frequencies, spectrum)
 
     return spectrum_func(new_frequencies)
+
+
+def get_baselines(interferometers, duration=None, sampling_frequency=None):
+    """
+    Parameters
+    ==========
+    interferometers: list of bilby interferometer objects
+    """
+    Nd = len(interferometers)
+
+    combo_tuples = []
+    for j in range(1, Nd):
+        for k in range(j):
+            combo_tuples.append((k, j))
+
+    baselines = []
+    for i, j in combo_tuples:
+        base_name = f"{interferometers[i].name} - {interferometers[j].name}"
+        baselines.append(
+            Baseline(
+                base_name,
+                interferometers[i],
+                interferometers[j],
+                duration=duration,
+                sampling_frequency=sampling_frequency,
+            )
+        )
+    return baselines

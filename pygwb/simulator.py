@@ -4,11 +4,12 @@ import bilby
 import gwpy
 import h5py
 import numpy as np
+from bilby.core.utils import create_frequency_series
 from scipy.interpolate import interp1d
 
-from pygwb.baseline import Baseline #pygwb
-from pygwb.constants import H0 #pygwb
-from pygwb.util import interpolate_frequencySeries, omegaToPower #pygwb
+from pygwb.baseline import Baseline
+from pygwb.constants import H0
+from pygwb.util import get_baselines, interpolate_frequencySeries, omegaToPower
 
 if sys.version_info >= (3, 0):
     import configparser
@@ -24,12 +25,24 @@ urgent
 
 * everything is initiated via baseline_1; how to change this?
 * write all the necessary import checks
+    - noise PSD of interferometers is set (add this to get_noise_PSD_list)
+    - check frequencies from baseline; remove 0s (add this to set_frequencies)
+        in principle we would have to "copy over" ALL the checks implemented in `baseline`;
+        this may seem like a good reason to initialise the `Simulator` with baselines directly,
+        but then in principle we would have to repeat all those checks between the baselines,
+        so I don't think it really matters. If there is a mismatch between `duration` or 
+        `sampling_frequency` at the level of individual baselines, this will get flagged when
+        initialising a baseline; as each baseline shares a detector with at least 1 other baseline,
+        we're fine.
+    - other?
 * unit tests
+* add flag to set NoisePSDs to 0
 
 less urgent
 -----------
 * discuss with group re- initialising with baselines vs ifos
 * discuss Network object
+* add save to file functionality
 
 
 """
@@ -37,51 +50,71 @@ less urgent
 
 class Simulator(object):
     def __init__(
-        self, baselines, noise_PSD_array, omegaGW, NSegments, startTime=0,
-        save_to_file=False):  # (self, noisePSD, omegaGW, orf, sampling_frequency, duration, NSegments):
+        self,
+        interferometers,
+        omegaGW,
+        NSegments,
+        duration,
+        sampling_frequency,
+        startTime=0,
+        save_to_file=False,
+        no_noise=False,
+    ):  # (self, noisePSD, omegaGW, orf, sampling_frequency, duration, NSegments):
         """
         Class that simulates an isotropic stochastic background.
 
         Parameters
         ==========
-        baselines: list of baselines #make into dictionary
+        interferometers: list of bilby interferometer objects
         omegaGW:
+        NSegments:
+        duration:
+        sampling_frequency:
+        startTime:
+        save_to_file:
+        no_noise:
 
         Returns
         =======
         """
 
-        self.baselines = baselines
-        # [detector attributes]
-        self.noise_PSD_array = noise_PSD_array
+        self.interferometers = interferometers
+        self.Nd = len(self.interferometers)
+        # (int(1 + np.sqrt(1 + 8 * len(baselines)))) // 2
 
+        self.sampling_frequency = sampling_frequency
+        self.duration = duration
+
+        for ifo in interferometers:
+            ifo.sampling_frequency = self.sampling_frequency
+            ifo.duration = self.duration
+
+        self.NSegments = NSegments
+        self.frequencies = self.get_frequencies()
+        self.Nf = len(self.frequencies)
+        self.t0 = startTime
+        self.NSamplesPerSegment = int(self.sampling_frequency * self.duration)
+        self.deltaT = 1 / self.sampling_frequency
+
+        self.noise_PSD_array = self.get_noise_PSD_array()
+        if no_noise == True:
+            self.noise_PSD_array = np.zeros_like(noise_PSD_array)
+
+        baselines = get_baselines(
+            self.interferometers,
+            duration=self.duration,
+            sampling_frequency=self.sampling_frequency,
+        )
         self.orf = np.array(
             [baseline.overlap_reduction_function for baseline in baselines]
         )
-
-        # [time/frequency handling]
-        baseline_1 = self.baselines[0]
-        self.sampling_frequency = (
-            baseline_1.sampling_frequency
-        )  # inherited from baselines/interferometer objects
-        self.duration = (
-            baseline_1.duration
-        )  # inherited from baselines/interferometer objects
-        self.NSegments = NSegments
-        self.frequencies = baseline_1.frequencies
-        self.Nf = len(self.frequencies)
-        self.t0 = startTime
-
-        self.Nd = (int(1 + np.sqrt(1 + 8 * len(self.baselines)))) // 2
-
-        self.NSamplesPerSegment = int(self.sampling_frequency * self.duration)
-        self.deltaT = 1 / self.sampling_frequency
 
         self.OmegaGW = interpolate_frequencySeries(omegaGW, self.frequencies)
 
         self.gen_data = self.generate_data()
 
-        # if save_to_file = True: ...
+        if save_to_file == True:
+            self.write()
 
     @classmethod
     def from_ifo_list(
@@ -89,56 +122,64 @@ class Simulator(object):
         ifo_list,
         omegaGW,
         NSegments,
+        duration,
+        sampling_frequency,
         startTime=0,
-        duration=None,
-        sampling_frequency=None,
         save_to_file=False,
+        no_noise=False,
     ):
 
         interferometers = bilby.gw.detector.InterferometerList(ifo_list)
 
-        combo_tuples = []
-        for j in range(1, len(ifo_list)):
-            for k in range(j):
-                combo_tuples.append((k, j))
+        return cls(
+            interferometers,
+            omegaGW,
+            NSegments,
+            duration,
+            sampling_frequency,
+            startTime=startTime,
+            save_to_file=save_to_file,
+            no_noise=no_noise,
+        )
 
-        baselines = []
-        for i, j in combo_tuples:
-            base_name = f"{ifo_list[i]} - {ifo_list[j]}"
-            baselines.append(
-                Baseline(
-                    base_name,
-                    interferometers[i],
-                    interferometers[j],
-                    duration=duration,
-                    sampling_frequency=sampling_frequency,
-                )
-            )
-
-        noisePSDs = []
-        for ifo in interferometers:
-            psd = ifo.power_spectral_density_array
-            psd[np.isinf(psd)] = 1
-            noisePSDs.append(psd)
-
-        noisePSDs = np.array(noisePSDs)
-
-        return cls(baselines, noisePSDs, omegaGW, NSegments, startTime, save_to_file=save_to_file)
-
-    def write(self):
+    def write(self, flag="to_h5"):
         """
         TODO: develop write method; make decisions here
         """
 
-        def save_data_to_npz(self):
-            """ """
-            np.savez("data.npz", data=self.gen_data)
+        # def save_data_to_npz(self):
+        #    """ """
+        #    np.savez("data.npz", data=self.gen_data)
 
-        def save_data_h5(self):
+        def save_data_to_h5(self):
             """ """
             timeseries_data = gwpy.timeseries.Timeseries.self.gen_data
             timeseries_data.t0 = my_t0
             Timeseries.write_to_h5(self.gen_data)
+
+        if flag == "to_h5":
+            save_data_to_h5()
+        else:
+            raise ValueError(f"Unknown flag: '{flag}'")
+
+    def get_frequencies(self):
+        """ """
+        frequencies = create_frequency_series(
+            sampling_frequency=self.sampling_frequency, duration=self.duration
+        )
+
+        return frequencies
+
+    def get_noise_PSD_array(self):
+        """ """
+        noisePSDs = []
+        for ifo in self.interferometers:
+            psd = ifo.power_spectral_density_array
+            psd[np.isinf(psd)] = 1
+            # ^^^ this makes sure that there are no infinities in the psd
+            noisePSDs.append(psd)
+
+        return np.array(noisePSDs)
 
     def timeseries_data(self):
         return self.gen_data
@@ -160,11 +201,13 @@ class Simulator(object):
         """
         y = self.simulate_data()
         dataTemp = self.splice_segments(y)
-        
-        data = np.zeros(self.Nd)
+
+        data = np.zeros(self.Nd, dtype=gwpy.timeseries.TimeSeries)
         for ii in range(self.Nd):
-            data[ii] = gwpy.timeseries.TimeSeries(dataTemp[ii], t0=self.t0, dt=self.deltaT)
-        
+            data[ii] = gwpy.timeseries.TimeSeries(
+                dataTemp[ii], t0=self.t0, dt=self.deltaT
+            )
+
         return data
 
     def orfToArray(self):

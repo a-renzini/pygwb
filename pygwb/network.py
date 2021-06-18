@@ -46,7 +46,7 @@ class Network(object):
                     interferometers[j],
                     duration,
                     sampling_frequency,
-                    calibration_epsilon
+                    calibration_epsilon,
                 )
             )
 
@@ -55,8 +55,9 @@ class Network(object):
         self.noise_PSD_array = self.get_noise_PSD_array()
 
     @classmethod
-    def from_interferometer_list(cls, ifo_list, duration=None, 
-        sampling_frequency=None, calibration_epsilon=0):
+    def from_interferometer_list(
+        cls, ifo_list, duration=None, sampling_frequency=None, calibration_epsilon=0
+    ):
         """
         [PARAMETERS]
         ------------------------
@@ -66,12 +67,12 @@ class Network(object):
             segment duration
         sampling_frequency: float
             sampling frequency
-            
+
         """
         interferometers = bilby.gw.detector.InterferometerList(ifo_list)
-        
+
         return cls(interferometers, duration, sampling_frequency, calibration_epsilon)
-    
+
     def get_noise_PSD_array(self):
         """ """
         noisePSDs = []
@@ -87,6 +88,6 @@ class Network(object):
         injection module for the Network object
         [PARAMETERS]
         ----------------------
-        
+
         """
         pass
