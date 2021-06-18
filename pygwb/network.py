@@ -1,15 +1,17 @@
 import bilby
 import numpy as np
 
-from .baseline import Baseline
-from .simulator import Simulator
+from baseline import Baseline #.
+from simulator import Simulator #.
 
 
 class Network(object):
     def __init__(
         self,
         interferometers,
-        freqs,
+        duration=None,
+        sampling_frequency=None,
+        calibration_epsilon=0,
     ):
         """
         pygwb Network object with multiple functionalities
@@ -24,32 +26,35 @@ class Network(object):
         freqs: array_like
             frequency array
         """
-
+        self.interferometers = interferometers
         self.Nifo = len(interferometers)
 
         combo_tuples = []
-        for j in range(1, len(ifo_list)):
+        for j in range(1, len(interferometers)):
             for k in range(j):
                 combo_tuples.append((k, j))
 
         baselines = []
         for i, j in combo_tuples:
-            base_name = f"{ifo_list[i]} - {ifo_list[j]}"
+            base_name = f"{interferometers[i]} - {interferometers[j]}"
             baselines.append(
                 Baseline(
                     base_name,
                     interferometers[i],
                     interferometers[j],
-                    freqs,
+                    duration,
+                    sampling_frequency,
+                    calibration_epsilon
                 )
             )
 
         self.baselines = baselines
 
-        self.noise_PSD_array = get_noise_PSD_array()
+        self.noise_PSD_array = self.get_noise_PSD_array()
 
     @classmethod
-    def from_interferometer_list(cls, ifo_list, freqs):
+    def from_interferometer_list(cls, ifo_list, duration=None, 
+        sampling_frequency=None, calibration_epsilon=0):
         """
         [PARAMETERS]
         ------------------------
@@ -57,25 +62,30 @@ class Network(object):
             list of interferometer names
         """
         interferometers = bilby.gw.detector.InterferometerList(ifo_list)
+        
+        return cls(interferometers, duration, sampling_frequency, calibration_epsilon)
+    
+    #I commented out the part below, otherwise it was computing the baselines twice.
+#         combo_tuples = []
+#         for j in range(1, len(ifo_list)):
+#             for k in range(j):
+#                 combo_tuples.append((k, j))
 
-        combo_tuples = []
-        for j in range(1, len(ifo_list)):
-            for k in range(j):
-                combo_tuples.append((k, j))
+#         baselines = []
+#         for i, j in combo_tuples:
+#             base_name = f"{ifo_list[i]} - {ifo_list[j]}"
+#             baselines.append(
+#                 Baseline(
+#                     base_name,
+#                     interferometers[i],
+#                     interferometers[j],
+#                     duration,
+#                     sampling_frequency,
+#                     calibration_epsilon
+#                 )
+#             )
 
-        baselines = []
-        for i, j in combo_tuples:
-            base_name = f"{ifo_list[i]} - {ifo_list[j]}"
-            baselines.append(
-                Baseline(
-                    base_name,
-                    interferometers[i],
-                    interferometers[j],
-                    freqs,
-                )
-            )
-
-        return cls(baselines, freqs)
+#         return cls(baselines, freqs)
 
     def get_noise_PSD_array(self):
         """ """
@@ -87,12 +97,12 @@ class Network(object):
 
         return np.array(noisePSDs)
 
-    def inject_GWB(self, ini_file):
+    def inject_GWB(self):
         """
         injection module for the Network object
         [PARAMETERS]
         ----------------------
-        ini_file: path
-            path to the injection .ini file containing injection parameters
+        
         """
-        simulation_GWB.from_ini_file(self.baselines, ini_file)
+        pass
+#         simulator.from_ifo_list()

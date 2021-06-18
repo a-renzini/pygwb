@@ -6,9 +6,9 @@ import h5py
 import numpy as np
 from scipy.interpolate import interp1d
 
-from pygwb.baseline import Baseline
-from pygwb.constants import H0
-from pygwb.util import interpolate_frequencySeries, omegaToPower
+from baseline import Baseline #pygwb
+from constants import H0 #pygwb
+from util import interpolate_frequencySeries, omegaToPower #pygwb
 
 if sys.version_info >= (3, 0):
     import configparser
@@ -34,8 +34,8 @@ less urgent
 
 class Simulator(object):
     def __init__(
-        self, baselines, noise_PSD_array, omegaGW, NSegments, save_to_file=False
-    ):  # (self, noisePSD, omegaGW, orf, sampling_frequency, duration, NSegments):
+        self, baselines, noise_PSD_array, omegaGW, NSegments, startTime=0,
+        save_to_file=False):  # (self, noisePSD, omegaGW, orf, sampling_frequency, duration, NSegments):
         """
         Class that simulates an isotropic stochastic background.
 
@@ -65,13 +65,14 @@ class Simulator(object):
             baseline_1.duration
         )  # inherited from baselines/interferometer objects
         self.NSegments = NSegments
+        self.segmentDuration = self.duration // self.NSegments
         self.frequencies = baseline_1.frequencies
         self.Nf = len(self.frequencies)
-        # self.t0 = t0
+        self.t0 = startTime
 
         self.Nd = (int(1 + np.sqrt(1 + 8 * len(self.baselines)))) // 2
 
-        self.NSamplesPerSegment = int(self.sampling_frequency * self.duration)
+        self.NSamplesPerSegment = int(self.sampling_frequency * self.segmentDuration)
         self.deltaT = 1 / self.sampling_frequency
 
         self.OmegaGW = interpolate_frequencySeries(omegaGW, self.frequencies)
@@ -86,6 +87,7 @@ class Simulator(object):
         ifo_list,
         omegaGW,
         NSegments,
+        startTime=0,
         duration=None,
         sampling_frequency=None,
         save_to_file=False,
@@ -119,7 +121,7 @@ class Simulator(object):
 
         noisePSDs = np.array(noisePSDs)
 
-        return cls(baselines, noisePSDs, omegaGW, NSegments, save_to_file=save_to_file)
+        return cls(baselines, noisePSDs, omegaGW, NSegments, startTime, save_to_file=save_to_file)
 
     def write(self):
         """
@@ -155,8 +157,12 @@ class Simulator(object):
             data containing the simulated isotropic stochastic background.
         """
         y = self.simulate_data()
-        data = self.splice_segments(y)
-        #         data = gwpy.timeseries.TimeSeries(data, times=t)
+        dataTemp = self.splice_segments(y)
+        
+        data = np.zeros(self.Nd)
+        for ii in range(self.Nd):
+            data[ii] = gwpy.timeseries.TimeSeries(dataTemp[ii], t0=self.t0, dt=self.deltaT)
+        
         return data
 
     def orfToArray(self):

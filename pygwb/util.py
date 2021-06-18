@@ -5,9 +5,9 @@ import gwpy
 import numpy as np
 from scipy.interpolate import interp1d
 
-from pygwb.constants import H0
+from constants import H0 #pygwb
 
-from .spectral import coarse_grain
+from spectral import coarse_grain #.
 
 
 class TimeSeries:
@@ -200,6 +200,6 @@ def interpolate_frequencySeries(fSeries, new_frequencies):
     spectrum = fSeries.value
     frequencies = fSeries.frequencies.value
 
-    spectrum_func = interp1d(frequencies, spectrum)
+    spectrum_func = interp1d(frequencies, spectrum, kind='cubic', fill_value='extrapolate')
 
     return spectrum_func(new_frequencies)
