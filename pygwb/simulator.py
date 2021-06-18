@@ -21,13 +21,16 @@ TODOS
 
 urgent
 -------
-* convert the output of simulate_data into a gwpy timeseries
+
 * everything is initiated via baseline_1; how to change this?
-* discuss with group re- initialising with baselines vs ifos
+* write all the necessary import checks
+* unit tests
 
 less urgent
 -----------
-* write all the necessary import checks
+* discuss with group re- initialising with baselines vs ifos
+* discuss Network object
+
 
 """
 
