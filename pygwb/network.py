@@ -1,8 +1,8 @@
 import bilby
 import numpy as np
 
-from baseline import Baseline #.
-from simulator import Simulator #.
+from .baseline import Baseline
+from .simulator import Simulator
 
 
 class Network(object):
@@ -21,10 +21,12 @@ class Network(object):
 
         [PARAMETERS]
         ------------------------
-        baselines: list of baseline objects
+        interferometers: list of intereferometer objects
             baseline list
-        freqs: array_like
-            frequency array
+        duration: int
+            segment duration
+        sampling_frequency: float
+            sampling frequency
         """
         self.interferometers = interferometers
         self.Nifo = len(interferometers)
@@ -60,33 +62,16 @@ class Network(object):
         ------------------------
         ifo_list: list of str
             list of interferometer names
+        duration: int
+            segment duration
+        sampling_frequency: float
+            sampling frequency
+            
         """
         interferometers = bilby.gw.detector.InterferometerList(ifo_list)
         
         return cls(interferometers, duration, sampling_frequency, calibration_epsilon)
     
-    #I commented out the part below, otherwise it was computing the baselines twice.
-#         combo_tuples = []
-#         for j in range(1, len(ifo_list)):
-#             for k in range(j):
-#                 combo_tuples.append((k, j))
-
-#         baselines = []
-#         for i, j in combo_tuples:
-#             base_name = f"{ifo_list[i]} - {ifo_list[j]}"
-#             baselines.append(
-#                 Baseline(
-#                     base_name,
-#                     interferometers[i],
-#                     interferometers[j],
-#                     duration,
-#                     sampling_frequency,
-#                     calibration_epsilon
-#                 )
-#             )
-
-#         return cls(baselines, freqs)
-
     def get_noise_PSD_array(self):
         """ """
         noisePSDs = []
@@ -105,4 +90,3 @@ class Network(object):
         
         """
         pass
-#         simulator.from_ifo_list()

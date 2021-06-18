@@ -6,9 +6,9 @@ import h5py
 import numpy as np
 from scipy.interpolate import interp1d
 
-from baseline import Baseline #pygwb
-from constants import H0 #pygwb
-from util import interpolate_frequencySeries, omegaToPower #pygwb
+from pygwb.baseline import Baseline #pygwb
+from pygwb.constants import H0 #pygwb
+from pygwb.util import interpolate_frequencySeries, omegaToPower #pygwb
 
 if sys.version_info >= (3, 0):
     import configparser
@@ -68,14 +68,13 @@ class Simulator(object):
             baseline_1.duration
         )  # inherited from baselines/interferometer objects
         self.NSegments = NSegments
-        self.segmentDuration = self.duration // self.NSegments
         self.frequencies = baseline_1.frequencies
         self.Nf = len(self.frequencies)
         self.t0 = startTime
 
         self.Nd = (int(1 + np.sqrt(1 + 8 * len(self.baselines)))) // 2
 
-        self.NSamplesPerSegment = int(self.sampling_frequency * self.segmentDuration)
+        self.NSamplesPerSegment = int(self.sampling_frequency * self.duration)
         self.deltaT = 1 / self.sampling_frequency
 
         self.OmegaGW = interpolate_frequencySeries(omegaGW, self.frequencies)

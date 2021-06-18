@@ -5,9 +5,9 @@ import gwpy
 import numpy as np
 from scipy.interpolate import interp1d
 
-from constants import H0 #pygwb
+from pygwb.constants import H0
 
-from spectral import coarse_grain #.
+from pygwb.spectral import coarse_grain
 
 
 class TimeSeries:
