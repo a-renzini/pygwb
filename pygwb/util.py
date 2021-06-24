@@ -201,7 +201,7 @@ def interpolate_frequencySeries(fSeries, new_frequencies):
     spectrum = fSeries.value
     frequencies = fSeries.frequencies.value
 
-    spectrum_func = interp1d(frequencies, spectrum)
+    spectrum_func = interp1d(frequencies, spectrum, kind='cubic', fill_value='extrapolate')
 
     return spectrum_func(new_frequencies)
 
