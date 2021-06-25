@@ -164,6 +164,7 @@ def omegaToPower(OmegaGW, frequencies):
     power = H_theor * OmegaGW * frequencies ** (-3)
     power = gwpy.frequencyseries.FrequencySeries(power, frequencies=frequencies)
     power[np.isnan(power)] = 0
+    power[np.isinf(power)] = 0
 
     return power
 

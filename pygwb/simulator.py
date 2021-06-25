@@ -167,7 +167,6 @@ class Simulator(object):
         frequencies = create_frequency_series(
             sampling_frequency=self.sampling_frequency, duration=self.duration
         )
-
         return frequencies
 
     def get_noise_PSD_array(self):
@@ -175,8 +174,11 @@ class Simulator(object):
         noisePSDs = []
         for ifo in self.interferometers:
             psd = ifo.power_spectral_density_array
-            psd[np.isinf(psd)] = 1
+            psd[np.isinf(psd)] = 0.0
             # ^^^ this makes sure that there are no infinities in the psd
+            import matplotlib.pyplot as plt
+            plt.loglog(self.frequencies, psd)
+            plt.savefig(f'psd-{ifo.name}.png')
             noisePSDs.append(psd)
 
         return np.array(noisePSDs)
@@ -205,7 +207,7 @@ class Simulator(object):
         data = np.zeros(self.Nd, dtype=gwpy.timeseries.TimeSeries)
         for ii in range(self.Nd):
             data[ii] = gwpy.timeseries.TimeSeries(
-                dataTemp[ii], t0=self.t0, dt=self.deltaT
+                dataTemp[ii].astype('float64'), t0=self.t0, dt=self.deltaT
             )
 
         return data
@@ -268,7 +270,7 @@ class Simulator(object):
                     C[ii, jj, :] = self.noise_PSD_array[ii] + GWBPower.value[:]
                 else:
                     C[ii, jj, :] = orf_array[ii, jj] * GWBPower.value[:]
-
+        C[C==0.] = 1.e-45
         C = self.NSamplesPerSegment / (self.deltaT * 4) * C
         return C
 
