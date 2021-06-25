@@ -108,11 +108,11 @@ def tangent_vector(vector1, vector2):
     )
 
 
-def omega_tangent_bisector(bisector, tangent_vector):
-    return np.arccos(
-        np.dot(bisector, tangent_vector)
-        / (np.linalg.norm(bisector) * np.linalg.norm(tangent_vector))
-    )
+def omega_tangent_bisector(bisector, tangent_vector, perp):
+    norm = np.linalg.norm(bisector) * np.linalg.norm(tangent_vector)
+    sin_omega = np.dot(np.cross(bisector, tangent_vector), perp) / norm
+    cos_omega = np.dot(bisector, tangent_vector) / norm
+    return np.arctan2(sin_omega, cos_omega)
 
 
 def calc_orf(
@@ -129,7 +129,8 @@ def calc_orf(
     Calculates the tensor, scalar, and vector overlap reduction functions
     Following Section IVb of https://arxiv.org/abs/0903.0528
     See Appendix A of https://arxiv.org/abs/1704.08373 for a
-    discussion of the normalization of the scalar ORF
+    discussion of the normalization of the scalar ORF and 
+    https://arxiv.org/pdf/0707.0535.pdf for the gamma_V function
 
     Inputs:
     frequencies: frequencies at which to evaluate the ORFs
@@ -145,6 +146,7 @@ def calc_orf(
     beta: angle between detectors from center of earth
     tan_detX: tangent vector at detX along great circle between detectors
     bisector_detX: detX arm bisector vector
+    perp_detX: outward radial vector perpendicular to the detector plane
     omega_detX: angle between bisector and tangent vector at detX
     perp: vector at theta=90 along great circle with det1_vertex theta=0
 
@@ -160,16 +162,19 @@ def calc_orf(
         np.dot(det1_vertex, det2_vertex)
         / (np.linalg.norm(det1_vertex) * np.linalg.norm(det2_vertex))
     )
+    
     tan_det1 = tangent_vector(det1_vertex, det2_vertex)
     bisector_det1 = np.add(det1_xarm, det1_yarm)
+    perp_det1 = -np.cross(det1_xarm, det1_yarm)/(np.linalg.norm(det1_xarm)*np.linalg.norm(det1_yarm))
 
     perp = np.cross(np.cross(det1_vertex, det2_vertex), det1_vertex)
     tan_det2 = tangent_vector(det2_vertex, perp)
     bisector_det2 = np.add(det2_xarm, det2_yarm)
+    perp_det2 = -np.cross(det2_xarm, det2_yarm)/(np.linalg.norm(det2_xarm)*np.linalg.norm(det2_yarm))
 
     if np.linalg.norm(delta_x) != 0:
-        omega_det1 = omega_tangent_bisector(bisector_det1, tan_det1)
-        omega_det2 = omega_tangent_bisector(bisector_det2, tan_det2)
+        omega_det1 = omega_tangent_bisector(bisector_det1, tan_det1, perp_det1)
+        omega_det2 = omega_tangent_bisector(bisector_det2, tan_det2, perp_det2)
         omega_plus = (omega_det1 + omega_det2) / 2
         omega_minus = (omega_det1 - omega_det2) / 2
     else:
