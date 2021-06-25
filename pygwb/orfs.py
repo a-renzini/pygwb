@@ -129,7 +129,7 @@ def calc_orf(
     Calculates the tensor, scalar, and vector overlap reduction functions
     Following Section IVb of https://arxiv.org/abs/0903.0528
     See Appendix A of https://arxiv.org/abs/1704.08373 for a
-    discussion of the normalization of the scalar ORF and 
+    discussion of the normalization of the scalar ORF and
     https://arxiv.org/pdf/0707.0535.pdf for the gamma_V function
 
     Inputs:
@@ -162,15 +162,19 @@ def calc_orf(
         np.dot(det1_vertex, det2_vertex)
         / (np.linalg.norm(det1_vertex) * np.linalg.norm(det2_vertex))
     )
-    
+
     tan_det1 = tangent_vector(det1_vertex, det2_vertex)
     bisector_det1 = np.add(det1_xarm, det1_yarm)
-    perp_det1 = -np.cross(det1_xarm, det1_yarm)/(np.linalg.norm(det1_xarm)*np.linalg.norm(det1_yarm))
+    perp_det1 = -np.cross(det1_xarm, det1_yarm) / (
+        np.linalg.norm(det1_xarm) * np.linalg.norm(det1_yarm)
+    )
 
     perp = np.cross(np.cross(det1_vertex, det2_vertex), det1_vertex)
     tan_det2 = tangent_vector(det2_vertex, perp)
     bisector_det2 = np.add(det2_xarm, det2_yarm)
-    perp_det2 = -np.cross(det2_xarm, det2_yarm)/(np.linalg.norm(det2_xarm)*np.linalg.norm(det2_yarm))
+    perp_det2 = -np.cross(det2_xarm, det2_yarm) / (
+        np.linalg.norm(det2_xarm) * np.linalg.norm(det2_yarm)
+    )
 
     if np.linalg.norm(delta_x) != 0:
         omega_det1 = omega_tangent_bisector(bisector_det1, tan_det1, perp_det1)
