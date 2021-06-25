@@ -23,7 +23,6 @@ TODOS
 urgent
 -------
 
-* everything is initiated via baseline_1; how to change this?
 * write all the necessary import checks
     - noise PSD of interferometers is set (add this to get_noise_PSD_list)
     - check frequencies from baseline; remove 0s (add this to set_frequencies)
@@ -36,14 +35,12 @@ urgent
         we're fine.
     - other?
 * unit tests
-* add flag to set NoisePSDs to 0
 
 less urgent
 -----------
-* discuss with group re- initialising with baselines vs ifos
-* discuss Network object
-* add save to file functionality
-
+* add save to file functionality (more or less done for hdf5). If want to allow for other fily types, we shoud
+add this as an extra input parameter of the simulation. Need to discuss
+* Sylvia's 'baseline': either set the 'sampling_frequency' and the 'duration' automatically from the interferometers, OR you have to pass it. Should discuss if need for such a function in this module.
 
 """
 
@@ -52,11 +49,11 @@ class Simulator(object):
     def __init__(
         self,
         interferometers,
-        omegaGW,
+        IntensityGW,
         NSegments,
         duration,
         sampling_frequency,
-        startTime=0,
+        startTime=0.0,
         save_to_file=False,
         no_noise=False,
     ):  # (self, noisePSD, omegaGW, orf, sampling_frequency, duration, NSegments):
@@ -66,101 +63,81 @@ class Simulator(object):
         Parameters
         ==========
         interferometers: list of bilby interferometer objects
-        omegaGW:
-        NSegments:
-        duration:
-        sampling_frequency:
-        startTime:
-        save_to_file:
-        no_noise:
+        omegaGW: gwpy.frequencyseries.FrequencySeries
+            A gwpy.frequencyseries.FrequencySeries containing the desired Omega spectrum
+            which needs to be simulated
+        NSegments: int
+            Number of segments that needs to be generated for the simulation
+        duration: float
+            Duration of a simulated data segment
+        sampling_frequency: float
+            Sampling frequency 
+        startTime: float
+            Start time of the simulation
+        save_to_file: boolean
+            Flag that turns on/off the option to save the simulated data to a file
+        no_noise: boolean
+            Flag that sets the noisePSDs to 0
 
         Returns
         =======
         """
+        if len(interferometers) < 2:
+            raise ValueError("Number of interferometers should be at least 2")
+        else:
+            self.interferometers = interferometers
+            self.Nd = len(self.interferometers)
+            # (int(1 + np.sqrt(1 + 8 * len(baselines)))) // 2
 
-        self.interferometers = interferometers
-        self.Nd = len(self.interferometers)
-        # (int(1 + np.sqrt(1 + 8 * len(baselines)))) // 2
+            self.sampling_frequency = sampling_frequency
+            self.duration = duration
 
-        self.sampling_frequency = sampling_frequency
-        self.duration = duration
+            for ifo in interferometers:
+                ifo.sampling_frequency = self.sampling_frequency
+                ifo.duration = self.duration
 
-        for ifo in interferometers:
-            ifo.sampling_frequency = self.sampling_frequency
-            ifo.duration = self.duration
+            self.NSegments = NSegments
+            self.frequencies = self.get_frequencies()
+            self.Nf = len(self.frequencies)
+            self.t0 = startTime
+            self.NSamplesPerSegment = int(self.sampling_frequency * self.duration)
+            self.deltaT = 1 / self.sampling_frequency
 
-        self.NSegments = NSegments
-        self.frequencies = self.get_frequencies()
-        self.Nf = len(self.frequencies)
-        self.t0 = startTime
-        self.NSamplesPerSegment = int(self.sampling_frequency * self.duration)
-        self.deltaT = 1 / self.sampling_frequency
+            self.noise_PSD_array = self.get_noise_PSD_array()
+            if no_noise == True:
+                self.noise_PSD_array = np.zeros_like(noise_PSD_array)
 
-        self.noise_PSD_array = self.get_noise_PSD_array()
-        if no_noise == True:
-            self.noise_PSD_array = np.zeros_like(noise_PSD_array)
+            baselines = get_baselines(
+                self.interferometers,
+                duration=self.duration,
+                sampling_frequency=self.sampling_frequency,
+            )
+            self.orf = self.get_orf(baselines)
 
-        baselines = get_baselines(
-            self.interferometers,
-            duration=self.duration,
-            sampling_frequency=self.sampling_frequency,
-        )
-        self.orf = np.array(
-            [baseline.overlap_reduction_function for baseline in baselines]
-        )
+            self.IntensityGW = interpolate_frequencySeries(IntensityGW, self.frequencies)
 
-        self.OmegaGW = interpolate_frequencySeries(omegaGW, self.frequencies)
+            self.gen_data = self.generate_data()
 
-        self.gen_data = self.generate_data()
+            if save_to_file == True:
+                self.write()
 
-        if save_to_file == True:
-            self.write()
 
-    @classmethod
-    def from_ifo_list(
-        cls,
-        ifo_list,
-        omegaGW,
-        NSegments,
-        duration,
-        sampling_frequency,
-        startTime=0,
-        save_to_file=False,
-        no_noise=False,
-    ):
-
-        interferometers = bilby.gw.detector.InterferometerList(ifo_list)
-
-        return cls(
-            interferometers,
-            omegaGW,
-            NSegments,
-            duration,
-            sampling_frequency,
-            startTime=startTime,
-            save_to_file=save_to_file,
-            no_noise=no_noise,
-        )
-
-    def write(self, flag="to_h5"):
+    def write(self, flag="to_hdf5"):
         """
         TODO: develop write method; make decisions here
         """
 
-        # def save_data_to_npz(self):
-        #    """ """
-        #    np.savez("data.npz", data=self.gen_data)
-
-        def save_data_to_h5(self):
+        def save_data_to_hdf5():
             """ """
-            timeseries_data = gwpy.timeseries.Timeseries.self.gen_data
-            timeseries_data.t0 = my_t0
-            Timeseries.write_to_h5(self.gen_data)
+            for ii in range(len(self.interferometers)):
+                #                 self.gen_data[ii].write()
+                pass
 
-        if flag == "to_h5":
-            save_data_to_h5()
+        if flag == "to_hdf5":
+            save_data_to_hdf5()
         else:
             raise ValueError(f"Unknown flag: '{flag}'")
+
 
     def get_frequencies(self):
         """ """
@@ -169,22 +146,37 @@ class Simulator(object):
         )
         return frequencies
 
+
     def get_noise_PSD_array(self):
         """ """
         noisePSDs = []
-        for ifo in self.interferometers:
-            psd = ifo.power_spectral_density_array
-            psd[np.isinf(psd)] = 0.0
-            # ^^^ this makes sure that there are no infinities in the psd
-            import matplotlib.pyplot as plt
-            plt.loglog(self.frequencies, psd)
-            plt.savefig(f'psd-{ifo.name}.png')
-            noisePSDs.append(psd)
+        try:
+            for ifo in self.interferometers:
+                psd = ifo.power_spectral_density.psd_array
+                
+                ## dev
+                if np.isinf(psd).any() == True:
+                    raise ValueError(f"The noisePSD of interferometer {ifo.name} contains infs!")
+                ##
 
-        return np.array(noisePSDs)
+                #if psd.shape[0] != self.frequencies.shape[0]:
+                #    psd = psd[1:]
+                noisePSDs.append(psd)
+            return np.array(noisePSDs)
+        except:
+            raise AttributeError(
+                "The noisePSD of all the detectors needs to be specified!"
+            )
 
-    def timeseries_data(self):
-        return self.gen_data
+
+    def get_orf(self, baselines):
+        orf_list = []
+        orfs = np.array([baseline.overlap_reduction_function for baseline in baselines])
+        for orf in orfs:
+            if orf.shape[0] != self.frequencies.shape[0]:
+                orf = orf[1:]
+            orf_list.append(orf)
+        return orf_list
 
     def generate_data(self):
         """
@@ -234,8 +226,7 @@ class Simulator(object):
         """
         index = 0
         orf_array = np.zeros(
-            (self.Nd, self.Nd),
-            dtype=gwpy.frequencyseries.frequencyseries.FrequencySeries,
+            (self.Nd, self.Nd), dtype=gwpy.frequencyseries.FrequencySeries,
         )
         for ii in range(self.Nd):
             for jj in range(ii):
@@ -259,7 +250,7 @@ class Simulator(object):
             various detectors. Dimensions are Nd x Nd x Nf, where Nd is the
             number of detectors and Nf the number of frequencies.
         """
-        GWBPower = omegaToPower(self.OmegaGW, self.frequencies)
+        GWBPower = self.IntensityGW #omegaToPower(self.OmegaGW, self.frequencies)
         orf_array = self.orfToArray()
 
         C = np.zeros((self.Nd, self.Nd, self.Nf))
@@ -442,8 +433,6 @@ class Simulator(object):
                 data[
                     ii,
                     jj * self.NSamplesPerSegment : (jj + 1) * self.NSamplesPerSegment,
-                ] = (
-                    z0 + z1 + z2
-                )
+                ] = (z0 + z1 + z2)
 
         return data
