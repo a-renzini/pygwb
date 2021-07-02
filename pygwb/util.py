@@ -163,8 +163,8 @@ def omegaToPower(OmegaGW, frequencies):
 
     power = H_theor * OmegaGW * frequencies ** (-3)
     power = gwpy.frequencyseries.FrequencySeries(power, frequencies=frequencies)
-    #power[np.isnan(power)] = 0
-    #power[np.isinf(power)] = 1.e-50
+    # power[np.isnan(power)] = 0
+    # power[np.isinf(power)] = 1.e-50
 
     return power
 
@@ -202,9 +202,13 @@ def interpolate_frequencySeries(fSeries, new_frequencies):
     spectrum = fSeries.value
     frequencies = fSeries.frequencies.value
 
-    spectrum_func = interp1d(frequencies, spectrum, kind='cubic', fill_value='extrapolate')
+    spectrum_func = interp1d(
+        frequencies, spectrum, kind="cubic", fill_value="extrapolate"
+    )
 
-    return gwpy.frequencyseries.FrequencySeries(spectrum_func(new_frequencies), frequencies = new_frequencies)
+    return gwpy.frequencyseries.FrequencySeries(
+        spectrum_func(new_frequencies), frequencies=new_frequencies
+    )
 
 
 def get_baselines(interferometers, duration=None, sampling_frequency=None):
