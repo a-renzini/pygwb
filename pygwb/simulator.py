@@ -24,20 +24,12 @@ urgent
 -------
 
 * write all the necessary import checks
-    - noise PSD of interferometers is set (add this to get_noise_PSD_list)
-    - check frequencies from baseline; remove 0s (add this to set_frequencies)
-        in principle we would have to "copy over" ALL the checks implemented in `baseline`;
-        this may seem like a good reason to initialise the `Simulator` with baselines directly,
-        but then in principle we would have to repeat all those checks between the baselines,
-        so I don't think it really matters. If there is a mismatch between `duration` or 
-        `sampling_frequency` at the level of individual baselines, this will get flagged when
-        initialising a baseline; as each baseline shares a detector with at least 1 other baseline,
-        we're fine.
     - other?
 * unit tests
 
 less urgent
 -----------
+* add windowing in frequency option
 * add save to file functionality (more or less done for hdf5). If want to allow for other fily types, we shoud
 add this as an extra input parameter of the simulation. Need to discuss
 * Sylvia's 'baseline': either set the 'sampling_frequency' and the 'duration' automatically from the interferometers, OR you have to pass it. Should discuss if need for such a function in this module.
@@ -195,11 +187,11 @@ class Simulator(object):
         """
         y = self.simulate_data()
         dataTemp = self.splice_segments(y)
-
         data = np.zeros(self.Nd, dtype=gwpy.timeseries.TimeSeries)
         for ii in range(self.Nd):
+            print(f'{self.interferometers[ii].name}:SIM-STOCH_INJ')
             data[ii] = gwpy.timeseries.TimeSeries(
-                dataTemp[ii].astype('float64'), t0=self.t0, dt=self.deltaT
+                    dataTemp[ii].astype('float64'), t0=self.t0, dt=self.deltaT, channel=f'{self.interferometers[ii].name}:SIM-STOCH_INJ', name=f'{self.interferometers[ii].name}:SIM-STOCH_INJ'
             )
 
         return data
