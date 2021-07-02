@@ -30,7 +30,7 @@ urgent
 less urgent
 -----------
 * add windowing in frequency option
-* add save to file functionality (more or less done for hdf5). If want to allow for other fily types, we shoud
+* add save to file functionality (more or less done for hdf5). If want to allow for other file types, we should
 add this as an extra input parameter of the simulation. Need to discuss
 * Sylvia's 'baseline': either set the 'sampling_frequency' and the 'duration' automatically from the interferometers, OR you have to pass it. Should discuss if need for such a function in this module.
 
@@ -63,7 +63,7 @@ class Simulator(object):
         duration: float
             Duration of a simulated data segment
         sampling_frequency: float
-            Sampling frequency 
+            Sampling frequency
         startTime: float
             Start time of the simulation
         save_to_file: boolean
@@ -106,13 +106,14 @@ class Simulator(object):
             )
             self.orf = self.get_orf(baselines)
 
-            self.IntensityGW = interpolate_frequencySeries(IntensityGW, self.frequencies)
+            self.IntensityGW = interpolate_frequencySeries(
+                IntensityGW, self.frequencies
+            )
 
             self.gen_data = self.generate_data()
 
             if save_to_file == True:
                 self.write()
-
 
     def write(self, flag="to_hdf5"):
         """
@@ -130,7 +131,6 @@ class Simulator(object):
         else:
             raise ValueError(f"Unknown flag: '{flag}'")
 
-
     def get_frequencies(self):
         """ """
         frequencies = create_frequency_series(
@@ -138,20 +138,21 @@ class Simulator(object):
         )
         return frequencies
 
-
     def get_noise_PSD_array(self):
         """ """
         noisePSDs = []
         try:
             for ifo in self.interferometers:
                 psd = ifo.power_spectral_density.psd_array
-                
+
                 ## dev
                 if np.isinf(psd).any() == True:
-                    raise ValueError(f"The noisePSD of interferometer {ifo.name} contains infs!")
+                    raise ValueError(
+                        f"The noisePSD of interferometer {ifo.name} contains infs!"
+                    )
                 ##
 
-                #if psd.shape[0] != self.frequencies.shape[0]:
+                # if psd.shape[0] != self.frequencies.shape[0]:
                 #    psd = psd[1:]
                 noisePSDs.append(psd)
             return np.array(noisePSDs)
@@ -159,7 +160,6 @@ class Simulator(object):
             raise AttributeError(
                 "The noisePSD of all the detectors needs to be specified!"
             )
-
 
     def get_orf(self, baselines):
         orf_list = []
@@ -189,9 +189,13 @@ class Simulator(object):
         dataTemp = self.splice_segments(y)
         data = np.zeros(self.Nd, dtype=gwpy.timeseries.TimeSeries)
         for ii in range(self.Nd):
-            print(f'{self.interferometers[ii].name}:SIM-STOCH_INJ')
+            print(f"{self.interferometers[ii].name}:SIM-STOCH_INJ")
             data[ii] = gwpy.timeseries.TimeSeries(
-                    dataTemp[ii].astype('float64'), t0=self.t0, dt=self.deltaT, channel=f'{self.interferometers[ii].name}:SIM-STOCH_INJ', name=f'{self.interferometers[ii].name}:SIM-STOCH_INJ'
+                dataTemp[ii].astype("float64"),
+                t0=self.t0,
+                dt=self.deltaT,
+                channel=f"{self.interferometers[ii].name}:SIM-STOCH_INJ",
+                name=f"{self.interferometers[ii].name}:SIM-STOCH_INJ",
             )
 
         return data
@@ -218,7 +222,8 @@ class Simulator(object):
         """
         index = 0
         orf_array = np.zeros(
-            (self.Nd, self.Nd), dtype=gwpy.frequencyseries.FrequencySeries,
+            (self.Nd, self.Nd),
+            dtype=gwpy.frequencyseries.FrequencySeries,
         )
         for ii in range(self.Nd):
             for jj in range(ii):
@@ -242,7 +247,7 @@ class Simulator(object):
             various detectors. Dimensions are Nd x Nd x Nf, where Nd is the
             number of detectors and Nf the number of frequencies.
         """
-        GWBPower = self.IntensityGW #omegaToPower(self.OmegaGW, self.frequencies)
+        GWBPower = self.IntensityGW  # omegaToPower(self.OmegaGW, self.frequencies)
         orf_array = self.orfToArray()
 
         C = np.zeros((self.Nd, self.Nd, self.Nf))
@@ -253,7 +258,7 @@ class Simulator(object):
                     C[ii, jj, :] = self.noise_PSD_array[ii] + GWBPower.value[:]
                 else:
                     C[ii, jj, :] = orf_array[ii, jj] * GWBPower.value[:]
-        C[C==0.] = 1.e-45
+        C[C == 0.0] = 1.0e-45
         C = self.NSamplesPerSegment / (self.deltaT * 4) * C
         return C
 
@@ -425,6 +430,8 @@ class Simulator(object):
                 data[
                     ii,
                     jj * self.NSamplesPerSegment : (jj + 1) * self.NSamplesPerSegment,
-                ] = (z0 + z1 + z2)
+                ] = (
+                    z0 + z1 + z2
+                )
 
         return data
