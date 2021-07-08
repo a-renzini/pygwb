@@ -1,9 +1,11 @@
-import bilby
-from pygwb import baseline
-import numpy as np
-import unittest
 import copy
 import os
+import unittest
+
+import bilby
+import numpy as np
+
+from pygwb import baseline
 
 
 class TestBaseline(unittest.TestCase):
@@ -201,6 +203,20 @@ class TestBaseline(unittest.TestCase):
                 orf_from_file,
                 atol=3e-4,
             )
+        )
+
+    def test_from_interferometers_equivalent(self):
+        self.interferometer_1.set_strain_data_from_zero_noise(
+            sampling_frequency=self.sampling_frequency, duration=self.duration
+        )
+        self.interferometer_3.set_strain_data_from_zero_noise(
+            sampling_frequency=self.sampling_frequency, duration=self.duration
+        )
+        self.assertEqual(
+            baseline.Baseline("H1L1", self.interferometer_1, self.interferometer_3),
+            baseline.Baseline.from_interferometers(
+                [self.interferometer_1, self.interferometer_3]
+            ),
         )
 
 
