@@ -5,11 +5,10 @@ import gwpy
 import h5py
 import numpy as np
 from bilby.core.utils import create_frequency_series
-from scipy.interpolate import interp1d
 
 from pygwb.baseline import Baseline
 from pygwb.constants import H0
-from pygwb.util import get_baselines, interpolate_frequencySeries, omegaToPower
+from pygwb.util import get_baselines, interpolate_frequency_series
 
 if sys.version_info >= (3, 0):
     import configparser
@@ -41,14 +40,14 @@ class Simulator(object):
     def __init__(
         self,
         interferometers,
-        IntensityGW,
-        NSegments,
+        intensity_GW,
+        N_segments,
         duration,
         sampling_frequency,
-        startTime=0.0,
+        start_time=0.0,
         save_to_file=False,
         no_noise=False,
-    ):  # (self, noisePSD, omegaGW, orf, sampling_frequency, duration, NSegments):
+    ):
         """
         Class that simulates an isotropic stochastic background.
 
@@ -58,13 +57,13 @@ class Simulator(object):
         omegaGW: gwpy.frequencyseries.FrequencySeries
             A gwpy.frequencyseries.FrequencySeries containing the desired Omega spectrum
             which needs to be simulated
-        NSegments: int
+        N_segments: int
             Number of segments that needs to be generated for the simulation
         duration: float
             Duration of a simulated data segment
         sampling_frequency: float
             Sampling frequency
-        startTime: float
+        start_time: float
             Start time of the simulation
         save_to_file: boolean
             Flag that turns on/off the option to save the simulated data to a file
@@ -88,10 +87,10 @@ class Simulator(object):
                 ifo.sampling_frequency = self.sampling_frequency
                 ifo.duration = self.duration
 
-            self.NSegments = NSegments
+            self.N_segments = N_segments
             self.frequencies = self.get_frequencies()
             self.Nf = len(self.frequencies)
-            self.t0 = startTime
+            self.t0 = start_time
             self.NSamplesPerSegment = int(self.sampling_frequency * self.duration)
             self.deltaT = 1 / self.sampling_frequency
 
@@ -106,8 +105,8 @@ class Simulator(object):
             )
             self.orf = self.get_orf(baselines)
 
-            self.IntensityGW = interpolate_frequencySeries(
-                IntensityGW, self.frequencies
+            self.intensity_GW = interpolate_frequency_series(
+                intensity_GW, self.frequencies
             )
 
             self.gen_data = self.generate_data()
@@ -145,15 +144,11 @@ class Simulator(object):
             for ifo in self.interferometers:
                 psd = ifo.power_spectral_density.psd_array
 
-                ## dev
                 if np.isinf(psd).any() == True:
                     raise ValueError(
                         f"The noisePSD of interferometer {ifo.name} contains infs!"
                     )
-                ##
 
-                # if psd.shape[0] != self.frequencies.shape[0]:
-                #    psd = psd[1:]
                 noisePSDs.append(psd)
             return np.array(noisePSDs)
         except:
@@ -200,7 +195,7 @@ class Simulator(object):
 
         return data
 
-    def orfToArray(self):
+    def orf_to_array(self):
         """
         Function that converts the list of overlap reduction functions into an array
         to facilitate the correct implementation when computing the covariance matrix.
@@ -247,7 +242,7 @@ class Simulator(object):
             various detectors. Dimensions are Nd x Nd x Nf, where Nd is the
             number of detectors and Nf the number of frequencies.
         """
-        GWBPower = self.IntensityGW  # omegaToPower(self.OmegaGW, self.frequencies)
+        GWBPower = self.intensity_GW
         orf_array = self.orfToArray()
 
         C = np.zeros((self.Nd, self.Nd, self.Nf))
@@ -343,16 +338,16 @@ class Simulator(object):
         Returns
         =======
         y: array_like
-            Array of size Nd x 2*(NSegments+1) x NSamplesPerSegment containing the
+            Array of size Nd x 2*(N_segments+1) x NSamplesPerSegment containing the
             various segments with the simulated data.
         """
         C = self.covariance_matrix()
 
         y = np.zeros(
-            (self.Nd, 2 * self.NSegments + 1, self.NSamplesPerSegment), dtype=np.ndarray
+            (self.Nd, 2 * self.N_segments + 1, self.NSamplesPerSegment), dtype=np.ndarray
         )
 
-        for kk in range(2 * self.NSegments + 1):
+        for kk in range(2 * self.N_segments + 1):
             z = self.generate_freq_domain_data()
 
             xtemp = self.transform_to_correlated_data(z, C)
@@ -387,14 +382,14 @@ class Simulator(object):
         Parameters
         ==========
         segments: array_like
-            Array of size Nd x (2*NSegments+1) x NSamplesPerSegment containing the
+            Array of size Nd x (2*N_segments+1) x NSamplesPerSegment containing the
             various segments with the simulated data that need to be spliced
             together, where Nd is the number of detectors.
 
         Returns
         =======
         data: array_like
-            Array of size Nd x (NSegments*NSamplesPerSegment) containing the simulated
+            Array of size Nd x (N_segments*NSamplesPerSegment) containing the simulated
             data corresponding to an isotropic stochastic background for each of the
             detectors, where Nd is the number of detectors.
         """
@@ -404,11 +399,11 @@ class Simulator(object):
             w[ii] = np.sin(np.pi * ii / self.NSamplesPerSegment)
 
         data = np.zeros(
-            (self.Nd, self.NSamplesPerSegment * self.NSegments), dtype=np.ndarray
+            (self.Nd, self.NSamplesPerSegment * self.N_segments), dtype=np.ndarray
         )
 
         for ii in range(self.Nd):
-            for jj in range(self.NSegments):
+            for jj in range(self.N_segments):
                 y0 = w * segments[ii][2 * jj][:]
                 y1 = w * segments[ii][2 * jj + 1][:]
                 y2 = w * segments[ii][2 * jj + 2][:]
