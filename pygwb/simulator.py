@@ -103,11 +103,10 @@ class Simulator(object):
                 sampling_frequency=self.sampling_frequency,
             )
             self.orf = self.get_orf()
-            
+
             self.intensity_GW = interpolate_frequency_series(
                 intensity_GW, self.frequencies
             )
-
 
     def get_frequencies(self):
         """ """
@@ -115,7 +114,6 @@ class Simulator(object):
             sampling_frequency=self.sampling_frequency, duration=self.duration
         )
         return frequencies
-
 
     def get_noise_PSD_array(self):
         """ """
@@ -137,11 +135,12 @@ class Simulator(object):
                 "The noisePSD of all the detectors needs to be specified!"
             )
 
-
     def get_orf(self):
         """ """
         orf_list = []
-        orfs = np.array([baseline.overlap_reduction_function for baseline in self.baselines])
+        orfs = np.array(
+            [baseline.overlap_reduction_function for baseline in self.baselines]
+        )
         for orf in orfs:
             if orf.shape[0] != self.frequencies.shape[0]:
                 orf = orf[1:]
@@ -326,7 +325,8 @@ class Simulator(object):
         C = self.covariance_matrix()
 
         y = np.zeros(
-            (self.Nd, 2 * self.N_segments + 1, self.NSamplesPerSegment), dtype=np.ndarray
+            (self.Nd, 2 * self.N_segments + 1, self.NSamplesPerSegment),
+            dtype=np.ndarray,
         )
 
         for kk in range(2 * self.N_segments + 1):
@@ -413,7 +413,6 @@ class Simulator(object):
 
         return data
 
-
     def write(self, flag="to_hdf5"):
         """
         TODO: develop write method; make decisions here
@@ -429,4 +428,3 @@ class Simulator(object):
             save_data_to_hdf5()
         else:
             raise ValueError(f"Unknown flag: '{flag}'")
-
