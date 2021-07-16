@@ -26,7 +26,7 @@ urgent
     - other?
 * unit tests
 
-less urgent
+less urge_segments = 10nt
 -----------
 * add windowing in frequency option
 * add save to file functionality (more or less done for hdf5). If want to allow for other file types, we should
@@ -54,8 +54,8 @@ class Simulator(object):
         Parameters
         ==========
         interferometers: list of bilby interferometer objects
-        omegaGW: gwpy.frequencyseries.FrequencySeries
-            A gwpy.frequencyseries.FrequencySeries containing the desired Omega spectrum
+        intensity_GW: gwpy.frequencyseries.FrequencySeries
+            A gwpy.frequencyseries.FrequencySeries containing the desired strain power spectrum
             which needs to be simulated
         N_segments: int
             Number of segments that needs to be generated for the simulation
@@ -78,7 +78,6 @@ class Simulator(object):
         else:
             self.interferometers = interferometers
             self.Nd = len(self.interferometers)
-            # (int(1 + np.sqrt(1 + 8 * len(baselines)))) // 2
 
             self.sampling_frequency = sampling_frequency
             self.duration = duration
@@ -98,37 +97,17 @@ class Simulator(object):
             if no_noise == True:
                 self.noise_PSD_array = np.zeros_like(noise_PSD_array)
 
-            baselines = get_baselines(
+            self.baselines = get_baselines(
                 self.interferometers,
                 duration=self.duration,
                 sampling_frequency=self.sampling_frequency,
             )
-            self.orf = self.get_orf(baselines)
-
+            self.orf = self.get_orf()
+            
             self.intensity_GW = interpolate_frequency_series(
                 intensity_GW, self.frequencies
             )
 
-            self.gen_data = self.generate_data()
-
-            if save_to_file == True:
-                self.write()
-
-    def write(self, flag="to_hdf5"):
-        """
-        TODO: develop write method; make decisions here
-        """
-
-        def save_data_to_hdf5():
-            """ """
-            for ii in range(len(self.interferometers)):
-                #                 self.gen_data[ii].write()
-                pass
-
-        if flag == "to_hdf5":
-            save_data_to_hdf5()
-        else:
-            raise ValueError(f"Unknown flag: '{flag}'")
 
     def get_frequencies(self):
         """ """
@@ -137,12 +116,14 @@ class Simulator(object):
         )
         return frequencies
 
+
     def get_noise_PSD_array(self):
         """ """
         noisePSDs = []
         try:
             for ifo in self.interferometers:
                 psd = ifo.power_spectral_density.psd_array
+                print(psd.shape)
 
                 if np.isinf(psd).any() == True:
                     raise ValueError(
@@ -156,9 +137,11 @@ class Simulator(object):
                 "The noisePSD of all the detectors needs to be specified!"
             )
 
-    def get_orf(self, baselines):
+
+    def get_orf(self):
+        """ """
         orf_list = []
-        orfs = np.array([baseline.overlap_reduction_function for baseline in baselines])
+        orfs = np.array([baseline.overlap_reduction_function for baseline in self.baselines])
         for orf in orfs:
             if orf.shape[0] != self.frequencies.shape[0]:
                 orf = orf[1:]
@@ -242,17 +225,16 @@ class Simulator(object):
             various detectors. Dimensions are Nd x Nd x Nf, where Nd is the
             number of detectors and Nf the number of frequencies.
         """
-        GWBPower = self.intensity_GW
-        orf_array = self.orfToArray()
+        orf_array = self.orf_to_array()
 
         C = np.zeros((self.Nd, self.Nd, self.Nf))
 
         for ii in range(self.Nd):
             for jj in range(self.Nd):
                 if ii == jj:
-                    C[ii, jj, :] = self.noise_PSD_array[ii] + GWBPower.value[:]
+                    C[ii, jj, :] = self.noise_PSD_array[ii] + self.intensity_GW.value[:]
                 else:
-                    C[ii, jj, :] = orf_array[ii, jj] * GWBPower.value[:]
+                    C[ii, jj, :] = orf_array[ii, jj] * self.intensity_GW.value[:]
         C[C == 0.0] = 1.0e-45
         C = self.NSamplesPerSegment / (self.deltaT * 4) * C
         return C
@@ -430,3 +412,21 @@ class Simulator(object):
                 )
 
         return data
+
+
+    def write(self, flag="to_hdf5"):
+        """
+        TODO: develop write method; make decisions here
+        """
+
+        def save_data_to_hdf5():
+            """ """
+            for ii in range(len(self.interferometers)):
+                #                 self.gen_data[ii].write()
+                pass
+
+        if flag == "to_hdf5":
+            save_data_to_hdf5()
+        else:
+            raise ValueError(f"Unknown flag: '{flag}'")
+
