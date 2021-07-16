@@ -183,7 +183,7 @@ def calc_orf(
         omega_minus = (omega_det1 - omega_det2) / 2
     else:
         omega_plus = 1
-        omega_minus = omega_tangent_bisector(bisector_det1, bisector_det2) / 2
+        omega_minus = omega_tangent_bisector(bisector_det1, bisector_det2, perp_det1) / 2
 
     if polarization.lower() == "tensor":
         overlap_reduction_function = Tplus(alpha, beta) * np.cos(

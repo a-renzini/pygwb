@@ -82,7 +82,7 @@ class OverlapReductionFunctionTest(unittest.TestCase):
                 self.assertAlmostEqual(
                     orf[0],
                     orf_f0 / 3.0 if polarization == "scalar" else orf_f0,
-                    places=5,
+                    places=4,
                 )
                 self.assertAlmostEqual(orf[-1], 0, places=2)
                 self.assertTrue(np.all(np.abs(orf) < 1))
