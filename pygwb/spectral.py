@@ -217,7 +217,10 @@ def running_mean(data, coarsening_factor=1, axis=-1):
     array-like: the averaged array of size M - coarsening factor
     """
     coarsening_factor = int(coarsening_factor)
+    if axis != -1:
+        data = np.swapaxes(axis, -1)
     cumsum = np.cumsum(np.insert(data, 0, 0))
     return (
-        cumsum[coarsening_factor:] - cumsum[:-coarsening_factor]
-    ) / coarsening_factor
+        np.swapaxes(cumsum[coarsening_factor:] - cumsum[:-coarsening_factor], axis, -1)
+        / coarsening_factor
+    )
