@@ -1,6 +1,37 @@
 import numpy as np
 
 
+def before_after_average(psd_gram, segment_duration, psd_duration):
+    """
+    Average the first independent entry before and after for a specified time
+    offset.
+
+    Parameters
+    ==========
+    psd_gram: psd.spectrogram.Spectrogram
+        The input spectrogram
+    segment_duration: float
+        The duration of data going into each analyzed segment.
+    psd_duration: float
+        The duration of data going into each PSD estimate.
+        This should probably be an integer multiple of the segment duration
+        but it might still work if not.
+    """
+    stride = psd_gram.dx.value
+    overlap = segment_duration - stride
+
+    strides_per_psd = int(np.ceil(psd_duration / stride))
+    strides_per_segment = int(np.ceil(segment_duration / stride))
+    time_offset = strides_per_psd * overlap * psd_gram.times.unit
+    after_segment_offset = strides_per_psd + strides_per_segment
+
+    output = psd_gram.copy()
+    output = (output[:-after_segment_offset] + output[after_segment_offset:]) / 2
+    output.times = output.times[:-after_segment_offset] + time_offset
+
+    return output
+
+
 def coarse_grain(data, coarsening_factor):
     """
     Coarse grain a frequency series by an integer factor.
