@@ -20,19 +20,19 @@ def violin_modes(det):
 
     notches = StochNotchList([])
     if det == "H1" or det == "L1":
-        notches.append(StochNotch(500, 40, "Violin mode 1st harmonic"))  # range [480,520]
-        notches.append(StochNotch(1000, 80, "Violin mode 2nd harmonic"))  # range [960,1040]
-        notches.append(StochNotch(1497.5, 85, "Violin mode 3rd harmonic"))  # range [1455,1540]
+        notches.append(StochNotch(480, 520, "Violin mode 1st harmonic"))  # range [480,520]
+        notches.append(StochNotch(960, 1040, "Violin mode 2nd harmonic"))  # range [960,1040]
+        notches.append(StochNotch(1455, 1540, "Violin mode 3rd harmonic"))  # range [1455,1540]
 
 
     if det == "V1":
-        notches.append(StochNotch(278, 6, "BS Violin mode 1st harmonic"))  # range[275,281]
-        notches.append(StochNotch(555.5, 11, "BS Violin mode 2nd harmonic"))  # range[550,561]
-        notches.append(StochNotch(449.5, 15, "Violin mode 1st harmonic"))  # range [442,457]
-        notches.append(StochNotch(895, 27, "Violin mode 2nd harmonic"))  # range [881.5,908.5]
-        notches.append(StochNotch(1343, 35, "Violin mode 3rd harmonic"))  # range [1325.5,1360.5]
-        notches.append(StochNotch(1794, 40, "Violin mode 4th harmonic"))  # range [1774,1814]
-        notches.append(StochNotch(2224, 64, "Violin mode 5th harmonic"))  # range [2192,2256]
+        notches.append(StochNotch(275, 281, "BS Violin mode 1st harmonic"))  # range[275,281]
+        notches.append(StochNotch(550, 561, "BS Violin mode 2nd harmonic"))  # range[550,561]
+        notches.append(StochNotch(442, 457, "Violin mode 1st harmonic"))  # range [442,457]
+        notches.append(StochNotch(881.5, 908.5, "Violin mode 2nd harmonic"))  # range [881.5,908.5]
+        notches.append(StochNotch(1325.5, 1360.5, "Violin mode 3rd harmonic"))  # range [1325.5,1360.5]
+        notches.append(StochNotch(1774, 1814, "Violin mode 4th harmonic"))  # range [1774,1814]
+        notches.append(StochNotch(2192, 2256, "Violin mode 5th harmonic"))  # range [2192,2256]
 
 
     return notches
@@ -54,130 +54,132 @@ def calibration_lines(det):
     """
     # ignore lines below 20 Hz
 
+    
+    notches = StochNotchList([])
     if det == "H1":
-        H1mode0 = NoiseLine(17.1, 1.0, "H1 calibration line")
-        H1mode1 = NoiseLine(17.6, 1.0, "H1 calibration line")
-        #        H1mode2=NoiseLine(35.9,1.0,'H1 calibration line - first two weeks O3') # First two weeks are not analyzed
-        #        H1mode3=NoiseLine(36.7,1.0,'H1 calibration line - first two weeks O3') # First two weeks are not analyzed
-        H1mode4 = NoiseLine(410.3, 1.0, "H1 calibration line")
-        H1mode5 = NoiseLine(1083.7, 1.0, "H1 calibration line")
-        H1mode6 = NoiseLine(331.9, 1.0, "H1 calibration line")
-        return [H1mode0, H1mode1, H1mode4, H1mode5, H1mode6]
+        notches.append(StochNotch(16.6, 17.6, "H1 calibration line"))
+        notches.append(StochNotch(17.1, 18.1, "H1 calibration line"))
+        #        notches.append(StochNotch(35.9,1.0,'H1 calibration line - first two weeks O3') # First two weeks are not analyze)d
+        #        notches.append(StochNotch(36.7,1.0,'H1 calibration line - first two weeks O3') # First two weeks are not analyze)d
+        notches.append(StochNotch(409.8, 410.8, "H1 calibration line"))
+        notches.append(StochNotch(1083.2, 1084.2, "H1 calibration line"))
+        notches.append(StochNotch(331.4, 332.4, "H1 calibration line"))
+
     if det == "L1":
-        L1mode4 = NoiseLine(434.9, 1.0, "L1 calibration line")
-        L1mode5 = NoiseLine(1083.1, 1.0, "L1 calibration line")
-        return [L1mode4, L1mode5]
+        notches.append(StochNotch(434.4, 435.4, "L1 calibration line"))
+        notches.append(StochNotch(1082.6, 1083.6, "L1 calibration line"))
+
     if det == "V1":
-        V1modes = [
-            NoiseLine(15.8, 0.1, "V1 WE EM calibration line"),
-            NoiseLine(16.3, 0.1, "V1 BS EM calibration line"),
-            NoiseLine(16.8, 0.1, "V1 NE EM calibration line"),
-            NoiseLine(29.0, 0.1, "V1 calibration line"),
-            NoiseLine(31.0, 0.1, "V1 calibration line"),
-            NoiseLine(31.5, 0.1, "V1 calibration line"),
-            NoiseLine(32.5, 0.1, "V1 calibration line"),
-            NoiseLine(34.5, 0.1, "V1 WE PCAL calibration line"),
-            NoiseLine(36.5, 0.1, "V1 NE PCAL calibration line"),
-            NoiseLine(37.5, 0.1, "V1 NE EM calibration line"),
-            NoiseLine(56.5, 0.1, "V1 WE EM calibration line"),
-            NoiseLine(60.5, 0.1, "V1 WE PCAL calibration line"),
-            NoiseLine(61, 0.1, "V1 BS EM calibration line"),
-            NoiseLine(61.5, 0.1, "V1 WE EM calibration line"),
-            NoiseLine(62.5, 0.1, "V1 NE EM calibration line"),
-            NoiseLine(63, 0.1, "V1 PR EM calibration line"),
-            NoiseLine(63.5, 0.1, "V1 NE PCAL calibration line"),
-            NoiseLine(77.5, 0.1, "V1 NE EM calibration line"),
-            NoiseLine(87.1, 0.1, "SDB1 OMC"),
-            NoiseLine(106.5, 0.1, "V1 WE EM calibration line"),
-            NoiseLine(107.5, 0.1, "V1 NE EM calibration line"),
-            NoiseLine(137.5, 0.1, "V1 NE EM calibration line"),
-            NoiseLine(206.5, 0.1, "V1 WE EM calibration line"),
-            NoiseLine(355.5, 0.1, "V1 WE PCAL calibration line"),
-            NoiseLine(356.0, 0.1, "V1 BS EM calibration line"),
-            NoiseLine(356.5, 0.1, "V1 WE EM calibration line"),
-            NoiseLine(357.5, 0.1, "V1 NE EM calibration line"),
-            NoiseLine(358.0, 0.1, "V1 PR EM calibration line"),
-            NoiseLine(359.5, 0.1, "V1 NE PCALcalibration line"),
-            NoiseLine(406.5, 0.1, "V1 WE EM calibration line"),
-            NoiseLine(1900.5, 0.1, "V1 WE PCAL calibration line"),
-            NoiseLine(2012.5, 0.1, "V1 PR,BS,NI,NE,WI,WI EM calibration line"),
-            NoiseLine(
+        notches.append(StochNotch(15.7, 15.9, "V1 WE EM calibration line"))
+        notches.append(StochNotch(16.2, 16.4, "V1 BS EM calibration line"))
+        notches.append(StochNotch(16.9, 17.1, "V1 NE EM calibration line"))
+        notches.append(StochNotch(28.9, 29.1, "V1 calibration line"))
+        notches.append(StochNotch(30.9, 31.1, "V1 calibration line"))
+        notches.append(StochNotch(31.4, 31.6, "V1 calibration line"))
+        notches.append(StochNotch(32.4, 32.6, "V1 calibration line"))
+        notches.append(StochNotch(34.4, 34.6, "V1 WE PCAL calibration line"))
+        notches.append(StochNotch(36.4, 36.6, "V1 NE PCAL calibration line"))
+        notches.append(StochNotch(37.4, 37.6, "V1 NE EM calibration line"))
+        notches.append(StochNotch(56.4, 56.6, "V1 WE EM calibration line"))
+        notches.append(StochNotch(60.4, 60.6, "V1 WE PCAL calibration line"))
+        notches.append(StochNotch(60.9, 61.1, "V1 BS EM calibration line"))
+        notches.append(StochNotch(61.4, 61.6, "V1 WE EM calibration line"))
+        notches.append(StochNotch(62.4, 62.6, "V1 NE EM calibration line"))
+        notches.append(StochNotch(62.9, 63.1, "V1 PR EM calibration line"))
+        notches.append(StochNotch(63.4, 63.6, "V1 NE PCAL calibration line"))
+        notches.append(StochNotch(77.4, 77.6, "V1 NE EM calibration line"))
+        notches.append(StochNotch(87.0, 87.2, "SDB1 OMC"))
+        notches.append(StochNotch(106.4, 106.6, "V1 WE EM calibration line"))
+        notches.append(StochNotch(107.4, 107.6, "V1 NE EM calibration line"))
+        notches.append(StochNotch(137.4, 137.6, "V1 NE EM calibration line"))
+        notches.append(StochNotch(206.4, 206.6, "V1 WE EM calibration line"))
+        notches.append(StochNotch(355.4, 355.6, "V1 WE PCAL calibration line"))
+        notches.append(StochNotch(355.9, 356.1, "V1 BS EM calibration line"))
+        notches.append(StochNotch(356.4, 356.6, "V1 WE EM calibration line"))
+        notches.append(StochNotch(357.4, 357.6, "V1 NE EM calibration line"))
+        notches.append(StochNotch(357.9, 358.1, "V1 PR EM calibration line"))
+        notches.append(StochNotch(359.4, 359.6, "V1 NE PCALcalibration line"))
+        notches.append(StochNotch(406.4, 406.6, "V1 WE EM calibration line"))
+        notches.append(StochNotch(1900.4, 1900.6, "V1 WE PCAL calibration line"))
+        notches.append(StochNotch(2012.4, 2012.6, "V1 PR,BS,NI,NE,WI,WI EM calibration line"))
+        notches.append(StochNotch(
+                31.4,
                 31.6,
-                0.1,
                 "V1 second order harmonic of calibration line at 15.8 - identified by CW people",
-            ),
-            NoiseLine(
-                32.6,
-                0.1,
+            )
+            notches.append(StochNotch(
+                32.5,
+                32.7,
                 "V1 second order harmonic of calibration line at 16.3 - identified by CW people",
-            ),
-            NoiseLine(
-                33.6,
-                0.1,
+            )
+            notches.append(StochNotch(
+                33.5,
+                33.7,
                 "V1 second order harmonic of calibration line at 16.8 - identified by CW people",
-            ),
-            NoiseLine(
-                121,
-                0.1,
+            )
+            notches.append(StochNotch(
+                120.9,
+                121.1,
                 "V1 second order harmonic of calibration line at 60.5 - identified by CW people",
-            ),
-            NoiseLine(
-                122,
-                0.1,
+            )
+            notches.append(StochNotch(
+                121.9,
+                122.1,
                 "V1 second order harmonic of calibration line at 61 - identified by CW people",
-            ),
-            NoiseLine(
-                123,
-                0.1,
+            )
+            notches.append(StochNotch(
+                122.9,
+                123.1,
                 "V1 second order harmonic of calibration line at 61.5 - identified by CW people",
-            ),
-            NoiseLine(
-                125,
-                0.1,
+            )
+            notches.append(StochNotch)(
+                124.9,
+                125.1,
                 "V1 second order harmonic of calibration line at 62.5 - identified by CW people",
             ),
-            NoiseLine(
-                126,
-                0.1,
+            notches.append(StochNotch(
+                125.9,
+                126.1,
                 "V1 second order harmonic of calibration line at 63 - identified by CW people",
-            ),
-            NoiseLine(
-                127,
-                0.1,
+            )
+            notches.append(StochNotch(
+                126.9,
+                127.1,
                 "V1 second order harmonic of calibration line at 63.5 - identified by CW people",
-            ),
-            NoiseLine(
-                181.5,
-                0.1,
+            )
+            notches.append(StochNotch(
+                181.4,
+                181.6,
                 "V1 third order harmonic of calibration line at 60.5 - identified by CW people",
-            ),
-            NoiseLine(
-                183,
-                0.1,
+            )
+            notches.append(StochNotch(
+                122.9,
+                123.1,
                 "V1 third order harmonic of calibration line at 61 - identified by CW people",
-            ),
-            NoiseLine(
-                184.5,
-                0.1,
+            )
+            notches.append(StochNotch(
+                184.4,
+                184.6,
                 "V1 third order harmonic of calibration line at 61.5 - identified by CW people",
-            ),
-            NoiseLine(
-                187.5,
-                0.1,
+            )
+            notches.append(StochNotch(
+                187.4,
+                187.6,
                 "V1 third order harmonic of calibration line at 62.5 - identified by CW people",
-            ),
-            NoiseLine(
-                189,
-                0.1,
+            )
+            notches.append(StochNotch(
+                188.9,
+                189.1,
                 "V1 third order harmonic of calibration line at 63 - identified by CW people",
-            ),
-            NoiseLine(
-                190.5,
-                0.1,
+            )
+            notches.append(StochNotch(
+                190.4,
+                190.6,
                 "V1 third order harmonic of calibration line at 63.5 - identified by CW people",
-            ),
-        ]
-        return V1modes
+            )
+
+                           
+    return notches
 
 
 def instrumental_lines(baseline):
@@ -195,429 +197,345 @@ def instrumental_lines(baseline):
         List of lines you want to be notched in StochNotch format
     """
 
-    extra_lines = []
+    extra_lines = StochNotchList([])
     if baseline == "HL":
         extra_lines.append(
-            NoiseLine(33.2, 0.001, "Calibration line nonlinearity")
+            StochNotch(33.199, 33.201, "Calibration line nonlinearity")
         )  # calibration line nonlinearity
         extra_lines.append(
             NoiseLine(
-                32.0,
-                0.2,
+                31.9,
+                32.1,
                 "environmental identification: link with H corner station accelerometers - regularly intermittent",
             )
         )  # environmental identification
         extra_lines.append(
-            NoiseLine(
-                48.0,
-                2,
+            StochNotch(
+                47.0,
+                49.0,
                 "H non-stationary, non-linear noise - scat. light -fixed at end of Sep 2019",
             )
         )  # non-stationary, non-linear noise - scat. light -fixed at end of Sep 2019
         extra_lines.append(
-            NoiseLine(
-                50.0,
-                0.1,
+            StochNotch(
+                49.95,
+                50.05,
                 "environmental identification: In L coherence with many channels including magnetic, seismic and suspension isolation. For LLO harmonic of 10 Hz comb and LHO harmonic of 1Hz comb according to CW studies",
             )
         )  # environmental identification
-        extra_lines.append(NoiseLine(20.125, 0.1, "ASC dither line"))
-        extra_lines.append(NoiseLine(20.78125, 0.1, "ASC dither line"))
-        extra_lines.append(NoiseLine(21.90625, 0.1, "ASC dither line"))
-        extra_lines.append(NoiseLine(22.34375, 0.1, "ASC dither line"))
+        extra_lines.append(StochNotch(20.075, 20.175, "ASC dither line"))
+        extra_lines.append(StochNotch(20.73125, 20.83125, "ASC dither line"))
+        extra_lines.append(StochNotch(21.85625, 21.95625, "ASC dither line"))
+        extra_lines.append(StochNotch(22.29375, 22.39375, "ASC dither line"))
         extra_lines.append(
-            NoiseLine(27.46875, 0.1, "Triple suspension bounce mode possibly SRM")
+            NoiseLine(27.41875, 27.51875, "Triple suspension bounce mode possibly SRM")
         )
-        extra_lines.append(NoiseLine(27.71875, 0.1, "SR3 bounce mode"))
+        extra_lines.append(StochNotch(27.66875, 27.76875, "SR3 bounce mode"))
         extra_lines.append(
-            NoiseLine(35.71875, 0.1, "Environmental disturbance also seen in O1/O2 ")
+            StochNotch(35.66875, 35.76875, "Environmental disturbance also seen in O1/O2 ")
         )
-        extra_lines.append(NoiseLine(40.90625, 0.1, "SR2/MC2 roll mode"))
-        extra_lines.append(NoiseLine(40.9375, 0.1, "PR2 roll mode "))
+        extra_lines.append(StochNotch(40.85625, 40.95625, "SR2/MC2 roll mode"))
+        extra_lines.append(StochNotch(40.8875, 40.9875, "PR2 roll mode "))
         extra_lines.append(
-            NoiseLine(
-                60.5,
-                0.1,
+            StochNotch(
+                60.45,
+                60.55,
                 "Unknown 0.5Hz comb; probably digital; not all comb teeth may be visible",
             )
         )
         extra_lines.append(
-            NoiseLine(
-                61.0,
-                0.1,
+            StochNotch(
+                60.95,
+                91.05,
                 "Unknown 0.5Hz comb; probably digital; not all comb teeth may be visible",
             )
         )
         extra_lines.append(
-            NoiseLine(
-                61.5,
-                0.1,
+            StochNotch(
+                61.45,
+                61.55,
                 "Unknown 0.5Hz comb; probably digital; not all comb teeth may be visible",
             )
         )
         extra_lines.append(
-            NoiseLine(
-                62.5,
-                0.1,
+            StochNotch(
+                62.45,
+                62.55,
                 "Unknown 0.5Hz comb; probably digital; not all comb teeth may be visible",
             )
         )
         extra_lines.append(
-            NoiseLine(
-                63.0,
-                0.1,
+            StochNotch(
+                62.95,
+                63.05,
                 "Unknown 0.5Hz comb; probably digital; not all comb teeth may be visible",
             )
         )
         extra_lines.append(
-            NoiseLine(
-                63.5,
-                0.1,
+            StochNotch(
+                63.45,
+                63.55,
                 "Unknown 0.5Hz comb; probably digital; not all comb teeth may be visible",
             )
         )
         extra_lines.append(
-            NoiseLine(
-                25.0,
-                0.1,
+            StochNotch(
+                24.95,
+                25.05,
                 "Unknown comb; probably digital; not all comb teeth may be visible",
             )
         )
         extra_lines.append(
-            NoiseLine(394.6875, 0.1, "H1 Calibration line non-linearity")
+            StochNotch(394.6375, 394.7375, "H1 Calibration line non-linearity")
         )
-        extra_lines.append(NoiseLine(1153.1, 0.5, "H1 & L1 Calibration line"))
+        extra_lines.append(NoiseLine(1152.85, 1153.35, "H1 & L1 Calibration line"))
         extra_lines.append(
-            NoiseLine(
-                31.5,
-                0.1,
+            StochNotch(
+                31.45,
+                31.55,
                 "Unknown 0.5Hz comb; probably digital; not all comb teeth may be visible",
             )
         )
         extra_lines.append(
-            NoiseLine(
-                32.5,
-                0.1,
+            StochNotch(
+                32.45,
+                32.55,
                 "Unknown 0.5Hz comb; probably digital; not all comb teeth may be visible",
             )
         )
         extra_lines.append(
-            NoiseLine(
-                33.5,
-                0.1,
+            StochNotch(
+                33.45,
+                33.55,
                 "Unknown 0.5Hz comb; probably digital; not all comb teeth may be visible",
             )
         )
         extra_lines.append(
-            NoiseLine(
-                34.0,
-                0.1,
+            StochNotch(
+                33.95,
+                34.05,
                 "Unknown 0.5Hz comb; probably digital; not all comb teeth may be visible",
             )
         )
         extra_lines.append(
-            NoiseLine(
-                30.0,
-                0.1,
+            StochNotch(
+                29.95,
+                30.05,
                 "Unknown comb; probably digital; not all comb teeth may be visible",
             )
         )
         extra_lines.append(
-            NoiseLine(
-                40.0,
-                0.1,
+            StochNotch(
+                39.95,
+                40.05,
                 "Unknown comb; probably digital; not all comb teeth may be visible",
             )
         )
         extra_lines.append(
-            NoiseLine(
-                100.0,
-                0.1,
+            StochNotch(
+                99.95, 100.05,
                 "Unknown comb; probably digital; not all comb teeth may be visible",
             )
         )
         extra_lines.append(
-            NoiseLine(
-                53.40625,
-                0.1,
+            StochNotch(
+                53.35625,
+                53.45625,
                 "Calibration line non-linearity (Hanford, central freq rounded to nearest 1/32)",
             )
         )
         extra_lines.append(
-            NoiseLine(33.5, 0.1, "1Hz comb with 0.5Hz offset in H and L")
+            StochNotch(33.45, 33.55, "1Hz comb with 0.5Hz offset in H and L")
         )
-        extra_lines.append(NoiseLine(40.0, 0.1, "1Hz comb in H and 10Hz comb in L"))
+        extra_lines.append(StochNotch(40.0, 0.1, "1Hz comb in H and 10Hz comb in L"))
         extra_lines.append(
-            NoiseLine(31.5, 0.1, "1Hz comb with 0.5Hz offset in H and L")
+            StochNotch(31.45, 31.55, "1Hz comb with 0.5Hz offset in H and L")
         )
         extra_lines.append(
-            NoiseLine(32.5, 0.1, "1Hz comb with 0.5Hz offset in H and L")
+            StochNotch(32.45, 32.55, "1Hz comb with 0.5Hz offset in H and L")
         )
-        extra_lines.append(NoiseLine(30.0, 0.1, "1Hz comb in H and 10Hz comb in L"))
-        extra_lines.append(NoiseLine(100.0, 0.1, "1Hz comb in H and 10Hz comb in L"))
-        extra_lines.append(NoiseLine(436.53125, 0.1, "Input Mode Cleaner pitch mode"))
+        extra_lines.append(StochNotch(29.95, 30.05, "1Hz comb in H and 10Hz comb in L"))
+        extra_lines.append(StochNotch(99.95, 100.05, "1Hz comb in H and 10Hz comb in L"))
+        extra_lines.append(StochNotch(436.48125, 436.58125, "Input Mode Cleaner pitch mode"))
 
         # O3B added
         extra_lines.append(
-            NoiseLine(
-                20.232,
-                0.03125,
+            StochNotch(
+                20.212,
+                20.252,
                 "H: EBAY seirack magnetometers - L: Input Mode Cleaner pitch mode",
             )
         )
         extra_lines.append(
-            NoiseLine(
-                20.243,
-                0.03125,
+            StochNotch(
+                20.223,
+                20.263,
                 "H: EBAY seirack magnetometers - L:Input Mode Cleaner pitch mode",
             )
         )
         extra_lines.append(
-            NoiseLine(20.359, 0.03125, "H: BLND_GS13Z - L:Input Mode Cleaner yaw mode")
+            StochNotch(20.339, 20.379, "H: BLND_GS13Z - L:Input Mode Cleaner yaw mode")
         )
         extra_lines.append(
-            NoiseLine(
-                174.5625,
-                0.03125,
+            StochNotch(
+                174.5425,
+                174.5825,
                 "H: ASC-INP1_Y_OUT,PEM-CS_ADC_4_30_16K_OUT - L:Input Mode Cleaner yaw mode",
             )
         )
         extra_lines.append(
-            NoiseLine(258.4688, 0.03125, "L:Input Mode Cleaner yaw mode")
+            StochNotch(258.4488, 258.4888, "L:Input Mode Cleaner yaw mode")
         )
         extra_lines.append(
-            NoiseLine(276.6875, 0.03125, "L:Input Mode Cleaner yaw mode")
+            StochNotch(276.6675, 276.7075, "L:Input Mode Cleaner yaw mode")
         )
         extra_lines.append(
-            NoiseLine(409.9375, 0.03125, "H & L:Input Mode Cleaner yaw mode")
+            StochNotch(409.9175, 409.9475, "H & L:Input Mode Cleaner yaw mode")
         )
 
     elif baseline == "HV":
 
-        extra_lines = np.append(extra_lines, comb(20, 1, 1726, 0.01))
-        extra_lines = np.append(
-            extra_lines, NoiseLine(33.2, 0.001, "Calibration line nonlinearity")
+        extra_lines.append(comb(20, 1, 1726, 0.01))
+        extra_lines.append(StochNotch(33.199, 33.201, "Calibration line nonlinearity")
         )
-        extra_lines = np.append(
-            extra_lines,
-            NoiseLine(
-                296,
-                0.1,
+        extra_lines.append(StochNotch(
+                295.95,
+                296.05,
                 "environmental identification: broadband coherence with V CEB_MAG_N and narrowband coherence with other magnetometers",
-            ),
-        )  # environmental identification
-        extra_lines = np.append(
-            extra_lines,
-            NoiseLine(
-                24.0,
-                0.1,
+            )  # environmental identification
+        extra_lines.append(StochNotch(
+                23.95,
+                24.05,
                 "1Hz comb with larger bin width since in coh spectra adjecent bins where also loud lines.",
-            ),
-        )
-        extra_lines = np.append(
-            extra_lines,
-            NoiseLine(
-                25.0,
-                0.1,
+            )
+        extra_lines.append(StochNotch(
+                24.95,
+                25.05,
                 "1Hz comb with larger bin width since in coh spectra adjecent bins where also loud lines.",
-            ),
-        )
-        extra_lines = np.append(
-            extra_lines,
-            NoiseLine(
-                26.0,
-                0.1,
+            )
+        extra_lines.append(StochNotch(
+                25.95,
+                26.05,
                 "1Hz comb with larger bin width since in coh spectra adjecent bins where also loud lines.",
-            ),
-        )
-        extra_lines = np.append(
-            extra_lines,
-            NoiseLine(
-                27.0,
-                0.1,
+            )
+        extra_lines.append(StochNotch(
+                26.95,
+                27.05,
                 "1Hz comb with larger bin width since in coh spectra adjecent bins where also loud lines.",
-            ),
-        )
-        extra_lines = np.append(
-            extra_lines,
-            NoiseLine(
-                28.0,
-                0.1,
+            )
+        extra_lines.append(StochNotch(
+                27.95,
+                28.05,
                 "1Hz comb with larger bin width since in coh spectra adjecent bins where also loud lines.",
-            ),
-        )
-        extra_lines = np.append(
-            extra_lines,
-            NoiseLine(
-                32.0,
-                0.1,
+            )
+        extra_lines.append(StochNotch(
+                31.95,
+                32.05,
                 "1Hz comb with larger bin width since in coh spectra adjecent bins where also loud lines.",
-            ),
-        )
-        extra_lines = np.append(
-            extra_lines,
-            NoiseLine(
-                33.0,
-                0.1,
+            )
+        extra_lines.append(StochNotch(
+                32.95,
+                33.05,
                 "1Hz comb with larger bin width since in coh spectra adjecent bins where also loud lines.",
-            ),
-        )
-        extra_lines = np.append(
-            extra_lines,
-            NoiseLine(
-                34.0,
-                0.1,
+            )
+        extra_lines.append(StochNotch(
+                33.95,
+                34.05,
                 "1Hz comb with larger bin width since in coh spectra adjecent bins where also loud lines.",
-            ),
-        )
-        extra_lines = np.append(
-            extra_lines,
-            NoiseLine(
-                35.0,
-                0.1,
+            )
+        extra_lines.append(StochNotch(
+                34.95,
+                35.05,
                 "1Hz comb with larger bin width since in coh spectra adjecent bins where also loud lines.",
-            ),
-        )
-        extra_lines = np.append(
-            extra_lines,
-            NoiseLine(
-                97.0,
-                0.1,
+            )
+        extra_lines.append(StochNotch(
+                96.95,
+                97.05,
                 "1Hz comb with larger bin width since in coh spectra adjecent bins where also loud lines.",
-            ),
-        )
-        extra_lines = np.append(
-            extra_lines,
-            NoiseLine(
-                99.0,
-                0.1,
+            )
+        extra_lines.append(StochNotch(
+                98.95,
+                99.05,
                 "1Hz comb with larger bin width since in coh spectra adjecent bins where also loud lines.",
-            ),
-        )
-        extra_lines = np.append(
-            extra_lines,
-            NoiseLine(
-                33.5,
-                0.1,
+            )
+        extra_lines.append(StochNotch(
+                33.45,
+                33.55,
                 "Unknown 0.5Hz comb; probably digital; not all comb teeth may be visible",
             ),
         )
-        extra_lines = np.append(
-            extra_lines,
-            NoiseLine(
-                34.1875,
-                0.1,
+        extra_lines.append(StochNotch(
+                34.1375,
+                 34.2375,
                 "Calibration line non-linearity (Hanford, central freq rounded to nearest 1/32)",
-            ),
-        )
-        extra_lines = np.append(
-            extra_lines,
-            NoiseLine(
-                50.0,
-                1.1,
+            )
+        extra_lines.append(StochNotch(
+                49.45,
+                50.55,
                 "Virgo calibration: bad sensitivity in this segment -> advise to remove from analysis",
-            ),
-        )
+            )
 
         # O3B added
-        extra_lines = np.append(
-            extra_lines,
-            NoiseLine(
-                26.1875, 0.03125, "H: Input Mode Cleaner pitch mode - V: WEB_MAG_V"
-            ),
-        )
-        extra_lines = np.append(
-            extra_lines,
-            NoiseLine(
-                48.5,
-                5.0,
+        extra_lines.append(StochNotch(
+                26.171, 26.204, "H: Input Mode Cleaner pitch mode - V: WEB_MAG_V"
+            )
+        extra_lines.append(StochNotch(
+                46.0,
+                51.0,
                 "V to large calib error due to active damping of 48hz mechanical resonance - advise to notch 46-51Hz region",
-            ),
-        )  # 46-51
+            )  # 46-51
 
     elif baseline == "LV":
 
-        extra_lines = np.append(
-            extra_lines,
-            NoiseLine(
-                32, 0.001, "Seen in time shifted run; comb or cal non-linearity?"
-            ),
-        )
-        extra_lines = np.append(
-            extra_lines,
-            NoiseLine(
-                34, 0.001, "Seen in time shifted run; comb or cal non-linearity?"
-            ),
-        )
-        extra_lines = np.append(
-            extra_lines, NoiseLine(40.0, 0.1, "1Hz comb in V and 10Hz comb in L")
-        )
-        extra_lines = np.append(
-            extra_lines,
-            NoiseLine(
-                32.0,
-                0.1,
+        extra_lines.append(StochNotch(
+                31.09, 32.01, "Seen in time shifted run; comb or cal non-linearity?"
+            )
+        extra_lines.append(StochNotch(
+                33.09, 34.01, "Seen in time shifted run; comb or cal non-linearity?"
+            )
+        extra_lines.append(StochNotch(39.05, 40.05, "1Hz comb in V and 10Hz comb in L"))
+        extra_lines.append(StochNotch(
+                31.95,
+                32.05,
                 "1Hz comb; probably digital; not all comb teeth may be visible",
-            ),
-        )
-        extra_lines = np.append(
-            extra_lines,
-            NoiseLine(
-                34.0,
-                0.1,
+            )
+        extra_lines.append(StochNotch(
+                33.95,
+                34.05,
                 "1Hz comb; probably digital; not all comb teeth may be visible",
-            ),
-        )
-        extra_lines = np.append(
-            extra_lines,
-            NoiseLine(
-                35.0,
-                0.1,
+            )
+        extra_lines.append(StochNotch(
+                34.95,
+                35.05,
                 "1Hz comb; probably digital; not all comb teeth may be visible",
-            ),
-        )
-        extra_lines = np.append(
-            extra_lines,
-            NoiseLine(
-                36.0,
-                0.1,
+            )
+        extra_lines.append(StochNotch(
+                35.95,
+                36.05,
                 "1Hz comb; probably digital; not all comb teeth may be visible",
-            ),
-        )
-        extra_lines = np.append(
-            extra_lines,
-            NoiseLine(
-                29.81,
-                0.1,
+            )
+        extra_lines.append(StochNotch(
+                29.76,
+                29.86,
                 "line in zero lag run - witness in Seis an ACC @ Virgo, witness in HPI-HAM3_BLND_L4C_Y_IN1 @ L",
-            ),
-        )
-        extra_lines = np.append(
-            extra_lines,
-            NoiseLine(
-                50.0,
-                1.1,
+            )
+        extra_lines.append(StochNotch(
+                49.45,
+                50.55,
                 "Virgo calibration: bad sensitivity in this segment -> advise to remove from analysis",
-            ),
-        )
+            )
 
         # O3B added
-        extra_lines = np.append(
-            extra_lines,
-            NoiseLine(
-                71.25,
-                0.03125,
+        extra_lines.append(StochNotch(
+                71.23,
+                71.27,
                 "L: Input Mode Cleaner yaw mode - V: F7 crossbar mechanical mode",
-            ),
-        )
-        extra_lines = np.append(
-            extra_lines,
-            NoiseLine(
-                48.5,
-                5.0,
+            )
+        extra_lines.append(StochNotch(
+                46.0,
+                51.0,
                 "V to large calib error due to active damping of 48hz mechanical resonance - advise to notch 46-51Hz region",
-            ),
-        )  # 46-51
+            )  # 46-51
 
     return extra_lines
 
