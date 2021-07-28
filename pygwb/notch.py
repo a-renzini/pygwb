@@ -2,11 +2,12 @@
 # at CIT the conda environment that should be used is igwn-py39-testing or more recent As soon as possible move to non-testing version
 
 import numpy as np
-from bilby.gw.detector.strain_data import Notch#,NotchList
+from bilby.gw.detector.strain_data import Notch  # ,NotchList
+
 
 class StochNotch(Notch):
-    def __init__(self, minimum_frequency, maximum_frequency,description):
-        """ A notch object storing the maximum and minimum frequency of the notch, as well as a description
+    def __init__(self, minimum_frequency, maximum_frequency, description):
+        """A notch object storing the maximum and minimum frequency of the notch, as well as a description
 
         Parameters
         ==========
@@ -20,11 +21,12 @@ class StochNotch(Notch):
         self.description = description
 
     def PrintNotch(self):
-        print(self.minimum_frequency, self.maximum_frequency,self.description)
+        print(self.minimum_frequency, self.maximum_frequency, self.description)
+
 
 class StochNotchList(list):
     def __init__(self, notch_list):
-        """ A list of notches
+        """A list of notches
 
         Parameters
         ==========
@@ -42,11 +44,11 @@ class StochNotchList(list):
                 if isinstance(notch, tuple) and len(notch) == 3:
                     self.append(StochNotch(*notch))
                 else:
-                    msg = "notch_list {} is malformed".format(notch_list)
+                    msg = f"notch_list {notch_list} is malformed"
                     raise ValueError(msg)
 
     def check_frequency(self, freq):
-        """ Check if freq is inside the notch list
+        """Check if freq is inside the notch list
 
         Parameters
         ==========
@@ -65,7 +67,7 @@ class StochNotchList(list):
         return False
 
     def get_idxs(self, frequency_array):
-        """ Get a boolean mask for the frequencies in frequency_array in the notch list
+        """Get a boolean mask for the frequencies in frequency_array in the notch list
 
         Parameters
         ==========
@@ -85,12 +87,10 @@ class StochNotchList(list):
         for f in frequency_array:
             idxs.append(self.check_frequency(f))
         inv_idxs = [not elem for elem in idxs]
-        return idxs,inv_idxs
+        return idxs, inv_idxs
 
-
-
-    def save_to_txt(self,filename):
-        """ Save the nocth list to a txt-file (after sorting) 
+    def save_to_txt(self, filename):
+        """Save the nocth list to a txt-file (after sorting)
 
         Parameters
         ==========
@@ -98,7 +98,7 @@ class StochNotchList(list):
             Name of the target file
 
         """
-     
+
         fmin = []
         fmax = []
         desc = []
@@ -108,19 +108,21 @@ class StochNotchList(list):
             fmax.append(n.maximum_frequency)
             desc.append(n.description)
 
-
-        np.savetxt(filename,np.transpose([fmin,fmax,desc]), fmt=('%-20s  ,  %-20s  ,  %-'+str(len(max(desc))+5)+'s'))
+        np.savetxt(
+            filename,
+            np.transpose([fmin, fmax, desc]),
+            fmt=("%-20s  ,  %-20s  ,  %-" + str(len(max(desc)) + 5) + "s"),
+        )
 
     def sort_list(self):
-        """ Sorts the notch list based on the minimum frequency of the notches 
+        """Sorts the notch list based on the minimum frequency of the notches
 
         Parameters
         ==========
 
         """
 
-        self.sort(key=lambda elem: elem.minimum_frequency) 
-
+        self.sort(key=lambda elem: elem.minimum_frequency)
 
 
 def power_lines(fundamental=60, nharmonics=40, df=0.2):
@@ -144,10 +146,11 @@ def power_lines(fundamental=60, nharmonics=40, df=0.2):
 
     notches = StochNotchList([])
     for f0 in freqs:
-        notch = StochNotch(f0-df/2, f0+df/2, "Power Lines")
+        notch = StochNotch(f0 - df / 2, f0 + df / 2, "Power Lines")
         notches.append(notch)
 
     return notches
+
 
 def comb(f0, f_spacing, n_harmonics, df, description=None):
     """
@@ -176,10 +179,10 @@ def comb(f0, f_spacing, n_harmonics, df, description=None):
     notches = StochNotchList([])
     freqs = [f0 + n * f_spacing for n in range(n_harmonics)]
     for f in freqs:
-        TotalDescription = 'Comb with fundamental freq {} and spacing {}.'.format(f0,f_spacing)
+        TotalDescription = f"Comb with fundamental freq {f0} and spacing {f_spacing}."
         if description:
             TotalDescription += " " + description
-        notch = StochNotch(f-df/2, f+df/2, TotalDescription)
+        notch = StochNotch(f - df / 2, f + df / 2, TotalDescription)
         notches.append(notch)
 
     return notches
@@ -192,7 +195,7 @@ def pulsar_injections(filename="input/pulsars.dat"):
     Parameters
     ----------
     filename: str
-        Filename of list containg information about pulsar injections. e.g. for O3 at https://git.ligo.org/stochastic/stochasticdetchar/-/blob/master/O3/notchlists/make_notchlist/input/pulsars.dat
+        Filename of list containing information about pulsar injections. e.g. for O3 at https://git.ligo.org/stochastic/stochasticdetchar/-/blob/master/O3/notchlists/make_notchlist/input/pulsars.dat
 
     Returns
     -------
@@ -212,7 +215,6 @@ def pulsar_injections(filename="input/pulsars.dat"):
         f2 = fend * (1 - doppler)  # allow for doppler shifting
         f0 = (f1 + f2) / 2.0  # central freq over entire period
         df = f1 - f2  # width
-        notch = StochNotch(f0-df/2, f0+df/2, "Pulsar injection")
+        notch = StochNotch(f0 - df / 2, f0 + df / 2, "Pulsar injection")
         notches.append(notch)
     return notches
-

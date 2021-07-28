@@ -1,9 +1,11 @@
+# from pygwb.notch import *
+import sys
+
 import numpy as np
 
-#from pygwb.notch import *
-import sys
-sys.path.append('../pygwb')
 from notch import *
+
+sys.path.append("../pygwb")
 
 ####################
 #### DISCLAIMER ####
@@ -21,7 +23,7 @@ def violin_modes(det):
     Parameters
     ----------
     det: str
-        Abreviation for the detector being H1,L1 or V1 for Hanford, Livingston and Virgo respectively
+        Abbreviation for the detector being H1,L1 or V1 for Hanford, Livingston and Virgo respectively
 
     Returns
     -------
@@ -31,22 +33,41 @@ def violin_modes(det):
 
     notches = StochNotchList([])
     if det == "H1" or det == "L1":
-        notches.append(StochNotch(480, 520, "Violin mode 1st harmonic"))  # range [480,520]
-        notches.append(StochNotch(960, 1040, "Violin mode 2nd harmonic"))  # range [960,1040]
-        notches.append(StochNotch(1455, 1540, "Violin mode 3rd harmonic"))  # range [1455,1540]
-
+        notches.append(
+            StochNotch(480, 520, "Violin mode 1st harmonic")
+        )  # range [480,520]
+        notches.append(
+            StochNotch(960, 1040, "Violin mode 2nd harmonic")
+        )  # range [960,1040]
+        notches.append(
+            StochNotch(1455, 1540, "Violin mode 3rd harmonic")
+        )  # range [1455,1540]
 
     if det == "V1":
-        notches.append(StochNotch(275, 281, "BS Violin mode 1st harmonic"))  # range[275,281]
-        notches.append(StochNotch(550, 561, "BS Violin mode 2nd harmonic"))  # range[550,561]
-        notches.append(StochNotch(442, 457, "Violin mode 1st harmonic"))  # range [442,457]
-        notches.append(StochNotch(881.5, 908.5, "Violin mode 2nd harmonic"))  # range [881.5,908.5]
-        notches.append(StochNotch(1325.5, 1360.5, "Violin mode 3rd harmonic"))  # range [1325.5,1360.5]
-        notches.append(StochNotch(1774, 1814, "Violin mode 4th harmonic"))  # range [1774,1814]
-        notches.append(StochNotch(2192, 2256, "Violin mode 5th harmonic"))  # range [2192,2256]
-
+        notches.append(
+            StochNotch(275, 281, "BS Violin mode 1st harmonic")
+        )  # range[275,281]
+        notches.append(
+            StochNotch(550, 561, "BS Violin mode 2nd harmonic")
+        )  # range[550,561]
+        notches.append(
+            StochNotch(442, 457, "Violin mode 1st harmonic")
+        )  # range [442,457]
+        notches.append(
+            StochNotch(881.5, 908.5, "Violin mode 2nd harmonic")
+        )  # range [881.5,908.5]
+        notches.append(
+            StochNotch(1325.5, 1360.5, "Violin mode 3rd harmonic")
+        )  # range [1325.5,1360.5]
+        notches.append(
+            StochNotch(1774, 1814, "Violin mode 4th harmonic")
+        )  # range [1774,1814]
+        notches.append(
+            StochNotch(2192, 2256, "Violin mode 5th harmonic")
+        )  # range [2192,2256]
 
     return notches
+
 
 def calibration_lines(det):
     """
@@ -55,7 +76,7 @@ def calibration_lines(det):
     Parameters
     ----------
     det: str
-        Abreviation for the detector being H1,L1 or V1 for Hanford, Livingston and Virgo respectively
+        Abbreviation for the detector being H1,L1 or V1 for Hanford, Livingston and Virgo respectively
 
     Returns
     -------
@@ -65,7 +86,6 @@ def calibration_lines(det):
     """
     # ignore lines below 20 Hz
 
-    
     notches = StochNotchList([])
     if det == "H1":
         notches.append(StochNotch(16.6, 17.6, "H1 calibration line"))
@@ -112,84 +132,115 @@ def calibration_lines(det):
         notches.append(StochNotch(359.4, 359.6, "V1 NE PCALcalibration line"))
         notches.append(StochNotch(406.4, 406.6, "V1 WE EM calibration line"))
         notches.append(StochNotch(1900.4, 1900.6, "V1 WE PCAL calibration line"))
-        notches.append(StochNotch(2012.4, 2012.6, "V1 PR,BS,NI,NE,WI,WI EM calibration line"))
-        notches.append(StochNotch(
+        notches.append(
+            StochNotch(2012.4, 2012.6, "V1 PR,BS,NI,NE,WI,WI EM calibration line")
+        )
+        notches.append(
+            StochNotch(
                 31.4,
                 31.6,
                 "V1 second order harmonic of calibration line at 15.8 - identified by CW people",
-            ))
-        notches.append(StochNotch(
+            )
+        )
+        notches.append(
+            StochNotch(
                 32.5,
                 32.7,
                 "V1 second order harmonic of calibration line at 16.3 - identified by CW people",
-            ))
-        notches.append(StochNotch(
+            )
+        )
+        notches.append(
+            StochNotch(
                 33.5,
                 33.7,
                 "V1 second order harmonic of calibration line at 16.8 - identified by CW people",
-            ))
-        notches.append(StochNotch(
+            )
+        )
+        notches.append(
+            StochNotch(
                 120.9,
                 121.1,
                 "V1 second order harmonic of calibration line at 60.5 - identified by CW people",
-            ))
-        notches.append(StochNotch(
+            )
+        )
+        notches.append(
+            StochNotch(
                 121.9,
                 122.1,
                 "V1 second order harmonic of calibration line at 61 - identified by CW people",
-            ))
-        notches.append(StochNotch(
+            )
+        )
+        notches.append(
+            StochNotch(
                 122.9,
                 123.1,
                 "V1 second order harmonic of calibration line at 61.5 - identified by CW people",
-            ))
-        notches.append(StochNotch(
+            )
+        )
+        notches.append(
+            StochNotch(
                 124.9,
                 125.1,
                 "V1 second order harmonic of calibration line at 62.5 - identified by CW people",
-            ))
-        notches.append(StochNotch(
+            )
+        )
+        notches.append(
+            StochNotch(
                 125.9,
                 126.1,
                 "V1 second order harmonic of calibration line at 63 - identified by CW people",
-            ))
-        notches.append(StochNotch(
+            )
+        )
+        notches.append(
+            StochNotch(
                 126.9,
                 127.1,
                 "V1 second order harmonic of calibration line at 63.5 - identified by CW people",
-            ))
-        notches.append(StochNotch(
+            )
+        )
+        notches.append(
+            StochNotch(
                 181.4,
                 181.6,
                 "V1 third order harmonic of calibration line at 60.5 - identified by CW people",
-            ))
-        notches.append(StochNotch(
+            )
+        )
+        notches.append(
+            StochNotch(
                 122.9,
                 123.1,
                 "V1 third order harmonic of calibration line at 61 - identified by CW people",
-            ))
-        notches.append(StochNotch(
+            )
+        )
+        notches.append(
+            StochNotch(
                 184.4,
                 184.6,
                 "V1 third order harmonic of calibration line at 61.5 - identified by CW people",
-            ))
-        notches.append(StochNotch(
+            )
+        )
+        notches.append(
+            StochNotch(
                 187.4,
                 187.6,
                 "V1 third order harmonic of calibration line at 62.5 - identified by CW people",
-            ))
-        notches.append(StochNotch(
+            )
+        )
+        notches.append(
+            StochNotch(
                 188.9,
                 189.1,
                 "V1 third order harmonic of calibration line at 63 - identified by CW people",
-            ))
-        notches.append(StochNotch(
+            )
+        )
+        notches.append(
+            StochNotch(
                 190.4,
                 190.6,
                 "V1 third order harmonic of calibration line at 63.5 - identified by CW people",
-            ))
+            )
+        )
 
-                           
     return notches
 
 
@@ -200,7 +251,7 @@ def instrumental_lines(baseline):
     Parameters
     ----------
     baseline: str
-        Abreviation for the detector baseline pair being HL,HV or LV
+        Abbreviation for the detector baseline pair being HL,HV or LV
 
     Returns
     -------
@@ -243,7 +294,9 @@ def instrumental_lines(baseline):
         )
         extra_lines.append(StochNotch(27.66875, 27.76875, "SR3 bounce mode"))
         extra_lines.append(
-            StochNotch(35.66875, 35.76875, "Environmental disturbance also seen in O1/O2 ")
+            StochNotch(
+                35.66875, 35.76875, "Environmental disturbance also seen in O1/O2 "
+            )
         )
         extra_lines.append(StochNotch(40.85625, 40.95625, "SR2/MC2 roll mode"))
         extra_lines.append(StochNotch(40.8875, 40.9875, "PR2 roll mode "))
@@ -344,7 +397,8 @@ def instrumental_lines(baseline):
         )
         extra_lines.append(
             StochNotch(
-                99.95, 100.05,
+                99.95,
+                100.05,
                 "Unknown comb; probably digital; not all comb teeth may be visible",
             )
         )
@@ -366,8 +420,12 @@ def instrumental_lines(baseline):
             StochNotch(32.45, 32.55, "1Hz comb with 0.5Hz offset in H and L")
         )
         extra_lines.append(StochNotch(29.95, 30.05, "1Hz comb in H and 10Hz comb in L"))
-        extra_lines.append(StochNotch(99.95, 100.05, "1Hz comb in H and 10Hz comb in L"))
-        extra_lines.append(StochNotch(436.48125, 436.58125, "Input Mode Cleaner pitch mode"))
+        extra_lines.append(
+            StochNotch(99.95, 100.05, "1Hz comb in H and 10Hz comb in L")
+        )
+        extra_lines.append(
+            StochNotch(436.48125, 436.58125, "Input Mode Cleaner pitch mode")
+        )
 
         # O3B added
         extra_lines.append(
@@ -407,146 +465,199 @@ def instrumental_lines(baseline):
     elif baseline == "HV":
 
         extra_lines.extend(comb(20, 1, 1726, 0.01))
-        extra_lines.append(StochNotch(33.199, 33.201, "Calibration line nonlinearity")
-        )
-        extra_lines.append(StochNotch(
+        extra_lines.append(StochNotch(33.199, 33.201, "Calibration line nonlinearity"))
+        extra_lines.append(
+            StochNotch(
                 295.95,
                 296.05,
                 "environmental identification: broadband coherence with V CEB_MAG_N and narrowband coherence with other magnetometers",
-            ))  # environmental identification
-        extra_lines.append(StochNotch(
+            )
+        )  # environmental identification
+        extra_lines.append(
+            StochNotch(
                 23.95,
                 24.05,
                 "1Hz comb with larger bin width since in coh spectra adjecent bins where also loud lines.",
-            ))
-        extra_lines.append(StochNotch(
+            )
+        )
+        extra_lines.append(
+            StochNotch(
                 24.95,
                 25.05,
                 "1Hz comb with larger bin width since in coh spectra adjecent bins where also loud lines.",
-            ))
-        extra_lines.append(StochNotch(
+            )
+        )
+        extra_lines.append(
+            StochNotch(
                 25.95,
                 26.05,
                 "1Hz comb with larger bin width since in coh spectra adjecent bins where also loud lines.",
-            ))
-        extra_lines.append(StochNotch(
+            )
+        )
+        extra_lines.append(
+            StochNotch(
                 26.95,
                 27.05,
                 "1Hz comb with larger bin width since in coh spectra adjecent bins where also loud lines.",
-            ))
-        extra_lines.append(StochNotch(
+            )
+        )
+        extra_lines.append(
+            StochNotch(
                 27.95,
                 28.05,
                 "1Hz comb with larger bin width since in coh spectra adjecent bins where also loud lines.",
-            ))
-        extra_lines.append(StochNotch(
+            )
+        )
+        extra_lines.append(
+            StochNotch(
                 31.95,
                 32.05,
                 "1Hz comb with larger bin width since in coh spectra adjecent bins where also loud lines.",
-            ))
-        extra_lines.append(StochNotch(
+            )
+        )
+        extra_lines.append(
+            StochNotch(
                 32.95,
                 33.05,
                 "1Hz comb with larger bin width since in coh spectra adjecent bins where also loud lines.",
-            ))
-        extra_lines.append(StochNotch(
+            )
+        )
+        extra_lines.append(
+            StochNotch(
                 33.95,
                 34.05,
                 "1Hz comb with larger bin width since in coh spectra adjecent bins where also loud lines.",
-            ))
-        extra_lines.append(StochNotch(
+            )
+        )
+        extra_lines.append(
+            StochNotch(
                 34.95,
                 35.05,
                 "1Hz comb with larger bin width since in coh spectra adjecent bins where also loud lines.",
-            ))
-        extra_lines.append(StochNotch(
+            )
+        )
+        extra_lines.append(
+            StochNotch(
                 96.95,
                 97.05,
                 "1Hz comb with larger bin width since in coh spectra adjecent bins where also loud lines.",
-            ))
-        extra_lines.append(StochNotch(
+            )
+        )
+        extra_lines.append(
+            StochNotch(
                 98.95,
                 99.05,
                 "1Hz comb with larger bin width since in coh spectra adjecent bins where also loud lines.",
-            ))
-        extra_lines.append(StochNotch(
+            )
+        )
+        extra_lines.append(
+            StochNotch(
                 33.45,
                 33.55,
                 "Unknown 0.5Hz comb; probably digital; not all comb teeth may be visible",
-            ))
-        
-        extra_lines.append(StochNotch(
+            )
+        )
+
+        extra_lines.append(
+            StochNotch(
                 34.1375,
-                 34.2375,
+                34.2375,
                 "Calibration line non-linearity (Hanford, central freq rounded to nearest 1/32)",
-         )   )
-        extra_lines.append(StochNotch(
+            )
+        )
+        extra_lines.append(
+            StochNotch(
                 49.45,
                 50.55,
                 "Virgo calibration: bad sensitivity in this segment -> advise to remove from analysis",
-            ))
+            )
+        )
 
         # O3B added
-        extra_lines.append(StochNotch(
+        extra_lines.append(
+            StochNotch(
                 26.171, 26.204, "H: Input Mode Cleaner pitch mode - V: WEB_MAG_V"
-            ))
-        extra_lines.append(StochNotch(
+            )
+        )
+        extra_lines.append(
+            StochNotch(
                 46.0,
                 51.0,
                 "V to large calib error due to active damping of 48hz mechanical resonance - advise to notch 46-51Hz region",
-            ))  # 46-51
+            )
+        )  # 46-51
 
     elif baseline == "LV":
 
-        extra_lines.append(StochNotch(
+        extra_lines.append(
+            StochNotch(
                 31.09, 32.01, "Seen in time shifted run; comb or cal non-linearity?"
-            ))
-        extra_lines.append(StochNotch(
+            )
+        )
+        extra_lines.append(
+            StochNotch(
                 33.09, 34.01, "Seen in time shifted run; comb or cal non-linearity?"
-            ))
+            )
+        )
         extra_lines.append(StochNotch(39.05, 40.05, "1Hz comb in V and 10Hz comb in L"))
-        extra_lines.append(StochNotch(
+        extra_lines.append(
+            StochNotch(
                 31.95,
                 32.05,
                 "1Hz comb; probably digital; not all comb teeth may be visible",
-            ))
-        extra_lines.append(StochNotch(
+            )
+        )
+        extra_lines.append(
+            StochNotch(
                 33.95,
                 34.05,
                 "1Hz comb; probably digital; not all comb teeth may be visible",
-            ))
-        extra_lines.append(StochNotch(
+            )
+        )
+        extra_lines.append(
+            StochNotch(
                 34.95,
                 35.05,
                 "1Hz comb; probably digital; not all comb teeth may be visible",
-            ))
-        extra_lines.append(StochNotch(
+            )
+        )
+        extra_lines.append(
+            StochNotch(
                 35.95,
                 36.05,
                 "1Hz comb; probably digital; not all comb teeth may be visible",
-            ))
-        extra_lines.append(StochNotch(
+            )
+        )
+        extra_lines.append(
+            StochNotch(
                 29.76,
                 29.86,
                 "line in zero lag run - witness in Seis an ACC @ Virgo, witness in HPI-HAM3_BLND_L4C_Y_IN1 @ L",
-            ))
-        extra_lines.append(StochNotch(
+            )
+        )
+        extra_lines.append(
+            StochNotch(
                 49.45,
                 50.55,
                 "Virgo calibration: bad sensitivity in this segment -> advise to remove from analysis",
-            ))
+            )
+        )
 
         # O3B added
-        extra_lines.append(StochNotch(
+        extra_lines.append(
+            StochNotch(
                 71.23,
                 71.27,
                 "L: Input Mode Cleaner yaw mode - V: F7 crossbar mechanical mode",
-            ))
-        extra_lines.append(StochNotch(
+            )
+        )
+        extra_lines.append(
+            StochNotch(
                 46.0,
                 51.0,
                 "V to large calib error due to active damping of 48hz mechanical resonance - advise to notch 46-51Hz region",
-            ))  # 46-51
+            )
+        )  # 46-51
 
     return extra_lines
 
@@ -554,7 +665,7 @@ def instrumental_lines(baseline):
 def Produce_O3_Isotropic_notchlist(src, version=0, runPart="A"):
     """
     Creates the final O3 isotropic notchlist combing all previously identified and decleared lines
-    Gives as output 6 files containing the desired notchlist. For each baseline 1 file in a format easily readible by the code, 1 in more human readable format.
+    Gives as output 3 files containing the desired notchlist.
 
     Parameters
     ----------
@@ -569,7 +680,7 @@ def Produce_O3_Isotropic_notchlist(src, version=0, runPart="A"):
 
     Output
     -------
-    3 files as output containing the desired notchlist. 
+    3 files as output containing the desired notchlist.
     """
 
     pulsar_src = "/home/kamiel.janssens/StochasticCoherenceRuns/JobFiles/stochasticdetchar/O3/notchlists/make_notchlist/input/"
@@ -577,8 +688,7 @@ def Produce_O3_Isotropic_notchlist(src, version=0, runPart="A"):
     ###############################
     # HL
     ###############################
-    output_filename = '{output}/notchlist_HL_O3{AorB}_v{v}.txt'.format(output=src,AorB=runPart,v=version)
-    
+    output_filename = f"{src}/notchlist_HL_O3{runPart}_v{version}.txt"
 
     noise_power_lines = power_lines(nharmonics=28)  # 28*60=1680 < 1726
     noise_violin_modes = violin_modes("H1")
@@ -586,7 +696,7 @@ def Produce_O3_Isotropic_notchlist(src, version=0, runPart="A"):
     noise_calibration_lines2 = calibration_lines(det="L1")
     noise_pulsar_injections = pulsar_injections(pulsar_src + "/pulsars.dat")
     noise_instrumental_lines = instrumental_lines("HL")
-    
+
     noise_lines = StochNotchList([])
     noise_lines.extend(noise_power_lines)
     noise_lines.extend(noise_violin_modes)
@@ -605,18 +715,22 @@ def Produce_O3_Isotropic_notchlist(src, version=0, runPart="A"):
     append_copy.write("####################\n")
     append_copy.write("#### DISCLAIMER ####\n")
     append_copy.write("####################\n")
-    append_copy.write("# Due to the new code method the nocth list produced in this tutorial will not exactely match the official O3 notch list\n")
-    append_copy.write("# Consider this code only be an example and for any further (official) processing, base your work on the official code & notchlists\n")
-    append_copy.write("# Official O3 code can be found here: https://git.ligo.org/stochastic/stochasticdetchar/-/tree/master/O3/notchlists/make_notchlist\n\n")
+    append_copy.write(
+        "# Due to the new code method the nocth list produced in this tutorial will not exactely match the official O3 notch list\n"
+    )
+    append_copy.write(
+        "# Consider this code only be an example and for any further (official) processing, base your work on the official code & notchlists\n"
+    )
+    append_copy.write(
+        "# Official O3 code can be found here: https://git.ligo.org/stochastic/stochasticdetchar/-/tree/master/O3/notchlists/make_notchlist\n\n"
+    )
     append_copy.write(original_text)
     append_copy.close()
-
 
     ###############################
     # HV
     ###############################
-    output_filename = '{output}/notchlist_HV_O3{AorB}_v{v}.txt'.format(output=src,AorB=runPart,v=version)
-
+    output_filename = f"{src}/notchlist_HV_O3{runPart}_v{version}.txt"
 
     noise_power_lines = power_lines(nharmonics=28)  # 28*60=1680 < 1726
     noise_power_linesV = power_lines(fundamental=50, nharmonics=34)  # 34*50=1700 < 1726
@@ -647,19 +761,22 @@ def Produce_O3_Isotropic_notchlist(src, version=0, runPart="A"):
     append_copy.write("####################\n")
     append_copy.write("#### DISCLAIMER ####\n")
     append_copy.write("####################\n")
-    append_copy.write("# Due to the new code method the nocth list produced in this tutorial will not exactely match the official O3 notch list\n")
-    append_copy.write("# Consider this code only be an example and for any further (official) processing, base your work on the official code & notchlists\n")
-    append_copy.write("# Official O3 code can be found here: https://git.ligo.org/stochastic/stochasticdetchar/-/tree/master/O3/notchlists/make_notchlist\n\n")
+    append_copy.write(
+        "# Due to the new code method the nocth list produced in this tutorial will not exactely match the official O3 notch list\n"
+    )
+    append_copy.write(
+        "# Consider this code only be an example and for any further (official) processing, base your work on the official code & notchlists\n"
+    )
+    append_copy.write(
+        "# Official O3 code can be found here: https://git.ligo.org/stochastic/stochasticdetchar/-/tree/master/O3/notchlists/make_notchlist\n\n"
+    )
     append_copy.write(original_text)
     append_copy.close()
-
-
 
     ###############################
     # LV
     ###############################
-    output_filename = '{output}/notchlist_LV_O3{AorB}_v{v}.txt'.format(output=src,AorB=runPart,v=version)
-
+    output_filename = f"{src}/notchlist_LV_O3{runPart}_v{version}.txt"
 
     noise_power_lines = power_lines(nharmonics=28)  # 28*60=1680 < 1726
     noise_power_linesV = power_lines(fundamental=50, nharmonics=34)  # 34*50=1700 < 1726
@@ -690,18 +807,22 @@ def Produce_O3_Isotropic_notchlist(src, version=0, runPart="A"):
     append_copy.write("####################\n")
     append_copy.write("#### DISCLAIMER ####\n")
     append_copy.write("####################\n")
-    append_copy.write("# Due to the new code method the nocth list produced in this tutorial will not exactely match the official O3 notch list\n")
-    append_copy.write("# Consider this code only be an example and for any further (official) processing, base your work on the official code & notchlists\n")
-    append_copy.write("# Official O3 code can be found here: https://git.ligo.org/stochastic/stochasticdetchar/-/tree/master/O3/notchlists/make_notchlist\n\n")
+    append_copy.write(
+        "# Due to the new code method the nocth list produced in this tutorial will not exactely match the official O3 notch list\n"
+    )
+    append_copy.write(
+        "# Consider this code only be an example and for any further (official) processing, base your work on the official code & notchlists\n"
+    )
+    append_copy.write(
+        "# Official O3 code can be found here: https://git.ligo.org/stochastic/stochasticdetchar/-/tree/master/O3/notchlists/make_notchlist\n\n"
+    )
     append_copy.write(original_text)
     append_copy.close()
 
 
 if __name__ == "__main__":
-    
+
     version = 10
     runPart = "B"
 
-    Produce_O3_Isotropic_notchlist(
-        src="./", version=version, runPart=runPart
-    )
+    Produce_O3_Isotropic_notchlist(src="./", version=version, runPart=runPart)
