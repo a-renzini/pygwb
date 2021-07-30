@@ -1,8 +1,8 @@
 import numpy as np
 from bilby.core.utils import create_frequency_series
 
-from .orfs import calc_orf
 from .notch import StochNotchList
+from .orfs import calc_orf
 
 
 class Baseline(object):
