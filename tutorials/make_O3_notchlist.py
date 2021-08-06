@@ -7,6 +7,9 @@ from notch import *
 
 sys.path.append("../pygwb")
 
+
+# sys.path.append("../pygwb")
+
 ####################
 #### DISCLAIMER ####
 ####################
@@ -694,7 +697,9 @@ def Produce_O3_Isotropic_notchlist(src, version=0, runPart="A"):
     noise_violin_modes = violin_modes("H1")
     noise_calibration_lines1 = calibration_lines(det="H1")
     noise_calibration_lines2 = calibration_lines(det="L1")
-    noise_pulsar_injections = pulsar_injections(pulsar_src + "/pulsars.dat")
+    noise_pulsar_injections = pulsar_injections(
+        pulsar_src + "/pulsars.dat", t_start=1238112018, t_end=1269363618
+    )
     noise_instrumental_lines = instrumental_lines("HL")
 
     noise_lines = StochNotchList([])
@@ -738,7 +743,9 @@ def Produce_O3_Isotropic_notchlist(src, version=0, runPart="A"):
     noise_violin_modesV = violin_modes("V1")
     noise_calibration_lines1 = calibration_lines(det="H1")
     noise_calibration_lines2 = calibration_lines(det="V1")
-    noise_pulsar_injections = pulsar_injections(pulsar_src + "/pulsars.dat")
+    noise_pulsar_injections = pulsar_injections(
+        pulsar_src + "/pulsars.dat", t_start=1238112018, t_end=1269363618
+    )
     noise_instrumental_lines = instrumental_lines("HV")
 
     noise_lines = StochNotchList([])
@@ -784,7 +791,9 @@ def Produce_O3_Isotropic_notchlist(src, version=0, runPart="A"):
     noise_violin_modesV = violin_modes("V1")
     noise_calibration_lines1 = calibration_lines(det="L1")
     noise_calibration_lines2 = calibration_lines(det="V1")
-    noise_pulsar_injections = pulsar_injections(pulsar_src + "/pulsars.dat")
+    noise_pulsar_injections = pulsar_injections(
+        pulsar_src + "/pulsars.dat", t_start=1238112018, t_end=1269363618
+    )
     noise_instrumental_lines = instrumental_lines("LV")
 
     noise_lines = StochNotchList([])

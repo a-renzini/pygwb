@@ -2,7 +2,7 @@
 # at CIT the conda environment that should be used is igwn-py39-testing or more recent As soon as possible move to non-testing version
 
 import numpy as np
-from bilby.gw.detector.strain_data import Notch  # ,NotchList
+from bilby.gw.detector.strain_data import Notch
 
 
 class StochNotch(Notch):
@@ -20,7 +20,7 @@ class StochNotch(Notch):
         super().__init__(minimum_frequency, maximum_frequency)
         self.description = description
 
-    def PrintNotch(self):
+    def print_notch(self):
         print(self.minimum_frequency, self.maximum_frequency, self.description)
 
 
@@ -124,6 +124,20 @@ class StochNotchList(list):
 
         self.sort(key=lambda elem: elem.minimum_frequency)
 
+    @classmethod
+    def load_from_file(cls, filename):
+
+        fmin, fmax = np.loadtxt(filename, delimiter=",", unpack=True, usecols=(0, 1))
+        desc = np.loadtxt(
+            filename, delimiter=",", unpack=True, usecols=(2), dtype="str"
+        )
+
+        cls = StochNotchList([])
+        for i in range(len(fmin)):
+            cls.append(StochNotch(fmin[i], fmax[i], desc[i]))
+
+        return cls
+
 
 def power_lines(fundamental=60, nharmonics=40, df=0.2):
     """
@@ -188,7 +202,7 @@ def comb(f0, f_spacing, n_harmonics, df, description=None):
     return notches
 
 
-def pulsar_injections(filename="input/pulsars.dat"):
+def pulsar_injections(filename, t_start, t_end, doppler=1e-4):
     """
     Create list of frequencies contaminated by pulsar injections
 
@@ -196,25 +210,38 @@ def pulsar_injections(filename="input/pulsars.dat"):
     ----------
     filename: str
         Filename of list containing information about pulsar injections. e.g. for O3 at https://git.ligo.org/stochastic/stochasticdetchar/-/blob/master/O3/notchlists/make_notchlist/input/pulsars.dat
+    t_start: int
+        GPS start time of run/analysis
+    t_end: int
+        GPS end time of run/analysis
+    doppler: float
+        Doppler shift; typical value of v/c for Earth motion in solar system = 1e-4 (default)
 
     Returns
     -------
     notches: list of NoiseLine objects
         List of lines you want to be notched in NoisLine format
     """
-    trefs, frefs, fdots = np.loadtxt(filename, unpack=True)
-    doppler = 1e-4  # typical value of v/c for Earth motion in solar system
-    Tstart = 1238112018  # Apr 1 2019 00:00:00 UTC
-    Tend = 1269363618  # Mar 27 2020 17:00:00 UTC
 
+    """
+    f_start: pulsar freq at start of time period
+    f_end:   pulsar freq at end of time period
+    f1:      allow for doppler shifting
+    f2:      allow for doppler shifting
+    f0:      central freq over entire period
+    df:      width
+    """
+
+    t_refs, f_refs, f_dots = np.loadtxt(filename, unpack=True)
     notches = StochNotchList([])
-    for tref, fref, fdot in zip(trefs, frefs, fdots):
-        fstart = fref + fdot * (Tstart - tref)  # pulsar freq at start of time period
-        fend = fref + fdot * (Tend - tref)  # pulsar freq at end of time period
-        f1 = fstart * (1 + doppler)  # allow for doppler shifting
-        f2 = fend * (1 - doppler)  # allow for doppler shifting
-        f0 = (f1 + f2) / 2.0  # central freq over entire period
-        df = f1 - f2  # width
+
+    for t_ref, f_ref, f_dot in zip(t_refs, f_refs, f_dots):
+        f_start = f_ref + f_dot * (t_start - t_ref)
+        f_end = f_ref + f_dot * (t_end - t_ref)
+        f1 = f_start * (1 + doppler)
+        f2 = f_end * (1 - doppler)
+        f0 = (f1 + f2) / 2.0
+        df = f1 - f2
         notch = StochNotch(f0 - df / 2, f0 + df / 2, "Pulsar injection")
         notches.append(notch)
     return notches
