@@ -146,9 +146,9 @@ def cleanup_dir(outdir):
         pass  # directory doesn't exist
 
 
-def omega_to_power(OmegaGW, frequencies):
+def omega_to_power(omega_GWB, frequencies):
     """
-    Function that computes the GW power spectrum starting from the OmegaGW
+    Function that computes the GW power spectrum starting from the omega_GWB
     spectrum.
 
     Parameters
@@ -161,7 +161,7 @@ def omega_to_power(OmegaGW, frequencies):
     """
     H_theor = (3 * H0 ** 2) / (10 * np.pi ** 2)
 
-    power = H_theor * OmegaGW * frequencies ** (-3)
+    power = H_theor * omega_GWB * frequencies ** (-3)
     power = gwpy.frequencyseries.FrequencySeries(power, frequencies=frequencies)
 
     return power

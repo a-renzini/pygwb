@@ -83,11 +83,3 @@ class Network(object):
 
         return np.array(noisePSDs)
 
-    def inject_GWB(self):
-        """
-        injection module for the Network object
-        [PARAMETERS]
-        ----------------------
-
-        """
-        pass

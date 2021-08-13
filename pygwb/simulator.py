@@ -15,26 +15,6 @@ if sys.version_info >= (3, 0):
 else:
     import ConfigParser as configparser
 
-"""
-TODOS
---------
-
-urgent
--------
-
-* write all the necessary import checks
-    - other?
-* unit tests
-
-less urge_segments = 10nt
------------
-* add windowing in frequency option
-* add save to file functionality (more or less done for hdf5). If want to allow for other file types, we should
-add this as an extra input parameter of the simulation. Need to discuss
-* Sylvia's 'baseline': either set the 'sampling_frequency' and the 'duration' automatically from the interferometers, OR you have to pass it. Should discuss if need for such a function in this module.
-
-"""
-
 
 class Simulator(object):
     def __init__(
@@ -68,7 +48,7 @@ class Simulator(object):
         save_to_file: boolean
             Flag that turns on/off the option to save the simulated data to a file
         no_noise: boolean
-            Flag that sets the noisePSDs to 0
+            Flag that sets the noise_PSDs to 0
 
         Returns
         =======
@@ -90,7 +70,7 @@ class Simulator(object):
             self.frequencies = self.get_frequencies()
             self.Nf = len(self.frequencies)
             self.t0 = start_time
-            self.NSamplesPerSegment = int(self.sampling_frequency * self.duration)
+            self.N_samples_per_segment = int(self.sampling_frequency * self.duration)
             self.deltaT = 1 / self.sampling_frequency
 
             self.noise_PSD_array = self.get_noise_PSD_array()
@@ -117,7 +97,7 @@ class Simulator(object):
 
     def get_noise_PSD_array(self):
         """ """
-        noisePSDs = []
+        noise_PSDs = []
         try:
             for ifo in self.interferometers:
                 psd = ifo.power_spectral_density.psd_array
@@ -128,8 +108,8 @@ class Simulator(object):
                         f"The noisePSD of interferometer {ifo.name} contains infs!"
                     )
 
-                noisePSDs.append(psd)
-            return np.array(noisePSDs)
+                noise_PSDs.append(psd)
+            return np.array(noise_PSDs)
         except:
             raise AttributeError(
                 "The noisePSD of all the detectors needs to be specified!"
@@ -163,12 +143,12 @@ class Simulator(object):
             data containing the simulated isotropic stochastic background.
         """
         y = self.simulate_data()
-        dataTemp = self.splice_segments(y)
+        data_temp = self.splice_segments(y)
         data = np.zeros(self.Nd, dtype=gwpy.timeseries.TimeSeries)
         for ii in range(self.Nd):
             print(f"{self.interferometers[ii].name}:SIM-STOCH_INJ")
             data[ii] = gwpy.timeseries.TimeSeries(
-                dataTemp[ii].astype("float64"),
+                data_temp[ii].astype("float64"),
                 t0=self.t0,
                 dt=self.deltaT,
                 channel=f"{self.interferometers[ii].name}:SIM-STOCH_INJ",
@@ -235,7 +215,7 @@ class Simulator(object):
                 else:
                     C[ii, jj, :] = orf_array[ii, jj] * self.intensity_GW.value[:]
         C[C == 0.0] = 1.0e-45
-        C = self.NSamplesPerSegment / (self.deltaT * 4) * C
+        C = self.N_samples_per_segment / (self.deltaT * 4) * C
         return C
 
     def compute_eigval_eigvec(self, C):
@@ -319,13 +299,13 @@ class Simulator(object):
         Returns
         =======
         y: array_like
-            Array of size Nd x 2*(N_segments+1) x NSamplesPerSegment containing the
+            Array of size Nd x 2*(N_segments+1) x N_samples_per_segment containing the
             various segments with the simulated data.
         """
         C = self.covariance_matrix()
 
         y = np.zeros(
-            (self.Nd, 2 * self.N_segments + 1, self.NSamplesPerSegment),
+            (self.Nd, 2 * self.N_segments + 1, self.N_samples_per_segment),
             dtype=np.ndarray,
         )
 
@@ -335,7 +315,7 @@ class Simulator(object):
             xtemp = self.transform_to_correlated_data(z, C)
 
             for ii in range(self.Nd):
-                if self.NSamplesPerSegment % 2 == 0:
+                if self.N_samples_per_segment % 2 == 0:
                     xtilde = np.concatenate(
                         (
                             np.array([0]),
@@ -352,7 +332,7 @@ class Simulator(object):
                             np.flipud(np.conjugate(xtemp[:, ii])),
                         )
                     )
-                y[ii, kk, :] = np.real(np.fft.ifft(xtilde))[: self.NSamplesPerSegment]
+                y[ii, kk, :] = np.real(np.fft.ifft(xtilde))[: self.N_samples_per_segment]
         return y
 
     def splice_segments(self, segments):
@@ -364,24 +344,24 @@ class Simulator(object):
         Parameters
         ==========
         segments: array_like
-            Array of size Nd x (2*N_segments+1) x NSamplesPerSegment containing the
+            Array of size Nd x (2*N_segments+1) x N_samples_per_segment containing the
             various segments with the simulated data that need to be spliced
             together, where Nd is the number of detectors.
 
         Returns
         =======
         data: array_like
-            Array of size Nd x (N_segments*NSamplesPerSegment) containing the simulated
+            Array of size Nd x (N_segments*N_samples_per_segment) containing the simulated
             data corresponding to an isotropic stochastic background for each of the
             detectors, where Nd is the number of detectors.
         """
-        w = np.zeros(self.NSamplesPerSegment)
+        w = np.zeros(self.N_samples_per_segment)
 
-        for ii in range(self.NSamplesPerSegment):
-            w[ii] = np.sin(np.pi * ii / self.NSamplesPerSegment)
+        for ii in range(self.N_samples_per_segment):
+            w[ii] = np.sin(np.pi * ii / self.N_samples_per_segment)
 
         data = np.zeros(
-            (self.Nd, self.NSamplesPerSegment * self.N_segments), dtype=np.ndarray
+            (self.Nd, self.N_samples_per_segment * self.N_segments), dtype=np.ndarray
         )
 
         for ii in range(self.Nd):
@@ -392,21 +372,21 @@ class Simulator(object):
 
                 z0 = np.concatenate(
                     (
-                        y0[int(self.NSamplesPerSegment / 2) : self.NSamplesPerSegment],
-                        np.zeros(int(self.NSamplesPerSegment / 2)),
+                        y0[int(self.N_samples_per_segment / 2) : self.N_samples_per_segment],
+                        np.zeros(int(self.N_samples_per_segment / 2)),
                     )
                 )
                 z1 = y1[:]
                 z2 = np.concatenate(
                     (
-                        np.zeros(int(self.NSamplesPerSegment / 2)),
-                        y2[0 : int(self.NSamplesPerSegment / 2)],
+                        np.zeros(int(self.N_samples_per_segment / 2)),
+                        y2[0 : int(self.N_samples_per_segment / 2)],
                     )
                 )
 
                 data[
                     ii,
-                    jj * self.NSamplesPerSegment : (jj + 1) * self.NSamplesPerSegment,
+                    jj * self.N_samples_per_segment : (jj + 1) * self.N_samples_per_segment,
                 ] = (
                     z0 + z1 + z2
                 )
