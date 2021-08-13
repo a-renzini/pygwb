@@ -82,4 +82,3 @@ class Network(object):
             noisePSDs.append(psd)
 
         return np.array(noisePSDs)
-

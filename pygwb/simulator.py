@@ -332,7 +332,9 @@ class Simulator(object):
                             np.flipud(np.conjugate(xtemp[:, ii])),
                         )
                     )
-                y[ii, kk, :] = np.real(np.fft.ifft(xtilde))[: self.N_samples_per_segment]
+                y[ii, kk, :] = np.real(np.fft.ifft(xtilde))[
+                    : self.N_samples_per_segment
+                ]
         return y
 
     def splice_segments(self, segments):
@@ -372,7 +374,11 @@ class Simulator(object):
 
                 z0 = np.concatenate(
                     (
-                        y0[int(self.N_samples_per_segment / 2) : self.N_samples_per_segment],
+                        y0[
+                            int(
+                                self.N_samples_per_segment / 2
+                            ) : self.N_samples_per_segment
+                        ],
                         np.zeros(int(self.N_samples_per_segment / 2)),
                     )
                 )
@@ -386,7 +392,9 @@ class Simulator(object):
 
                 data[
                     ii,
-                    jj * self.N_samples_per_segment : (jj + 1) * self.N_samples_per_segment,
+                    jj
+                    * self.N_samples_per_segment : (jj + 1)
+                    * self.N_samples_per_segment,
                 ] = (
                     z0 + z1 + z2
                 )
