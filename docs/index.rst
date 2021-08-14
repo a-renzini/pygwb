@@ -6,6 +6,11 @@ pygwb
 .. automodule:: pygwb
     :members:
 
+.. toctree::
+
+    installation
+    contributing
+
 API:
 ----
 

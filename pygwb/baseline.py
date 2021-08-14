@@ -33,6 +33,7 @@ class Baseline(object):
         self._tensor_orf_calculated = False
         self._vector_orf_calculated = False
         self._scalar_orf_calculated = False
+        self._gamma_v_calculated = False
         self.set_duration(duration)
         self.set_sampling_frequency(sampling_frequency)
         self.frequencies = create_frequency_series(
@@ -77,6 +78,13 @@ class Baseline(object):
             self._scalar_orf = self.calc_baseline_orf("scalar")
             self._scalar_orf_calculated = True
         return self._scalar_orf
+
+    @property
+    def gamma_v(self):
+        if not self._gamma_v_calculated:
+            self._gamma_v = self.calc_baseline_orf("right_left")
+            self._gamma_v_calculated = True
+        return self._gamma_v
 
     def set_duration(self, duration):
         """Sets the duration for the Baseline and interferometers
