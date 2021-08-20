@@ -127,6 +127,16 @@ class Simulator(object):
             orf_list.append(orf)
         return orf_list
 
+    def get_data_for_interferometers(self):
+        """
+        Get a data dictionary for interferometers
+        """
+        data = self.generate_data()
+        interferometer_data = {}
+        for idx, ifo in enumerate(self.interferometers):
+            interferometer_data[ifo.name] = data[idx]
+        return interferometer_data
+
     def generate_data(self):
         """
         Function that simulates an isotropic stochastic background given the
