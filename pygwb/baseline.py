@@ -1,4 +1,3 @@
-import numpy as np
 from bilby.core.utils import create_frequency_series
 
 from .orfs import calc_orf
@@ -40,6 +39,24 @@ class Baseline(object):
         self.frequencies = create_frequency_series(
             sampling_frequency=self.sampling_frequency, duration=self.duration
         )
+
+    def __eq__(self, other):
+        if not type(self) == type(other):
+            return False
+        else:
+            return all(
+                [
+                    getattr(self, key) == getattr(other, key)
+                    for key in [
+                        "name",
+                        "interferometer_1",
+                        "interferometer_2",
+                        "calibration_epsilon",
+                        "duration",
+                        "sampling_frequency",
+                    ]
+                ]
+            )
 
     @property
     def overlap_reduction_function(self):
@@ -218,4 +235,22 @@ class Baseline(object):
             self.interferometer_1.y,
             self.interferometer_2.y,
             polarization,
+        )
+
+    @classmethod
+    def from_interferometers(
+        cls,
+        interferometers,
+        duration=None,
+        sampling_frequency=None,
+        calibration_epsilon=0,
+    ):
+        name = "".join([ifo.name for ifo in interferometers])
+        return cls(
+            name=name,
+            interferometer_1=interferometers[0],
+            interferometer_2=interferometers[1],
+            duration=duration,
+            sampling_frequency=sampling_frequency,
+            calibration_epsilon=calibration_epsilon,
         )

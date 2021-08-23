@@ -82,3 +82,18 @@ class Network(object):
             noisePSDs.append(psd)
 
         return np.array(noisePSDs)
+
+    def set_interferometer_data_from_simulator(GWB_intensity, N_segments):
+        """
+        Fill interferometers with data
+        """
+        data_simulator = Simulator(
+            self.interferometers,
+            GWB_intensity,
+            N_segments,
+            duration=self.duration,
+            sampling_frequency=self.sampling_frequency,
+        )
+        data = data_simulator.get_data_for_interferometers()
+        for ifo in self.interferometers:
+            ifo.set_fftgram_from_timeseries(data[ifo.name])

@@ -205,6 +205,20 @@ class TestBaseline(unittest.TestCase):
             )
         )
 
+    def test_from_interferometers_equivalent(self):
+        self.interferometer_1.set_strain_data_from_zero_noise(
+            sampling_frequency=self.sampling_frequency, duration=self.duration
+        )
+        self.interferometer_3.set_strain_data_from_zero_noise(
+            sampling_frequency=self.sampling_frequency, duration=self.duration
+        )
+        self.assertEqual(
+            baseline.Baseline("H1L1", self.interferometer_1, self.interferometer_3),
+            baseline.Baseline.from_interferometers(
+                [self.interferometer_1, self.interferometer_3]
+            ),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
