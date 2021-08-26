@@ -68,6 +68,7 @@ class Simulator(object):
 
             self.N_segments = N_segments
             self.frequencies = self.get_frequencies()
+
             self.Nf = len(self.frequencies)
             self.t0 = start_time
             self.N_samples_per_segment = int(self.sampling_frequency * self.duration)
@@ -75,7 +76,7 @@ class Simulator(object):
 
             self.noise_PSD_array = self.get_noise_PSD_array()
             if no_noise == True:
-                self.noise_PSD_array = np.zeros_like(noise_PSD_array)
+                self.noise_PSD_array = np.zeros_like(self.noise_PSD_array)
 
             self.baselines = get_baselines(
                 self.interferometers,
@@ -89,34 +90,74 @@ class Simulator(object):
             )
 
     def get_frequencies(self):
-        """ """
+        """ 
+        Computes an array of frequencies with given sampling frequency and duration.
+        
+        Parameters
+        ==========
+        
+        Returns
+        =======
+        frequencies: array_like
+            Array containing the computed frequencies
+        """
         frequencies = create_frequency_series(
             sampling_frequency=self.sampling_frequency, duration=self.duration
         )
         return frequencies
 
     def get_noise_PSD_array(self):
-        """ """
+        """ 
+        Function that gets the noise PSD array of all the interferometers.
+        
+        Parameters
+        ==========
+        
+        Returns
+        =======
+        noise_PSDs_array: array_like
+            Array containing the noise PSD arrays for all interferometers in
+            self.interferometers.
+        """
         noise_PSDs = []
         try:
             for ifo in self.interferometers:
-                psd = ifo.power_spectral_density.psd_array
-                print(psd.shape)
+                psd_temp = ifo.power_spectral_density.psd_array
+                freqs_temp = ifo.power_spectral_density.frequency_array
 
-                if np.isinf(psd).any() == True:
+                if np.isinf(psd_temp).any() == True:
                     raise ValueError(
                         f"The noisePSD of interferometer {ifo.name} contains infs!"
                     )
+                psd = gwpy.frequencyseries.FrequencySeries(
+                    psd_temp, frequencies=freqs_temp
+                )
+                psd_interpolated = interpolate_frequency_series(psd, self.frequencies)
 
-                noise_PSDs.append(psd)
-            return np.array(noise_PSDs)
+                noise_PSDs.append(psd_interpolated.value[:])
+
+                noise_PSDs_array = np.array(noise_PSDs)
+            return noise_PSDs_array
+
         except:
             raise AttributeError(
                 "The noisePSD of all the detectors needs to be specified!"
             )
 
     def get_orf(self):
-        """ """
+        """ 
+        Function that returns a list containing the overlap reduction functions
+        for all the baselines in self.baselines.
+        
+        Parameters
+        ==========
+        
+        Returns
+        =======
+        orf_list: list
+            List containing the overlap reduction functions for all the baselines
+            in self.baselines.
+        """
         orf_list = []
         orfs = np.array(
             [baseline.overlap_reduction_function for baseline in self.baselines]
@@ -130,6 +171,14 @@ class Simulator(object):
     def get_data_for_interferometers(self):
         """
         Get a data dictionary for interferometers
+        
+        Parameters
+        ==========
+        
+        Returns
+        =======
+        interferometer_data: dict
+            A dictionary with the simulated data for the interferometers.
         """
         data = self.generate_data()
         interferometer_data = {}
@@ -189,8 +238,7 @@ class Simulator(object):
         """
         index = 0
         orf_array = np.zeros(
-            (self.Nd, self.Nd),
-            dtype=gwpy.frequencyseries.FrequencySeries,
+            (self.Nd, self.Nd), dtype=gwpy.frequencyseries.FrequencySeries,
         )
         for ii in range(self.Nd):
             for jj in range(ii):
@@ -405,9 +453,7 @@ class Simulator(object):
                     jj
                     * self.N_samples_per_segment : (jj + 1)
                     * self.N_samples_per_segment,
-                ] = (
-                    z0 + z1 + z2
-                )
+                ] = (z0 + z1 + z2)
 
         return data
 
