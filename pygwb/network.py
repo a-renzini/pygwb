@@ -30,6 +30,8 @@ class Network(object):
         """
         self.interferometers = interferometers
         self.Nifo = len(interferometers)
+        self.duration = duration
+        self.sampling_frequency = sampling_frequency
 
         combo_tuples = []
         for j in range(1, len(interferometers)):
@@ -71,19 +73,39 @@ class Network(object):
         """
         interferometers = bilby.gw.detector.InterferometerList(ifo_list)
 
+        for ifo in interferometers:
+            ifo.duration = duration
+            ifo.sampling_frequency = sampling_frequency
+            ifo.power_spectral_density = bilby.gw.detector.PowerSpectralDensity(
+                ifo.frequency_array,
+                np.nan_to_num(ifo.power_spectral_density_array, posinf=1.0e-41),
+            )
+
         return cls(interferometers, duration, sampling_frequency, calibration_epsilon)
 
     def get_noise_PSD_array(self):
-        """ """
+        """
+        Function that gets the noise PSD array of all the interferometers.
+        
+        Parameters
+        ==========
+        
+        Returns
+        =======
+        noisePSD_array: array
+            Array containing the noise PSD arrays for all interferometers in
+            self.interferometers.
+        
+        """
         noisePSDs = []
         for ifo in self.interferometers:
             psd = ifo.power_spectral_density_array
             psd[np.isinf(psd)] = 1
             noisePSDs.append(psd)
+        noisePSD_array = np.array(noisePSDs)
+        return noisePSD_array
 
-        return np.array(noisePSDs)
-
-    def set_interferometer_data_from_simulator(GWB_intensity, N_segments):
+    def set_interferometer_data_from_simulator(self, GWB_intensity, N_segments):
         """
         Fill interferometers with data
         """
@@ -96,4 +118,4 @@ class Network(object):
         )
         data = data_simulator.get_data_for_interferometers()
         for ifo in self.interferometers:
-            ifo.set_fftgram_from_timeseries(data[ifo.name])
+            ifo.set_strain_data_from_gwpy_timeseries(data[ifo.name])
