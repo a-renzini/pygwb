@@ -40,12 +40,12 @@ class Network(object):
 
         baselines = []
         for i, j in combo_tuples:
-            base_name = f"{interferometers[i]} - {interferometers[j]}"
+            base_name = f"{self.interferometers[i]} - {self.interferometers[j]}"
             baselines.append(
                 Baseline(
                     base_name,
-                    interferometers[i],
-                    interferometers[j],
+                    self.interferometers[i],
+                    self.interferometers[j],
                     duration,
                     sampling_frequency,
                     calibration_epsilon,
@@ -107,7 +107,7 @@ class Network(object):
 
     def set_interferometer_data_from_simulator(self, GWB_intensity, N_segments):
         """
-        Fill interferometers with data
+        Fill interferometers with data from simulation
         """
         data_simulator = Simulator(
             self.interferometers,
@@ -119,3 +119,16 @@ class Network(object):
         data = data_simulator.get_data_for_interferometers()
         for ifo in self.interferometers:
             ifo.set_strain_data_from_gwpy_timeseries(data[ifo.name])
+
+    def set_interferometer_data_from_file(self, file):
+        """
+        Fill interferometers with data from file
+        """
+
+#     These should be in the baseline class
+
+#     def set_baseline_data_from_CSD(self):
+#         """"""
+    
+#     def set_baseline_post_processing(self):
+#         """"""
