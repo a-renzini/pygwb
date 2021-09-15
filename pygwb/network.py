@@ -105,7 +105,9 @@ class Network(object):
         noisePSD_array = np.array(noisePSDs)
         return noisePSD_array
 
-    def set_interferometer_data_from_simulator(self, GWB_intensity, N_segments):
+    def set_interferometer_data_from_simulator(
+        self, GWB_intensity, N_segments, inject_into_data_flag=False
+    ):
         """
         Fill interferometers with data from simulation
         """
@@ -117,18 +119,26 @@ class Network(object):
             sampling_frequency=self.sampling_frequency,
         )
         data = data_simulator.get_data_for_interferometers()
-        for ifo in self.interferometers:
-            ifo.set_strain_data_from_gwpy_timeseries(data[ifo.name])
+
+        if inject_into_data_flag:
+            for ifo in self.interferometers:
+                ifo.set_strain_data_from_gwpy_timeseries(
+                    ifo.strain_data.to_gwpy_timeseries().inject(data[ifo.name])
+                )
+        else:
+            for ifo in self.interferometers:
+                ifo.set_strain_data_from_gwpy_timeseries(data[ifo.name])
 
     def set_interferometer_data_from_file(self, file):
         """
         Fill interferometers with data from file
         """
 
+
 #     These should be in the baseline class
 
 #     def set_baseline_data_from_CSD(self):
 #         """"""
-    
+
 #     def set_baseline_post_processing(self):
 #         """"""

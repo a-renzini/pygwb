@@ -89,26 +89,6 @@ class Simulator(object):
                 intensity_GW, self.frequencies
             )
 
-    @classmethod
-    def inject_into_real_data(
-        cls,
-        interferometers,
-        intensity_GW,
-        save_to_file=False,
-        no_noise=True)
-        N_segments = 1
-        duration = interferometers[0].duration
-        sampling_frequency = interferometers[0].sampling_frequency
-        start_time = interferometers[0].start_time
-	self.injecting_into_data_flag = True
-        return cls(interferometers,
-            intensity_GW,
-            N_segments,
-            duration,
-            sampling_frequency,
-            start_time=start_time,
-            no_noise=no_noise)
-
     def get_frequencies(self):
         """ 
         Computes an array of frequencies with given sampling frequency and duration.
@@ -233,7 +213,6 @@ class Simulator(object):
                 channel=f"{self.interferometers[ii].name}:SIM-STOCH_INJ",
                 name=f"{self.interferometers[ii].name}:SIM-STOCH_INJ",
             )
-            if injecting_into_data_flag = True: data += self.interferometer[ii].strain_data 
         return data
 
     def orf_to_array(self):
