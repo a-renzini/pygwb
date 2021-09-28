@@ -1,6 +1,3 @@
-# to be able to use the Notch & NotchList classes of bibly you need bilby 1.1.2 or higher (bilby_pipe 1.04 or higher)
-# at CIT the conda environment that should be used is igwn-py39-testing or more recent As soon as possible move to non-testing version
-
 import numpy as np
 from bilby.gw.detector.strain_data import Notch
 
@@ -44,7 +41,7 @@ class StochNotchList(list):
                 if isinstance(notch, tuple) and len(notch) == 3:
                     self.append(StochNotch(*notch))
                 else:
-                    msg = f"notch_list {notch_list} is malformed"
+                    msg = "notch_list {} is malformed".format(notch_list)
                     raise ValueError(msg)
 
     def check_frequency(self, freq):
@@ -138,6 +135,30 @@ class StochNotchList(list):
 
         return cls
 
+    @classmethod
+    def load_from_file_pre_pyGWB(cls, filename):
+
+        fmin, fmax = np.loadtxt(filename, skiprows = 1 , unpack=True, usecols=(0, 1),dtype = str)
+        for i in range(len(fmin)):
+            fmin[i] = fmin[i][1:-1]
+            fmax[i] = fmax[i][:-1]
+        _,desc = np.loadtxt(filename, skiprows = 1,delimiter="\t" , unpack=True, usecols=(0,1),dtype = str)
+
+        fmin_b = np.zeros(len(fmin))
+        fmax_b = np.zeros(len(fmax))
+        for i in range(len(fmin)):
+            fmin_b[i] = float(fmin[i])
+            fmax_b[i] = float(fmax[i])
+
+        print(fmin,fmax)
+
+        cls = StochNotchList([])
+        for i in range(len(fmin_b)):
+            cls.append(StochNotch(fmin_b[i], fmax_b[i], desc[i]))
+
+        return cls
+
+
 
 def power_lines(fundamental=60, nharmonics=40, df=0.2):
     """
@@ -193,7 +214,7 @@ def comb(f0, f_spacing, n_harmonics, df, description=None):
     notches = StochNotchList([])
     freqs = [f0 + n * f_spacing for n in range(n_harmonics)]
     for f in freqs:
-        TotalDescription = f"Comb with fundamental freq {f0} and spacing {f_spacing}."
+        TotalDescription = "Comb with fundamental freq {} and spacing {}".format(f0,f_spacing)
         if description:
             TotalDescription += " " + description
         notch = StochNotch(f - df / 2, f + df / 2, TotalDescription)
