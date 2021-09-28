@@ -41,7 +41,7 @@ class StochNotchList(list):
                 if isinstance(notch, tuple) and len(notch) == 3:
                     self.append(StochNotch(*notch))
                 else:
-                    msg = "notch_list {} is malformed".format(notch_list)
+                    msg = f"notch_list {notch_list} is malformed"
                     raise ValueError(msg)
 
     def check_frequency(self, freq):
@@ -138,11 +138,15 @@ class StochNotchList(list):
     @classmethod
     def load_from_file_pre_pyGWB(cls, filename):
 
-        fmin, fmax = np.loadtxt(filename, skiprows = 1 , unpack=True, usecols=(0, 1),dtype = str)
+        fmin, fmax = np.loadtxt(
+            filename, skiprows=1, unpack=True, usecols=(0, 1), dtype=str
+        )
         for i in range(len(fmin)):
             fmin[i] = fmin[i][1:-1]
             fmax[i] = fmax[i][:-1]
-        _,desc = np.loadtxt(filename, skiprows = 1,delimiter="\t" , unpack=True, usecols=(0,1),dtype = str)
+        _, desc = np.loadtxt(
+            filename, skiprows=1, delimiter="\t", unpack=True, usecols=(0, 1), dtype=str
+        )
 
         fmin_b = np.zeros(len(fmin))
         fmax_b = np.zeros(len(fmax))
@@ -150,14 +154,13 @@ class StochNotchList(list):
             fmin_b[i] = float(fmin[i])
             fmax_b[i] = float(fmax[i])
 
-        print(fmin,fmax)
+        print(fmin, fmax)
 
         cls = StochNotchList([])
         for i in range(len(fmin_b)):
             cls.append(StochNotch(fmin_b[i], fmax_b[i], desc[i]))
 
         return cls
-
 
 
 def power_lines(fundamental=60, nharmonics=40, df=0.2):
@@ -214,7 +217,7 @@ def comb(f0, f_spacing, n_harmonics, df, description=None):
     notches = StochNotchList([])
     freqs = [f0 + n * f_spacing for n in range(n_harmonics)]
     for f in freqs:
-        TotalDescription = "Comb with fundamental freq {} and spacing {}".format(f0,f_spacing)
+        TotalDescription = f"Comb with fundamental freq {f0} and spacing {f_spacing}"
         if description:
             TotalDescription += " " + description
         notch = StochNotch(f - df / 2, f + df / 2, TotalDescription)
