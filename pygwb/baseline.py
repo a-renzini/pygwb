@@ -1,4 +1,3 @@
-import numpy as np
 from bilby.core.utils import create_frequency_series
 
 from .orfs import calc_orf
@@ -34,11 +33,30 @@ class Baseline(object):
         self._tensor_orf_calculated = False
         self._vector_orf_calculated = False
         self._scalar_orf_calculated = False
+        self._gamma_v_calculated = False
         self.set_duration(duration)
         self.set_sampling_frequency(sampling_frequency)
         self.frequencies = create_frequency_series(
             sampling_frequency=self.sampling_frequency, duration=self.duration
         )
+
+    def __eq__(self, other):
+        if not type(self) == type(other):
+            return False
+        else:
+            return all(
+                [
+                    getattr(self, key) == getattr(other, key)
+                    for key in [
+                        "name",
+                        "interferometer_1",
+                        "interferometer_2",
+                        "calibration_epsilon",
+                        "duration",
+                        "sampling_frequency",
+                    ]
+                ]
+            )
 
     @property
     def overlap_reduction_function(self):
@@ -60,6 +78,13 @@ class Baseline(object):
             self._scalar_orf = self.calc_baseline_orf("scalar")
             self._scalar_orf_calculated = True
         return self._scalar_orf
+
+    @property
+    def gamma_v(self):
+        if not self._gamma_v_calculated:
+            self._gamma_v = self.calc_baseline_orf("right_left")
+            self._gamma_v_calculated = True
+        return self._gamma_v
 
     def set_duration(self, duration):
         """Sets the duration for the Baseline and interferometers
@@ -210,4 +235,22 @@ class Baseline(object):
             self.interferometer_1.y,
             self.interferometer_2.y,
             polarization,
+        )
+
+    @classmethod
+    def from_interferometers(
+        cls,
+        interferometers,
+        duration=None,
+        sampling_frequency=None,
+        calibration_epsilon=0,
+    ):
+        name = "".join([ifo.name for ifo in interferometers])
+        return cls(
+            name=name,
+            interferometer_1=interferometers[0],
+            interferometer_2=interferometers[1],
+            duration=duration,
+            sampling_frequency=sampling_frequency,
+            calibration_epsilon=calibration_epsilon,
         )
