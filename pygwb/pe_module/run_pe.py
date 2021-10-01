@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 import numpy as np
 import bilby
-import matplotlib.pyplot as plt
-import sys
 from scipy.io import loadmat
-from pe_filters import *
-from orf import ORF
+from .pe_filters import *
+from .baseline import Baseline
+import bilby.gw.detector as bilbydet
 
 #import data
 #take e.g. O3
@@ -18,7 +17,7 @@ idx=np.argmin(np.abs(frequencies-256))
 frequencies = frequencies[:idx]
 #cut all of the data for frequencies > 256 Hz
 sigma_HL = sigma_HL[:idx]
-Y_HL = Y_HL[:idx]                       
+Y_HL = Y_HL[:idx]
 sigma_HV = sigma_HV[:idx]
 Y_HV = Y_HV[:idx]
 sigma_LV = sigma_LV[:idx]
@@ -55,63 +54,130 @@ sigma_LV = sigma_LV[not_inf_array]
 Y_LV=Y_LV[not_inf_array]
 frequencies=frequencies[not_inf_array]
 
-#import ORFs -- check for consistency with ORF module
-Torf_HL, Vorf_HL, Sorf_HL = ORF(frequencies, baseline='HL')
-Torf_HV, Vorf_HV, Sorf_HV = ORF(frequencies, baseline='HV')
-Torf_LV, Vorf_LV, Sorf_LV = ORF(frequencies, baseline='LV')
+
+point_estimates = [Y_HL, Y_HV, Y_LV]
+sigmas = [sigma_HL, sigma_HV, sigma_LV]
+H1 = bilbydet.get_empty_interferometer('H1')
+L1 = bilbydet.get_empty_interferometer('L1')
+V1 = bilbydet.get_empty_interferometer('V1')
+
+HL = Baseline('H1L1', H1, L1, duration=10, sampling_frequency=10)
+HV = Baseline('H1V1', H1, V1, duration=10, sampling_frequency=10)
+LV = Baseline('L1V1', L1, V1, duration=10, sampling_frequency=10)
+
+HL.frequencies = frequencies
+HV.frequencies = frequencies
+LV.frequencies = frequencies
+
+
+HL.point_estimate = Y_HL
+HL.sigma = sigma_HL
+HV.point_estimate = Y_HV
+HV.sigma = sigma_HV
+LV.point_estimate = Y_LV
+LV.sigma = sigma_LV
+
+
+# ###############################################
+# ###############Testing pl##################
+# ###############################################
 
 #choose pair likelihoods for the models you want to constrain with the data
 #power law
-ll_HL_pl = PowerLawLikelihood(Y_HL, sigma_HL, frequencies)
-ll_HV_pl = PowerLawLikelihood(Y_HV, sigma_HV, frequencies)
-ll_LV_pl = PowerLawLikelihood(Y_LV, sigma_LV, frequencies)
+# kwargs_pl = {"baselines":[HL,HV,LV], "model_name":'PL', "fref":25}
+# model_pl = PowerLawModel(**kwargs_pl)
+# priors_pl = {'omega_ref': bilby.core.prior.LogUniform(1e-13, 1e-5, '$\\Omega_{\\rm ref}$'),
+#                         'alpha': bilby.core.prior.Gaussian(0, 3.5, '$\\alpha$')}
+# hlv_pl=bilby.run_sampler(likelihood=model_pl,priors=priors_pl,sampler='dynesty', npoints=1000, walks=10,outdir='./',label= 'hlv_pl', resume=False)
+# hlv_pl.plot_corner()
 
-#extra polarisations power law
-tvs_HL_like = TVSPowerLawLikelihood(Y_HL, sigma_HL, frequencies, Torf_HL, Vorf_HL, Sorf_HL)
-tvs_HV_like = TVSPowerLawLikelihood(Y_HV, sigma_HV, frequencies, Torf_HV, Vorf_HV, Sorf_HV)
-tvs_LV_like = TVSPowerLawLikelihood(Y_LV, sigma_LV, frequencies, Torf_LV, Vorf_LV, Sorf_LV)
 
-#multi-detector likelihoods
-multiIFO_like_pl = MultiIFOPowerLawLikelihood([ll_HL_pl, ll_HV_pl, ll_LV_pl])
-tvs_multiIFO_like_pl = TVSMultiIFOPowerLawLikelihood([tvs_HL_like, tvs_HV_like, tvs_LV_like])
+# ###############################################
+# ###############Testing bpl##################
+# ###############################################
 
-# priors
-priors_pl = {'omega_alpha': bilby.core.prior.LogUniform(1e-13, 1e-5, '$\\Omega_{\\alpha}$'),
-                       'alpha': bilby.core.prior.Gaussian(0, 3.5, '$\\alpha$')}
+# kwargs_bpl = {"baselines": [HL, HV, LV], "model_name":'BPL'}
+# model_bpl = BrokenPowerLawModel(**kwargs_bpl)
+# priors_bpl = {'omega_ref': bilby.core.prior.LogUniform(1e-13, 1e-5, '$\\Omega_{\\rm ref}$'),
+#             'fbreak': bilby.core.prior.Uniform(1, 100,'$f_{\\rm break}$'),
+#             'alpha_1': bilby.core.prior.Gaussian(0, 3.5, '$\\alpha_1$'),
+#             'alpha_2': bilby.core.prior.Gaussian(0, 3.5, '$\\alpha_2$')}
+# hlv_bpl=bilby.run_sampler(likelihood=model_bpl,priors=priors_bpl,sampler='dynesty', npoints=1000, walks=10,outdir='./',label= 'hlv_bpl', resume=False)
+# hlv_bpl.plot_corner()
 
-priors_tvs_pl = {'omegaT_alpha': bilby.core.prior.LogUniform(1e-13, 1e-5, '$\\Omega_{\\alpha}^T$'),
-                       'alphaT': bilby.core.prior.Gaussian(0, 3.5, '$\\alpha^T$'),
-                 'omegaV_alpha': bilby.core.prior.DeltaFunction(0),
-                       'alphaV': bilby.core.prior.DeltaFunction(0),
-               #'omegaV_alpha': bilby.core.prior.LogUniform(1e-13, 1e-5, '$\\Omega_{\\alpha}^V$'),
-               #        'alphaV': bilby.core.prior.Gaussian(0, 3.5, '$\\alpha^V$'),
-               'omegaS_alpha': bilby.core.prior.LogUniform(1e-13, 1e-5, '$\\Omega_{\\alpha}^S$'),
-                       'alphaS': bilby.core.prior.Gaussian(0, 3.5, '$\\alpha^S$')}
 
-#run PE sampler
-#print("HL work")
-#hl_pl = bilby.run_sampler(likelihood=ll_HL_pl,
-#                            priors=priors_pl,
-#                            sampler='dynesty', npoints=1000, walks=10,
-#                            outdir='./',
-#                            label= 'hl_pl',
-#                            resume=False)
-#hl_pl.plot_corner()
+###############################################
+######### Testing triple_BPL##################
+###############################################
 
-#print("HLV work")
-multiIFO_pl = bilby.run_sampler(likelihood=multiIFO_like_pl,
-                                priors=priors_pl,
-                                sampler='dynesty', npoints=1000, walks=10,
-                                outdir='./',
-                                label= 'multiIFO_pl',
-                                resume=False)
-multiIFO_pl.plot_corner()
+# kwargs_triple_bpl = {"baselines":[HL,HV,LV],"model_name": 'TBPL'}
+# model_triple_bpl = TripleBrokenPowerLawModel(**kwargs_triple_bpl)
+# priors_triple_bpl = {'omega_ref': bilby.core.prior.LogUniform(1e-13, 1e-5, '$\\Omega_{\\rm ref}$'),
+#                        'alpha_1': bilby.core.prior.Gaussian(0, 3.5, '$\\alpha_1$'),
+#                       'alpha_2': bilby.core.prior.Gaussian(0, 3.5, '$\\alpha_2$'),
+#                        'alpha_3': bilby.core.prior.Gaussian(0, 3.5, '$\\alpha_3$'),
+#                      'fbreak1': bilby.core.prior.Uniform(1, 100,'$f_{\\rm break}^1$'), 
+#                      'fbreak2': bilby.core.prior.Uniform(1, 100,'$f_{\\rm break}^2$')}
+# hlv_triple_bpl = bilby.run_sampler(likelihood=model_triple_bpl,priors=priors_triple_bpl,sampler='dynesty', npoints=1000, walks=10,outdir='./',label= 'hlv_tbpl', resume=False)
+# hlv_triple_bpl.plot_corner()
 
-#print("HLV work")
-#multiIFO_tvs_pl = bilby.run_sampler(likelihood=tvs_multiIFO_like_pl,
-#                                priors=priors_tvs_pl,
-#                                sampler='dynesty', npoints=1000, walks=10,
-#                                outdir='./',
-#                                label= 'multiIFO_ts_pl',
-#                                resume=False)
-#multiIFO_tvs_pl.plot_corner()
+
+# ###############################################
+# ######### Testing Smooth Broken PL#############
+# ###############################################
+
+# kwargs_sbpl = {"baselines":[HL,HV,LV],"model_name": 'SBPL'}
+# model_sbpl = SmoothBrokenPowerLawModel(**kwargs_sbpl)
+# priors_sbpl = {'omega_ref': bilby.core.prior.LogUniform(1e-13, 1e-5, '$\\Omega_{\\rm ref}$'),
+#                   'fbreak': bilby.core.prior.Uniform(1, 256, '$f_{\\rm break}$'),
+#                         'alpha_1': bilby.core.prior.Gaussian(0, 3.5, '$\\alpha_1$'),
+#                        'alpha_2': bilby.core.prior.Gaussian(0, 3.5, '$\\alpha_2$'),
+#                         'delta': bilby.core.prior.Uniform(0, 8, '$\\Delta$')}
+# hlv_sbpl = bilby.run_sampler(likelihood=model_sbpl,priors=priors_sbpl,sampler='dynesty', npoints=1000, walks=10,outdir='./',label= 'hlv_sbpl', resume=False)
+# hlv_sbpl.plot_corner()
+
+
+# ###############################################
+# ###############Testing tvs pl##################
+# ###############################################
+
+# kwargs_pl_sv={"baselines":[HL, HV, LV], "model_name":'PL_SV', "fref":25, "polarizations":['scalar', 'vector']}
+# model_pl_sv = TVSPowerLawModel(**kwargs_pl_sv)
+# priors_pl_sv = {'omega_ref_scalar': bilby.core.prior.LogUniform(1e-13, 1e-5, '$\\Omega_{\\rm ref,s}$'),
+#                       'alpha_scalar': bilby.core.prior.Gaussian(0, 3.5, '$\\alpha_s$'),
+#           'omega_ref_vector': bilby.core.prior.LogUniform(1e-13, 1e-5, '$\\Omega_{\\rm ref,v}$'),
+#                       'alpha_vector': bilby.core.prior.Gaussian(0, 3.5, '$\\alpha_v$')}
+# hlv_pl_sv=bilby.run_sampler(likelihood=model_pl_sv,priors=priors_pl_sv,sampler='dynesty', npoints=1000, walks=10,outdir='./',label= 'hlv_pl_sv', resume=False)
+# hlv_pl_sv.plot_corner()
+
+
+# ###############################################
+# ######### Testing Parity Violation PL 1 #######
+# ###############################################
+
+# kwargs_pl_pv = {"baselines":[HL, HV, LV],"model_name": 'PL_PV', 'fref': 25}
+# model_pl_pv = PVPowerLawModel(**kwargs_pl_pv)
+# priors_pl_pv = {'omega_ref': bilby.core.prior.LogUniform(1e-13, 1e-5, '$\\Omega_{\\rm ref}$'),
+#                        'alpha': bilby.core.prior.Gaussian(0, 3.5, '$\\alpha$'),
+#                        'Pi': bilby.core.prior.Uniform(-1,1,'$\\Pi$')}
+# hlv_pl_pv = bilby.run_sampler(likelihood=model_pl_pv,priors=priors_pl_pv,sampler='dynesty', npoints=1000, walks=10,outdir='./',label= 'hlv_pl_pv', resume=False)
+# hlv_pl_pv.plot_corner()
+
+##############################################
+######## Testing Parity Violation PL 2 #######
+##############################################
+
+# kwargs_pv_pl_2 = {"baselines":[HL, HV, LV],"model_name": 'PL_PV_2', 'fref': 25}
+# model_pv_pl_2 = PVPowerLawModel2(**kwargs_pv_pl_2)
+# priors_pv_pl_2 = {'omega_ref': bilby.core.prior.LogUniform(1e-13, 1e-5, '$\\Omega_{\\rm ref}$'),
+#                      'alpha': bilby.core.prior.Gaussian(0, 3.5, '$\\alpha$'),
+#                        'beta': bilby.core.prior.Uniform(-2,0,'$\\beta$')}
+# hlv_pv_pl_2 = bilby.run_sampler(likelihood=model_pv_pl_2,priors=priors_pv_pl_2,sampler='dynesty', npoints=1000, walks=10,outdir='./',label= 'hlv_pv_pl_2', resume=False)
+# hlv_pv_pl_2.plot_corner()
+
+
+
+
+
+
+
