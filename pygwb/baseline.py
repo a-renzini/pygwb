@@ -59,11 +59,15 @@ class Baseline(object):
             )
 
     @property
-    def overlap_reduction_function(self):
+    def tensor_overlap_reduction_function(self):
         if not self._tensor_orf_calculated:
             self._tensor_orf = self.calc_baseline_orf("tensor")
             self._tensor_orf_calculated = True
         return self._tensor_orf
+
+    @property
+    def overlap_reduction_function(self):
+        return self.tensor_overlap_reduction_function
 
     @property
     def vector_overlap_reduction_function(self):
