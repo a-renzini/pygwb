@@ -1,5 +1,6 @@
 from bilby.core.utils import create_frequency_series
 
+from .notch import StochNotchList
 from .orfs import calc_orf
 
 
@@ -12,6 +13,7 @@ class Baseline(object):
         duration=None,
         sampling_frequency=None,
         calibration_epsilon=0,
+        notch_list=None,
     ):
         """
         Parameters
@@ -25,6 +27,8 @@ class Baseline(object):
             interferometers
         calibration_epsilon: float
             calibration uncertainty for this baseline
+        notch_list: str
+            filename of the baseline notch list
         """
         self.name = name
         self.interferometer_1 = interferometer_1
@@ -39,6 +43,13 @@ class Baseline(object):
         self.frequencies = create_frequency_series(
             sampling_frequency=self.sampling_frequency, duration=self.duration
         )
+        self.minimum_frequency = max(
+            interferometer_1.minimum_frequency, interferometer_2.minimum_frequency
+        )
+        self.maximum_frequency = min(
+            interferometer_1.maximum_frequency, interferometer_2.maximum_frequency
+        )
+        self.frequency_mask = self.set_frequency_mask(notch_list)
 
     def __eq__(self, other):
         if not type(self) == type(other):
@@ -78,6 +89,16 @@ class Baseline(object):
             self._scalar_orf = self.calc_baseline_orf("scalar")
             self._scalar_orf_calculated = True
         return self._scalar_orf
+
+    def set_frequency_mask(self, notch_list):
+        mask = (self.frequencies >= self.minimum_frequency) & (
+            self.frequencies <= self.maximum_frequency
+        )
+        if notch_list is not None:
+            notch_list = StochNotchList.load_from_file(notch_list)
+            _, notch_mask = notch_list.get_idxs(self.frequencies)
+            mask = np.logical_and(mask, notch_mask)
+        return mask
 
     @property
     def gamma_v(self):
