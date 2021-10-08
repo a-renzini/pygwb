@@ -1,6 +1,37 @@
 import numpy as np
 
 
+def before_after_average(psd_gram, segment_duration, psd_duration):
+    """
+    Average the first independent entry before and after for a specified time
+    offset.
+
+    Parameters
+    ==========
+    psd_gram: psd.spectrogram.Spectrogram
+        The input spectrogram
+    segment_duration: float
+        The duration of data going into each analyzed segment.
+    psd_duration: float
+        The duration of data going into each PSD estimate.
+        This should probably be an integer multiple of the segment duration
+        but it might still work if not.
+    """
+    stride = psd_gram.dx.value
+    overlap = segment_duration - stride
+
+    strides_per_psd = int(np.ceil(psd_duration / stride))
+    strides_per_segment = int(np.ceil(segment_duration / stride))
+    time_offset = strides_per_psd * overlap * psd_gram.times.unit
+    after_segment_offset = strides_per_psd + strides_per_segment
+
+    output = psd_gram.copy()
+    output = (output[:-after_segment_offset] + output[after_segment_offset:]) / 2
+    output.times = output.times[:-after_segment_offset] + time_offset
+
+    return output
+
+
 def coarse_grain(data, coarsening_factor):
     """
     Coarse grain a frequency series by an integer factor.
@@ -36,6 +67,7 @@ def coarse_grain(data, coarsening_factor):
         return coarse_grain_exact(data, coarsening_factor)
     elif coarsening_factor % 2:
         data = data[:-1]
+    coarsening_factor = int(coarsening_factor)
     coarsened = coarse_grain_naive(
         data=data[coarsening_factor // 2 + 1 : -(coarsening_factor // 2)],
         coarsening_factor=coarsening_factor,
@@ -106,6 +138,10 @@ def coarse_grain_naive(data, coarsening_factor):
     array-like
         The coarse-grained data
     """
+    coarsening_factor = int(coarsening_factor)
+    n_remove = len(data) % coarsening_factor
+    if n_remove > 0:
+        data = data[:-n_remove]
     coarsened = np.mean(data.reshape(-1, coarsening_factor), axis=-1)
     return coarsened
 
@@ -118,19 +154,26 @@ def coarse_grain_spectrogram(
     frequency_method="full",
 ):
     """
-    Coarsen a spectrogram in time and/or frequency
+    Coarsen a spectrogram in time and/or frequency, e.g., Welch averaging /
+    coarse-graining
 
     The coarsening methods are either:
       - naive: this is equivalent to a Welch average
       - full: the full coarse-grain method
+      - running_mean:
 
     Parameters
     ==========
     spectrogram: gwpy.spectrogram.Spectrogram
+        Spectrogram object to be coarsened
     delta_t: float
+        Output time spacing
     delta_f: float
+        Output frequency spacing
     time_method: str
+        Should be one of the coarsening methods listed above
     frequency_method: str
+        Should be one of the coarsening methods listed above
 
     Returns
     =======
@@ -141,6 +184,7 @@ def coarse_grain_spectrogram(
     methods = dict(
         naive=coarse_grain_naive,
         full=coarse_grain,
+        running_mean=running_mean,
     )
 
     value = spectrogram.value
@@ -149,7 +193,8 @@ def coarse_grain_spectrogram(
         factor = delta_t / spectrogram.dt.value
         func = methods[time_method]
         value = np.apply_along_axis(func, axis=0, arr=value, coarsening_factor=factor)
-        coarse_times = func(spectrogram.times, coarsening_factor=factor)
+        coarse_times = func(spectrogram.times.value, coarsening_factor=factor)
+        coarse_times += spectrogram.times.value[0] - coarse_times[0]
     else:
         coarse_times = spectrogram.times
 
@@ -157,7 +202,9 @@ def coarse_grain_spectrogram(
         factor = delta_f / spectrogram.df.value
         func = methods[frequency_method]
         value = np.apply_along_axis(func, axis=1, arr=value, coarsening_factor=factor)
-        coarse_frequencies = func(spectrogram.frequencies, coarsening_factor=factor)
+        coarse_frequencies = func(
+            spectrogram.frequencies.value, coarsening_factor=factor
+        )
     else:
         coarse_frequencies = spectrogram.frequencies
 
@@ -180,3 +227,31 @@ def density(fft_gram_1, fft_gram_2):
         The spectral density
     """
     return np.conj(fft_gram_1) * fft_gram_2
+
+
+def running_mean(data, coarsening_factor=1, axis=-1):
+    """
+    Compute the running mean of an array, this uses the default axis of numpy
+    cumsum.
+
+    Parameters
+    ----------
+    data: array-like
+        Array of size M to be average
+    coarsening_factor: int
+        Number of segments to average, default=1
+    axis:
+        Axis to apply the mean over, default=-1
+
+    Returns
+    -------
+    array-like: the averaged array of size M - coarsening factor
+    """
+    coarsening_factor = int(coarsening_factor)
+    if axis != -1:
+        data = np.swapaxes(axis, -1)
+    cumsum = np.cumsum(np.insert(data, 0, 0))
+    return (
+        np.swapaxes(cumsum[coarsening_factor:] - cumsum[:-coarsening_factor], axis, -1)
+        / coarsening_factor
+    )
