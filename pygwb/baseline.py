@@ -99,7 +99,7 @@ class Baseline(object):
             _, notch_mask = notch_list.get_idxs(self.frequencies)
             mask = np.logical_and(mask, notch_mask)
         return mask
-    
+
     @property
     def gamma_v(self):
         if not self._gamma_v_calculated:
