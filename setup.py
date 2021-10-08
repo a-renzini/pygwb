@@ -33,13 +33,13 @@ def write_version_file(version):
         else:
             git_status = "(UNCLEAN) " + git_log
     except Exception as e:
-        print(f"Unable to obtain git version information, exception: {e}")
+        print("Unable to obtain git version information, exception: {e}")
         git_status = ""
 
     _version_file = "pygwb/.version"
     if not os.path.isfile(_version_file):
         with open(_version_file, "w+") as f:
-            f.write(f"{version}: {git_status}")
+            f.write("{version}: {git_status}")
 
     return _version_file
 
@@ -78,7 +78,7 @@ setup(
     # + ["pygwb"],
     package_dir={"pygwb": "pygwb"},
     package_data={"pygwb": [".version"]},
-    install_requires=["numpy", "matplotlib", "scipy", "bilby"],
+    install_requires=["numpy", "matplotlib", "scipy", "bilby>=1.1.2", "gwpy"],
     classifiers=[
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",

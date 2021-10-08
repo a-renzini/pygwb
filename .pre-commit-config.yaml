@@ -12,7 +12,7 @@ repos:
     rev: v1.16.0
     hooks:
     -   id: codespell # Spellchecker
-        args: [-L, nd, --skip, "*.html,*.ipynb", --ignore-words-list, "alog,hist"]
+        args: [-L, nd, --skip, "*.html,*.ipynb", --ignore-words-list, "alog,hist,Nd"]
 -   repo: https://github.com/asottile/seed-isort-config
     rev: v2.1.1
     hooks:

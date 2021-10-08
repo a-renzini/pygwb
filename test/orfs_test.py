@@ -59,7 +59,7 @@ class OverlapReductionFunctionTest(unittest.TestCase):
             for baseline, orf_f0 in [
                 ("HL", -0.89077),
                 ("HV", -0.00990),
-                ("LV", 0.373207),
+                ("LV", -0.24715),
             ]:
                 print(baseline + " " + polarization)
                 interferometer_1 = bilby.gw.detector.get_empty_interferometer(
@@ -82,7 +82,7 @@ class OverlapReductionFunctionTest(unittest.TestCase):
                 self.assertAlmostEqual(
                     orf[0],
                     orf_f0 / 3.0 if polarization == "scalar" else orf_f0,
-                    places=5,
+                    places=2,
                 )
                 self.assertAlmostEqual(orf[-1], 0, places=2)
                 self.assertTrue(np.all(np.abs(orf) < 1))

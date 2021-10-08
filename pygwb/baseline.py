@@ -1,4 +1,3 @@
-import numpy as np
 from bilby.core.utils import create_frequency_series
 
 from .notch import StochNotchList
@@ -38,6 +37,7 @@ class Baseline(object):
         self._tensor_orf_calculated = False
         self._vector_orf_calculated = False
         self._scalar_orf_calculated = False
+        self._gamma_v_calculated = False
         self.set_duration(duration)
         self.set_sampling_frequency(sampling_frequency)
         self.frequencies = create_frequency_series(
@@ -50,6 +50,24 @@ class Baseline(object):
             interferometer_1.maximum_frequency, interferometer_2.maximum_frequency
         )
         self.frequency_mask = self.set_frequency_mask(notch_list)
+
+    def __eq__(self, other):
+        if not type(self) == type(other):
+            return False
+        else:
+            return all(
+                [
+                    getattr(self, key) == getattr(other, key)
+                    for key in [
+                        "name",
+                        "interferometer_1",
+                        "interferometer_2",
+                        "calibration_epsilon",
+                        "duration",
+                        "sampling_frequency",
+                    ]
+                ]
+            )
 
     @property
     def overlap_reduction_function(self):
@@ -81,6 +99,13 @@ class Baseline(object):
             _, notch_mask = notch_list.get_idxs(self.frequencies)
             mask = np.logical_and(mask, notch_mask)
         return mask
+    
+    @property
+    def gamma_v(self):
+        if not self._gamma_v_calculated:
+            self._gamma_v = self.calc_baseline_orf("right_left")
+            self._gamma_v_calculated = True
+        return self._gamma_v
 
     def set_duration(self, duration):
         """Sets the duration for the Baseline and interferometers
@@ -231,4 +256,22 @@ class Baseline(object):
             self.interferometer_1.y,
             self.interferometer_2.y,
             polarization,
+        )
+
+    @classmethod
+    def from_interferometers(
+        cls,
+        interferometers,
+        duration=None,
+        sampling_frequency=None,
+        calibration_epsilon=0,
+    ):
+        name = "".join([ifo.name for ifo in interferometers])
+        return cls(
+            name=name,
+            interferometer_1=interferometers[0],
+            interferometer_2=interferometers[1],
+            duration=duration,
+            sampling_frequency=sampling_frequency,
+            calibration_epsilon=calibration_epsilon,
         )
