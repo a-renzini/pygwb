@@ -9,3 +9,6 @@ __pycache__
 tutorials/data
 tests/results/
 **.version
+*.vscode
+build/
+*.egg*
