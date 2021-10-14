@@ -1,8 +1,6 @@
 import lal
 import numpy as np
 from gwpy import signal, timeseries
-from gwpy.spectrogram import Spectrogram
-from scipy.signal import get_window, spectrogram
 
 
 def set_start_time(
@@ -140,79 +138,13 @@ def apply_high_pass_filter(
     return filtered
 
 
-def fftgram(timeseries, fftlength, overlap, zeropad=False, window_fftgram="hann"):
-    """Function that creates an fftgram from a timeseries
-
-    Parameters
-    ==========
-    timeseries: gwpy_timeseries
-        Timeseries from which to compute the fftgram
-
-    fftlength: int_length
-        Length (in s) of each segment in which
-        to compute an FFT
-
-    overlap: int_length
-        Length (in s) of the overlap between segments
-
-    zeropad: bool
-        Whether to zero pad the data equal to the length of FFT or not
-        (default False)
-
-    window_fftgram: string_like
-        Type of window to compute the Fast Fourier
-        transform
-
-    Returns
-    =======
-    fftgram: FFTgram
-        FFTgram containing several psds (or csds)
-    """
-    if overlap is None:
-        overlap = fftlength / 2.0
-    sample_rate = int(1 / timeseries.dt.value)
-    window_fftgram = get_window(
-        window=window_fftgram, Nx=fftlength * sample_rate, fftbins=False
-    )
-    if zeropad:
-        f, t, Sxx = spectrogram(
-            x=timeseries.data,
-            fs=sample_rate,
-            window=window_fftgram,
-            nperseg=fftlength * sample_rate,
-            noverlap=overlap * sample_rate,
-            nfft=2 * fftlength * sample_rate,
-            mode="complex",
-            detrend=False,
-        )
-    else:
-        f, t, Sxx = spectrogram(
-            x=timeseries.data,
-            fs=sample_rate,
-            window=window_fftgram,
-            nperseg=fftlength * sample_rate,
-            noverlap=overlap * sample_rate,
-            nfft=fftlength * sample_rate,
-            mode="complex",
-            detrend=False,
-        )
-
-    data_fftgram = Spectrogram(data=Sxx.T, times=t + timeseries.t0.value, frequencies=f)
-
-    return data_fftgram
-
-
-def resample_filter_fftgram(
+def resample_filter(
     time_series_data,
     new_sample_rate,
     cutoff_frequency,
-    fftlength,
-    overlap,
     number_cropped_seconds=2,
-    zeropad=False,
     window_downsampling="hamming",
     ftype="fir",
-    window_fftgram="hann",
 ):
     """Function doing part of the pre-processing
     (resampling,filtering and fftgram computation)
@@ -269,13 +201,7 @@ def resample_filter_fftgram(
         cutoff_frequency=cutoff_frequency,
         number_cropped_seconds=number_cropped_seconds,
     )
-    # output = fftgram(
-    #    timeseries=filtered,
-    #    fftlength=fftlength,
-    #    overlap=overlap,
-    #    zeropad=zeropad,
-    #    window_fftgram=window_fftgram,
-    # )
+
     return filtered
 
 
@@ -287,14 +213,10 @@ def preprocessing_data_channel_name(
     channel,
     new_sample_rate,
     cutoff_frequency,
-    fftlength,
     segment_duration,
-    zeropad,
-    overlap=None,
     number_cropped_seconds=2,
     window_downsampling="hamming",
     ftype="fir",
-    window_fftgram="hann",
 ):
     """Function doing the pre-processing of the data to be used in the
     stochastic pipeline
@@ -370,19 +292,16 @@ def preprocessing_data_channel_name(
         t0=data_start_time - number_cropped_seconds,
         tf=tf,
     )
-    output = resample_filter_fftgram(
+
+    filtered = resample_filter(
         time_series_data=time_series_data,
         new_sample_rate=new_sample_rate,
         cutoff_frequency=cutoff_frequency,
-        fftlength=fftlength,
-        overlap=overlap,
         number_cropped_seconds=number_cropped_seconds,
-        zeropad=zeropad,
         window_downsampling=window_downsampling,
         ftype=ftype,
-        window_fftgram=window_fftgram,
     )
-    return output
+    return filtered
 
 
 def preprocessing_data_timeseries_array(
@@ -392,15 +311,11 @@ def preprocessing_data_timeseries_array(
     array,
     new_sample_rate,
     cutoff_frequency,
-    fftlength,
     segment_duration,
-    zeropad,
-    overlap=None,
     sample_rate=4096,
     number_cropped_seconds=2,
     window_downsampling="hamming",
     ftype="fir",
-    window_fftgram="hann",
 ):
     """Function doing the pre-processing of a time-series array to be used in the
     stochastic pipeline
@@ -471,19 +386,17 @@ def preprocessing_data_timeseries_array(
     time_series_data = timeseries.TimeSeries(
         array, t0=data_start_time, sample_rate=sample_rate
     )
-    output = resample_filter_fftgram(
+
+    filtered = resample_filter(
         time_series_data=time_series_data,
         new_sample_rate=new_sample_rate,
         cutoff_frequency=cutoff_frequency,
-        fftlength=fftlength,
-        overlap=overlap,
         number_cropped_seconds=number_cropped_seconds,
-        zeropad=zeropad,
         window_downsampling=window_downsampling,
         ftype=ftype,
-        window_fftgram=window_fftgram,
     )
-    return output
+
+    return filtered
 
 
 def preprocessing_data_gwpy_timeseries(
@@ -491,13 +404,9 @@ def preprocessing_data_gwpy_timeseries(
     gwpy_timeseries,
     new_sample_rate,
     cutoff_frequency,
-    fftlength,
     number_cropped_seconds,
-    zeropad,
-    overlap=None,
     window_downsampling="hamming",
     ftype="fir",
-    window_fftgram="hann",
 ):
     """Function doing the pre-processing of a gwpy timeseries to be used in the
     stochastic pipeline
@@ -547,16 +456,12 @@ def preprocessing_data_gwpy_timeseries(
         Timseries containing the filtered and high passed data
     """
     time_series_data = gwpy_timeseries
-    output = resample_filter_fftgram(
+    filtered = resample_filter(
         time_series_data=time_series_data,
         new_sample_rate=new_sample_rate,
         cutoff_frequency=cutoff_frequency,
-        fftlength=fftlength,
-        overlap=overlap,
         number_cropped_seconds=number_cropped_seconds,
-        zeropad=zeropad,
         window_downsampling=window_downsampling,
         ftype=ftype,
-        window_fftgram=window_fftgram,
     )
-    return output
+    return filtered

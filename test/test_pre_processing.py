@@ -10,14 +10,11 @@ class Test(unittest.TestCase):
     def setUp(self) -> None:
         # Initialize array
         channel = "L1:GDS-CALIB_STRAIN"
-        # t0 = 1126259446
-        # tf = 1126259946
         t0 = 1238183936
         tf = t0 + 500
         IFO = "H1"
         segment_duration = 192
         number_cropped_seconds = 2
-        zeropad = False
         data_type = "public"
         data_start_time = pre_processing.set_start_time(
             t0, tf, number_cropped_seconds, segment_duration
@@ -34,9 +31,7 @@ class Test(unittest.TestCase):
         return None
 
     def tearDown(self) -> None:
-        # Delete array
-        # self.timeseries_array.dispose()
-        # self.a.dispose()
+
         pass
 
     def test_pre_processing(self):
@@ -46,16 +41,12 @@ class Test(unittest.TestCase):
             frequency of 1/192.0 Hz
         """
         channel = "L1:'GWOSC-16KHZ_R1_STRAIN'"
-        # t0 = 1126259446
-        # tf = 1126259946
         t0 = 1238183936
         tf = t0 + 500
         IFO = "H1"
         data_type = "public"
         new_sample_rate = 4096
         cutoff_frequency = 11
-        fftlength = 192
-        zeropad = False
         segment_duration = 192
         print(len(self.timeseries_data))
         print(len(self.timeseries_array))
@@ -68,13 +59,10 @@ class Test(unittest.TestCase):
             channel=channel,
             new_sample_rate=new_sample_rate,
             cutoff_frequency=cutoff_frequency,
-            fftlength=fftlength,
             segment_duration=segment_duration,
-            zeropad=zeropad,
             number_cropped_seconds=2,
             window_downsampling="hamming",
             ftype="fir",
-            window_fftgram="hann",
         )
 
         self.assertEqual(len(timeseries_output1), 1802240)
@@ -87,14 +75,11 @@ class Test(unittest.TestCase):
             array=self.timeseries_array,
             new_sample_rate=new_sample_rate,
             cutoff_frequency=cutoff_frequency,
-            fftlength=fftlength,
             segment_duration=segment_duration,
-            zeropad=zeropad,
             sample_rate=1.0 / self.timeseries_data.dt,
             number_cropped_seconds=2,
             window_downsampling="hamming",
             ftype="fir",
-            window_fftgram="hann",
         )
 
         self.assertEqual(len(timeseries_output2), 1802240)
@@ -105,12 +90,9 @@ class Test(unittest.TestCase):
             gwpy_timeseries=self.a,
             new_sample_rate=new_sample_rate,
             cutoff_frequency=cutoff_frequency,
-            fftlength=fftlength,
             number_cropped_seconds=2,
-            zeropad=zeropad,
             window_downsampling="hamming",
             ftype="fir",
-            window_fftgram="hann",
         )
 
         self.assertEqual(len(timeseries_output3), 1802240)
