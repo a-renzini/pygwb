@@ -170,7 +170,7 @@ def power_lines(fundamental=60, nharmonics=40, df=0.2):
     Parameters
     ----------
     fundamental: float
-        Fundamental frequeny of the first harmonic
+        Fundamental frequency of the first harmonic
     nharmonics: float
         Number of harmonics (should include all harmonics within studied frequency range of the study)
 
@@ -197,7 +197,7 @@ def comb(f0, f_spacing, n_harmonics, df, description=None):
     Parameters
     ----------
     f0: float
-        Fundamental frequeny of the first harmonic
+        Fundamental frequency of the first harmonic
     f_spacing: float
         spacing between two subsequent harmonics
     nharmonics: float

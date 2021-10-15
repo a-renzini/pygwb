@@ -15,7 +15,7 @@ from .spectral import density
 
 class Interferometer(bilby.gw.detector.Interferometer):
 
-    """ Subclass of bilby's Interferometer class"""
+    """Subclass of bilby's Interferometer class"""
 
     def __init__(self, *args, **kwargs):
         """Instantiate an Interferometer class

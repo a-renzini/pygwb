@@ -34,6 +34,7 @@ class Baseline(object):
         self.interferometer_1 = interferometer_1
         self.interferometer_2 = interferometer_2
         self.calibration_epsilon = calibration_epsilon
+        self.notch_list = notch_list
         self._tensor_orf_calculated = False
         self._vector_orf_calculated = False
         self._scalar_orf_calculated = False
@@ -150,6 +151,33 @@ class Baseline(object):
             raise AttributeError(
                 "Need either interferometer duration or duration passed to __init__!"
             )
+
+    def reset_duration_sampling_frequency(self, duration=None, sampling_frequency=None):
+        if duration is None and sampling_frequency is None:
+            return
+
+        if duration is not None:
+            self.interferometer_1.duration = None
+            self.interferometer_2.duration = None
+            self.set_duration(duration)
+
+        if sampling_frequency is not None:
+            self.interferometer_1.sampling_frequency = None
+            self.interferometer_2.sampling_frequency = None
+            self.set_sampling_frequency(sampling_frequency)
+
+        self.frequencies = create_frequency_series(
+            sampling_frequency=self.sampling_frequency, duration=self.duration
+        )
+        self.minimum_frequency = max(
+            self.interferometer_1.minimum_frequency,
+            self.interferometer_2.minimum_frequency,
+        )
+        self.maximum_frequency = min(
+            self.interferometer_1.maximum_frequency,
+            self.interferometer_2.maximum_frequency,
+        )
+        self.frequency_mask = self.set_frequency_mask(self.notch_list)
 
     def check_durations_match_baseline_ifos(self, duration):
         if self.interferometer_1.duration and self.interferometer_2.duration:
