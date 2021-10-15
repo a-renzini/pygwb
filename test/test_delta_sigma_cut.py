@@ -3,10 +3,7 @@ import unittest
 import numpy as np
 from gwpy import timeseries
 
-#from pygwb import pre_processing, spectral, delta_sigma_cut
-from pygwb import pre_processing, delta_sigma_cut
-import spectral_Shivaraj as spectral
-import pdb
+from pygwb import pre_processing, spectral, delta_sigma_cut
 
 
 def read_notch_list(notch_file):
@@ -52,7 +49,7 @@ class Test(unittest.TestCase):
         badGPStimes_matlab = [1247644396,1247644492]
 
 
-        ifo1_fft_psd = pre_processing.preprocessing_data_channel_name(
+        ifo1_filtered = pre_processing.preprocessing_data_channel_name(
             IFO=IFO1,
             t0=t0,
             tf=tf,
@@ -60,16 +57,13 @@ class Test(unittest.TestCase):
             channel = IFO1 + ':' + channel_suffix,
             new_sample_rate=new_sample_rate,
             cutoff_frequency=cutoff_frequency,
-            fftlength=fftlength,
             segment_duration=segment_duration,
-            zeropad=zeropad,
             number_cropped_seconds=2,
             window_downsampling="hamming",
             ftype="fir",
-            window_fftgram="hann",
                 )
 
-        ifo2_fft_psd = pre_processing.preprocessing_data_channel_name(
+        ifo2_filtered = pre_processing.preprocessing_data_channel_name(
             IFO=IFO2,
             t0=t0,
             tf=tf,
@@ -77,14 +71,14 @@ class Test(unittest.TestCase):
             channel = IFO2 + ':' + channel_suffix,
             new_sample_rate=new_sample_rate,
             cutoff_frequency=cutoff_frequency,
-            fftlength=fftlength,
             segment_duration=segment_duration,
-            zeropad=zeropad,
             number_cropped_seconds=2,
             window_downsampling="hamming",
             ftype="fir",
-            window_fftgram="hann",
         )
+
+        ifo1_fft_psd = spectral.fftgram(ifo1_filtered, fftlength, overlap_length=0, zeropad=False, window_fftgram="hann")
+        ifo2_fft_psd = spectral.fftgram(ifo2_filtered, fftlength, overlap_length=0, zeropad=False, window_fftgram="hann")
 
 
         # calculate PSD all possible segments for detector 1
