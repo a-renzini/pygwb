@@ -15,7 +15,7 @@ https://computing.docs.ligo.org/conda/
 
   ## Modules
 
-  The code is currently structured into 5 modules.
+  The code is currently structured into many small modules.
 
   * `pre-processing.py` applies initial data-conditioning steps (high-pass filter and downsampling) on data from individual detector. Also supports importing simualted data.
   * `spectral.py` calcualted CSDs and PSDs for each segment in a job (a coincident time segment of a pair of detectors)
