@@ -77,8 +77,9 @@ class Test(unittest.TestCase):
             ftype="fir",
         )
 
-        ifo1_fft_psd = spectral.fftgram(ifo1_filtered, fftlength, overlap_length=0, zeropad=False, window_fftgram="hann")
-        ifo2_fft_psd = spectral.fftgram(ifo2_filtered, fftlength, overlap_length=0, zeropad=False, window_fftgram="hann")
+
+        ifo1_fft_psd = spectral.fftgram(ifo1_filtered, fftlength, overlap_length=fftlength/2, zeropad=False, window_fftgram="hann")
+        ifo2_fft_psd = spectral.fftgram(ifo2_filtered, fftlength, overlap_length=fftlength/2, zeropad=False, window_fftgram="hann")
 
 
         # calculate PSD all possible segments for detector 1
