@@ -34,11 +34,10 @@ class Test(unittest.TestCase):
         tf = 1247645038 # end GPS time
         data_type='public' # private -> running on LIGO data grid
         channel_suffix = 'GWOSC-16KHZ_R1_STRAIN' # detector name will be added later
-        zeropad = False
         new_sample_rate = 4096 # sampled rate after resampling
         cutoff_frequency = 11 # high pass filter cutoff frequency
         segment_duration = 192 # also fftlength in pre-processing
-        frequency_resolution = 1.0/32 # final frequency resolution of CSD and PSD
+        #frequency_resolution = 1.0/32 # final frequency resolution of CSD and PSD
         overlap = segment_duration/2 # overlapping between segments
         fftlength = 192
         dsc = 0.2
