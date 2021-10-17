@@ -69,6 +69,7 @@ Link your clone to the main (`upstream`) repository so that you can `fetch` chan
 
    If you have followed the instructions thus far, you should see four lines. Lines one and two begin with `origin` and reference your fork on git.ligo.org with both `fetch` and `push` methods. Lines three and four begin with `upstream` and refer to the main repository on git.ligo.org with both `fetch` and `push` methods.
 
+### Steps to get other required packages
 After that one needs to run,
 
 ```bash
