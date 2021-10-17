@@ -82,15 +82,15 @@ conda activate igwn-py37
 ```
 one can activate `igwn-py37` environment that has the above packages. To check the available `conda` environments, use 'conda info --envs'. This is the recommended way of adding LIGO packages to individual's path in the LIGO clusters.
 
-Before we proceed further we also need to install the 'pre-commit'. These are executables that run every time you commit a change to verify that the changes are consistent with our style conventions. Many of these checks will also reformat the code to ensure the code matches the style conventions.
-Some tests do not, for example, the automated spell checker will just identify issues and suggest changes. For more details about 'pre-commit' see [link](https://pre-commit.com/). Install pre-commit using the following commands,
+Before we proceed further we also need to install the `pre-commit`. These are executables that run every time you commit a change to verify that the changes are consistent with our style conventions. Many of these checks will also reformat the code to ensure the code matches the style conventions.
+Some tests do not, for example, the automated spell checker will just identify issues and suggest changes. For more details about `pre-commit` see [link](https://pre-commit.com/). Install pre-commit using the following commands,
 
 ```bash
 pip install pre-commit
 pre-commit install
 ```
 
-After the above commands whenever one tries to add commits using `git commit`, the pre-commit commands will run and will check for style convention and will make necessary changes themselves. The differen pre-commit commands that will be run are defined in the file `.pre-commit-config.yaml`. If one has fresh checout of the repository, the pre 
+After the above commands whenever one tries to add commits using `git commit`, the pre-commit commands will run and will check for style convention and will make necessary changes themselves. The different pre-commit commands that will be run are defined in the file `.pre-commit-config.yaml`. 
 
 
 ### Making changes
