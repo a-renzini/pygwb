@@ -159,9 +159,10 @@ A feature branch should *not* be repurposed for further development as this can 
 
 ### Possible issues
 1. Pre-commit is skipped or do not run.
+
     If pre-commit is skipped or do not run, we might not able to tell whether the changes we made follow the style conventions and hence we might end up with pre-commit issues. In that case one can just run the pre-commit on the changed file using the following command
-```bash
-pre-commit run --files filename
-```
-This need to be run before `git commit`.
+   ```bash
+   pre-commit run --files filename
+   ```
+   This need to be run before `git commit`.
 
