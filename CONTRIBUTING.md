@@ -75,22 +75,22 @@ After that one needs to run,
 ```bash
 python setup.py install
 ``` 
-To run this at LIGO cluster one needs to add `--user` option (usually this options is recommended even for personal systems). The above command basically looks for packages (such as `gwpy`, `bilby`, `lalsuite`) that are needed for running `pygwb` and also sets up versioning of the files. To successfully the run the above command, one needs to have these packages in their path. If one is setting this up in their personal computer/laptop, the above packages need to be installed by the user. If one is doing this at LIGO clusters, then one can activate one of the `conda` environments to get these packages in their path. For example using the command, 
+Note: To run this at LIGO cluster one needs to add `--user` option (usually this options is recommended even for personal systems). The above command basically looks for packages (such as `gwpy`, `bilby`, `lalsuite`) that are needed for running `pygwb` and also it sets up versioning of the files. To successfully run the above command, one needs to have these packages in their path. If one is setting up pygwb in their personal computer/laptop, the above packages need to be installed by the user. If one is doing this at LIGO clusters, then one can activate one of the `conda` environments to get these packages in their path. For example using the command, 
 
 ```bash
 conda activate igwn-py37
 ```
-one can activate `igwn-py37` environment that has the above packages. To check the available `conda` environments, use 'conda info --envs'. This is the recommended way of adding LIGO packages to individual's path in the LIGO clusters.
+one can activate `igwn-py37` environment that has the above packages and python-3.7. To check the available `conda` environments, use 'conda info --envs'. This is the recommended way of adding LIGO packages to individual's path at the LIGO clusters.
 
-Before we proceed further we also need to install the `pre-commit`. These are executables that run every time you commit a change to verify that the changes are consistent with our style conventions. Many of these checks will also reformat the code to ensure the code matches the style conventions.
-Some tests do not, for example, the automated spell checker will just identify issues and suggest changes. For more details about `pre-commit` see [link](https://pre-commit.com/). Install pre-commit using the following commands,
+Before we proceed further we also need to install `pre-commit`. These are executables that run every time you commit a change to verify that the changes are consistent with our style conventions. Many of these checks will also reformat the code to ensure the code matches the style conventions.
+Some tests do not, for example, the automated spell checker will just identify issues and suggest changes. For more details about `pre-commit` see [link](https://pre-commit.com/). Install `pre-commit` using the following commands,
 
 ```bash
 pip install pre-commit
 pre-commit install
 ```
 
-After the above commands whenever one tries to add commits using `git commit`, the pre-commit commands will run and will check for style convention and will make necessary changes themselves. The different pre-commit commands that will be run are defined in the file `.pre-commit-config.yaml`. 
+After the above commands whenever one tries to add commits using `git commit`, the `pre-commit` executables will run and will check for style convention and will make necessary changes themselves. The different pre-commit excetuables that will be run are defined in the file `.pre-commit-config.yaml`. 
 
 
 ### Making changes
@@ -157,4 +157,11 @@ git branch -d my-new-feature
 
 A feature branch should *not* be repurposed for further development as this can result in problems merging upstream changes. 
 
+### Possible issues
+1. Pre-commit is skipped or do not run.
+    If pre-commit is skipped or do not run, we might not able to tell whether the changes we made follow the style conventions and hence we might end up with pre-commit issues. In that case one can just run the pre-commit on the changed file using the following command
+```bash
+pre-commit run --files filename
+```
+This need to be run before `git commit`.
 
