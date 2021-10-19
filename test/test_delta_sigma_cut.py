@@ -75,10 +75,8 @@ class Test(unittest.TestCase):
             ftype="fir",
         )
 
-
         naive_psd_1 = spectral.power_spectral_density(ifo1_filtered, segment_duration, frequency_resolution, do_overlap=True)
         naive_psd_2 = spectral.power_spectral_density(ifo2_filtered, segment_duration, frequency_resolution, do_overlap=True)
-
 
         # adjacent averated PSDs (detector 1) for each possible CSD
         avg_psd_1 = spectral.before_after_average(naive_psd_1,
