@@ -100,4 +100,3 @@ fprintf(fid,'%%Frequency\tReal Y(f)\tImag Y(f)\tSigma(f)\n');
 for ii=1:length(freq)
     fprintf(fid,'%e\t%e\t%e\t%e\n',[freq(ii) real(ptEst_ff(ii)) imag(ptEst_ff(ii)) sigma_ff(ii)]');
 end
-
