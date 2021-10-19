@@ -37,15 +37,14 @@ class Test(unittest.TestCase):
         new_sample_rate = 4096 # sampled rate after resampling
         cutoff_frequency = 11 # high pass filter cutoff frequency
         segment_duration = 192 # also fftlength in pre-processing
-        #frequency_resolution = 1.0/32 # final frequency resolution of CSD and PSD
+        frequency_resolution = 1.0/32 # final frequency resolution of CSD and PSD
         overlap = segment_duration/2 # overlapping between segments
         fftlength = 192
         dsc = 0.2
         alphas = [-5,0,3]
         notch_file = 'test/test_data/Official_O3_HL_notchlist.txt'
         lines = read_notch_list(notch_file)
-        #badGPStimes_matlab = [1247644396,1247644492, 1247644588]
-        badGPStimes_matlab = [1247644396,1247644492]
+        badGPStimes_matlab = [1247644396,1247644492, 1247644588]
 
 
         ifo1_filtered = pre_processing.preprocessing_data_channel_name(
@@ -77,19 +76,13 @@ class Test(unittest.TestCase):
         )
 
 
-        ifo1_fft_psd = spectral.fftgram(ifo1_filtered, fftlength, overlap_length=fftlength/2, zeropad=False, window_fftgram="hann")
-        ifo2_fft_psd = spectral.fftgram(ifo2_filtered, fftlength, overlap_length=fftlength/2, zeropad=False, window_fftgram="hann")
+        naive_psd_1 = spectral.power_spectral_density(ifo1_filtered, segment_duration, frequency_resolution, do_overlap=True)
+        naive_psd_2 = spectral.power_spectral_density(ifo2_filtered, segment_duration, frequency_resolution, do_overlap=True)
 
-
-        # calculate PSD all possible segments for detector 1
-        naive_psd_1 = spectral.pwelch_psd(2*np.conj(ifo1_fft_psd) * ifo1_fft_psd, segment_duration, do_overlap=True)
 
         # adjacent averated PSDs (detector 1) for each possible CSD
         avg_psd_1 = spectral.before_after_average(naive_psd_1,
                                     segment_duration, segment_duration)
-
-        # calculate PSD all possible segments for detector 2
-        naive_psd_2 = spectral.pwelch_psd(2*np.conj(ifo2_fft_psd) * ifo2_fft_psd, segment_duration, do_overlap=True)
 
         # adjacent averated PSDs (detector 2) for each possible CSD
         avg_psd_2 = spectral.before_after_average(naive_psd_2,
@@ -103,7 +96,6 @@ class Test(unittest.TestCase):
         naive_psd_1 = naive_psd_1[csd_segment_offset:-(csd_segment_offset+1) + 1]
         naive_psd_2 = naive_psd_2[csd_segment_offset:-(csd_segment_offset+1) + 1]
 
-
         badGPStimes = delta_sigma_cut.run_dsc(dsc, naive_psd_1, naive_psd_2, avg_psd_1, avg_psd_2, alphas, lines)
 
-        self.assertTrue(np.allclose(badGPStimes - badGPStimes_matlab, [96.,96.]))
+        self.assertTrue(np.allclose(badGPStimes - badGPStimes_matlab, [16.,16.,16.]))
