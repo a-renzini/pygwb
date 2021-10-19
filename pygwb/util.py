@@ -108,7 +108,7 @@ def calc_Y_sigma_from_Yf_varf(Y_f, var_f, freqs=None, alpha=0, fref=1):
     var = 1 / np.sum(var_f ** (-1) * weights ** 2)
 
     # Y = np.sum(Y_f * var_f**(-1)) / np.sum( var_f**(-1) )
-    Y = np.sum(Y_f * weights * (var / var_f))
+    Y = np.nansum(Y_f * weights * (var / var_f))
 
     sigma = np.sqrt(var)
 
