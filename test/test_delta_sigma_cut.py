@@ -39,7 +39,6 @@ class Test(unittest.TestCase):
         segment_duration = 192 # also fftlength in pre-processing
         frequency_resolution = 1.0/32 # final frequency resolution of CSD and PSD
         overlap = segment_duration/2 # overlapping between segments
-        fftlength = 192
         dsc = 0.2
         alphas = [-5,0,3]
         notch_file = './test_data/Official_O3_HL_notchlist.txt'
