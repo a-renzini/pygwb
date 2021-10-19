@@ -2,6 +2,7 @@ import os
 import shutil
 
 import gwpy
+import h5py
 import numpy as np
 from scipy.interpolate import interp1d
 
@@ -235,3 +236,65 @@ def get_baselines(interferometers, duration=None, sampling_frequency=None):
             )
         )
     return baselines
+
+
+def read_jobfiles(njobs, directory, segment_duration):
+    """
+    Method that reads in the job files to extract quantities such as the point estimate and sigmas.
+
+    Parameters
+    ==========
+    njobs: int
+        Number of jobs
+    directory: str
+        Directory where the mat files are stored
+    segment_duration: int
+        Duration of a segment in seconds
+
+    Returns
+    =======
+    sliding_times_all: array
+        Array containing all the GPS times for this particular run
+    sliding_omega_all: array
+        Array containing the omega point estimate for this particular run
+    sliding_sigmas_all: array
+        Array containing the sigmas for this particular run
+    naive_sigma_all: array
+        Array containing the naive sigmas for this particular run
+    """
+    sliding_omega_all = np.array([])
+    sliding_sigmas_all = np.array([])
+    naive_sigma_all = np.array([])
+    sliding_times_all = np.array([])
+    for nn in range(njobs):
+        jn = nn + 1
+        file1 = "%sH1L1.job%d.mat" % (directory, jn)
+        with h5py.File(file1, "r") as FF:
+            try:
+                sliding_omega_all = np.append(
+                    sliding_omega_all,
+                    np.array(FF["ccStat"][0]).flatten() / segment_duration,
+                )
+                sliding_sigmas_all = np.append(
+                    sliding_sigmas_all,
+                    np.array(FF["ccSigma"][0]).flatten() / segment_duration,
+                )
+                naive_sigma_all = np.append(
+                    naive_sigma_all,
+                    np.array(FF["naiSigma"][0]).flatten() / segment_duration,
+                )
+                sliding_times_all = np.append(
+                    sliding_times_all, np.array(FF["segmentStartTime"][0]).flatten()
+                )
+            except:
+                print("No data for job %u" % jn)
+                continue
+    return sliding_times_all, sliding_omega_all, sliding_sigmas_all, naive_sigma_all
+
+
+def StatKS(DKS):
+    jmax = 500
+    pvalue = 0.0
+    for jj in np.arange(1, jmax + 1):
+        pvalue += 2.0 * (-1) ** (jj + 1) * np.exp(-2.0 * jj ** 2 * DKS ** 2)
+    return pvalue

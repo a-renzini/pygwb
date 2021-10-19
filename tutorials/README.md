@@ -10,4 +10,3 @@ There are four tutorial notebooks here.
 
 * `analyze_colored_noise_and_signal.ipynb` will analyze a stretch of simulated data with a colored noise spectrum and an alpha=2/3 background, produced in advance by Sylvia Biscoveanu. 
   * **NOTE** To run this notebook requires several large data files which have not been added to the repo. Please contact Andrew if you want to run this notebook.
-
