@@ -165,7 +165,14 @@ class Interferometer(bilby.gw.detector.Interferometer):
             IFO=self.name, gwpy_timeseries=gwpy_timeseries, **kwargs
         )
 
-    def set_psd_spectrogram(self, frequency_resolution):
+    def set_psd_spectrogram(
+        self,
+        frequency_resolution,
+        do_overlap=False,
+        overlap_factor=0.5,
+        zeropad=False,
+        window_fftgram="hann",
+    ):
         """
         A classmethod to set psd frequency series from a given timeseries as an attribute of given Interferometer object
 
@@ -178,5 +185,11 @@ class Interferometer(bilby.gw.detector.Interferometer):
 
         # psd_array = spectral.psd(self.timeseries, frequencies)
         self.psd_spectrogram = spectral.power_spectral_density(
-            self.timeseries, self.duration, frequency_resolution
+            self.timeseries,
+            self.duration,
+            frequency_resolution,
+            do_overlap=do_overlap,
+            overlap_factor=overlap_factor,
+            zeropad=zeropad,
+            window_fftgram=window_fftgram,
         )

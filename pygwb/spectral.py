@@ -317,7 +317,14 @@ def coarse_grain_spectrogram(
 
 
 def cross_spectral_density(
-    time_series1, time_series2, segment_duration, frequency_resolution, do_overlap=False
+    time_series1,
+    time_series2,
+    segment_duration,
+    frequency_resolution,
+    do_overlap=False,
+    overlap_factor=0.5,
+    zeropad=True,
+    window_fftgram="hann",
 ):
     """
     Compute the cross spectral density from two time series inputs
@@ -335,16 +342,16 @@ def cross_spectral_density(
     fft_gram_1 = fftgram(
         time_series1,
         segment_duration,
-        overlap_length=segment_duration / 2,
-        zeropad=True,
-        window_fftgram="hann",
+        overlap_length=segment_duration * overlap_factor,
+        zeropad=zeropad,
+        window_fftgram=window_fftgram,
     )
     fft_gram_2 = fftgram(
         time_series2,
         segment_duration,
-        overlap_length=segment_duration / 2,
-        zeropad=True,
-        window_fftgram="hann",
+        overlap_length=segment_duration * overlap_factor,
+        zeropad=zeropad,
+        window_fftgram=window_fftgram,
     )
 
     csd_spectrogram = coarse_grain_spectrogram(
@@ -355,7 +362,13 @@ def cross_spectral_density(
 
 
 def power_spectral_density(
-    time_series_data, segment_duration, frequency_resolution, do_overlap=False
+    time_series_data,
+    segment_duration,
+    frequency_resolution,
+    do_overlap=False,
+    overlap_factor=0.5,
+    zeropad=False,
+    window_fftgram="hann",
 ):
     """
     Compute the power spectral density of a time series using pwelch method
@@ -373,9 +386,9 @@ def power_spectral_density(
     fft_gram_data = fftgram(
         time_series_data,
         fftlength,
-        overlap_length=fftlength / 2,
-        zeropad=False,
-        window_fftgram="hann",
+        overlap_length=fftlength * overlap_factor,
+        zeropad=zeropad,
+        window_fftgram=window_fftgram,
     )
 
     psd_spectrogram = pwelch_psd(

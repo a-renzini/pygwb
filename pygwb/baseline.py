@@ -17,6 +17,11 @@ class Baseline(object):
         frequencies=None,
         calibration_epsilon=0,
         notch_list=None,
+        do_overlap=False,
+        overlap_factor=0.5,
+        zeropad_psd=False,
+        zeropad_csd=True,
+        window_fftgram="hann",
     ):
         """
         Parameters
@@ -35,9 +40,14 @@ class Baseline(object):
         """
         self.name = name
         self.interferometer_1 = interferometer_1  # inherit duration from ifos; if ifos have data check it is the same length
-        self.interferometer_2 = interferometer_2
+        self.interferomoter_2 = interferometer_2
         self.calibration_epsilon = calibration_epsilon
         self.notch_list = notch_list
+        self.do_overlap = do_overlap
+        self.overlap_factor = overlap_factor
+        self.zeropad_psd = zeropad_psd
+        self.zeropad_csd = zeropad_csd
+        self.window_fftgram = window_fftgram
         self._tensor_orf_calculated = False
         self._vector_orf_calculated = False
         self._scalar_orf_calculated = False
@@ -289,13 +299,25 @@ class Baseline(object):
         and the cross spectral density for the baseline object when data are available
         """
         try:
-            self.interferometer_1.set_psd_spectrogram(frequency_resolution)
+            self.interferometer_1.set_psd_spectrogram(
+                frequency_resolution,
+                do_overlap=self.do_overlap,
+                overlap_factor=self.overlap_factor,
+                zeropad=self.zeropad_psd,
+                window_fftgram=self.window_fftgram,
+            )
         except AttributeError:
             raise AssertionError(
                 "Interferometer {self.interferometer_1.name} has no timeseries data! Need to set timeseries data in the interferometer first."
             )
         try:
-            self.interferometer_2.set_psd_spectrogram(frequency_resolution)
+            self.interferometer_2.set_psd_spectrogram(
+                frequency_resolution,
+                do_overlap=self.do_overlap,
+                overlap_factor=self.overlap_factor,
+                zeropad=self.zeropad_psd,
+                window_fftgram=self.window_fftgram,
+            )
         except AttributeError:
             raise AssertionError(
                 "Interferometer {self.interferometer_2.name} has no timeseries data! Need to set timeseries data in the interferometer first."
@@ -305,4 +327,8 @@ class Baseline(object):
             self.interferometer_2.timeseries,
             self.duration,
             frequency_resolution,
+            do_overlap=self.do_overlap,
+            overlap_factor=self.overlap_factor,
+            zeropad=self.zeropad_csd,
+            window_fftgram=self.window_fftgram,
         )
