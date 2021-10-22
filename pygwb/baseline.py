@@ -40,7 +40,7 @@ class Baseline(object):
         """
         self.name = name
         self.interferometer_1 = interferometer_1  # inherit duration from ifos; if ifos have data check it is the same length
-        self.interferomoter_2 = interferometer_2
+        self.interferometer_2 = interferometer_2
         self.calibration_epsilon = calibration_epsilon
         self.notch_list = notch_list
         self.do_overlap = do_overlap
