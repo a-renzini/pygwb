@@ -28,15 +28,16 @@ def dsc_cut(naive_sigma, slide_sigma, dsc=0.2, bf_ss=1, bf_ns=1):
        dsigma >= dsc: boolean_like
            1: the segment's delta sigma exceeds the threshold value, thus making its corresponding GPStime BAD
            0:  the segment's delta sigma is less than the threshold value, thus making its corresponding GPStime GOOD
-       """
-
+    """
 
     dsigma = np.abs(slide_sigma * bf_ss - naive_sigma * bf_ns) / slide_sigma * bf_ss
 
     return dsigma >= dsc
 
 
-def calc_bias_facts(seg_dur, delta_f):  # bias from estimting sigma in neighboring segment
+def calc_bias_facts(
+    seg_dur, delta_f
+):  # bias from estimting sigma in neighboring segment
 
     """Function that performs the delta sigma cut, a veto that marks certain GPS times as unusable if the estimations of
     the PSD in the naive (estimating sigma in bin J) and sliding (estimating sigma in bins J \pm 1) differ by more than
@@ -57,8 +58,7 @@ def calc_bias_facts(seg_dur, delta_f):  # bias from estimting sigma in neighbori
            bias factor for the naive sigma case
       bf_ss: array_like
            bias factor for the sliding sigma case
-       """
-
+    """
 
     segs = seg_dur * delta_f * 2 - 1
     nn = 2 * 9 / 11 * segs  # 9/11 for Welch factor
@@ -72,23 +72,22 @@ def calc_Hf(freqs, alpha=0, fref=20):
 
     """Function that calculates the H(f) power law
 
-       Parameters
-       ==========
-       freqs: array_like
-           An array of frequencies from an FFT
+    Parameters
+    ==========
+    freqs: array_like
+        An array of frequencies from an FFT
 
-       alpha: number
-           spectral index
+    alpha: number
+        spectral index
 
-       fref: number
-           reference frequency
+    fref: number
+        reference frequency
 
-       Returns
-       =======
-       H(f): array_like
-           H(f) power law frequencies weighted by alpha
-       """
-
+    Returns
+    =======
+    H(f): array_like
+        H(f) power law frequencies weighted by alpha
+    """
 
     Hf = (freqs / fref) ** alpha
     return Hf  # do for different power laws , take all badgps times from all alphas, multiple calls in main func
@@ -98,25 +97,27 @@ def calc_sigma_alpha(sensitivity_integrand_with_Hf):
 
     """Function that calculates the sliding or naive sigma by integrating over the sensitivity integrand
 
-       Parameters
-       ==========
-       sensitivity_integrand_with_Hf: array_like
-           An array that has been calculated with calc_sens_integrand(), given by S_\alpha (f) in
-           https://git.ligo.org/stochastic_lite/stochastic_lite/-/issues/11#note_242064
+    Parameters
+    ==========
+    sensitivity_integrand_with_Hf: array_like
+        An array that has been calculated with calc_sens_integrand(), given by S_\alpha (f) in
+        https://git.ligo.org/stochastic_lite/stochastic_lite/-/issues/11#note_242064
 
 
-       Returns
-       =======
-       sigma_alpha: number
-           value of sigma for a particular alpha, PSD, and delta_f; can be naive or sliding depending on PSD used
-       """
+    Returns
+    =======
+    sigma_alpha: number
+        value of sigma for a particular alpha, PSD, and delta_f; can be naive or sliding depending on PSD used
+    """
 
     sigma_alpha = np.sqrt(1 / np.sum(sensitivity_integrand_with_Hf))
 
     return sigma_alpha
 
 
-def calc_sens_integrand(freq, P1, P2, window1, window2, delta_f, T=32, orf=1, H0=67.9e3/3.086e22):
+def calc_sens_integrand(
+    freq, P1, P2, window1, window2, delta_f, T=32, orf=1, H0=67.9e3 / 3.086e22
+):
 
     """Function that calculates the sensitivity integrand in
     https://git.ligo.org/stochastic_lite/stochastic_lite/-/issues/11#note_242064
@@ -158,12 +159,18 @@ def calc_sens_integrand(freq, P1, P2, window1, window2, delta_f, T=32, orf=1, H0
        =======
        sens_integrand: array_like
            the sensitivity integrand
-       """
-
+    """
 
     w1w2bar, w1w2squaredbar, oo = WindowFactors(window1, window2)
-    S_alpha = 3 * H0 ** 2 / (10 * np.pi ** 2) * 1. / freq ** 3
-    sigma_square_avg = (w1w2squaredbar / w1w2bar ** 2) * 1 / (2 * T *delta_f) * P1 * P2 / (orf ** 2. * S_alpha ** 2)
+    S_alpha = 3 * H0 ** 2 / (10 * np.pi ** 2) * 1.0 / freq ** 3
+    sigma_square_avg = (
+        (w1w2squaredbar / w1w2bar ** 2)
+        * 1
+        / (2 * T * delta_f)
+        * P1
+        * P2
+        / (orf ** 2.0 * S_alpha ** 2)
+    )
 
     return sigma_square_avg
 
@@ -191,23 +198,23 @@ def WindowFactors(window1, window2):
 
        w1w2ovlsquaredbar: array-like
             average of the product of the first half times second half of each window
-       """
+    """
 
     N1 = len(window1)
     N2 = len(window2)
     Nred = np.gcd(N1, N2).astype(int)
     # if Nred == 1:
-        #os.error('size mismatch\n')
+    # os.error('size mismatch\n')
     # If window lengths are different, select reduced windows
     # (points at corresponding times)
-    indices1 = (np.array(range(0, Nred, 1))*N1/Nred).astype(int)
-    indices2 = (np.array(range(0, Nred, 1))*N2/Nred).astype(int)
+    indices1 = (np.array(range(0, Nred, 1)) * N1 / Nred).astype(int)
+    indices2 = (np.array(range(0, Nred, 1)) * N2 / Nred).astype(int)
     window1red = window1[indices1]
     window2red = window2[indices2]
 
     # extract 1st and 2nd half of windows
 
-    cut = int(np.floor(Nred/2))
+    cut = int(np.floor(Nred / 2))
 
     firsthalf1 = window1red[0:cut]
     secondhalf1 = window1red[cut:Nred]
@@ -227,31 +234,31 @@ def veto_lines(freqs, lines, df=0):
 
     """Function that vetos noise lines
 
-        Parameters
-        ==========
-        freqs: array_like
-            An array of frequencies from a PSD
+    Parameters
+    ==========
+    freqs: array_like
+        An array of frequencies from a PSD
 
-        lines: array_like
-            a matrix of form [fmin,fmax] that gives the frequency range of the line
+    lines: array_like
+        a matrix of form [fmin,fmax] that gives the frequency range of the line
 
-        df: number
-            the frequency bin, used if you want to veto frequencies with a frequency bin of the line
+    df: number
+        the frequency bin, used if you want to veto frequencies with a frequency bin of the line
 
-        Returns
-        =======
-        veto: boolean_like
-            1: this frequency is contaminated by a noise line
-            0: this frequency is fine to use
-        """
+    Returns
+    =======
+    veto: boolean_like
+        1: this frequency is contaminated by a noise line
+        0: this frequency is fine to use
+    """
 
     fmins = lines[:, 0]
     fmaxs = lines[:, 1]
     nbins = len(freqs)
-    veto = np.zeros((nbins, 1), dtype='bool')
+    veto = np.zeros((nbins, 1), dtype="bool")
     for fbin in range(len(freqs)):
         freq = freqs[fbin]
-        index = np.argwhere((freq >= (fmins-df)) & (freq <= fmaxs+df))
+        index = np.argwhere((freq >= (fmins - df)) & (freq <= fmaxs + df))
         if index.size != 0:
             veto[fbin] = True
     return veto
@@ -261,57 +268,71 @@ def run_dsc(dsc, psd1_naive, psd2_naive, psd1_slide, psd2_slide, alphas, lines):
 
     """Function that runs the delta sigma cut
 
-        Parameters
-        ==========
-        dsc: number
-            The value of the delta sigma cut to use
+    Parameters
+    ==========
+    dsc: number
+        The value of the delta sigma cut to use
 
-        psd1_naive; psd2_naive: array_like
-            an FFTgram of the PSD computed naively, as in in the particular bin J for detector #1 and #2
+    psd1_naive; psd2_naive: array_like
+        an FFTgram of the PSD computed naively, as in in the particular bin J for detector #1 and #2
 
-        psd1_slide, psd2_slide: array_like
-            an FFTgram of the PSD computed by considering the noise in adjacent bins to the bin J, i.e. J-1, J+1 for
-            detectors #1 and #2
+    psd1_slide, psd2_slide: array_like
+        an FFTgram of the PSD computed by considering the noise in adjacent bins to the bin J, i.e. J-1, J+1 for
+        detectors #1 and #2
 
-        alphas: array_like
-            the spectral indices to use; the code combines the BadGPStimes from each alpha
+    alphas: array_like
+        the spectral indices to use; the code combines the BadGPStimes from each alpha
 
-        lines: array_like
-            a matrix of the form [fmin,fmax] that describes known noise lines
+    lines: array_like
+        a matrix of the form [fmin,fmax] that describes known noise lines
 
-        Returns
-        =======
-        BadGPStimes: array_like
-            an array of the GPS times to not be considered based on the chosen value of the delta sigma cut
-        """
+    Returns
+    =======
+    BadGPStimes: array_like
+        an array of the GPS times to not be considered based on the chosen value of the delta sigma cut
+    """
 
     print("running dsc")
     nalphas = len(alphas)
     times = np.array(psd1_naive.times)
     ntimes = len(times)
     df = psd1_naive.df
-    Tcoh = 1/df
+    Tcoh = 1 / df
     bf_ns, bf_ss = calc_bias_facts(Tcoh, df)
     freqs = np.array(psd1_naive.frequencies)
-    overall_cut = np.zeros((ntimes, 1), dtype='bool')
-    cuts = np.zeros((nalphas, ntimes), dtype='bool')
+    overall_cut = np.zeros((ntimes, 1), dtype="bool")
+    cuts = np.zeros((nalphas, ntimes), dtype="bool")
 
-    window1 = np.hanning(4096*192)
+    window1 = np.hanning(4096 * 192)
     window2 = window1
     for alpha in range(nalphas):
         Hf = calc_Hf(freqs, alphas[alpha])
-        cut = np.zeros((ntimes, 1), dtype='bool')
+        cut = np.zeros((ntimes, 1), dtype="bool")
         for time in range(len(times)):
             psd1_naive_time = psd1_naive[time, :]
             psd1_slide_time = psd1_slide[time, :]
             psd2_naive_time = psd2_naive[time, :]
             psd2_slide_time = psd2_slide[time, :]
-            naive_sensitivity_integrand_with_Hf = calc_sens_integrand(freqs, psd1_naive_time, psd2_naive_time, window1, window2, df, Tcoh) / Hf ** 2
-            slide_sensitivity_integrand_with_Hf = calc_sens_integrand(freqs, psd1_slide_time, psd2_slide_time, window1, window2, df, Tcoh) / Hf ** 2
+            naive_sensitivity_integrand_with_Hf = (
+                calc_sens_integrand(
+                    freqs, psd1_naive_time, psd2_naive_time, window1, window2, df, Tcoh
+                )
+                / Hf ** 2
+            )
+            slide_sensitivity_integrand_with_Hf = (
+                calc_sens_integrand(
+                    freqs, psd1_slide_time, psd2_slide_time, window1, window2, df, Tcoh
+                )
+                / Hf ** 2
+            )
             veto = veto_lines(freqs, lines)
             keep = np.squeeze(~veto)
-            naive_sigma_alpha = calc_sigma_alpha(naive_sensitivity_integrand_with_Hf[keep])
-            slide_sigma_alpha = calc_sigma_alpha(slide_sensitivity_integrand_with_Hf[keep])
+            naive_sigma_alpha = calc_sigma_alpha(
+                naive_sensitivity_integrand_with_Hf[keep]
+            )
+            slide_sigma_alpha = calc_sigma_alpha(
+                slide_sensitivity_integrand_with_Hf[keep]
+            )
             cut[time] = dsc_cut(naive_sigma_alpha, slide_sigma_alpha, dsc, bf_ss, bf_ns)
 
         cuts[alpha, :] = np.squeeze(cut)
