@@ -4,6 +4,7 @@ from bilby.core.utils import create_frequency_series
 
 from .notch import StochNotchList
 from .orfs import calc_orf
+from .spectral import cross_spectral_density
 
 
 class Baseline(object):
@@ -280,10 +281,7 @@ class Baseline(object):
 
     @classmethod
     def from_interferometers(
-        cls,
-        interferometers,
-        duration=None,
-        calibration_epsilon=0,
+        cls, interferometers, duration=None, calibration_epsilon=0,
     ):
         name = "".join([ifo.name for ifo in interferometers])
         return cls(
@@ -322,7 +320,7 @@ class Baseline(object):
             raise AssertionError(
                 "Interferometer {self.interferometer_2.name} has no timeseries data! Need to set timeseries data in the interferometer first."
             )
-        self.csd = spectral.cross_spectral_density(
+        self.csd = cross_spectral_density(
             self.interferometer_1.timeseries,
             self.interferometer_2.timeseries,
             self.duration,

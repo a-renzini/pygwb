@@ -286,9 +286,7 @@ def coarse_grain_spectrogram(
     from gwpy.spectrogram import Spectrogram
 
     methods = dict(
-        naive=coarse_grain_naive,
-        full=coarse_grain,
-        running_mean=running_mean,
+        naive=coarse_grain_naive, full=coarse_grain, running_mean=running_mean,
     )
 
     value = spectrogram.value
