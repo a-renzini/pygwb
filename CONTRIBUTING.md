@@ -2,7 +2,7 @@
 
 This page outlines the recommended procedure for contributing changes to the `pygwb` repository. Please read the introduction to [GitLab on git.ligo.org](https://wiki.ligo.org/Computing/GitLigoOrg) before you start.
 
-This guide is based on the one for lalsuite, available [here](https://git.ligo.org/lscsoft/lalsuite/-/blob/master/CONTRIBUTING.md). 
+This guide is based on the one for lalsuite, available [here](https://git.ligo.org/lscsoft/lalsuite/-/blob/master/CONTRIBUTING.md) and Colm's instruction [here](https://git.ligo.org/pygwb/pygwb/-/blob/master/docs/contributing.rst).
 
 ## Reporting Issues
 
@@ -23,7 +23,7 @@ If you wish to contribute new code, or changes to existing code, please follow t
 
 1. Go to the [pygwb repository home page](https://git.ligo.org/pygwb/pygwb)
 2. Click on the *Fork* button, that should lead you [here](https://git.ligo.org/pygwb/pygwb/forks/new)
-3. Select the namespace that you want to create the fork in, this will usually be your personal namespace
+3. Select the namespace that you want to create the fork in, this will usually be your personal namespace (albert.einstein)
 
 If you can't see the *Fork* button, make sure that you are logged in by checking for your account profile photo in the top right-hand corner of the screen.
 
@@ -69,9 +69,33 @@ Link your clone to the main (`upstream`) repository so that you can `fetch` chan
 
    If you have followed the instructions thus far, you should see four lines. Lines one and two begin with `origin` and reference your fork on git.ligo.org with both `fetch` and `push` methods. Lines three and four begin with `upstream` and refer to the main repository on git.ligo.org with both `fetch` and `push` methods.
 
+### Steps to get other required packages
+After that one needs to run,
+
+```bash
+python setup.py install
+``` 
+Note: To run this at LIGO cluster one needs to add `--user` option (usually this options is recommended even for personal systems). The above command basically looks for packages (such as `gwpy`, `bilby`, `lalsuite`) that are needed for running `pygwb` and also it sets up versioning of the files. To successfully run the above command, one needs to have these packages in their path. If one is setting up pygwb in their personal computer/laptop, the above packages need to be installed by the user. If one is doing this at LIGO clusters, then one can activate one of the `conda` environments to get these packages in their path. For example using the command, 
+
+```bash
+conda activate igwn-py37
+```
+one can activate `igwn-py37` environment that has the above packages and python-3.7. To check the available `conda` environments, use 'conda info --envs'. This is the recommended way of adding LIGO packages to individual's path at the LIGO clusters.
+
+Before we proceed further we also need to install `pre-commit`. These are executables that run every time you commit a change to verify that the changes are consistent with our style conventions. Many of these checks will also reformat the code to ensure the code matches the style conventions.
+Some tests do not, for example, the automated spell checker will just identify issues and suggest changes. For more details about `pre-commit` see [link](https://pre-commit.com/). Install `pre-commit` using the following commands,
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+After the above commands whenever one tries to add commits using `git commit`, the `pre-commit` executables will run and will check for style convention and will make necessary changes themselves. The different pre-commit excetuables that will be run are defined in the file `.pre-commit-config.yaml`. 
+
+
 ### Making changes
 
-All changes should be developed on a feature branch in order to keep them separate from other work, thus simplifying the review and merge once the work is complete. The workflow is:
+It is recommended that all changes be developed on a feature branch in order to keep them separate from other work, thus simplifying the review and merge once the work is complete. However one can also make the changes in the forked `master` and create merge request. The steps described below are for going through a feature branch. The workflow is:
 
 1. Create a new feature branch configured to track the `master` branch of the `upstream` repository:
 
@@ -133,4 +157,12 @@ git branch -d my-new-feature
 
 A feature branch should *not* be repurposed for further development as this can result in problems merging upstream changes. 
 
+### Possible issues
+1. Pre-commit is skipped or do not run.
+
+    If pre-commit is skipped or do not run, we might not able to tell whether the changes we made follow the style conventions and hence we might end up with pre-commit issues. In that case one can just run the pre-commit on the changed file using the following command
+   ```bash
+   pre-commit run --files filename
+   ```
+   This need to be run before `git commit`.
 
