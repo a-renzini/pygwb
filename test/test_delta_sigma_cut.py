@@ -80,13 +80,6 @@ class Test(unittest.TestCase):
         naive_psd_2 = spectral.power_spectral_density(ifo2_filtered, segment_duration, frequency_resolution, do_overlap=True)
 
 
-        ifo1_fft_psd = spectral.fftgram(ifo1_filtered, fftlength, overlap_length=fftlength/2, zeropad=False, window_fftgram="hann")
-        ifo2_fft_psd = spectral.fftgram(ifo2_filtered, fftlength, overlap_length=fftlength/2, zeropad=False, window_fftgram="hann")
-
-
-        # calculate PSD all possible segments for detector 1
-        naive_psd_1 = spectral.pwelch_psd(2*np.conj(ifo1_fft_psd) * ifo1_fft_psd, segment_duration, do_overlap=True)
-
         # adjacent averated PSDs (detector 1) for each possible CSD
         avg_psd_1 = spectral.before_after_average(naive_psd_1,
                                     segment_duration, segment_duration)
