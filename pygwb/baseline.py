@@ -2,7 +2,7 @@ from bilby.core.utils import create_frequency_series
 
 from .notch import StochNotchList
 from .orfs import calc_orf
-
+import warnings
 
 class Baseline(object):
     def __init__(
@@ -10,8 +10,9 @@ class Baseline(object):
         name,
         interferometer_1,
         interferometer_2,
-        duration=None,
-        sampling_frequency=None,
+        duration=None, #this is now the overall duration - not linked to the freqs!
+        #sampling_frequency=None,
+        frequencies=None,
         calibration_epsilon=0,
         notch_list=None,
     ):
@@ -31,7 +32,7 @@ class Baseline(object):
             filename of the baseline notch list
         """
         self.name = name
-        self.interferometer_1 = interferometer_1
+        self.interferometer_1 = interferometer_1 #inherit duration from ifos; if ifos have data check it is the same length
         self.interferometer_2 = interferometer_2
         self.calibration_epsilon = calibration_epsilon
         self.notch_list = notch_list
@@ -40,17 +41,15 @@ class Baseline(object):
         self._scalar_orf_calculated = False
         self._gamma_v_calculated = False
         self.set_duration(duration)
-        self.set_sampling_frequency(sampling_frequency)
-        self.frequencies = create_frequency_series(
-            sampling_frequency=self.sampling_frequency, duration=self.duration
-        )
+        #self.set_sampling_frequency(sampling_frequency)
+        self.set_frequencies(frequencies)
         self.minimum_frequency = max(
             interferometer_1.minimum_frequency, interferometer_2.minimum_frequency
         )
         self.maximum_frequency = min(
             interferometer_1.maximum_frequency, interferometer_2.maximum_frequency
         )
-        self.frequency_mask = self.set_frequency_mask(notch_list)
+        #self.frequency_mask = self.set_frequency_mask(notch_list)
 
     def __eq__(self, other):
         if not type(self) == type(other):
@@ -148,36 +147,12 @@ class Baseline(object):
             self.duration = self.interferometer_2.duration
             self.interferometer_1.duration = self.interferometer_2.duration
         else:
-            raise AttributeError(
-                "Need either interferometer duration or duration passed to __init__!"
-            )
+            warnings.warn("Neither baseline nor interferometer duration is set.")
+            self.duration = duration
 
-    def reset_duration_sampling_frequency(self, duration=None, sampling_frequency=None):
-        if duration is None and sampling_frequency is None:
-            return
-
-        if duration is not None:
-            self.interferometer_1.duration = None
-            self.interferometer_2.duration = None
-            self.set_duration(duration)
-
-        if sampling_frequency is not None:
-            self.interferometer_1.sampling_frequency = None
-            self.interferometer_2.sampling_frequency = None
-            self.set_sampling_frequency(sampling_frequency)
-
-        self.frequencies = create_frequency_series(
-            sampling_frequency=self.sampling_frequency, duration=self.duration
-        )
-        self.minimum_frequency = max(
-            self.interferometer_1.minimum_frequency,
-            self.interferometer_2.minimum_frequency,
-        )
-        self.maximum_frequency = min(
-            self.interferometer_1.maximum_frequency,
-            self.interferometer_2.maximum_frequency,
-        )
-        self.frequency_mask = self.set_frequency_mask(self.notch_list)
+    def set_frequencies(self, frequencies):
+        if frequencies is None: warnings.warn("baseline frequencies have not been set.")
+        self.frequencies = frequencies
 
     def check_durations_match_baseline_ifos(self, duration):
         if self.interferometer_1.duration and self.interferometer_2.duration:
@@ -307,3 +282,14 @@ class Baseline(object):
             sampling_frequency=sampling_frequency,
             calibration_epsilon=calibration_epsilon,
         )
+
+    def set_cross_and_power_spectral_density(self, frequency_resolution):
+        """Sets the power spectral density in each interferometer
+        and the cross spectral density for the baseline object when data are available 
+        """
+        try: self.interferometer_1.set_psd_spectrogram(frequency_resolution) 
+        except AttributeError: raise AssertionError("Interferometer {self.interferometer_1.name} has no timeseries data! Need to set timeseries data in the interferometer first.")
+        try: self.interferometer_2.set_psd_spectrogram(frequency_resolution) 
+        except AttributeError: raise AssertionError("Interferometer {self.interferometer_2.name} has no timeseries data! Need to set timeseries data in the interferometer first.")
+        self.csd = spectral.cross_spectral_density(self.interferometer_1.timeseries, self.interferometer_2.timeseries, self.duration, frequency_resolution)
+

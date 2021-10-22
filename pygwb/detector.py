@@ -10,7 +10,7 @@ from .pre_processing import (
     preprocessing_data_gwpy_timeseries,
     preprocessing_data_timeseries_array,
 )
-from .spectral import density
+from .spectral import power_spectral_density
 
 
 class Interferometer(bilby.gw.detector.Interferometer):
@@ -165,9 +165,9 @@ class Interferometer(bilby.gw.detector.Interferometer):
             IFO=self.name, gwpy_timeseries=gwpy_timeseries, **kwargs
         )
 
-    def set_psd_spectrogram(self, frequencies):
+    def set_psd_spectrogram(self, frequency_resolution):
         """
-        A classmethod to set psd frequency series from a given fftgram as an attribute of given Interferometer object
+        A classmethod to set psd frequency series from a given timeseries as an attribute of given Interferometer object
 
         Parameters
         ==========
@@ -176,7 +176,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
 
         """
 
-        psd_aray = spectral.psd(self.timeseries, frequencies)
+        #psd_array = spectral.psd(self.timeseries, frequencies)
         self.psd_spectrogram = spectral.power_spectral_density(
-            self.timeseries, self.duration, frequencies[1] - frequencies[0]
+            self.timeseries, self.duration, frequency_resolution
         )
