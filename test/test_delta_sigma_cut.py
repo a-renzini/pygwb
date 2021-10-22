@@ -45,7 +45,7 @@ class Test(unittest.TestCase):
         fftlength = 192
         dsc = 0.2
         alphas = [-5, 0, 3]
-        notch_file = "./test_data/Official_O3_HL_notchlist.txt"
+        notch_file = "test/test_data/Official_O3_HL_notchlist.txt"
         lines = read_notch_list(notch_file)
         badGPStimes_matlab = [1247644396, 1247644492, 1247644588]
 
