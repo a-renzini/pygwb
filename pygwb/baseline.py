@@ -66,7 +66,7 @@ class Baseline(object):
                         "interferometer_2",
                         "calibration_epsilon",
                         "duration",
-                        "sampling_frequency",
+                        "frequencies",
                     ]
                 ]
             )
@@ -273,7 +273,6 @@ class Baseline(object):
         cls,
         interferometers,
         duration=None,
-        sampling_frequency=None,
         calibration_epsilon=0,
     ):
         name = "".join([ifo.name for ifo in interferometers])
@@ -282,7 +281,6 @@ class Baseline(object):
             interferometer_1=interferometers[0],
             interferometer_2=interferometers[1],
             duration=duration,
-            sampling_frequency=sampling_frequency,
             calibration_epsilon=calibration_epsilon,
         )
 
