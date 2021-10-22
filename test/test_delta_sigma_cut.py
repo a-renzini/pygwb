@@ -105,9 +105,6 @@ class Test(unittest.TestCase):
         badGPStimes = delta_sigma_cut.run_dsc(
             dsc, naive_psd_1, naive_psd_2, avg_psd_1, avg_psd_2, alphas, lines
         )
-        print(badGPStimes)
-        print(badGPStimes_matlab)
-        print(badGPStimes - badGPStimes_matlab)
         self.assertTrue(
-            np.allclose(badGPStimes - badGPStimes_matlab, [16., 16., 16.])
+            np.allclose(badGPStimes - badGPStimes_matlab, [0., 0., 0.])
         )
