@@ -107,5 +107,5 @@ class Test(unittest.TestCase):
         )
 
         self.assertTrue(
-            np.allclose(badGPStimes - badGPStimes_matlab, [16.0, 16.0, 16.0])
+            np.allclose(badGPStimes - badGPStimes_matlab, [96.0, 96.0, 96.0])
         )
