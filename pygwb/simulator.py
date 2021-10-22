@@ -78,9 +78,7 @@ class Simulator(object):
                 self.noise_PSD_array = np.zeros_like(noise_PSD_array)
 
             self.baselines = get_baselines(
-                self.interferometers,
-                duration=self.duration,
-                sampling_frequency=self.sampling_frequency,
+                self.interferometers, frequencies=self.frequencies
             )
             self.orf = self.get_orf()
 

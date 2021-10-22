@@ -210,7 +210,7 @@ def interpolate_frequency_series(fSeries, new_frequencies):
     )
 
 
-def get_baselines(interferometers, duration=None, sampling_frequency=None):
+def get_baselines(interferometers, frequencies=None):
     """
     Parameters
     ==========
@@ -231,8 +231,7 @@ def get_baselines(interferometers, duration=None, sampling_frequency=None):
                 base_name,
                 interferometers[i],
                 interferometers[j],
-                duration=duration,
-                sampling_frequency=sampling_frequency,
+                frequencies=frequencies,
             )
         )
     return baselines
