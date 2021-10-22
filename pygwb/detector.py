@@ -176,7 +176,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
 
         """
 
-        #psd_array = spectral.psd(self.timeseries, frequencies)
+        # psd_array = spectral.psd(self.timeseries, frequencies)
         self.psd_spectrogram = spectral.power_spectral_density(
             self.timeseries, self.duration, frequency_resolution
         )
