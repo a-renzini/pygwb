@@ -1,9 +1,8 @@
 import logging
 import os
 
-import numpy as np
-
 import bilby.gw.detector
+import numpy as np
 from bilby.gw.detector.psd import PowerSpectralDensity
 
 from .pre_processing import (

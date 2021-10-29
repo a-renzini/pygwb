@@ -1,7 +1,6 @@
+import gwpy.spectrogram
 import numpy as np
 from scipy.signal import get_window, spectrogram
-
-import gwpy.spectrogram
 
 
 def fftgram(
