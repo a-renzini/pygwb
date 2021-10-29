@@ -40,7 +40,7 @@ class GWBModel(bilby.Likelihood):
                 self.orfs.append(bline.scalar_overlap_reduction_function)
             else:
                 raise ValueError(
-                    "unexpected type for polarizations {}".format(type(polarizations))
+                    f"unexpected type for polarizations {type(polarizations)}"
                 )
         bilby.Likelihood.__init__(self, parameters=self.parameters)
 
@@ -116,7 +116,7 @@ class PowerLawModel(GWBModel):
             self._parameters = parameters
         else:
             raise ValueError(
-                "unexpected type for parameters {}".format(type(parameters))
+                f"unexpected type for parameters {type(parameters)}"
             )
 
     def model_function(self, bline):
@@ -161,7 +161,7 @@ class BrokenPowerLawModel(GWBModel):
             self._parameters = parameters
         else:
             raise ValueError(
-                "unexpected type for parameters {}".format(type(parameters))
+                f"unexpected type for parameters {type(parameters)}"
             )
 
     def model_function(self, bline):
@@ -229,7 +229,7 @@ class TripleBrokenPowerLawModel(GWBModel):
             self._parameters = parameters
         else:
             raise ValueError(
-                "unexpected type for parameters {}".format(type(parameters))
+                f"unexpected type for parameters {type(parameters)}"
             )
 
     def model_function(self, bline):
@@ -300,7 +300,7 @@ class SmoothBrokenPowerLawModel(GWBModel):
             self._parameters = parameters
         else:
             raise ValueError(
-                "unexpected type for parameters {}".format(type(parameters))
+                f"unexpected type for parameters {type(parameters)}"
             )
 
     def model_function(self, bline):
@@ -366,8 +366,8 @@ class SchumannModel(GWBModel):
         if self._parameters is None:
             schu_params = {}
             for ifo in self.ifos:
-                schu_params["kappa_{}".format(ifo)] = None
-                schu_params["beta_{}".format(ifo)] = None
+                schu_params[f"kappa_{ifo}"] = None
+                schu_params[f"beta_{ifo}"] = None
             return schu_params
         elif isinstance(self._parameters, dict):
             return self._parameters
@@ -380,7 +380,7 @@ class SchumannModel(GWBModel):
             self._parameters = parameters
         else:
             raise ValueError(
-                "unexpected type for parameters {}".format(type(parameters))
+                f"unexpected type for parameters {type(parameters)}"
             )
 
     def model_function(self, bline):
@@ -388,13 +388,13 @@ class SchumannModel(GWBModel):
         ifo1 = bline.name[0]
         ifo2 = bline.name[1]
         TF1 = (
-            self.parameters["kappa_{}".format(ifo1)]
-            * (bline.frequencies / 10) ** (-self.parameters["beta_{}".format(ifo1)])
+            self.parameters[f"kappa_{ifo1}"]
+            * (bline.frequencies / 10) ** (-self.parameters[f"beta_{ifo1}"])
             * 1e-23
         )
         TF2 = (
-            self.parameters["kappa_{}".format(ifo2)]
-            * (bline.frequencies / 10) ** (-self.parameters["beta_{}".format(ifo2)])
+            self.parameters[f"kappa_{ifo2}"]
+            * (bline.frequencies / 10) ** (-self.parameters[f"beta_{ifo2}"])
             * 1e-23
         )
         # units of transfer function strain/pT
@@ -428,8 +428,8 @@ class TVSPowerLawModel(GWBModel):
         if self._parameters is None:
             params = {}
             for pol in self.polarizations:
-                params["omega_ref_{}".format(pol)] = None
-                params["alpha_{}".format(pol)] = None
+                params[f"omega_ref_{pol}"] = None
+                params[f"alpha_{pol}"] = None
             return params
         elif isinstance(self._parameters, dict):
             return self._parameters
@@ -442,22 +442,22 @@ class TVSPowerLawModel(GWBModel):
             self._parameters = parameters
         else:
             raise ValueError(
-                "unexpected type for parameters {}".format(type(parameters))
+                f"unexpected type for parameters {type(parameters)}"
             )
 
     def model_function(self, bline):
         model = np.zeros(bline.frequencies.shape)
         for pol in self.polarizations:
-            orf_pol = eval("bline.{}_overlap_reduction_function".format(pol))
+            orf_pol = eval(f"bline.{pol}_overlap_reduction_function")
             orf_parent = eval(
-                "bline.{}_overlap_reduction_function".format(self.polarizations[0])
+                f"bline.{self.polarizations[0]}_overlap_reduction_function"
             )
             model += (
                 orf_pol
                 / orf_parent
-                * self.parameters["omega_ref_{}".format(pol)]
+                * self.parameters[f"omega_ref_{pol}"]
                 * (bline.frequencies / self.fref)
-                ** (self.parameters["alpha_{}".format(pol)])
+                ** (self.parameters[f"alpha_{pol}"])
             )
         return model
 
@@ -505,7 +505,7 @@ class PVPowerLawModel(GWBModel):
             self._parameters = parameters
         else:
             raise ValueError(
-                "unexpected type for parameters {}".format(type(parameters))
+                f"unexpected type for parameters {type(parameters)}"
             )
 
     def model_function(self, bline):
@@ -561,7 +561,7 @@ class PVPowerLawModel2(GWBModel):
             self._parameters = parameters
         else:
             raise ValueError(
-                "unexpected type for parameters {}".format(type(parameters))
+                f"unexpected type for parameters {type(parameters)}"
             )
 
     def model_function(self, bline):
