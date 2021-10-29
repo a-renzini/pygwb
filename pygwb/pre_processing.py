@@ -1,6 +1,5 @@
-import numpy as np
-
 import lal
+import numpy as np
 from gwpy import signal, timeseries
 
 

@@ -1,6 +1,5 @@
-import numpy as np
-
 import bilby
+import numpy as np
 
 from .baseline import Baseline
 from .simulator import Simulator

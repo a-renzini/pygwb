@@ -1,11 +1,11 @@
 import sys
 
-import h5py
-import numpy as np
-
 import bilby
 import gwpy
+import h5py
+import numpy as np
 from bilby.core.utils import create_frequency_series
+
 from pygwb.baseline import Baseline
 from pygwb.constants import H0
 from pygwb.util import get_baselines, interpolate_frequency_series
@@ -187,8 +187,7 @@ class Simulator(object):
         """
         index = 0
         orf_array = np.zeros(
-            (self.Nd, self.Nd),
-            dtype=gwpy.frequencyseries.FrequencySeries,
+            (self.Nd, self.Nd), dtype=gwpy.frequencyseries.FrequencySeries,
         )
         for ii in range(self.Nd):
             for jj in range(ii):
@@ -403,9 +402,7 @@ class Simulator(object):
                     jj
                     * self.N_samples_per_segment : (jj + 1)
                     * self.N_samples_per_segment,
-                ] = (
-                    z0 + z1 + z2
-                )
+                ] = (z0 + z1 + z2)
 
         return data
 

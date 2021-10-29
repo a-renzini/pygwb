@@ -283,10 +283,7 @@ class Baseline(object):
 
     @classmethod
     def from_interferometers(
-        cls,
-        interferometers,
-        duration=None,
-        calibration_epsilon=0,
+        cls, interferometers, duration=None, calibration_epsilon=0,
     ):
         name = "".join([ifo.name for ifo in interferometers])
         return cls(
