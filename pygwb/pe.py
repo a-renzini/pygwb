@@ -115,9 +115,7 @@ class PowerLawModel(GWBModel):
         elif isinstance(parameters, dict):
             self._parameters = parameters
         else:
-            raise ValueError(
-                f"unexpected type for parameters {type(parameters)}"
-            )
+            raise ValueError(f"unexpected type for parameters {type(parameters)}")
 
     def model_function(self, bline):
         return (
@@ -160,9 +158,7 @@ class BrokenPowerLawModel(GWBModel):
         elif isinstance(parameters, dict):
             self._parameters = parameters
         else:
-            raise ValueError(
-                f"unexpected type for parameters {type(parameters)}"
-            )
+            raise ValueError(f"unexpected type for parameters {type(parameters)}")
 
     def model_function(self, bline):
         frequencies = bline.frequencies
@@ -228,9 +224,7 @@ class TripleBrokenPowerLawModel(GWBModel):
         elif isinstance(parameters, dict):
             self._parameters = parameters
         else:
-            raise ValueError(
-                f"unexpected type for parameters {type(parameters)}"
-            )
+            raise ValueError(f"unexpected type for parameters {type(parameters)}")
 
     def model_function(self, bline):
         frequencies = bline.frequencies
@@ -299,9 +293,7 @@ class SmoothBrokenPowerLawModel(GWBModel):
         elif isinstance(parameters, dict):
             self._parameters = parameters
         else:
-            raise ValueError(
-                f"unexpected type for parameters {type(parameters)}"
-            )
+            raise ValueError(f"unexpected type for parameters {type(parameters)}")
 
     def model_function(self, bline):
         return (
@@ -379,9 +371,7 @@ class SchumannModel(GWBModel):
         elif isinstance(parameters, dict):
             self._parameters = parameters
         else:
-            raise ValueError(
-                f"unexpected type for parameters {type(parameters)}"
-            )
+            raise ValueError(f"unexpected type for parameters {type(parameters)}")
 
     def model_function(self, bline):
         # assumes simple power law model for transfer function
@@ -441,9 +431,7 @@ class TVSPowerLawModel(GWBModel):
         elif isinstance(parameters, dict):
             self._parameters = parameters
         else:
-            raise ValueError(
-                f"unexpected type for parameters {type(parameters)}"
-            )
+            raise ValueError(f"unexpected type for parameters {type(parameters)}")
 
     def model_function(self, bline):
         model = np.zeros(bline.frequencies.shape)
@@ -456,8 +444,7 @@ class TVSPowerLawModel(GWBModel):
                 orf_pol
                 / orf_parent
                 * self.parameters[f"omega_ref_{pol}"]
-                * (bline.frequencies / self.fref)
-                ** (self.parameters[f"alpha_{pol}"])
+                * (bline.frequencies / self.fref) ** (self.parameters[f"alpha_{pol}"])
             )
         return model
 
@@ -504,9 +491,7 @@ class PVPowerLawModel(GWBModel):
         elif isinstance(parameters, dict):
             self._parameters = parameters
         else:
-            raise ValueError(
-                f"unexpected type for parameters {type(parameters)}"
-            )
+            raise ValueError(f"unexpected type for parameters {type(parameters)}")
 
     def model_function(self, bline):
         return (
@@ -560,9 +545,7 @@ class PVPowerLawModel2(GWBModel):
         elif isinstance(parameters, dict):
             self._parameters = parameters
         else:
-            raise ValueError(
-                f"unexpected type for parameters {type(parameters)}"
-            )
+            raise ValueError(f"unexpected type for parameters {type(parameters)}")
 
     def model_function(self, bline):
         return (
