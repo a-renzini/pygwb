@@ -187,7 +187,8 @@ class Simulator(object):
         """
         index = 0
         orf_array = np.zeros(
-            (self.Nd, self.Nd), dtype=gwpy.frequencyseries.FrequencySeries,
+            (self.Nd, self.Nd),
+            dtype=gwpy.frequencyseries.FrequencySeries,
         )
         for ii in range(self.Nd):
             for jj in range(ii):
@@ -402,7 +403,9 @@ class Simulator(object):
                     jj
                     * self.N_samples_per_segment : (jj + 1)
                     * self.N_samples_per_segment,
-                ] = (z0 + z1 + z2)
+                ] = (
+                    z0 + z1 + z2
+                )
 
         return data
 
