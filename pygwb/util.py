@@ -1,11 +1,11 @@
 import os
 import shutil
 
-import gwpy
 import h5py
 import numpy as np
 from scipy.interpolate import interp1d
 
+import gwpy
 from pygwb.baseline import Baseline
 from pygwb.constants import H0
 

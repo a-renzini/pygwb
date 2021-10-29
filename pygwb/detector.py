@@ -1,15 +1,14 @@
 import logging
 import os
 
-import bilby.gw.detector
 import numpy as np
+
+import bilby.gw.detector
 from bilby.gw.detector.psd import PowerSpectralDensity
 
-from .pre_processing import (
-    preprocessing_data_channel_name,
-    preprocessing_data_gwpy_timeseries,
-    preprocessing_data_timeseries_array,
-)
+from .pre_processing import (preprocessing_data_channel_name,
+                             preprocessing_data_gwpy_timeseries,
+                             preprocessing_data_timeseries_array)
 from .spectral import power_spectral_density
 
 
@@ -208,5 +207,5 @@ class Interferometer(bilby.gw.detector.Interferometer):
             overlap_factor=overlap_factor,
             zeropad=zeropad,
             window_fftgram=window_fftgram,
-            do_overlap=do_overlap_welch_psd,
+            do_overlap_welch_psd=do_overlap_welch_psd,
         )
