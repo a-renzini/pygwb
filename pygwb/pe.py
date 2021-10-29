@@ -1,8 +1,7 @@
 from abc import abstractmethod
 
-import numpy as np
-
 import bilby
+import numpy as np
 
 from .baseline import Baseline
 
