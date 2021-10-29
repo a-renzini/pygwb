@@ -367,6 +367,7 @@ def power_spectral_density(
     frequency_resolution,
     do_overlap=True,
     overlap_factor=0.5,
+    do_overlap_welch_psd=True
     zeropad=False,
     window_fftgram="hann",
 ):
@@ -390,11 +391,10 @@ def power_spectral_density(
         zeropad=zeropad,
         window_fftgram=window_fftgram,
     )
-    print(len(fft_gram_data))
     psd_spectrogram = pwelch_psd(
         2 * np.conj(fft_gram_data) * fft_gram_data,
         segment_duration,
-        do_overlap=do_overlap,
+        do_overlap=do_overlap_welch_psd,
     )
 
     return psd_spectrogram

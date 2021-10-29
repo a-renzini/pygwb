@@ -23,6 +23,7 @@ class Baseline(object):
         zeropad_psd=False,
         zeropad_csd=True,
         window_fftgram="hann",
+        do_overlap_welch_psd=True,
     ):
         """
         Parameters
@@ -49,6 +50,7 @@ class Baseline(object):
         self.zeropad_psd = zeropad_psd
         self.zeropad_csd = zeropad_csd
         self.window_fftgram = window_fftgram
+        self.do_overlap_welch_psd = do_overlap_welch_psd
         self._tensor_orf_calculated = False
         self._vector_orf_calculated = False
         self._scalar_orf_calculated = False
@@ -306,6 +308,7 @@ class Baseline(object):
                 overlap_factor=self.overlap_factor,
                 zeropad=self.zeropad_psd,
                 window_fftgram=self.window_fftgram,
+                do_overlap_welch_psd=self.do_overlap_welch_psd,
             )
         except AttributeError:
             raise AssertionError(
@@ -318,6 +321,7 @@ class Baseline(object):
                 overlap_factor=self.overlap_factor,
                 zeropad=self.zeropad_psd,
                 window_fftgram=self.window_fftgram,
+                do_overlap_welch_psd=self.do_overlap_welch_psd,
             )
         except AttributeError:
             raise AssertionError(

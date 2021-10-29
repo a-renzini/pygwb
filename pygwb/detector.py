@@ -183,10 +183,11 @@ class Interferometer(bilby.gw.detector.Interferometer):
     def set_psd_spectrogram(
         self,
         frequency_resolution,
-        do_overlap=False,
+        do_overlap=True,
         overlap_factor=0.5,
         zeropad=False,
         window_fftgram="hann",
+        do_overlap_welch_psd=True,
     ):
         """
         A classmethod to set psd frequency series from a given timeseries as an attribute of given Interferometer object
@@ -207,4 +208,5 @@ class Interferometer(bilby.gw.detector.Interferometer):
             overlap_factor=overlap_factor,
             zeropad=zeropad,
             window_fftgram=window_fftgram,
+            do_overlap=do_overlap_welch_psd,
         )
