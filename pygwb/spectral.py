@@ -367,7 +367,7 @@ def power_spectral_density(
     frequency_resolution,
     do_overlap=True,
     overlap_factor=0.5,
-    do_overlap_welch_psd=True
+    do_overlap_welch_psd=True,
     zeropad=False,
     window_fftgram="hann",
 ):
