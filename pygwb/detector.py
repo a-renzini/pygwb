@@ -6,9 +6,11 @@ import numpy as np
 import bilby.gw.detector
 from bilby.gw.detector.psd import PowerSpectralDensity
 
-from .pre_processing import (preprocessing_data_channel_name,
-                             preprocessing_data_gwpy_timeseries,
-                             preprocessing_data_timeseries_array)
+from .pre_processing import (
+    preprocessing_data_channel_name,
+    preprocessing_data_gwpy_timeseries,
+    preprocessing_data_timeseries_array,
+)
 from .spectral import power_spectral_density
 
 
