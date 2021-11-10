@@ -110,6 +110,7 @@ It is recommended that all changes be developed on a feature branch in order to 
 
    Commit messages should be clear, identifying which code was changed, and why.
    Common practice is to use a short summary line (<50 characters), followed by a blank line, then more information in longer lines.
+   Before making any commits, one should install pre-commits. This can be done with `pip install pre-commit && pre-commit install` from the top-level `pygwb` directory. This does things like fix the formatting, the order of imports, etc.
 
 2. Push your changes to the remote copy of your fork on https://git.ligo.org.
    The first `push` of any new feature branch will require the `-u/--set-upstream` option to `push` to create a link between your new branch and the `origin` remote:
@@ -165,4 +166,3 @@ A feature branch should *not* be repurposed for further development as this can 
    pre-commit run --files filename
    ```
    This need to be run before `git commit`.
-
