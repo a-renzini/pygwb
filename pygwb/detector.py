@@ -10,7 +10,7 @@ from .pre_processing import (
     preprocessing_data_gwpy_timeseries,
     preprocessing_data_timeseries_array,
 )
-from .spectral import power_spectral_density
+from .spectral import before_after_average, power_spectral_density
 
 
 class Interferometer(bilby.gw.detector.Interferometer):
@@ -210,3 +210,13 @@ class Interferometer(bilby.gw.detector.Interferometer):
             window_fftgram=window_fftgram,
             do_overlap_welch_psd=do_overlap_welch_psd,
         )
+
+    def set_average_psd(self):
+        try:
+            self.average_psd = before_after_average(
+                self.psd_spectrogram, self.duration, self.duration
+            )
+        except AttributeError:
+            print(
+                "PSDs have not been calculated yet! Need to set_psd_spectrogram first."
+            )
