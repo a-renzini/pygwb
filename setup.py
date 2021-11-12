@@ -78,7 +78,15 @@ setup(
     # + ["pygwb"],
     package_dir={"pygwb": "pygwb"},
     package_data={"pygwb": [".version"]},
-    install_requires=["numpy", "matplotlib", "scipy", "bilby", "gwpy"],
+    install_requires=[
+        "numpy",
+        "matplotlib",
+        "scipy",
+        "bilby",
+        "gwpy",
+        "astropy<3.4",
+        "lalsuite",
+    ],
     classifiers=[
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",

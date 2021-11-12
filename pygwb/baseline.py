@@ -1,6 +1,11 @@
+import warnings
+
+import numpy as np
 from bilby.core.utils import create_frequency_series
 
+from .notch import StochNotchList
 from .orfs import calc_orf
+from .spectral import coarse_grain_spectrogram, cross_spectral_density
 
 
 class Baseline(object):
@@ -9,9 +14,17 @@ class Baseline(object):
         name,
         interferometer_1,
         interferometer_2,
-        duration=None,
-        sampling_frequency=None,
+        duration=None,  # this is now the overall duration - not linked to the freqs!
+        # sampling_frequency=None,
+        frequencies=None,
         calibration_epsilon=0,
+        notch_list=None,
+        do_overlap=False,
+        overlap_factor=0.5,
+        zeropad_psd=False,
+        zeropad_csd=True,
+        window_fftgram="hann",
+        do_overlap_welch_psd=True,
     ):
         """
         Parameters
@@ -25,20 +38,34 @@ class Baseline(object):
             interferometers
         calibration_epsilon: float
             calibration uncertainty for this baseline
+        notch_list: str
+            filename of the baseline notch list
         """
         self.name = name
-        self.interferometer_1 = interferometer_1
+        self.interferometer_1 = interferometer_1  # inherit duration from ifos; if ifos have data check it is the same length
         self.interferometer_2 = interferometer_2
         self.calibration_epsilon = calibration_epsilon
+        self.notch_list = notch_list
+        self.do_overlap = do_overlap
+        self.overlap_factor = overlap_factor
+        self.zeropad_psd = zeropad_psd
+        self.zeropad_csd = zeropad_csd
+        self.window_fftgram = window_fftgram
+        self.do_overlap_welch_psd = do_overlap_welch_psd
         self._tensor_orf_calculated = False
         self._vector_orf_calculated = False
         self._scalar_orf_calculated = False
         self._gamma_v_calculated = False
         self.set_duration(duration)
-        self.set_sampling_frequency(sampling_frequency)
-        self.frequencies = create_frequency_series(
-            sampling_frequency=self.sampling_frequency, duration=self.duration
+        # self.set_sampling_frequency(sampling_frequency)
+        self.set_frequencies(frequencies)
+        self.minimum_frequency = max(
+            interferometer_1.minimum_frequency, interferometer_2.minimum_frequency
         )
+        self.maximum_frequency = min(
+            interferometer_1.maximum_frequency, interferometer_2.maximum_frequency
+        )
+        # self.frequency_mask = self.set_frequency_mask(notch_list)
 
     def __eq__(self, other):
         if not type(self) == type(other):
@@ -53,17 +80,21 @@ class Baseline(object):
                         "interferometer_2",
                         "calibration_epsilon",
                         "duration",
-                        "sampling_frequency",
+                        "frequencies",
                     ]
                 ]
             )
 
     @property
-    def overlap_reduction_function(self):
+    def tensor_overlap_reduction_function(self):
         if not self._tensor_orf_calculated:
             self._tensor_orf = self.calc_baseline_orf("tensor")
             self._tensor_orf_calculated = True
         return self._tensor_orf
+
+    @property
+    def overlap_reduction_function(self):
+        return self.tensor_overlap_reduction_function
 
     @property
     def vector_overlap_reduction_function(self):
@@ -78,6 +109,16 @@ class Baseline(object):
             self._scalar_orf = self.calc_baseline_orf("scalar")
             self._scalar_orf_calculated = True
         return self._scalar_orf
+
+    def set_frequency_mask(self, notch_list):
+        mask = (self.frequencies >= self.minimum_frequency) & (
+            self.frequencies <= self.maximum_frequency
+        )
+        if notch_list is not None:
+            notch_list = StochNotchList.load_from_file(notch_list)
+            _, notch_mask = notch_list.get_idxs(self.frequencies)
+            mask = np.logical_and(mask, notch_mask)
+        return mask
 
     @property
     def gamma_v(self):
@@ -122,9 +163,13 @@ class Baseline(object):
             self.duration = self.interferometer_2.duration
             self.interferometer_1.duration = self.interferometer_2.duration
         else:
-            raise AttributeError(
-                "Need either interferometer duration or duration passed to __init__!"
-            )
+            warnings.warn("Neither baseline nor interferometer duration is set.")
+            self.duration = duration
+
+    def set_frequencies(self, frequencies):
+        if frequencies is None:
+            warnings.warn("baseline frequencies have not been set.")
+        self.frequencies = frequencies
 
     def check_durations_match_baseline_ifos(self, duration):
         if self.interferometer_1.duration and self.interferometer_2.duration:
@@ -242,7 +287,6 @@ class Baseline(object):
         cls,
         interferometers,
         duration=None,
-        sampling_frequency=None,
         calibration_epsilon=0,
     ):
         name = "".join([ifo.name for ifo in interferometers])
@@ -251,6 +295,69 @@ class Baseline(object):
             interferometer_1=interferometers[0],
             interferometer_2=interferometers[1],
             duration=duration,
-            sampling_frequency=sampling_frequency,
             calibration_epsilon=calibration_epsilon,
         )
+
+    def set_cross_and_power_spectral_density(self, frequency_resolution):
+        """Sets the power spectral density in each interferometer
+        and the cross spectral density for the baseline object when data are available
+        """
+        try:
+            self.interferometer_1.set_psd_spectrogram(
+                frequency_resolution,
+                do_overlap=self.do_overlap,
+                overlap_factor=self.overlap_factor,
+                zeropad=self.zeropad_psd,
+                window_fftgram=self.window_fftgram,
+                do_overlap_welch_psd=self.do_overlap_welch_psd,
+            )
+        except AttributeError:
+            raise AssertionError(
+                "Interferometer {self.interferometer_1.name} has no timeseries data! Need to set timeseries data in the interferometer first."
+            )
+        try:
+            self.interferometer_2.set_psd_spectrogram(
+                frequency_resolution,
+                do_overlap=self.do_overlap,
+                overlap_factor=self.overlap_factor,
+                zeropad=self.zeropad_psd,
+                window_fftgram=self.window_fftgram,
+                do_overlap_welch_psd=self.do_overlap_welch_psd,
+            )
+        except AttributeError:
+            raise AssertionError(
+                "Interferometer {self.interferometer_2.name} has no timeseries data! Need to set timeseries data in the interferometer first."
+            )
+        self.csd = cross_spectral_density(
+            self.interferometer_1.timeseries,
+            self.interferometer_2.timeseries,
+            self.duration,
+            frequency_resolution,
+            do_overlap=self.do_overlap,
+            overlap_factor=self.overlap_factor,
+            zeropad=self.zeropad_csd,
+            window_fftgram=self.window_fftgram,
+        )
+
+    def set_average_power_spectral_densities(self):
+        """If psds have been calculated, sets the average psd in each ifo"""
+        try:
+            self.interferometer_1.set_average_psd()
+            self.interferometer_2.set_average_psd()
+        except AttributeError:
+            print(
+                "PSDs have not been calculated yet! Need to set_cross_and_power_spectral_density first."
+            )
+
+    def set_average_cross_spectral_density(self):
+        """If csd has been calculated, sets the average csd for the baseline"""
+        stride = self.duration * (1 - self.overlap_factor)
+        csd_segment_offset = int(np.ceil(self.duration / stride))
+        try:
+            self.average_csd = coarse_grain_spectrogram(self.csd)[
+                csd_segment_offset : -(csd_segment_offset + 1) + 1
+            ]
+        except AttributeError:
+            print(
+                "CSD has not been calculated yet! Need to set_cross_and_power_spectral_density first."
+            )

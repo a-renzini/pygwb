@@ -1,202 +1,560 @@
+from abc import abstractmethod
+
 import bilby
 import numpy as np
-from scipy.special import erf
+
+from .baseline import Baseline
 
 
-class GWBLikelihood(bilby.Likelihood):
-    def __init__(self, baselines, parameters=None):
-        """
-        A parent class for GWB data analysis with Bilby
+class GWBModel(bilby.Likelihood):
+    """
+    GWB Model
+    ---------
+    generic model,
+    contains definitions of log likelihood and noise
+    """
 
-        Parameters
-        ----------
-        baselines: a list of Baseline objects containing cross correlation data.
-        """
-        super(GWBLikelihood, self).__init__(parameters=parameters)
+    def __init__(self, baselines=None, model_name=None, polarizations=None):
+        super(GWBModel, self).__init__()
+        # list of baselines
+        if baselines is None:
+            raise ValueError("list of baselines must be supplied")
+        if model_name is None:
+            raise ValueError("model_name must be supplied")
+        # if single baseline supplied, that's fine
+        # just make it a list
+        if isinstance(baselines, Baseline):
+            baselines = [baselines]
         self.baselines = baselines
+        self.orfs = []
+        self.polarizations = polarizations
+        # if polarizations is not supplied
+        if polarizations is None:
+            self.polarizations = ["tensor" for ii in range(len(baselines))]
+        for bline in self.baselines:
+            if self.polarizations[0].lower() == "tensor":
+                self.orfs.append(bline.overlap_reduction_function)
+            elif self.polarizations[0].lower() == "vector":
+                self.orfs.append(bline.vector_overlap_reduction_function)
+            elif self.polarizations[0].lower() == "scalar":
+                self.orfs.append(bline.scalar_overlap_reduction_function)
+            else:
+                raise ValueError(
+                    f"unexpected type for polarizations {type(polarizations)}"
+                )
+        bilby.Likelihood.__init__(self, parameters=self.parameters)
 
-    def log_likelihood_IJ(self, baseline, noise=False):
-        if noise:
-            Y_model_f = 0
-        else:
-            Y_model_f = self.OmegaGW(baseline.freqs)
-
-        # simple likelihood without calibration uncertainty
-        if baseline.calibration_epsilon == 0:
-            logL_IJ = -0.5 * (
-                np.sum((baseline.Y_f - Y_model_f) ** 2 / baseline.var_f)
-                + np.sum(np.log(2 * np.pi * baseline.var_f))
-            )
-
-        # likelihood with calibration uncertainty marginalizatione done analytically
-        # see https://stochastic-alog.ligo.org/aLOG//index.php?callRep=339711
-        # note \cal{N} = \Prod_j sqrt(2*pi*sigma_j^2)
-        else:
-            A = baseline.calibration_epsilon ** (-2) + np.sum(
-                Y_model_f ** 2 / baseline.var_f
-            )
-            B = baseline.calibration_epsilon ** (-2) + np.sum(
-                Y_model_f * baseline.Y_f / baseline.var_f
-            )
-            C = baseline.calibration_epsilon ** (-2) + np.sum(
-                baseline.Y_f ** 2 / baseline.var_f
-            )
-            log_norm = -0.5 * np.sum(np.log(2 * np.pi * baseline.var_f))
-
-            logL_IJ = (
-                log_norm
-                - 0.5 * np.log(A * baseline.calibration_epsilon ** 2)
-                + np.log(1 + erf(B / np.sqrt(2 * A)))
-                - np.log(1 + erf(1 / np.sqrt(2 * baseline.calibration_epsilon ** 2)))
-                - 0.5 * (C - B ** 2 / A)
-            )
-
-        return logL_IJ
-
-    def log_likelihood(self):
-        logL = 0
-        for baseline in self.baselines:
-            logL = logL + self.log_likelihood_IJ(baseline, noise=False)
-        return logL
-
-    def noise_log_likelihood(self):
-        logL = 0
-        for baseline in self.baselines:
-            logL = logL + self.log_likelihood_IJ(baseline, noise=True)
-        return logL
-
-    def OmegaGW(self, freqs):
-        """
-        Subclasses should implement this function
-        """
+    @abstractmethod
+    def parameters(self):
+        """Parameters. Should return a dict"""
         pass
 
+    @abstractmethod
+    def model_function(self):
+        """function for evaluating model"""
+        pass
 
-class PowerLawGWBLikelihood(GWBLikelihood):
-    """
-    Power law GWB model
-
-    Omega_GW(f|{A,alpha,fref=fixed}) = A * (f/fref)**alpha
-    """
-
-    def __init__(self, baselines, fref=1):
-        super(PowerLawGWBLikelihood, self).__init__(
-            baselines, parameters={"A": None, "alpha": None}
-        )
-        self.fref = fref
-
-    def OmegaGW(self, freqs):
-        A = self.parameters["A"]
-        alpha = self.parameters["alpha"]
-        return A * (freqs / self.fref) ** alpha
-
-
-class BrokenPowerLawGWBLikelihood(GWBLikelihood):
-    """
-    Broken power law GWB model
-
-    Omega_GW(f|{A,alpha1,alpha2,fbreak,fref=fixed}) = ...
-          if fref < fbreak:
-              A * (f/fref)**alpha1, f<fbreak
-              A * (fbreak/fref)**(alpha1-alpha2) *(f/fref)**alpha2, f>fbreak
-          if fref > fbreak:
-              A * (fbreak/fref)**(alpha2-alpha1) * (f/fref)**alpha1, f<fbreak
-              A * (f/fref)**alpha2, f>fbreak
-
-
-    This is parameterized so that:
-        Omega_GW(fref) = A (regardless of the value of fbreak)
-        Omega_GW is continuous at fbreak
-    It probably makes sense to chose a convention where fref is always very small
-    or very large compared to fbreak
-
-    """
-
-    def __init__(self, baselines, fref):
-        super(BrokenPowerLawGWBLikelihood, self).__init__(
-            baselines,
-            parameters={"A": None, "alpha1": None, "alpha2": None, "fbreak": None},
-        )
-        self.fref = fref
-
-    def OmegaGW(self, freqs):
-        A = self.parameters["A"]
-        alpha1 = self.parameters["alpha1"]
-        alpha2 = self.parameters["alpha2"]
-        fbreak = self.parameters["fbreak"]
-        Omega = np.zeros(freqs.shape)
-        fref = self.fref
-
-        if fref <= fbreak:
-            Omega[freqs <= fbreak] = A * (freqs[freqs <= fbreak] / fref) ** alpha1
-            Omega[freqs > fbreak] = (
-                A
-                * (fbreak / fref) ** (alpha1 - alpha2)
-                * (freqs[freqs > fbreak] / fref) ** alpha2
+    def log_likelihood(self):
+        """
+        log likelihood
+        """
+        ll = 0
+        for orf, bline in zip(self.orfs, self.baselines):
+            model = orf * self.model_function(bline)
+            res = model - bline.point_estimate
+            ll += -0.5 * np.sum(res ** 2 / bline.sigma ** 2) - 0.5 * np.sum(
+                np.log(2 * np.pi * bline.sigma ** 2)
             )
+        return ll
+
+    def noise_log_likelihood(self):
+        # noise log likelihood is just calculating
+        # gaussian log likelihood with no model.
+        ll = 0
+        for bline in self.baselines:
+            ll += -0.5 * np.sum(
+                bline.point_estimate ** 2 / bline.sigma ** 2
+            ) - 0.5 * np.sum(np.log(2 * np.pi * bline.sigma ** 2))
+        return ll
+
+
+class PowerLawModel(GWBModel):
+    """
+    Parameters:
+    -----------
+    fref : float
+        reference frequency for defining the model
+    omega_ref : float
+        amplitude of signal at fref
+    alpha : float
+        spectral index of the power law
+    frequencies : numpy.ndarray
+        array of frequencies at which to evaluate the model
+    """
+
+    def __init__(self, **kwargs):
+        try:
+            fref = kwargs.pop("fref")
+        except KeyError:
+            raise KeyError("fref must be supplied")
+        super(PowerLawModel, self).__init__(**kwargs)
+        self.fref = fref
+
+    @property
+    def parameters(self):
+        if self._parameters is None:
+            # include this so that the parent class GWBModel doesn't complain
+            return {"omega_ref": None, "alpha": None}
+        elif isinstance(self._parameters, dict):
+            return self._parameters
+
+    @parameters.setter
+    def parameters(self, parameters):
+        if parameters is None:
+            self._parameters = parameters
+        elif isinstance(parameters, dict):
+            self._parameters = parameters
         else:
-            Omega[freqs <= fbreak] = (
-                A
-                * (fbreak / fref) ** (alpha2 - alpha1)
-                * (freqs[freqs <= fbreak] / fref) ** alpha1
+            raise ValueError(f"unexpected type for parameters {type(parameters)}")
+
+    def model_function(self, bline):
+        return (
+            self.parameters["omega_ref"]
+            * (bline.frequencies / self.fref) ** self.parameters["alpha"]
+        )
+
+
+class BrokenPowerLawModel(GWBModel):
+    """
+    Parameters:
+    -----------
+    omega_ref : float
+        amplitude of signal at fref
+    alpha_1 : float
+        spectral index of the broken power law
+    alpha_2 : float
+        spectral index of the broken power law
+    fbreak : float
+        break frequency for the broken power law
+    frequencies : numpy.ndarray
+        array of frequencies at which to evaluate the model
+    """
+
+    def __init__(self, **kwargs):
+        super(BrokenPowerLawModel, self).__init__(**kwargs)
+
+    @property
+    def parameters(self):
+        if self._parameters is None:
+            # include this so that the parent class GWBModel doesn't complain
+            return {"omega_ref": None, "fbreak": None, "alpha_1": None, "alpha_2": None}
+        elif isinstance(self._parameters, dict):
+            return self._parameters
+
+    @parameters.setter
+    def parameters(self, parameters):
+        if parameters is None:
+            self._parameters = parameters
+        elif isinstance(parameters, dict):
+            self._parameters = parameters
+        else:
+            raise ValueError(f"unexpected type for parameters {type(parameters)}")
+
+    def model_function(self, bline):
+        frequencies = bline.frequencies
+        return self.parameters["omega_ref"] * (
+            np.piecewise(
+                frequencies,
+                [
+                    frequencies <= self.parameters["fbreak"],
+                    frequencies > self.parameters["fbreak"],
+                ],
+                [
+                    lambda frequencies: (frequencies / self.parameters["fbreak"])
+                    ** (self.parameters["alpha_1"]),
+                    lambda frequencies: (frequencies / self.parameters["fbreak"])
+                    ** (self.parameters["alpha_2"]),
+                ],
             )
-            Omega[freqs > fbreak] = A * (freqs[freqs <= fbreak] / fref) ** alpha2
-        return Omega
-
-
-class SVTPowerLawGWBLikelihood(GWBLikelihood):
-    """
-    Power law GWB model
-
-    Omega_GW(f|{A_p,alpha_p,fref=fixed,ORFs=fixed}) = sum_IJ sum_p A_p * beta^p_IJ(f) * (f/fref)**alpha_p
-    where
-    beta^p_IJ(f) = gamma^p_IJ(f) / gamma_IJ(f) is the ratio of ORFs
-    """
-
-    def __init__(self, baselines, fref=1):
-        super(SVTPowerLawGWBLikelihood, self).__init__(
-            baselines,
-            parameters={
-                "AT": None,
-                "alphaT": None,
-                "AV": None,
-                "alphaV": None,
-                "AS": None,
-                "alphaS": None,
-            },
         )
+
+
+class TripleBrokenPowerLawModel(GWBModel):
+    """
+    Parameters:
+    -----------
+    omega_ref : float
+        amplitude of signal at fref
+    alpha_1 : float
+        spectral index of the broken power law
+    alpha_2 : float
+        spectral index of the broken power law
+    alpha_3 : float
+        spectral index of the broken power law
+    fbreak1 : float
+        break frequency for the broken power law
+    fbreak1 : float
+        break frequency for the broken power law
+    frequencies : numpy.ndarray
+        array of frequencies at which to evaluate the model
+    """
+
+    def __init__(self, **kwargs):
+        super(TripleBrokenPowerLawModel, self).__init__(**kwargs)
+
+    @property
+    def parameters(self):
+        if self._parameters is None:
+            # include this so that the parent class GWBModel doesn't complain
+            return {
+                "omega_ref": None,
+                "alpha_1": None,
+                "alpha_2": None,
+                "alpha_3": None,
+                "fbreak1": None,
+                "fbreak2": None,
+            }
+        elif isinstance(self._parameters, dict):
+            return self._parameters
+
+    @parameters.setter
+    def parameters(self, parameters):
+        if parameters is None:
+            self._parameters = parameters
+        elif isinstance(parameters, dict):
+            self._parameters = parameters
+        else:
+            raise ValueError(f"unexpected type for parameters {type(parameters)}")
+
+    def model_function(self, bline):
+        frequencies = bline.frequencies
+        piecewise = np.piecewise(
+            frequencies,
+            [
+                frequencies <= self.parameters["fbreak1"],
+                (frequencies <= self.parameters["fbreak2"])
+                & (frequencies > self.parameters["fbreak1"]),
+            ],
+            [
+                lambda frequencies: (frequencies / self.parameters["fbreak1"])
+                ** (self.parameters["alpha_1"]),
+                lambda frequencies: (frequencies / self.parameters["fbreak1"])
+                ** (self.parameters["alpha_2"]),
+                lambda frequencies: (
+                    self.parameters["fbreak2"] / self.parameters["fbreak1"]
+                )
+                ** (self.parameters["alpha_2"])
+                * (frequencies / self.parameters["fbreak2"])
+                ** (self.parameters["alpha_3"]),
+            ],
+        )
+        return self.parameters["omega_ref"] * piecewise
+
+
+class SmoothBrokenPowerLawModel(GWBModel):
+    """
+    Parameters:
+    -----------
+    omega_ref : float
+        amplitude of signal at fref
+    delta : float
+        smoothing variable for the smooth broken power law
+    alpha_1 : float
+        low-frequency spectral index of the smooth broken power law
+    alpha_2 : float
+       (alpha_2 - alpha_1)/Delta is high-frequency spectral index of the smooth broken power law
+    fbreak : float
+        break frequency for the smooth broken power law
+    frequencies : numpy.ndarray
+        array of frequencies at which to evaluate the model
+    """
+
+    def __init__(self, **kwargs):
+        super(SmoothBrokenPowerLawModel, self).__init__(**kwargs)
+
+    @property
+    def parameters(self):
+        if self._parameters is None:
+            # include this so that the parent class GWBModel doesn't complain
+            return {
+                "omega_ref": None,
+                "fbreak": None,
+                "alpha_1": None,
+                "alpha_2": None,
+                "delta": None,
+            }
+        elif isinstance(self._parameters, dict):
+            return self._parameters
+
+    @parameters.setter
+    def parameters(self, parameters):
+        if parameters is None:
+            self._parameters = parameters
+        elif isinstance(parameters, dict):
+            self._parameters = parameters
+        else:
+            raise ValueError(f"unexpected type for parameters {type(parameters)}")
+
+    def model_function(self, bline):
+        return (
+            self.parameters["omega_ref"]
+            * (bline.frequencies / self.parameters["fbreak"])
+            ** self.parameters["alpha_1"]
+            * (
+                1
+                + (bline.frequencies / self.parameters["fbreak"])
+                ** (self.parameters["delta"])
+            )
+            ** (
+                (self.parameters["alpha_2"] - self.parameters["alpha_1"])
+                / self.parameters["delta"]
+            )
+        )
+
+
+class SchumannModel(GWBModel):
+    """
+    Parameters:
+    -----------
+    fref : float
+        reference frequency for defining the model
+    kappa_i : float
+        amplitude of coupling function of ifo i at 10 Hz
+    beta_i : float
+        spectral index of coupling function of ifo i
+    frequencies : numpy.ndarray
+        array of frequencies at which to evaluate the model
+    """
+
+    def __init__(self, **kwargs):
+        # Set valid ifos
+        # get ifo's associated with this set of
+        # baselines.
+        valid_ifos = ["H", "L", "V", "K"]
+        self.ifos = []
+        for bline in kwargs["baselines"]:
+            if bline.name[0] not in valid_ifos:
+                raise ValueError(
+                    "baseline names must be two ifo letters from list of H, L, V, K"
+                )
+            if bline.name[1] not in valid_ifos:
+                raise ValueError(
+                    "baseline names must be two ifo letters from list of H, L, V, K"
+                )
+        # get list of ifos
+        for bline in kwargs["baselines"]:
+            self.ifos.append(bline.name[0])
+            self.ifos.append(bline.name[1])
+        super(SchumannModel, self).__init__(**kwargs)
+        # set error handling to make sure baselines
+        # are named properly
+        # make it unique
+        # be careful, this doesn't preserve
+        # the order!
+        self.ifos = list(set(self.ifos))
+
+    @property
+    def parameters(self):
+        if self._parameters is None:
+            schu_params = {}
+            for ifo in self.ifos:
+                schu_params[f"kappa_{ifo}"] = None
+                schu_params[f"beta_{ifo}"] = None
+            return schu_params
+        elif isinstance(self._parameters, dict):
+            return self._parameters
+
+    @parameters.setter
+    def parameters(self, parameters):
+        if parameters is None:
+            self._parameters = parameters
+        elif isinstance(parameters, dict):
+            self._parameters = parameters
+        else:
+            raise ValueError(f"unexpected type for parameters {type(parameters)}")
+
+    def model_function(self, bline):
+        # assumes simple power law model for transfer function
+        ifo1 = bline.name[0]
+        ifo2 = bline.name[1]
+        TF1 = (
+            self.parameters[f"kappa_{ifo1}"]
+            * (bline.frequencies / 10) ** (-self.parameters[f"beta_{ifo1}"])
+            * 1e-23
+        )
+        TF2 = (
+            self.parameters[f"kappa_{ifo2}"]
+            * (bline.frequencies / 10) ** (-self.parameters[f"beta_{ifo2}"])
+            * 1e-23
+        )
+        # units of transfer function strain/pT
+        return TF1 * TF2 * np.real(bline.M_f)
+
+
+class TVSPowerLawModel(GWBModel):
+    """
+    Parameters:
+    -----------
+    fref : float
+        reference frequency for defining the model
+    omega_ref_pol : float
+        amplitude of signal at fref for polarization pol
+    alpha_pol : float
+        spectral index of the power law for polarization pol
+    frequencies : numpy.ndarray
+        array of frequencies at which to evaluate the model
+    """
+
+    def __init__(self, **kwargs):
+        try:
+            fref = kwargs.pop("fref")
+        except KeyError:
+            raise KeyError("fref must be supplied")
+        super(TVSPowerLawModel, self).__init__(**kwargs)
         self.fref = fref
 
-    def OmegaGW(self, freqs):
-        A = self.parameters["A"]
-        alpha = self.parameters["alpha"]
-        return A * (freqs / self.fref) ** alpha
+    @property
+    def parameters(self):
+        if self._parameters is None:
+            params = {}
+            for pol in self.polarizations:
+                params[f"omega_ref_{pol}"] = None
+                params[f"alpha_{pol}"] = None
+            return params
+        elif isinstance(self._parameters, dict):
+            return self._parameters
+
+    @parameters.setter
+    def parameters(self, parameters):
+        if parameters is None:
+            self._parameters = parameters
+        elif isinstance(parameters, dict):
+            self._parameters = parameters
+        else:
+            raise ValueError(f"unexpected type for parameters {type(parameters)}")
+
+    def model_function(self, bline):
+        model = np.zeros(bline.frequencies.shape)
+        for pol in self.polarizations:
+            orf_pol = eval(f"bline.{pol}_overlap_reduction_function")
+            orf_parent = eval(
+                f"bline.{self.polarizations[0]}_overlap_reduction_function"
+            )
+            model += (
+                orf_pol
+                / orf_parent
+                * self.parameters[f"omega_ref_{pol}"]
+                * (bline.frequencies / self.fref) ** (self.parameters[f"alpha_{pol}"])
+            )
+        return model
 
 
-class BasicGWBLikelihood(GWBLikelihood):
+# Parity violation models
+
+
+class PVPowerLawModel(GWBModel):
     """
-    Basic version of GWB Likelihood, in which the user
-    just provides Y_f, sigma_f, and freqs, and doesn't need
-    to worry about the Baseline class
+    Parameters:
+    -----------
+    fref : float
+        reference frequency for defining the model
+    omega_ref : float
+        amplitude of signal at fref
+    alpha : float
+        spectral index of the power law
+    Pi : float
+        degree of parity violation
+    frequencies : numpy.ndarray
+        array of frequencies at which to evaluate the model
     """
 
-    def __init__(self, Y_f, var_f, freqs, parameters=None):
-        baselines = [Baseline(None, Y_f, var_f, freqs)]
-        super(BasicGWBLikelihood, self).__init__(baselines, parameters=parameters)
-
-
-class BasicPowerLawGWBLikelihood(BasicGWBLikelihood):
-    """
-    Power law GWB model
-    """
-
-    def __init__(self, Y_f, var_f, freqs, fref=1):
-        super(BasicPowerLawGWBLikelihood, self).__init__(
-            Y_f, var_f, freqs, parameters={"A": None, "alpha": None}
-        )
+    def __init__(self, **kwargs):
+        try:
+            fref = kwargs.pop("fref")
+        except KeyError:
+            raise KeyError("fref must be supplied")
+        super(PVPowerLawModel, self).__init__(**kwargs)
         self.fref = fref
 
-    def OmegaGW(self, freqs):
-        A = self.parameters["A"]
-        alpha = self.parameters["alpha"]
-        return A * (freqs / self.fref) ** alpha
+    @property
+    def parameters(self):
+        if self._parameters is None:
+            # include this so that the parent class GWBModel doesn't complain
+            return {"omega_ref": None, "alpha": None, "Pi": None}
+        elif isinstance(self._parameters, dict):
+            return self._parameters
+
+    @parameters.setter
+    def parameters(self, parameters):
+        if parameters is None:
+            self._parameters = parameters
+        elif isinstance(parameters, dict):
+            self._parameters = parameters
+        else:
+            raise ValueError(f"unexpected type for parameters {type(parameters)}")
+
+    def model_function(self, bline):
+        return (
+            (
+                1
+                + self.parameters["Pi"]
+                * bline.gamma_v
+                / bline.overlap_reduction_function
+            )
+            * self.parameters["omega_ref"]
+            * (bline.frequencies / self.fref) ** (self.parameters["alpha"])
+        )
+
+
+class PVPowerLawModel2(GWBModel):
+    """
+    Parameters:
+    -----------
+    fref : float
+        reference frequency for defining the model
+    omega_ref : float
+        amplitude of signal at fref
+    alpha : float
+        spectral index of the power law
+    beta : float
+        spectral index of the degree of parity violation
+    frequencies : numpy.ndarray
+        array of frequencies at which to evaluate the model
+    """
+
+    def __init__(self, **kwargs):
+        try:
+            fref = kwargs.pop("fref")
+        except KeyError:
+            raise KeyError("fref must be supplied")
+        super(PVPowerLawModel2, self).__init__(**kwargs)
+        self.fref = fref
+
+    @property
+    def parameters(self):
+        if self._parameters is None:
+            # include this so that the parent class GWBModel doesn't complain
+            return {"omega_ref": None, "alpha": None, "beta": None}
+        elif isinstance(self._parameters, dict):
+            return self._parameters
+
+    @parameters.setter
+    def parameters(self, parameters):
+        if parameters is None:
+            self._parameters = parameters
+        elif isinstance(parameters, dict):
+            self._parameters = parameters
+        else:
+            raise ValueError(f"unexpected type for parameters {type(parameters)}")
+
+    def model_function(self, bline):
+        return (
+            (
+                1
+                + ((bline.frequencies) ** (self.parameters["beta"]))
+                * bline.gamma_v
+                / (bline.overlap_reduction_function)
+            )
+            * self.parameters["omega_ref"]
+            * (bline.frequencies / self.fref) ** (self.parameters["alpha"])
+        )

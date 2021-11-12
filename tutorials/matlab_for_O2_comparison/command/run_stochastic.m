@@ -31,4 +31,3 @@ notches=[]; % no extra lines to notch
 
 
 compute_Yf_and_sigmaf(dir,fileprefixes,outputFileName,h0,bias,notches);
-
