@@ -10,12 +10,12 @@ from .pre_processing import (
     preprocessing_data_gwpy_timeseries,
     preprocessing_data_timeseries_array,
 )
-from .spectral import density
+from .spectral import power_spectral_density
 
 
 class Interferometer(bilby.gw.detector.Interferometer):
 
-    """ Subclass of bilby's Interferometer class"""
+    """Subclass of bilby's Interferometer class"""
 
     def __init__(self, *args, **kwargs):
         """Instantiate an Interferometer class
@@ -165,9 +165,32 @@ class Interferometer(bilby.gw.detector.Interferometer):
             IFO=self.name, gwpy_timeseries=gwpy_timeseries, **kwargs
         )
 
-    def set_psd_spectrogram(self, frequencies):
+    def set_pre_processed_timeseries_from_channel_name(self, *args, **kwargs):
         """
-        A classmethod to set psd frequency series from a given fftgram as an attribute of given Interferometer object
+        A classmethod to get an Interferometer class from a given ifo name
+
+        Parameters
+        ==========
+        gwpy_timeseries: gwpy.timeseries
+            timeseries strain data as gwpy.timeseries object
+
+        **kwargs : keyword arguments passed to preprocess module.
+
+        """
+
+        self.timeseries = preprocessing_data_channel_name(*args, **kwargs)
+
+    def set_psd_spectrogram(
+        self,
+        frequency_resolution,
+        do_overlap=True,
+        overlap_factor=0.5,
+        zeropad=False,
+        window_fftgram="hann",
+        do_overlap_welch_psd=True,
+    ):
+        """
+        A classmethod to set psd frequency series from a given timeseries as an attribute of given Interferometer object
 
         Parameters
         ==========
@@ -176,7 +199,14 @@ class Interferometer(bilby.gw.detector.Interferometer):
 
         """
 
-        psd_aray = spectral.psd(self.timeseries, frequencies)
-        self.psd_spectrogram = spectral.power_spectral_density(
-            self.timeseries, self.duration, frequencies[1] - frequencies[0]
+        # psd_array = spectral.psd(self.timeseries, frequencies)
+        self.psd_spectrogram = power_spectral_density(
+            self.timeseries,
+            self.duration,
+            frequency_resolution,
+            do_overlap=do_overlap,
+            overlap_factor=overlap_factor,
+            zeropad=zeropad,
+            window_fftgram=window_fftgram,
+            do_overlap_welch_psd=do_overlap_welch_psd,
         )
