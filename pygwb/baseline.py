@@ -1,10 +1,11 @@
 import warnings
 
+import numpy as np
 from bilby.core.utils import create_frequency_series
 
 from .notch import StochNotchList
 from .orfs import calc_orf
-from .spectral import cross_spectral_density
+from .spectral import coarse_grain_spectrogram, cross_spectral_density
 
 
 class Baseline(object):
@@ -337,3 +338,26 @@ class Baseline(object):
             zeropad=self.zeropad_csd,
             window_fftgram=self.window_fftgram,
         )
+
+    def set_average_power_spectral_densities(self):
+        """If psds have been calculated, sets the average psd in each ifo"""
+        try:
+            self.interferometer_1.set_average_psd()
+            self.interferometer_2.set_average_psd()
+        except AttributeError:
+            print(
+                "PSDs have not been calculated yet! Need to set_cross_and_power_spectral_density first."
+            )
+
+    def set_average_cross_spectral_density(self):
+        """If csd has been calculated, sets the average csd for the baseline"""
+        stride = self.duration * (1 - self.overlap_factor)
+        csd_segment_offset = int(np.ceil(self.duration / stride))
+        try:
+            self.average_csd = coarse_grain_spectrogram(self.csd)[
+                csd_segment_offset : -(csd_segment_offset + 1) + 1
+            ]
+        except AttributeError:
+            print(
+                "CSD has not been calculated yet! Need to set_cross_and_power_spectral_density first."
+            )
