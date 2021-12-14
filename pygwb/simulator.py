@@ -88,12 +88,12 @@ class Simulator(object):
             )
 
     def get_frequencies(self):
-        """ 
+        """
         Computes an array of frequencies with given sampling frequency and duration.
-        
+
         Parameters
         ==========
-        
+
         Returns
         =======
         frequencies: array_like
@@ -105,12 +105,12 @@ class Simulator(object):
         return frequencies
 
     def get_noise_PSD_array(self):
-        """ 
+        """
         Function that gets the noise PSD array of all the interferometers.
-        
+
         Parameters
         ==========
-        
+
         Returns
         =======
         noise_PSDs_array: array_like
@@ -143,13 +143,13 @@ class Simulator(object):
             )
 
     def get_orf(self):
-        """ 
+        """
         Function that returns a list containing the overlap reduction functions
         for all the baselines in self.baselines.
-        
+
         Parameters
         ==========
-        
+
         Returns
         =======
         orf_list: list
@@ -169,10 +169,10 @@ class Simulator(object):
     def get_data_for_interferometers(self):
         """
         Get a data dictionary for interferometers
-        
+
         Parameters
         ==========
-        
+
         Returns
         =======
         interferometer_data: dict
@@ -235,7 +235,8 @@ class Simulator(object):
         """
         index = 0
         orf_array = np.zeros(
-            (self.Nd, self.Nd), dtype=gwpy.frequencyseries.FrequencySeries,
+            (self.Nd, self.Nd),
+            dtype=gwpy.frequencyseries.FrequencySeries,
         )
         for ii in range(self.Nd):
             for jj in range(ii):
@@ -450,7 +451,9 @@ class Simulator(object):
                     jj
                     * self.N_samples_per_segment : (jj + 1)
                     * self.N_samples_per_segment,
-                ] = (z0 + z1 + z2)
+                ] = (
+                    z0 + z1 + z2
+                )
 
         return data
 

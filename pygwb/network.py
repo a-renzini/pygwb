@@ -86,16 +86,16 @@ class Network(object):
     def get_noise_PSD_array(self):
         """
         Function that gets the noise PSD array of all the interferometers.
-        
+
         Parameters
         ==========
-        
+
         Returns
         =======
         noisePSD_array: array
             Array containing the noise PSD arrays for all interferometers in
             self.interferometers.
-        
+
         """
         noisePSDs = []
         for ifo in self.interferometers:

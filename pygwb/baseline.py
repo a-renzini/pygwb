@@ -298,6 +298,32 @@ class Baseline(object):
             calibration_epsilon=calibration_epsilon,
         )
 
+    @classmethod
+    def from_parameters(
+        cls,
+        interferometer_1,
+        interferometer_2,
+        parameters,
+        frequencies=None,
+        notch_list=None,
+    ):
+        name = interferometer_1.name+interferometer_2.name
+        return cls(
+            name=name,
+            interferometer_1=interferometer_1,
+            interferometer_2=interferometer_2,
+            duration=parameters.duration,
+            calibration_epsilon=parameters.calibration_epsilon,
+            frequencies=frequencies,
+            notch_list=notch_list,
+            do_overlap=parameters.do_overlap,
+            overlap_factor=parameters.overlap_factor,
+            zeropad_psd=parameters.zeropad_psd,
+            zeropad_csd=parameters.zeropad_csd,
+            window_fftgram=parameters.window_fftgram,
+            do_overlap_welch_psd=parameters.do_overlap_welch_psd,
+        )
+
     def set_cross_and_power_spectral_density(self, frequency_resolution):
         """Sets the power spectral density in each interferometer
         and the cross spectral density for the baseline object when data are available
