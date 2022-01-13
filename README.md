@@ -18,7 +18,7 @@ https://computing.docs.ligo.org/conda/
   The code is currently structured into many small modules.
 
   * `pre-processing.py` applies initial data-conditioning steps (high-pass filter and downsampling) on data from individual detector. Also supports importing simualted data.
-  * `spectral.py` calcualted CSDs and PSDs for each segment in a job (a coincident time segment of a pair of detectors)
+  * `spectral.py` calculated CSDs and PSDs for each segment in a job (a coincident time segment of a pair of detectors)
   * `postprocessing.py` combines the cross-correlation spectrograms into a final spectrum.
   * `pe.py` defines classes to perform pe with bilby for various models.
   * `constants.py` contains numerical values of constants used throughout the code.

@@ -15,7 +15,7 @@ class TestBaseline(unittest.TestCase):
         self.interferometer_2.name = "H2"
         self.interferometer_3 = bilby.gw.detector.get_empty_interferometer("L1")
         self.duration = 4.0
-        self.sampling_frequency = 2048.
+        self.sampling_frequency = 2048.0
         self.frequencies = np.arange(100)
 
     def tearDown(self):
@@ -36,25 +36,25 @@ class TestBaseline(unittest.TestCase):
         self.assertTrue(base.duration, self.duration)
         self.assertTrue(base.interferometer_1.duration, self.duration)
         self.assertTrue(base.interferometer_2.duration, self.duration)
-        self.assertTrue(np.all(base.frequencies==self.frequencies), True)
+        self.assertTrue(np.all(base.frequencies == self.frequencies), True)
 
     def test_set_duration_from_ifo1(self):
         ifo1 = copy.deepcopy(self.interferometer_1)
         ifo1.duration = 4.0
         base = baseline.Baseline("H1H2", ifo1, self.interferometer_2)
-        #self.assertTrue(np.array_equal(base.frequencies, ifo1.frequency_array))
-        #self.assertTrue(
+        # self.assertTrue(np.array_equal(base.frequencies, ifo1.frequency_array))
+        # self.assertTrue(
         #    np.array_equal(base.interferometer_2.frequency_array, ifo1.frequency_array)
-        #)
+        # )
 
     def test_set_duration_from_ifo2(self):
         ifo2 = copy.deepcopy(self.interferometer_2)
         ifo2.duration = 4.0
         base = baseline.Baseline("H1H2", self.interferometer_1, ifo2)
-        #self.assertTrue(np.array_equal(base.frequencies, ifo2.frequency_array))
-        #self.assertTrue(
+        # self.assertTrue(np.array_equal(base.frequencies, ifo2.frequency_array))
+        # self.assertTrue(
         #    np.array_equal(base.interferometer_1.frequency_array, ifo2.frequency_array)
-        #)
+        # )
 
     def test_interferometer_duration_mismatch(self):
         ifo1 = copy.deepcopy(self.interferometer_1)
@@ -66,7 +66,7 @@ class TestBaseline(unittest.TestCase):
         with self.assertRaises(AssertionError):
             base = baseline.Baseline("H1H2", ifo1, ifo2)
 
-    #def test_interferometer_sampling_frequency_mismatch(self):
+    # def test_interferometer_sampling_frequency_mismatch(self):
     #    ifo1 = copy.deepcopy(self.interferometer_1)
     #    ifo1.duration = 4.0
     #    ifo1.sampling_frequency = 1024.0
@@ -84,11 +84,9 @@ class TestBaseline(unittest.TestCase):
         ifo2.duration = 8.0
         ifo2.sampling_frequency = 2048.0
         with self.assertRaises(AssertionError):
-            base = baseline.Baseline(
-                "H1H2", ifo1, ifo2, self.duration
-            )
+            base = baseline.Baseline("H1H2", ifo1, ifo2, self.duration)
 
-    #def test_passed_sampling_frequency_ifo_mismatch(self):
+    # def test_passed_sampling_frequency_ifo_mismatch(self):
     #    ifo1 = copy.deepcopy(self.interferometer_1)
     #    ifo1.duration = 4.0
     #    ifo1.sampling_frequency = 1024.0
@@ -112,7 +110,7 @@ class TestBaseline(unittest.TestCase):
                 self.duration,
             )
 
-    #def test_passed_sampling_frequency_ifo1_mismatch(self):
+    # def test_passed_sampling_frequency_ifo1_mismatch(self):
     #    ifo1 = copy.deepcopy(self.interferometer_1)
     #    ifo1.duration = 4.0
     #    ifo1.sampling_frequency = 1024.0
@@ -136,7 +134,7 @@ class TestBaseline(unittest.TestCase):
                 self.duration,
             )
 
-    #def test_passed_sampling_frequency_ifo2_mismatch(self):
+    # def test_passed_sampling_frequency_ifo2_mismatch(self):
     #    ifo2 = copy.deepcopy(self.interferometer_2)
     #    ifo2.duration = 4.0
     #    ifo2.sampling_frequency = 1024.0
@@ -154,7 +152,7 @@ class TestBaseline(unittest.TestCase):
             self.interferometer_1,
             self.interferometer_2,
             self.duration,
-            self.frequencies
+            self.frequencies,
         )
         self.assertTrue(
             np.allclose(base.overlap_reduction_function, np.ones(len(base.frequencies)))

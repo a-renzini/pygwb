@@ -1,6 +1,7 @@
-import sys
 import argparse
-from dataclasses import dataclass, asdict
+import sys
+from dataclasses import asdict, dataclass, field
+from typing import List
 
 if sys.version_info >= (3, 0):
     import configparser
@@ -35,6 +36,9 @@ class Parameters:
     zeropad_psd: bool = False
     zeropad_csd: bool = True
     do_overlap_welch_psd: bool = True
+    delta_sigma_cut: float = 0.2
+    alphas_delta_sigma_cut: List = field(default_factory=lambda: [-5, 0, 3])
+    save_data_type: str = "json"
 
     @classmethod
     def from_file(cls, param_file):
@@ -66,6 +70,9 @@ class Parameters:
         zeropad_psd = param.getboolean("parameters", "zeropad_psd")
         zeropad_csd = param.getboolean("parameters", "zeropad_csd")
         do_overlap_welch_psd = param.getboolean("parameters", "do_overlap_welch_psd")
+        delta_sigma_cut = param.getfloat("parameters", "delta_sigma_cut")
+        alphas_delta_sigma_cut = param.get("parameters", "alphas_delta_sigma_cut")
+        save_data_type = param.get("parameters", "save_data_type")
 
         return cls(
             t0,
@@ -93,6 +100,9 @@ class Parameters:
             zeropad_psd,
             zeropad_csd,
             do_overlap_welch_psd,
+            delta_sigma_cut,
+            alphas_delta_sigma_cut,
+            save_data_type,
         )
 
     def __post_init__(self):
@@ -110,14 +120,3 @@ class Parameters:
         param["parameters"] = param_dict
         with open(output_path, "w") as configfile:
             param.write(configfile)
-
-
-# if __name__ == "__main__":
-#    parser = argparse.ArgumentParser()
-#    parser.add_argument('-param_file', help="Parameter file", action="store", type=str)
-#    parser.add_argument('-t0', help="Start time", action="store", type=str)
-#    parser.add_argument('-tf', help="End time", action="store", type=str)
-#
-#    args = parser.parse_args()
-#
-#    Parameters(args.param_file)

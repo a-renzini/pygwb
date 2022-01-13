@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 from gwpy import timeseries
 
-from pygwb import pre_processing, spectral, delta_sigma_cut
+from pygwb import delta_sigma_cut, pre_processing, spectral
 
 
 def read_notch_list(notch_file):
@@ -105,6 +105,4 @@ class Test(unittest.TestCase):
         badGPStimes = delta_sigma_cut.run_dsc(
             dsc, naive_psd_1, naive_psd_2, avg_psd_1, avg_psd_2, alphas, lines
         )
-        self.assertTrue(
-            np.allclose(badGPStimes - badGPStimes_matlab, [0., 0., 0.])
-        )
+        self.assertTrue(np.allclose(badGPStimes - badGPStimes_matlab, [0.0, 0.0, 0.0]))

@@ -117,7 +117,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
     @classmethod
     def from_parameters(cls, name, parameters):
         ifo = cls.get_empty_interferometer(name)
-        channel= str(ifo.name+':'+parameters.channel)
+        channel = str(ifo.name + ":" + parameters.channel)
         ifo.set_timeseries_from_channel_name(
             channel,
             t0=parameters.t0,

@@ -2,11 +2,12 @@
 
 # log: the explicit args used
 # add a logger!
-from pygwb.argument_parser import parser
-from pygwb.parameters import Parameters
 from pathlib import Path
-from pygwb.detector import Interferometer
+
+from pygwb.argument_parser import parser
 from pygwb.baseline import Baseline
+from pygwb.detector import Interferometer
+from pygwb.parameters import Parameters
 
 if __name__ == "__main__":
     args = parser.parse_args()

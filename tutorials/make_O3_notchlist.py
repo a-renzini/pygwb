@@ -2,7 +2,6 @@
 import sys
 
 import numpy as np
-
 from notch import *
 
 sys.path.append("../pygwb")
@@ -14,7 +13,7 @@ sys.path.append("../pygwb")
 #### DISCLAIMER ####
 ####################
 
-# Due to the new code method the nocth list produced in this tutorial will not exactely match the official O3 notch list
+# Due to the new code method the nocth list produced in this tutorial will not exactly match the official O3 notch list
 # Consider this code only be an example and for any further (official) processing, base your work on the official code & notchlists
 # Official O3 code can be found here: https://git.ligo.org/stochastic/stochasticdetchar/-/tree/master/O3/notchlists/make_notchlist
 
@@ -721,7 +720,7 @@ def Produce_O3_Isotropic_notchlist(src, version=0, runPart="A"):
     append_copy.write("#### DISCLAIMER ####\n")
     append_copy.write("####################\n")
     append_copy.write(
-        "# Due to the new code method the nocth list produced in this tutorial will not exactely match the official O3 notch list\n"
+        "# Due to the new code method the nocth list produced in this tutorial will not exactly match the official O3 notch list\n"
     )
     append_copy.write(
         "# Consider this code only be an example and for any further (official) processing, base your work on the official code & notchlists\n"
@@ -769,7 +768,7 @@ def Produce_O3_Isotropic_notchlist(src, version=0, runPart="A"):
     append_copy.write("#### DISCLAIMER ####\n")
     append_copy.write("####################\n")
     append_copy.write(
-        "# Due to the new code method the nocth list produced in this tutorial will not exactely match the official O3 notch list\n"
+        "# Due to the new code method the nocth list produced in this tutorial will not exactly match the official O3 notch list\n"
     )
     append_copy.write(
         "# Consider this code only be an example and for any further (official) processing, base your work on the official code & notchlists\n"
@@ -817,7 +816,7 @@ def Produce_O3_Isotropic_notchlist(src, version=0, runPart="A"):
     append_copy.write("#### DISCLAIMER ####\n")
     append_copy.write("####################\n")
     append_copy.write(
-        "# Due to the new code method the nocth list produced in this tutorial will not exactely match the official O3 notch list\n"
+        "# Due to the new code method the nocth list produced in this tutorial will not exactly match the official O3 notch list\n"
     )
     append_copy.write(
         "# Consider this code only be an example and for any further (official) processing, base your work on the official code & notchlists\n"

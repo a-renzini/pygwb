@@ -307,7 +307,7 @@ class Baseline(object):
         frequencies=None,
         notch_list=None,
     ):
-        name = interferometer_1.name+interferometer_2.name
+        name = interferometer_1.name + interferometer_2.name
         return cls(
             name=name,
             interferometer_1=interferometer_1,
