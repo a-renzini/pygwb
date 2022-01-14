@@ -36,6 +36,11 @@ def calculate_Yf_varf_params(freqs, csd, avg_psd_1, avg_psd_2, orf, params):
         * avg_psd_2
         / (orf ** 2 * S_alpha ** 2)
     )
+
+    w1w2bar, w1w2squaredbar, _, _ = window_factors(
+        params.new_sample_rate * params.segment_duration
+    )
+
     var_fs = var_fs * w1w2squaredbar / w1w2bar ** 2
     return Y_fs, var_fs
 
@@ -97,11 +102,12 @@ if __name__ == "__main__":
     naive_psd_1 = base_HL.interferometer_1.psd_spectrogram
     naive_psd_2 = base_HL.interferometer_2.psd_spectrogram
 
+    print(len(naive_psd_1), len(naive_psd_2))
     freq_band_cut = (freqs >= params.flow) & (freqs <= params.fhigh)
-    naive_psd_1 = base_HL.interferometer_1.psd_spectrogram.crop_frequencies(
+    naive_psd_1 = naive_psd_1.crop_frequencies(
         params.flow, params.fhigh + deltaF
     )
-    naive_psd_2 = base_HL.interferometer_2.psd_spectrogram.crop_frequencies(
+    naive_psd_2 = naive_psd_2.crop_frequencies(
         params.flow, params.fhigh + deltaF
     )
     avg_psd_1 = base_HL.interferometer_1.average_psd.crop_frequencies(
@@ -111,14 +117,18 @@ if __name__ == "__main__":
         params.flow, params.fhigh + deltaF
     )
     csd = base_HL.average_csd.crop_frequencies(params.flow, params.fhigh + deltaF)
+    print(len(avg_psd_1), len(avg_psd_2))
 
-    orf = base_HL.overlap_reduction_function[freq_band_cut]
+    stride = params.segment_duration * (1 - params.overlap_factor)
+    csd_segment_offset = int(np.ceil(params.segment_duration / stride))
+    naive_psd_1 = naive_psd_1[
+        csd_segment_offset : -(csd_segment_offset + 1) + 1
+    ]
+    naive_psd_2 = naive_psd_2[
+        csd_segment_offset : -(csd_segment_offset + 1) + 1
+    ]
 
-    w1w2bar, w1w2squaredbar, _, _ = window_factors(
-        params.new_sample_rate * params.segment_duration
-    )
-
-    freqs = freqs[freq_band_cut]
+    print(len(naive_psd_1), len(naive_psd_2))
 
     kamiel_path = "/home/kamiel.janssens/Development_pyGWB/myOwn_Fork/pygwb/tutorials/"
 
@@ -140,17 +150,19 @@ if __name__ == "__main__":
         avg_psd_2,
         params.alphas,
         lines_2,
-        params.new_sample_rate,
-        params.segment_duration,
+        #params.new_sample_rate,
+        #params.segment_duration,
     )
 
     print(badGPStimes)
 
     sys.exit()
 
+    freqs = freqs[freq_band_cut]
     indices_notches, inv_indices = lines_stochnotch.get_idxs(freqs)
 
     if params.Boolean_CSD:
+        orf = base_HL.overlap_reduction_function[freq_band_cut]
         Y_fs, var_fs = calculate_Yf_varf_params(
             freqs, csd.value, avg_psd_1.value, avg_psd_2.value, orf, params
         )
