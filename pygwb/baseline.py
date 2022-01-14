@@ -25,6 +25,7 @@ class Baseline(object):
         zeropad_csd=True,
         window_fftgram="hann",
         do_overlap_welch_psd=True,
+        welch_psd_duration=60.0,
     ):
         """
         Parameters
@@ -52,6 +53,7 @@ class Baseline(object):
         self.zeropad_csd = zeropad_csd
         self.window_fftgram = window_fftgram
         self.do_overlap_welch_psd = do_overlap_welch_psd
+        self.welch_psd_duration = welch_psd_duration
         self._tensor_orf_calculated = False
         self._vector_orf_calculated = False
         self._scalar_orf_calculated = False
@@ -312,7 +314,7 @@ class Baseline(object):
             name=name,
             interferometer_1=interferometer_1,
             interferometer_2=interferometer_2,
-            duration=parameters.duration,
+            duration=parameters.segment_duration,
             calibration_epsilon=parameters.calibration_epsilon,
             frequencies=frequencies,
             notch_list=notch_list,
@@ -322,6 +324,7 @@ class Baseline(object):
             zeropad_csd=parameters.zeropad_csd,
             window_fftgram=parameters.window_fftgram,
             do_overlap_welch_psd=parameters.do_overlap_welch_psd,
+            welch_psd_duration=parameters.welch_psd_duration,
         )
 
     def set_cross_and_power_spectral_density(self, frequency_resolution):
@@ -336,6 +339,7 @@ class Baseline(object):
                 zeropad=self.zeropad_psd,
                 window_fftgram=self.window_fftgram,
                 do_overlap_welch_psd=self.do_overlap_welch_psd,
+                welch_psd_duration=self.welch_psd_duration,
             )
         except AttributeError:
             raise AssertionError(
@@ -349,6 +353,7 @@ class Baseline(object):
                 zeropad=self.zeropad_psd,
                 window_fftgram=self.window_fftgram,
                 do_overlap_welch_psd=self.do_overlap_welch_psd,
+                welch_psd_duration=self.welch_psd_duration,
             )
         except AttributeError:
             raise AssertionError(
@@ -368,8 +373,8 @@ class Baseline(object):
     def set_average_power_spectral_densities(self):
         """If psds have been calculated, sets the average psd in each ifo"""
         try:
-            self.interferometer_1.set_average_psd()
-            self.interferometer_2.set_average_psd()
+            self.interferometer_1.set_average_psd(self.welch_psd_duration)
+            self.interferometer_2.set_average_psd(self.welch_psd_duration)
         except AttributeError:
             print(
                 "PSDs have not been calculated yet! Need to set_cross_and_power_spectral_density first."

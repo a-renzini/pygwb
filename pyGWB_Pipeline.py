@@ -53,14 +53,14 @@ if __name__ == "__main__":
     params.t0 = args.t0
     params.tf = args.tf
     params.alphas = json.loads(params.alphas_delta_sigma_cut)
-    print("successfully imported parameters")
+    print("successfully imported parameters from paramfile.")
     # params.save_new_paramfile()
     outfile_path = Path(args.param_file)
     outfile_path = outfile_path.with_name(
         f"{outfile_path.stem}_final{outfile_path.suffix}"
     )
     params.save_paramfile(str(outfile_path))
-    print(f"saved final param file at {outfile_path}")
+    print(f"saved final param file at {outfile_path}.")
 
     # Parameters.from_file("param.ini")
 
@@ -68,13 +68,17 @@ if __name__ == "__main__":
 
     ifo_H = Interferometer.from_parameters("H1", params)
     ifo_L = Interferometer.from_parameters("L1", params)
+    print(f"loaded up interferometers with selected parameters.")
 
     base_HL = Baseline.from_parameters(ifo_H, ifo_L, params)
+    print(f"baseline with interferometers {ifo_H.name}, {ifo_L.name} initialised.")
 
+    print(f"setting PSD and CSD of the baseline...")
     base_HL.set_cross_and_power_spectral_density(params.frequency_resolution)
     base_HL.set_average_power_spectral_densities()
     base_HL.set_average_cross_spectral_density()
 
+    print(f"... done.")
     segment_starttime = base_HL.csd.times.value - (
         params.segment_duration / 2
     )  # for later use
@@ -129,7 +133,7 @@ if __name__ == "__main__":
         lines_2[index, 1] = lines_stochnotch[index].maximum_frequency
 
     badGPStimes = run_dsc(
-        params.dsc,
+        params.delta_sigma_cut,
         naive_psd_1,
         naive_psd_2,
         avg_psd_1,

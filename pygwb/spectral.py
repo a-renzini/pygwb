@@ -87,9 +87,9 @@ def pwelch_psd(data, segment_duration, do_overlap=True):
         averaged over segments
     """
 
-    averaging_factor = int(segment_duration / data.dt.value)
+    averaging_factor = round(segment_duration / data.dt.value)
     if do_overlap:
-        seg_indices = np.arange(1, len(data), int(averaging_factor / 2))
+        seg_indices = np.arange(1, len(data), round(averaging_factor / 2))
         seg_indices = seg_indices[seg_indices <= len(data) + 2 - averaging_factor]
     else:  # NOT CHECKED
         seg_indices = np.arange(1, len(data), averaging_factor)[0:-1]

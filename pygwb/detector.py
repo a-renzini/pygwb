@@ -65,7 +65,6 @@ class Interferometer(bilby.gw.detector.Interferometer):
             gwpy spectrogram of power spectral density
 
         """
-
         super(Interferometer, self).__init__(*args, **kwargs)
 
     @classmethod
@@ -191,6 +190,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
         zeropad=False,
         window_fftgram="hann",
         do_overlap_welch_psd=True,
+        welch_psd_duration=60.0,
     ):
         """
         A classmethod to set psd frequency series from a given timeseries as an attribute of given Interferometer object
@@ -214,10 +214,10 @@ class Interferometer(bilby.gw.detector.Interferometer):
             do_overlap_welch_psd=do_overlap_welch_psd,
         )
 
-    def set_average_psd(self):
+    def set_average_psd(self, welch_psd_duration):
         try:
             self.average_psd = before_after_average(
-                self.psd_spectrogram, self.duration, self.duration
+                self.psd_spectrogram, self.duration, welch_psd_duration
             )
         except AttributeError:
             print(

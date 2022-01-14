@@ -11,8 +11,8 @@ else:
 
 @dataclass
 class Parameters:
-    t0: int
-    tf: int
+    t0: float
+    tf: float
     data_type: str
     channel: str
     new_sample_rate: int
@@ -28,7 +28,7 @@ class Parameters:
     flow: int
     fhigh: int
     coarse_grain: int
-    duration: float
+    welch_psd_duration: float
     window_fftgram: str = "hann"
     calibration_epsilon: float = 0
     do_overlap: bool = False
@@ -62,7 +62,7 @@ class Parameters:
         fref = param.getint("parameters", "fref")
         flow = param.getint("parameters", "flow")
         fhigh = param.getint("parameters", "fhigh")
-        duration = param.getfloat("parameters", "duration")
+        welch_psd_duration = param.getfloat("parameters", "welch_psd_duration")
         coarse_grain = param.getint("parameters", "coarse_grain")
         calibration_epsilon = param.getfloat("parameters", "calibration_epsilon")
         do_overlap = param.getboolean("parameters", "do_overlap")
@@ -92,7 +92,7 @@ class Parameters:
             flow,
             fhigh,
             coarse_grain,
-            duration,
+            welch_psd_duration,
             window_fftgram,
             calibration_epsilon,
             do_overlap,
