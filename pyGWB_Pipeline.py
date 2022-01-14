@@ -102,7 +102,6 @@ if __name__ == "__main__":
     naive_psd_1 = base_HL.interferometer_1.psd_spectrogram
     naive_psd_2 = base_HL.interferometer_2.psd_spectrogram
 
-    print(len(naive_psd_1), len(naive_psd_2))
     freq_band_cut = (freqs >= params.flow) & (freqs <= params.fhigh)
     naive_psd_1 = naive_psd_1.crop_frequencies(
         params.flow, params.fhigh + deltaF
@@ -117,7 +116,6 @@ if __name__ == "__main__":
         params.flow, params.fhigh + deltaF
     )
     csd = base_HL.average_csd.crop_frequencies(params.flow, params.fhigh + deltaF)
-    print(len(avg_psd_1), len(avg_psd_2))
 
     stride = params.segment_duration * (1 - params.overlap_factor)
     csd_segment_offset = int(np.ceil(params.segment_duration / stride))
@@ -128,7 +126,6 @@ if __name__ == "__main__":
         csd_segment_offset : -(csd_segment_offset + 1) + 1
     ]
 
-    print(len(naive_psd_1), len(naive_psd_2))
 
     kamiel_path = "/home/kamiel.janssens/Development_pyGWB/myOwn_Fork/pygwb/tutorials/"
 
