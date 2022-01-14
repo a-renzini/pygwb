@@ -14,8 +14,7 @@ class Baseline(object):
         name,
         interferometer_1,
         interferometer_2,
-        duration=None,  # this is now the overall duration - not linked to the freqs!
-        # sampling_frequency=None,
+        duration=None,
         frequencies=None,
         calibration_epsilon=0,
         notch_list=None,
@@ -25,7 +24,7 @@ class Baseline(object):
         zeropad_csd=True,
         window_fftgram="hann",
         do_overlap_welch_psd=True,
-        welch_psd_duration=60.0,
+        welch_psd_duration=32.0,
     ):
         """
         Parameters
@@ -34,16 +33,32 @@ class Baseline(object):
             Name for the baseline, e.g H1H2
         interferometer_1/2: bilby Interferometer object
             the two detectors spanning the baseline
+        duration: float, optional
+            the duration in seconds of each data segment in the interferometers. None by default, in which case duration is inherited from the interferometers.
         frequencies: array_like, optional
             the frequency array for the Baseline and
             interferometers
-        calibration_epsilon: float
+        calibration_epsilon: float, optional
             calibration uncertainty for this baseline
-        notch_list: str
+        notch_list: str, optional
             filename of the baseline notch list
+        do_overlap: bool, optional
+            if True, implements overlaps in the psd and csd estimation from the data with the factor declared by overlap_factor
+        overlap_factor: float, optional
+            factor by which to overlap the segments in the psd and csd estimation
+        zeropad_psd: bool, optional
+            if True, applies zeropadding in the psd estimation. False by default.
+        zeropad_csd: bool, optional
+            if True, applies zeropadding in the csd estimation. True by default.
+        window_fftgram: str, optional
+            what type of window to use to produce the fftgrams
+        do_overlap_welch_psd: bool, optional
+            if True, implements a 50% overlap in the welch calculation of each segment psd
+        welch_psd_duration: float, optional
+            duration of each psd used in the welch estimation of the average psd
         """
         self.name = name
-        self.interferometer_1 = interferometer_1  # inherit duration from ifos; if ifos have data check it is the same length
+        self.interferometer_1 = interferometer_1
         self.interferometer_2 = interferometer_2
         self.calibration_epsilon = calibration_epsilon
         self.notch_list = notch_list
@@ -59,7 +74,6 @@ class Baseline(object):
         self._scalar_orf_calculated = False
         self._gamma_v_calculated = False
         self.set_duration(duration)
-        # self.set_sampling_frequency(sampling_frequency)
         self.set_frequencies(frequencies)
         self.minimum_frequency = max(
             interferometer_1.minimum_frequency, interferometer_2.minimum_frequency
@@ -67,7 +81,6 @@ class Baseline(object):
         self.maximum_frequency = min(
             interferometer_1.maximum_frequency, interferometer_2.maximum_frequency
         )
-        # self.frequency_mask = self.set_frequency_mask(notch_list)
 
     def __eq__(self, other):
         if not type(self) == type(other):
@@ -169,6 +182,12 @@ class Baseline(object):
             self.duration = duration
 
     def set_frequencies(self, frequencies):
+        """Sets the frequencies array in the baseline.
+
+        Parameters
+        ==========
+        frequencies: array_like, optional
+        """
         if frequencies is None:
             warnings.warn("baseline frequencies have not been set.")
         self.frequencies = frequencies
@@ -330,6 +349,11 @@ class Baseline(object):
     def set_cross_and_power_spectral_density(self, frequency_resolution):
         """Sets the power spectral density in each interferometer
         and the cross spectral density for the baseline object when data are available
+
+        Parameters
+        ==========
+        frequency_resolution: float
+            the frequency resolution at which the cross and power spectral densities are calculated.
         """
         try:
             self.interferometer_1.set_psd_spectrogram(
