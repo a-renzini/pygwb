@@ -127,7 +127,7 @@ if __name__ == "__main__":
     kamiel_path = "/home/kamiel.janssens/Development_pyGWB/myOwn_Fork/pygwb/tutorials/"
 
     lines_stochnotch = StochNotchList.load_from_file(
-        "{0}Official_O3_HL_notchlist.txt".format(kamiel_path)
+        f"{kamiel_path}Official_O3_HL_notchlist.txt"
     )
 
     lines_2 = np.zeros((len(lines_stochnotch), 2))
@@ -179,8 +179,8 @@ if __name__ == "__main__":
             Y_f_new, var_f_new, freqs, params.alpha, params.fref
         )
 
-        print("\tpyGWB: %e" % (Y_pyGWB_new))
-        print("\tpyGWB: %e" % (sigma_pyGWB_new))
+        print(f"\tpyGWB: {Y_pyGWB_new:e}")
+        print(f"\tpyGWB: {sigma_pyGWB_new:e}")
 
         data_file_name = f"Y_sigma_{int(args.t0)}-{int(args.tf)}"
 
