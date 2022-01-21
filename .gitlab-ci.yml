@@ -32,20 +32,17 @@ stages:
     - python -c "import pygwb.spectral"
     - python -c "import pygwb.util"
 
-# test basic setup on python3
-basic-3.6:
-  <<: *basic-python
-  image: python:3.6
-
-
-basic-3.7:
-  <<: *basic-python
-  image: python:3.7
-
-
 basic-3.8:
   <<: *basic-python
   image: python:3.8
+
+basic-3.9:
+  <<: *basic-python
+  image: python:3.9
+
+basic-3.10:
+  <<: *basic-python
+  image: python:3.10
 
 
 .precommits-python: &precommits-python
@@ -58,10 +55,13 @@ basic-3.8:
 
     # Run precommits (black, flake8, spellcheck, isort, no merge conflicts, etc)
     - pre-commit run --files pygwb/**.py --verbose --show-diff-on-failure
+    - pre-commit run --files test/**.py --verbose --show-diff-on-failure
+    - pre-commit run --files tutorials/**.py --verbose --show-diff-on-failure
+    - pre-commit run --files *.py --verbose --show-diff-on-failure
 
-precommits-py3.7:
+precommits-py3.8:
   <<: *precommits-python
-  image: python:3.7
+  image: python:3.8
 
 
 .test-python: &test-python
@@ -69,22 +69,30 @@ precommits-py3.7:
   image: python
   before_script:
     - pip install --upgrade pip setuptools
-    - pip install pytest
+    - pip install pytest pytest-cov coverage-badge
   script:
     - pip install .
-    - pytest
-
-python-3.6:
-  <<: *test-python
-  image: python:3.6
-
-python-3.7:
-  <<: *test-python
-  image: python:3.7
+    - pytest --cov=pygwb
 
 python-3.8:
   <<: *test-python
   image: python:3.8
+  after_script:
+    - coverage html
+    - coverage-badge -o coverage_badge.svg -f
+  artifacts:
+    paths:
+      - coverage_badge.svg
+      - htmlcov/
+    expire_in: 30 days
+
+python-3.9:
+  <<: *test-python
+  image: python:3.9
+
+python-3.10:
+  <<: *test-python
+  image: python:3.10
 
 documentation:
   stage: documentation
@@ -114,8 +122,8 @@ pages:
     - documentation
   script:
     - mkdir public/
-#    - mv htmlcov/ public/
-#    - mv coverage_badge.svg public/
+    - mv htmlcov/ public/
+    - mv coverage_badge.svg public/
     - mv docs/_build/* public/
   artifacts:
     paths:
