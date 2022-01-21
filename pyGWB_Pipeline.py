@@ -47,12 +47,6 @@ def calculate_Yf_varf_params(freqs, csd, avg_psd_1, avg_psd_2, orf, params):
 
 if __name__ == "__main__":
     parser = pygwb.argument_parser.parser
-    parser.add_argument(
-        "-out",
-        help="Location at which to save data (optional)",
-        action="store",
-        default="None",
-    )
     args = parser.parse_args()
     params = Parameters.from_file(args.param_file)
     params.t0 = args.t0
@@ -69,7 +63,8 @@ if __name__ == "__main__":
 
     # Parameters.from_file("param.ini")
 
-    # Boolean_CSD = True #if False, it will only compute the CSDs and PSDs, if True, it will compute until the point estimates
+    'X TODO X make this into a param in the arg class?'
+    Boolean_CSD = True #if False, it will only compute the CSDs and PSDs, if True, it will compute until the point estimates
 
     ifo_H = Interferometer.from_parameters("H1", params)
     ifo_L = Interferometer.from_parameters("L1", params)
@@ -101,6 +96,8 @@ if __name__ == "__main__":
 
     naive_psd_1 = base_HL.interferometer_1.psd_spectrogram
     naive_psd_2 = base_HL.interferometer_2.psd_spectrogram
+
+    print(naive_psd_1[0][0], naive_psd_2[0][0])
 
     freq_band_cut = (freqs >= params.flow) & (freqs <= params.fhigh)
     naive_psd_1 = naive_psd_1.crop_frequencies(
@@ -139,6 +136,8 @@ if __name__ == "__main__":
         lines_2[index, 0] = lines_stochnotch[index].minimum_frequency
         lines_2[index, 1] = lines_stochnotch[index].maximum_frequency
 
+    print(naive_psd_1[0][0], naive_psd_2[0][0])
+
     badGPStimes = run_dsc(
         params.delta_sigma_cut,
         naive_psd_1,
@@ -151,14 +150,13 @@ if __name__ == "__main__":
         #params.segment_duration,
     )
 
-    print(badGPStimes)
-
-    sys.exit()
+    print(f"times flagged by the deta signal cut as badGPStimes:{badGPStimes}")
 
     freqs = freqs[freq_band_cut]
     indices_notches, inv_indices = lines_stochnotch.get_idxs(freqs)
-
-    if params.Boolean_CSD:
+    
+    if Boolean_CSD:
+        print(f"calculating the point estimate and sigma...")
         orf = base_HL.overlap_reduction_function[freq_band_cut]
         Y_fs, var_fs = calculate_Yf_varf_params(
             freqs, csd.value, avg_psd_1.value, avg_psd_2.value, orf, params
@@ -167,14 +165,6 @@ if __name__ == "__main__":
         # notch_freq = np.real(stochastic_mat['ptEst_ff']==0)
         Y_fs[:, indices_notches] = 0
         var_fs[:, indices_notches] = np.Inf
-
-        # from pygwb import postprocessing_pat
-        # iso_job = postprocessing_pat.IsotropicJob(Y_fs, (var_fs)**0.5, segment_starttime, segment_duration, sample_rate, frequencies=freqs)
-        # Y_f = iso_job.combined_Y_spectrum
-        # var_f = iso_job.combined_sigma_spectrum**2
-        # Y_pyGWB, sigma_pyGWB = iso_job.calculate_broadband_statistics(0) # alpha = 0
-        # Y_f[boolean_notch] = 0
-        # var_f[boolean_notch] = np.inf
 
         Y_f_new, var_f_new = postprocess_Y_sigma(
             Y_fs,
@@ -192,8 +182,9 @@ if __name__ == "__main__":
         print("\tpyGWB: %e" % (Y_pyGWB_new))
         print("\tpyGWB: %e" % (sigma_pyGWB_new))
 
-        data_file_name = args.out + "_{0}".format(str(int(args.t0)))
+        data_file_name = f"Y_sigma_{int(args.t0)}-{int(args.tf)}"
 
+        print("saving Y_f and sigma_f to file.")
         base_HL.save_data(
             params.save_data_type,
             data_file_name,
@@ -204,11 +195,10 @@ if __name__ == "__main__":
             sigma_pyGWB_new,
         )
 
-    else:
-        print("csd")
+    print("saving average psds and csd to file.")
 
-        data_file_name = args.out + "_{0}".format(str(int(args.t0)))
+    data_file_name = f"psds_csds_{int(args.t0)}-{int(args.tf)}"
 
-        base_HL.save_data_csd(
-            params.save_data_type, data_file_name, freqs, csd, avg_psd_1, avg_psd_2
-        )
+    base_HL.save_data_csd(
+        params.save_data_type, data_file_name, freqs, csd, avg_psd_1, avg_psd_2
+    )
