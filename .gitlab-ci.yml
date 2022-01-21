@@ -82,7 +82,8 @@ python-3.8:
     - coverage-badge -o coverage_badge.svg -f
   artifacts:
     paths:
-      - public
+      - coverage_badge.svg
+      - htmlcov/
     expire_in: 30 days
 
 python-3.9:
