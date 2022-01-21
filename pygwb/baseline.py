@@ -1,3 +1,4 @@
+import json
 import warnings
 
 import numpy as np
@@ -416,12 +417,21 @@ class Baseline(object):
             print(
                 "CSD has not been calculated yet! Need to set_cross_and_power_spectral_density first."
             )
-    
-    def save_data(self, save_data_type, filename, freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new):    
-        """Saves the overall point estimate Y_pygwb_new, its error bar sigma_pyGWB_new, 
+
+    def save_data(
+        self,
+        save_data_type,
+        filename,
+        freqs,
+        Y_f_new,
+        var_f_new,
+        Y_pyGWB_new,
+        sigma_pyGWB_new,
+    ):
+        """Saves the overall point estimate Y_pygwb_new, its error bar sigma_pyGWB_new,
         the frequency-dependent estimates and variances and the corresponding frequencies in the required save_data_type, which can be npz, pickle or json.
         You can call upon this data afterwards when loaoding in using the ['key'] dictionary format.
-        
+
         Parameters
         ==========
         save_data_type: str
@@ -432,64 +442,94 @@ class Baseline(object):
             Array of frequencies that correspond with the frequency-dependent estimates
         Y_f_new: array
             The frequency-dependent estimates
-        var_f_new: array 
+        var_f_new: array
             The frequency-dependent variances on the estimates
         Y_pyGWB_new: float
             The overall point estimate
         sigma_pyGWB_new: float
             The errorbar of the overall point estimate
-        
+
         """
-        
-        if save_data_type == 'pickle': 
-            filename = filename + '.p'
-            self.pickle_save(filename, freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new)
-        
-        elif save_data_type == 'npz': 
-            self.save_data_to_file(filename, freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new)
-            
-        elif save_data_type == 'json':
-            filename = filename + '.json'
-            self.json_save(filename, freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new)
-        
+
+        if save_data_type == "pickle":
+            filename = filename + ".p"
+            self.pickle_save(
+                filename, freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new
+            )
+
+        elif save_data_type == "npz":
+            self.save_data_to_file(
+                filename, freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new
+            )
+
+        elif save_data_type == "json":
+            filename = filename + ".json"
+            self.json_save(
+                filename, freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new
+            )
+
         else:
-            raise ValueError("The provided data type is not supported, try using 'pickle', 'npz' or 'json' instead.")
-    
-    def save_data_to_file(self, filename, freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new):
-        np.savez(filename, freqs = freqs, Y_f_new = Y_f_new, var_f_new = var_f_new, Y_pyGWB_new = Y_pyGWB_new, sigma_pyGWB_new = sigma_pyGWB_new)
-        
-        
-    def pickle_save(self, filename, freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new):
-        #saveObject = (freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new)
-        
-        save_dictionary = {'freqs' : freqs, 'Y_f_new' : Y_f_new, 'var_f_new': var_f_new, 'Y_pyGWB': Y_pyGWB_new, 'sigma_pyGWB' : sigma_pyGWB_new}
-        
-        
-        #with open(filename, "wb") as f:
-         #   pickle.dump(saveObject, f)
-            
+            raise ValueError(
+                "The provided data type is not supported, try using 'pickle', 'npz' or 'json' instead."
+            )
+
+    def save_data_to_file(
+        self, filename, freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new
+    ):
+        np.savez(
+            filename,
+            freqs=freqs,
+            Y_f_new=Y_f_new,
+            var_f_new=var_f_new,
+            Y_pyGWB_new=Y_pyGWB_new,
+            sigma_pyGWB_new=sigma_pyGWB_new,
+        )
+
+    def pickle_save(
+        self, filename, freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new
+    ):
+        # saveObject = (freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new)
+
+        save_dictionary = {
+            "freqs": freqs,
+            "Y_f_new": Y_f_new,
+            "var_f_new": var_f_new,
+            "Y_pyGWB": Y_pyGWB_new,
+            "sigma_pyGWB": sigma_pyGWB_new,
+        }
+
+        # with open(filename, "wb") as f:
+        #   pickle.dump(saveObject, f)
+
         with open(filename, "wb") as f:
             pickle.dump(save_dictionary, f)
-            
-    def json_save(self, filename, freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new):
+
+    def json_save(
+        self, filename, freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new
+    ):
         list_freqs = freqs.tolist()
         list_Yf = Y_f_new.tolist()
         list_varf = var_f_new.tolist()
-        
-        save_dictionary = {'freqs' : list_freqs, 'Y_f_new' : list_Yf, 'var_f_new': list_varf, 'Y_pyGWB': Y_pyGWB_new, 'sigma_pyGWB' : sigma_pyGWB_new}
-        
+
+        save_dictionary = {
+            "freqs": list_freqs,
+            "Y_f_new": list_Yf,
+            "var_f_new": list_varf,
+            "Y_pyGWB": Y_pyGWB_new,
+            "sigma_pyGWB": sigma_pyGWB_new,
+        }
+
         with open(filename, "w") as outfile:
             json.dump(save_dictionary, outfile)
-            
-    
-    def save_data_csd(self, save_data_type, filename, freqs, csd, psd_1, psd_2):    
+
+    def save_data_csd(self, save_data_type, filename, freqs, csd, psd_1, psd_2):
         """
         Saves the computed csd and average pds together with their corresponding frequencies in the required save_data_type, which can be npz, pickle or json.
         You can call upon this data afterwards when loaoding in using the ['key'] dictionary format.
-        
+
         Parameters
         ----------
-        
+
         save_data_type: str
             The required type of data file where the information will be stored
         filename: str
@@ -501,52 +541,58 @@ class Baseline(object):
         psd_1, psd_2: spectrogram
             The computed with before_and_after_average psds
         """
-        
-        if save_data_type == 'pickle': 
-            filename = filename + '.p'
+
+        if save_data_type == "pickle":
+            filename = filename + ".p"
             self.pickle_save_csd(filename, freqs, csd, psd_1, psd_2)
-        
-        elif save_data_type == 'npz': 
+
+        elif save_data_type == "npz":
             self.save_data_to_file_csd(filename, freqs, csd, psd_1, psd_2)
-            
-        elif save_data_type == 'json':
-            filename = filename + '.json'
+
+        elif save_data_type == "json":
+            filename = filename + ".json"
             self.json_save_csd(filename, freqs, csd, psd_1, psd_2)
-        
+
         else:
-            raise ValueError("The provided data type is not supported, try using 'pickle', 'npz' or 'json' instead.")      
-            
-            
+            raise ValueError(
+                "The provided data type is not supported, try using 'pickle', 'npz' or 'json' instead."
+            )
+
     def save_data_to_file_csd(self, filename, freqs, csd, avg_psd_1, avg_psd_2):
-        np.savez(filename, freqs = freqs, csd = csd, avg_psd_1 = avg_psd_1, avg_psd_2 = avg_psd_2)
-        
-        
+        np.savez(
+            filename, freqs=freqs, csd=csd, avg_psd_1=avg_psd_1, avg_psd_2=avg_psd_2
+        )
+
     def pickle_save_csd(self, filename, freqs, csd, psd_1, psd_2):
-        #saveObject = (freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new)
-        
-        save_dictionary = {'freqs' : freqs, 'csd' : csd, 'avg_psd_1' : psd_1, 'avg_psd_2' : psd_2}
-        
-        
-        #with open(filename, "wb") as f:
-         #   pickle.dump(saveObject, f)
-            
+        # saveObject = (freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new)
+
+        save_dictionary = {
+            "freqs": freqs,
+            "csd": csd,
+            "avg_psd_1": psd_1,
+            "avg_psd_2": psd_2,
+        }
+
+        # with open(filename, "wb") as f:
+        #   pickle.dump(saveObject, f)
+
         with open(filename, "wb") as f:
             pickle.dump(save_dictionary, f)
-            
+
     def json_save_csd(self, filename, freqs, csd, psd_1, psd_2):
         """
         It seems that saving spectrograms in json does not work, hence everything is converted into a list and saved that way in the json file.
-        A second issue is that json does not seem to recognise complex values, hence the csd is split up into a real and imaginary part. 
-        When loading in this json file, one needs to 'reconstruct' the csd as a spectrogram using these two lists and the times and frequencies. 
+        A second issue is that json does not seem to recognise complex values, hence the csd is split up into a real and imaginary part.
+        When loading in this json file, one needs to 'reconstruct' the csd as a spectrogram using these two lists and the times and frequencies.
         """
         list_freqs = freqs.tolist()
         list_csd = csd.value.tolist()
         real_csd = np.zeros(np.shape(list_csd))
         imag_csd = np.zeros(np.shape(list_csd))
         for index, row in enumerate(list_csd):
-            for j,elem in enumerate(row):
-                real_csd[index,j] = elem.real
-                imag_csd[index,j] = elem.imag
+            for j, elem in enumerate(row):
+                real_csd[index, j] = elem.real
+                imag_csd[index, j] = elem.imag
         real_csd_list = real_csd.tolist()
         imag_csd_list = imag_csd.tolist()
         csd_times = csd.times.value.tolist()
@@ -555,7 +601,16 @@ class Baseline(object):
         list_psd_2 = psd_2.value.tolist()
         psd_2_times = psd_2.times.value.tolist()
 
-        save_dictionary = {'freqs' : list_freqs, 'csd_real' : real_csd_list, 'csd_imag' : imag_csd_list , 'csd_times' : csd_times ,  'avg_psd_1' : list_psd_1, 'psd_1_times' : psd_times, 'avg_psd_2' : list_psd_2, 'psd_2_times' : psd_2_times}
-        
+        save_dictionary = {
+            "freqs": list_freqs,
+            "csd_real": real_csd_list,
+            "csd_imag": imag_csd_list,
+            "csd_times": csd_times,
+            "avg_psd_1": list_psd_1,
+            "psd_1_times": psd_times,
+            "avg_psd_2": list_psd_2,
+            "psd_2_times": psd_2_times,
+        }
+
         with open(filename, "w") as outfile:
             json.dump(save_dictionary, outfile)
