@@ -84,8 +84,6 @@ python-3.8:
     paths:
       - public
     expire_in: 30 days
-  only:
-    - master
 
 python-3.9:
   <<: *test-python
