@@ -117,17 +117,17 @@ def calc_Y_sigma_from_Yf_varf(Y_f, var_f, freqs=None, alpha=0, fref=1):
 
 
 def calc_rho1(N):
-    w1w2bar, _, w1w2ovlbar, _ = window_factors(100000)
+    w1w2bar, _, w1w2ovlbar, _ = window_factors(N)
     rho1 = (0.5 * w1w2ovlbar / w1w2bar) ** 2
     return rho1
 
 
-def calc_bias(segmentDuration, deltaF, deltaT):
+def calc_bias(segmentDuration, deltaF, deltaT, N_avg_segs=1):
     N = int(segmentDuration / deltaT)
     rho1 = calc_rho1(N)
     Nsegs = 2 * segmentDuration * deltaF - 1
     wfactor = (1 + 2 * rho1) ** (-1)
-    Neff = 2 * wfactor * (2 * segmentDuration * deltaF - 1)
+    Neff = N_avg_segs * wfactor * Nsegs
     bias = Neff / (Neff - 1)
     return bias
 
