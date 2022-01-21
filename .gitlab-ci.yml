@@ -69,7 +69,7 @@ precommits-py3.8:
   image: python
   before_script:
     - pip install --upgrade pip setuptools
-    - pip install pytest pytest-cov
+    - pip install pytest pytest-cov coverage-badge
   script:
     - pip install .
     - pytest --cov=pygwb
