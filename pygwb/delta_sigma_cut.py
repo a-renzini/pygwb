@@ -141,7 +141,7 @@ def calc_sens_integrand(
             typically Hann window of size np.hanning(4096*192)
 
        delta_f: number
-            frequency resoultion (Hz)
+            frequency resolution (Hz)
 
        T: number
             coherence time (s)

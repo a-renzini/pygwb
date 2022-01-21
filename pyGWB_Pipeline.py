@@ -130,7 +130,7 @@ if __name__ == "__main__":
     kamiel_path = "/home/kamiel.janssens/Development_pyGWB/myOwn_Fork/pygwb/tutorials/"
 
     lines_stochnotch = StochNotchList.load_from_file(
-        "{0}Official_O3_HL_notchlist.txt".format(kamiel_path)
+        f"{kamiel_path}Official_O3_HL_notchlist.txt"
     )
 
     lines_2 = np.zeros((len(lines_stochnotch), 2))
@@ -189,10 +189,10 @@ if __name__ == "__main__":
             Y_f_new, var_f_new, freqs, params.alpha, params.fref
         )
 
-        print("\tpyGWB: %e" % (Y_pyGWB_new))
-        print("\tpyGWB: %e" % (sigma_pyGWB_new))
+        print(f"\tpyGWB: {Y_pyGWB_new:e}")
+        print(f"\tpyGWB: {sigma_pyGWB_new:e}")
 
-        data_file_name = args.out + "_{0}".format(str(int(args.t0)))
+        data_file_name = args.out + f"_{str(int(args.t0))}"
 
         base_HL.save_data(
             params.save_data_type,
@@ -207,7 +207,7 @@ if __name__ == "__main__":
     else:
         print("csd")
 
-        data_file_name = args.out + "_{0}".format(str(int(args.t0)))
+        data_file_name = args.out + f"_{str(int(args.t0))}"
 
         base_HL.save_data_csd(
             params.save_data_type, data_file_name, freqs, csd, avg_psd_1, avg_psd_2
