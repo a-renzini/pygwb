@@ -34,7 +34,7 @@ class TestNotch(unittest.TestCase):
         idxs,inv_idxs = self.stoch_notch_list_1.get_idxs(freqs)
         self.assertTrue(np.array_equal(idxs,test_idxs))
         self.assertTrue(np.array_equal(inv_idxs,test_inv_idxs))       
-
+    """
     def test_save_to_txt(self):
 
     def test_sort_list(self):
@@ -48,7 +48,7 @@ class TestNotch(unittest.TestCase):
     def test_comb(self):
 
     def test_pulsar_injections(self):
-
+    """
 
 
 
