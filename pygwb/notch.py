@@ -123,6 +123,14 @@ class StochNotchList(list):
 
     @classmethod
     def load_from_file(cls, filename):
+        """Load an already existing notch list from a txt-file (with formatting as produced by this code)
+
+        Parameters
+        ==========
+        filename: str
+            Filename of the file containg the notchlist to be read in
+
+        """
 
         fmin, fmax = np.loadtxt(filename, delimiter=",", unpack=True, usecols=(0, 1))
         desc = np.loadtxt(
@@ -137,6 +145,15 @@ class StochNotchList(list):
 
     @classmethod
     def load_from_file_pre_pyGWB(cls, filename):
+        """Load an already existing notch list from a txt-file (with formatting as produced by old code)
+
+        Parameters
+        ==========
+        filename: str
+            Filename of the file containg the notchlist to be read in
+
+
+        """
 
         fmin, fmax = np.loadtxt(
             filename, skiprows=1, unpack=True, usecols=(0, 1), dtype=str
@@ -168,14 +185,14 @@ def power_lines(fundamental=60, nharmonics=40, df=0.2):
     Create list of power line harmonics (nharmonics*fundamental Hz) to remove
 
     Parameters
-    ----------
+    ==========
     fundamental: float
         Fundamental frequency of the first harmonic
     nharmonics: float
         Number of harmonics (should include all harmonics within studied frequency range of the study)
 
     Returns
-    -------
+    =======
     notches: list of NoiseLine objects
         List of lines you want to be notched in NoisLine format
 
@@ -195,7 +212,7 @@ def comb(f0, f_spacing, n_harmonics, df, description=None):
     Create a list of comb lines to remove with the form 'f0+n*f_spacing, n=0,1,...,n_harmonics-1'
 
     Parameters
-    ----------
+    ==========
     f0: float
         Fundamental frequency of the first harmonic
     f_spacing: float
@@ -208,7 +225,7 @@ def comb(f0, f_spacing, n_harmonics, df, description=None):
         Optional additional description, e.g. known source of the comb
 
     Returns
-    -------
+    =======
     notches: list of NoiseLine objects
         List of lines you want to be notched in NoisLine format
 
@@ -231,7 +248,7 @@ def pulsar_injections(filename, t_start, t_end, doppler=1e-4):
     Create list of frequencies contaminated by pulsar injections
 
     Parameters
-    ----------
+    ==========
     filename: str
         Filename of list containing information about pulsar injections. e.g. for O3 at https://git.ligo.org/stochastic/stochasticdetchar/-/blob/master/O3/notchlists/make_notchlist/input/pulsars.dat
     t_start: int
@@ -242,7 +259,7 @@ def pulsar_injections(filename, t_start, t_end, doppler=1e-4):
         Doppler shift; typical value of v/c for Earth motion in solar system = 1e-4 (default)
 
     Returns
-    -------
+    =======
     notches: list of NoiseLine objects
         List of lines you want to be notched in NoisLine format
     """
