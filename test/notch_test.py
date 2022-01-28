@@ -16,12 +16,12 @@ class TestNotch(unittest.TestCase):
     def test_check_frequency(self):
         test_freqs = np.arange(10.,15.,0.1)
         test_results = []
-        for i in test_freqs:
+        for freq in test_freqs:
             test_results.append(self.stoch_notch_list_1.check_frequency(freq))
         self.assertTrue(np.all(test_results))
 
     def test_get_idxs(self):
-        freqs = np.np.arange(5.,1000.,0.1)
+        freqs = np.arange(5.,1000.,0.1)
         test_idxs = np.ones(len(freqs))
         test_inv_idxs = np.ones(len(freqs))
         for f in freqs:
