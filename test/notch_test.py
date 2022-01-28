@@ -11,7 +11,7 @@ class TestNotch(unittest.TestCase):
         self.stoch_notch_list_1.append(notch.StochNotch(10.,15.,'This is a test notch'))
 
     def tearDown(self):
-        del self.StochNotchList1
+        del self.stoch_notch_list_1
 
     def test_check_frequency(self):
         test_freqs = np.arange(10.,15.,0.1)
