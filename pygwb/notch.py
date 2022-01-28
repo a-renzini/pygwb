@@ -128,7 +128,7 @@ class StochNotchList(list):
         Parameters
         ==========
         filename: str
-            Filename of the file containg the notchlist to be read in
+            Filename of the file containing the notchlist to be read in
 
         """
 
@@ -150,7 +150,7 @@ class StochNotchList(list):
         Parameters
         ==========
         filename: str
-            Filename of the file containg the notchlist to be read in
+            Filename of the file containing the notchlist to be read in
 
 
         """
