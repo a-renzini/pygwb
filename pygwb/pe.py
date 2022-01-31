@@ -1,7 +1,10 @@
-import numpy as np
 from abc import abstractmethod
+
 import bilby
+import numpy as np
+
 from .baseline import Baseline
+
 
 class GWBModel(bilby.Likelihood):
     """
@@ -10,13 +13,14 @@ class GWBModel(bilby.Likelihood):
     generic model,
     contains definitions of log likelihood and noise
     """
+
     def __init__(self, baselines=None, model_name=None, polarizations=None):
         super(GWBModel, self).__init__()
         # list of baselines
         if baselines is None:
-            raise ValueError('list of baselines must be supplied')
+            raise ValueError("list of baselines must be supplied")
         if model_name is None:
-            raise ValueError('model_name must be supplied')
+            raise ValueError("model_name must be supplied")
         # if single baseline supplied, that's fine
         # just make it a list
         if isinstance(baselines, Baseline):
@@ -26,16 +30,18 @@ class GWBModel(bilby.Likelihood):
         self.polarizations = polarizations
         # if polarizations is not supplied
         if polarizations is None:
-            self.polarizations = ['tensor' for ii in range(len(baselines))]
+            self.polarizations = ["tensor" for ii in range(len(baselines))]
         for bline in self.baselines:
-            if self.polarizations[0].lower() == 'tensor':
+            if self.polarizations[0].lower() == "tensor":
                 self.orfs.append(bline.overlap_reduction_function)
-            elif self.polarizations[0].lower() == 'vector':
+            elif self.polarizations[0].lower() == "vector":
                 self.orfs.append(bline.vector_overlap_reduction_function)
-            elif self.polarizations[0].lower() == 'scalar':
+            elif self.polarizations[0].lower() == "scalar":
                 self.orfs.append(bline.scalar_overlap_reduction_function)
             else:
-                raise ValueError('unexpected type for polarizations {}'.format(type(polarizations)))         
+                raise ValueError(
+                    f"unexpected type for polarizations {type(polarizations)}"
+                )
         bilby.Likelihood.__init__(self, parameters=self.parameters)
 
     @abstractmethod
@@ -56,7 +62,9 @@ class GWBModel(bilby.Likelihood):
         for orf, bline in zip(self.orfs, self.baselines):
             model = orf * self.model_function(bline)
             res = model - bline.point_estimate
-            ll += -0.5 * np.sum(res**2 / bline.sigma**2) - 0.5 * np.sum(np.log(2 * np.pi * bline.sigma**2))
+            ll += -0.5 * np.sum(res ** 2 / bline.sigma ** 2) - 0.5 * np.sum(
+                np.log(2 * np.pi * bline.sigma ** 2)
+            )
         return ll
 
     def noise_log_likelihood(self):
@@ -64,8 +72,11 @@ class GWBModel(bilby.Likelihood):
         # gaussian log likelihood with no model.
         ll = 0
         for bline in self.baselines:
-            ll += -0.5 * np.sum(bline.point_estimate**2 / bline.sigma**2) - 0.5 * np.sum(np.log(2 * np.pi * bline.sigma**2))
+            ll += -0.5 * np.sum(
+                bline.point_estimate ** 2 / bline.sigma ** 2
+            ) - 0.5 * np.sum(np.log(2 * np.pi * bline.sigma ** 2))
         return ll
+
 
 class PowerLawModel(GWBModel):
     """
@@ -80,9 +91,10 @@ class PowerLawModel(GWBModel):
     frequencies : numpy.ndarray
         array of frequencies at which to evaluate the model
     """
+
     def __init__(self, **kwargs):
         try:
-            fref = kwargs.pop('fref')
+            fref = kwargs.pop("fref")
         except KeyError:
             raise KeyError("fref must be supplied")
         super(PowerLawModel, self).__init__(**kwargs)
@@ -91,8 +103,8 @@ class PowerLawModel(GWBModel):
     @property
     def parameters(self):
         if self._parameters is None:
-            #include this so that the parent class GWBModel doesn't complain
-            return {'omega_ref': None, 'alpha': None}
+            # include this so that the parent class GWBModel doesn't complain
+            return {"omega_ref": None, "alpha": None}
         elif isinstance(self._parameters, dict):
             return self._parameters
 
@@ -103,10 +115,13 @@ class PowerLawModel(GWBModel):
         elif isinstance(parameters, dict):
             self._parameters = parameters
         else:
-            raise ValueError('unexpected type for parameters {}'.format(type(parameters)))
+            raise ValueError(f"unexpected type for parameters {type(parameters)}")
 
     def model_function(self, bline):
-        return self.parameters['omega_ref'] * (bline.frequencies / self.fref)**self.parameters['alpha']
+        return (
+            self.parameters["omega_ref"]
+            * (bline.frequencies / self.fref) ** self.parameters["alpha"]
+        )
 
 
 class BrokenPowerLawModel(GWBModel):
@@ -124,14 +139,15 @@ class BrokenPowerLawModel(GWBModel):
     frequencies : numpy.ndarray
         array of frequencies at which to evaluate the model
     """
+
     def __init__(self, **kwargs):
         super(BrokenPowerLawModel, self).__init__(**kwargs)
 
     @property
     def parameters(self):
         if self._parameters is None:
-            #include this so that the parent class GWBModel doesn't complain
-            return {'omega_ref': None, 'fbreak': None,'alpha_1': None, 'alpha_2': None}
+            # include this so that the parent class GWBModel doesn't complain
+            return {"omega_ref": None, "fbreak": None, "alpha_1": None, "alpha_2": None}
         elif isinstance(self._parameters, dict):
             return self._parameters
 
@@ -142,12 +158,25 @@ class BrokenPowerLawModel(GWBModel):
         elif isinstance(parameters, dict):
             self._parameters = parameters
         else:
-            raise ValueError('unexpected type for parameters {}'.format(type(parameters)))
+            raise ValueError(f"unexpected type for parameters {type(parameters)}")
 
     def model_function(self, bline):
         frequencies = bline.frequencies
-        return self.parameters['omega_ref'] * (np.piecewise(frequencies, [frequencies<=self.parameters['fbreak'], frequencies>self.parameters['fbreak']], [lambda frequencies: (frequencies / self.parameters['fbreak'])**(self.parameters['alpha_1']), lambda frequencies: (frequencies / self.parameters['fbreak'])**(self.parameters['alpha_2'])]))
-    
+        return self.parameters["omega_ref"] * (
+            np.piecewise(
+                frequencies,
+                [
+                    frequencies <= self.parameters["fbreak"],
+                    frequencies > self.parameters["fbreak"],
+                ],
+                [
+                    lambda frequencies: (frequencies / self.parameters["fbreak"])
+                    ** (self.parameters["alpha_1"]),
+                    lambda frequencies: (frequencies / self.parameters["fbreak"])
+                    ** (self.parameters["alpha_2"]),
+                ],
+            )
+        )
 
 
 class TripleBrokenPowerLawModel(GWBModel):
@@ -169,15 +198,22 @@ class TripleBrokenPowerLawModel(GWBModel):
     frequencies : numpy.ndarray
         array of frequencies at which to evaluate the model
     """
+
     def __init__(self, **kwargs):
         super(TripleBrokenPowerLawModel, self).__init__(**kwargs)
-
 
     @property
     def parameters(self):
         if self._parameters is None:
-            #include this so that the parent class GWBModel doesn't complain
-            return {'omega_ref': None,'alpha_1': None, 'alpha_2': None, 'alpha_3': None,  'fbreak1': None, 'fbreak2': None}
+            # include this so that the parent class GWBModel doesn't complain
+            return {
+                "omega_ref": None,
+                "alpha_1": None,
+                "alpha_2": None,
+                "alpha_3": None,
+                "fbreak1": None,
+                "fbreak2": None,
+            }
         elif isinstance(self._parameters, dict):
             return self._parameters
 
@@ -188,16 +224,32 @@ class TripleBrokenPowerLawModel(GWBModel):
         elif isinstance(parameters, dict):
             self._parameters = parameters
         else:
-            raise ValueError('unexpected type for parameters {}'.format(type(parameters)))
+            raise ValueError(f"unexpected type for parameters {type(parameters)}")
 
     def model_function(self, bline):
         frequencies = bline.frequencies
-        piecewise = np.piecewise(frequencies, [frequencies <= self.parameters['fbreak1'], (frequencies <= self.parameters['fbreak2']) & (frequencies > self.parameters['fbreak1'])], 
-                                [lambda frequencies: (frequencies / self.parameters['fbreak1'])**(self.parameters['alpha_1']), 
-                                lambda frequencies: (frequencies / self.parameters['fbreak1'])**(self.parameters['alpha_2']), 
-                                lambda frequencies: (self.parameters['fbreak2'] / self.parameters['fbreak1'])**(self.parameters['alpha_2']) * (frequencies / self.parameters['fbreak2'])**(self.parameters['alpha_3'])])
-        return self.parameters['omega_ref'] * piecewise
-    
+        piecewise = np.piecewise(
+            frequencies,
+            [
+                frequencies <= self.parameters["fbreak1"],
+                (frequencies <= self.parameters["fbreak2"])
+                & (frequencies > self.parameters["fbreak1"]),
+            ],
+            [
+                lambda frequencies: (frequencies / self.parameters["fbreak1"])
+                ** (self.parameters["alpha_1"]),
+                lambda frequencies: (frequencies / self.parameters["fbreak1"])
+                ** (self.parameters["alpha_2"]),
+                lambda frequencies: (
+                    self.parameters["fbreak2"] / self.parameters["fbreak1"]
+                )
+                ** (self.parameters["alpha_2"])
+                * (frequencies / self.parameters["fbreak2"])
+                ** (self.parameters["alpha_3"]),
+            ],
+        )
+        return self.parameters["omega_ref"] * piecewise
+
 
 class SmoothBrokenPowerLawModel(GWBModel):
     """
@@ -216,14 +268,21 @@ class SmoothBrokenPowerLawModel(GWBModel):
     frequencies : numpy.ndarray
         array of frequencies at which to evaluate the model
     """
+
     def __init__(self, **kwargs):
         super(SmoothBrokenPowerLawModel, self).__init__(**kwargs)
-        
+
     @property
     def parameters(self):
         if self._parameters is None:
-            #include this so that the parent class GWBModel doesn't complain
-            return {'omega_ref': None, 'fbreak': None,'alpha_1': None, 'alpha_2': None, 'delta': None}
+            # include this so that the parent class GWBModel doesn't complain
+            return {
+                "omega_ref": None,
+                "fbreak": None,
+                "alpha_1": None,
+                "alpha_2": None,
+                "delta": None,
+            }
         elif isinstance(self._parameters, dict):
             return self._parameters
 
@@ -234,10 +293,23 @@ class SmoothBrokenPowerLawModel(GWBModel):
         elif isinstance(parameters, dict):
             self._parameters = parameters
         else:
-            raise ValueError('unexpected type for parameters {}'.format(type(parameters)))
+            raise ValueError(f"unexpected type for parameters {type(parameters)}")
 
     def model_function(self, bline):
-        return self.parameters['omega_ref'] * (bline.frequencies / self.parameters['fbreak'])**self.parameters['alpha_1'] * (1+(bline.frequencies / self.parameters['fbreak'])**(self.parameters['delta']))**((self.parameters['alpha_2']-self.parameters['alpha_1'])/self.parameters['delta'])
+        return (
+            self.parameters["omega_ref"]
+            * (bline.frequencies / self.parameters["fbreak"])
+            ** self.parameters["alpha_1"]
+            * (
+                1
+                + (bline.frequencies / self.parameters["fbreak"])
+                ** (self.parameters["delta"])
+            )
+            ** (
+                (self.parameters["alpha_2"] - self.parameters["alpha_1"])
+                / self.parameters["delta"]
+            )
+        )
 
 
 class SchumannModel(GWBModel):
@@ -253,17 +325,22 @@ class SchumannModel(GWBModel):
     frequencies : numpy.ndarray
         array of frequencies at which to evaluate the model
     """
+
     def __init__(self, **kwargs):
         # Set valid ifos
         # get ifo's associated with this set of
         # baselines.
-        valid_ifos = ['H','L','V','K']
+        valid_ifos = ["H", "L", "V", "K"]
         self.ifos = []
         for bline in kwargs["baselines"]:
             if bline.name[0] not in valid_ifos:
-                raise ValueError('baseline names must be two ifo letters from list of H, L, V, K')
+                raise ValueError(
+                    "baseline names must be two ifo letters from list of H, L, V, K"
+                )
             if bline.name[1] not in valid_ifos:
-                raise ValueError('baseline names must be two ifo letters from list of H, L, V, K')
+                raise ValueError(
+                    "baseline names must be two ifo letters from list of H, L, V, K"
+                )
         # get list of ifos
         for bline in kwargs["baselines"]:
             self.ifos.append(bline.name[0])
@@ -279,10 +356,10 @@ class SchumannModel(GWBModel):
     @property
     def parameters(self):
         if self._parameters is None:
-            schu_params={}
+            schu_params = {}
             for ifo in self.ifos:
-                schu_params['kappa_{}'.format(ifo)]= None
-                schu_params['beta_{}'.format(ifo)]= None
+                schu_params[f"kappa_{ifo}"] = None
+                schu_params[f"beta_{ifo}"] = None
             return schu_params
         elif isinstance(self._parameters, dict):
             return self._parameters
@@ -294,18 +371,26 @@ class SchumannModel(GWBModel):
         elif isinstance(parameters, dict):
             self._parameters = parameters
         else:
-            raise ValueError('unexpected type for parameters {}'.format(type(parameters)))
+            raise ValueError(f"unexpected type for parameters {type(parameters)}")
 
     def model_function(self, bline):
-        #assumes simple power law model for transfer function
+        # assumes simple power law model for transfer function
         ifo1 = bline.name[0]
         ifo2 = bline.name[1]
-        TF1 = self.parameters['kappa_{}'.format(ifo1)] *  (bline.frequencies / 10)**(-self.parameters['beta_{}'.format(ifo1)]) * 1e-23
-        TF2 = self.parameters['kappa_{}'.format(ifo2)] *  (bline.frequencies / 10)**(-self.parameters['beta_{}'.format(ifo2)]) * 1e-23
-        #units of transfer function strain/pT
+        TF1 = (
+            self.parameters[f"kappa_{ifo1}"]
+            * (bline.frequencies / 10) ** (-self.parameters[f"beta_{ifo1}"])
+            * 1e-23
+        )
+        TF2 = (
+            self.parameters[f"kappa_{ifo2}"]
+            * (bline.frequencies / 10) ** (-self.parameters[f"beta_{ifo2}"])
+            * 1e-23
+        )
+        # units of transfer function strain/pT
         return TF1 * TF2 * np.real(bline.M_f)
 
-    
+
 class TVSPowerLawModel(GWBModel):
     """
     Parameters:
@@ -318,26 +403,27 @@ class TVSPowerLawModel(GWBModel):
         spectral index of the power law for polarization pol
     frequencies : numpy.ndarray
         array of frequencies at which to evaluate the model
-    """    
+    """
+
     def __init__(self, **kwargs):
         try:
-            fref = kwargs.pop('fref')
+            fref = kwargs.pop("fref")
         except KeyError:
-            raise KeyError('fref must be supplied')
+            raise KeyError("fref must be supplied")
         super(TVSPowerLawModel, self).__init__(**kwargs)
         self.fref = fref
 
     @property
     def parameters(self):
         if self._parameters is None:
-            params={}
+            params = {}
             for pol in self.polarizations:
-                params['omega_ref_{}'.format(pol)]= None
-                params['alpha_{}'.format(pol)]= None
+                params[f"omega_ref_{pol}"] = None
+                params[f"alpha_{pol}"] = None
             return params
         elif isinstance(self._parameters, dict):
             return self._parameters
-            
+
     @parameters.setter
     def parameters(self, parameters):
         if parameters is None:
@@ -345,17 +431,26 @@ class TVSPowerLawModel(GWBModel):
         elif isinstance(parameters, dict):
             self._parameters = parameters
         else:
-            raise ValueError('unexpected type for parameters {}'.format(type(parameters)))
+            raise ValueError(f"unexpected type for parameters {type(parameters)}")
 
     def model_function(self, bline):
         model = np.zeros(bline.frequencies.shape)
         for pol in self.polarizations:
-            orf_pol = eval('bline.{}_overlap_reduction_function'.format(pol))
-            orf_parent = eval('bline.{}_overlap_reduction_function'.format(self.polarizations[0]))
-            model += orf_pol/orf_parent * self.parameters['omega_ref_{}'.format(pol)] * (bline.frequencies / self.fref)**(self.parameters['alpha_{}'.format(pol)])
+            orf_pol = eval(f"bline.{pol}_overlap_reduction_function")
+            orf_parent = eval(
+                f"bline.{self.polarizations[0]}_overlap_reduction_function"
+            )
+            model += (
+                orf_pol
+                / orf_parent
+                * self.parameters[f"omega_ref_{pol}"]
+                * (bline.frequencies / self.fref) ** (self.parameters[f"alpha_{pol}"])
+            )
         return model
 
-#Parity violation models
+
+# Parity violation models
+
 
 class PVPowerLawModel(GWBModel):
     """
@@ -372,19 +467,20 @@ class PVPowerLawModel(GWBModel):
     frequencies : numpy.ndarray
         array of frequencies at which to evaluate the model
     """
+
     def __init__(self, **kwargs):
         try:
-            fref = kwargs.pop('fref')
+            fref = kwargs.pop("fref")
         except KeyError:
-            raise KeyError("fref must be supplied")      
+            raise KeyError("fref must be supplied")
         super(PVPowerLawModel, self).__init__(**kwargs)
         self.fref = fref
 
     @property
     def parameters(self):
         if self._parameters is None:
-            #include this so that the parent class GWBModel doesn't complain
-            return {'omega_ref': None,'alpha': None, 'Pi': None}
+            # include this so that the parent class GWBModel doesn't complain
+            return {"omega_ref": None, "alpha": None, "Pi": None}
         elif isinstance(self._parameters, dict):
             return self._parameters
 
@@ -395,11 +491,21 @@ class PVPowerLawModel(GWBModel):
         elif isinstance(parameters, dict):
             self._parameters = parameters
         else:
-            raise ValueError('unexpected type for parameters {}'.format(type(parameters)))
-  
+            raise ValueError(f"unexpected type for parameters {type(parameters)}")
+
     def model_function(self, bline):
-        return (1 + self.parameters['Pi'] * bline.gamma_v / bline.overlap_reduction_function) * self.parameters['omega_ref']  * (bline.frequencies / self.fref)**(self.parameters['alpha'])
-    
+        return (
+            (
+                1
+                + self.parameters["Pi"]
+                * bline.gamma_v
+                / bline.overlap_reduction_function
+            )
+            * self.parameters["omega_ref"]
+            * (bline.frequencies / self.fref) ** (self.parameters["alpha"])
+        )
+
+
 class PVPowerLawModel2(GWBModel):
     """
     Parameters:
@@ -415,19 +521,20 @@ class PVPowerLawModel2(GWBModel):
     frequencies : numpy.ndarray
         array of frequencies at which to evaluate the model
     """
+
     def __init__(self, **kwargs):
         try:
-            fref = kwargs.pop('fref')
+            fref = kwargs.pop("fref")
         except KeyError:
-            raise KeyError("fref must be supplied")            
+            raise KeyError("fref must be supplied")
         super(PVPowerLawModel2, self).__init__(**kwargs)
         self.fref = fref
 
     @property
     def parameters(self):
         if self._parameters is None:
-            #include this so that the parent class GWBModel doesn't complain
-            return {'omega_ref': None,'alpha': None, 'beta': None}
+            # include this so that the parent class GWBModel doesn't complain
+            return {"omega_ref": None, "alpha": None, "beta": None}
         elif isinstance(self._parameters, dict):
             return self._parameters
 
@@ -438,7 +545,16 @@ class PVPowerLawModel2(GWBModel):
         elif isinstance(parameters, dict):
             self._parameters = parameters
         else:
-            raise ValueError('unexpected type for parameters {}'.format(type(parameters)))
+            raise ValueError(f"unexpected type for parameters {type(parameters)}")
 
     def model_function(self, bline):
-        return  (1 + ((bline.frequencies)**(self.parameters['beta'])) * bline.gamma_v/ (bline.overlap_reduction_function)) * self.parameters['omega_ref'] * (bline.frequencies / self.fref)**(self.parameters['alpha'])
+        return (
+            (
+                1
+                + ((bline.frequencies) ** (self.parameters["beta"]))
+                * bline.gamma_v
+                / (bline.overlap_reduction_function)
+            )
+            * self.parameters["omega_ref"]
+            * (bline.frequencies / self.fref) ** (self.parameters["alpha"])
+        )

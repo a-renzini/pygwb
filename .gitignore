@@ -8,3 +8,7 @@ __pycache__
 *.gwf
 tutorials/data
 tests/results/
+**.version
+*.vscode
+build/
+*.egg*

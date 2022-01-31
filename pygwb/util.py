@@ -1,7 +1,13 @@
 import os
 import shutil
 
+import gwpy
+import h5py
 import numpy as np
+from scipy.interpolate import interp1d
+
+from pygwb.baseline import Baseline
+from pygwb.constants import H0
 
 from .spectral import coarse_grain
 
@@ -103,7 +109,7 @@ def calc_Y_sigma_from_Yf_varf(Y_f, var_f, freqs=None, alpha=0, fref=1):
     var = 1 / np.sum(var_f ** (-1) * weights ** 2)
 
     # Y = np.sum(Y_f * var_f**(-1)) / np.sum( var_f**(-1) )
-    Y = np.sum(Y_f * weights * (var / var_f))
+    Y = np.nansum(Y_f * weights * (var / var_f))
 
     sigma = np.sqrt(var)
 
@@ -139,3 +145,155 @@ def cleanup_dir(outdir):
         shutil.rmtree(outdir)
     except OSError as e:
         pass  # directory doesn't exist
+
+
+def omega_to_power(omega_GWB, frequencies):
+    """
+    Function that computes the GW power spectrum starting from the omega_GWB
+    spectrum.
+
+    Parameters
+    ==========
+
+    Returns
+    =======
+    power: gwpy.frequencyseries.FrequencySeries
+        A gwpy FrequencySeries containing the GW power spectrum
+    """
+    H_theor = (3 * H0 ** 2) / (10 * np.pi ** 2)
+
+    power = H_theor * omega_GWB * frequencies ** (-3)
+    power = gwpy.frequencyseries.FrequencySeries(power, frequencies=frequencies)
+
+    return power
+
+
+def make_freqs(Nsamples, deltaF):
+    """
+    Function that makes an array of frequencies given the sampling rate
+    and the segment duration specified in the initial parameter file.
+
+    Parameters
+    =========
+
+    Returns
+    =======
+    freqs: array_like
+        Array of frequencies for which an isotropic stochastic background
+        will be simulated.
+    """
+    if NSamples % 2 == 0:
+        numFreqs = NSamples / 2 - 1
+    else:
+        numFreqs = (NSamples - 1) / 2
+
+    freqs = np.array([deltaF * (i + 1) for i in range(int(numFreqs))])
+    return freqs
+
+
+def interpolate_frequency_series(fSeries, new_frequencies):
+    """
+    Parameters
+    ==========
+    fSeries: FrequencySeries object
+    new_frequencies: array_like
+    """
+    spectrum = fSeries.value
+    frequencies = fSeries.frequencies.value
+
+    spectrum_func = interp1d(
+        frequencies, spectrum, kind="cubic", fill_value="extrapolate"
+    )
+
+    return gwpy.frequencyseries.FrequencySeries(
+        spectrum_func(new_frequencies), frequencies=new_frequencies
+    )
+
+
+def get_baselines(interferometers, frequencies=None):
+    """
+    Parameters
+    ==========
+    interferometers: list of bilby interferometer objects
+    """
+    Nd = len(interferometers)
+
+    combo_tuples = []
+    for j in range(1, Nd):
+        for k in range(j):
+            combo_tuples.append((k, j))
+
+    baselines = []
+    for i, j in combo_tuples:
+        base_name = f"{interferometers[i].name} - {interferometers[j].name}"
+        baselines.append(
+            Baseline(
+                base_name,
+                interferometers[i],
+                interferometers[j],
+                frequencies=frequencies,
+            )
+        )
+    return baselines
+
+
+def read_jobfiles(njobs, directory, segment_duration):
+    """
+    Method that reads in the job files to extract quantities such as the point estimate and sigmas.
+
+    Parameters
+    ==========
+    njobs: int
+        Number of jobs
+    directory: str
+        Directory where the mat files are stored
+    segment_duration: int
+        Duration of a segment in seconds
+
+    Returns
+    =======
+    sliding_times_all: array
+        Array containing all the GPS times for this particular run
+    sliding_omega_all: array
+        Array containing the omega point estimate for this particular run
+    sliding_sigmas_all: array
+        Array containing the sigmas for this particular run
+    naive_sigma_all: array
+        Array containing the naive sigmas for this particular run
+    """
+    sliding_omega_all = np.array([])
+    sliding_sigmas_all = np.array([])
+    naive_sigma_all = np.array([])
+    sliding_times_all = np.array([])
+    for nn in range(njobs):
+        jn = nn + 1
+        file1 = "%sH1L1.job%d.mat" % (directory, jn)
+        with h5py.File(file1, "r") as FF:
+            try:
+                sliding_omega_all = np.append(
+                    sliding_omega_all,
+                    np.array(FF["ccStat"][0]).flatten() / segment_duration,
+                )
+                sliding_sigmas_all = np.append(
+                    sliding_sigmas_all,
+                    np.array(FF["ccSigma"][0]).flatten() / segment_duration,
+                )
+                naive_sigma_all = np.append(
+                    naive_sigma_all,
+                    np.array(FF["naiSigma"][0]).flatten() / segment_duration,
+                )
+                sliding_times_all = np.append(
+                    sliding_times_all, np.array(FF["segmentStartTime"][0]).flatten()
+                )
+            except:
+                print("No data for job %u" % jn)
+                continue
+    return sliding_times_all, sliding_omega_all, sliding_sigmas_all, naive_sigma_all
+
+
+def StatKS(DKS):
+    jmax = 500
+    pvalue = 0.0
+    for jj in np.arange(1, jmax + 1):
+        pvalue += 2.0 * (-1) ** (jj + 1) * np.exp(-2.0 * jj ** 2 * DKS ** 2)
+    return pvalue

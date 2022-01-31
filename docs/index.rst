@@ -6,6 +6,11 @@ pygwb
 .. automodule:: pygwb
     :members:
 
+.. toctree::
+
+    installation
+    contributing
+
 API:
 ----
 
@@ -27,5 +32,6 @@ API:
 
    analyze_colored_noise_and_signal
    analyze_O2_open_data
+   density_estimation
    run_PE_on_O1_O2
    simulate_and_analyze_white_noise_and_signal
