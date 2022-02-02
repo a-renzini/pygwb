@@ -18,6 +18,8 @@ class TestNotch(unittest.TestCase):
         test_results = []
         for freq in test_freqs:
             test_results.append(self.stoch_notch_list_1.check_frequency(freq))
+        print(test_results)
+        print(np.all(test_results))
         self.assertTrue(np.all(test_results))
 
     def test_get_idxs(self):
@@ -32,6 +34,12 @@ class TestNotch(unittest.TestCase):
                 test_idxs = False
                 test_inv_idxs = True
         idxs,inv_idxs = self.stoch_notch_list_1.get_idxs(freqs)
+        print(idxs)
+        print(test_idxs)
+        print(inv_idxs)
+        print(test_inv_idxs)
+        print(np.array_equal(idxs,test_idxs))
+        print(np.array_equal(inv_idxs,test_inv_idxs))
         self.assertTrue(np.array_equal(idxs,test_idxs))
         self.assertTrue(np.array_equal(inv_idxs,test_inv_idxs))       
     """
