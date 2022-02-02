@@ -14,7 +14,9 @@ class TestNotch(unittest.TestCase):
         del self.stoch_notch_list_1
 
     def test_check_frequency(self):
-        test_freqs = np.arange(10.,15.,0.1)
+        epsilon = 1e-4
+        test_freqs = np.arange(10.,15.+0.1+epsilon,0.1)
+        print(test_freqs)
         test_results = []
         for freq in test_freqs:
             test_results.append(self.stoch_notch_list_1.check_frequency(freq))
@@ -26,18 +28,18 @@ class TestNotch(unittest.TestCase):
         freqs = np.arange(5.,1000.,0.1)
         test_idxs = np.ones(len(freqs))
         test_inv_idxs = np.ones(len(freqs))
-        for f in freqs:
+        for i,f in enumerate(freqs):
             if f >= 10. and f<= 15.:
-                test_idxs = True
-                test_inv_idxs = False
+                test_idxs[i] = True
+                test_inv_idxs[i] = False
             else:
-                test_idxs = False
-                test_inv_idxs = True
+                test_idxs[i] = False
+                test_inv_idxs[i] = True
         idxs,inv_idxs = self.stoch_notch_list_1.get_idxs(freqs)
-        print(idxs)
-        print(test_idxs)
-        print(inv_idxs)
-        print(test_inv_idxs)
+        #print(idxs)
+        #print(test_idxs)
+        #print(inv_idxs)
+        #print(test_inv_idxs)
         print(np.array_equal(idxs,test_idxs))
         print(np.array_equal(inv_idxs,test_inv_idxs))
         self.assertTrue(np.array_equal(idxs,test_idxs))
