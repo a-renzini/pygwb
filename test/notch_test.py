@@ -15,7 +15,7 @@ class TestNotch(unittest.TestCase):
 
     def test_check_frequency(self):
         epsilon = 1e-4
-        test_freqs = np.arange(10.,15.+0.1+epsilon,0.1)
+        test_freqs = np.arange(10.+epsilon,15.+epsilon,0.1)
         print(test_freqs)
         test_results = []
         for freq in test_freqs:
