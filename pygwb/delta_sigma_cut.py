@@ -44,7 +44,6 @@ def dsc_cut(
     return dsigma >= dsc
 
 
-
 def calc_Hf(freqs: np.ndarray, alpha: float = 0, fref: int = 20):
 
     """
@@ -289,16 +288,15 @@ def run_dsc(
         an array of the GPS times to not be considered based on the chosen value of the delta sigma cut
     """
 
-
     print("running dsc")
     nalphas = len(alphas)
     times = np.array(psd1_naive.times)
     ntimes = len(times)
     df = psd1_naive.df.value
-    dt = psd1_naive.df.value**(-1)
-    bf_ns = calc_bias(segmentDuration, df, dt)#Naive estimate
-    bf_ss = calc_bias(segmentDuration, df, dt, N_avg_segs = 2)#Sliding estimate
-    print(f'These are the bias factors: {bf_ns:f} {bf_ss:f}')
+    dt = psd1_naive.df.value ** (-1)
+    bf_ns = calc_bias(segmentDuration, df, dt)  # Naive estimate
+    bf_ss = calc_bias(segmentDuration, df, dt, N_avg_segs=2)  # Sliding estimate
+    print(f"These are the bias factors: {bf_ns:f} {bf_ss:f}")
     freqs = np.array(psd1_naive.frequencies)
     overall_cut = np.zeros((ntimes, 1), dtype="bool")
     cuts = np.zeros((nalphas, ntimes), dtype="bool")
@@ -344,5 +342,3 @@ def run_dsc(
     print(BadGPStimes)
 
     return BadGPStimes
-
-

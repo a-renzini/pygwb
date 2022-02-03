@@ -51,7 +51,7 @@ if __name__ == "__main__":
     params = Parameters.from_file(args.param_file)
     if args.t0 is not None:
         params.t0 = args.t0
-    if args.tf is not None:    
+    if args.tf is not None:
         params.tf = args.tf
     params.alphas = json.loads(params.alphas_delta_sigma_cut)
     print("successfully imported parameters from paramfile.")
@@ -65,8 +65,8 @@ if __name__ == "__main__":
 
     # Parameters.from_file("param.ini")
 
-    'X TODO X make this into a param in the arg class?'
-    Boolean_CSD = True #if False, it will only compute the CSDs and PSDs, if True, it will compute until the point estimates
+    "X TODO X make this into a param in the arg class?"
+    Boolean_CSD = True  # if False, it will only compute the CSDs and PSDs, if True, it will compute until the point estimates
 
     ifo_H = Interferometer.from_parameters("H1", params)
     ifo_L = Interferometer.from_parameters("L1", params)
@@ -102,12 +102,8 @@ if __name__ == "__main__":
     print(naive_psd_1[0][0], naive_psd_2[0][0])
 
     freq_band_cut = (freqs >= params.flow) & (freqs <= params.fhigh)
-    naive_psd_1 = naive_psd_1.crop_frequencies(
-        params.flow, params.fhigh + deltaF
-    )
-    naive_psd_2 = naive_psd_2.crop_frequencies(
-        params.flow, params.fhigh + deltaF
-    )
+    naive_psd_1 = naive_psd_1.crop_frequencies(params.flow, params.fhigh + deltaF)
+    naive_psd_2 = naive_psd_2.crop_frequencies(params.flow, params.fhigh + deltaF)
     avg_psd_1 = base_HL.interferometer_1.average_psd.crop_frequencies(
         params.flow, params.fhigh + deltaF
     )
@@ -118,13 +114,8 @@ if __name__ == "__main__":
 
     stride = params.segment_duration * (1 - params.overlap_factor)
     csd_segment_offset = int(np.ceil(params.segment_duration / stride))
-    naive_psd_1 = naive_psd_1[
-        csd_segment_offset : -(csd_segment_offset + 1) + 1
-    ]
-    naive_psd_2 = naive_psd_2[
-        csd_segment_offset : -(csd_segment_offset + 1) + 1
-    ]
-
+    naive_psd_1 = naive_psd_1[csd_segment_offset : -(csd_segment_offset + 1) + 1]
+    naive_psd_2 = naive_psd_2[csd_segment_offset : -(csd_segment_offset + 1) + 1]
 
     kamiel_path = "test/test_data/"
 
@@ -149,8 +140,8 @@ if __name__ == "__main__":
         avg_psd_2,
         params.alphas,
         lines_2,
-        #params.new_sample_rate,
-        #params.segment_duration,
+        # params.new_sample_rate,
+        # params.segment_duration,
     )
 
     print(f"times flagged by the deta signal cut as badGPStimes:{badGPStimes}")

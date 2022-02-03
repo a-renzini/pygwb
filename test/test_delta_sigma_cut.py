@@ -79,27 +79,33 @@ class Test(unittest.TestCase):
         )
 
         naive_psd_1 = spectral.power_spectral_density(
-            ifo1_filtered, segment_duration, frequency_resolution, overlap_factor=0.5, overlap_factor_welch_psd=0.5, window_fftgram="hann"
+            ifo1_filtered,
+            segment_duration,
+            frequency_resolution,
+            overlap_factor=0.5,
+            overlap_factor_welch_psd=0.5,
+            window_fftgram="hann",
         )
         naive_psd_2 = spectral.power_spectral_density(
-            ifo2_filtered, segment_duration, frequency_resolution, overlap_factor=0.5, overlap_factor_welch_psd=0.5, window_fftgram="hann"
+            ifo2_filtered,
+            segment_duration,
+            frequency_resolution,
+            overlap_factor=0.5,
+            overlap_factor_welch_psd=0.5,
+            window_fftgram="hann",
         )
 
         # adjacent averated PSDs (detector 1) for each possible CSD
-        avg_psd_1 = spectral.before_after_average(
-            naive_psd_1, segment_duration, 2
-        )
+        avg_psd_1 = spectral.before_after_average(naive_psd_1, segment_duration, 2)
 
         # adjacent averated PSDs (detector 2) for each possible CSD
-        avg_psd_2 = spectral.before_after_average(
-            naive_psd_2, segment_duration, 2
-        )
+        avg_psd_2 = spectral.before_after_average(naive_psd_2, segment_duration, 2)
 
-        dF = avg_psd_1.frequencies.value[1]- avg_psd_1.frequencies.value[0]
-        naive_psd_1 = naive_psd_1.crop_frequencies(flow,fhigh+dF)
-        naive_psd_2 = naive_psd_2.crop_frequencies(flow,fhigh+dF)
-        avg_psd_1 = avg_psd_1.crop_frequencies(flow,fhigh+dF)
-        avg_psd_2 = avg_psd_2.crop_frequencies(flow,fhigh+dF)
+        dF = avg_psd_1.frequencies.value[1] - avg_psd_1.frequencies.value[0]
+        naive_psd_1 = naive_psd_1.crop_frequencies(flow, fhigh + dF)
+        naive_psd_2 = naive_psd_2.crop_frequencies(flow, fhigh + dF)
+        avg_psd_1 = avg_psd_1.crop_frequencies(flow, fhigh + dF)
+        avg_psd_2 = avg_psd_2.crop_frequencies(flow, fhigh + dF)
 
         # calcaulate CSD
         stride = segment_duration - overlap
@@ -110,14 +116,15 @@ class Test(unittest.TestCase):
         naive_psd_2 = naive_psd_2[csd_segment_offset : -(csd_segment_offset + 1) + 1]
 
         badGPStimes = run_dsc(
-            dsc = dsc,
-            segmentDuration = segment_duration,
-            psd1_naive = naive_psd_1,
-            psd2_naive = naive_psd_2,
-            psd1_slide = avg_psd_1,
-            psd2_slide = avg_psd_2,
-            alphas = alphas,
-            lines = lines)
-        self.assertTrue(badGPStimes[0],1.24764440e+09)
-        self.assertTrue(badGPStimes[1],1.24764449e+09)
-        self.assertTrue(badGPStimes[2],1.24764459e+09)
+            dsc=dsc,
+            segmentDuration=segment_duration,
+            psd1_naive=naive_psd_1,
+            psd2_naive=naive_psd_2,
+            psd1_slide=avg_psd_1,
+            psd2_slide=avg_psd_2,
+            alphas=alphas,
+            lines=lines,
+        )
+        self.assertTrue(badGPStimes[0], 1.24764440e09)
+        self.assertTrue(badGPStimes[1], 1.24764449e09)
+        self.assertTrue(badGPStimes[2], 1.24764459e09)
