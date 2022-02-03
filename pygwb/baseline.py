@@ -19,13 +19,11 @@ class Baseline(object):
         frequencies=None,
         calibration_epsilon=0,
         notch_list=None,
-        do_overlap=False,
         overlap_factor=0.5,
-        zeropad_psd=False,
         zeropad_csd=True,
         window_fftgram="hann",
-        do_overlap_welch_psd=True,
-        welch_psd_duration=32.0,
+        overlap_factor_welch_psd=0,
+        N_average_segments_welch_psd=2,
     ):
         """
         Parameters
@@ -43,33 +41,29 @@ class Baseline(object):
             calibration uncertainty for this baseline
         notch_list: str, optional
             filename of the baseline notch list
-        do_overlap: bool, optional
-            if True, implements overlaps in the psd and csd estimation from the data with the factor declared by overlap_factor
         overlap_factor: float, optional
-            factor by which to overlap the segments in the psd and csd estimation
-        zeropad_psd: bool, optional
-            if True, applies zeropadding in the psd estimation. False by default.
+            factor by which to overlap the segments in the psd and csd estimation. Default is 1/2, if set to 0 no overlap is performed.
         zeropad_csd: bool, optional
             if True, applies zeropadding in the csd estimation. True by default.
         window_fftgram: str, optional
             what type of window to use to produce the fftgrams
-        do_overlap_welch_psd: bool, optional
-            if True, implements a 50% overlap in the welch calculation of each segment psd
-        welch_psd_duration: float, optional
-            duration of each psd used in the welch estimation of the average psd
+        overlap_factor_welch_psd: float, optional
+            Amount of overlap between data blocks used in pwelch method (range between 0 and 1)
+            (default 0, no overlap)
+        N_average_segments_welch_psd: int, optional
+            Number of segments used for PSD averaging (from both sides of the segment of interest)
+            N_avg_segs should be even and >= 2
         """
         self.name = name
         self.interferometer_1 = interferometer_1
         self.interferometer_2 = interferometer_2
         self.calibration_epsilon = calibration_epsilon
         self.notch_list = notch_list
-        self.do_overlap = do_overlap
         self.overlap_factor = overlap_factor
-        self.zeropad_psd = zeropad_psd
         self.zeropad_csd = zeropad_csd
         self.window_fftgram = window_fftgram
-        self.do_overlap_welch_psd = do_overlap_welch_psd
-        self.welch_psd_duration = welch_psd_duration
+        self.overlap_factor_welch_psd = overlap_factor_welch_psd
+        self.N_average_segments_welch_psd = N_average_segments_welch_psd
         self._tensor_orf_calculated = False
         self._vector_orf_calculated = False
         self._scalar_orf_calculated = False
@@ -338,13 +332,11 @@ class Baseline(object):
             calibration_epsilon=parameters.calibration_epsilon,
             frequencies=frequencies,
             notch_list=notch_list,
-            do_overlap=parameters.do_overlap,
             overlap_factor=parameters.overlap_factor,
-            zeropad_psd=parameters.zeropad_psd,
             zeropad_csd=parameters.zeropad_csd,
             window_fftgram=parameters.window_fftgram,
-            do_overlap_welch_psd=parameters.do_overlap_welch_psd,
-            welch_psd_duration=parameters.welch_psd_duration,
+            overlap_factor_welch_psd=parameters.overlap_factor_welch_psd,
+            N_average_segments_welch_psd=parameters.N_average_segments_welch_psd,
         )
 
     def set_cross_and_power_spectral_density(self, frequency_resolution):
@@ -359,12 +351,10 @@ class Baseline(object):
         try:
             self.interferometer_1.set_psd_spectrogram(
                 frequency_resolution,
-                do_overlap=self.do_overlap,
                 overlap_factor=self.overlap_factor,
-                zeropad=self.zeropad_psd,
                 window_fftgram=self.window_fftgram,
-                do_overlap_welch_psd=self.do_overlap_welch_psd,
-                welch_psd_duration=self.welch_psd_duration,
+                overlap_factor_welch_psd=self.overlap_factor_welch_psd,
+                N_average_segments_welch_psd=self.N_average_segments_welch_psd,
             )
         except AttributeError:
             raise AssertionError(
@@ -373,12 +363,10 @@ class Baseline(object):
         try:
             self.interferometer_2.set_psd_spectrogram(
                 frequency_resolution,
-                do_overlap=self.do_overlap,
                 overlap_factor=self.overlap_factor,
-                zeropad=self.zeropad_psd,
                 window_fftgram=self.window_fftgram,
-                do_overlap_welch_psd=self.do_overlap_welch_psd,
-                welch_psd_duration=self.welch_psd_duration,
+                overlap_factor_welch_psd=self.overlap_factor_welch_psd,
+                N_average_segments_welch_psd=self.N_average_segments_welch_psd,
             )
         except AttributeError:
             raise AssertionError(
@@ -389,7 +377,6 @@ class Baseline(object):
             self.interferometer_2.timeseries,
             self.duration,
             frequency_resolution,
-            do_overlap=self.do_overlap,
             overlap_factor=self.overlap_factor,
             zeropad=self.zeropad_csd,
             window_fftgram=self.window_fftgram,
@@ -398,8 +385,8 @@ class Baseline(object):
     def set_average_power_spectral_densities(self):
         """If psds have been calculated, sets the average psd in each ifo"""
         try:
-            self.interferometer_1.set_average_psd(self.welch_psd_duration)
-            self.interferometer_2.set_average_psd(self.welch_psd_duration)
+            self.interferometer_1.set_average_psd(self.N_average_segments_welch_psd)
+            self.interferometer_2.set_average_psd(self.N_average_segments_welch_psd)
         except AttributeError:
             print(
                 "PSDs have not been calculated yet! Need to set_cross_and_power_spectral_density first."

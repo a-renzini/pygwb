@@ -434,7 +434,7 @@ def power_spectral_density(
     fft_gram_data = fftgram(
         time_series_data,
         fftlength,
-        overlap_factor=overlap_factor_welch_psd,
+        overlap_factor=overlap_factor,
         zeropad=False,
         window_fftgram=window_fftgram,
     )

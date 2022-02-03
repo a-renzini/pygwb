@@ -99,8 +99,6 @@ if __name__ == "__main__":
     naive_psd_1 = base_HL.interferometer_1.psd_spectrogram
     naive_psd_2 = base_HL.interferometer_2.psd_spectrogram
 
-    print(naive_psd_1[0][0], naive_psd_2[0][0])
-
     freq_band_cut = (freqs >= params.flow) & (freqs <= params.fhigh)
     naive_psd_1 = naive_psd_1.crop_frequencies(params.flow, params.fhigh + deltaF)
     naive_psd_2 = naive_psd_2.crop_frequencies(params.flow, params.fhigh + deltaF)
@@ -129,8 +127,6 @@ if __name__ == "__main__":
         lines_2[index, 0] = lines_stochnotch[index].minimum_frequency
         lines_2[index, 1] = lines_stochnotch[index].maximum_frequency
 
-    print(naive_psd_1[0][0], naive_psd_2[0][0])
-
     badGPStimes = run_dsc(
         params.delta_sigma_cut,
         params.segment_duration,
@@ -140,11 +136,9 @@ if __name__ == "__main__":
         avg_psd_2,
         params.alphas,
         lines_2,
-        # params.new_sample_rate,
-        # params.segment_duration,
     )
 
-    print(f"times flagged by the deta signal cut as badGPStimes:{badGPStimes}")
+    print(f"times flagged by the delta signal cut as badGPStimes:{badGPStimes}")
 
     freqs = freqs[freq_band_cut]
     indices_notches, inv_indices = lines_stochnotch.get_idxs(freqs)
@@ -155,7 +149,6 @@ if __name__ == "__main__":
             freqs, csd.value, avg_psd_1.value, avg_psd_2.value, orf, params
         )
 
-        # notch_freq = np.real(stochastic_mat['ptEst_ff']==0)
         Y_fs[:, indices_notches] = 0
         var_fs[:, indices_notches] = np.Inf
 
@@ -175,7 +168,7 @@ if __name__ == "__main__":
         print(f"\tpyGWB: {Y_pyGWB_new:e}")
         print(f"\tpyGWB: {sigma_pyGWB_new:e}")
 
-        data_file_name = f"Y_sigma_{int(args.t0)}-{int(args.tf)}"
+        data_file_name = f"Y_sigma_{int(params.t0)}-{int(params.tf)}"
 
         print("saving Y_f and sigma_f to file.")
         base_HL.save_data(
@@ -190,7 +183,7 @@ if __name__ == "__main__":
 
     print("saving average psds and csd to file.")
 
-    data_file_name = f"psds_csds_{int(args.t0)}-{int(args.tf)}"
+    data_file_name = f"psds_csds_{int(params.t0)}-{int(params.tf)}"
 
     base_HL.save_data_csd(
         params.save_data_type, data_file_name, freqs, csd, avg_psd_1, avg_psd_2
