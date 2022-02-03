@@ -49,8 +49,10 @@ if __name__ == "__main__":
     parser = pygwb.argument_parser.parser
     args = parser.parse_args()
     params = Parameters.from_file(args.param_file)
-    params.t0 = args.t0
-    params.tf = args.tf
+    if args.t0 is not None:
+        params.t0 = args.t0
+    if args.tf is not None:    
+        params.tf = args.tf
     params.alphas = json.loads(params.alphas_delta_sigma_cut)
     print("successfully imported parameters from paramfile.")
     # params.save_new_paramfile()
@@ -97,8 +99,6 @@ if __name__ == "__main__":
     naive_psd_1 = base_HL.interferometer_1.psd_spectrogram
     naive_psd_2 = base_HL.interferometer_2.psd_spectrogram
 
-    print(naive_psd_1[0][0], naive_psd_2[0][0])
-
     freq_band_cut = (freqs >= params.flow) & (freqs <= params.fhigh)
     naive_psd_1 = naive_psd_1.crop_frequencies(
         params.flow, params.fhigh + deltaF
@@ -124,7 +124,7 @@ if __name__ == "__main__":
     ]
 
 
-    kamiel_path = "/home/kamiel.janssens/Development_pyGWB/myOwn_Fork/pygwb/tutorials/"
+    kamiel_path = "test/test_data/"
 
     lines_stochnotch = StochNotchList.load_from_file(
         f"{kamiel_path}Official_O3_HL_notchlist.txt"
@@ -135,8 +135,6 @@ if __name__ == "__main__":
     for index, notch in enumerate(lines_stochnotch):
         lines_2[index, 0] = lines_stochnotch[index].minimum_frequency
         lines_2[index, 1] = lines_stochnotch[index].maximum_frequency
-
-    print(naive_psd_1[0][0], naive_psd_2[0][0])
 
     badGPStimes = run_dsc(
         params.delta_sigma_cut,
