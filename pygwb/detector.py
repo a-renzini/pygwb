@@ -185,12 +185,10 @@ class Interferometer(bilby.gw.detector.Interferometer):
     def set_psd_spectrogram(
         self,
         frequency_resolution,
-        do_overlap=True,
         overlap_factor=0.5,
-        zeropad=False,
         window_fftgram="hann",
-        do_overlap_welch_psd=True,
-        welch_psd_duration=60.0,
+        overlap_factor_welch_psd=0,
+        N_average_segments_welch_psd=2,
     ):
         """
         A classmethod to set psd frequency series from a given timeseries as an attribute of given Interferometer object
@@ -199,6 +197,9 @@ class Interferometer(bilby.gw.detector.Interferometer):
         ==========
         frequencies : numpy array
             frequency array
+        overlap_factor_welch_psd: float, optional
+            Amount of overlap between data blocks used in pwelch method (range between 0 and 1)
+            (default 0, no overlap)
 
         """
 
@@ -207,17 +208,15 @@ class Interferometer(bilby.gw.detector.Interferometer):
             self.timeseries,
             self.duration,
             frequency_resolution,
-            do_overlap=do_overlap,
             overlap_factor=overlap_factor,
-            zeropad=zeropad,
             window_fftgram=window_fftgram,
-            do_overlap_welch_psd=do_overlap_welch_psd,
+            overlap_factor_welch_psd=overlap_factor_welch_psd,
         )
 
-    def set_average_psd(self, welch_psd_duration):
+    def set_average_psd(self, N_average_segments_welch_psd):
         try:
             self.average_psd = before_after_average(
-                self.psd_spectrogram, self.duration, welch_psd_duration
+                self.psd_spectrogram, self.duration, N_average_segments_welch_psd
             )
         except AttributeError:
             print(

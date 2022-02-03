@@ -98,5 +98,11 @@ class Test(unittest.TestCase):
         self.assertEqual(len(timeseries_output3), 1802240)
         self.assertEqual(timeseries_output1.sample_rate.value, 4096.0)
 
-        self.assertEqual(pre_processing.set_start_time(t0, tf, 2, segment_duration, False),1238183994.0)
-        self.assertEqual(pre_processing.set_start_time(t0, tf, 2, segment_duration, True),1238184444.0)
+        self.assertEqual(
+            pre_processing.set_start_time(t0, tf, 2, segment_duration, False),
+            1238183994.0,
+        )
+        self.assertEqual(
+            pre_processing.set_start_time(t0, tf, 2, segment_duration, True),
+            1238184444.0,
+        )
