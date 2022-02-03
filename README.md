@@ -1,3 +1,6 @@
+[![pipeline status](https://git.ligo.org/pygwb/pygwb/badges/master/pipeline.svg)](https://git.ligo.org/pygwb/pygwb/-/pipelines)
+[![coverage report](https://git.ligo.org/pygwb/pygwb/badges/master/coverage.svg)](https://git.ligo.org/pygwb/pygwb/-/commits/master)
+
 # pygwb
 
 ## Installation instructions

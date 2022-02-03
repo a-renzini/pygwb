@@ -99,6 +99,8 @@ if __name__ == "__main__":
     naive_psd_1 = base_HL.interferometer_1.psd_spectrogram
     naive_psd_2 = base_HL.interferometer_2.psd_spectrogram
 
+    print(naive_psd_1[0][0], naive_psd_2[0][0])
+
     freq_band_cut = (freqs >= params.flow) & (freqs <= params.fhigh)
     naive_psd_1 = naive_psd_1.crop_frequencies(
         params.flow, params.fhigh + deltaF
@@ -136,8 +138,11 @@ if __name__ == "__main__":
         lines_2[index, 0] = lines_stochnotch[index].minimum_frequency
         lines_2[index, 1] = lines_stochnotch[index].maximum_frequency
 
+    print(naive_psd_1[0][0], naive_psd_2[0][0])
+
     badGPStimes = run_dsc(
         params.delta_sigma_cut,
+        params.segment_duration,
         naive_psd_1,
         naive_psd_2,
         avg_psd_1,
@@ -152,7 +157,6 @@ if __name__ == "__main__":
 
     freqs = freqs[freq_band_cut]
     indices_notches, inv_indices = lines_stochnotch.get_idxs(freqs)
-    
     if Boolean_CSD:
         print(f"calculating the point estimate and sigma...")
         orf = base_HL.overlap_reduction_function[freq_band_cut]
