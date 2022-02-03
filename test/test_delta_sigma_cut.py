@@ -78,20 +78,20 @@ class Test(unittest.TestCase):
         )
 
         naive_psd_1 = spectral.power_spectral_density(
-            ifo1_filtered, segment_duration, frequency_resolution, do_overlap=True
+            ifo1_filtered, segment_duration, frequency_resolution, overlap_factor=0.5, overlap_factor_welch_psd=0.5, window_fftgram="hann"
         )
         naive_psd_2 = spectral.power_spectral_density(
-            ifo2_filtered, segment_duration, frequency_resolution, do_overlap=True
+            ifo2_filtered, segment_duration, frequency_resolution, overlap_factor=0.5, overlap_factor_welch_psd=0.5, window_fftgram="hann"
         )
 
         # adjacent averated PSDs (detector 1) for each possible CSD
         avg_psd_1 = spectral.before_after_average(
-            naive_psd_1, segment_duration, segment_duration
+            naive_psd_1, segment_duration, 2
         )
 
         # adjacent averated PSDs (detector 2) for each possible CSD
         avg_psd_2 = spectral.before_after_average(
-            naive_psd_2, segment_duration, segment_duration
+            naive_psd_2, segment_duration, 2
         )
 
         # calcaulate CSD
