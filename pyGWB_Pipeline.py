@@ -49,8 +49,10 @@ if __name__ == "__main__":
     parser = pygwb.argument_parser.parser
     args = parser.parse_args()
     params = Parameters.from_file(args.param_file)
-    params.t0 = args.t0
-    params.tf = args.tf
+    if args.t0 is not None:
+        params.t0 = args.t0
+    if args.tf is not None:
+        params.tf = args.tf
     params.alphas = json.loads(params.alphas_delta_sigma_cut)
     print("successfully imported parameters from paramfile.")
     # params.save_new_paramfile()
@@ -63,8 +65,8 @@ if __name__ == "__main__":
 
     # Parameters.from_file("param.ini")
 
-    'X TODO X make this into a param in the arg class?'
-    Boolean_CSD = True #if False, it will only compute the CSDs and PSDs, if True, it will compute until the point estimates
+    "X TODO X make this into a param in the arg class?"
+    Boolean_CSD = True  # if False, it will only compute the CSDs and PSDs, if True, it will compute until the point estimates
 
     ifo_H = Interferometer.from_parameters("H1", params)
     ifo_L = Interferometer.from_parameters("L1", params)
@@ -97,15 +99,9 @@ if __name__ == "__main__":
     naive_psd_1 = base_HL.interferometer_1.psd_spectrogram
     naive_psd_2 = base_HL.interferometer_2.psd_spectrogram
 
-    print(naive_psd_1[0][0], naive_psd_2[0][0])
-
     freq_band_cut = (freqs >= params.flow) & (freqs <= params.fhigh)
-    naive_psd_1 = naive_psd_1.crop_frequencies(
-        params.flow, params.fhigh + deltaF
-    )
-    naive_psd_2 = naive_psd_2.crop_frequencies(
-        params.flow, params.fhigh + deltaF
-    )
+    naive_psd_1 = naive_psd_1.crop_frequencies(params.flow, params.fhigh + deltaF)
+    naive_psd_2 = naive_psd_2.crop_frequencies(params.flow, params.fhigh + deltaF)
     avg_psd_1 = base_HL.interferometer_1.average_psd.crop_frequencies(
         params.flow, params.fhigh + deltaF
     )
@@ -116,16 +112,10 @@ if __name__ == "__main__":
 
     stride = params.segment_duration * (1 - params.overlap_factor)
     csd_segment_offset = int(np.ceil(params.segment_duration / stride))
-    naive_psd_1 = naive_psd_1[
-        csd_segment_offset : -(csd_segment_offset + 1) + 1
-    ]
-    naive_psd_2 = naive_psd_2[
-        csd_segment_offset : -(csd_segment_offset + 1) + 1
-    ]
+    naive_psd_1 = naive_psd_1[csd_segment_offset : -(csd_segment_offset + 1) + 1]
+    naive_psd_2 = naive_psd_2[csd_segment_offset : -(csd_segment_offset + 1) + 1]
 
-
-    #kamiel_path = "/home/kamiel.janssens/Development_pyGWB/myOwn_Fork/pygwb/tutorials/"
-    kamiel_path = "./test/test_data/"
+    kamiel_path = "test/test_data/"
 
     lines_stochnotch = StochNotchList.load_from_file(
         f"{kamiel_path}Official_O3_HL_notchlist.txt"
@@ -137,8 +127,6 @@ if __name__ == "__main__":
         lines_2[index, 0] = lines_stochnotch[index].minimum_frequency
         lines_2[index, 1] = lines_stochnotch[index].maximum_frequency
 
-    print(naive_psd_1[0][0], naive_psd_2[0][0])
-
     badGPStimes = run_dsc(
         params.delta_sigma_cut,
         params.segment_duration,
@@ -148,15 +136,12 @@ if __name__ == "__main__":
         avg_psd_2,
         params.alphas,
         lines_2,
-        #params.new_sample_rate,
-        #params.segment_duration,
     )
 
-    print(f"times flagged by the deta signal cut as badGPStimes:{badGPStimes}")
+    print(f"times flagged by the delta signal cut as badGPStimes:{badGPStimes}")
 
     freqs = freqs[freq_band_cut]
     indices_notches, inv_indices = lines_stochnotch.get_idxs(freqs)
-
     if Boolean_CSD:
         print(f"calculating the point estimate and sigma...")
         orf = base_HL.overlap_reduction_function[freq_band_cut]
@@ -164,7 +149,6 @@ if __name__ == "__main__":
             freqs, csd.value, avg_psd_1.value, avg_psd_2.value, orf, params
         )
 
-        # notch_freq = np.real(stochastic_mat['ptEst_ff']==0)
         Y_fs[:, indices_notches] = 0
         var_fs[:, indices_notches] = np.Inf
 
@@ -184,7 +168,7 @@ if __name__ == "__main__":
         print(f"\tpyGWB: {Y_pyGWB_new:e}")
         print(f"\tpyGWB: {sigma_pyGWB_new:e}")
 
-        data_file_name = f"Y_sigma_{int(args.t0)}-{int(args.tf)}"
+        data_file_name = f"Y_sigma_{int(params.t0)}-{int(params.tf)}"
 
         print("saving Y_f and sigma_f to file.")
         base_HL.save_data(
@@ -199,7 +183,7 @@ if __name__ == "__main__":
 
     print("saving average psds and csd to file.")
 
-    data_file_name = f"psds_csds_{int(args.t0)}-{int(args.tf)}"
+    data_file_name = f"psds_csds_{int(params.t0)}-{int(params.tf)}"
 
     base_HL.save_data_csd(
         params.save_data_type, data_file_name, freqs, csd, avg_psd_1, avg_psd_2

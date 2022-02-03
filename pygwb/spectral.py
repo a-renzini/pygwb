@@ -4,7 +4,11 @@ from scipy.signal import get_window, spectrogram
 
 
 def fftgram(
-    time_series_data, fftlength, overlap_factor=0, zeropad=False, window_fftgram="boxcar"
+    time_series_data,
+    fftlength,
+    overlap_factor=0,
+    zeropad=False,
+    window_fftgram="boxcar",
 ):
     """Function that creates an fftgram from a timeseries
 
@@ -72,11 +76,11 @@ def pwelch_psd(data_fftgram, segment_duration, overlap_factor=0):
     data_fftgram: gwpy fftgram (complex)
         fft gram data to be averaged
     segment_duration: int
-        data duration over which PSDs need to be averaged; 
-        should be greater than or equal to the duration used for FFT 
+        data duration over which PSDs need to be averaged;
+        should be greater than or equal to the duration used for FFT
     overlap_factor: float
         Amount of overlap between adjacent average PSDs, can vary between 0 and 1 (default 0);
-        This factor should be same as the one used for CSD estimation 
+        This factor should be same as the one used for CSD estimation
 
     Returns
     =======
@@ -85,19 +89,24 @@ def pwelch_psd(data_fftgram, segment_duration, overlap_factor=0):
     """
 
     averaging_factor = round(segment_duration / data_fftgram.dt.value)
-    if overlap_factor==0: # no overlap (TODO : Check whether this works)
+    if overlap_factor == 0:  # no overlap (TODO : Check whether this works)
         seg_indices = np.arange(1, len(data_fftgram), averaging_factor)[0:-1]
-    else: # overlapping segments (TODO : Check whether it works for overlap_factor!=0.5)
-        seg_indices = np.arange(1, len(data_fftgram), round(averaging_factor * overlap_factor))
-        seg_indices = seg_indices[seg_indices <= len(data_fftgram) + 2 - averaging_factor]
+    else:  # overlapping segments (TODO : Check whether it works for overlap_factor!=0.5)
+        seg_indices = np.arange(
+            1, len(data_fftgram), round(averaging_factor * overlap_factor)
+        )
+        seg_indices = seg_indices[
+            seg_indices <= len(data_fftgram) + 2 - averaging_factor
+        ]
 
     averaged_psd = data_fftgram[0 : len(seg_indices)].copy()  # temporary spectrogram
     kk = 0
-    for ii in (seg_indices - 1):
+    for ii in seg_indices - 1:
         averaged_psd[kk] = data_fftgram[ii : ii + 11].mean(axis=0)
         kk = kk + 1
     averaged_psd.times = (
-        averaged_psd.epoch.value * data_fftgram.times.unit + (seg_indices - 1) * data_fftgram.dt
+        averaged_psd.epoch.value * data_fftgram.times.unit
+        + (seg_indices - 1) * data_fftgram.dt
     )
 
     return np.real(averaged_psd)
@@ -105,9 +114,9 @@ def pwelch_psd(data_fftgram, segment_duration, overlap_factor=0):
 
 def before_after_average(psd_gram, segment_duration, N_avg_segs):
     """
-    Average the requested number of PSDs from segments adjacent to the segment of interest 
+    Average the requested number of PSDs from segments adjacent to the segment of interest
     (for which CDS is calculated)
-    
+
     Parameters
     ----------
     psd_gram: gwpy psd spectrogram
@@ -117,14 +126,14 @@ def before_after_average(psd_gram, segment_duration, N_avg_segs):
     N_avg_segs: int
         Number of segments used for PSD averaging (from both sides of the segment of interest)
         N_avg_segs should be even and >= 2
-        
+
     Returns
     -------
     avg_psd: averaged psd gram
     """
     stride = psd_gram.dx.value
     overlap = segment_duration - stride
-    strides_per_psd = int(np.ceil((N_avg_segs/2)* segment_duration/ stride))
+    strides_per_psd = int(np.ceil((N_avg_segs / 2) * segment_duration / stride))
     strides_per_segment = int(np.ceil(segment_duration / stride))
     time_offset = strides_per_psd * overlap * psd_gram.times.unit
     after_segment_offset = strides_per_psd + strides_per_segment
@@ -132,7 +141,9 @@ def before_after_average(psd_gram, segment_duration, N_avg_segs):
     avg_psd = psd_gram.copy()
     # TODO: Check whether this works for PSD duration < segment duration
     # TODO: Check whether this works for N_avg_seg >2
-    avg_psd = (avg_psd[:-after_segment_offset] + avg_psd[after_segment_offset:]) / N_avg_segs 
+    avg_psd = (
+        avg_psd[:-after_segment_offset] + avg_psd[after_segment_offset:]
+    ) / N_avg_segs
     avg_psd.times = psd_gram.times[:-after_segment_offset] + time_offset
 
     return avg_psd
@@ -339,7 +350,7 @@ def cross_spectral_density(
     segment duration: int
         data duration over which CSDs need to be calculated
     frequency_resolution: float
-        Frequency resolution of the final CSDs; This is achieved by averaing in 
+        Frequency resolution of the final CSDs; This is achieved by averaing in
         frequency domain
     overlap_factor: float, optional
         Amount of overlap between adjacent segments (range between 0 and 1)
@@ -353,7 +364,7 @@ def cross_spectral_density(
 
     Returns
     -------
-    csd_spectrogram: gwpy spectrogram 
+    csd_spectrogram: gwpy spectrogram
        cross spectral density of the two timeseries
     """
 
@@ -390,7 +401,7 @@ def power_spectral_density(
     """
     Compute the PSDs of every segment (defined by the segment duration)
     in the time series using pwelch method
-    
+
     Parameters
     ----------
     time_series_data: gwpy timeseries
@@ -412,23 +423,23 @@ def power_spectral_density(
 
     Returns
     -------
-    psd_spectrogram: gwpy PSD spectrogram 
-        PSD spectrogram with each PSD duration equal to segment duration 
+    psd_spectrogram: gwpy PSD spectrogram
+        PSD spectrogram with each PSD duration equal to segment duration
     """
 
     # Length of data blocks to be used in pwelch
-    fftlength = int(1.0 / frequency_resolution) 
-    
+    fftlength = int(1.0 / frequency_resolution)
+
     # No zero-pad is used in the PSD estimation
     fft_gram_data = fftgram(
         time_series_data,
         fftlength,
-        overlap_factor=overlap_factor_welch_psd,
+        overlap_factor=overlap_factor,
         zeropad=False,
         window_fftgram=window_fftgram,
     )
-    
-    # Use pwelch method (averaging) to get PSDs for each segment duration of data 
+
+    # Use pwelch method (averaging) to get PSDs for each segment duration of data
     psd_spectrogram = pwelch_psd(
         2 * np.conj(fft_gram_data) * fft_gram_data,
         segment_duration,
