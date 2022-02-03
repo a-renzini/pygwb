@@ -195,7 +195,7 @@ class SingleStochasticJob(object):
             )
         ) / (1 - (k ** 2 / 4) * sigma2_oo * sigma2_ee * sigma2IJ ** 2)
 
-        bias = calc_bias(self.segdur, self.df, 1 / self.sample_rate)
+        bias = calc_bias(self.segdur, self.df, 1 / self.sample_rate, N_avg_segs=2)
         var_f_new = (1 / inv_var_f_new) * bias ** 2
         # I don't think notching should happen here.
         # I thought it happened somewhere else.
