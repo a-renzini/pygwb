@@ -48,6 +48,10 @@ class TestNotch(unittest.TestCase):
         my_compare_notch_list = notch.StochNotchList([])
         my_compare_notch_list.load_from_file("TestNotchList.dat")
 
+        print(len(my_compare_notch_list),len(self.stoch_notch_list_1))
+        print(my_compare_notch_list,self.stoch_notch_list_1)
+
+
         if len(my_compare_notch_list) == len(self.stoch_notch_list_1):
             check_2 = True
         else:
