@@ -56,7 +56,7 @@ class TestNotch(unittest.TestCase):
         self.assertTrue(check_2)
 
  
-        for i in range(len(my_compare_notch_list):
+        for i in range(len(my_compare_notch_list)):
             if my_compare_notch_list[i].minimum_frequency == self.stoch_notch_list_1.minimum_frequency:
                 check_3 = True
             else:
