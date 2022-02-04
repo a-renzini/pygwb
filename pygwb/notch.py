@@ -138,8 +138,11 @@ class StochNotchList(list):
         )
 
         cls = StochNotchList([])
-        for i in range(len(fmin)):
-            cls.append(StochNotch(fmin[i], fmax[i], desc[i]))
+        if type(fmin) == list:
+            for i in range(len(fmin)):
+                cls.append(StochNotch(fmin[i], fmax[i], desc[i]))
+        else:
+            cls.append(StochNotch(fmin, fmax, desc))
 
         return cls
 
