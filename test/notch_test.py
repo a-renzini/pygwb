@@ -78,7 +78,7 @@ class TestNotch(unittest.TestCase):
         
 
 
-    def test_sort_list(self):
+    #def test_sort_list(self):
     """
     def test_load_from_file(self):
 
