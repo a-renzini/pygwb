@@ -1,3 +1,4 @@
+import os
 import unittest
 
 import numpy as np
@@ -37,11 +38,48 @@ class TestNotch(unittest.TestCase):
 
         self.assertTrue(np.array_equal(idxs,test_idxs))
         self.assertTrue(np.array_equal(inv_idxs,test_inv_idxs))       
-    """
-    def test_save_to_txt(self):
+    
+    def test_save_to_and_load_from_txt(self):
+        
+        self.stoch_notch_list_1.save_to_txt("TestNotchList.dat")
+        
+        self.assertTrue(os.path.isfile("TestNotchList.dat"))
+
+        my_compare_notch_list = notch.StochNotchList([])
+        my_compare_notch_list.load_from_file("TestNotchList.dat")
+
+        if len(my_compare_notch_list) == len(self.stoch_notch_list_1):
+            check_2 = True
+        else:
+            check_2 = False
+
+        self.assertTrue(check_2)
+
+ 
+        for i in range(len(my_compare_notch_list):
+            if my_compare_notch_list[i].minimum_frequency == self.stoch_notch_list_1.minimum_frequency:
+                check_3 = True
+            else:
+                check_3 = False
+            if my_compare_notch_list[i].maximum_frequency == self.stoch_notch_list_1.maximum_frequency:
+                check_4 = True
+            else:
+                check_4 = False
+            if my_compare_notch_list[i].description == self.stoch_notch_list_1.description:
+                check_5 = True
+            else:
+                check_5 = False
+
+        self.assertTrue(check_3)
+        self.assertTrue(check_4)
+        self.assertTrue(check_5)
+
+      
+        
+
 
     def test_sort_list(self):
-
+    """
     def test_load_from_file(self):
 
     def test_load_from_file_pre_pyGWB(self):
