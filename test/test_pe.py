@@ -1,12 +1,10 @@
 import unittest
 
+import bilby.gw.detector as bilbydet
 import numpy as np
 
-from pygwb.pe import *
-
 from pygwb.baseline import Baseline
-
-import bilby.gw.detector as bilbydet
+from pygwb.pe import *
 
 
 class Test(unittest.TestCase):
