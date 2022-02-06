@@ -5,7 +5,6 @@ import numpy as np
 from tqdm import tqdm
 
 from .util import calc_bias, window_factors
-import h5py
 
 
 class SingleStochasticJob(object):
@@ -191,9 +190,7 @@ class SingleStochasticJob(object):
         """
         simple representation.
         """
-        title = "Single stochastic job from: {0}-{1}\n".format(
-            self.times[0], self.times[-1]
-        )
+        title = f"Single stochastic job from: {self.times[0]}-{self.times[-1]}\n"
         times = "\tNumber of segments: %d\n" % self.times.size
         if self.dim2_type == "frequencies":
             type_line = "\tFrequency Range: %4.6f - %4.6f Hz\n" % (
