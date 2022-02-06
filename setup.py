@@ -3,7 +3,7 @@
 import os
 import subprocess
 
-from setuptools import find_packages, setup
+from setuptools import setup
 
 
 def write_version_file(version):
@@ -45,7 +45,7 @@ def write_version_file(version):
 
 
 def get_long_description():
-    """ Finds the README and reads in the description """
+    """Finds the README and reads in the description"""
     here = os.path.abspath(os.path.dirname(__file__))
     with open(os.path.join(here, "README.md")) as f:
         long_description = f.read()
@@ -74,17 +74,23 @@ setup(
     license="MIT",
     version=VERSION,
     packages=["pygwb"],
-    # packages=find_packages(exclude=["test", "venv", "tutorials", "src", "docs"])
-    # + ["pygwb"],
     package_dir={"pygwb": "pygwb"},
     package_data={"pygwb": [".version"]},
-    install_requires=["numpy", "matplotlib", "scipy", "bilby", "gwpy"],
+    install_requires=[
+        "numpy",
+        "matplotlib",
+        "scipy",
+        "bilby",
+        "gwpy",
+        "astropy",
+        "lalsuite",
+    ],
     classifiers=[
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires=">=3.6",
+    python_requires=">=3.8",
 )

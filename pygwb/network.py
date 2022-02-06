@@ -30,6 +30,8 @@ class Network(object):
         """
         self.interferometers = interferometers
         self.Nifo = len(interferometers)
+        self.duration = duration
+        self.sampling_frequency = sampling_frequency
 
         combo_tuples = []
         for j in range(1, len(interferometers)):
@@ -38,12 +40,12 @@ class Network(object):
 
         baselines = []
         for i, j in combo_tuples:
-            base_name = f"{interferometers[i]} - {interferometers[j]}"
+            base_name = f"{self.interferometers[i]} - {self.interferometers[j]}"
             baselines.append(
                 Baseline(
                     base_name,
-                    interferometers[i],
-                    interferometers[j],
+                    self.interferometers[i],
+                    self.interferometers[j],
                     duration,
                     sampling_frequency,
                     calibration_epsilon,
@@ -71,14 +73,72 @@ class Network(object):
         """
         interferometers = bilby.gw.detector.InterferometerList(ifo_list)
 
+        for ifo in interferometers:
+            ifo.duration = duration
+            ifo.sampling_frequency = sampling_frequency
+            ifo.power_spectral_density = bilby.gw.detector.PowerSpectralDensity(
+                ifo.frequency_array,
+                np.nan_to_num(ifo.power_spectral_density_array, posinf=1.0e-41),
+            )
+
         return cls(interferometers, duration, sampling_frequency, calibration_epsilon)
 
     def get_noise_PSD_array(self):
-        """ """
+        """
+        Function that gets the noise PSD array of all the interferometers.
+
+        Parameters
+        ==========
+
+        Returns
+        =======
+        noisePSD_array: array
+            Array containing the noise PSD arrays for all interferometers in
+            self.interferometers.
+
+        """
         noisePSDs = []
         for ifo in self.interferometers:
             psd = ifo.power_spectral_density_array
             psd[np.isinf(psd)] = 1
             noisePSDs.append(psd)
+        noisePSD_array = np.array(noisePSDs)
+        return noisePSD_array
 
-        return np.array(noisePSDs)
+    def set_interferometer_data_from_simulator(
+        self, GWB_intensity, N_segments, inject_into_data_flag=False
+    ):
+        """
+        Fill interferometers with data from simulation
+        """
+        data_simulator = Simulator(
+            self.interferometers,
+            GWB_intensity,
+            N_segments,
+            duration=self.duration,
+            sampling_frequency=self.sampling_frequency,
+        )
+        data = data_simulator.get_data_for_interferometers()
+
+        if inject_into_data_flag:
+            for ifo in self.interferometers:
+                ifo.set_strain_data_from_gwpy_timeseries(
+                    ifo.strain_data.to_gwpy_timeseries().inject(data[ifo.name])
+                )
+        else:
+            for ifo in self.interferometers:
+                ifo.set_strain_data_from_gwpy_timeseries(data[ifo.name])
+
+    def set_interferometer_data_from_file(self, file):
+        """
+        Fill interferometers with data from file
+        """
+
+
+#     These should be in the baseline class
+
+#     def set_baseline_data_from_CSD(self):
+#         """"""
+
+#     def set_baseline_post_processing(self):
+#         """"""

@@ -2,6 +2,7 @@ import os
 import shutil
 
 import gwpy
+import h5py
 import numpy as np
 from scipy.interpolate import interp1d
 
@@ -108,7 +109,7 @@ def calc_Y_sigma_from_Yf_varf(Y_f, var_f, freqs=None, alpha=0, fref=1):
     var = 1 / np.sum(var_f ** (-1) * weights ** 2)
 
     # Y = np.sum(Y_f * var_f**(-1)) / np.sum( var_f**(-1) )
-    Y = np.sum(Y_f * weights * (var / var_f))
+    Y = np.nansum(Y_f * weights * (var / var_f))
 
     sigma = np.sqrt(var)
 
@@ -116,17 +117,17 @@ def calc_Y_sigma_from_Yf_varf(Y_f, var_f, freqs=None, alpha=0, fref=1):
 
 
 def calc_rho1(N):
-    w1w2bar, _, w1w2ovlbar, _ = window_factors(100000)
+    w1w2bar, _, w1w2ovlbar, _ = window_factors(N)
     rho1 = (0.5 * w1w2ovlbar / w1w2bar) ** 2
     return rho1
 
 
-def calc_bias(segmentDuration, deltaF, deltaT):
+def calc_bias(segmentDuration, deltaF, deltaT, N_avg_segs=1):
     N = int(segmentDuration / deltaT)
     rho1 = calc_rho1(N)
     Nsegs = 2 * segmentDuration * deltaF - 1
     wfactor = (1 + 2 * rho1) ** (-1)
-    Neff = 2 * wfactor * (2 * segmentDuration * deltaF - 1)
+    Neff = N_avg_segs * wfactor * Nsegs
     bias = Neff / (Neff - 1)
     return bias
 
@@ -209,7 +210,7 @@ def interpolate_frequency_series(fSeries, new_frequencies):
     )
 
 
-def get_baselines(interferometers, duration=None, sampling_frequency=None):
+def get_baselines(interferometers, frequencies=None):
     """
     Parameters
     ==========
@@ -230,8 +231,69 @@ def get_baselines(interferometers, duration=None, sampling_frequency=None):
                 base_name,
                 interferometers[i],
                 interferometers[j],
-                duration=duration,
-                sampling_frequency=sampling_frequency,
+                frequencies=frequencies,
             )
         )
     return baselines
+
+
+def read_jobfiles(njobs, directory, segment_duration):
+    """
+    Method that reads in the job files to extract quantities such as the point estimate and sigmas.
+
+    Parameters
+    ==========
+    njobs: int
+        Number of jobs
+    directory: str
+        Directory where the mat files are stored
+    segment_duration: int
+        Duration of a segment in seconds
+
+    Returns
+    =======
+    sliding_times_all: array
+        Array containing all the GPS times for this particular run
+    sliding_omega_all: array
+        Array containing the omega point estimate for this particular run
+    sliding_sigmas_all: array
+        Array containing the sigmas for this particular run
+    naive_sigma_all: array
+        Array containing the naive sigmas for this particular run
+    """
+    sliding_omega_all = np.array([])
+    sliding_sigmas_all = np.array([])
+    naive_sigma_all = np.array([])
+    sliding_times_all = np.array([])
+    for nn in range(njobs):
+        jn = nn + 1
+        file1 = "%sH1L1.job%d.mat" % (directory, jn)
+        with h5py.File(file1, "r") as FF:
+            try:
+                sliding_omega_all = np.append(
+                    sliding_omega_all,
+                    np.array(FF["ccStat"][0]).flatten() / segment_duration,
+                )
+                sliding_sigmas_all = np.append(
+                    sliding_sigmas_all,
+                    np.array(FF["ccSigma"][0]).flatten() / segment_duration,
+                )
+                naive_sigma_all = np.append(
+                    naive_sigma_all,
+                    np.array(FF["naiSigma"][0]).flatten() / segment_duration,
+                )
+                sliding_times_all = np.append(
+                    sliding_times_all, np.array(FF["segmentStartTime"][0]).flatten()
+                )
+            except:
+                print("No data for job %u" % jn)
+                continue
+    return sliding_times_all, sliding_omega_all, sliding_sigmas_all, naive_sigma_all
+
+
+def StatKS(DKS):
+    jmax = 500
+    pvalue = 0.0
+    for jj in np.arange(1, jmax + 1):
+        pvalue += 2.0 * (-1) ** (jj + 1) * np.exp(-2.0 * jj ** 2 * DKS ** 2)
+    return pvalue

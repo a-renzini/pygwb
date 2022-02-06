@@ -11,4 +11,4 @@ class WindowTest(unittest.TestCase):
         pass
 
     def test_rho1(self):
-        self.assertEqual(calc_rho1(0), 0.027775555605193483)
+        self.assertEqual(calc_rho1(100000), 0.027775555605193483)

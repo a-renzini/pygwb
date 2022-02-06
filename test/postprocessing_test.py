@@ -1,8 +1,8 @@
-from pygwb.postprocessing import SingleStochasticJob, IsotropicJob
 import unittest
-import numpy as np
-import numpy.testing as npt
 
+import numpy as np
+
+from pygwb.postprocessing import IsotropicJob, SingleStochasticJob
 
 # simple examples
 
@@ -18,6 +18,7 @@ FREQS = np.array([1, 2])
 SAMPLE_RATE = 128
 
 TESTMATFILE = "test/pproc/stoch.job1.mat"
+
 
 # test object
 class SingleStochJobTest(unittest.TestCase):
@@ -87,9 +88,9 @@ class IsotropicJobTest(unittest.TestCase):
         self.assertTrue(np.size(newsigma) == NTIMES)
         # check that theset wo guys run as well
         # combine over time and freq
-        finalY, finalSigma = test_obj.calculate_broadband_statistics(0)
+        final_Y, finalSigma = test_obj.calculate_broadband_statistics(0)
         # combine over just time
-        finalY, finalSigma = (
+        final_Y, finalSigma = (
             test_obj.combined_Y_spectrum,
             test_obj.combined_sigma_spectrum,
         )
