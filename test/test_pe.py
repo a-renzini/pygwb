@@ -144,7 +144,7 @@ class Test(unittest.TestCase):
         #print("Gamma_I ", HL.tensor_overlap_reduction_function)
         #print(type(test_model.model_function(HL)))
 
-        self.assertEqual(test_model.model_function(HL),0.8634145976022678)
+        np.testing.assert_allclose(test_model.model_function(HL),0.8634145976022678,rtol=1e-5, atol=0)
 
     def test_PV_PL2(self):
         
@@ -163,7 +163,7 @@ class Test(unittest.TestCase):
         #print("Gamma_I ", HL.tensor_overlap_reduction_function)
         #print(type(test_model.model_function(HL)))
 
-        self.assertEqual(test_model.model_function(HL),200.6063814276104)
+        np.testing.assert_allclose(test_model.model_function(HL),200.6063814276104,rtol=1e-5, atol=0)
         
     def test_TVS(self):
         
