@@ -62,18 +62,21 @@ class TestNotch(unittest.TestCase):
 
  
         for i in range(len(my_compare_notch_list)):
-            if my_compare_notch_list[i].minimum_frequency == self.stoch_notch_list_1.minimum_frequency:
+            if my_compare_notch_list[i].minimum_frequency == self.stoch_notch_list_1[i].minimum_frequency:
                 check_3 = True
             else:
                 check_3 = False
-            if my_compare_notch_list[i].maximum_frequency == self.stoch_notch_list_1.maximum_frequency:
+            if my_compare_notch_list[i].maximum_frequency == self.stoch_notch_list_1[i].maximum_frequency:
                 check_4 = True
             else:
                 check_4 = False
-            if my_compare_notch_list[i].description == self.stoch_notch_list_1.description:
+            if my_compare_notch_list[i].description == self.stoch_notch_list_1[i].description:
                 check_5 = True
             else:
                 check_5 = False
+            print(my_compare_notch_list[i].minimum_frequency , self.stoch_notch_list_1[i].minimum_frequency)
+            print(my_compare_notch_list[i].maximum_frequency , self.stoch_notch_list_1[i].maximum_frequency)
+            print(my_compare_notch_list[i].description , self.stoch_notch_list_1[i].description)
 
         self.assertTrue(check_3)
         self.assertTrue(check_4)
