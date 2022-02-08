@@ -41,13 +41,13 @@ class TestNotch(unittest.TestCase):
     
     def test_save_to_and_load_from_txt(self):
         
-        self.stoch_notch_list_1.save_to_txt("TestNotchList_1.dat")
+        self.stoch_notch_list_1.save_to_txt("test/TestNotchList_1.dat")
         
-        self.assertTrue(os.path.isfile("TestNotchList_1.dat"))
-        print("Does the file exist?   ",os.path.isfile("TestNotchList_1.dat"))
+        self.assertTrue(os.path.isfile("test/TestNotchList_1.dat"))
+        print("Does the file exist?   ",os.path.isfile("test/TestNotchList_1.dat"))
 
         my_compare_notch_list = notch.StochNotchList([])
-        my_compare_notch_list.load_from_file("/home/kamiel.janssens/Development_pyGWB/myOwn_Fork/new/pygwb/test/TestNotchList.dat")
+        my_compare_notch_list.load_from_file("test/TestNotchList.dat")
 
         print(len(my_compare_notch_list),len(self.stoch_notch_list_1))
         print(my_compare_notch_list,self.stoch_notch_list_1)
