@@ -47,7 +47,7 @@ class TestNotch(unittest.TestCase):
         print("Does the file exist?   ",os.path.isfile("test/TestNotchList_1.dat"))
 
         my_compare_notch_list = notch.StochNotchList([])
-        my_compare_notch_list.load_from_file("test/TestNotchList.dat")
+        my_compare_notch_list = my_compare_notch_list.load_from_file("test/TestNotchList.dat")
 
         print(len(my_compare_notch_list),len(self.stoch_notch_list_1))
         print(my_compare_notch_list,self.stoch_notch_list_1)
