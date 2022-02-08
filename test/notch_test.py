@@ -10,6 +10,10 @@ class TestNotch(unittest.TestCase):
     def setUp(self):
         self.stoch_notch_list_1 = notch.StochNotchList([])
         self.stoch_notch_list_1.append(notch.StochNotch(10.,15.,'This is a test notch'))
+        self.stoch_notch_list_2 = notch.StochNotchList([])
+        self.stoch_notch_list_2.append(notch.StochNotch(10.,15.,'This is a test notch 1'))
+        self.stoch_notch_list_2.append(notch.StochNotch(35.,36.,'This is a test notch 2'))
+        self.stoch_notch_list_2.append(notch.StochNotch(21.,23.,'This is a test notch 3'))
 
     def tearDown(self):
         del self.stoch_notch_list_1
@@ -86,7 +90,17 @@ class TestNotch(unittest.TestCase):
         
 
 
-    #def test_sort_list(self):
+    def test_sort_list(self):
+    
+        self.stoch_notch_list_2.sort_list()
+        for i in range(len(my_compare_notch_list)-1):
+            if my_compare_notch_list[i].minimum_frequency <= self.stoch_notch_list_1[i].minimum_frequency:
+                check = True
+            else:
+                check = False
+                break
+        self.assertTrue(check)
+
     """
     def test_load_from_file(self):
 
