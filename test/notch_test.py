@@ -93,8 +93,8 @@ class TestNotch(unittest.TestCase):
     def test_sort_list(self):
     
         self.stoch_notch_list_2.sort_list()
-        for i in range(len(my_compare_notch_list)-1):
-            if my_compare_notch_list[i].minimum_frequency <= self.stoch_notch_list_1[i].minimum_frequency:
+        for i in range(len(self.stoch_notch_list_2)-1):
+            if self.stoch_notch_list_2[i].minimum_frequency <= self.stoch_notch_list_2[i+1].minimum_frequency:
                 check = True
             else:
                 check = False
