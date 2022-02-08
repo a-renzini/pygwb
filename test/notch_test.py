@@ -70,7 +70,7 @@ class TestNotch(unittest.TestCase):
                 check_4 = True
             else:
                 check_4 = False
-            if my_compare_notch_list[i].description == self.stoch_notch_list_1[i].description:
+            if my_compare_notch_list[i].description == '  ' + self.stoch_notch_list_1[i].description:
                 check_5 = True
             else:
                 check_5 = False
