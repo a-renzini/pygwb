@@ -27,7 +27,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
 
         Nominally, the bilby's Interferometer class takes the following arguments.
         name: str
-            Interferometer name, e.g., H1.
+            Interferometer name, e.g. H1.
         power_spectral_density: bilby.gw.detector.PowerSpectralDensity
             Power spectral density determining the sensitivity of the detector.
         minimum_frequency: float
@@ -75,7 +75,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
         Parameters
         ==========
         name : str
-            Interferometer identifier.
+            Interferometer name, e.g. H1.
 
         Returns
         =======
@@ -115,6 +115,22 @@ class Interferometer(bilby.gw.detector.Interferometer):
 
     @classmethod
     def from_parameters(cls, name, parameters):
+        """
+        A classmethod to get an Interferometer class from a given argparser object
+
+        Parameters
+        ==========
+        name : str
+            Interferometer name, e.g. H1.
+        parameters : argparser object
+            This contains attributes defined for command line options
+
+        Returns
+        =======
+        interferometer: Interferometer
+            Interferometer instance
+
+        """
         ifo = cls.get_empty_interferometer(name)
         channel = str(ifo.name + ":" + parameters.channel)
         ifo.set_timeseries_from_channel_name(
@@ -133,7 +149,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
 
     def set_timeseries_from_channel_name(self, channel, **kwargs):
         """
-        A classmethod to get an Interferometer class from a given ifo name
+        Set a timeseries attribute from a given channel name
 
         Parameters
         ==========
@@ -150,7 +166,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
 
     def set_timeseries_from_timeseries_array(self, timeseries_array, **kwargs):
         """
-        A classmethod to get an Interferometer class from a given ifo name
+        Set a timeseries attribute from a given numpy array
 
         Parameters
         ==========
@@ -167,7 +183,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
 
     def set_timeseries_from_gwpy_timeseries(self, gwpy_timeseries, **kwargs):
         """
-        A classmethod to get an Interferometer class from a given ifo name
+        Set a timeseries attribute from a given gwpy timeseries object
 
         Parameters
         ==========
@@ -191,12 +207,17 @@ class Interferometer(bilby.gw.detector.Interferometer):
         N_average_segments_welch_psd=2,
     ):
         """
-        A classmethod to set psd frequency series from a given timeseries as an attribute of given Interferometer object
+        Set psd_spectrogram attribute from a given spectrum-related information.
 
         Parameters
         ==========
-        frequencies : numpy array
-            frequency array
+        frequency_resolution : float
+            frequency resolution for which to produce a spectrogram
+        overlap_factor: float, optional
+            Amount of overlap between data blocks (range between 0 and 1)
+            (default 0, no overlap)
+        window_fftgram : str
+            Name of the window function to apply
         overlap_factor_welch_psd: float, optional
             Amount of overlap between data blocks used in pwelch method (range between 0 and 1)
             (default 0, no overlap)
@@ -214,6 +235,15 @@ class Interferometer(bilby.gw.detector.Interferometer):
         )
 
     def set_average_psd(self, N_average_segments_welch_psd):
+        """
+        Set average_psd attribute from the existing raw psd
+
+        Parameters
+        ==========
+        N_average_segments_welch_psd : int
+            Number of psd segments to take an average over.
+
+        """
         try:
             self.average_psd = before_after_average(
                 self.psd_spectrogram, self.duration, N_average_segments_welch_psd
