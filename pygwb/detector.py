@@ -202,25 +202,26 @@ class Interferometer(bilby.gw.detector.Interferometer):
         self,
         frequency_resolution,
         overlap_factor=0.5,
-        window_fftgram="hann",
         overlap_factor_welch_psd=0,
-        N_average_segments_welch_psd=2,
+        window_fftgram="hann",
     ):
         """
         Set psd_spectrogram attribute from a given spectrum-related information.
 
         Parameters
         ==========
-        frequency_resolution : float
-            frequency resolution for which to produce a spectrogram
+        frequency_resolution: float
+            Frequency resolution of the final PSDs; This sets the time duration
+            over which FFTs are calculated in the pwelch method
         overlap_factor: float, optional
-            Amount of overlap between data blocks (range between 0 and 1)
+            Amount of overlap between adjacent segments (range between 0 and 1)
+            This factor should be same as the one used for cross_spectral_density
             (default 0, no overlap)
-        window_fftgram : str
-            Name of the window function to apply
         overlap_factor_welch_psd: float, optional
             Amount of overlap between data blocks used in pwelch method (range between 0 and 1)
             (default 0, no overlap)
+        window_fftgram: str, optional
+            Type of window to use for FFT (default no window)
 
         """
 
@@ -241,7 +242,8 @@ class Interferometer(bilby.gw.detector.Interferometer):
         Parameters
         ==========
         N_average_segments_welch_psd : int
-            Number of psd segments to take an average over.
+            Number of segments used for PSD averaging (from both sides of the segment of interest)
+            N_avg_segs should be even and >= 2
 
         """
         try:
