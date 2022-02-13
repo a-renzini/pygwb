@@ -109,7 +109,9 @@ class Interferometer(bilby.gw.detector.Interferometer):
                 raise IOError(
                     f"{filename} could not be loaded. Invalid parameter 'shape'."
                 )
-            return cls(**parameters)
+            ifo_cls = cls(**parameters)
+            ifo_cls._check_ifo_name(name)
+            return ifo_cls
         except OSError:
             raise ValueError(f"Interferometer {name} not implemented")
 
@@ -160,9 +162,25 @@ class Interferometer(bilby.gw.detector.Interferometer):
 
         """
 
+        t0 = kwargs.pop("t0")
+        tf = kwargs.pop("tf")
+        data_type = kwargs.pop("data_type")
+        new_sample_rate = kwargs.pop("new_sample_rate")
+        cutoff_frequency = kwargs.pop("cutoff_frequency")
+        segment_duration = kwargs.pop("segment_duration")
+        self.duration=segment_duration
         self.timeseries = preprocessing_data_channel_name(
-            IFO=self.name, channel=channel, **kwargs
+            IFO=self.name,
+            channel=channel,
+            t0=t0,
+            tf=tf,
+            data_type=data_type,
+            new_sample_rate=new_sample_rate,
+            cutoff_frequency=cutoff_frequency,
+            segment_duration=segment_duration,
+            **kwargs
         )
+        # self._check_timeseries_channel_name(channel)
 
     def set_timeseries_from_timeseries_array(self, timeseries_array, **kwargs):
         """
@@ -177,9 +195,25 @@ class Interferometer(bilby.gw.detector.Interferometer):
 
         """
 
+        t0 = kwargs.pop("t0")
+        tf = kwargs.pop("tf")
+        data_type = kwargs.pop("data_type")
+        new_sample_rate = kwargs.pop("new_sample_rate")
+        cutoff_frequency = kwargs.pop("cutoff_frequency")
+        segment_duration = kwargs.pop("segment_duration")
+        self.duration=segment_duration
         self.timeseries = preprocessing_data_timeseries_array(
-            IFO=self.name, timeseries_array=timeseries_array, **kwargs
+            IFO=self.name,
+            array=timeseries_array,
+            t0=t0,
+            tf=tf,
+            data_type=data_type,
+            new_sample_rate=new_sample_rate,
+            cutoff_frequency=cutoff_frequency,
+            segment_duration=segment_duration,
+            **kwargs
         )
+        # self._check_timeseries_sample_rate(new_sample_rate)
 
     def set_timeseries_from_gwpy_timeseries(self, gwpy_timeseries, **kwargs):
         """
@@ -194,9 +228,19 @@ class Interferometer(bilby.gw.detector.Interferometer):
 
         """
 
+        new_sample_rate = kwargs.pop("new_sample_rate")
+        cutoff_frequency = kwargs.pop("cutoff_frequency")
+        number_cropped_seconds = kwargs.pop("number_cropped_seconds")
+        self.duration=segment_duration
         self.timeseries = preprocessing_data_gwpy_timeseries(
-            IFO=self.name, gwpy_timeseries=gwpy_timeseries, **kwargs
+            IFO=self.name,
+            gwpy_timeseries=gwpy_timeseries,
+            new_sample_rate=new_sample_rate,
+            cutoff_frequency=cutoff_frequency,
+            number_cropped_seconds=number_cropped_seconds,
+            **kwargs
         )
+        # self._check_timeseries_sample_rate(new_sample_rate)
 
     def set_psd_spectrogram(
         self,
@@ -234,6 +278,9 @@ class Interferometer(bilby.gw.detector.Interferometer):
             window_fftgram=window_fftgram,
             overlap_factor_welch_psd=overlap_factor_welch_psd,
         )
+        self._check_spectrogram_sample_rate(self.timeseries.sample_rate)
+        self._check_spectrogram_channel_name(self.timeseries.channel)
+        self._check_spectrogram_frequency_resolution(frequency_resolution)
 
     def set_average_psd(self, N_average_segments_welch_psd):
         """
@@ -254,3 +301,27 @@ class Interferometer(bilby.gw.detector.Interferometer):
             print(
                 "PSDs have not been calculated yet! Need to set_psd_spectrogram first."
             )
+
+    def _check_ifo_name(self, name):
+        if not self.name == name:
+            raise AssertionError("The ifo name in Interferomaeter class does not match given name!")
+
+    def _check_timeseries_channel_name(self, channel_name):
+        if not self.timeseries.channel == channel_name:
+            raise AssertionError("Channel name in timeseries does not match given channel!")
+
+    def _check_timeseries_sample_rate(self, sample_rate):
+        if not self.timeseries.sample_rate == sample_rate:
+            raise AssertionError("Sampling rate in timeseries does not match given sampleing rate!")
+
+    def _check_spectrogram_sample_rate(self, sample_rate):
+        if not self.psd_spectrogram.sample_rate == sample_rate:
+            raise AssertionError("Sampling rate in psd_spectrogram does not match given sampleing rate!")
+
+    def _check_spectrogram_channel_name(self, channel_name):
+        if not self.psd_spectrogram.channel == channel_name:
+            raise AssertionError("Channel name in psd_spectrogram does not match given channel!")
+
+    def _check_spectrogram_frequency_resolution(self, frequency_resolution):
+        if not self.psd_spectrogram.df.value == frequency_resolution:
+            raise AssertionError("Frequency resolution in psd_spectrogram does not match given frequency resolution!")
