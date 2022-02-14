@@ -192,8 +192,29 @@ class TestNotch(unittest.TestCase):
         self.assertTrue(check)
 
   
-    #def test_pulsar_injections(self):
+    def test_pulsar_injections(self):
     
+        #my_compare_notch_list = notch.StochNotchList([])
+        my_compare_notch_list = notch.pulsar_injections(filename="test/test_data/pulsar.dat",t_start=1238112018, t_end=1269363618, doppler=1e-4)
+        
+        fmin_comp = [12.42,26.33,31.42]
+        fmax_comp = [12.45,26.36,31.45]
+
+        for i,my_notch in enumerate(my_compare_notch_list):
+            print(my_notch.minimum_frequency,my_notch.maximum_frequency)
+            if my_notch.minimum_frequency == fmin_comp[i] and my_notch.maximum_frequency == fmax_comp[i]:
+                check = True
+            else:
+                check = False
+                break
+
+        self.assertTrue(check)
+
+
+        
+
+
+
 
 
 
