@@ -14,6 +14,12 @@ class TestNotch(unittest.TestCase):
         self.stoch_notch_list_2.append(notch.StochNotch(10.,15.,'This is a test notch 1'))
         self.stoch_notch_list_2.append(notch.StochNotch(35.,36.,'This is a test notch 2'))
         self.stoch_notch_list_2.append(notch.StochNotch(21.,23.,'This is a test notch 3'))
+        self.stoch_notch_list_3 = notch.StochNotchList([])
+        self.stoch_notch_list_3.append(notch.StochNotch(12.42,12.45,'Pulsar injection'))
+        self.stoch_notch_list_3.append(notch.StochNotch(16.58,17.61,'H1 calibration line'))
+
+
+
 
     def tearDown(self):
         del self.stoch_notch_list_1
@@ -51,7 +57,7 @@ class TestNotch(unittest.TestCase):
         print("Does the file exist?   ",os.path.isfile("test/TestNotchList_1.dat"))
 
         my_compare_notch_list = notch.StochNotchList([])
-        my_compare_notch_list = my_compare_notch_list.load_from_file("test/TestNotchList.dat")
+        my_compare_notch_list = my_compare_notch_list.load_from_file("test/test_data/TestNotchList.dat")
 
         print(len(my_compare_notch_list),len(self.stoch_notch_list_1))
         print(my_compare_notch_list,self.stoch_notch_list_1)
@@ -101,11 +107,52 @@ class TestNotch(unittest.TestCase):
                 break
         self.assertTrue(check)
 
-    """
-    def test_load_from_file(self):
-
+   
     def test_load_from_file_pre_pyGWB(self):
 
+
+        my_compare_notch_list = notch.StochNotchList([])
+        my_compare_notch_list = my_compare_notch_list.load_from_file("test/test_data/TestNotchList.dat")
+
+    
+
+        print(len(my_compare_notch_list),len(self.stoch_notch_list_3))
+        print(my_compare_notch_list,self.stoch_notch_list_3)
+
+
+        if len(my_compare_notch_list) == len(self.stoch_notch_list_3):
+            check_1 = True
+        else:
+            check_1 = False
+
+        self.assertTrue(check_1)
+
+
+
+        for i in range(len(my_compare_notch_list)):
+            if my_compare_notch_list[i].minimum_frequency == self.stoch_notch_list_3[i].minimum_frequency:
+                check_2 = True
+            else:
+                check_2 = False
+            if my_compare_notch_list[i].maximum_frequency == self.stoch_notch_list_3[i].maximum_frequency:
+                check_3 = True
+            else:
+                check_3 = False
+            if my_compare_notch_list[i].description == '  ' + self.stoch_notch_list_3[i].description:
+                check_4 = True
+            else:
+                check_4 = False
+            print(my_compare_notch_list[i].minimum_frequency , self.stoch_notch_list_3[i].minimum_frequency)
+            print(my_compare_notch_list[i].maximum_frequency , self.stoch_notch_list_3[i].maximum_frequency)
+            print(my_compare_notch_list[i].description , self.stoch_notch_list_3[i].description)
+
+        self.assertTrue(check_2)
+        self.assertTrue(check_3)
+        self.assertTrue(check_4)
+
+
+
+    """
     def test_power_lines(self):
 
     def test_comb(self):
