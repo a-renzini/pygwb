@@ -140,7 +140,7 @@ class TestNotch(unittest.TestCase):
             else:
                 check_3 = False
                 break
-            if my_compare_notch_list[i].description == + self.stoch_notch_list_3[i].description:
+            if my_compare_notch_list[i].description == self.stoch_notch_list_3[i].description:
                 check_4 = True
             else:
                 check_4 = False
@@ -164,8 +164,8 @@ class TestNotch(unittest.TestCase):
         fmax_comp = [60.1,120.1,180.1]        
         my_compare_notch_list = notch.power_lines(fundamental=60, nharmonics=3, df=0.2)
 
-        for i,notch in enumerate(my_compare_notch_list):
-            if notch.fmin == fmin_comp[i] and notch.fmax == fmax_comp[i]:
+        for i,my_notch in enumerate(my_compare_notch_list):
+            if my_notch.fmin == fmin_comp[i] and my_notch.fmax == fmax_comp[i]:
                 check = True
             else:
                 check = False
