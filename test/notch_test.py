@@ -112,7 +112,7 @@ class TestNotch(unittest.TestCase):
 
 
         my_compare_notch_list = notch.StochNotchList([])
-        my_compare_notch_list = my_compare_notch_list.load_from_file("test/test_data/TestNotchList.dat")
+        my_compare_notch_list = my_compare_notch_list.load_from_file_pre_pyGWB("test/test_data/TestNotchList_pre-pyGWB.dat")
 
     
 
@@ -152,9 +152,24 @@ class TestNotch(unittest.TestCase):
 
 
 
-    """
+    
     def test_power_lines(self):
 
+        fmin_comp = [59.9,119.9,179.9]
+        fmax_comp = [60.1,120.1,180.1]        
+        my_compare_notch_list = power_lines(fundamental=60, nharmonics=3, df=0.2)
+
+        for i,notch in enumerate(my_compare_notch_list):
+            if notch.fmin == fmin_comp[i] and notch.fmax == fmax_comp[i]:
+                check = True
+            else:
+                check = False
+                break
+
+        self.assertTrue(check)
+
+
+    """
     def test_comb(self):
 
     def test_pulsar_injections(self):
