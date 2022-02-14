@@ -230,14 +230,12 @@ class Interferometer(bilby.gw.detector.Interferometer):
 
         new_sample_rate = kwargs.pop("new_sample_rate")
         cutoff_frequency = kwargs.pop("cutoff_frequency")
-        number_cropped_seconds = kwargs.pop("number_cropped_seconds")
         self.duration=segment_duration
         self.timeseries = preprocessing_data_gwpy_timeseries(
             IFO=self.name,
             gwpy_timeseries=gwpy_timeseries,
             new_sample_rate=new_sample_rate,
             cutoff_frequency=cutoff_frequency,
-            number_cropped_seconds=number_cropped_seconds,
             **kwargs
         )
         # self._check_timeseries_sample_rate(new_sample_rate)
