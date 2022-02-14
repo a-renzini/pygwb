@@ -165,7 +165,7 @@ class TestNotch(unittest.TestCase):
         my_compare_notch_list = notch.power_lines(fundamental=60, nharmonics=3, df=0.2)
 
         for i,my_notch in enumerate(my_compare_notch_list):
-            if my_notch.fmin == fmin_comp[i] and my_notch.fmax == fmax_comp[i]:
+            if my_notch.minimum_frequency == fmin_comp[i] and my_notch.maximum_frequency == fmax_comp[i]:
                 check = True
             else:
                 check = False
@@ -174,11 +174,26 @@ class TestNotch(unittest.TestCase):
         self.assertTrue(check)
 
 
-    """
+    
     def test_comb(self):
 
-    def test_pulsar_injections(self):
-    """
+        fmin_comp = [59.9,119.9,179.9]
+        fmax_comp = [60.1,120.1,180.1]
+
+        my_compare_notch_list = notch.comb(f0 = 60, f_spacing = 60, n_harmonics = 3, df 0.2, description=None)
+
+        for i,my_notch in enumerate(my_compare_notch_list):
+            if my_notch.minimum_frequency == fmin_comp[i] and my_notch.maximum_frequency == fmax_comp[i]:
+                check = True
+            else:
+                check = False
+                break
+
+        self.assertTrue(check)
+
+  
+    #def test_pulsar_injections(self):
+    
 
 
 
