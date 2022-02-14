@@ -134,18 +134,23 @@ class TestNotch(unittest.TestCase):
                 check_2 = True
             else:
                 check_2 = False
+                break
             if my_compare_notch_list[i].maximum_frequency == self.stoch_notch_list_3[i].maximum_frequency:
                 check_3 = True
             else:
                 check_3 = False
-            if my_compare_notch_list[i].description == '  ' + self.stoch_notch_list_3[i].description:
+                break
+            if my_compare_notch_list[i].description == + self.stoch_notch_list_3[i].description:
                 check_4 = True
             else:
                 check_4 = False
+                break
             print(my_compare_notch_list[i].minimum_frequency , self.stoch_notch_list_3[i].minimum_frequency)
             print(my_compare_notch_list[i].maximum_frequency , self.stoch_notch_list_3[i].maximum_frequency)
             print(my_compare_notch_list[i].description , self.stoch_notch_list_3[i].description)
 
+
+        print(check_2,check_3,check_4)
         self.assertTrue(check_2)
         self.assertTrue(check_3)
         self.assertTrue(check_4)
@@ -157,7 +162,7 @@ class TestNotch(unittest.TestCase):
 
         fmin_comp = [59.9,119.9,179.9]
         fmax_comp = [60.1,120.1,180.1]        
-        my_compare_notch_list = power_lines(fundamental=60, nharmonics=3, df=0.2)
+        my_compare_notch_list = notch.power_lines(fundamental=60, nharmonics=3, df=0.2)
 
         for i,notch in enumerate(my_compare_notch_list):
             if notch.fmin == fmin_comp[i] and notch.fmax == fmax_comp[i]:
