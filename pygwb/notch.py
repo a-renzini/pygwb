@@ -28,7 +28,7 @@ class StochNotchList(list):
         Parameters
         ==========
         notch_list: list
-            A list of length-3 tuples of the (max, min) frequency; description for the notches.
+            A list of length-3 tuples of the (min, max) frequency; description for the notches.
 
         Raises
         ======
