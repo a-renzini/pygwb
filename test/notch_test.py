@@ -206,7 +206,7 @@ class TestNotch(unittest.TestCase):
                 check = True
             else:
                 check = False
-                break
+                #break
 
         self.assertTrue(check)
 
