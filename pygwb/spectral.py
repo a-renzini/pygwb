@@ -1,6 +1,7 @@
 import gwpy.spectrogram
 import numpy as np
 from scipy.signal import get_window, spectrogram
+from .constants import H0
 
 
 def fftgram(
@@ -475,3 +476,5 @@ def running_mean(data, coarsening_factor=1, axis=-1):
         np.swapaxes(cumsum[coarsening_factor:] - cumsum[:-coarsening_factor], axis, -1)
         / coarsening_factor
     )
+
+
