@@ -106,6 +106,15 @@ python-3.10:
   <<: *test-python
   image: python:3.10
 
+test-psd-generation:
+  stage: test
+  image: python:3.9
+  # only:
+    # - schedules
+  script:
+    - pip install .
+    - pytest test/test_data/test_data_generation_consistency.py
+
 documentation:
   stage: documentation
   image: python:3.8
