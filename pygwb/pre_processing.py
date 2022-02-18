@@ -89,6 +89,7 @@ def read_data(IFO: str, data_type: str, channel: str, t0: int, tf: int):
         data = timeseries.TimeSeries.fetch_open_data(IFO, t0, tf, sample_rate=16384)
     elif data_type == "private":
         data = timeseries.TimeSeries.get(channel, t0, tf)
+        data.channel = channel
     elif data_type == "injection":
         pass
     else:
@@ -362,7 +363,7 @@ def preprocessing_data_gwpy_timeseries(
     gwpy_timeseries: timeseries.TimeSeries,
     new_sample_rate: int,
     cutoff_frequency: float,
-    number_cropped_seconds: int,
+    number_cropped_seconds: int = 2,
     window_downsampling: str = "hamming",
     ftype: str = "fir",
 ):
