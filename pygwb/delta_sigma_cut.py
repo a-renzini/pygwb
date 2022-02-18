@@ -27,10 +27,10 @@ def dsc_cut(
         Threshold to perform the delta sigma cut
 
     bf_ss: float
-        GPS time of the start of the data taking
+        Sliding bias factor
 
     bf_ns: float
-        GPS time of the end of the data taking
+        Naive bias factor
 
     Returns
     =======
