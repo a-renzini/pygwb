@@ -1,6 +1,7 @@
 import json
 import warnings
 
+import h5py
 import numpy as np
 from bilby.core.utils import create_frequency_series
 
@@ -416,7 +417,7 @@ class Baseline(object):
         sigma_pyGWB_new,
     ):
         """Saves the overall point estimate Y_pygwb_new, its error bar sigma_pyGWB_new,
-        the frequency-dependent estimates and variances and the corresponding frequencies in the required save_data_type, which can be npz, pickle or json.
+        the frequency-dependent estimates and variances and the corresponding frequencies in the required save_data_type, which can be npz, pickle, json or hdf5.
         You can call upon this data afterwards when loaoding in using the ['key'] dictionary format.
 
         Parameters
@@ -455,9 +456,15 @@ class Baseline(object):
                 filename, freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new
             )
 
+        elif save_data_type == "hdf5":
+            filename = filename + ".h5"
+            self.hdf5_save(
+                filename, freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new
+            )
+
         else:
             raise ValueError(
-                "The provided data type is not supported, try using 'pickle', 'npz' or 'json' instead."
+                "The provided data type is not supported, try using 'pickle', 'npz', 'json' or 'hdf5' instead."
             )
 
     def save_data_to_file(
@@ -509,9 +516,22 @@ class Baseline(object):
         with open(filename, "w") as outfile:
             json.dump(save_dictionary, outfile)
 
+    def hdf5_save(
+        self, filename, freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new
+    ):
+        hf = h5py.File(filename, "w")
+
+        hf.create_dataset("freqs", data=freqs)
+        hf.create_dataset("Y_f", data=Y_f_new)
+        hf.create_dataset("var_f", data=var_f_new)
+        hf.create_dataset("Y_pyGWB", data=Y_pyGWB_new)
+        hf.create_dataset("sigma_pyGWB", data=sigma_pyGWB_new)
+
+        hf.close()
+
     def save_data_csd(self, save_data_type, filename, freqs, csd, psd_1, psd_2):
         """
-        Saves the computed csd and average pds together with their corresponding frequencies in the required save_data_type, which can be npz, pickle or json.
+        Saves the computed csd and average pds together with their corresponding frequencies in the required save_data_type, which can be npz, pickle, json or hdf5.
         You can call upon this data afterwards when loaoding in using the ['key'] dictionary format.
 
         Parameters
@@ -540,9 +560,13 @@ class Baseline(object):
             filename = filename + ".json"
             self.json_save_csd(filename, freqs, csd, psd_1, psd_2)
 
+        elif save_data_type == "hdf5":
+            filename = filename + ".h5"
+            self.hdf5_save_csd(filename, freqs, csd, psd_1, psd_2)
+
         else:
             raise ValueError(
-                "The provided data type is not supported, try using 'pickle', 'npz' or 'json' instead."
+                "The provided data type is not supported, try using 'pickle', 'npz', 'json' or 'hdf5' instead."
             )
 
     def save_data_to_file_csd(self, filename, freqs, csd, avg_psd_1, avg_psd_2):
@@ -601,3 +625,133 @@ class Baseline(object):
 
         with open(filename, "w") as outfile:
             json.dump(save_dictionary, outfile)
+
+    def hdf5_save_csd(self, filename, freqs, csd, psd_1, psd_2):
+        hf = h5py.File(filename, "w")
+
+        csd_times = csd.times.value
+        psd_1_times = psd_1.times.value
+        psd_2_times = psd_2.times.value
+
+        hf.create_dataset("freqs", data=freqs)
+
+        csd_group = hf.create_group("csd_group")
+
+        csd_group.create_dataset("csd", data=csd)
+        csd_group.create_dataset("csd_times", data=csd_times)
+
+        psd_group = hf.create_group("psds_group")
+
+        psd_1_group = hf.create_group("psds_group/psd_1")
+        psd_1_group.create_dataset("psd_1", data=psd_1)
+        psd_1_group.create_dataset("psd_1_times", data=psd_1_times)
+
+        psd_2_group = hf.create_group("psds_group/psd_2")
+        psd_2_group.create_dataset("psd_2", data=psd_2)
+        psd_2_group.create_dataset("psd_2_times", data=psd_2_times)
+
+        hf.close()
+        
+    def save_segments(self, save_data_type, filename, freqs, badGPStimes, Y_f_segment, var_f_segment, Y_segment, sig_segment):
+        
+        if save_data_type == "pickle":
+            filename = filename + ".p"
+            filename_segment = filename + "_spectra_per_segment" + ".p"
+            self.pickle_save_segments(filename, filename_segment, freqs,  badGPStimes, Y_f_segment, var_f_segment, Y_segment, sig_segment)
+
+        elif save_data_type == "npz":
+            filename_segment = filename + "_spectra_per_segment"
+            self.save_segments_npz(filename, filename_segment, freqs,  badGPStimes, Y_f_segment, var_f_segment, Y_segment, sig_segment)
+
+        elif save_data_type == "json":
+            filename = filename + ".json"
+            filename_segment = filename + "_spectra_per_segment" + ".json"
+            self.json_save_segments(filename, filename_segment, freqs,  badGPStimes, Y_f_segment, var_f_segment, Y_segment, sig_segment)
+
+        elif save_data_type == "hdf5":
+            filename = filename + ".h5"
+            filename_segment = filename + "_spectra_per_segment" + ".h5"
+            self.hdf5_save_segments(filename, filename_segment, freqs,  badGPStimes, Y_f_segment, var_f_segment, Y_segment, sig_segment)
+
+        else:
+            raise ValueError(
+                "The provided data type is not supported, try using 'pickle', 'npz', 'json' or 'hdf5' instead."
+            )
+
+            
+    def pickle_save_segments(self, filename, filename_segment, freqs, badGPStimes, Y_f_segment, var_f_segment, Y_segment, sig_segment):
+        
+        save_dictionary = {
+            "freqs": freqs,
+            "badGPStimes": badGPStimes,
+            "Y_f_segment": Y_f_segment, 
+            "var_f_segment": var_f_segment, 
+        }
+        
+        save_dictionary_estimate = {
+            "badGPStimes": badGPStimes, 
+            "Y_segment": Y_segment, 
+            "sig_segment": sig_segment, 
+        }
+        
+        with open(filename, "wb") as f:
+            pickle.dump(save_dictionary_estimate, f)
+
+        with open(filename_segment, "wb") as h:
+            pickle.dump(save_dictionary, h)
+        
+        
+    def save_segments_npz(self, filename, filename_segment, freqs,  badGPStimes, Y_f_segment, var_f_segment, Y_segment, sig_segment):
+        np.savez(
+            filename_segment, freqs=freqs, badGPStimes = badGPStimes, Y_f_segment = Y_f_segment, var_f_segment = var_f_segment
+        )
+        np.savez(
+            filename, badGPStimes = badGPStimes, Y_segment = Y_segment, sig_segment = sig_segment
+        )
+    
+    def json_save_segments(self, filename, filename_segment, freqs,  badGPStimes, Y_f_segment, var_f_segment, Y_segment, sig_segment):
+        
+        list_freqs = freqs.tolist()
+        list_badGPStimes = badGPStimes.tolist()
+        list_Y_f_segment = Y_f_segment.tolist()
+        list_var_f_segment = var_f_segment.tolist()
+        list_Y_segment = Y_segment.tolist()
+        list_seg_segment = sig_segment.tolist()
+        
+
+        save_dictionary = {
+            "freqs": list_freqs,
+            "badGPStimes": list_badGPStimes,
+            "Y_f_segment": list_Y_f_segment, 
+            "var_f_segment": list_var_f_segment, 
+        }
+        
+        save_dictionary_estimate = {
+            "badGPStimes": list_badGPStimes, 
+            "Y_segment": list_Y_segment, 
+            "sig_segment": list_sig_segment, 
+        }
+
+        with open(filename_segment, "w") as outputfile_segments:
+            json.dump(save_dictionary, outputfile_segments)
+
+        with open(filename, "w") as outfile:
+            json.dump(save_dictionary_estimate, outfile)
+            
+    def hdf5_save_segments(self, filename, filename_segment, freqs,  badGPStimes, Y_f_segment, var_f_segment, Y_segment, sig_segment):
+        hf = h5py.File(filename_segment, "w")
+
+        hf.create_dataset("freqs", data = freqs)
+        hf.create_dataset("badGPStimes", data = badGPStimes)
+        hf.create_dataset("Y_f_segment", data = Y_f_segment)
+        hf.create_dataset("var_f_segment", data = var_f_segment)
+
+        hf.close()
+        
+        estimate_file = h5py.File(filename, "w")
+        
+        estimate_file.create_dataset("badGPStimes", data = badGPStimes)
+        estimate_file.create_dataset("Y_segment", data = Y_segment)
+        estimate_file.create_dataset("sig_segment", data = sig_segment)
+        
+        estimate_file.close()
