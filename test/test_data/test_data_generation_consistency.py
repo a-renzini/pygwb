@@ -1,5 +1,6 @@
 import pickle
 import unittest
+from pathlib import Path
 
 from .create_naive_and_sliding_psds_pickle import create_psd_data
 

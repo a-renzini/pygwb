@@ -83,7 +83,7 @@ precommits-py3.8:
     - pip install pytest pytest-cov coverage-badge
   script:
     - pip install .
-    - pytest --cov=pygwb
+    - pytest --cov=pygwb --durations 10
 
 python-3.8:
   <<: *test-python
@@ -111,6 +111,9 @@ test-psd-generation:
   image: python:3.9
   # only:
     # - schedules
+  before_script:
+    - pip install --upgrade pip setuptools
+    - pip install pytest pytest-cov coverage-badge
   script:
     - pip install .
     - pytest test/test_data/test_data_generation_consistency.py
