@@ -1,17 +1,18 @@
 import json
-import warnings
 import logging
+import warnings
 
+import gwpy.frequencyseries
+import gwpy.spectrogram
 import numpy as np
 from bilby.core.utils import create_frequency_series
-import gwpy.spectrogram
-import gwpy.frequencyseries
 
 from .notch import StochNotchList
 from .orfs import calc_orf
+from .postprocessing import postprocess_Y_sigma
 from .spectral import coarse_grain_spectrogram, cross_spectral_density
 from .util import calc_Y_sigma_from_Yf_varf, calculate_point_estimate_sigma_spectrogram
-from .postprocessing import postprocess_Y_sigma
+
 
 class Baseline(object):
     def __init__(
