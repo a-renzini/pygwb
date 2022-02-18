@@ -35,11 +35,11 @@ def create_psd_data():
 
     for ii, ifo in enumerate(ifos):
         ifo_filtered = pre_processing.preprocessing_data_channel_name(
-            IFO=IFO1,
+            IFO=ifo,
             t0=t0,
             tf=tf,
             data_type=data_type,
-            channel=IFO1 + ":" + channel_suffix,
+            channel=ifo + ":" + channel_suffix,
             new_sample_rate=new_sample_rate,
             cutoff_frequency=cutoff_frequency,
             segment_duration=segment_duration,
@@ -57,7 +57,7 @@ def create_psd_data():
             window_fftgram="hann",
         )
 
-        # adjacent averated PSDs (detector 1) for each possible CSD
+        # adjacent averated PSDs for each possible CSD
         avg_psd = spectral.before_after_average(naive_psd, segment_duration, 2)
 
         dF = avg_psd.frequencies.value[1] - avg_psd.frequencies.value[0]
