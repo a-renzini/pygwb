@@ -19,18 +19,18 @@ class TestNotch(unittest.TestCase):
         self.stoch_notch_list_3.append(notch.StochNotch(16.58,17.61,'H1 calibration line'))
         self.stoch_notch_list_4 = notch.StochNotchList([])
         self.stoch_notch_list_4.append(notch.StochNotch(4.9,5.01,'This is a test notch'))
-        #self.stoch_notch_list_4.append(notch.StochNotch(5.25,5.28,'This is a test notch'))
-        #self.stoch_notch_list_4.append(notch.StochNotch(5.53,5.72,'This is a test notch'))
-        #self.stoch_notch_list_4.append(notch.StochNotch(6.01,6.11,'This is a test notch'))
-        #self.stoch_notch_list_4.append(notch.StochNotch(6.4,6.5,'This is a test notch'))
-        #self.stoch_notch_list_4.append(notch.StochNotch(6.91,7.5,'This is a test notch'))
+        self.stoch_notch_list_4.append(notch.StochNotch(5.35,5.38,'This is a test notch'))
+        self.stoch_notch_list_4.append(notch.StochNotch(5.63,5.82,'This is a test notch'))
+        self.stoch_notch_list_4.append(notch.StochNotch(6.11,6.21,'This is a test notch'))
+        self.stoch_notch_list_4.append(notch.StochNotch(6.5,6.6,'This is a test notch'))
+        self.stoch_notch_list_4.append(notch.StochNotch(7.01,7.5,'This is a test notch'))
         self.stoch_notch_list_5 = notch.StochNotchList([])
-        #self.stoch_notch_list_5.append(notch.StochNotch(4.9,4.99,'This is a test notch'))
-        #self.stoch_notch_list_5.append(notch.StochNotch(5.25,5.28,'This is a test notch'))
-        self.stoch_notch_list_5.append(notch.StochNotch(5.53,5.72,'This is a test notch'))
-        #self.stoch_notch_list_5.append(notch.StochNotch(6.01,6.11,'This is a test notch'))
-        #self.stoch_notch_list_5.append(notch.StochNotch(6.4,6.5,'This is a test notch'))
-        #self.stoch_notch_list_5.append(notch.StochNotch(7.01,7.5,'This is a test notch'))
+        self.stoch_notch_list_5.append(notch.StochNotch(4.9,4.99,'This is a test notch'))
+        self.stoch_notch_list_5.append(notch.StochNotch(5.35,5.38,'This is a test notch'))
+        self.stoch_notch_list_5.append(notch.StochNotch(5.63,5.82,'This is a test notch'))
+        self.stoch_notch_list_5.append(notch.StochNotch(6.11,6.21,'This is a test notch'))
+        self.stoch_notch_list_5.append(notch.StochNotch(6.5,6.6,'This is a test notch'))
+        self.stoch_notch_list_5.append(notch.StochNotch(7.01,7.5,'This is a test notch'))
 
 
 
@@ -51,9 +51,9 @@ class TestNotch(unittest.TestCase):
     def test_get_idxs(self):
         epsilon = 1e-4
         freqs = np.arange(5.,7.+epsilon,0.1)
-        anwser_1 = [True,False,True,True,False,True,True,True,True,False,True,True,True,False,True,True,False,False,False,False,True]
+        anwser_1 = [True,True,False,True,True,False,True,True,True,True,False,True,True,True,False,True,True,False,False,True,True]
         anwser_1_b = [not elem for elem in anwser_1]
-        anwser_2 = [False,False,True,True,False,True,True,True,True,False,True,True,True,False,True,True,False,False,False,False,False]
+        anwser_2 = [False,False,False,True,True,False,True,True,True,True,False,True,True,True,False,True,True,False,False,False,False]
         anwser_2_b = [not elem for elem in anwser_2]
         test_idxs = np.ones(len(freqs))
         test_inv_idxs = np.ones(len(freqs))
@@ -61,9 +61,6 @@ class TestNotch(unittest.TestCase):
         idxs1,inv_idxs1 = self.stoch_notch_list_4.get_idxs(freqs)
         idxs2,inv_idxs2 = self.stoch_notch_list_5.get_idxs(freqs)
 
-        print(freqs)
-        print(len(idxs1),len(anwser_1))
-        print(len(idxs2),len(anwser_2))
         print(idxs1)
         print(idxs2)
 
