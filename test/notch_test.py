@@ -215,8 +215,7 @@ class TestNotch(unittest.TestCase):
         my_compare_notch_list = notch.pulsar_injections(filename="test/test_data/pulsar.dat",t_start=1238112018, t_end=1269363618, doppler=1e-4)
         
         fmin_comp = [12.425369523451533,26.32748345804803]
-        fmax_comp = [12.428167393140068,26.335406132980573]
-
+        fmax_comp = [12.428167393140068,26.33540613298057]
 
         for i,my_notch in enumerate(my_compare_notch_list):
             print(my_notch.minimum_frequency,my_notch.maximum_frequency)
