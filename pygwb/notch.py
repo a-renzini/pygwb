@@ -93,27 +93,27 @@ class StochNotchList(list):
             temp = 0
             if my_iter == 0:
                 for notch in self:
-                    if not(notch.maximum_frequency <= frequency_array[my_iter]-df  and   notch.minimum_frequency >= frequency_array[my_iter+1]):
+                    if not(notch.maximum_frequency <= frequency_array[my_iter]-df  or   notch.minimum_frequency >= frequency_array[my_iter+1]):
                         temp = True
                         break
                     else:
                         temp = False
             elif my_iter == len(frequency_array)-1:
                 for notch in self:
-                    if not(notch.maximum_frequency <= frequency_array[my_iter-1]  and   notch.minimum_frequency >= frequency_array[my_iter]+df):
+                    if not(notch.maximum_frequency <= frequency_array[my_iter-1]  or   notch.minimum_frequency >= frequency_array[my_iter]+df):
                         temp = True
                         break
                     else:
                         temp = False
             else:
                 for notch in self:
-                    if not(notch.maximum_frequency <= frequency_array[my_iter-1]  and   notch.minimum_frequency >= frequency_array[my_iter+1]): 
+                    if not(notch.maximum_frequency <= frequency_array[my_iter-1]  or   notch.minimum_frequency >= frequency_array[my_iter+1]): 
                         
                         print(notch.maximum_frequency,frequency_array[my_iter-1])
                         print(notch.minimum_frequency,frequency_array[my_iter+1])
                         print(notch.maximum_frequency <= frequency_array[my_iter-1])
                         print(notch.minimum_frequency >= frequency_array[my_iter+1])
-                        print(not(notch.maximum_frequency <= frequency_array[my_iter-1]  and   notch.minimum_frequency >= frequency_array[my_iter+1]))                       
+                        print(not(notch.maximum_frequency <= frequency_array[my_iter-1]  or   notch.minimum_frequency >= frequency_array[my_iter+1]))                       
                         
                         temp = True
                         break
