@@ -61,6 +61,13 @@ class TestNotch(unittest.TestCase):
         idxs1,inv_idxs1 = self.stoch_notch_list_4.get_idxs(freqs)
         idxs2,inv_idxs2 = self.stoch_notch_list_5.get_idxs(freqs)
 
+        print(freqs)
+        print(len(idxs1),len(anwser_1))
+        print(len(idxs2),len(anwser_2))
+        print(idxs1)
+        print(idxs2)
+
+
         self.assertTrue(np.array_equal(idxs1,anwser_1))        
         self.assertTrue(np.array_equal(inv_idxs1,anwser_1_b))        
         self.assertTrue(np.array_equal(idxs2,anwser_2))        
