@@ -108,6 +108,13 @@ class StochNotchList(list):
             else:
                 for notch in self:
                     if not(notch.maximum_frequency <= frequency_array[my_iter-1]  and   notch.minimum_frequency >= frequency_array[my_iter+1]): 
+                        
+                        print(notch.maximum_frequency,frequency_array[my_iter-1])
+                        print(notch.minimum_frequency,frequency_array[my_iter+1])
+                        print(notch.maximum_frequency <= frequency_array[my_iter-1])
+                        print(notch.minimum_frequency >= frequency_array[my_iter+1])
+                        print(not(notch.maximum_frequency <= frequency_array[my_iter-1]  and   notch.minimum_frequency >= frequency_array[my_iter+1]))                       
+                        
                         temp = True
                         break
                     else:
