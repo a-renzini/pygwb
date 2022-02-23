@@ -112,7 +112,7 @@ class StochNotchList(list):
                         break
                     else:
                         temp = False
-            inv_idxs.append(temp)
+            idxs.append(temp)
         inv_idxs = [not elem for elem in idxs]
         return idxs, inv_idxs
 
