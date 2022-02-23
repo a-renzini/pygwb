@@ -17,6 +17,21 @@ class TestNotch(unittest.TestCase):
         self.stoch_notch_list_3 = notch.StochNotchList([])
         self.stoch_notch_list_3.append(notch.StochNotch(12.42,12.45,'Pulsar injection'))
         self.stoch_notch_list_3.append(notch.StochNotch(16.58,17.61,'H1 calibration line'))
+        self.stoch_notch_list_4 = notch.StochNotchList([])
+        self.stoch_notch_list_4.append(notch.StochNotch(4.9,5.01,'This is a test notch'))
+        self.stoch_notch_list_4.append(notch.StochNotch(5.25,5.28,'This is a test notch'))
+        self.stoch_notch_list_4.append(notch.StochNotch(5.53,5.72,'This is a test notch'))
+        self.stoch_notch_list_4.append(notch.StochNotch(6.01,6.11,'This is a test notch'))
+        self.stoch_notch_list_4.append(notch.StochNotch(6.4,6.5,'This is a test notch'))
+        self.stoch_notch_list_4.append(notch.StochNotch(6.91,7.5,'This is a test notch'))
+        self.stoch_notch_list_5 = notch.StochNotchList([])
+        self.stoch_notch_list_5.append(notch.StochNotch(4.9,4.99,'This is a test notch'))
+        self.stoch_notch_list_5.append(notch.StochNotch(5.25,5.28,'This is a test notch'))
+        self.stoch_notch_list_5.append(notch.StochNotch(5.53,5.72,'This is a test notch'))
+        self.stoch_notch_list_5.append(notch.StochNotch(6.01,6.11,'This is a test notch'))
+        self.stoch_notch_list_5.append(notch.StochNotch(6.4,6.5,'This is a test notch'))
+        self.stoch_notch_list_5.append(notch.StochNotch(7.01,7.5,'This is a test notch'))
+
 
 
 
@@ -34,20 +49,22 @@ class TestNotch(unittest.TestCase):
         self.assertTrue(np.all(test_results))
 
     def test_get_idxs(self):
-        freqs = np.arange(5.,1000.,0.1)
+        epsilon = 1e-4
+        freqs = np.arange(5.,7.+epsilon,0.1)
+        anwser_1 = [True,False,True,True,False,True,True,True,True,False,True,True,True,False,True,True,False,False,False,False,True]
+        anwser_1_b = [not elem for elem in anwser_1]
+        anwser_2 = [False,False,True,True,False,True,True,True,True,False,True,True,True,False,True,True,False,False,False,False,False]
+        anwser_2_b = [not elem for elem in anwser_2]
         test_idxs = np.ones(len(freqs))
         test_inv_idxs = np.ones(len(freqs))
-        for i,f in enumerate(freqs):
-            if f >= 10. and f<= 15.:
-                test_idxs[i] = True
-                test_inv_idxs[i] = False
-            else:
-                test_idxs[i] = False
-                test_inv_idxs[i] = True
-        idxs,inv_idxs = self.stoch_notch_list_1.get_idxs(freqs)
 
-        self.assertTrue(np.array_equal(idxs,test_idxs))
-        self.assertTrue(np.array_equal(inv_idxs,test_inv_idxs))       
+        idxs1,inv_idxs1 = self.stoch_notch_list_4.get_idxs(freqs)
+        idxs2,inv_idxs2 = self.stoch_notch_list_5.get_idxs(freqs)
+
+        self.assertTrue(np.array_equal(idxs1,anwser_1))        
+        self.assertTrue(np.array_equal(inv_idxs1,anwser_1_b))        
+        self.assertTrue(np.array_equal(idxs2,anwser_2))        
+        self.assertTrue(np.array_equal(inv_idxs2,anwser_2_b))       
     
     def test_save_to_and_load_from_txt(self):
         
