@@ -1,8 +1,9 @@
 import os
 
+import numpy as np
+
 import bilby
 import gwpy
-import numpy as np
 
 from .baseline import Baseline
 from .simulator import Simulator
@@ -88,6 +89,34 @@ class Network(object):
 
         self.baselines = baselines
 
+    @classmethod
+    def from_baselines(cls, name, baselines):
+        """
+        Initialise a network from a set of baselines. Takes care to unpack the interferometers from each baselines and sets them in the Network.
+        """
+        if not all(baselines[0].duration == base.duration for base in baselines[1:]):
+            raise ValueError(
+                "All baselines used to initialise must have same duration set."
+            )
+        network = cls(
+            name,
+            interferometers=[],
+            duration=baselines[0].duration,
+        )
+        network.baselines = baselines
+        ifo_visited = set()
+        interferometers = []
+        for base in baselines:
+            if base.interferometer_1.name not in ifo_visited:
+                ifo_visited.add(base.interferometer_1.name)
+                interferometers.append(base.interferometer_1)
+            if base.interferometer_2.name not in ifo_visited:
+                ifo_visited.add(base.interferometer_2.name)
+                interferometers.append(base.interferometer_2)
+        network.interferometers = interferometers
+        network.Nifo = len(interferometers)
+        return network
+
     def set_duration(self, duration):
         """Sets the duration for the Network and Interferometers
 
@@ -170,6 +199,57 @@ class Network(object):
             channel = f"STRAIN_{ifo.name}"
             data_dict[channel] = ifo.strain_data.to_gwpy_timeseries()
         data_dict.write(file_path, format=file_format)
+
+    def combine_point_estimate_sigma_spectra(self):
+        """
+        Combines the point estimate and sigma spectra from different baselines in the Network and stores them as attributes.
+        """
+        point_estimate_spectra = np.array(
+            [base.point_estimate_spectrum for base in self.baselines]
+        )
+        sigma_spectra = np.array([base.sigma_spectrum for base in self.baselines])
+
+        self.point_estimate_spectrum = np.sum(
+            point_estimate_spectra / sigma_spectra ** 2
+        ) / np.sum(1 / sigma_spectra ** 2)
+        self.sigma_spectrum = 1 / np.sqrt(np.sum(1 / sigma_spectra ** 2))
+
+    def combine_point_estimate_sigma(
+        self,
+        alpha=0,
+        fref=25,
+        flow=20,
+        fhigh=500,
+        lines_object=None,
+        apply_weighting=True,
+        badtimes=np.array([], dtype=int),
+    ):
+        """
+        Combines the point estimate and sigma from different baselines in the Network and stores them as attributes.
+        """
+        try:
+            point_estimates = np.array([base.point_estimate for base in self.baselines])
+            sigmas = np.array([base.sigma for base in self.baselines])
+        except AttributeError:
+            for base in baselines:
+                base.set_point_estimate_sigma(
+                    self,
+                    alpha=alpha,
+                    fref=fref,
+                    flow=flow,
+                    fhigh=fhigh,
+                    lines_object=lines_object,
+                    apply_weighting=apply_weighting,
+                    badtimes=badtimes,
+                )
+
+            point_estimates = np.array([base.point_estimate for base in self.baselines])
+            sigmas = np.array([base.sigma for base in self.baselines])
+        self.point_estimate = np.sum(point_estimates / sigmas ** 2) / np.sum(
+            1 / sigmas ** 2
+        )
+        self.sigma = 1 / np.sqrt(np.sum(1 / sigmas ** 2))
+
 
 #    def set_interferometer_data_from_file(self, file):
 #        """
