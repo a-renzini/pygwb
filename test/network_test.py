@@ -48,3 +48,7 @@ class TestNetwork(unittest.TestCase):
         self.assertTrue(net.duration, self.duration)
         for ifo in net.interferometers:
             self.assertTrue(ifo.duration, self.duration)
+
+
+if __name__ == "__main__":
+    unittest.main()

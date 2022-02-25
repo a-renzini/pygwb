@@ -1,4 +1,5 @@
 import os
+import warnings
 
 import bilby
 import gwpy
@@ -126,34 +127,34 @@ class Network(object):
         duration: float, optional
             The duration to set for the Network and interferometers
         """
-        ifo_durations = []
-        for ifo in self.interferometers:
-            ifo_durations.append(ifo.duration)
-        ifo_durations = np.array(ifo_durations)
-
-        check_dur = np.all(ifo_durations == ifo_durations[0])
-
-        if not check_dur:
-            warnings.warn(
-                "The interferometer durations don't match! The Network may not be able to handle this."
-            )
         if duration is not None:
             self.duration = duration
             for ifo in self.interferometers:
                 ifo.duration = duration
-        elif check_dur:
-            self.duration = self.interferometers[0].duration
-        elif ifo_durations.any() is not None:
-            for dur in ifo_durations:
-                if dur is not None:
-                    self.duration = duration
-                    for ifo in self.interferometers:
-                        ifo.duration = duration
-        else:
+            return
+        try:
+            duration = next(ifo.duration is not None for ifo in self.interferometers)
+        except StopIteration:
             warnings.warn(
-                "The Network duration is not set, and the interferometer durations don't match."
+                "The Network duration is not set, "
+                "and the interferometer durations are all None."
             )
-            self.duration = duration
+            self.duration = None
+            return
+
+        check_dur = all(ifo.duration == duration for ifo in self.interferometers)
+        if not check_dur:
+            warnings.warn(
+                "The interferometer durations don't match! "
+                "The Network may not be able to handle this."
+            )
+            warnings.warn(
+                "The Network duration is set to first not None duration from interferometers. This may not be what you want."
+            )
+
+            for ifo in self.interferometers:
+                ifo.duration = duration
+        self.duration = duration
 
     def set_interferometer_data_from_simulator(
         self, GWB_intensity, N_segments, sampling_frequency, inject_into_data_flag=False
@@ -209,9 +210,9 @@ class Network(object):
         sigma_spectra = np.array([base.sigma_spectrum for base in self.baselines])
 
         self.point_estimate_spectrum = np.sum(
-            point_estimate_spectra / sigma_spectra ** 2
-        ) / np.sum(1 / sigma_spectra ** 2)
-        self.sigma_spectrum = 1 / np.sqrt(np.sum(1 / sigma_spectra ** 2))
+            point_estimate_spectra / sigma_spectra**2
+        ) / np.sum(1 / sigma_spectra**2)
+        self.sigma_spectrum = 1 / np.sqrt(np.sum(1 / sigma_spectra**2))
 
     def combine_point_estimate_sigma(
         self,
@@ -244,10 +245,10 @@ class Network(object):
 
             point_estimates = np.array([base.point_estimate for base in self.baselines])
             sigmas = np.array([base.sigma for base in self.baselines])
-        self.point_estimate = np.sum(point_estimates / sigmas ** 2) / np.sum(
-            1 / sigmas ** 2
+        self.point_estimate = np.sum(point_estimates / sigmas**2) / np.sum(
+            1 / sigmas**2
         )
-        self.sigma = 1 / np.sqrt(np.sum(1 / sigmas ** 2))
+        self.sigma = 1 / np.sqrt(np.sum(1 / sigmas**2))
 
 
 #    def set_interferometer_data_from_file(self, file):
