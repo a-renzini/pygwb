@@ -140,7 +140,7 @@ class Network(object):
         if duration is not None:
             self.duration = duration
             for ifo in self.interferometers:
-                self.ifo.duration = duration
+                ifo.duration = duration
         elif check_dur:
             self.duration = self.interferometers[0].duration
         elif ifo_durations.any() is not None:
@@ -148,7 +148,7 @@ class Network(object):
                 if dur is not None:
                     self.duration = duration
                     for ifo in self.interferometers:
-                        self.ifo.duration = duration
+                        ifo.duration = duration
         else:
             warnings.warn(
                 "The Network duration is not set, and the interferometer durations don't match."
