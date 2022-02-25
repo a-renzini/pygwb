@@ -185,7 +185,8 @@ class Interferometer(bilby.gw.detector.Interferometer):
             window_downsampling = window_downsampling,
             ftype = ftype
         )
-        self._check_timeseries_channel_name(channel)
+        # FIXME : put the line below back when MR of preprocessing module is merged
+        # self._check_timeseries_channel_name(channel)
 
     def set_timeseries_from_timeseries_array(self, timeseries_array, sample_rate, **kwargs):
         """
@@ -215,7 +216,6 @@ class Interferometer(bilby.gw.detector.Interferometer):
             array=timeseries_array,
             t0=t0,
             tf=tf,
-            data_type=data_type,
             new_sample_rate=new_sample_rate,
             cutoff_frequency=cutoff_frequency,
             segment_duration=segment_duration,
