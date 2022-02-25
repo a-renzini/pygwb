@@ -1,9 +1,8 @@
 import os
 
-import numpy as np
-
 import bilby
 import gwpy
+import numpy as np
 
 from .baseline import Baseline
 from .simulator import Simulator
