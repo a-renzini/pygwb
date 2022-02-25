@@ -1,11 +1,12 @@
 import json
+import pickle
 import warnings
 
-from loguru import logger 
 import gwpy.frequencyseries
 import gwpy.spectrogram
 import numpy as np
 from bilby.core.utils import create_frequency_series
+from loguru import logger
 
 from .notch import StochNotchList
 from .orfs import calc_orf
