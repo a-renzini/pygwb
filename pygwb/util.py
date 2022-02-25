@@ -99,8 +99,10 @@ def window_factors(N):
     return w1w2bar, w1w2squaredbar, w1w2ovlbar, w1w2squaredovlbar
 
 
-def calc_Y_sigma_from_Yf_varf(Y_f, var_f, freqs=None, alpha=0, fref=1):
-    if freqs is not None:
+def calc_Y_sigma_from_Yf_varf(Y_f, var_f, freqs=None, alpha=0, fref=1, weight_spectrum=True):
+    if weight_spectrum and freqs is None:
+        raise ValueError("Must supply frequency array if you want to weight the spectrum when combining")
+    if weight_spectrum:
         weights = (freqs / fref) ** alpha
     else:
         weights = np.ones(Y_f.shape)
@@ -276,24 +278,28 @@ def StatKS(DKS):
     return pvalue
 
 
-def calculate_point_estimate_sigma_spectrogram(freqs, csd, avg_psd_1, avg_psd_2, orf, duration, sample_rate):
+def calculate_point_estimate_sigma_spectrogram(freqs, csd, avg_psd_1, avg_psd_2, orf,
+                                               sample_rate, segment_duration, fref=1,
+                                               alpha=0, weight_spectrogram=False):
     S_alpha = (
         3
         * H0 ** 2
         / (10 * np.pi ** 2)
         / freqs ** 3
     )
+    if weight_spectrogram:
+        S_alpha *= (freqs / fref) ** alpha
     Y_fs = np.real(csd) / (orf * S_alpha)
     var_fs = (
         1
-        / (2 * duration * (freqs[1] - freqs[0]))
+        / (2 * segment_duration * (freqs[1] - freqs[0]))
         * avg_psd_1
         * avg_psd_2
         / (orf ** 2 * S_alpha ** 2)
     )
 
     w1w2bar, w1w2squaredbar, _, _ = window_factors(
-        sample_rate * duration
+        sample_rate * segment_duration
     )
 
     var_fs = var_fs * w1w2squaredbar / w1w2bar ** 2

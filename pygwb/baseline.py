@@ -487,7 +487,7 @@ class Baseline(object):
         if hasattr(self, 'average_csd'):
             self.average_csd = self.average_csd.crop_frequencies(flow, fhigh + deltaF)
 
-    def set_point_estimate_sigma_spectrogram(self, params):
+    def set_point_estimate_sigma_spectrogram(self, params, weight_spectrogram=False):
         """Set point estimate and sigma spectrogram. Resulting spectrogram
         *does not include frequency weighting for alpha*.
         """
@@ -505,21 +505,26 @@ class Baseline(object):
                                                                   self.interferometer_1.average_psd,
                                                                   self.interferometer_2.average_psd,
                                                                   self.overlap_reduction_function,
+                                                                  self.sampling_frequency,
                                                                   self.duration,
-                                                                  self.sampling_frequency
+                                                                  weight_spectrogram=weight_spectrogram,
+                                                                  fref=params.fref,
+                                                                  alpha=params.alpha,
                                                                   )
+
+        if weight_spectrogram:
+            self.spectrogram_alpha_weight = params.alpha
+        else:
+            self.spectrogram_alpha_weight = 0
+
+        sigma_name = self.name + f' sigma spectrogram alpha={self.spectrogram_alpha_weight}'
         self.point_estimate_spectrogram = gwpy.spectrogram.Spectrogram(Y_fs, times=self.average_csd.times,
                                                                        frequencies=self.average_csd.frequencies,
                                                                        name=self.name +
-                                                                       ' unweighted point estimate spectrogram')
+                                                                       f' with alpha={self.spectrogram_alpha_weight}')
         self.sigma_spectrogram = gwpy.spectrogram.Spectrogram(np.sqrt(var_fs), times=self.average_csd.times,
                                                               frequencies=self.average_csd.frequencies,
-                                                              name=self.name + ' sigma spectrogram')
-
-    def set_point_estimate_per_segment(self, params, lines_object=None):
-        if hasattr(self, 'point_estimate_spectrogram'):
-            self.set_point_estimate_sigma_spectrogram(params)
-        # TODO : combine over frequency for every segment
+                                                              name=sigma_name)
 
     def set_point_estimate_sigma_spectrum(self, params, badtimes=np.array([]), lines_object=None):
         """Sets time-integrated point estimate spectrum and variance in each frequency bin.
@@ -528,7 +533,7 @@ class Baseline(object):
 
         # set unweighted point estimate and sigma spectrograms
         if not hasattr(self, 'point_estimate_spectrogram'):
-            logging.info('Point estimate and sigma spectrograms have set yet. setting now...')
+            print('Point estimate and sigma spectrograms are not set yet. setting now...')
             self.set_point_estimate_sigma_spectrogram(params)
         deltaF = self.frequencies[1] - self.frequencies[0]
 
@@ -555,16 +560,20 @@ class Baseline(object):
                                                     self.duration,
                                                     deltaF,
                                                     self.sampling_frequency,
-                                                    notches)
+                                                    notches
+                                                    )
+
+        # REWEIGHT FUNCTION, self.spectrogram_alpha_weight is old weight, supplied alpha is new weight.
 
         self.point_estimate_spectrum = gwpy.frequencyseries.FrequencySeries(point_estimate,
-                                                               frequencies=self.frequencies,
-                                                               name=self.name + 'unweighted point estimate spectrum',
-                                                               epoch=epoch)
+                                                                            frequencies=self.frequencies,
+                                                                            name=self.name + 'unweighted point estimate spectrum',
+                                                                            epoch=epoch)
         self.sigma_spectrum = gwpy.frequencyseries.FrequencySeries(np.sqrt(sigma),
                                                                    frequencies=self.frequencies,
                                                                    name=self.name + 'unweighted sigma spectrum',
                                                                    epoch=epoch)
+        self.point_estimate_alpha = 0
 
     def set_point_estimate_sigma(self, params, lines_object=None, apply_weighting=True,
                                  badtimes=np.array([], dtype=int)):
