@@ -24,28 +24,27 @@ class TestNetwork(unittest.TestCase):
         del self.interferometer_3
         del self.duration
         del self.frequencies
-    
+
     def test_network_initialisation(self):
         ifos = [self.interferometer_1, self.interferometer_2, self.interferometer_3]
-        net = network.Network('test_net', ifos)
+        net = network.Network("test_net", ifos)
 
     def test_set_duration_from_ifo_1(self):
         self.interferometer_1.duration = self.duration
         ifos = [self.interferometer_1, self.interferometer_2, self.interferometer_3]
-        net = network.Network('test_net', ifos)
+        net = network.Network("test_net", ifos)
         self.assertTrue(net.duration, self.duration)
 
     def test_set_duration_from_ifos(self):
         ifos = [self.interferometer_1, self.interferometer_2, self.interferometer_3]
         for ifo in ifos:
             ifo.duration = self.duration
-        net = network.Network('test_net', ifos)
+        net = network.Network("test_net", ifos)
         self.assertTrue(net.duration, self.duration)
 
     def test_set_duration_from_network(self):
         ifos = [self.interferometer_1, self.interferometer_2, self.interferometer_3]
-        net = network.Network('test_net', ifos, duration = self.duration)
+        net = network.Network("test_net", ifos, duration=self.duration)
         self.assertTrue(net.duration, self.duration)
         for ifo in net.interferometers:
             self.assertTrue(ifo.duration, self.duration)
-
