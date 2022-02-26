@@ -30,7 +30,7 @@ class Baseline(object):
         window_fftgram="hann",
         overlap_factor_welch_psd=0,
         N_average_segments_welch_psd=2,
-        sampling_frequency=None
+        sampling_frequency=None,
     ):
         """
         Parameters
@@ -152,7 +152,7 @@ class Baseline(object):
         if self._duration_set:
             return self._duration
         else:
-            raise ValueError('Duration not yet set')
+            raise ValueError("Duration not yet set")
 
     @duration.setter
     def duration(self, dur):
@@ -204,7 +204,7 @@ class Baseline(object):
         if self._frequencies_set:
             return self._frequencies
         else:
-            raise ValueError('frequencies have not yet been set')
+            raise ValueError("frequencies have not yet been set")
 
     @frequencies.setter
     def frequencies(self, freqs):
@@ -212,13 +212,13 @@ class Baseline(object):
         self._frequencies_set = True
         # delete the orfs, set the calculated flag to zero
         if self._tensor_orf_calculated:
-            delattr(self, '_tensor_orf')
+            delattr(self, "_tensor_orf")
             self._tensor_orf_calculated = False
         if self._scalar_orf_calculated:
-            delattr(self, '_scalar_orf')
+            delattr(self, "_scalar_orf")
             self._scalar_orf_calculated = False
         if self._vector_orf_calculated:
-            delattr(self, '_vector_orf')
+            delattr(self, "_vector_orf")
             self._vector_orf_calculated = False
 
     def check_durations_match_baseline_ifos(self, duration):
@@ -245,10 +245,10 @@ class Baseline(object):
 
     @property
     def sampling_frequency(self):
-        if hasattr(self, '_sampling_frequency'):
+        if hasattr(self, "_sampling_frequency"):
             return self._sampling_frequency
         else:
-            raise ValueError('sampling frequency not set')
+            raise ValueError("sampling frequency not set")
 
     @sampling_frequency.setter
     def sampling_frequency(self, sampling_frequency):
@@ -298,9 +298,9 @@ class Baseline(object):
             )
             self._sampling_frequency_set = True
         else:
-            raise AttributeError(
-                "Need either interferometer sampling_frequency or sampling_frequency passed to __init__!"
-            )
+            warnings.warn("Neither baseline nor interferometer sampling_frequency is set.")
+            self._sampling_frequency = sampling_frequency
+            self._sampling_frequency_set = True
 
     def check_sampling_frequencies_match_baseline_ifos(self, sampling_frequency):
         if (
@@ -383,7 +383,7 @@ class Baseline(object):
             window_fftgram=parameters.window_fftgram,
             overlap_factor_welch_psd=parameters.overlap_factor_welch_psd,
             N_average_segments_welch_psd=parameters.N_average_segments_welch_psd,
-            sampling_frequency=parameters.new_sample_rate
+            sampling_frequency=parameters.new_sample_rate,
         )
 
     def set_cross_and_power_spectral_density(self, frequency_resolution):
@@ -456,7 +456,7 @@ class Baseline(object):
         csd_segment_offset = int(np.ceil(self.duration / stride))
         try:
             self.average_csd = coarse_grain_spectrogram(self.csd)[
-                csd_segment_offset: -(csd_segment_offset + 1) + 1
+                csd_segment_offset : -(csd_segment_offset + 1) + 1
             ]
         except AttributeError:
             print(
@@ -481,14 +481,20 @@ class Baseline(object):
         # reset frequencies
         self.frequencies = self.frequencies[indexes]
 
-        if hasattr(self.interferometer_1, 'average_psd'):
-            self.interferometer_1.average_psd = self.interferometer_1.average_psd.crop_frequencies(flow, fhigh + deltaF)
-        if hasattr(self.interferometer_2, 'average_psd'):
-            self.interferometer_2.average_psd = self.interferometer_2.average_psd.crop_frequencies(flow, fhigh + deltaF)
-        if hasattr(self, 'average_csd'):
+        if hasattr(self.interferometer_1, "average_psd"):
+            self.interferometer_1.average_psd = (
+                self.interferometer_1.average_psd.crop_frequencies(flow, fhigh + deltaF)
+            )
+        if hasattr(self.interferometer_2, "average_psd"):
+            self.interferometer_2.average_psd = (
+                self.interferometer_2.average_psd.crop_frequencies(flow, fhigh + deltaF)
+            )
+        if hasattr(self, "average_csd"):
             self.average_csd = self.average_csd.crop_frequencies(flow, fhigh + deltaF)
 
-    def set_point_estimate_sigma_spectrogram(self, weight_spectrogram=False, alpha=0, fref=1, flow=20, fhigh=1726):
+    def set_point_estimate_sigma_spectrogram(
+        self, weight_spectrogram=False, alpha=0, fref=1, flow=20, fhigh=1726
+    ):
         """Set point estimate and sigma spectrogram. Resulting spectrogram
         *does not include frequency weighting for alpha*.
         """
@@ -501,43 +507,66 @@ class Baseline(object):
         self.crop_frequencies_average_psd_csd(flow, fhigh)
 
         # don't get rid of information unless we need to.
-        Y_fs, var_fs = calculate_point_estimate_sigma_spectrogram(self.frequencies,
-                                                                  self.average_csd,
-                                                                  self.interferometer_1.average_psd,
-                                                                  self.interferometer_2.average_psd,
-                                                                  self.overlap_reduction_function,
-                                                                  self.sampling_frequency,
-                                                                  self.duration,
-                                                                  weight_spectrogram=weight_spectrogram,
-                                                                  fref=fref,
-                                                                  alpha=alpha,
-                                                                  )
+        Y_fs, var_fs = calculate_point_estimate_sigma_spectrogram(
+            self.frequencies,
+            self.average_csd,
+            self.interferometer_1.average_psd,
+            self.interferometer_2.average_psd,
+            self.overlap_reduction_function,
+            self.sampling_frequency,
+            self.duration,
+            weight_spectrogram=weight_spectrogram,
+            fref=fref,
+            alpha=alpha,
+        )
 
         if weight_spectrogram:
             self.spectrogram_alpha_weight = alpha
         else:
             self.spectrogram_alpha_weight = 0
 
-        sigma_name = self.name + f' sigma spectrogram alpha={self.spectrogram_alpha_weight}'
-        self.point_estimate_spectrogram = gwpy.spectrogram.Spectrogram(Y_fs, times=self.average_csd.times,
-                                                                       frequencies=self.average_csd.frequencies,
-                                                                       name=self.name +
-                                                                       f' with alpha={self.spectrogram_alpha_weight}')
-        self.sigma_spectrogram = gwpy.spectrogram.Spectrogram(np.sqrt(var_fs), times=self.average_csd.times,
-                                                              frequencies=self.average_csd.frequencies,
-                                                              name=sigma_name)
+        sigma_name = (
+            self.name + f" sigma spectrogram alpha={self.spectrogram_alpha_weight}"
+        )
+        self.point_estimate_spectrogram = gwpy.spectrogram.Spectrogram(
+            Y_fs,
+            times=self.average_csd.times,
+            frequencies=self.average_csd.frequencies,
+            name=self.name + f" with alpha={self.spectrogram_alpha_weight}",
+        )
+        self.sigma_spectrogram = gwpy.spectrogram.Spectrogram(
+            np.sqrt(var_fs),
+            times=self.average_csd.times,
+            frequencies=self.average_csd.frequencies,
+            name=sigma_name,
+        )
 
-    def set_point_estimate_sigma_spectrum(self, badtimes=np.array([]), lines_object=None,
-                                          weight_spectrogram=False, alpha=0, fref=1, flow=20, fhigh=1726):
+    def set_point_estimate_sigma_spectrum(
+        self,
+        badtimes=np.array([]),
+        lines_object=None,
+        weight_spectrogram=False,
+        alpha=0,
+        fref=1,
+        flow=20,
+        fhigh=1726,
+    ):
         """Sets time-integrated point estimate spectrum and variance in each frequency bin.
         Point estimate is *unweighted* by alpha.
         """
 
         # set unweighted point estimate and sigma spectrograms
-        if not hasattr(self, 'point_estimate_spectrogram'):
-            print('Point estimate and sigma spectrograms are not set yet. setting now...')
-            self.set_point_estimate_sigma_spectrogram(weight_spectrogram=weight_spectrogram,
-                                                      alpha=alpha, fref=fref, flow=flow, fhigh=fhigh)
+        if not hasattr(self, "point_estimate_spectrogram"):
+            print(
+                "Point estimate and sigma spectrograms are not set yet. setting now..."
+            )
+            self.set_point_estimate_sigma_spectrogram(
+                weight_spectrogram=weight_spectrogram,
+                alpha=alpha,
+                fref=fref,
+                flow=flow,
+                fhigh=fhigh,
+            )
         deltaF = self.frequencies[1] - self.frequencies[0]
 
         if lines_object is None:
@@ -546,9 +575,11 @@ class Baseline(object):
             notches, _ = lines_object.get_idxs(self.frequencies)
 
         # should be True for each bad time
-        bad_times_indexes = np.array([np.any(t == badtimes) for t in self.point_estimate_spectrogram.times.value])
+        bad_times_indexes = np.array(
+            [np.any(t == badtimes) for t in self.point_estimate_spectrogram.times.value]
+        )
 
-        logger.info(f'{np.sum(bad_times_indexes)} bad segments removed.')
+        logger.info(f"{np.sum(bad_times_indexes)} bad segments removed.")
 
         # start time, for metadata
         epoch = self.point_estimate_spectrogram.times[0]
@@ -558,42 +589,64 @@ class Baseline(object):
 
         # Post process. Last argument is frequency notches. Do not include these yet.
         # Leave that for when we combine over freqs.
-        point_estimate, sigma = postprocess_Y_sigma(self.point_estimate_spectrogram.value,
-                                                    self.sigma_spectrogram.value**2,
-                                                    self.duration,
-                                                    deltaF,
-                                                    self.sampling_frequency,
-                                                    notches
-                                                    )
+        if self.sampling_frequency is None: raise ValueError("the sampling frequency is not set! Cannot proceed with spectrum calculation.")
+        point_estimate, sigma = postprocess_Y_sigma(
+            self.point_estimate_spectrogram.value,
+            self.sigma_spectrogram.value**2,
+            self.duration,
+            deltaF,
+            self.sampling_frequency,
+            notches,
+        )
 
         # REWEIGHT FUNCTION, self.spectrogram_alpha_weight is old weight, supplied alpha is new weight.
 
-        self.point_estimate_spectrum = gwpy.frequencyseries.FrequencySeries(point_estimate,
-                                                                            frequencies=self.frequencies,
-                                                                            name=self.name + 'unweighted point estimate spectrum',
-                                                                            epoch=epoch)
-        self.sigma_spectrum = gwpy.frequencyseries.FrequencySeries(np.sqrt(sigma),
-                                                                   frequencies=self.frequencies,
-                                                                   name=self.name + 'unweighted sigma spectrum',
-                                                                   epoch=epoch)
+        self.point_estimate_spectrum = gwpy.frequencyseries.FrequencySeries(
+            point_estimate,
+            frequencies=self.frequencies,
+            name=self.name + "unweighted point estimate spectrum",
+            epoch=epoch,
+        )
+        self.sigma_spectrum = gwpy.frequencyseries.FrequencySeries(
+            np.sqrt(sigma),
+            frequencies=self.frequencies,
+            name=self.name + "unweighted sigma spectrum",
+            epoch=epoch,
+        )
         self.point_estimate_alpha = 0
 
-    def set_point_estimate_sigma(self, lines_object=None, apply_weighting=True,
-                                 badtimes=np.array([], dtype=int),
-                                 alpha=0, fref=1, flow=20, fhigh=1726):
-        """Set point estimate sigma based on a set of parameters.
-        """
+    def set_point_estimate_sigma(
+        self,
+        lines_object=None,
+        apply_weighting=True,
+        badtimes=np.array([], dtype=int),
+        alpha=0,
+        fref=1,
+        flow=20,
+        fhigh=1726,
+    ):
+        """Set point estimate sigma based on a set of parameters."""
         # set point estimate and sigma spectrum
         # this is estimate of omega_gw in each frequency bin
 
         # TODO: Add check if badtimes is apssed and point estimate spectrum
         # already exists...
-        if not hasattr(self, 'point_estimate_spectrum'):
-            logger.info('Point estimate and sigma spectra have not been set before. Setting it now...')
-            logger.debug("No weighting supplied in setting of spectrum. Supplied when combining for final sigma")
-            self.set_point_estimate_sigma_spectrum(badtimes=badtimes, lines_object=lines_object,
-                                                   weight_spectrogram=False, alpha=alpha, fref=fref,
-                                                   flow=flow, fhigh=fhigh)
+        if not hasattr(self, "point_estimate_spectrum"):
+            logger.info(
+                "Point estimate and sigma spectra have not been set before. Setting it now..."
+            )
+            logger.debug(
+                "No weighting supplied in setting of spectrum. Supplied when combining for final sigma"
+            )
+            self.set_point_estimate_sigma_spectrum(
+                badtimes=badtimes,
+                lines_object=lines_object,
+                weight_spectrogram=False,
+                alpha=alpha,
+                fref=fref,
+                flow=flow,
+                fhigh=fhigh,
+            )
 
         # crop frequencies according to params before combining over them
         deltaF = self.frequencies[1] - self.frequencies[0]
@@ -612,15 +665,18 @@ class Baseline(object):
             _, notch_indexes = lines_object.get_idxs(Y_spec.frequencies.value)
         # get Y, sigma
         if apply_weighting:
-            Y, sigma = calc_Y_sigma_from_Yf_varf(Y_spec.value[notch_indexes],
-                                                 sigma_spec.value[notch_indexes]**2,
-                                                 freqs=self.frequencies[notch_indexes],
-                                                 alpha=alpha,
-                                                 fref=fref)
+            Y, sigma = calc_Y_sigma_from_Yf_varf(
+                Y_spec.value[notch_indexes],
+                sigma_spec.value[notch_indexes] ** 2,
+                freqs=self.frequencies[notch_indexes],
+                alpha=alpha,
+                fref=fref,
+            )
         else:
-            print('Be careful, in general weighting is not applied until this point')
-            Y, sigma = calc_Y_sigma_from_Yf_varf(self.point_estimate_spectrum.value,
-                                                 self.sigma_spectrogram.value**2)
+            print("Be careful, in general weighting is not applied until this point")
+            Y, sigma = calc_Y_sigma_from_Yf_varf(
+                self.point_estimate_spectrum.value, self.sigma_spectrogram.value**2
+            )
 
         self.point_estimate = Y
         self.sigma = sigma
@@ -822,6 +878,7 @@ class Baseline(object):
 
         with open(filename, "w") as outfile:
             json.dump(save_dictionary, outfile)
+
 
 def get_baselines(interferometers, frequencies=None):
     """
