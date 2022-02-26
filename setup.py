@@ -84,6 +84,7 @@ setup(
         "gwpy",
         "astropy",
         "lalsuite",
+        "loguru"
     ],
     classifiers=[
         "Programming Language :: Python :: 3.8",

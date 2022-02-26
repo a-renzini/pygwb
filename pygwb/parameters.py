@@ -1,6 +1,7 @@
 import argparse
 import sys
 from dataclasses import asdict, dataclass, field
+from pathlib import Path
 from typing import List
 
 if sys.version_info >= (3, 0):
@@ -40,6 +41,9 @@ class Parameters:
 
     @classmethod
     def from_file(cls, param_file):
+        if not Path(param_file).exists():
+            raise OSError("Your paramfile doesn't exist!")
+
         param = configparser.ConfigParser()
         param.read(str(param_file))
 

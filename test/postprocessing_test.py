@@ -19,6 +19,7 @@ SAMPLE_RATE = 128
 
 TESTMATFILE = "test/pproc/stoch.job1.mat"
 
+
 # test object
 class SingleStochJobTest(unittest.TestCase):
     """
