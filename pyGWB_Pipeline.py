@@ -6,6 +6,11 @@ from pathlib import Path
 import bilby
 import matplotlib.pyplot as plt
 import numpy as np
+
+module_path = os.path.abspath(os.path.join('/home/max.lalleman/public_html/Code/GWB_Try/pygwb'))
+if module_path not in sys.path:
+    sys.path.append(module_path)
+printint = np.vectorize(np.int)
 from gwpy import timeseries
 
 import pygwb.argument_parser
@@ -17,6 +22,7 @@ from pygwb.detector import Interferometer
 from pygwb.notch import StochNotch, StochNotchList
 from pygwb.parameters import Parameters
 from pygwb.postprocessing import postprocess_Y_sigma
+#from pygwb.postprocessing import postprocess_Y_sigma, calc_Y_sigma_from_Yf_varf, calculate_Yf_varf
 from pygwb.util import calc_bias, calc_Y_sigma_from_Yf_varf, window_factors
 
 
@@ -99,6 +105,8 @@ if __name__ == "__main__":
     naive_psd_1 = base_HL.interferometer_1.psd_spectrogram
     naive_psd_2 = base_HL.interferometer_2.psd_spectrogram
 
+    print(naive_psd_1[0][0], naive_psd_2[0][0])
+
     freq_band_cut = (freqs >= params.flow) & (freqs <= params.fhigh)
     naive_psd_1 = naive_psd_1.crop_frequencies(params.flow, params.fhigh + deltaF)
     naive_psd_2 = naive_psd_2.crop_frequencies(params.flow, params.fhigh + deltaF)
@@ -126,6 +134,8 @@ if __name__ == "__main__":
     for index, notch in enumerate(lines_stochnotch):
         lines_2[index, 0] = lines_stochnotch[index].minimum_frequency
         lines_2[index, 1] = lines_stochnotch[index].maximum_frequency
+
+    print(naive_psd_1[0][0], naive_psd_2[0][0])
 
     badGPStimes = run_dsc(
         params.delta_sigma_cut,
