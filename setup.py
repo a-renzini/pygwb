@@ -3,7 +3,7 @@
 import os
 import subprocess
 
-from setuptools import find_packages, setup
+from setuptools import setup
 
 
 def write_version_file(version):
@@ -33,19 +33,19 @@ def write_version_file(version):
         else:
             git_status = "(UNCLEAN) " + git_log
     except Exception as e:
-        print("Unable to obtain git version information, exception: {e}")
+        print(f"Unable to obtain git version information, exception: {e}")
         git_status = ""
 
     _version_file = "pygwb/.version"
     if not os.path.isfile(_version_file):
         with open(_version_file, "w+") as f:
-            f.write("{version}: {git_status}")
+            f.write(f"{version}: {git_status}")
 
     return _version_file
 
 
 def get_long_description():
-    """ Finds the README and reads in the description """
+    """Finds the README and reads in the description"""
     here = os.path.abspath(os.path.dirname(__file__))
     with open(os.path.join(here, "README.md")) as f:
         long_description = f.read()
@@ -74,17 +74,24 @@ setup(
     license="MIT",
     version=VERSION,
     packages=["pygwb"],
-    # packages=find_packages(exclude=["test", "venv", "tutorials", "src", "docs"])
-    # + ["pygwb"],
     package_dir={"pygwb": "pygwb"},
     package_data={"pygwb": [".version"]},
-    install_requires=["numpy", "matplotlib", "scipy", "bilby", "gwpy"],
+    install_requires=[
+        "numpy",
+        "matplotlib",
+        "scipy",
+        "bilby",
+        "gwpy",
+        "astropy",
+        "lalsuite",
+        "loguru"
+    ],
     classifiers=[
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires=">=3.6",
+    python_requires=">=3.8",
 )

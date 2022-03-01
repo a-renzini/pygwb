@@ -4,7 +4,6 @@ import unittest
 
 import bilby
 import numpy as np
-
 from gwpy.frequencyseries import FrequencySeries
 from gwpy.timeseries import TimeSeries
 

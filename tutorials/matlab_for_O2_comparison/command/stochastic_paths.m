@@ -24,4 +24,3 @@ addpath([ stoch_install '/Utilities/misc' ]);
 addpath([ stoch_install '/Utilities/FTSeries' ]);
 
 fprintf('done.\n');
-

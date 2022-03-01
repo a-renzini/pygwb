@@ -25,27 +25,35 @@ stages:
     - pip install --ignore-installed .
     - cd ..
     - python -c "import pygwb"
+    - python -c "import pygwb.argument_parser"
+    - python -c "import pygwb.baseline"
     - python -c "import pygwb.constants"
     - python -c "import pygwb.cross_correlation"
+    - python -c "import pygwb.delta_sigma_cut"
+    - python -c "import pygwb.detector"
+    - python -c "import pygwb.network"
+    - python -c "import pygwb.notch"
+    - python -c "import pygwb.orfs"
+    - python -c "import pygwb.parameters"
     - python -c "import pygwb.pe"
     - python -c "import pygwb.postprocessing"
+    - python -c "import pygwb.pre_processing"
+    - python -c "import pygwb.simulator"
     - python -c "import pygwb.spectral"
+    - python -c "import pygwb.statistical_checks"
     - python -c "import pygwb.util"
-
-# test basic setup on python3
-basic-3.6:
-  <<: *basic-python
-  image: python:3.6
-
-
-basic-3.7:
-  <<: *basic-python
-  image: python:3.7
-
 
 basic-3.8:
   <<: *basic-python
   image: python:3.8
+
+basic-3.9:
+  <<: *basic-python
+  image: python:3.9
+
+basic-3.10:
+  <<: *basic-python
+  image: python:3.10
 
 
 .precommits-python: &precommits-python
@@ -58,10 +66,13 @@ basic-3.8:
 
     # Run precommits (black, flake8, spellcheck, isort, no merge conflicts, etc)
     - pre-commit run --files pygwb/**.py --verbose --show-diff-on-failure
+    - pre-commit run --files test/**.py --verbose --show-diff-on-failure
+    - pre-commit run --files tutorials/**.py --verbose --show-diff-on-failure
+    - pre-commit run --files *.py --verbose --show-diff-on-failure
 
-precommits-py3.7:
+precommits-py3.8:
   <<: *precommits-python
-  image: python:3.7
+  image: python:3.8
 
 
 .test-python: &test-python
@@ -69,22 +80,31 @@ precommits-py3.7:
   image: python
   before_script:
     - pip install --upgrade pip setuptools
-    - pip install pytest
+    - pip install pytest pytest-cov coverage-badge
   script:
     - pip install .
-    - pytest
-
-python-3.6:
-  <<: *test-python
-  image: python:3.6
-
-python-3.7:
-  <<: *test-python
-  image: python:3.7
+    - pytest --cov=pygwb
 
 python-3.8:
   <<: *test-python
   image: python:3.8
+  after_script:
+    - coverage html
+    - coverage xml
+  artifacts:
+    reports:
+      cobertura: coverage.xml
+    paths:
+      - htmlcov/
+    expire_in: 30 days
+
+python-3.9:
+  <<: *test-python
+  image: python:3.9
+
+python-3.10:
+  <<: *test-python
+  image: python:3.10
 
 documentation:
   stage: documentation
@@ -114,8 +134,7 @@ pages:
     - documentation
   script:
     - mkdir public/
-#    - mv htmlcov/ public/
-#    - mv coverage_badge.svg public/
+    - mv htmlcov/ public/
     - mv docs/_build/* public/
   artifacts:
     paths:
