@@ -86,7 +86,7 @@ if __name__ == "__main__":
     )  # for later use
 
     freqs = base_HL.interferometer_1.average_psd.yindex.value
-    base_HL.set_frequencies(freqs)
+    #base_HL.frequencies(freqs)
 
     deltaF = freqs[1] - freqs[0]
     try:
@@ -141,32 +141,22 @@ if __name__ == "__main__":
     print(f"times flagged by the delta signal cut as badGPStimes:{badGPStimes}")
 
     freqs = freqs[freq_band_cut]
-    indices_notches, inv_indices = lines_stochnotch.get_idxs(freqs)
     if Boolean_CSD:
         print(f"calculating the point estimate and sigma...")
-        orf = base_HL.overlap_reduction_function[freq_band_cut]
-        Y_fs, var_fs = calculate_Yf_varf_params(
-            freqs, csd.value, avg_psd_1.value, avg_psd_2.value, orf, params
+        base_HL.set_point_estimate_sigma_spectrum(
+            badtimes=badGPStimes,
+            lines_object=lines_stochnotch,
         )
 
-        Y_fs[:, indices_notches] = 0
-        var_fs[:, indices_notches] = np.Inf
+        base_HL.set_point_estimate_sigma(
+            alpha=params.alpha,
+            fref=params.fref,
+            flow=params.flow,
+            fhigh=params.fhigh,
+       )
 
-        Y_f_new, var_f_new = postprocess_Y_sigma(
-            Y_fs,
-            var_fs,
-            params.segment_duration,
-            deltaF,
-            params.new_sample_rate,
-            indices_notches,
-        )
-
-        Y_pyGWB_new, sigma_pyGWB_new = calc_Y_sigma_from_Yf_varf(
-            Y_f_new, var_f_new, freqs, params.alpha, params.fref
-        )
-
-        print(f"\tpyGWB: {Y_pyGWB_new:e}")
-        print(f"\tpyGWB: {sigma_pyGWB_new:e}")
+        print(f"\tpyGWB: {base_HL.point_estimate:e}")
+        print(f"\tpyGWB: {base_HL.sigma:e}")
 
         data_file_name = f"Y_sigma_{int(params.t0)}-{int(params.tf)}"
 
