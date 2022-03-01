@@ -529,7 +529,7 @@ def postprocess_Y_sigma(
     Y_fs, var_fs, segment_duration, deltaF, new_sample_rate, notch_freq
 ):
     size = np.size(Y_fs, axis=0)
-    _, w1w2squaredbar, _, w1w2squaredovlbar = window_factors(192 * 4096)
+    _, w1w2squaredbar, _, w1w2squaredovlbar = window_factors(segment_duration * new_sample_rate)
     k = w1w2squaredovlbar / w1w2squaredbar
 
     # even/odd indices

@@ -6,7 +6,6 @@ import h5py
 import numpy as np
 from scipy.interpolate import interp1d
 
-from pygwb.baseline import Baseline
 from pygwb.constants import H0
 
 from .spectral import coarse_grain
@@ -100,8 +99,10 @@ def window_factors(N):
     return w1w2bar, w1w2squaredbar, w1w2ovlbar, w1w2squaredovlbar
 
 
-def calc_Y_sigma_from_Yf_varf(Y_f, var_f, freqs=None, alpha=0, fref=1):
-    if freqs is not None:
+def calc_Y_sigma_from_Yf_varf(Y_f, var_f, freqs=None, alpha=0, fref=1, weight_spectrum=True):
+    if weight_spectrum and freqs is None:
+        raise ValueError("Must supply frequency array if you want to weight the spectrum when combining")
+    if weight_spectrum:
         weights = (freqs / fref) ** alpha
     else:
         weights = np.ones(Y_f.shape)
@@ -168,6 +169,9 @@ def omega_to_power(omega_GWB, frequencies):
     return power
 
 
+
+
+
 def make_freqs(Nsamples, deltaF):
     """
     Function that makes an array of frequencies given the sampling rate
@@ -210,31 +214,6 @@ def interpolate_frequency_series(fSeries, new_frequencies):
     )
 
 
-def get_baselines(interferometers, frequencies=None):
-    """
-    Parameters
-    ==========
-    interferometers: list of bilby interferometer objects
-    """
-    Nd = len(interferometers)
-
-    combo_tuples = []
-    for j in range(1, Nd):
-        for k in range(j):
-            combo_tuples.append((k, j))
-
-    baselines = []
-    for i, j in combo_tuples:
-        base_name = f"{interferometers[i].name} - {interferometers[j].name}"
-        baselines.append(
-            Baseline(
-                base_name,
-                interferometers[i],
-                interferometers[j],
-                frequencies=frequencies,
-            )
-        )
-    return baselines
 
 
 def read_jobfiles(njobs, directory, segment_duration):
@@ -297,3 +276,31 @@ def StatKS(DKS):
     for jj in np.arange(1, jmax + 1):
         pvalue += 2.0 * (-1) ** (jj + 1) * np.exp(-2.0 * jj ** 2 * DKS ** 2)
     return pvalue
+
+
+def calculate_point_estimate_sigma_spectrogram(freqs, csd, avg_psd_1, avg_psd_2, orf,
+                                               sample_rate, segment_duration, fref=1,
+                                               alpha=0, weight_spectrogram=False):
+    S_alpha = (
+        3
+        * H0 ** 2
+        / (10 * np.pi ** 2)
+        / freqs ** 3
+    )
+    if weight_spectrogram:
+        S_alpha *= (freqs / fref) ** alpha
+    Y_fs = np.real(csd) / (orf * S_alpha)
+    var_fs = (
+        1
+        / (2 * segment_duration * (freqs[1] - freqs[0]))
+        * avg_psd_1
+        * avg_psd_2
+        / (orf ** 2 * S_alpha ** 2)
+    )
+
+    w1w2bar, w1w2squaredbar, _, _ = window_factors(
+        sample_rate * segment_duration
+    )
+
+    var_fs = var_fs * w1w2squaredbar / w1w2bar ** 2
+    return Y_fs, var_fs
