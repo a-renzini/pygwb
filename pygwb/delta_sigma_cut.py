@@ -296,7 +296,6 @@ def run_dsc(
     dt = psd1_naive.df.value ** (-1)
     bf_ns = calc_bias(segmentDuration, df, dt)  # Naive estimate
     bf_ss = calc_bias(segmentDuration, df, dt, N_avg_segs=2)  # Sliding estimate
-    print(f"These are the bias factors: {bf_ns:f} {bf_ss:f}")
     freqs = np.array(psd1_naive.frequencies)
     overall_cut = np.zeros((ntimes, 1), dtype="bool")
     cuts = np.zeros((nalphas, ntimes), dtype="bool")
@@ -339,6 +338,5 @@ def run_dsc(
         overall_cut[time] = any(cuts[:, time])
 
     BadGPStimes = times[np.squeeze(overall_cut)]
-    print(BadGPStimes)
 
     return BadGPStimes
