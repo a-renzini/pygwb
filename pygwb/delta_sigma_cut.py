@@ -1,4 +1,6 @@
 import numpy as np
+from pygwb.notch import StochNotch, StochNotchList
+from loguru import logger
 
 from .util import calc_bias
 
@@ -116,7 +118,7 @@ def calc_sens_integrand(
         An array of frequencies from a PSD
 
     P1: array
-        the PSD of detector #1; size should equal size off freq
+        the PSD of detector #1; size should equal size of freq
 
     P2: array
         the PSD of detector #2; size should equal size of freq
@@ -249,13 +251,14 @@ def veto_lines(freqs: np.ndarray, lines: np.ndarray, df: float = 0):
 
 def run_dsc(
     dsc: float,
-    segmentDuration: int,
+    segment_duration: int,
+    sampling_frequency: int,
     psd1_naive: np.ndarray,
     psd2_naive: np.ndarray,
     psd1_slide: np.ndarray,
     psd2_slide: np.ndarray,
     alphas: np.ndarray,
-    lines: np.ndarray,
+    notch_path: str,
 ):
 
     """
@@ -266,7 +269,7 @@ def run_dsc(
     dsc: float
         The value of the delta sigma cut to use
 
-    segmentDuration: int
+    segment_duration: int
         Duration of each segment
 
     psd1_naive; psd2_naive: array
@@ -279,8 +282,8 @@ def run_dsc(
     alphas: array
         the spectral indices to use; the code combines the BadGPStimes from each alpha
 
-    lines: array
-        a matrix of the form [fmin,fmax] that describes known noise lines
+    notch_path: str
+        path to the notch list file
 
     Returns
     =======
@@ -288,19 +291,29 @@ def run_dsc(
         an array of the GPS times to not be considered based on the chosen value of the delta sigma cut
     """
 
-    print("running dsc")
+    lines_stochnotch = StochNotchList.load_from_file(
+        f"{notch_path}"
+    )
+
+    lines = np.zeros((len(lines_stochnotch), 2))
+
+    for index, notch in enumerate(lines_stochnotch):
+        lines[index, 0] = lines_stochnotch[index].minimum_frequency
+        lines[index, 1] = lines_stochnotch[index].maximum_frequency
+
+    logger.info("Running delta sigma cut")
     nalphas = len(alphas)
     times = np.array(psd1_naive.times)
     ntimes = len(times)
     df = psd1_naive.df.value
     dt = psd1_naive.df.value ** (-1)
-    bf_ns = calc_bias(segmentDuration, df, dt)  # Naive estimate
-    bf_ss = calc_bias(segmentDuration, df, dt, N_avg_segs=2)  # Sliding estimate
+    bf_ns = calc_bias(segment_duration, df, dt)  # Naive estimate
+    bf_ss = calc_bias(segment_duration, df, dt, N_avg_segs=2)  # Sliding estimate
     freqs = np.array(psd1_naive.frequencies)
     overall_cut = np.zeros((ntimes, 1), dtype="bool")
     cuts = np.zeros((nalphas, ntimes), dtype="bool")
 
-    window1 = np.hanning(4096 * 192)
+    window1 = np.hanning(segment_duration*sampling_frequency)
     window2 = window1
     for alpha in range(nalphas):
         Hf = calc_Hf(freqs, alphas[alpha])
