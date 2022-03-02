@@ -7,8 +7,8 @@ import bilby
 import matplotlib.pyplot as plt
 import numpy as np
 from gwpy import timeseries
-
 from loguru import logger
+
 import pygwb.argument_parser
 from pygwb import network, orfs, pre_processing, spectral
 from pygwb.baseline import Baseline
@@ -36,10 +36,9 @@ if __name__ == "__main__":
     params.save_paramfile(str(outfile_path))
     logger.info(f"Saved final param file at {outfile_path}.")
 
-
-    '''
+    """
     X TODO X make this into a param in the arg class?
-    '''
+    """
     Boolean_CSD = True  # if False, it will only compute the CSDs and PSDs, if True, it will compute until the point estimates
 
     ifo_H = Interferometer.from_parameters("H1", params)
@@ -47,7 +46,9 @@ if __name__ == "__main__":
     logger.info(f"Loaded up interferometers with selected parameters.")
 
     base_HL = Baseline.from_parameters(ifo_H, ifo_L, params)
-    logger.info(f"Baseline with interferometers {ifo_H.name}, {ifo_L.name} initialised.")
+    logger.info(
+        f"Baseline with interferometers {ifo_H.name}, {ifo_L.name} initialised."
+    )
 
     logger.info(f"Setting PSDs and CSDs of the baseline...")
     base_HL.set_cross_and_power_spectral_density(params.frequency_resolution)
@@ -56,21 +57,24 @@ if __name__ == "__main__":
 
     logger.info(f"... done.")
 
-    '''
+    """
     check nothing's gone wrong in the frequency handling...
-    '''
+    """
     deltaF = base_HL.frequencies[1] - base_HL.frequencies[0]
     if abs(deltaF - params.frequency_resolution) > 1e-6:
         raise ValueError("Frequency resolution in PSD/CSD is different than requested.")
 
-    '''
+    """
     eventually could move this into baseline?
-    '''
+    """
     stride = params.segment_duration * (1 - params.overlap_factor)
     csd_segment_offset = int(np.ceil(params.segment_duration / stride))
-    base_HL.interferometer_1.psd_spectrogram = base_HL.interferometer_1.psd_spectrogram[csd_segment_offset : - csd_segment_offset]
-    base_HL.interferometer_2.psd_spectrogram = base_HL.interferometer_2.psd_spectrogram[csd_segment_offset : - csd_segment_offset]
-
+    base_HL.interferometer_1.psd_spectrogram = base_HL.interferometer_1.psd_spectrogram[
+        csd_segment_offset:-csd_segment_offset
+    ]
+    base_HL.interferometer_2.psd_spectrogram = base_HL.interferometer_2.psd_spectrogram[
+        csd_segment_offset:-csd_segment_offset
+    ]
 
     badGPStimes = base_HL.calculate_delta_sigma_cut(
         params.delta_sigma_cut,
@@ -80,7 +84,7 @@ if __name__ == "__main__":
     )
 
     logger.info(f"times flagged by the delta sigma cut as badGPStimes:{badGPStimes}")
-    
+
     if Boolean_CSD:
         logger.info(f"calculating the point estimate and sigma...")
         base_HL.set_point_estimate_sigma_spectrum(
@@ -94,7 +98,9 @@ if __name__ == "__main__":
             fhigh=params.fhigh,
         )
 
-        logger.success(f"Ran stochastic search over times {int(params.t0)}-{int(params.tf)}")
+        logger.success(
+            f"Ran stochastic search over times {int(params.t0)}-{int(params.tf)}"
+        )
         logger.success(f"\tPOINT ESIMATE: {base_HL.point_estimate:e}")
         logger.success(f"\tSIGMA: {base_HL.sigma:e}")
 
@@ -116,5 +122,10 @@ if __name__ == "__main__":
     data_file_name = f"psds_csds_{int(params.t0)}-{int(params.tf)}"
 
     base_HL.save_data_csd(
-        params.save_data_type, data_file_name, base_HL.frequencies, base_HL.csd, base_HL.interferometer_1.average_psd, base_HL.interferometer_2.average_psd
+        params.save_data_type,
+        data_file_name,
+        base_HL.frequencies,
+        base_HL.csd,
+        base_HL.interferometer_1.average_psd,
+        base_HL.interferometer_2.average_psd,
     )

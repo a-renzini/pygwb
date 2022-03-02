@@ -477,5 +477,3 @@ def running_mean(data, coarsening_factor=1, axis=-1):
         np.swapaxes(cumsum[coarsening_factor:] - cumsum[:-coarsening_factor], axis, -1)
         / coarsening_factor
     )
-
-

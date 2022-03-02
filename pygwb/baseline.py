@@ -571,7 +571,7 @@ class Baseline(object):
         fhigh: float, optional
             high frequency. Default is 1726 Hz.
         notch_list_path: str, optional
-            path to the notch list to use in the spectrum; if the notch_list isn't set in the baseline, user can pass it directly here. If it is not set and if none is passed no notches will be applied. 
+            path to the notch list to use in the spectrum; if the notch_list isn't set in the baseline, user can pass it directly here. If it is not set and if none is passed no notches will be applied.
         """
 
         # set unweighted point estimate and sigma spectrograms
@@ -668,7 +668,7 @@ class Baseline(object):
         fhigh: float, optional
             high frequency. Default is 1726 Hz.
         notch_list_path: str, optional
-            path to the notch list to use in the spectrum; if the notch_list isn't set in the baseline, user can pass it directly here. If it is not set and if none is passed no notches will be applied. 
+            path to the notch list to use in the spectrum; if the notch_list isn't set in the baseline, user can pass it directly here. If it is not set and if none is passed no notches will be applied.
         """
         # TODO: Add check if badtimes is apssed and point estimate spectrum
         # already exists...
@@ -718,7 +718,9 @@ class Baseline(object):
                 fref=fref,
             )
         else:
-            logger.info("Be careful, in general weighting is not applied until this point")
+            logger.info(
+                "Be careful, in general weighting is not applied until this point"
+            )
             Y, sigma = calc_Y_sigma_from_Yf_varf(
                 self.point_estimate_spectrum.value, self.sigma_spectrogram.value**2
             )
@@ -727,13 +729,13 @@ class Baseline(object):
         self.sigma = sigma
 
     def calculate_delta_sigma_cut(
-        self, 
+        self,
         delta_sigma_cut,
         alphas,
         flow=20,
         fhigh=1726,
     ):
-        """ Calculates the delta sigma cut using the naive and average psds, if set in the baseline.
+        """Calculates the delta sigma cut using the naive and average psds, if set in the baseline.
 
         Parameters
         ==========
@@ -749,8 +751,12 @@ class Baseline(object):
 
         deltaF = self.frequencies[1] - self.frequencies[0]
         self.crop_frequencies_average_psd_csd(flow=flow, fhigh=fhigh)
-        naive_psd_1_cropped = self.interferometer_1.psd_spectrogram.crop_frequencies(flow, fhigh+deltaF)
-        naive_psd_2_cropped = self.interferometer_2.psd_spectrogram.crop_frequencies(flow, fhigh+deltaF)
+        naive_psd_1_cropped = self.interferometer_1.psd_spectrogram.crop_frequencies(
+            flow, fhigh + deltaF
+        )
+        naive_psd_2_cropped = self.interferometer_2.psd_spectrogram.crop_frequencies(
+            flow, fhigh + deltaF
+        )
 
         badGPStimes = run_dsc(
             delta_sigma_cut,

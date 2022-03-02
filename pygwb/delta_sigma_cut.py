@@ -1,6 +1,7 @@
 import numpy as np
-from pygwb.notch import StochNotch, StochNotchList
 from loguru import logger
+
+from pygwb.notch import StochNotch, StochNotchList
 
 from .util import calc_bias
 
@@ -149,14 +150,14 @@ def calc_sens_integrand(
     """
 
     w1w2bar, w1w2squaredbar, oo = WindowFactors(window1, window2)
-    S_alpha = 3 * H0 ** 2 / (10 * np.pi ** 2) * 1.0 / freq ** 3
+    S_alpha = 3 * H0**2 / (10 * np.pi**2) * 1.0 / freq**3
     sigma_square_avg = (
-        (w1w2squaredbar / w1w2bar ** 2)
+        (w1w2squaredbar / w1w2bar**2)
         * 1
         / (2 * T * delta_f)
         * P1
         * P2
-        / (orf ** 2.0 * S_alpha ** 2)
+        / (orf**2.0 * S_alpha**2)
     )
 
     return sigma_square_avg
@@ -208,7 +209,7 @@ def WindowFactors(window1: np.ndarray, window2: np.ndarray):
 
     # calculate window factors
     w1w2bar = np.mean(window1red * window2red)
-    w1w2squaredbar = np.mean((window1red ** 2) * (window2red ** 2))
+    w1w2squaredbar = np.mean((window1red**2) * (window2red**2))
     w1w2ovlsquaredbar = np.mean((firsthalf1 * secondhalf1) * (firsthalf2 * secondhalf2))
 
     return w1w2bar, w1w2squaredbar, w1w2ovlsquaredbar
@@ -291,9 +292,7 @@ def run_dsc(
         an array of the GPS times to not be considered based on the chosen value of the delta sigma cut
     """
 
-    lines_stochnotch = StochNotchList.load_from_file(
-        f"{notch_path}"
-    )
+    lines_stochnotch = StochNotchList.load_from_file(f"{notch_path}")
 
     lines = np.zeros((len(lines_stochnotch), 2))
 
@@ -313,7 +312,7 @@ def run_dsc(
     overall_cut = np.zeros((ntimes, 1), dtype="bool")
     cuts = np.zeros((nalphas, ntimes), dtype="bool")
 
-    window1 = np.hanning(segment_duration*sampling_frequency)
+    window1 = np.hanning(segment_duration * sampling_frequency)
     window2 = window1
     for alpha in range(nalphas):
         Hf = calc_Hf(freqs, alphas[alpha])
@@ -327,13 +326,13 @@ def run_dsc(
                 calc_sens_integrand(
                     freqs, psd1_naive_time, psd2_naive_time, window1, window2, df, dt
                 )
-                / Hf ** 2
+                / Hf**2
             )
             slide_sensitivity_integrand_with_Hf = (
                 calc_sens_integrand(
                     freqs, psd1_slide_time, psd2_slide_time, window1, window2, df, dt
                 )
-                / Hf ** 2
+                / Hf**2
             )
             veto = veto_lines(freqs, lines)
             keep = np.squeeze(~veto)
