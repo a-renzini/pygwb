@@ -742,7 +742,7 @@ class Baseline(object):
         delta_sigma_cut: float
             the cutoff to implement in the delta sigma cut.
         alphas: list
-            set of spectral indeces to use in the delta sigma cut calculation.
+            set of spectral indices to use in the delta sigma cut calculation.
         flow: float, optional
             low frequency. Default is 20 Hz.
         fhigh: float, optional
