@@ -64,21 +64,10 @@ if __name__ == "__main__":
         raise ValueError("Frequency resolution in PSD/CSD is different than requested.")
 
     '''
-    none of this should be necessary
+    eventually could move this into baseline?
     '''
-    #naive_psd_1 = naive_psd_1.crop_frequencies(params.flow, params.fhigh + params.frequency_resolution)
-    #naive_psd_2 = naive_psd_2.crop_frequencies(params.flow, params.fhigh + params.frequency_resolution)
-    #avg_psd_1 = base_HL.interferometer_1.average_psd.crop_frequencies(
-    #    params.flow, params.fhigh + params.frequency_resolution
-    #)
-    #avg_psd_2 = base_HL.interferometer_2.average_psd.crop_frequencies(
-    #    params.flow, params.fhigh + params.frequency_resolution
-    #)
-    #csd = base_HL.average_csd.crop_frequencies(params.flow, params.fhigh + params.frequency_resolution)
-
     stride = params.segment_duration * (1 - params.overlap_factor)
     csd_segment_offset = int(np.ceil(params.segment_duration / stride))
-
     base_HL.interferometer_1.psd_spectrogram = base_HL.interferometer_1.psd_spectrogram[csd_segment_offset : - csd_segment_offset]
     base_HL.interferometer_2.psd_spectrogram = base_HL.interferometer_2.psd_spectrogram[csd_segment_offset : - csd_segment_offset]
 
@@ -95,7 +84,7 @@ if __name__ == "__main__":
     if Boolean_CSD:
         logger.info(f"calculating the point estimate and sigma...")
         base_HL.set_point_estimate_sigma_spectrum(
-            #badtimes=badGPStimes,
+            badtimes=badGPStimes,
         )
 
         base_HL.set_point_estimate_sigma(
