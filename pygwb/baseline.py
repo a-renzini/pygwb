@@ -473,9 +473,9 @@ class Baseline(object):
 
         Parameters:
         ===========
-            flow (float)
+            flow: float
                 low frequency
-            fhigh (float)
+            fhigh: float
                 high frequency
         """
         deltaF = self.frequencies[1] - self.frequencies[0]
@@ -548,13 +548,30 @@ class Baseline(object):
         badtimes=np.array([]),
         weight_spectrogram=False,
         alpha=0,
-        fref=1,
+        fref=25,
         flow=20,
         fhigh=1726,
         notch_list_path=None,
     ):
         """Sets time-integrated point estimate spectrum and variance in each frequency bin.
         Point estimate is *unweighted* by alpha.
+
+        Parameters
+        ==========
+        badtimes: np.array, optional
+            array of times to exclude from point estimate/sigma calculation. If no times are passed, none will be excluded.
+        weight_spectrogram: bool, optional
+            weight spectrogram flag; if True, the spectrogram will be re-weighted using the alpha passed here.Default is False.
+        alpha: float, optional
+            spectral index to use in the re-weighting. Default is 0.
+        fref: float, optional
+            reference frequency to use in the re-weighting. Default is 25.
+        flow: float, optional
+            low frequency. Default is 20 Hz.
+        fhigh: float, optional
+            high frequency. Default is 1726 Hz.
+        notch_list_path: str, optional
+            path to the notch list to use in the spectrum; if the notch_list isn't set in the baseline, user can pass it directly here. If it is not set and if none is passed no notches will be applied. 
         """
 
         # set unweighted point estimate and sigma spectrograms
@@ -626,18 +643,33 @@ class Baseline(object):
 
     def set_point_estimate_sigma(
         self,
-        lines_object=None,
-        apply_weighting=True,
         badtimes=np.array([], dtype=int),
+        apply_weighting=True,
         alpha=0,
         fref=1,
         flow=20,
         fhigh=1726,
+        notch_list_path=None,
     ):
-        """Set point estimate sigma based on a set of parameters."""
-        # set point estimate and sigma spectrum
-        # this is estimate of omega_gw in each frequency bin
+        """Set point estimate sigma based on a set of parameters. This is estimate of omega_gw in each frequency bin.
 
+        Parameters
+        ==========
+        badtimes: np.array, optional
+            array of times to exclude from point estimate/sigma calculation. If no times are passed, none will be excluded.
+        apply_weighting: bool, optional
+            apply weighting flag; if True, the point estimate and sigma will be weighted using the alpha passed here. Default is True.
+        alpha: float, optional
+            spectral index to use in the re-weighting. Default is 0.
+        fref: float, optional
+            reference frequency to use in the re-weighting. Default is 25.
+        flow: float, optional
+            low frequency. Default is 20 Hz.
+        fhigh: float, optional
+            high frequency. Default is 1726 Hz.
+        notch_list_path: str, optional
+            path to the notch list to use in the spectrum; if the notch_list isn't set in the baseline, user can pass it directly here. If it is not set and if none is passed no notches will be applied. 
+        """
         # TODO: Add check if badtimes is apssed and point estimate spectrum
         # already exists...
         if not hasattr(self, "point_estimate_spectrum"):
@@ -649,7 +681,7 @@ class Baseline(object):
             )
             self.set_point_estimate_sigma_spectrum(
                 badtimes=badtimes,
-                lines_object=lines_object,
+                notch_list_path=notch_list_path,
                 weight_spectrogram=False,
                 alpha=alpha,
                 fref=fref,
@@ -668,10 +700,14 @@ class Baseline(object):
         # TODO: make this less fragile...at the moment these indexes
         # must agree with those after cropping, so the notches must agree with the params
         # struct in some way. Seems dangerous
-        if lines_object is None:
-            notch_indexes = np.arange(Y_spec.size)
-        else:
+        if notch_list_path is not None:
+            print("hello!")
+            exit()
+            lines_object = StochNotchList.load_from_file(notch_list_path)
             _, notch_indexes = lines_object.get_idxs(Y_spec.frequencies.value)
+        else:
+            notch_indexes = np.arange(Y_spec.size)
+
         # get Y, sigma
         if apply_weighting:
             Y, sigma = calc_Y_sigma_from_Yf_varf(
@@ -697,8 +733,20 @@ class Baseline(object):
         flow=20,
         fhigh=1726,
     ):
-        """ calculates the delta sigma cut using the naive and average psds, if set in the baseline.
+        """ Calculates the delta sigma cut using the naive and average psds, if set in the baseline.
+
+        Parameters
+        ==========
+        delta_sigma_cut: float
+            the cutoff to implement in the delta sigma cut.
+        alphas: list
+            set of spectral indeces to use in the delta sigma cut calculation.
+        flow: float, optional
+            low frequency. Default is 20 Hz.
+        fhigh: float, optional
+            high frequency. Default is 1726 Hz.
         """
+
         deltaF = self.frequencies[1] - self.frequencies[0]
         self.crop_frequencies_average_psd_csd(flow=flow, fhigh=fhigh)
         naive_psd_1_cropped = self.interferometer_1.psd_spectrogram.crop_frequencies(flow, fhigh+deltaF)

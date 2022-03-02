@@ -94,8 +94,9 @@ if __name__ == "__main__":
             fhigh=params.fhigh,
         )
 
-        logger.success(f"\tpyGWB: {base_HL.point_estimate:e}")
-        logger.success(f"\tpyGWB: {base_HL.sigma:e}")
+        logger.success(f"Ran stochastic search over times {int(params.t0)}-{int(params.tf)}")
+        logger.success(f"\tPOINT ESIMATE: {base_HL.point_estimate:e}")
+        logger.success(f"\tSIGMA: {base_HL.sigma:e}")
 
         data_file_name = f"Y_sigma_{int(params.t0)}-{int(params.tf)}"
 
