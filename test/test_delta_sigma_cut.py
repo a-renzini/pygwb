@@ -32,10 +32,10 @@ class Test(unittest.TestCase):
     def test_delta_sigma_cut(self):
 
         segment_duration = 192  # also fftlength in pre-processing
+        sampling_frequency = 4096
         dsc = 0.2
         alphas = [-5, 0, 3]
         notch_file = "test/test_data/Official_O3_HL_notchlist.txt"
-        lines = read_notch_list(notch_file)
 
         test = Path(__file__).parent.resolve()
         pickle_path = test/'test_data/naive_and_sliding_psds.pickle'
@@ -51,14 +51,18 @@ class Test(unittest.TestCase):
 
         badGPStimes = run_dsc(
             dsc=dsc,
-            segmentDuration=segment_duration,
+            segment_duration=segment_duration,
+            sampling_frequency=sampling_frequency,
             psd1_naive=naive_psd_1,
             psd2_naive=naive_psd_2,
             psd1_slide=avg_psd_1,
             psd2_slide=avg_psd_2,
             alphas=alphas,
-            lines=lines,
+            notch_path=notch_file,
         )
         self.assertTrue(badGPStimes[0], 1.24764440e09)
         self.assertTrue(badGPStimes[1], 1.24764449e09)
         self.assertTrue(badGPStimes[2], 1.24764459e09)
+
+if __name__ == "__main__":
+    unittest.main()
