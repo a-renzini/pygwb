@@ -29,6 +29,7 @@ class Parameters:
     flow: int
     fhigh: int
     coarse_grain: int
+    notch_list_path: str = None
     N_average_segments_welch_psd: int = 2
     window_fftgram: str = "hann"
     calibration_epsilon: float = 0
@@ -64,6 +65,7 @@ class Parameters:
         fref = param.getint("parameters", "fref")
         flow = param.getint("parameters", "flow")
         fhigh = param.getint("parameters", "fhigh")
+        notch_list_path = param.get("parameters", "notch_list_path")
         N_average_segments_welch_psd = param.getfloat(
             "parameters", "N_average_segments_welch_psd"
         )
@@ -96,6 +98,7 @@ class Parameters:
             flow,
             fhigh,
             coarse_grain,
+            notch_list_path,
             N_average_segments_welch_psd,
             window_fftgram,
             calibration_epsilon,

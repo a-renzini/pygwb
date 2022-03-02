@@ -8,6 +8,7 @@ import numpy as np
 from bilby.core.utils import create_frequency_series
 from loguru import logger
 
+from .delta_sigma_cut import run_dsc
 from .notch import StochNotchList
 from .orfs import calc_orf
 from .postprocessing import postprocess_Y_sigma
@@ -24,7 +25,7 @@ class Baseline(object):
         duration=None,
         frequencies=None,
         calibration_epsilon=0,
-        notch_list=None,
+        notch_list_path=None,
         overlap_factor=0.5,
         zeropad_csd=True,
         window_fftgram="hann",
@@ -47,8 +48,8 @@ class Baseline(object):
             interferometers
         calibration_epsilon: float, optional
             calibration uncertainty for this baseline
-        notch_list: str, optional
-            filename of the baseline notch list
+        notch_list_path: str, optional
+            file path of the baseline notch list
         overlap_factor: float, optional
             factor by which to overlap the segments in the psd and csd estimation.
             Default is 1/2, if set to 0 no overlap is performed.
@@ -67,7 +68,7 @@ class Baseline(object):
         self.interferometer_1 = interferometer_1
         self.interferometer_2 = interferometer_2
         self.calibration_epsilon = calibration_epsilon
-        self.notch_list = notch_list
+        self.notch_list_path = notch_list_path
         self.overlap_factor = overlap_factor
         self.zeropad_csd = zeropad_csd
         self.window_fftgram = window_fftgram
@@ -130,12 +131,12 @@ class Baseline(object):
             self._scalar_orf_calculated = True
         return self._scalar_orf
 
-    def set_frequency_mask(self, notch_list):
+    def set_frequency_mask(self, notch_list_path):
         mask = (self.frequencies >= self.minimum_frequency) & (
             self.frequencies <= self.maximum_frequency
         )
-        if notch_list is not None:
-            notch_list = StochNotchList.load_from_file(notch_list)
+        if notch_list_path is not None:
+            notch_list = StochNotchList.load_from_file(notch_list_path)
             _, notch_mask = notch_list.get_idxs(self.frequencies)
             mask = np.logical_and(mask, notch_mask)
         return mask
@@ -369,7 +370,6 @@ class Baseline(object):
         interferometer_2,
         parameters,
         frequencies=None,
-        notch_list=None,
     ):
         name = interferometer_1.name + interferometer_2.name
         return cls(
@@ -379,7 +379,7 @@ class Baseline(object):
             duration=parameters.segment_duration,
             calibration_epsilon=parameters.calibration_epsilon,
             frequencies=frequencies,
-            notch_list=notch_list,
+            notch_list_path=parameters.notch_list_path,
             overlap_factor=parameters.overlap_factor,
             zeropad_csd=parameters.zeropad_csd,
             window_fftgram=parameters.window_fftgram,
@@ -546,12 +546,12 @@ class Baseline(object):
     def set_point_estimate_sigma_spectrum(
         self,
         badtimes=np.array([]),
-        lines_object=None,
         weight_spectrogram=False,
         alpha=0,
         fref=1,
         flow=20,
         fhigh=1726,
+        notch_list_path=None,
     ):
         """Sets time-integrated point estimate spectrum and variance in each frequency bin.
         Point estimate is *unweighted* by alpha.
@@ -559,7 +559,7 @@ class Baseline(object):
 
         # set unweighted point estimate and sigma spectrograms
         if not hasattr(self, "point_estimate_spectrogram"):
-            print(
+            logger.info(
                 "Point estimate and sigma spectrograms are not set yet. setting now..."
             )
             self.set_point_estimate_sigma_spectrogram(
@@ -571,10 +571,14 @@ class Baseline(object):
             )
         deltaF = self.frequencies[1] - self.frequencies[0]
 
-        if lines_object is None:
-            notches = np.array([], dtype=int)
-        else:
+        if self.notch_list_path is not None:
+            lines_object = StochNotchList.load_from_file(self.notch_list_path)
             notches, _ = lines_object.get_idxs(self.frequencies)
+        elif notch_list_path is not None:
+            lines_object = StochNotchList.load_from_file(notch_list_path)
+            notches, _ = lines_object.get_idxs(self.frequencies)
+        else:
+            notches = np.array([], dtype=int)
 
         # should be True for each bad time
         bad_times_indexes = np.array(
@@ -678,13 +682,40 @@ class Baseline(object):
                 fref=fref,
             )
         else:
-            print("Be careful, in general weighting is not applied until this point")
+            logger.info("Be careful, in general weighting is not applied until this point")
             Y, sigma = calc_Y_sigma_from_Yf_varf(
                 self.point_estimate_spectrum.value, self.sigma_spectrogram.value**2
             )
 
         self.point_estimate = Y
         self.sigma = sigma
+
+    def calculate_delta_sigma_cut(
+        self, 
+        delta_sigma_cut,
+        alphas,
+        flow=20,
+        fhigh=1726,
+    ):
+        """ calculates the delta sigma cut using the naive and average psds, if set in the baseline.
+        """
+        deltaF = self.frequencies[1] - self.frequencies[0]
+        self.crop_frequencies_average_psd_csd(flow=flow, fhigh=fhigh)
+        naive_psd_1_cropped = self.interferometer_1.psd_spectrogram.crop_frequencies(flow, fhigh+deltaF)
+        naive_psd_2_cropped = self.interferometer_2.psd_spectrogram.crop_frequencies(flow, fhigh+deltaF)
+
+        badGPStimes = run_dsc(
+            delta_sigma_cut,
+            self.duration,
+            self.sampling_frequency,
+            naive_psd_1_cropped,
+            naive_psd_2_cropped,
+            self.interferometer_1.average_psd,
+            self.interferometer_2.average_psd,
+            alphas,
+            self.notch_list_path,
+        )
+        return badGPStimes
 
     def save_data(
         self,
