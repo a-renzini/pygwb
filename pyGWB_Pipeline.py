@@ -76,26 +76,26 @@ if __name__ == "__main__":
         csd_segment_offset:-csd_segment_offset
     ]
 
-    badGPStimes = base_HL.calculate_delta_sigma_cut(
+    base_HL.calculate_delta_sigma_cut(
         params.delta_sigma_cut,
         params.alphas,
         flow=params.flow,
         fhigh=params.fhigh,
     )
 
-    logger.info(f"times flagged by the delta sigma cut as badGPStimes:{badGPStimes}")
+    logger.info(
+        f"times flagged by the delta sigma cut as badGPStimes:{base_HL.badGPStimes}"
+    )
 
     if Boolean_CSD:
         logger.info(f"calculating the point estimate and sigma...")
-        base_HL.set_point_estimate_sigma_spectrum(
-            badtimes=badGPStimes,
-        )
 
         base_HL.set_point_estimate_sigma(
             alpha=params.alpha,
             fref=params.fref,
             flow=params.flow,
             fhigh=params.fhigh,
+            # badtimes=np.array([]) #use this line to override the delta sigma cut
         )
 
         logger.success(

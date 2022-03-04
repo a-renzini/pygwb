@@ -62,8 +62,8 @@ class GWBModel(bilby.Likelihood):
         for orf, bline in zip(self.orfs, self.baselines):
             model = orf * self.model_function(bline)
             res = model - bline.point_estimate
-            ll += -0.5 * np.sum(res**2 / bline.sigma**2) - 0.5 * np.sum(
-                np.log(2 * np.pi * bline.sigma**2)
+            ll += -0.5 * np.sum(res ** 2 / bline.sigma ** 2) - 0.5 * np.sum(
+                np.log(2 * np.pi * bline.sigma ** 2)
             )
         return ll
 
@@ -73,8 +73,8 @@ class GWBModel(bilby.Likelihood):
         ll = 0
         for bline in self.baselines:
             ll += -0.5 * np.sum(
-                bline.point_estimate**2 / bline.sigma**2
-            ) - 0.5 * np.sum(np.log(2 * np.pi * bline.sigma**2))
+                bline.point_estimate ** 2 / bline.sigma ** 2
+            ) - 0.5 * np.sum(np.log(2 * np.pi * bline.sigma ** 2))
         return ll
 
 
