@@ -28,7 +28,6 @@ stages:
     - python -c "import pygwb.argument_parser"
     - python -c "import pygwb.baseline"
     - python -c "import pygwb.constants"
-    - python -c "import pygwb.cross_correlation"
     - python -c "import pygwb.delta_sigma_cut"
     - python -c "import pygwb.detector"
     - python -c "import pygwb.network"

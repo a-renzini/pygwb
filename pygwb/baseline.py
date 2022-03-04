@@ -4,10 +4,12 @@ import warnings
 
 import gwpy.frequencyseries
 import gwpy.spectrogram
+import h5py
 import numpy as np
 from bilby.core.utils import create_frequency_series
 from loguru import logger
 
+from .delta_sigma_cut import run_dsc
 from .notch import StochNotchList
 from .orfs import calc_orf
 from .postprocessing import postprocess_Y_sigma
@@ -24,7 +26,7 @@ class Baseline(object):
         duration=None,
         frequencies=None,
         calibration_epsilon=0,
-        notch_list=None,
+        notch_list_path=None,
         overlap_factor=0.5,
         zeropad_csd=True,
         window_fftgram="hann",
@@ -47,8 +49,8 @@ class Baseline(object):
             interferometers
         calibration_epsilon: float, optional
             calibration uncertainty for this baseline
-        notch_list: str, optional
-            filename of the baseline notch list
+        notch_list_path: str, optional
+            file path of the baseline notch list
         overlap_factor: float, optional
             factor by which to overlap the segments in the psd and csd estimation.
             Default is 1/2, if set to 0 no overlap is performed.
@@ -67,7 +69,7 @@ class Baseline(object):
         self.interferometer_1 = interferometer_1
         self.interferometer_2 = interferometer_2
         self.calibration_epsilon = calibration_epsilon
-        self.notch_list = notch_list
+        self.notch_list_path = notch_list_path
         self.overlap_factor = overlap_factor
         self.zeropad_csd = zeropad_csd
         self.window_fftgram = window_fftgram
@@ -130,12 +132,12 @@ class Baseline(object):
             self._scalar_orf_calculated = True
         return self._scalar_orf
 
-    def set_frequency_mask(self, notch_list):
+    def set_frequency_mask(self, notch_list_path):
         mask = (self.frequencies >= self.minimum_frequency) & (
             self.frequencies <= self.maximum_frequency
         )
-        if notch_list is not None:
-            notch_list = StochNotchList.load_from_file(notch_list)
+        if notch_list_path is not None:
+            notch_list = StochNotchList.load_from_file(notch_list_path)
             _, notch_mask = notch_list.get_idxs(self.frequencies)
             mask = np.logical_and(mask, notch_mask)
         return mask
@@ -304,6 +306,32 @@ class Baseline(object):
             self._sampling_frequency = sampling_frequency
             self._sampling_frequency_set = True
 
+    @property
+    def badGPStimes(self):
+        if hasattr(self, "_badGPStimes"):
+            return self._badGPStimes
+        else:
+            raise ValueError(
+                "bad GPS times are not set - need to run delta_sigma_cut first."
+            )
+
+    @badGPStimes.setter
+    def badGPStimes(self, badGPStimes):
+        self._badGPStimes = badGPStimes
+
+    @property
+    def delta_sigmas(self):
+        if hasattr(self, "delta_sigmas"):
+            return self._delta_sigmas
+        else:
+            raise ValueError(
+                "delta_sigmas are not set - need to run delta_sigma_cut first."
+            )
+
+    @delta_sigmas.setter
+    def delta_sigmas(self, delta_sigmas):
+        self._delta_sigmas = delta_sigmas
+
     def check_sampling_frequencies_match_baseline_ifos(self, sampling_frequency):
         if (
             self.interferometer_1.sampling_frequency
@@ -369,7 +397,6 @@ class Baseline(object):
         interferometer_2,
         parameters,
         frequencies=None,
-        notch_list=None,
     ):
         name = interferometer_1.name + interferometer_2.name
         return cls(
@@ -379,7 +406,7 @@ class Baseline(object):
             duration=parameters.segment_duration,
             calibration_epsilon=parameters.calibration_epsilon,
             frequencies=frequencies,
-            notch_list=notch_list,
+            notch_list_path=parameters.notch_list_path,
             overlap_factor=parameters.overlap_factor,
             zeropad_csd=parameters.zeropad_csd,
             window_fftgram=parameters.window_fftgram,
@@ -387,6 +414,17 @@ class Baseline(object):
             N_average_segments_welch_psd=parameters.N_average_segments_welch_psd,
             sampling_frequency=parameters.new_sample_rate,
         )
+
+    @classmethod
+    def load_from_pickle(cls, filename):
+        """Loads entire baseline object from pickle file"""
+        with open(filename, "rb") as f:
+            return pickle.load(f)
+
+    def save_to_pickle(self, filename):
+        """Saves entire baseline object to pickle file"""
+        with open(filename, "wb") as f:
+            pickle.dump(self, f)
 
     def set_cross_and_power_spectral_density(self, frequency_resolution):
         """Sets the power spectral density in each interferometer
@@ -473,9 +511,9 @@ class Baseline(object):
 
         Parameters:
         ===========
-            flow (float)
+            flow: float
                 low frequency
-            fhigh (float)
+            fhigh: float
                 high frequency
         """
         deltaF = self.frequencies[1] - self.frequencies[0]
@@ -545,21 +583,38 @@ class Baseline(object):
 
     def set_point_estimate_sigma_spectrum(
         self,
-        badtimes=np.array([]),
-        lines_object=None,
+        badtimes=None,
         weight_spectrogram=False,
         alpha=0,
-        fref=1,
+        fref=25,
         flow=20,
         fhigh=1726,
+        notch_list_path=None,
     ):
         """Sets time-integrated point estimate spectrum and variance in each frequency bin.
         Point estimate is *unweighted* by alpha.
+
+        Parameters
+        ==========
+        badtimes: np.array, optional
+            array of times to exclude from point estimate/sigma calculation. If no times are passed, none will be excluded.
+        weight_spectrogram: bool, optional
+            weight spectrogram flag; if True, the spectrogram will be re-weighted using the alpha passed here.Default is False.
+        alpha: float, optional
+            spectral index to use in the re-weighting. Default is 0.
+        fref: float, optional
+            reference frequency to use in the re-weighting. Default is 25.
+        flow: float, optional
+            low frequency. Default is 20 Hz.
+        fhigh: float, optional
+            high frequency. Default is 1726 Hz.
+        notch_list_path: str, optional
+            path to the notch list to use in the spectrum; if the notch_list isn't set in the baseline, user can pass it directly here. If it is not set and if none is passed no notches will be applied.
         """
 
         # set unweighted point estimate and sigma spectrograms
         if not hasattr(self, "point_estimate_spectrogram"):
-            print(
+            logger.info(
                 "Point estimate and sigma spectrograms are not set yet. setting now..."
             )
             self.set_point_estimate_sigma_spectrogram(
@@ -571,10 +626,20 @@ class Baseline(object):
             )
         deltaF = self.frequencies[1] - self.frequencies[0]
 
-        if lines_object is None:
-            notches = np.array([], dtype=int)
-        else:
+        if self.notch_list_path is not None:
+            lines_object = StochNotchList.load_from_file(self.notch_list_path)
             notches, _ = lines_object.get_idxs(self.frequencies)
+        elif notch_list_path is not None:
+            lines_object = StochNotchList.load_from_file(notch_list_path)
+            notches, _ = lines_object.get_idxs(self.frequencies)
+        else:
+            notches = np.array([], dtype=int)
+
+        if badtimes is None:
+            if hasattr(self, "badGPStimes"):
+                badtimes = self.badGPStimes
+            else:
+                badtimes = np.array([])
 
         # should be True for each bad time
         bad_times_indexes = np.array(
@@ -622,19 +687,34 @@ class Baseline(object):
 
     def set_point_estimate_sigma(
         self,
-        lines_object=None,
+        badtimes=None,
         apply_weighting=True,
-        badtimes=np.array([], dtype=int),
         alpha=0,
         fref=1,
         flow=20,
         fhigh=1726,
+        notch_list_path=None,
     ):
-        """Set point estimate sigma based on a set of parameters."""
-        # set point estimate and sigma spectrum
-        # this is estimate of omega_gw in each frequency bin
+        """Set point estimate sigma based on a set of parameters. This is estimate of omega_gw in each frequency bin.
 
-        # TODO: Add check if badtimes is apssed and point estimate spectrum
+        Parameters
+        ==========
+        badtimes: np.array, optional
+            array of times to exclude from point estimate/sigma calculation. If no times are passed, none will be excluded.
+        apply_weighting: bool, optional
+            apply weighting flag; if True, the point estimate and sigma will be weighted using the alpha passed here. Default is True.
+        alpha: float, optional
+            spectral index to use in the re-weighting. Default is 0.
+        fref: float, optional
+            reference frequency to use in the re-weighting. Default is 25.
+        flow: float, optional
+            low frequency. Default is 20 Hz.
+        fhigh: float, optional
+            high frequency. Default is 1726 Hz.
+        notch_list_path: str, optional
+            path to the notch list to use in the spectrum; if the notch_list isn't set in the baseline, user can pass it directly here. If it is not set and if none is passed no notches will be applied.
+        """
+        # TODO: Add check if badtimes is passed and point estimate spectrum
         # already exists...
         if not hasattr(self, "point_estimate_spectrum"):
             logger.info(
@@ -645,7 +725,7 @@ class Baseline(object):
             )
             self.set_point_estimate_sigma_spectrum(
                 badtimes=badtimes,
-                lines_object=lines_object,
+                notch_list_path=notch_list_path,
                 weight_spectrogram=False,
                 alpha=alpha,
                 fref=fref,
@@ -664,10 +744,14 @@ class Baseline(object):
         # TODO: make this less fragile...at the moment these indexes
         # must agree with those after cropping, so the notches must agree with the params
         # struct in some way. Seems dangerous
-        if lines_object is None:
-            notch_indexes = np.arange(Y_spec.size)
-        else:
+        if notch_list_path is not None:
+            print("hello!")
+            exit()
+            lines_object = StochNotchList.load_from_file(notch_list_path)
             _, notch_indexes = lines_object.get_idxs(Y_spec.frequencies.value)
+        else:
+            notch_indexes = np.arange(Y_spec.size)
+
         # get Y, sigma
         if apply_weighting:
             Y, sigma = calc_Y_sigma_from_Yf_varf(
@@ -678,7 +762,9 @@ class Baseline(object):
                 fref=fref,
             )
         else:
-            print("Be careful, in general weighting is not applied until this point")
+            logger.info(
+                "Be careful, in general weighting is not applied until this point"
+            )
             Y, sigma = calc_Y_sigma_from_Yf_varf(
                 self.point_estimate_spectrum.value, self.sigma_spectrogram.value**2
             )
@@ -686,19 +772,58 @@ class Baseline(object):
         self.point_estimate = Y
         self.sigma = sigma
 
+    def calculate_delta_sigma_cut(
+        self,
+        delta_sigma_cut,
+        alphas,
+        flow=20,
+        fhigh=1726,
+    ):
+        """Calculates the delta sigma cut using the naive and average psds, if set in the baseline.
+
+        Parameters
+        ==========
+        delta_sigma_cut: float
+            the cutoff to implement in the delta sigma cut.
+        alphas: list
+            set of spectral indices to use in the delta sigma cut calculation.
+        flow: float, optional
+            low frequency. Default is 20 Hz.
+        fhigh: float, optional
+            high frequency. Default is 1726 Hz.
+        """
+
+        deltaF = self.frequencies[1] - self.frequencies[0]
+        self.crop_frequencies_average_psd_csd(flow=flow, fhigh=fhigh)
+        naive_psd_1_cropped = self.interferometer_1.psd_spectrogram.crop_frequencies(
+            flow, fhigh + deltaF
+        )
+        naive_psd_2_cropped = self.interferometer_2.psd_spectrogram.crop_frequencies(
+            flow, fhigh + deltaF
+        )
+
+        badGPStimes, delta_sigmas = run_dsc(
+            delta_sigma_cut,
+            self.duration,
+            self.sampling_frequency,
+            naive_psd_1_cropped,
+            naive_psd_2_cropped,
+            self.interferometer_1.average_psd,
+            self.interferometer_2.average_psd,
+            alphas,
+            self.notch_list_path,
+        )
+        self.badGPStimes = badGPStimes
+        self.delta_sigmas = delta_sigmas
+
     def save_data(
         self,
         save_data_type,
         filename,
-        freqs,
-        Y_f_new,
-        var_f_new,
-        Y_pyGWB_new,
-        sigma_pyGWB_new,
     ):
-        """Saves the overall point estimate Y_pygwb_new, its error bar sigma_pyGWB_new,
+        """Saves the overall point estimate Y, its error bar sigma,
         the frequency-dependent estimates and variances and the corresponding frequencies
-        in the required save_data_type, which can be npz, pickle or json.
+        in the required save_data_type, which can be npz, pickle, json or hdf5.
         You can call upon this data afterwards when loaoding in using the ['key'] dictionary format.
 
         Parameters
@@ -707,150 +832,160 @@ class Baseline(object):
             The required type of data file where the information will be stored
         filename: str
             the path/name of the file in which you want to save
-        freqs: array
-            Array of frequencies that correspond with the frequency-dependent estimates
-        Y_f_new: array
-            The frequency-dependent estimates
-        var_f_new: array
-            The frequency-dependent variances on the estimates
-        Y_pyGWB_new: float
-            The overall point estimate
-        sigma_pyGWB_new: float
-            The errorbar of the overall point estimate
 
         """
 
         if save_data_type == "pickle":
-            filename = filename + ".p"
-            self.pickle_save(
-                filename, freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new
-            )
+            save = self.pickle_save
+            save_csd = self.pickle_save_csd
+            ext = ".p"
 
         elif save_data_type == "npz":
-            self.save_data_to_file(
-                filename, freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new
-            )
+            save = self.npz_save
+            save_csd = self.npz_save_csd
+            ext = ".npz"
 
         elif save_data_type == "json":
-            filename = filename + ".json"
-            self.json_save(
-                filename, freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new
-            )
+            save = self.json_save
+            save_csd = self.json_save_csd
+            ext = ".json"
 
         elif save_data_type == "hdf5":
-            filename = filename + ".h5"
-            self.hdf5_save(
-                filename, freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new
-            )
+            save = self.hdf5_save
+            save_csd = self.hdf5_save_csd
+            ext = ".h5"
 
         else:
             raise ValueError(
                 "The provided data type is not supported, try using 'pickle', 'npz', 'json' or 'hdf5' instead."
             )
 
-    def save_data_to_file(
-        self, filename, freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new
+        save(
+            f"{filename}{ext}",
+            self.frequencies,
+            self.point_estimate_spectrum,
+            self.sigma_spectrum,
+            self.point_estimate,
+            self.sigma,
+            self.point_estimate_spectrogram,
+            self.sigma_spectrogram,
+        )
+        save_csd(
+            f"psds_csds_{filename}{ext}",
+            self.frequencies,
+            self.average_csd,
+            self.interferometer_1.average_psd,
+            self.interferometer_2.average_psd,
+        )
+
+    def npz_save(
+        self,
+        filename,
+        frequencies,
+        point_estimate_spectrum,
+        sigma_spectrum,
+        point_estimate,
+        sigma,
+        point_estimate_spectrogram,
+        sigma_spectrogram,
     ):
         np.savez(
             filename,
-            freqs=freqs,
-            Y_f_new=Y_f_new,
-            var_f_new=var_f_new,
-            Y_pyGWB_new=Y_pyGWB_new,
-            sigma_pyGWB_new=sigma_pyGWB_new,
+            frequencies=frequencies,
+            point_estimate_spectrum=point_estimate_spectrum,
+            sigma_spectrum=sigma_spectrum,
+            point_estimate=point_estimate,
+            sigma=sigma,
+            point_estimate_spectrogram=point_estimate_spectrogram,
+            sigma_spectrogram=sigma_spectrogram,
         )
 
     def pickle_save(
-        self, filename, freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new
+        self,
+        filename,
+        frequencies,
+        point_estimate_spectrum,
+        sigma_spectrum,
+        point_estimate,
+        sigma,
+        point_estimate_spectrogram,
+        sigma_spectrogram,
     ):
-        # saveObject = (freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new)
-
         save_dictionary = {
-            "freqs": freqs,
-            "Y_f_new": Y_f_new,
-            "var_f_new": var_f_new,
-            "Y_pyGWB": Y_pyGWB_new,
-            "sigma_pyGWB": sigma_pyGWB_new,
+            "frequencies": frequencies,
+            "point_estimate_spectrum": point_estimate_spectrum,
+            "sigma_spectrum": sigma_spectrum,
+            "point_estimate": point_estimate,
+            "sigma": sigma,
+            "point_estimate_spectrogram": point_estimate_spectrogram,
+            "sigma_spectrogram": sigma_spectrogram,
         }
-
-        # with open(filename, "wb") as f:
-        #   pickle.dump(saveObject, f)
 
         with open(filename, "wb") as f:
             pickle.dump(save_dictionary, f)
 
     def json_save(
-        self, filename, freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new
+        self,
+        filename,
+        frequencies,
+        point_estimate_spectrum,
+        sigma_spectrum,
+        point_estimate,
+        sigma,
+        point_estimate_spectrogram,
+        sigma_spectrogram,
     ):
-        list_freqs = freqs.tolist()
-        list_Yf = Y_f_new.tolist()
-        list_varf = var_f_new.tolist()
+        list_freqs = frequencies.tolist()
+        list_point_estimate_spectrum = point_estimate_spectrum.value.tolist()
+        list_sigma_spectrum = sigma_spectrum.value.tolist()
+
+        list_point_estimate_segment = point_estimate_spectrogram.value.tolist()
+        point_estimate_segment_times = point_estimate_spectrogram.times.value.tolist()
+
+        list_sigma_segment = sigma_spectrogram.value.tolist()
+        sigma_segment_times = sigma_spectrogram.times.value.tolist()
 
         save_dictionary = {
-            "freqs": list_freqs,
-            "Y_f_new": list_Yf,
-            "var_f_new": list_varf,
-            "Y_pyGWB": Y_pyGWB_new,
-            "sigma_pyGWB": sigma_pyGWB_new,
+            "frequencies": list_freqs,
+            "point_estimate_spectrum": list_point_estimate_spectrum,
+            "sigma_spectrum": list_sigma_spectrum,
+            "point_estimate": point_estimate,
+            "sigma": sigma,
+            "point_estimate_spectrogram": list_point_estimate_segment,
+            "point_estimate_spectrogram_times": point_estimate_segment_times,
+            "sigma_spectrogram": list_sigma_segment,
+            "sigma_spectrogram_times": sigma_segment_times,
         }
 
         with open(filename, "w") as outfile:
             json.dump(save_dictionary, outfile)
 
     def hdf5_save(
-        self, filename, freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new
+        self,
+        filename,
+        frequencies,
+        point_estimate_spectrum,
+        sigma_spectrum,
+        point_estimate,
+        sigma,
+        point_estimate_spectrogram,
+        sigma_spectrogram,
     ):
         hf = h5py.File(filename, "w")
 
-        hf.create_dataset("freqs", data=freqs)
-        hf.create_dataset("Y_f", data=Y_f_new)
-        hf.create_dataset("var_f", data=var_f_new)
-        hf.create_dataset("Y_pyGWB", data=Y_pyGWB_new)
-        hf.create_dataset("sigma_pyGWB", data=sigma_pyGWB_new)
+        hf.create_dataset("freqs", data=frequencies)
+        hf.create_dataset("point_estimate_spectrum", data=point_estimate_spectrum)
+        hf.create_dataset("sigma_spectrum", data=sigma_spectrum)
+        hf.create_dataset("point_estimate", data=point_estimate)
+        hf.create_dataset("sigma", data=sigma)
+        hf.create_dataset(
+            "point_estimate_spectrogram", data=point_estimate_spectrogram
+        ),
+        hf.create_dataset("sigma_spectrogram", data=sigma_spectrogram)
 
         hf.close()
 
-    def save_data_csd(self, save_data_type, filename, freqs, csd, psd_1, psd_2):
-        """
-        Saves the computed csd and average pds together with their corresponding frequencies in the required save_data_type, which can be npz, pickle, json or hdf5.
-        You can call upon this data afterwards when loaoding in using the ['key'] dictionary format.
-
-        Parameters
-        ----------
-
-        save_data_type: str
-            The required type of data file where the information will be stored
-        filename: str
-            The path/name of the file in which you want to save
-        freqs: array_like
-            The corresponding frequencies of the csd and psds
-        csd: spectrogram
-            The computed CSD as a spectrogram, hence with corresponding times and frequencies
-        psd_1, psd_2: spectrogram
-            The computed with before_and_after_average psds
-        """
-
-        if save_data_type == "pickle":
-            filename = filename + ".p"
-            self.pickle_save_csd(filename, freqs, csd, psd_1, psd_2)
-
-        elif save_data_type == "npz":
-            self.save_data_to_file_csd(filename, freqs, csd, psd_1, psd_2)
-
-        elif save_data_type == "json":
-            filename = filename + ".json"
-            self.json_save_csd(filename, freqs, csd, psd_1, psd_2)
-
-        elif save_data_type == "hdf5":
-            filename = filename + ".h5"
-            self.hdf5_save_csd(filename, freqs, csd, psd_1, psd_2)
-
-        else:
-            raise ValueError(
-                "The provided data type is not supported, try using 'pickle', 'npz', 'json' or 'hdf5' instead."
-            )
-
-    def save_data_to_file_csd(self, filename, freqs, csd, avg_psd_1, avg_psd_2):
+    def npz_save_csd(self, filename, freqs, csd, avg_psd_1, avg_psd_2):
         np.savez(
             filename, freqs=freqs, csd=csd, avg_psd_1=avg_psd_1, avg_psd_2=avg_psd_2
         )
@@ -932,200 +1067,6 @@ class Baseline(object):
         psd_2_group.create_dataset("psd_2_times", data=psd_2_times)
 
         hf.close()
-
-    def save_segments(
-        self,
-        save_data_type,
-        filename,
-        freqs,
-        badGPStimes,
-        Y_f_segment,
-        var_f_segment,
-        Y_segment,
-        sig_segment,
-    ):
-
-        if save_data_type == "pickle":
-            filename = filename + ".p"
-            filename_segment = filename + "_spectra_per_segment" + ".p"
-            self.pickle_save_segments(
-                filename,
-                filename_segment,
-                freqs,
-                badGPStimes,
-                Y_f_segment,
-                var_f_segment,
-                Y_segment,
-                sig_segment,
-            )
-
-        elif save_data_type == "npz":
-            filename_segment = filename + "_spectra_per_segment"
-            self.save_segments_npz(
-                filename,
-                filename_segment,
-                freqs,
-                badGPStimes,
-                Y_f_segment,
-                var_f_segment,
-                Y_segment,
-                sig_segment,
-            )
-
-        elif save_data_type == "json":
-            filename = filename + ".json"
-            filename_segment = filename + "_spectra_per_segment" + ".json"
-            self.json_save_segments(
-                filename,
-                filename_segment,
-                freqs,
-                badGPStimes,
-                Y_f_segment,
-                var_f_segment,
-                Y_segment,
-                sig_segment,
-            )
-
-        elif save_data_type == "hdf5":
-            filename = filename + ".h5"
-            filename_segment = filename + "_spectra_per_segment" + ".h5"
-            self.hdf5_save_segments(
-                filename,
-                filename_segment,
-                freqs,
-                badGPStimes,
-                Y_f_segment,
-                var_f_segment,
-                Y_segment,
-                sig_segment,
-            )
-
-        else:
-            raise ValueError(
-                "The provided data type is not supported, try using 'pickle', 'npz', 'json' or 'hdf5' instead."
-            )
-
-    def pickle_save_segments(
-        self,
-        filename,
-        filename_segment,
-        freqs,
-        badGPStimes,
-        Y_f_segment,
-        var_f_segment,
-        Y_segment,
-        sig_segment,
-    ):
-
-        save_dictionary = {
-            "freqs": freqs,
-            "badGPStimes": badGPStimes,
-            "Y_f_segment": Y_f_segment,
-            "var_f_segment": var_f_segment,
-        }
-
-        save_dictionary_estimate = {
-            "badGPStimes": badGPStimes,
-            "Y_segment": Y_segment,
-            "sig_segment": sig_segment,
-        }
-
-        with open(filename, "wb") as f:
-            pickle.dump(save_dictionary_estimate, f)
-
-        with open(filename_segment, "wb") as h:
-            pickle.dump(save_dictionary, h)
-
-    def save_segments_npz(
-        self,
-        filename,
-        filename_segment,
-        freqs,
-        badGPStimes,
-        Y_f_segment,
-        var_f_segment,
-        Y_segment,
-        sig_segment,
-    ):
-        np.savez(
-            filename_segment,
-            freqs=freqs,
-            badGPStimes=badGPStimes,
-            Y_f_segment=Y_f_segment,
-            var_f_segment=var_f_segment,
-        )
-        np.savez(
-            filename,
-            badGPStimes=badGPStimes,
-            Y_segment=Y_segment,
-            sig_segment=sig_segment,
-        )
-
-    def json_save_segments(
-        self,
-        filename,
-        filename_segment,
-        freqs,
-        badGPStimes,
-        Y_f_segment,
-        var_f_segment,
-        Y_segment,
-        sig_segment,
-    ):
-
-        list_freqs = freqs.tolist()
-        list_badGPStimes = badGPStimes.tolist()
-        list_Y_f_segment = Y_f_segment.tolist()
-        list_var_f_segment = var_f_segment.tolist()
-        list_Y_segment = Y_segment.tolist()
-        list_seg_segment = sig_segment.tolist()
-
-        save_dictionary = {
-            "freqs": list_freqs,
-            "badGPStimes": list_badGPStimes,
-            "Y_f_segment": list_Y_f_segment,
-            "var_f_segment": list_var_f_segment,
-        }
-
-        save_dictionary_estimate = {
-            "badGPStimes": list_badGPStimes,
-            "Y_segment": list_Y_segment,
-            "sig_segment": list_sig_segment,
-        }
-
-        with open(filename_segment, "w") as outputfile_segments:
-            json.dump(save_dictionary, outputfile_segments)
-
-        with open(filename, "w") as outfile:
-            json.dump(save_dictionary_estimate, outfile)
-
-    def hdf5_save_segments(
-        self,
-        filename,
-        filename_segment,
-        freqs,
-        badGPStimes,
-        Y_f_segment,
-        var_f_segment,
-        Y_segment,
-        sig_segment,
-    ):
-        hf = h5py.File(filename_segment, "w")
-
-        hf.create_dataset("freqs", data=freqs)
-        hf.create_dataset("badGPStimes", data=badGPStimes)
-        hf.create_dataset("Y_f_segment", data=Y_f_segment)
-        hf.create_dataset("var_f_segment", data=var_f_segment)
-
-        hf.close()
-
-        estimate_file = h5py.File(filename, "w")
-
-        estimate_file.create_dataset("badGPStimes", data=badGPStimes)
-        estimate_file.create_dataset("Y_segment", data=Y_segment)
-        estimate_file.create_dataset("sig_segment", data=sig_segment)
-
-        estimate_file.close()
 
 
 def get_baselines(interferometers, frequencies=None):

@@ -154,7 +154,7 @@ class SingleStochasticJob(object):
 
         # odds
         if size == 1:
-            return X_even / GAMMA_even, GAMMA_even ** -0.5
+            return X_even / GAMMA_even, GAMMA_even**-0.5
         else:
             X_odd = np.nansum(self.Y[odds] / self.sigma[odds] ** 2, axis=0)
             GAMMA_odd = np.nansum(self.sigma[odds] ** -2, axis=0)
@@ -193,10 +193,10 @@ class SingleStochasticJob(object):
                 + GAMMA_even
                 - (1 / 2) * (1 / self.sigma[0, :] ** 2 + 1 / self.sigma[-1, :] ** 2)
             )
-        ) / (1 - (k ** 2 / 4) * sigma2_oo * sigma2_ee * sigma2IJ ** 2)
+        ) / (1 - (k**2 / 4) * sigma2_oo * sigma2_ee * sigma2IJ**2)
 
         bias = calc_bias(self.segdur, self.df, 1 / self.sample_rate, N_avg_segs=2)
-        var_f_new = (1 / inv_var_f_new) * bias ** 2
+        var_f_new = (1 / inv_var_f_new) * bias**2
         # I don't think notching should happen here.
         # I thought it happened somewhere else.
         # var_f_new[notch_freq] = np.inf
@@ -301,7 +301,7 @@ class IsotropicJob(SingleStochasticJob):
 
         # divide by segment duration
         final_Y = Y / segdur
-        final_sigma = sig ** 0.5 / segdur
+        final_sigma = sig**0.5 / segdur
         # create and return IsotropicJob class
         return cls(
             final_Y, final_sigma, segstarts, segdur, sample_rate, frequencies=freqs
@@ -486,8 +486,8 @@ class StochasticJobList(object):
 
                 sigtmp[np.isnan(sigtmp) * np.isnan(Ytmp)] = np.inf
                 Ytmp[np.isnan(Ytmp)] = 0
-                X = Ytmp / sigtmp ** 2
-                GAMMA = sigtmp ** -2
+                X = Ytmp / sigtmp**2
+                GAMMA = sigtmp**-2
                 X[np.where(np.isnan(X))[0]] = 0
                 if tmpjob.frequencies is not None:
                     dim2 = tmpjob.frequencies
@@ -503,9 +503,9 @@ class StochasticJobList(object):
                 )
                 sigtmp[np.isnan(sigtmp)] = np.inf
                 Ytmp[np.isnan(Ytmp)] = 0
-                X = X + Ytmp * sigtmp ** -2
+                X = X + Ytmp * sigtmp**-2
                 X[np.where(np.isnan(X))[0]] = 0
-                GAMMA += sigtmp ** -2
+                GAMMA += sigtmp**-2
             self.jobs_combined = np.append(self.jobs_combined, job)
             if (job % checkpoint_number) == 0:
                 checkpoint_material = {
@@ -520,7 +520,7 @@ class StochasticJobList(object):
             job += 1
         GAMMA[GAMMA == 0] = np.nan
         Y = X / GAMMA
-        sigma = GAMMA ** -0.5
+        sigma = GAMMA**-0.5
 
         return Y, sigma, dim2, dim2type
 
@@ -529,7 +529,9 @@ def postprocess_Y_sigma(
     Y_fs, var_fs, segment_duration, deltaF, new_sample_rate, notch_freq
 ):
     size = np.size(Y_fs, axis=0)
-    _, w1w2squaredbar, _, w1w2squaredovlbar = window_factors(segment_duration * new_sample_rate)
+    _, w1w2squaredbar, _, w1w2squaredovlbar = window_factors(
+        segment_duration * new_sample_rate
+    )
     k = w1w2squaredovlbar / w1w2squaredbar
 
     # even/odd indices
@@ -561,9 +563,9 @@ def postprocess_Y_sigma(
         + GAMMA_even
         - k
         * (GAMMA_odd + GAMMA_even - (1 / 2) * (1 / var_fs[0, :] + 1 / var_fs[-1, :]))
-    ) / (1 - (k ** 2 / 4) * sigma2_oo * sigma2_ee * sigma2IJ ** 2)
+    ) / (1 - (k**2 / 4) * sigma2_oo * sigma2_ee * sigma2IJ**2)
     bias = calc_bias(segment_duration, deltaF, 1 / new_sample_rate)
-    var_f_new = (1 / inv_var_f_new) * bias ** 2
+    var_f_new = (1 / inv_var_f_new) * bias**2
     var_f_new[notch_freq] = np.inf
 
     return Y_f_new, var_f_new

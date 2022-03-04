@@ -191,6 +191,17 @@ class TestBaseline(unittest.TestCase):
             ),
         )
 
+    def test_save_to_pickle(self):
+        base = baseline.Baseline(
+            "H1H2",
+            self.interferometer_1,
+            self.interferometer_2,
+            )
+        base.save_to_pickle('test/test_data/baseline_pickle_test.pickle')
+
+    def test_load_from_pickle(self):
+        base = baseline.Baseline.load_from_pickle('test/test_data/baseline_pickle_test.pickle')
+
 
 if __name__ == "__main__":
     unittest.main()
