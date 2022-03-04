@@ -17,7 +17,7 @@ class Network(object):
         duration=None,
         frequencies=None,
         calibration_epsilon=0,
-        notch_list=None,
+        notch_list_path=None,
         overlap_factor=0.5,
         zeropad_csd=True,
         window_fftgram="hann",
@@ -42,8 +42,8 @@ class Network(object):
             interferometers
         calibration_epsilon: float, optional
             calibration uncertainty for this baseline -- currently only supports a single notch list for all baselines
-        notch_list: str, optional
-            filename of the baseline notch list -- currently only supports a single notch list for all baselines
+        notch_list_path: str, optional
+            file path of the baseline notch list -- currently only supports a single notch list for all baselines
         overlap_factor: float, optional
             factor by which to overlap the segments in the psd and csd estimation. Default is 1/2, if set to 0 no overlap is performed.
         zeropad_csd: bool, optional
@@ -78,7 +78,7 @@ class Network(object):
                     duration=duration,
                     frequencies=frequencies,
                     calibration_epsilon=calibration_epsilon,
-                    notch_list=notch_list,
+                    notch_list_path=notch_list_path,
                     overlap_factor=overlap_factor,
                     zeropad_csd=zeropad_csd,
                     window_fftgram=window_fftgram,
