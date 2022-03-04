@@ -4,8 +4,8 @@ import warnings
 
 import gwpy.frequencyseries
 import gwpy.spectrogram
-import numpy as np
 import h5py
+import numpy as np
 from bilby.core.utils import create_frequency_series
 from loguru import logger
 
