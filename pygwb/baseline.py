@@ -661,7 +661,7 @@ class Baseline(object):
             )
         point_estimate, sigma = postprocess_Y_sigma(
             self.point_estimate_spectrogram.value,
-            self.sigma_spectrogram.value ** 2,
+            self.sigma_spectrogram.value**2,
             self.duration,
             deltaF,
             self.sampling_frequency,
@@ -765,7 +765,7 @@ class Baseline(object):
                 "Be careful, in general weighting is not applied until this point"
             )
             Y, sigma = calc_Y_sigma_from_Yf_varf(
-                self.point_estimate_spectrum.value, self.sigma_spectrogram.value ** 2
+                self.point_estimate_spectrum.value, self.sigma_spectrogram.value**2
             )
 
         self.point_estimate = Y
