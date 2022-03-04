@@ -95,7 +95,7 @@ if __name__ == "__main__":
             fref=params.fref,
             flow=params.flow,
             fhigh=params.fhigh,
-            # badtimes=np.array([]) #use this line to override the delta sigma cut
+            badtimes=np.array([]) #use this line to override the delta sigma cut
         )
 
         logger.success(
@@ -104,28 +104,24 @@ if __name__ == "__main__":
         logger.success(f"\tPOINT ESIMATE: {base_HL.point_estimate:e}")
         logger.success(f"\tSIGMA: {base_HL.sigma:e}")
 
-        data_file_name = f"Y_sigma_{int(params.t0)}-{int(params.tf)}"
+        data_file_name = f"point_estimate_sigma_{int(params.t0)}-{int(params.tf)}"
 
-        logger.info("saving Y_f and sigma_f to file.")
+        logger.info("Saving point_estimate and sigma spectrograms, spectra, and final values to file.")
+        logger.info("Saving average psds and csd to file.")
         base_HL.save_data(
             params.save_data_type,
             data_file_name,
-            base_HL.frequencies,
-            base_HL.point_estimate_spectrum.value,
-            base_HL.sigma_spectrum.value,
-            base_HL.point_estimate,
-            base_HL.sigma,
         )
 
-    logger.info("saving average psds and csd to file.")
+    else:   
+        logger.info("Saving average psds and csd to file.")
 
-    data_file_name = f"psds_csds_{int(params.t0)}-{int(params.tf)}"
+        data_file_name = f"psds_csds_{int(params.t0)}-{int(params.tf)}"
 
-    base_HL.save_data_csd(
-        params.save_data_type,
-        data_file_name,
-        base_HL.frequencies,
-        base_HL.csd,
-        base_HL.interferometer_1.average_psd,
-        base_HL.interferometer_2.average_psd,
-    )
+        base_HL.npz_save_csd(
+            data_file_name,
+            base_HL.frequencies,
+            base_HL.csd,
+            base_HL.interferometer_1.average_psd,
+            base_HL.interferometer_2.average_psd,
+        )

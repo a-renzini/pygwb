@@ -5,6 +5,7 @@ import warnings
 import gwpy.frequencyseries
 import gwpy.spectrogram
 import numpy as np
+import h5py
 from bilby.core.utils import create_frequency_series
 from loguru import logger
 
@@ -935,8 +936,8 @@ class Baseline(object):
         sigma_spectrogram,
     ):
         list_freqs = frequencies.tolist()
-        list_point_estimate_spectrum = point_estimate_spectrum.tolist()
-        list_sigma_spectrum = sigma_spectrum.tolist()
+        list_point_estimate_spectrum = point_estimate_spectrum.value.tolist()
+        list_sigma_spectrum = sigma_spectrum.value.tolist()
 
         list_point_estimate_segment = point_estimate_spectrogram.value.tolist()
         point_estimate_segment_times = point_estimate_spectrogram.times.value.tolist()
