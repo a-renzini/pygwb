@@ -4,6 +4,7 @@ import warnings
 
 import gwpy.frequencyseries
 import gwpy.spectrogram
+import h5py
 import numpy as np
 from bilby.core.utils import create_frequency_series
 from loguru import logger
@@ -305,6 +306,32 @@ class Baseline(object):
             self._sampling_frequency = sampling_frequency
             self._sampling_frequency_set = True
 
+    @property
+    def badGPStimes(self):
+        if hasattr(self, "_badGPStimes"):
+            return self._badGPStimes
+        else:
+            raise ValueError(
+                "bad GPS times are not set - need to run delta_sigma_cut first."
+            )
+
+    @badGPStimes.setter
+    def badGPStimes(self, badGPStimes):
+        self._badGPStimes = badGPStimes
+
+    @property
+    def delta_sigmas(self):
+        if hasattr(self, "delta_sigmas"):
+            return self._delta_sigmas
+        else:
+            raise ValueError(
+                "delta_sigmas are not set - need to run delta_sigma_cut first."
+            )
+
+    @delta_sigmas.setter
+    def delta_sigmas(self, delta_sigmas):
+        self._delta_sigmas = delta_sigmas
+
     def check_sampling_frequencies_match_baseline_ifos(self, sampling_frequency):
         if (
             self.interferometer_1.sampling_frequency
@@ -387,6 +414,17 @@ class Baseline(object):
             N_average_segments_welch_psd=parameters.N_average_segments_welch_psd,
             sampling_frequency=parameters.new_sample_rate,
         )
+
+    @classmethod
+    def load_from_pickle(cls, filename):
+        """Loads entire baseline object from pickle file"""
+        with open(filename, "rb") as f:
+            return pickle.load(f)
+
+    def save_to_pickle(self, filename):
+        """Saves entire baseline object to pickle file"""
+        with open(filename, "wb") as f:
+            pickle.dump(self, f)
 
     def set_cross_and_power_spectral_density(self, frequency_resolution):
         """Sets the power spectral density in each interferometer
@@ -545,7 +583,7 @@ class Baseline(object):
 
     def set_point_estimate_sigma_spectrum(
         self,
-        badtimes=np.array([]),
+        badtimes=None,
         weight_spectrogram=False,
         alpha=0,
         fref=25,
@@ -597,6 +635,12 @@ class Baseline(object):
         else:
             notches = np.array([], dtype=int)
 
+        if badtimes is None:
+            if hasattr(self, "badGPStimes"):
+                badtimes = self.badGPStimes
+            else:
+                badtimes = np.array([])
+
         # should be True for each bad time
         bad_times_indexes = np.array(
             [np.any(t == badtimes) for t in self.point_estimate_spectrogram.times.value]
@@ -643,7 +687,7 @@ class Baseline(object):
 
     def set_point_estimate_sigma(
         self,
-        badtimes=np.array([], dtype=int),
+        badtimes=None,
         apply_weighting=True,
         alpha=0,
         fref=1,
@@ -670,7 +714,7 @@ class Baseline(object):
         notch_list_path: str, optional
             path to the notch list to use in the spectrum; if the notch_list isn't set in the baseline, user can pass it directly here. If it is not set and if none is passed no notches will be applied.
         """
-        # TODO: Add check if badtimes is apssed and point estimate spectrum
+        # TODO: Add check if badtimes is passed and point estimate spectrum
         # already exists...
         if not hasattr(self, "point_estimate_spectrum"):
             logger.info(
@@ -758,7 +802,7 @@ class Baseline(object):
             flow, fhigh + deltaF
         )
 
-        badGPStimes = run_dsc(
+        badGPStimes, delta_sigmas = run_dsc(
             delta_sigma_cut,
             self.duration,
             self.sampling_frequency,
@@ -769,18 +813,18 @@ class Baseline(object):
             alphas,
             self.notch_list_path,
         )
-        return badGPStimes
+
+        self.badGPStimes = badGPStimes
+        self.delta_sigmas = delta_sigmas
 
     def save_data(
         self,
         save_data_type,
-        filename, 
-        t0, 
-        tf
+        filename,
     ):
-        """Saves the overall point estimate Y_pygwb_new, its error bar sigma_pyGWB_new,
+        """Saves the overall point estimate Y, its error bar sigma,
         the frequency-dependent estimates and variances and the corresponding frequencies
-        in the required save_data_type,which can be npz, pickle, json or hdf5.
+        in the required save_data_type, which can be npz, pickle, json or hdf5.
         You can call upon this data afterwards when loaoding in using the ['key'] dictionary format.
 
         Parameters
@@ -789,170 +833,160 @@ class Baseline(object):
             The required type of data file where the information will be stored
         filename: str
             the path/name of the file in which you want to save
-        freqs: array
-            Array of frequencies that correspond with the frequency-dependent estimates
-        Y_f_new: array
-            The frequency-dependent estimates
-        var_f_new: array
-            The frequency-dependent variances on the estimates
-        Y_pyGWB_new: float
-            The overall point estimate
-        sigma_pyGWB_new: float
-            The errorbar of the overall point estimate
 
         """
 
         if save_data_type == "pickle":
-            filename = filename + ".p"
-            self.pickle_save(
-                filename, self.frequencies, self.point_estimate_spectrum, self.sigma_spectrum, self.point_estimate, self.sigma, self.point_estimate_spectrogram, self.sigma_spectrogram )
-            filename = f"psds_csds_{int(t0)}-{int(tf)}" + ".p"
-            self.pickle_save_csd(filename, self.frequencies, self.average_csd, self.interferometer_1.average_psd, self.interferometer_2.average_psd  )
+            save = self.pickle_save
+            save_csd = self.pickle_save_csd
+            ext = ".p"
 
         elif save_data_type == "npz":
-            self.save_data_to_file(
-                filename, self.frequencies, self.point_estimate_spectrum, self.sigma_spectrum, self.point_estimate, self.sigma, self.point_estimate_spectrogram, self.sigma_spectrogram  )
-            filename = f"psds_csds_{int(t0)}-{int(tf)}"
-            self.save_data_to_file_csd(filename, self.frequencies, self.average_csd, self.interferometer_1.average_psd, self.interferometer_2.average_psd )
+            save = self.npz_save
+            save_csd = self.npz_save_csd
+            ext = ".npz"
 
         elif save_data_type == "json":
-            filename = filename + ".json"
-            self.json_save(
-                filename, self.frequencies, self.point_estimate_spectrum, self.sigma_spectrum, self.point_estimate, self.sigma, self.point_estimate_spectrogram, self.sigma_spectrogram  )
-            filename = f"psds_csds_{int(t0)}-{int(tf)}" + ".json"
-            self.json_save_csd(filename,  self.frequencies, self.average_csd, self.interferometer_1.average_psd, self.interferometer_2.average_psd )
+            save = self.json_save
+            save_csd = self.json_save_csd
+            ext = ".json"
 
         elif save_data_type == "hdf5":
-            filename = filename + ".h5"
-            self.hdf5_save(
-                filename, self.frequencies, self.point_estimate_spectrum, self.sigma_spectrum, self.point_estimate, self.sigma, self.point_estimate_spectrogram, self.sigma_spectrogram  )
-            f"psds_csds_{int(t0)}-{int(tf)}" + ".h5"
-            self.hdf5_save_csd(filename,  self.frequencies, self.average_csd, self.interferometer_1.average_psd, self.interferometer_2.average_psd )
+            save = self.hdf5_save
+            save_csd = self.hdf5_save_csd
+            ext = ".h5"
 
         else:
             raise ValueError(
                 "The provided data type is not supported, try using 'pickle', 'npz', 'json' or 'hdf5' instead."
             )
+            
+        save(
+            f"{filename}{ext}",
+            self.frequencies,
+            self.point_estimate_spectrum,
+            self.sigma_spectrum,
+            self.point_estimate,
+            self.sigma,
+            self.point_estimate_spectrogram,
+            self.sigma_spectrogram,
+        )
+        save_csd(
+            f"psds_csds_{filename}{ext}",
+            self.frequencies,
+            self.average_csd,
+            self.interferometer_1.average_psd,
+            self.interferometer_2.average_psd,
+        )
 
-    def save_data_to_file(
-        self, filename, frequencies, point_estimate_spectrum, sigma_spectrum, point_estimate, sigma, point_estimate_spectrogram, sigma_spectrogram
+    def npz_save(
+        self,
+        filename,
+        frequencies,
+        point_estimate_spectrum,
+        sigma_spectrum,
+        point_estimate,
+        sigma,
+        point_estimate_spectrogram,
+        sigma_spectrogram,
     ):
         np.savez(
             filename,
             frequencies=frequencies,
-            point_estimate_spectrum = point_estimate_spectrum,
-            sigma_spectrum = sigma_spectrum,
-            point_estimate = point_estimate,
-            sigma = sigma,
-            point_estimate_spectrogram = point_estimate_spectrogram,
-            sigma_spectrogram = sigma_spectrogram
+            point_estimate_spectrum=point_estimate_spectrum,
+            sigma_spectrum=sigma_spectrum,
+            point_estimate=point_estimate,
+            sigma=sigma,
+            point_estimate_spectrogram=point_estimate_spectrogram,
+            sigma_spectrogram=sigma_spectrogram,
         )
 
     def pickle_save(
-        self, filename, frequencies, point_estimate_spectrum, sigma_spectrum, point_estimate, sigma, point_estimate_spectrogram, sigma_spectrogram 
+        self,
+        filename,
+        frequencies,
+        point_estimate_spectrum,
+        sigma_spectrum,
+        point_estimate,
+        sigma,
+        point_estimate_spectrogram,
+        sigma_spectrogram,
     ):
-        # saveObject = (freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new)
-
         save_dictionary = {
             "frequencies": frequencies,
             "point_estimate_spectrum": point_estimate_spectrum,
             "sigma_spectrum": sigma_spectrum,
             "point_estimate": point_estimate,
             "sigma": sigma,
-            "point_estimate_spectrogram": point_estimate_spectrogram, 
-            "sigma_spectrogram": sigma_spectrogram
+            "point_estimate_spectrogram": point_estimate_spectrogram,
+            "sigma_spectrogram": sigma_spectrogram,
         }
-
-        # with open(filename, "wb") as f:
-        #   pickle.dump(saveObject, f)
 
         with open(filename, "wb") as f:
             pickle.dump(save_dictionary, f)
 
     def json_save(
-        self, filename, frequencies, point_estimate_spectrum, sigma_spectrum, point_estimate, sigma, point_estimate_spectrogram, sigma_spectrogram
+        self,
+        filename,
+        frequencies,
+        point_estimate_spectrum,
+        sigma_spectrum,
+        point_estimate,
+        sigma,
+        point_estimate_spectrogram,
+        sigma_spectrogram,
     ):
         list_freqs = frequencies.tolist()
-        list_point_estimate_spectrum = point_estimate_spectrum.tolist()
-        list_sigma_spectrum = sigma_spectrum.tolist()
-        
+        list_point_estimate_spectrum = point_estimate_spectrum.value.tolist()
+        list_sigma_spectrum = sigma_spectrum.value.tolist()
+
         list_point_estimate_segment = point_estimate_spectrogram.value.tolist()
         point_estimate_segment_times = point_estimate_spectrogram.times.value.tolist()
-        
+
         list_sigma_segment = sigma_spectrogram.value.tolist()
         sigma_segment_times = sigma_spectrogram.times.value.tolist()
-        
+
         save_dictionary = {
             "frequencies": list_freqs,
             "point_estimate_spectrum": list_point_estimate_spectrum,
             "sigma_spectrum": list_sigma_spectrum,
             "point_estimate": point_estimate,
             "sigma": sigma,
-            "point_estimate_spectrogram": list_point_estimate_segment, 
-            "point_estimate_spectrogram_times": point_estimate_segment_times, 
-            "sigma_spectrogram": list_sigma_segment, 
-            "sigma_spectrogram_times": sigma_segment_times
+            "point_estimate_spectrogram": list_point_estimate_segment,
+            "point_estimate_spectrogram_times": point_estimate_segment_times,
+            "sigma_spectrogram": list_sigma_segment,
+            "sigma_spectrogram_times": sigma_segment_times,
         }
 
         with open(filename, "w") as outfile:
             json.dump(save_dictionary, outfile)
             
     def hdf5_save(
-        self, filename, frequencies, point_estimate_spectrum, sigma_spectrum, point_estimate, sigma, point_estimate_spectrogram, sigma_spectrogram
+        self,
+        filename,
+        frequencies,
+        point_estimate_spectrum,
+        sigma_spectrum,
+        point_estimate,
+        sigma,
+        point_estimate_spectrogram,
+        sigma_spectrogram,
     ):
         hf = h5py.File(filename, "w")
 
         hf.create_dataset("freqs", data=frequencies)
-        hf.create_dataset("point_estimate_spectrum", data = point_estimate_spectrum)
-        hf.create_dataset("sigma_spectrum", data = sigma_spectrum)
-        hf.create_dataset("point_estimate", data = point_estimate)
-        hf.create_dataset("sigma", data = sigma)
-        hf.create_dataset("point_estimate_spectrogram", data = point_estimate_spectrogram), 
-        hf.create_dataset("sigma_spectrogram", data = sigma_spectrogram)
+        hf.create_dataset("point_estimate_spectrum", data=point_estimate_spectrum)
+        hf.create_dataset("sigma_spectrum", data=sigma_spectrum)
+        hf.create_dataset("point_estimate", data=point_estimate)
+        hf.create_dataset("sigma", data=sigma)
+        hf.create_dataset(
+            "point_estimate_spectrogram", data=point_estimate_spectrogram
+        ),
+        hf.create_dataset("sigma_spectrogram", data=sigma_spectrogram)
 
         hf.close()
 
-    def save_data_csd(self, save_data_type, filename):
-        """
-        Saves the computed csd and average pds together with their corresponding frequencies in the required save_data_type, which can be npz, pickle or json.
-        You can call upon this data afterwards when loaoding in using the ['key'] dictionary format.
-
-        Parameters
-        ----------
-
-        save_data_type: str
-            The required type of data file where the information will be stored
-        filename: str
-            The path/name of the file in which you want to save
-        freqs: array_like
-            The corresponding frequencies of the csd and psds
-        csd: spectrogram
-            The computed CSD as a spectrogram, hence with corresponding times and frequencies
-        psd_1, psd_2: spectrogram
-            The computed with before_and_after_average psds
-        """
-
-        if save_data_type == "pickle":
-            filename = filename + ".p"
-            self.pickle_save_csd(filename, self.frequencies, self.average_csd, self.interferometer_1.average_psd, self.interferometer_2.average_psd  )
-
-        elif save_data_type == "npz":
-            self.save_data_to_file_csd(filename, self.frequencies, self.average_csd, self.interferometer_1.average_psd, self.interferometer_2.average_psd )
-
-        elif save_data_type == "json":
-            filename = filename + ".json"
-            self.json_save_csd(filename,  self.frequencies, self.average_csd, self.interferometer_1.average_psd, self.interferometer_2.average_psd )
-
-        elif save_data_type == "hdf5":
-            filename = filename + ".h5"
-            self.hdf5_save_csd(filename,  self.frequencies, self.average_csd, self.interferometer_1.average_psd, self.interferometer_2.average_psd )
-
-        else:
-            raise ValueError(
-                "The provided data type is not supported, try using 'pickle', 'npz', 'json' or 'hdf5' instead."
-            )
-
-    def save_data_to_file_csd(self, filename, frequencies, average_csd, avg_psd_1, avg_psd_2):
+    def npz_save_csd(self, filename, freqs, csd, avg_psd_1, avg_psd_2):
         np.savez(
             filename, frequencies = frequencies, average_csd = average_csd, avg_psd_1 = avg_psd_1, avg_psd_2 = avg_psd_2
         )

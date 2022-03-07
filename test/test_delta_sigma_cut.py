@@ -49,7 +49,7 @@ class Test(unittest.TestCase):
         avg_psd_1 = pickle_loaded['avg_psd_1']
         avg_psd_2 = pickle_loaded['avg_psd_2']
 
-        badGPStimes = run_dsc(
+        badGPStimes, _ = run_dsc(
             dsc=dsc,
             segment_duration=segment_duration,
             sampling_frequency=sampling_frequency,

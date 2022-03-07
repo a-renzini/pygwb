@@ -351,4 +351,4 @@ def run_dsc(
 
     BadGPStimes = times[np.squeeze(overall_cut)]
 
-    return BadGPStimes
+    return BadGPStimes, cuts
