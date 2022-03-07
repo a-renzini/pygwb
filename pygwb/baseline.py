@@ -986,7 +986,7 @@ class Baseline(object):
 
         hf.close()
 
-    def npz_save_csd(self, filename, freqs, csd, avg_psd_1, avg_psd_2):
+    def npz_save_csd(self, filename, frequencies, csd, avg_psd_1, avg_psd_2):
         np.savez(
             filename, frequencies = frequencies, average_csd = average_csd, avg_psd_1 = avg_psd_1, avg_psd_2 = avg_psd_2
         )
