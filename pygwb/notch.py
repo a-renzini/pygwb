@@ -86,7 +86,7 @@ class StochNotchList(list):
 #        inv_idxs = [not elem for elem in idxs]
 #        return idxs, inv_idxs
 
-        df = np.abs(frequency_array[1]-frequency_array[0])
+        df = np.abs(frequency_array[2]-frequency_array[1])
         idxs = []
         print(df)
         df_str = str(df)
