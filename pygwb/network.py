@@ -133,7 +133,7 @@ class Network(object):
                 ifo.duration = duration
             return
         try:
-            duration = next(ifo.duration is not None for ifo in self.interferometers)
+            duration = next(ifo.duration for ifo in self.interferometers if ifo.duration is not None)
         except StopIteration:
             warnings.warn(
                 "The Network duration is not set, "
