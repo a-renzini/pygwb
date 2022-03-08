@@ -88,28 +88,30 @@ class StochNotchList(list):
 
         df = np.abs(frequency_array[1]-frequency_array[0])
         idxs = []
-
+        print(df)
+        df_str = str(df)
+        precision = df_str[::-1].find('.')
         for my_iter in range(len(frequency_array)):          
             temp = 0
             if my_iter == 0:
                 for notch in self:
-                    if not(notch.maximum_frequency <= frequency_array[my_iter]-df)  and not ( notch.minimum_frequency >= frequency_array[my_iter+1]):
+                    if not(notch.maximum_frequency <= round(frequency_array[my_iter],precision)-df)  and not ( notch.minimum_frequency >= round(frequency_array[my_iter+1],precision)):
                         temp = True
                         break
                     else:
                         temp = False
             elif my_iter == len(frequency_array)-1:
                 for notch in self:
-                    if not(notch.maximum_frequency <= frequency_array[my_iter-1])  and not ( notch.minimum_frequency >= frequency_array[my_iter]+df):
+                    if not(notch.maximum_frequency <= round(frequency_array[my_iter-1],precision))  and not ( notch.minimum_frequency >= round(frequency_array[my_iter],precision)+df):
                         temp = True
                         break
                     else:
                         temp = False
             else:
                 for notch in self:
-                    if not(notch.maximum_frequency <= frequency_array[my_iter-1] ) and not ( notch.minimum_frequency >= frequency_array[my_iter+1]): 
+                    if not(notch.maximum_frequency <= round(frequency_array[my_iter-1],precision) ) and not ( notch.minimum_frequency >= round(frequency_array[my_iter+1],precision)): 
                         
-                        print(notch.maximum_frequency,frequency_array[my_iter-1])
+                        print(notch.maximum_frequency,round(frequency_array[my_iter-1],precision))
                         print(notch.minimum_frequency,frequency_array[my_iter+1])
                         print(notch.maximum_frequency <= frequency_array[my_iter-1])
                         print(notch.minimum_frequency >= frequency_array[my_iter+1])
