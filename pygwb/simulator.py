@@ -6,6 +6,7 @@ from bilby.core.utils import create_frequency_series
 
 from pygwb.baseline import get_baselines
 from pygwb.util import interpolate_frequency_series
+from scipy.signal.windows import hann
 
 if sys.version_info >= (3, 0):
     import configparser
@@ -411,7 +412,6 @@ class Simulator(object):
             detectors, where Nd is the number of detectors.
         """
         w = np.zeros(self.N_samples_per_segment)
-
         for ii in range(self.N_samples_per_segment):
             w[ii] = np.sin(np.pi * ii / self.N_samples_per_segment)
 
@@ -454,18 +454,3 @@ class Simulator(object):
 
         return data
 
-    def write(self, flag="to_hdf5"):
-        """
-        TODO: develop write method; make decisions here
-        """
-
-        def save_data_to_hdf5():
-            """ """
-            for ii in range(len(self.interferometers)):
-                #                 self.gen_data[ii].write()
-                pass
-
-        if flag == "to_hdf5":
-            save_data_to_hdf5()
-        else:
-            raise ValueError(f"Unknown flag: '{flag}'")
