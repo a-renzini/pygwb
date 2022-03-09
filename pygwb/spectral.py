@@ -63,7 +63,7 @@ def fftgram(
         )
 
     data_fftgram = gwpy.spectrogram.Spectrogram(
-        Sxx.T, times=t + time_series_data.t0.value - (fftlength / 2), frequencies=f
+        Sxx.T, times=t + time_series_data.t0.value, frequencies=f  # - (fftlength / 2)
     )
 
     return data_fftgram

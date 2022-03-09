@@ -3,10 +3,10 @@ import sys
 import gwpy
 import numpy as np
 from bilby.core.utils import create_frequency_series
+from scipy.signal.windows import hann
 
 from pygwb.baseline import get_baselines
 from pygwb.util import interpolate_frequency_series
-from scipy.signal.windows import hann
 
 if sys.version_info >= (3, 0):
     import configparser
@@ -453,4 +453,3 @@ class Simulator(object):
                 )
 
         return data
-
