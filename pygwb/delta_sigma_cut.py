@@ -237,11 +237,14 @@ def veto_lines(freqs: np.ndarray, lines: np.ndarray, df: float = 0):
         True: this frequency is contaminated by a noise line
         False: this frequency is fine to use
     """
+    nbins = len(freqs)
+    veto = np.zeros((nbins, 1), dtype="bool")
+
+    if not len(lines):
+        return veto
 
     fmins = lines[:, 0]
     fmaxs = lines[:, 1]
-    nbins = len(freqs)
-    veto = np.zeros((nbins, 1), dtype="bool")
     for fbin in range(len(freqs)):
         freq = freqs[fbin]
         index = np.argwhere((freq >= (fmins - df)) & (freq <= fmaxs + df))
@@ -292,13 +295,15 @@ def run_dsc(
         an array of the GPS times to not be considered based on the chosen value of the delta sigma cut
     """
 
-    lines_stochnotch = StochNotchList.load_from_file(f"{notch_path}")
+    if notch_path:
+        lines_stochnotch = StochNotchList.load_from_file(f"{notch_path}")
+        lines = np.zeros((len(lines_stochnotch), 2))
 
-    lines = np.zeros((len(lines_stochnotch), 2))
-
-    for index, notch in enumerate(lines_stochnotch):
-        lines[index, 0] = lines_stochnotch[index].minimum_frequency
-        lines[index, 1] = lines_stochnotch[index].maximum_frequency
+        for index, notch in enumerate(lines_stochnotch):
+            lines[index, 0] = lines_stochnotch[index].minimum_frequency
+            lines[index, 1] = lines_stochnotch[index].maximum_frequency
+    else:
+        lines = np.zeros((0, 2))
 
     logger.info("Running delta sigma cut")
     nalphas = len(alphas)
@@ -311,6 +316,9 @@ def run_dsc(
     freqs = np.array(psd1_naive.frequencies)
     overall_cut = np.zeros((ntimes, 1), dtype="bool")
     cuts = np.zeros((nalphas, ntimes), dtype="bool")
+
+    veto = veto_lines(freqs, lines)
+    keep = np.squeeze(~veto)
 
     window1 = np.hanning(segment_duration * sampling_frequency)
     window2 = window1
@@ -334,8 +342,6 @@ def run_dsc(
                 )
                 / Hf**2
             )
-            veto = veto_lines(freqs, lines)
-            keep = np.squeeze(~veto)
             naive_sigma_alpha = calc_sigma_alpha(
                 naive_sensitivity_integrand_with_Hf[keep]
             )
