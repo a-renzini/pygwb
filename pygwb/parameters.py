@@ -29,7 +29,7 @@ class Parameters:
     flow: int
     fhigh: int
     coarse_grain: int
-    notch_list_path: str = None
+    notch_list_path: str = ""
     N_average_segments_welch_psd: int = 2
     window_fftgram: str = "hann"
     calibration_epsilon: float = 0

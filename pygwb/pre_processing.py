@@ -180,7 +180,7 @@ def resample_filter(
         Timeseries containing the filtered and high passed data
     """
     resampled = time_series_data.resample(new_sample_rate, window_downsampling, ftype)
-    sample_rate = time_series_data.sample_rate.value
+    sample_rate = resampled.sample_rate.value
     filtered = apply_high_pass_filter(
         timeseries=resampled,
         sample_rate=sample_rate,

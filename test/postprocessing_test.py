@@ -106,3 +106,6 @@ class IsotropicJobTest(unittest.TestCase):
         self.assertTrue(newjob.segdur == 60)
         self.assertTrue(newjob.sample_rate == 128)
         self.assertTrue(newjob.df == 0.25)
+
+if __name__ == "__main__":
+    unittest.main()

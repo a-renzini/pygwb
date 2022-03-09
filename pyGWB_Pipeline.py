@@ -6,18 +6,12 @@ from pathlib import Path
 import bilby
 import matplotlib.pyplot as plt
 import numpy as np
-from gwpy import timeseries
 from loguru import logger
 
 import pygwb.argument_parser
-from pygwb import network, orfs, pre_processing, spectral
 from pygwb.baseline import Baseline
-from pygwb.constants import H0, speed_of_light
-from pygwb.delta_sigma_cut import run_dsc
 from pygwb.detector import Interferometer
 from pygwb.parameters import Parameters
-from pygwb.postprocessing import postprocess_Y_sigma
-from pygwb.util import calc_bias, calc_Y_sigma_from_Yf_varf, window_factors
 
 if __name__ == "__main__":
     parser = pygwb.argument_parser.parser
@@ -65,7 +59,7 @@ if __name__ == "__main__":
         raise ValueError("Frequency resolution in PSD/CSD is different than requested.")
 
     """
-    eventually could move this into baseline?
+    eventually could move this into baseline? it's just for the dsc calculation...
     """
     stride = params.segment_duration * (1 - params.overlap_factor)
     csd_segment_offset = int(np.ceil(params.segment_duration / stride))
@@ -95,7 +89,7 @@ if __name__ == "__main__":
             fref=params.fref,
             flow=params.flow,
             fhigh=params.fhigh,
-            badtimes=np.array([]) #use this line to override the delta sigma cut
+            badtimes=np.array([]),  # use this line to override the delta sigma cut
         )
 
         logger.success(
@@ -103,17 +97,19 @@ if __name__ == "__main__":
         )
         logger.success(f"\tPOINT ESIMATE: {base_HL.point_estimate:e}")
         logger.success(f"\tSIGMA: {base_HL.sigma:e}")
-        
+
         data_file_name = f"point_estimate_sigma_{int(params.t0)}-{int(params.tf)}"
 
-        logger.info("Saving point_estimate and sigma spectrograms, spectra, and final values to file.")
+        logger.info(
+            "Saving point_estimate and sigma spectrograms, spectra, and final values to file."
+        )
         logger.info("Saving average psds and csd to file.")
         base_HL.save_data(
             params.save_data_type,
             data_file_name,
         )
 
-    else:   
+    else:
         logger.info("Saving average psds and csd to file.")
 
         data_file_name = f"psds_csds_{int(params.t0)}-{int(params.tf)}"
@@ -125,4 +121,3 @@ if __name__ == "__main__":
             base_HL.interferometer_1.average_psd,
             base_HL.interferometer_2.average_psd,
         )
-

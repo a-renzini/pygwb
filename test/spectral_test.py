@@ -42,3 +42,6 @@ class TestCoarseGrain(unittest.TestCase):
                 np.linspace(0, 1, 33)[2:-2:2], coarse_grain(np.linspace(0, 1, 33), 2)
             )
         )
+
+if __name__ == "__main__":
+    unittest.main()

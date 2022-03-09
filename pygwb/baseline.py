@@ -26,7 +26,7 @@ class Baseline(object):
         duration=None,
         frequencies=None,
         calibration_epsilon=0,
-        notch_list_path=None,
+        notch_list_path="",
         overlap_factor=0.5,
         zeropad_csd=True,
         window_fftgram="hann",
@@ -136,7 +136,7 @@ class Baseline(object):
         mask = (self.frequencies >= self.minimum_frequency) & (
             self.frequencies <= self.maximum_frequency
         )
-        if notch_list_path is not None:
+        if notch_list_path:
             notch_list = StochNotchList.load_from_file(notch_list_path)
             _, notch_mask = notch_list.get_idxs(self.frequencies)
             mask = np.logical_and(mask, notch_mask)
@@ -533,7 +533,7 @@ class Baseline(object):
             self.average_csd = self.average_csd.crop_frequencies(flow, fhigh + deltaF)
 
     def set_point_estimate_sigma_spectrogram(
-        self, weight_spectrogram=False, alpha=0, fref=1, flow=20, fhigh=1726
+        self, weight_spectrogram=False, alpha=0, fref=25, flow=20, fhigh=1726
     ):
         """Set point estimate and sigma spectrogram. Resulting spectrogram
         *does not include frequency weighting for alpha*.
@@ -589,7 +589,7 @@ class Baseline(object):
         fref=25,
         flow=20,
         fhigh=1726,
-        notch_list_path=None,
+        notch_list_path="",
     ):
         """Sets time-integrated point estimate spectrum and variance in each frequency bin.
         Point estimate is *unweighted* by alpha.
@@ -609,7 +609,7 @@ class Baseline(object):
         fhigh: float, optional
             high frequency. Default is 1726 Hz.
         notch_list_path: str, optional
-            path to the notch list to use in the spectrum; if the notch_list isn't set in the baseline, user can pass it directly here. If it is not set and if none is passed no notches will be applied.
+            path to the notch list to use in the spectrum. If none is passed no notches will be applied - even if set in the baseline. This is to ensure notching isn't applied automatically to spectra; it is applied automatically only when integrating over frequencies.
         """
 
         # set unweighted point estimate and sigma spectrograms
@@ -626,10 +626,7 @@ class Baseline(object):
             )
         deltaF = self.frequencies[1] - self.frequencies[0]
 
-        if self.notch_list_path is not None:
-            lines_object = StochNotchList.load_from_file(self.notch_list_path)
-            notches, _ = lines_object.get_idxs(self.frequencies)
-        elif notch_list_path is not None:
+        if notch_list_path:
             lines_object = StochNotchList.load_from_file(notch_list_path)
             notches, _ = lines_object.get_idxs(self.frequencies)
         else:
@@ -654,22 +651,23 @@ class Baseline(object):
         self.point_estimate_spectrogram[bad_times_indexes, :] = 0
         self.sigma_spectrogram[bad_times_indexes, :] = np.inf
 
-        # Post process. Last argument is frequency notches. Do not include these yet.
-        # Leave that for when we combine over freqs.
         if self.sampling_frequency is None:
             raise ValueError(
                 "the sampling frequency is not set! Cannot proceed with spectrum calculation."
             )
+
         point_estimate, sigma = postprocess_Y_sigma(
             self.point_estimate_spectrogram.value,
             self.sigma_spectrogram.value**2,
             self.duration,
             deltaF,
             self.sampling_frequency,
-            notches,
         )
 
         # REWEIGHT FUNCTION, self.spectrogram_alpha_weight is old weight, supplied alpha is new weight.
+        # apply notches now - if passed.
+        point_estimate[notches] = 0.0
+        sigma[notches] = np.inf
 
         self.point_estimate_spectrum = gwpy.frequencyseries.FrequencySeries(
             point_estimate,
@@ -690,10 +688,10 @@ class Baseline(object):
         badtimes=None,
         apply_weighting=True,
         alpha=0,
-        fref=1,
+        fref=25,
         flow=20,
         fhigh=1726,
-        notch_list_path=None,
+        notch_list_path="",
     ):
         """Set point estimate sigma based on a set of parameters. This is estimate of omega_gw in each frequency bin.
 
@@ -725,7 +723,7 @@ class Baseline(object):
             )
             self.set_point_estimate_sigma_spectrum(
                 badtimes=badtimes,
-                notch_list_path=notch_list_path,
+                # notch_list_path=notch_list_path,
                 weight_spectrogram=False,
                 alpha=alpha,
                 fref=fref,
@@ -738,15 +736,18 @@ class Baseline(object):
         Y_spec = self.point_estimate_spectrum.crop(flow, fhigh + deltaF)
         sigma_spec = self.sigma_spectrum.crop(flow, fhigh + deltaF)
         freq_band_cut = (self.frequencies >= flow) & (self.frequencies <= fhigh)
-        self.frequencies = self.frequencies[freq_band_cut]
+        # self.frequencies = self.frequencies[freq_band_cut]
 
         # check notch list
         # TODO: make this less fragile...at the moment these indexes
         # must agree with those after cropping, so the notches must agree with the params
         # struct in some way. Seems dangerous
-        if notch_list_path is not None:
-            print("hello!")
-            exit()
+        if self.notch_list_path:
+            logger.debug("loading notches from", self.notch_list_path)
+            lines_object = StochNotchList.load_from_file(self.notch_list_path)
+            _, notch_indexes = lines_object.get_idxs(Y_spec.frequencies.value)
+        elif notch_list_path:
+            logger.debug("loading notches from", notch_list_path)
             lines_object = StochNotchList.load_from_file(notch_list_path)
             _, notch_indexes = lines_object.get_idxs(Y_spec.frequencies.value)
         else:
@@ -813,7 +814,6 @@ class Baseline(object):
             alphas,
             self.notch_list_path,
         )
-
         self.badGPStimes = badGPStimes
         self.delta_sigmas = delta_sigmas
 
@@ -990,9 +990,7 @@ class Baseline(object):
         np.savez(
             filename, frequencies = frequencies, average_csd = average_csd, avg_psd_1 = avg_psd_1, avg_psd_2 = avg_psd_2
         )
-
-    def pickle_save_csd(self, filename,  frequencies, average_csd, avg_psd_1, avg_psd_2 ):
-        # saveObject = (freqs, Y_f_new, var_f_new, Y_pyGWB_new, sigma_pyGWB_new)
+    def pickle_save_csd(self, filename, freqs, csd, psd_1, psd_2):
 
         save_dictionary = {
             "frequencies": frequencies,

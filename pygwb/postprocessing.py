@@ -2,6 +2,7 @@ import pickle
 
 import h5py
 import numpy as np
+from loguru import logger
 from tqdm import tqdm
 
 from .util import calc_bias, window_factors
@@ -196,6 +197,7 @@ class SingleStochasticJob(object):
         ) / (1 - (k**2 / 4) * sigma2_oo * sigma2_ee * sigma2IJ**2)
 
         bias = calc_bias(self.segdur, self.df, 1 / self.sample_rate, N_avg_segs=2)
+        logger.debug(f"Bias factor: {bias}")
         var_f_new = (1 / inv_var_f_new) * bias**2
         # I don't think notching should happen here.
         # I thought it happened somewhere else.
@@ -525,9 +527,7 @@ class StochasticJobList(object):
         return Y, sigma, dim2, dim2type
 
 
-def postprocess_Y_sigma(
-    Y_fs, var_fs, segment_duration, deltaF, new_sample_rate, notch_freq
-):
+def postprocess_Y_sigma(Y_fs, var_fs, segment_duration, deltaF, new_sample_rate):
     size = np.size(Y_fs, axis=0)
     _, w1w2squaredbar, _, w1w2squaredovlbar = window_factors(
         segment_duration * new_sample_rate
@@ -564,8 +564,8 @@ def postprocess_Y_sigma(
         - k
         * (GAMMA_odd + GAMMA_even - (1 / 2) * (1 / var_fs[0, :] + 1 / var_fs[-1, :]))
     ) / (1 - (k**2 / 4) * sigma2_oo * sigma2_ee * sigma2IJ**2)
-    bias = calc_bias(segment_duration, deltaF, 1 / new_sample_rate)
+    bias = calc_bias(segment_duration, deltaF, 1 / new_sample_rate, N_avg_segs=2)
+    logger.debug(f"Bias factor: {bias}")
     var_f_new = (1 / inv_var_f_new) * bias**2
-    var_f_new[notch_freq] = np.inf
 
     return Y_f_new, var_f_new
