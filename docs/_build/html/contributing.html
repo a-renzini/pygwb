@@ -1,0 +1,173 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contributing guide &#8212; pygwb  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="contributing-guide">
+<h1>Contributing guide<a class="headerlink" href="#contributing-guide" title="Permalink to this headline">¶</a></h1>
+<p>The first stage in contributing to the code is to set up a development environment.
+This largely follows the installation instructions with some notable changes.</p>
+<p>The intended use for this page is for a user who wants to make an initial contribution to the code.</p>
+<p>Firstly, welcome! Any contribution, large or small is always appreciated, even just fixing a single typo in the documentation.</p>
+<p>If you are hoping to introduce a new feature, there are a few steps that are generally a good idea to follow:</p>
+<ol class="arabic simple">
+<li><p>Understand if some version of the new feature is already implemented/planned. Ideally this can be done by looking through existing code/issues/merge requests.</p></li>
+<li><p>If your new feature is not under active development make a new issue proposing the change for feedback.</p></li>
+<li><p>Follow the instructions below to implement the change and open a merge request</p></li>
+</ol>
+<p>If the change is a bug/typo fix, you can skip the first (and possibly second) stages and go straight to an issue/merge request.</p>
+<div class="section" id="preparing-a-merge-request">
+<h2>Preparing a merge request<a class="headerlink" href="#preparing-a-merge-request" title="Permalink to this headline">¶</a></h2>
+<p><code class="code docutils literal notranslate"><span class="pre">pygwb</span></code> development follows the fork and merge workflow.
+For a background on the method see, e.g., <a class="reference external" href="https://www.atlassian.com/git/tutorials/comparing-workflows/forking-workflow">here</a>.</p>
+<p>The quick version is to</p>
+<ul>
+<li><p>create a personal fork, this will live under <code class="code docutils literal notranslate"><span class="pre">git.ligo.org/albert.einstein/pygwb</span></code>.</p></li>
+<li><p>clone your new fork</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git clone git@git.ligo.org:albert.einstein/pygwb.git
+</pre></div>
+</div>
+</li>
+<li><p>install the precommits. These are executables that run every time you commit a change to verify that the changes are consistent with our style conventions.
+Many of these checks will also reformat the code to ensure the code matches the previous style.
+Some tests do not, for example, the automated spell checker will just identify issues and suggest changes.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install pre-commit
+$ pre-commit install
+</pre></div>
+</div>
+</li>
+<li><p>create a new branch</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git checkout -b new-feature-branch
+</pre></div>
+</div>
+</li>
+<li><p>make any required changes on your new branch.</p></li>
+<li><p>run the test suite.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pytest .
+</pre></div>
+</div>
+<p>This will run the existing unit tests and verify that new changes haven’t broken existing behavior.</p>
+</li>
+<li><p>write new tests. This is extremely important and probably the most intimidating step for new developers.
+There are various recommendations on how to write good unit tests online, e.g., <a class="reference external" href="https://stackoverflow.com/questions/3258733/new-to-unit-testing-how-to-write-great-tests">this SO</a>.
+A good set of tests should ensure the code works as expected in all reasonable use cases and run in <cite>O(s)</cite>.</p></li>
+<li><p>run the test suite again.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pytest .
+</pre></div>
+</div>
+<p>This will run the old tests and the new tests.</p>
+</li>
+<li><p>commit the new code.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git add MY_NEW_FILE
+<span class="gp">$ </span>git commit MY_NEW_FILE MY_MODIFIED_FILE -m <span class="s2">&quot;commit message describing change&quot;</span>
+</pre></div>
+</div>
+<p>At this stage, the pre-commit tests will run and any issues will be identified. If there are issues, fix them an commit again.</p>
+</li>
+<li><p>once the tests pass locally and all the changes have been committed push to the remote repository</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git push
+</pre></div>
+</div>
+<p>You may be prompted to set the “upstream”. This is the label applied to the remote repository.
+You can see where the remote repositories you have access to are and what the labels are by running</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git remote -v
+</pre></div>
+</div>
+</li>
+<li><p>after you successfully push, you can open a merge request. This can be done either using the link provided or by opening <a class="reference external" href="git.ligo.org/pygwb/pygwb">pygwb</a> in your browser.</p></li>
+<li><p>follow any feedback and suggestions from the repository maintainers in order to promptly get the new feature merged!</p></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">pygwb</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/contributing.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
