@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pygwb.pe.TVSPowerLawModel &mdash; pygwb 0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pygwb.pe.TripleBrokenPowerLawModel" href="pygwb.pe.TripleBrokenPowerLawModel.html" />
+    <link rel="prev" title="pygwb.pe.SmoothBrokenPowerLawModel" href="pygwb.pe.SmoothBrokenPowerLawModel.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> pygwb
+          </a>
+              <div class="version">
+                0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="pygwb.detector.html">pygwb.detector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.baseline.html">pygwb.baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.network.html">pygwb.network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.spectral.html">pygwb.spectral</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.postprocessing.html">pygwb.postprocessing</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="pygwb.pe.html">pygwb.pe</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pygwb.pe.BrokenPowerLawModel.html">pygwb.pe.BrokenPowerLawModel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.pe.GWBModel.html">pygwb.pe.GWBModel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.pe.PVPowerLawModel.html">pygwb.pe.PVPowerLawModel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.pe.PVPowerLawModel2.html">pygwb.pe.PVPowerLawModel2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.pe.PowerLawModel.html">pygwb.pe.PowerLawModel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.pe.SchumannModel.html">pygwb.pe.SchumannModel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.pe.SmoothBrokenPowerLawModel.html">pygwb.pe.SmoothBrokenPowerLawModel</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">pygwb.pe.TVSPowerLawModel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.pe.TripleBrokenPowerLawModel.html">pygwb.pe.TripleBrokenPowerLawModel</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.statistical_checks.html">pygwb.statistical_checks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.simulator.html">pygwb.simulator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.delta_sigma_cut.html">pygwb.delta_sigma_cut</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.notch.html">pygwb.notch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.constants.html">pygwb.constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.orfs.html">pygwb.orfs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.parameters.html">pygwb.parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.util.html">pygwb.util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="pygwb.pe.html">pygwb.pe</a> &raquo;</li>
+      <li>pygwb.pe.TVSPowerLawModel</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/pygwb.pe.TVSPowerLawModel.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="pygwb-pe-tvspowerlawmodel">
+<h1>pygwb.pe.TVSPowerLawModel<a class="headerlink" href="#pygwb-pe-tvspowerlawmodel" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pygwb.pe.TVSPowerLawModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pygwb.pe.</span></span><span class="sig-name descname"><span class="pre">TVSPowerLawModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/pe.html#TVSPowerLawModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.pe.TVSPowerLawModel" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="pygwb.pe.GWBModel.html#pygwb.pe.GWBModel" title="pygwb.pe.GWBModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">pygwb.pe.GWBModel</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.pe.TVSPowerLawModel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/pe.html#TVSPowerLawModel.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.pe.TVSPowerLawModel.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Empty likelihood class to be subclassed by other likelihoods</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>parameters: dict</strong></dt><dd><p>A dictionary of the parameter names and associated values</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.pe.TVSPowerLawModel.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pygwb.pe.TVSPowerLawModel.__call__" title="Permalink to this definition"></a></dt>
+<dd><p>Call self as a function.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.pe.TVSPowerLawModel.__init__" title="pygwb.pe.TVSPowerLawModel.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(**kwargs)</p></td>
+<td><p>Empty likelihood class to be subclassed by other likelihoods</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.pe.TVSPowerLawModel.log_likelihood" title="pygwb.pe.TVSPowerLawModel.log_likelihood"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_likelihood</span></code></a>()</p></td>
+<td><p>log likelihood</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.pe.TVSPowerLawModel.log_likelihood_ratio" title="pygwb.pe.TVSPowerLawModel.log_likelihood_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_likelihood_ratio</span></code></a>()</p></td>
+<td><p>Difference between log likelihood and noise log likelihood</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.pe.TVSPowerLawModel.model_function" title="pygwb.pe.TVSPowerLawModel.model_function"><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_function</span></code></a>(bline)</p></td>
+<td><p>function for evaluating model</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.pe.TVSPowerLawModel.noise_log_likelihood" title="pygwb.pe.TVSPowerLawModel.noise_log_likelihood"><code class="xref py py-obj docutils literal notranslate"><span class="pre">noise_log_likelihood</span></code></a>()</p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">marginalized_parameters</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">meta_data</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.pe.TVSPowerLawModel.parameters" title="pygwb.pe.TVSPowerLawModel.parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parameters</span></code></a></p></td>
+<td><p>Parameters.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.pe.TVSPowerLawModel.log_likelihood">
+<span class="sig-name descname"><span class="pre">log_likelihood</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pygwb.pe.TVSPowerLawModel.log_likelihood" title="Permalink to this definition"></a></dt>
+<dd><p>log likelihood</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.pe.TVSPowerLawModel.log_likelihood_ratio">
+<span class="sig-name descname"><span class="pre">log_likelihood_ratio</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pygwb.pe.TVSPowerLawModel.log_likelihood_ratio" title="Permalink to this definition"></a></dt>
+<dd><p>Difference between log likelihood and noise log likelihood</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>float</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.pe.TVSPowerLawModel.model_function">
+<span class="sig-name descname"><span class="pre">model_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bline</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/pe.html#TVSPowerLawModel.model_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.pe.TVSPowerLawModel.model_function" title="Permalink to this definition"></a></dt>
+<dd><p>function for evaluating model</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.pe.TVSPowerLawModel.noise_log_likelihood">
+<span class="sig-name descname"><span class="pre">noise_log_likelihood</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pygwb.pe.TVSPowerLawModel.noise_log_likelihood" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>float</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pygwb.pe.TVSPowerLawModel.parameters">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parameters</span></span><a class="headerlink" href="#pygwb.pe.TVSPowerLawModel.parameters" title="Permalink to this definition"></a></dt>
+<dd><p>Parameters. Should return a dict</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pygwb.pe.SmoothBrokenPowerLawModel.html" class="btn btn-neutral float-left" title="pygwb.pe.SmoothBrokenPowerLawModel" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pygwb.pe.TripleBrokenPowerLawModel.html" class="btn btn-neutral float-right" title="pygwb.pe.TripleBrokenPowerLawModel" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

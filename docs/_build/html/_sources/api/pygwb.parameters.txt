@@ -1,0 +1,33 @@
+﻿pygwb.parameters
+================
+
+.. currentmodule:: pygwb.parameters
+
+.. automodule:: pygwb.parameters
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      Parameters
+   
+   
+
+   
+   
+   
+
+
+

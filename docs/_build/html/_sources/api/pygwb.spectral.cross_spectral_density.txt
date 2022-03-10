@@ -1,0 +1,6 @@
+pygwb.spectral.cross\_spectral\_density
+=======================================
+
+.. currentmodule:: pygwb.spectral
+
+.. autofunction:: cross_spectral_density

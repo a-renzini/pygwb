@@ -1,0 +1,6 @@
+pygwb.orfs.Tminus
+=================
+
+.. currentmodule:: pygwb.orfs
+
+.. autofunction:: Tminus

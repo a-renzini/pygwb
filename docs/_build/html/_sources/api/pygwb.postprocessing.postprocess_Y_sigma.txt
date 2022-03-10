@@ -1,0 +1,6 @@
+pygwb.postprocessing.postprocess\_Y\_sigma
+==========================================
+
+.. currentmodule:: pygwb.postprocessing
+
+.. autofunction:: postprocess_Y_sigma

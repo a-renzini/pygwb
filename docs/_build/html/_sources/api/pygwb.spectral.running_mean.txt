@@ -1,0 +1,6 @@
+pygwb.spectral.running\_mean
+============================
+
+.. currentmodule:: pygwb.spectral
+
+.. autofunction:: running_mean

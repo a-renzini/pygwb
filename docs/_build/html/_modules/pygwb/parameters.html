@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pygwb.parameters &mdash; pygwb 0.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/tabs.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/tabs.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> pygwb
+          </a>
+              <div class="version">
+                0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.detector.html">pygwb.detector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.baseline.html">pygwb.baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.network.html">pygwb.network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.spectral.html">pygwb.spectral</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.postprocessing.html">pygwb.postprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.pe.html">pygwb.pe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.statistical_checks.html">pygwb.statistical_checks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.simulator.html">pygwb.simulator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.delta_sigma_cut.html">pygwb.delta_sigma_cut</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.notch.html">pygwb.notch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.constants.html">pygwb.constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.orfs.html">pygwb.orfs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.parameters.html">pygwb.parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.util.html">pygwb.util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>pygwb.parameters</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pygwb.parameters</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="kn">import</span> <span class="nn">configparser</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">ConfigParser</span> <span class="k">as</span> <span class="nn">configparser</span>
+
+
+<div class="viewcode-block" id="Parameters"><a class="viewcode-back" href="../../api/pygwb.parameters.Parameters.html#pygwb.parameters.Parameters">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">Parameters</span><span class="p">:</span>
+    <span class="n">t0</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">tf</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">data_type</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">channel</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">new_sample_rate</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">cutoff_frequency</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">segment_duration</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">number_cropped_seconds</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">window_downsampling</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">ftype</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">frequency_resolution</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">polarization</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">fref</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">flow</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">fhigh</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">coarse_grain</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">notch_list_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">N_average_segments_welch_psd</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">window_fftgram</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;hann&quot;</span>
+    <span class="n">calibration_epsilon</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">overlap_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">zeropad_csd</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">overlap_factor_welch_psd</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">delta_sigma_cut</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span>
+    <span class="n">alphas_delta_sigma_cut</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+    <span class="n">save_data_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;json&quot;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">param_file</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">Path</span><span class="p">(</span><span class="n">param_file</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="s2">&quot;Your paramfile doesn&#39;t exist!&quot;</span><span class="p">)</span>
+
+        <span class="n">param</span> <span class="o">=</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
+        <span class="n">param</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">param_file</span><span class="p">))</span>
+
+        <span class="n">t0</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;t0&quot;</span><span class="p">)</span>
+        <span class="n">tf</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;tf&quot;</span><span class="p">)</span>
+        <span class="n">data_type</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;data_type&quot;</span><span class="p">)</span>
+        <span class="n">channel</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;channel&quot;</span><span class="p">)</span>
+        <span class="n">new_sample_rate</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;new_sample_rate&quot;</span><span class="p">)</span>
+        <span class="n">cutoff_frequency</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;cutoff_frequency&quot;</span><span class="p">)</span>
+        <span class="n">segment_duration</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;segment_duration&quot;</span><span class="p">)</span>
+        <span class="n">number_cropped_seconds</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;number_cropped_seconds&quot;</span><span class="p">)</span>
+        <span class="n">window_downsampling</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;window_downsampling&quot;</span><span class="p">)</span>
+        <span class="n">ftype</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;ftype&quot;</span><span class="p">)</span>
+        <span class="n">window_fftgram</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;window_fftgram&quot;</span><span class="p">)</span>
+        <span class="n">frequency_resolution</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;frequency_resolution&quot;</span><span class="p">)</span>
+        <span class="n">polarization</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;polarization&quot;</span><span class="p">)</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;alpha&quot;</span><span class="p">)</span>
+        <span class="n">fref</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;fref&quot;</span><span class="p">)</span>
+        <span class="n">flow</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;flow&quot;</span><span class="p">)</span>
+        <span class="n">fhigh</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;fhigh&quot;</span><span class="p">)</span>
+        <span class="n">notch_list_path</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;notch_list_path&quot;</span><span class="p">)</span>
+        <span class="n">N_average_segments_welch_psd</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+            <span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;N_average_segments_welch_psd&quot;</span>
+        <span class="p">)</span>
+        <span class="n">coarse_grain</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;coarse_grain&quot;</span><span class="p">)</span>
+        <span class="n">calibration_epsilon</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;calibration_epsilon&quot;</span><span class="p">)</span>
+        <span class="n">overlap_factor</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;overlap_factor&quot;</span><span class="p">)</span>
+        <span class="n">zeropad_csd</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;zeropad_csd&quot;</span><span class="p">)</span>
+        <span class="n">overlap_factor_welch_psd</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span>
+            <span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;overlap_factor_welch_psd&quot;</span>
+        <span class="p">)</span>
+        <span class="n">delta_sigma_cut</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;delta_sigma_cut&quot;</span><span class="p">)</span>
+        <span class="n">alphas_delta_sigma_cut</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;alphas_delta_sigma_cut&quot;</span><span class="p">)</span>
+        <span class="n">save_data_type</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;save_data_type&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">t0</span><span class="p">,</span>
+            <span class="n">tf</span><span class="p">,</span>
+            <span class="n">data_type</span><span class="p">,</span>
+            <span class="n">channel</span><span class="p">,</span>
+            <span class="n">new_sample_rate</span><span class="p">,</span>
+            <span class="n">cutoff_frequency</span><span class="p">,</span>
+            <span class="n">segment_duration</span><span class="p">,</span>
+            <span class="n">number_cropped_seconds</span><span class="p">,</span>
+            <span class="n">window_downsampling</span><span class="p">,</span>
+            <span class="n">ftype</span><span class="p">,</span>
+            <span class="n">frequency_resolution</span><span class="p">,</span>
+            <span class="n">polarization</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="p">,</span>
+            <span class="n">fref</span><span class="p">,</span>
+            <span class="n">flow</span><span class="p">,</span>
+            <span class="n">fhigh</span><span class="p">,</span>
+            <span class="n">coarse_grain</span><span class="p">,</span>
+            <span class="n">notch_list_path</span><span class="p">,</span>
+            <span class="n">N_average_segments_welch_psd</span><span class="p">,</span>
+            <span class="n">window_fftgram</span><span class="p">,</span>
+            <span class="n">calibration_epsilon</span><span class="p">,</span>
+            <span class="n">overlap_factor</span><span class="p">,</span>
+            <span class="n">zeropad_csd</span><span class="p">,</span>
+            <span class="n">overlap_factor_welch_psd</span><span class="p">,</span>
+            <span class="n">delta_sigma_cut</span><span class="p">,</span>
+            <span class="n">alphas_delta_sigma_cut</span><span class="p">,</span>
+            <span class="n">save_data_type</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">segment_duration</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coarse_grain</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fft_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">segment_duration</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fft_length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequency_resolution</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">save_paramfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_path</span><span class="p">):</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
+        <span class="n">param_dict</span> <span class="o">=</span> <span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">param_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">param_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">param</span><span class="p">[</span><span class="s2">&quot;parameters&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">configfile</span><span class="p">:</span>
+            <span class="n">param</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">configfile</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

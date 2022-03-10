@@ -1,0 +1,41 @@
+﻿pygwb.spectral
+==============
+
+.. currentmodule:: pygwb.spectral
+
+.. automodule:: pygwb.spectral
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      before_after_average
+      coarse_grain
+      coarse_grain_exact
+      coarse_grain_naive
+      coarse_grain_spectrogram
+      cross_spectral_density
+      fftgram
+      power_spectral_density
+      pwelch_psd
+      running_mean
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

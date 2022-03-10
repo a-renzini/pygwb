@@ -1,0 +1,6 @@
+pygwb.util.calculate\_point\_estimate\_sigma\_spectrogram
+=========================================================
+
+.. currentmodule:: pygwb.util
+
+.. autofunction:: calculate_point_estimate_sigma_spectrogram

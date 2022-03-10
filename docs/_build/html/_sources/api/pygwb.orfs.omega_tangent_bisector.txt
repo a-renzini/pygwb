@@ -1,0 +1,6 @@
+pygwb.orfs.omega\_tangent\_bisector
+===================================
+
+.. currentmodule:: pygwb.orfs
+
+.. autofunction:: omega_tangent_bisector

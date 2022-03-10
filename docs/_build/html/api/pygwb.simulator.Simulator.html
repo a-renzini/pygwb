@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pygwb.simulator.Simulator &mdash; pygwb 0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pygwb.delta_sigma_cut" href="pygwb.delta_sigma_cut.html" />
+    <link rel="prev" title="pygwb.simulator" href="pygwb.simulator.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> pygwb
+          </a>
+              <div class="version">
+                0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="pygwb.detector.html">pygwb.detector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.baseline.html">pygwb.baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.network.html">pygwb.network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.spectral.html">pygwb.spectral</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.postprocessing.html">pygwb.postprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.pe.html">pygwb.pe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.statistical_checks.html">pygwb.statistical_checks</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="pygwb.simulator.html">pygwb.simulator</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">pygwb.simulator.Simulator</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.delta_sigma_cut.html">pygwb.delta_sigma_cut</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.notch.html">pygwb.notch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.constants.html">pygwb.constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.orfs.html">pygwb.orfs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.parameters.html">pygwb.parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.util.html">pygwb.util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="pygwb.simulator.html">pygwb.simulator</a> &raquo;</li>
+      <li>pygwb.simulator.Simulator</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/pygwb.simulator.Simulator.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="pygwb-simulator-simulator">
+<h1>pygwb.simulator.Simulator<a class="headerlink" href="#pygwb-simulator-simulator" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pygwb.simulator.Simulator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pygwb.simulator.</span></span><span class="sig-name descname"><span class="pre">Simulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interferometers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intensity_GW</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N_segments</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_to_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_noise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/simulator.html#Simulator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.simulator.Simulator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.simulator.Simulator.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interferometers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intensity_GW</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N_segments</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_to_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_noise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/simulator.html#Simulator.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.simulator.Simulator.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Class that simulates an isotropic stochastic background.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>interferometers: list of bilby interferometer objects</strong></dt><dd></dd>
+<dt><strong>intensity_GW: gwpy.frequencyseries.FrequencySeries</strong></dt><dd><p>A gwpy.frequencyseries.FrequencySeries containing the desired strain power spectrum
+which needs to be simulated</p>
+</dd>
+<dt><strong>N_segments: int</strong></dt><dd><p>Number of segments that needs to be generated for the simulation</p>
+</dd>
+<dt><strong>duration: float</strong></dt><dd><p>Duration of a simulated data segment</p>
+</dd>
+<dt><strong>sampling_frequency: float</strong></dt><dd><p>Sampling frequency</p>
+</dd>
+<dt><strong>start_time: float</strong></dt><dd><p>Start time of the simulation</p>
+</dd>
+<dt><strong>save_to_file: boolean</strong></dt><dd><p>Flag that turns on/off the option to save the simulated data to a file</p>
+</dd>
+<dt><strong>no_noise: boolean</strong></dt><dd><p>Flag that sets the noise_PSDs to 0</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.simulator.Simulator.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pygwb.simulator.Simulator.__call__" title="Permalink to this definition"></a></dt>
+<dd><p>Call self as a function.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.simulator.Simulator.__init__" title="pygwb.simulator.Simulator.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(interferometers, intensity_GW, ...)</p></td>
+<td><p>Class that simulates an isotropic stochastic background.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.simulator.Simulator.compute_eigval_eigvec" title="pygwb.simulator.Simulator.compute_eigval_eigvec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_eigval_eigvec</span></code></a>(C)</p></td>
+<td><p>Function to compute the eigenvalues and eigenvectors of the covariance matrix corresponding to a stochastic background in the various detectors.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.simulator.Simulator.covariance_matrix" title="pygwb.simulator.Simulator.covariance_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">covariance_matrix</span></code></a>()</p></td>
+<td><p>Function to compute the covariance matrix corresponding to a stochastic background in the various detectors.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.simulator.Simulator.generate_data" title="pygwb.simulator.Simulator.generate_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_data</span></code></a>()</p></td>
+<td><p>Function that simulates an isotropic stochastic background given the input parameters.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.simulator.Simulator.generate_freq_domain_data" title="pygwb.simulator.Simulator.generate_freq_domain_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_freq_domain_data</span></code></a>()</p></td>
+<td><p>Function that generates the uncorrelated frequency domain data with random phases for the stochastic background.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.simulator.Simulator.get_data_for_interferometers" title="pygwb.simulator.Simulator.get_data_for_interferometers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_data_for_interferometers</span></code></a>()</p></td>
+<td><p>Get a data dictionary for interferometers</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.simulator.Simulator.get_frequencies" title="pygwb.simulator.Simulator.get_frequencies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_frequencies</span></code></a>()</p></td>
+<td><p>Computes an array of frequencies with given sampling frequency and duration.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.simulator.Simulator.get_noise_PSD_array" title="pygwb.simulator.Simulator.get_noise_PSD_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_noise_PSD_array</span></code></a>()</p></td>
+<td><p>Function that gets the noise PSD array of all the interferometers.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.simulator.Simulator.get_orf" title="pygwb.simulator.Simulator.get_orf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_orf</span></code></a>()</p></td>
+<td><p>Function that returns a list containing the overlap reduction functions for all the baselines in self.baselines.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.simulator.Simulator.orf_to_array" title="pygwb.simulator.Simulator.orf_to_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">orf_to_array</span></code></a>()</p></td>
+<td><p>Function that converts the list of overlap reduction functions into an array to facilitate the correct implementation when computing the covariance matrix.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.simulator.Simulator.simulate_data" title="pygwb.simulator.Simulator.simulate_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simulate_data</span></code></a>()</p></td>
+<td><p>Function that simulates the data corresponding to an isotropic stochastic background.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.simulator.Simulator.splice_segments" title="pygwb.simulator.Simulator.splice_segments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">splice_segments</span></code></a>(segments)</p></td>
+<td><p>This function splices together the various segments to prevent artifacts related to the periodicity that can arise from inverse Fourier transforms.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.simulator.Simulator.transform_to_correlated_data" title="pygwb.simulator.Simulator.transform_to_correlated_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform_to_correlated_data</span></code></a>(z, C)</p></td>
+<td><p>Function that transforms the uncorrelated stochastic background simulated data, to correlated data.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.simulator.Simulator.compute_eigval_eigvec">
+<span class="sig-name descname"><span class="pre">compute_eigval_eigvec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/simulator.html#Simulator.compute_eigval_eigvec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.simulator.Simulator.compute_eigval_eigvec" title="Permalink to this definition"></a></dt>
+<dd><p>Function to compute the eigenvalues and eigenvectors of the covariance
+matrix corresponding to a stochastic background in the various detectors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>C: array_like</strong></dt><dd><p>Covariance matrix corresponding to a stochastic background in the
+various detectors. Dimensions are Nd x Nd x Nf, where Nd is the
+number of detectors and Nf the number of frequencies.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>eigval: array_like</dt><dd><p>Array of diagonal matrices containing the eigenvalues of the
+covariance matrix C.</p>
+</dd>
+<dt>eigvec: array_like</dt><dd><p>Array of matrices containing the eigenvectors of the covariance
+matrix C.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.simulator.Simulator.covariance_matrix">
+<span class="sig-name descname"><span class="pre">covariance_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/simulator.html#Simulator.covariance_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.simulator.Simulator.covariance_matrix" title="Permalink to this definition"></a></dt>
+<dd><p>Function to compute the covariance matrix corresponding to a stochastic
+background in the various detectors.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>C: array_like</dt><dd><p>Covariance matrix corresponding to a stochastic background in the
+various detectors. Dimensions are Nd x Nd x Nf, where Nd is the
+number of detectors and Nf the number of frequencies.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.simulator.Simulator.generate_data">
+<span class="sig-name descname"><span class="pre">generate_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/simulator.html#Simulator.generate_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.simulator.Simulator.generate_data" title="Permalink to this definition"></a></dt>
+<dd><p>Function that simulates an isotropic stochastic background given the
+input parameters. The data is simulated and spliced together to prevent
+periodicity artifacts related to IFFTs.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>data: array_like</dt><dd><p>An array of size Nd (number of detectors) with gwpy TimeSeries with the
+data containing the simulated isotropic stochastic background.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.simulator.Simulator.generate_freq_domain_data">
+<span class="sig-name descname"><span class="pre">generate_freq_domain_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/simulator.html#Simulator.generate_freq_domain_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.simulator.Simulator.generate_freq_domain_data" title="Permalink to this definition"></a></dt>
+<dd><p>Function that generates the uncorrelated frequency domain data with
+random phases for the stochastic background.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>z: array_like</dt><dd><p>Array of size Nf x Nd containing uncorrelated frequency domain data.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.simulator.Simulator.get_data_for_interferometers">
+<span class="sig-name descname"><span class="pre">get_data_for_interferometers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/simulator.html#Simulator.get_data_for_interferometers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.simulator.Simulator.get_data_for_interferometers" title="Permalink to this definition"></a></dt>
+<dd><p>Get a data dictionary for interferometers</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>interferometer_data: dict</dt><dd><p>A dictionary with the simulated data for the interferometers.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.simulator.Simulator.get_frequencies">
+<span class="sig-name descname"><span class="pre">get_frequencies</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/simulator.html#Simulator.get_frequencies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.simulator.Simulator.get_frequencies" title="Permalink to this definition"></a></dt>
+<dd><p>Computes an array of frequencies with given sampling frequency and duration.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>frequencies: array_like</dt><dd><p>Array containing the computed frequencies</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.simulator.Simulator.get_noise_PSD_array">
+<span class="sig-name descname"><span class="pre">get_noise_PSD_array</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/simulator.html#Simulator.get_noise_PSD_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.simulator.Simulator.get_noise_PSD_array" title="Permalink to this definition"></a></dt>
+<dd><p>Function that gets the noise PSD array of all the interferometers.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>noise_PSDs_array: array_like</dt><dd><p>Array containing the noise PSD arrays for all interferometers in
+self.interferometers.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.simulator.Simulator.get_orf">
+<span class="sig-name descname"><span class="pre">get_orf</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/simulator.html#Simulator.get_orf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.simulator.Simulator.get_orf" title="Permalink to this definition"></a></dt>
+<dd><p>Function that returns a list containing the overlap reduction functions
+for all the baselines in self.baselines.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>orf_list: list</dt><dd><p>List containing the overlap reduction functions for all the baselines
+in self.baselines.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.simulator.Simulator.orf_to_array">
+<span class="sig-name descname"><span class="pre">orf_to_array</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/simulator.html#Simulator.orf_to_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.simulator.Simulator.orf_to_array" title="Permalink to this definition"></a></dt>
+<dd><p>Function that converts the list of overlap reduction functions into an array
+to facilitate the correct implementation when computing the covariance matrix.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>orf_array: array_like</dt><dd><p>Array of shape Nd x Nd containing the orfs, where Nd is the number of
+detectors. The convention used for consistency with the remainder of the
+simulation is as follows. Orfs are only present in the off-diagonal slots
+in the array. Only the part below the diagonal is filled, after which this
+is copied to the upper part by transposing and summing. The array is filled
+by starting from the first free slot below the diagonal, from left to right,
+until the diagonal is reached, after which the line below in the array is
+filled analogously and so on.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.simulator.Simulator.simulate_data">
+<span class="sig-name descname"><span class="pre">simulate_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/simulator.html#Simulator.simulate_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.simulator.Simulator.simulate_data" title="Permalink to this definition"></a></dt>
+<dd><p>Function that simulates the data corresponding to an isotropic stochastic
+background.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>y: array_like</dt><dd><p>Array of size Nd x 2*(N_segments+1) x N_samples_per_segment containing the
+various segments with the simulated data.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.simulator.Simulator.splice_segments">
+<span class="sig-name descname"><span class="pre">splice_segments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">segments</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/simulator.html#Simulator.splice_segments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.simulator.Simulator.splice_segments" title="Permalink to this definition"></a></dt>
+<dd><p>This function splices together the various segments to prevent
+artifacts related to the periodicity that can arise from inverse
+Fourier transforms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>segments: array_like</strong></dt><dd><p>Array of size Nd x (2*N_segments+1) x N_samples_per_segment containing the
+various segments with the simulated data that need to be spliced
+together, where Nd is the number of detectors.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>data: array_like</dt><dd><p>Array of size Nd x (N_segments*N_samples_per_segment) containing the simulated
+data corresponding to an isotropic stochastic background for each of the
+detectors, where Nd is the number of detectors.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.simulator.Simulator.transform_to_correlated_data">
+<span class="sig-name descname"><span class="pre">transform_to_correlated_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/simulator.html#Simulator.transform_to_correlated_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.simulator.Simulator.transform_to_correlated_data" title="Permalink to this definition"></a></dt>
+<dd><p>Function that transforms the uncorrelated stochastic background
+simulated data, to correlated data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>z: array_like</strong></dt><dd><p>Array containing the uncorrelated data with random phase.</p>
+</dd>
+<dt><strong>C: array_like</strong></dt><dd><p>Array of size Nd x Nd x Nf representing the covariance matrices
+between detectors for a desired stochastic background, where Nd
+is the number of detectors and Nf is the number of frequencies.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>x: array_like</dt><dd><p>Array of size Nf x Nd, containing the correlated stochastic
+background data.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pygwb.simulator.html" class="btn btn-neutral float-left" title="pygwb.simulator" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pygwb.delta_sigma_cut.html" class="btn btn-neutral float-right" title="pygwb.delta_sigma_cut" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

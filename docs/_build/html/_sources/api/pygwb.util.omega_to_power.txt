@@ -1,0 +1,6 @@
+pygwb.util.omega\_to\_power
+===========================
+
+.. currentmodule:: pygwb.util
+
+.. autofunction:: omega_to_power

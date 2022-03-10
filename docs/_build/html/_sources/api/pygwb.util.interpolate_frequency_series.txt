@@ -1,0 +1,6 @@
+pygwb.util.interpolate\_frequency\_series
+=========================================
+
+.. currentmodule:: pygwb.util
+
+.. autofunction:: interpolate_frequency_series

@@ -1,0 +1,6 @@
+pygwb.spectral.before\_after\_average
+=====================================
+
+.. currentmodule:: pygwb.spectral
+
+.. autofunction:: before_after_average

@@ -1,0 +1,33 @@
+﻿pygwb.detector
+==============
+
+.. currentmodule:: pygwb.detector
+
+.. automodule:: pygwb.detector
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      Interferometer
+   
+   
+
+   
+   
+   
+
+
+

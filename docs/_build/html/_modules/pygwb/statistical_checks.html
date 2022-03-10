@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pygwb.statistical_checks &mdash; pygwb 0.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/tabs.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/tabs.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> pygwb
+          </a>
+              <div class="version">
+                0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.detector.html">pygwb.detector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.baseline.html">pygwb.baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.network.html">pygwb.network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.spectral.html">pygwb.spectral</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.postprocessing.html">pygwb.postprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.pe.html">pygwb.pe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.statistical_checks.html">pygwb.statistical_checks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.simulator.html">pygwb.simulator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.delta_sigma_cut.html">pygwb.delta_sigma_cut</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.notch.html">pygwb.notch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.constants.html">pygwb.constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.orfs.html">pygwb.orfs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.parameters.html">pygwb.parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.util.html">pygwb.util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>pygwb.statistical_checks</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pygwb.statistical_checks</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">integrate</span><span class="p">,</span> <span class="n">special</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">curve_fit</span>
+
+<span class="kn">from</span> <span class="nn">pygwb.util</span> <span class="kn">import</span> <span class="n">StatKS</span><span class="p">,</span> <span class="n">calc_bias</span><span class="p">,</span> <span class="n">read_jobfiles</span>
+
+
+<div class="viewcode-block" id="StatisticalChecks"><a class="viewcode-back" href="../../api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks">[docs]</a><span class="k">class</span> <span class="nc">StatisticalChecks</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="StatisticalChecks.__init__"><a class="viewcode-back" href="../../api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">segment_duration</span><span class="p">,</span>
+        <span class="n">njobs</span><span class="p">,</span>
+        <span class="n">deltaT</span><span class="p">,</span>
+        <span class="n">deltaF</span><span class="p">,</span>
+        <span class="n">dsc</span><span class="p">,</span>
+        <span class="n">ifo_pair</span><span class="p">,</span>
+        <span class="n">mat_dir</span><span class="p">,</span>
+        <span class="n">pproc_dir</span><span class="p">,</span>
+        <span class="n">plot_dir</span><span class="p">,</span>
+        <span class="n">read_bad_times</span><span class="p">,</span>
+        <span class="n">segs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Class for the statistical analysis of the results, which generates and saves plots.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+<span class="sd">        segment_duration: int</span>
+<span class="sd">            Duration of a segment in seconds</span>
+<span class="sd">        njobs: int</span>
+<span class="sd">            Number of jobs</span>
+<span class="sd">        deltaT: float</span>
+<span class="sd">            Time delta T used in the analysis</span>
+<span class="sd">        deltaF: float</span>
+<span class="sd">            Frequency delta f used in the analysis</span>
+<span class="sd">        dsc: float</span>
+<span class="sd">            Value used for the delta-sigma cut</span>
+<span class="sd">        ifo_pair: str</span>
+<span class="sd">            Name of the baseline. E.g.: &quot;H1L1&quot;</span>
+<span class="sd">        mat_dir: str</span>
+<span class="sd">            Directory where the mat files are stored</span>
+<span class="sd">        pproc_dir: str</span>
+<span class="sd">            Directory where the output of post-processing is stored</span>
+<span class="sd">        plot_dir: str</span>
+<span class="sd">            Directory where the statistical checks plots will be saved</span>
+<span class="sd">        read_bad_times: boolean</span>
+<span class="sd">            Boolean indicating whether the bad GPS times (after delta-sigma cut) should be read in from file (i.e. True) or computed on the fly here (i.e. False)</span>
+<span class="sd">        segs: float</span>
+<span class="sd">            Parameter used to perform the delta-sigma cut on the fly</span>
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_dir</span> <span class="o">=</span> <span class="n">plot_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pproc_dir</span> <span class="o">=</span> <span class="n">pproc_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mat_dir</span> <span class="o">=</span> <span class="n">mat_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">segment_duration</span> <span class="o">=</span> <span class="n">segment_duration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">njobs</span> <span class="o">=</span> <span class="n">njobs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deltaT</span> <span class="o">=</span> <span class="n">deltaT</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deltaF</span> <span class="o">=</span> <span class="n">deltaF</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dsc</span> <span class="o">=</span> <span class="n">dsc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ifo_pair</span> <span class="o">=</span> <span class="n">ifo_pair</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_data_before_dsc_cut</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_data_after_dsc_cut</span><span class="p">(</span><span class="n">read_bad_times</span><span class="p">,</span> <span class="n">segs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_running_pt_estimate</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_pt_estimate_integrand</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_sensitivity_integrand</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_ifft_integrand</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="StatisticalChecks.get_data_before_dsc_cut"><a class="viewcode-back" href="../../api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.get_data_before_dsc_cut">[docs]</a>    <span class="k">def</span> <span class="nf">get_data_before_dsc_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the data (such as times, omegas, sigmas) before the delta sigma cut.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sliding_times_all</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sliding_omega_all</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_all</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">naive_sigma_all</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="n">read_jobfiles</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">njobs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mat_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">segment_duration</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">days_all</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sliding_times_all</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">sliding_times_all</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mf">86400.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sliding_deviate_all</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sliding_omega_all</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sliding_omega_all</span><span class="p">)</span>
+        <span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_all</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">delta_sig_all</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">naive_sigma_all</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_all</span><span class="p">)</span>
+            <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">naive_sigma_all</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="StatisticalChecks.get_data_after_dsc_cut"><a class="viewcode-back" href="../../api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.get_data_after_dsc_cut">[docs]</a>    <span class="k">def</span> <span class="nf">get_data_after_dsc_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_bad_times</span><span class="p">,</span> <span class="n">segs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the data (such as times, omegas, sigmas) after the delta sigma cut.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+<span class="sd">        read_bad_times: boolean</span>
+<span class="sd">            Boolean indicating whether the bad GPS times (after delta-sigma cut) should be read in from file (i.e. True) or computed on the fly here (i.e. False)</span>
+<span class="sd">        segs: float</span>
+<span class="sd">            Parameter used to perform the delta-sigma cut on the fly</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sliding_omega_cut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_cut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">delta_sig_cut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">naive_sigma_cut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">days_cut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+
+        <span class="k">if</span> <span class="n">read_bad_times</span><span class="p">:</span>
+            <span class="n">file_bad</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pproc_dir</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span><span class="si">}</span><span class="s2">badGPSTimes.dat&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+            <span class="n">lines_bad</span> <span class="o">=</span> <span class="n">file_bad</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+            <span class="n">bad_times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines_bad</span><span class="p">:</span>
+                <span class="n">temp</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">bad_times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bad_times</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">temp</span><span class="p">)]))</span>
+
+            <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delta_sig_all</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sliding_times_all</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bad_times</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sliding_omega_cut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">sliding_omega_cut</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sliding_omega_all</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">naive_sigma_cut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">naive_sigma_cut</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">naive_sigma_all</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_cut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_cut</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_all</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">delta_sig_cut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">delta_sig_cut</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_sig_all</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">days_cut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">days_cut</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">days_all</span><span class="p">[</span><span class="n">ii</span><span class="p">])</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">sliding_deviate_cut</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sliding_omega_cut</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sliding_omega_cut</span><span class="p">)</span>
+            <span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_cut</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">nn</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="mi">9</span> <span class="o">/</span> <span class="mi">11</span> <span class="o">*</span> <span class="n">segs</span>
+            <span class="n">bf_ss</span> <span class="o">=</span> <span class="n">nn</span> <span class="o">/</span> <span class="p">(</span><span class="n">nn</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">nn</span> <span class="o">=</span> <span class="mi">9</span> <span class="o">/</span> <span class="mi">11</span> <span class="o">*</span> <span class="n">segs</span>
+            <span class="n">bf_ns</span> <span class="o">=</span> <span class="n">nn</span> <span class="o">/</span> <span class="p">(</span><span class="n">nn</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delta_sig_all</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_sig_all</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">dsc</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sliding_omega_cut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">sliding_omega_cut</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sliding_omega_all</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">naive_sigma_cut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">naive_sigma_cut</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">naive_sigma_all</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_cut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_cut</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_all</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">delta_sig_cut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">delta_sig_cut</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_sig_all</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">days_cut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">days_cut</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">days_all</span><span class="p">[</span><span class="n">ii</span><span class="p">])</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">sliding_deviate_cut</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sliding_omega_cut</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sliding_omega_cut</span><span class="p">)</span>
+            <span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_cut</span></div>
+
+<div class="viewcode-block" id="StatisticalChecks.get_running_pt_estimate"><a class="viewcode-back" href="../../api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.get_running_pt_estimate">[docs]</a>    <span class="k">def</span> <span class="nf">get_running_pt_estimate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the running point estimate from file.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">st</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pproc_dir</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">ifo_pair</span><span class="si">}</span><span class="s2">_runningPointEstimate.dat&quot;</span><span class="p">,</span>
+            <span class="n">unpack</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">skiprows</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">days</span> <span class="o">=</span> <span class="p">(</span><span class="n">st</span> <span class="o">-</span> <span class="n">st</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mf">86400.0</span></div>
+
+<div class="viewcode-block" id="StatisticalChecks.get_pt_estimate_integrand"><a class="viewcode-back" href="../../api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.get_pt_estimate_integrand">[docs]</a>    <span class="k">def</span> <span class="nf">get_pt_estimate_integrand</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the point estimate integrand from file.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">filename_pt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pproc_dir</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ifo_pair</span> <span class="o">+</span> <span class="s2">&quot;_ptEstIntegrand.dat&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pt_est_integrand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">filename_pt</span><span class="p">,</span> <span class="n">comments</span><span class="o">=</span><span class="s2">&quot;%&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cum_pt_estimate</span> <span class="o">=</span> <span class="n">integrate</span><span class="o">.</span><span class="n">cumtrapz</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pt_est_integrand</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">pt_est_integrand</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="StatisticalChecks.get_sensitivity_integrand"><a class="viewcode-back" href="../../api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.get_sensitivity_integrand">[docs]</a>    <span class="k">def</span> <span class="nf">get_sensitivity_integrand</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the sensitivity integrand from file.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">filename_sens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pproc_dir</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ifo_pair</span> <span class="o">+</span> <span class="s2">&quot;_sensIntegrand.dat&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sensitivity_integrand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">filename_sens</span><span class="p">,</span> <span class="n">comments</span><span class="o">=</span><span class="s2">&quot;%&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cumul_sensitivity</span> <span class="o">=</span> <span class="n">integrate</span><span class="o">.</span><span class="n">cumtrapz</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sensitivity_integrand</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">sensitivity_integrand</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="StatisticalChecks.get_ifft_integrand"><a class="viewcode-back" href="../../api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.get_ifft_integrand">[docs]</a>    <span class="k">def</span> <span class="nf">get_ifft_integrand</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the inverse Fourier transform of the FFT point estimate integrand from file.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">FFTcontent</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">i</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pproc_dir</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">ifo_pair</span><span class="si">}</span><span class="s2">_FFTofPtEstIntegrand.dat&quot;</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()[</span><span class="mi">3</span><span class="p">:]</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">FFTcontent</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">FFTcontent</span><span class="p">))]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omega_t</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">FFTcontent</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">FFTcontent</span><span class="p">))]</span></div>
+
+<div class="viewcode-block" id="StatisticalChecks.plot_running_point_estimate"><a class="viewcode-back" href="../../api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.plot_running_point_estimate">[docs]</a>    <span class="k">def</span> <span class="nf">plot_running_point_estimate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates and saves a plot of the running point estimate.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">days</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ifo_pair</span>
+        <span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">days</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y</span> <span class="o">+</span> <span class="mf">1.65</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sig</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">days</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y</span> <span class="o">-</span> <span class="mf">1.65</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sig</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">5e-7</span><span class="p">,</span> <span class="mf">5e-7</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">days</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">days</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Days since start of run&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Point estimate +/- 1.65</span><span class="se">\u03C3</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_dir</span><span class="si">}</span><span class="s2">RunningPointEstimate.png&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StatisticalChecks.plot_running_sigma"><a class="viewcode-back" href="../../api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.plot_running_sigma">[docs]</a>    <span class="k">def</span> <span class="nf">plot_running_sigma</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates and saves a plot of the running sigma.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">days</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sig</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ifo_pair</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mf">1e-8</span><span class="p">,</span> <span class="mf">1e-3</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">days</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">days</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Days since start of run&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\u03C3</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_dir</span><span class="si">}</span><span class="s2">RunningSigma.png&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StatisticalChecks.plot_IFFT_point_estimate_integrand"><a class="viewcode-back" href="../../api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.plot_IFFT_point_estimate_integrand">[docs]</a>    <span class="k">def</span> <span class="nf">plot_IFFT_point_estimate_integrand</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates and saves a plot of the IFFT of the point estimate integrand.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega_t</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ifo_pair</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">1.5e-7</span><span class="p">,</span> <span class="mf">1e-7</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Lag (s)&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;IFFT of Integrand of Pt Estimate&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_dir</span><span class="si">}</span><span class="s2">IFFTPointEstimateIntegrand.png&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StatisticalChecks.plot_point_estimate_integrand"><a class="viewcode-back" href="../../api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.plot_point_estimate_integrand">[docs]</a>    <span class="k">def</span> <span class="nf">plot_point_estimate_integrand</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates and saves a plot of the point estimate integrand.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pt_est_integrand</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+                <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pt_est_integrand</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">pt_est_integrand</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Frequency [Hz]&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Abs(point estimate integrand)&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_dir</span><span class="si">}</span><span class="s2">AbsPointEstimateIntegrand.png&quot;</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="StatisticalChecks.plot_cumulative_point_estimate"><a class="viewcode-back" href="../../api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.plot_cumulative_point_estimate">[docs]</a>    <span class="k">def</span> <span class="nf">plot_cumulative_point_estimate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates and saves a plot of the cumulative point estimate.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pt_est_integrand</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">cum_pt_estimate</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Frequency [Hz]&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Cumulative point estimate&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_dir</span><span class="si">}</span><span class="s2">CumulativePointEstimate.png&quot;</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StatisticalChecks.plot_real_point_estimate_integrand"><a class="viewcode-back" href="../../api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.plot_real_point_estimate_integrand">[docs]</a>    <span class="k">def</span> <span class="nf">plot_real_point_estimate_integrand</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates and saves a plot of the real part of the point estimate integrand.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pt_est_integrand</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">pt_est_integrand</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Frequency [Hz]&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Re(point estimate integrand)&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_dir</span><span class="si">}</span><span class="s2">RealPointEstimateIntegrand.png&quot;</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="StatisticalChecks.plot_imaginary_point_estimate_integrand"><a class="viewcode-back" href="../../api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.plot_imaginary_point_estimate_integrand">[docs]</a>    <span class="k">def</span> <span class="nf">plot_imaginary_point_estimate_integrand</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates and saves a plot of the imaginary part of the point estimate integrand.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pt_est_integrand</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">pt_est_integrand</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Frequency [Hz]&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Im(point estimate integrand)&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_dir</span><span class="si">}</span><span class="s2">ImagPointEstimateIntegrand.png&quot;</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="StatisticalChecks.plot_sensitivity_integrand"><a class="viewcode-back" href="../../api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.plot_sensitivity_integrand">[docs]</a>    <span class="k">def</span> <span class="nf">plot_sensitivity_integrand</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates and saves a plot of the sensitivity integrand.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sensitivity_integrand</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">sensitivity_integrand</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Frequency [Hz]&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Sensitivity integrand&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_dir</span><span class="si">}</span><span class="s2">SensitivityIntegrand.png&quot;</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StatisticalChecks.plot_cumulative_sensitivity_integrand"><a class="viewcode-back" href="../../api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.plot_cumulative_sensitivity_integrand">[docs]</a>    <span class="k">def</span> <span class="nf">plot_cumulative_sensitivity_integrand</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates and saves a plot of the cumulative sensitivity integrand.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sensitivity_integrand</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">cumul_sensitivity</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Frequency [Hz]&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Cumulative sensitivity&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_dir</span><span class="si">}</span><span class="s2">CumulativeSensitivityIntegrand.png&quot;</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="StatisticalChecks.plot_omega_sigma_in_time"><a class="viewcode-back" href="../../api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.plot_omega_sigma_in_time">[docs]</a>    <span class="k">def</span> <span class="nf">plot_omega_sigma_in_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates and saves a panel plot with a scatter plot of \u03C3 vs (\u03A9-&lt;\u03A9&gt;)/\u03C3, as well as the evolution of \u03A9, \u03C3, and (\u03A9-&lt;\u03A9&gt;)/\u03C3 as a function of the days since the start of the run. All plots show the data before and after the delta-sigma cut was applied.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">))</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
+            <span class="s2">&quot;Results from &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ifo_pair</span> <span class="o">+</span> <span class="s2">&quot; for Abs[</span><span class="se">\u03B4\u03C3</span><span class="s2">]/</span><span class="se">\u03C3</span><span class="s2"> cut&quot;</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_all</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sliding_deviate_all</span><span class="p">,</span>
+            <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
+            <span class="n">c</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span>
+            <span class="n">s</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;All data&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_cut</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sliding_deviate_cut</span><span class="p">,</span>
+            <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
+            <span class="n">c</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">,</span>
+            <span class="n">s</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Data after Abs[</span><span class="se">\u03B4\u03C3</span><span class="s2">]/</span><span class="se">\u03C3</span><span class="s2"> outlier cut&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\u03C3</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;(</span><span class="se">\u03A9</span><span class="s2">-&lt;</span><span class="se">\u03A9</span><span class="s2">&gt;)/</span><span class="se">\u03C3</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">)</span>
+
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">days_all</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sliding_omega_all</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;All data&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">days_cut</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sliding_omega_cut</span><span class="p">,</span>
+            <span class="n">c</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Data after Abs[</span><span class="se">\u03B4\u03C3</span><span class="s2">]/</span><span class="se">\u03C3</span><span class="s2"> outlier cut&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Days since start of run&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\u03A9</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">)</span>
+
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">days_all</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_all</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;All data&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">days_cut</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_cut</span><span class="p">,</span>
+            <span class="n">c</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Data after Abs[</span><span class="se">\u03B4\u03C3</span><span class="s2">]/</span><span class="se">\u03C3</span><span class="s2"> outlier cut&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Days since start of run&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\u03C3</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">)</span>
+
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">days_all</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sliding_deviate_all</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;All data&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">days_cut</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sliding_deviate_cut</span><span class="p">,</span>
+            <span class="n">c</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Data after Abs[</span><span class="se">\u03B4\u03C3</span><span class="s2">]/</span><span class="se">\u03C3</span><span class="s2"> outlier cut&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Days since start of run&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;(</span><span class="se">\u03A9</span><span class="s2">-&lt;</span><span class="se">\u03A9</span><span class="s2">&gt;)/</span><span class="se">\u03C3</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_dir</span><span class="si">}</span><span class="s2">OmegaSigmaTime.png&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StatisticalChecks.plot_hist_sigma_dsc"><a class="viewcode-back" href="../../api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.plot_hist_sigma_dsc">[docs]</a>    <span class="k">def</span> <span class="nf">plot_hist_sigma_dsc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates and saves a panel plot with a histogram of Abs[\u03B4\u03C3]/\u03C3, as well as a histogram of \u03C3. Both plots show the data before and after the delta-sigma cut was applied.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">13</span><span class="p">))</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
+            <span class="s2">&quot;Results from &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ifo_pair</span> <span class="o">+</span> <span class="s2">&quot; for Abs[</span><span class="se">\u03B4\u03C3</span><span class="s2">]/</span><span class="se">\u03C3</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">delta_sig_all</span><span class="p">,</span>
+            <span class="n">bins</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span>
+            <span class="n">ec</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span>
+            <span class="n">lw</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;All data&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0001</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">delta_sig_cut</span><span class="p">,</span>
+            <span class="n">bins</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">,</span>
+            <span class="n">ec</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span>
+            <span class="n">lw</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Data after Abs[</span><span class="se">\u03B4\u03C3</span><span class="s2">]/</span><span class="se">\u03C3</span><span class="s2"> outlier cut&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0001</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Abs[</span><span class="se">\u03B4\u03C3</span><span class="s2">]/</span><span class="se">\u03C3</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;# per bin&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+        <span class="n">minx1</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_cut</span><span class="p">)</span>
+        <span class="n">maxx1</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_cut</span><span class="p">)</span>
+        <span class="n">nx</span> <span class="o">=</span> <span class="mi">50</span>
+
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_all</span><span class="p">,</span>
+            <span class="n">bins</span><span class="o">=</span><span class="n">nx</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span>
+            <span class="n">ec</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span>
+            <span class="n">lw</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;All data&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="o">=</span><span class="p">(</span><span class="n">minx1</span><span class="p">,</span> <span class="n">maxx1</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_cut</span><span class="p">,</span>
+            <span class="n">bins</span><span class="o">=</span><span class="n">nx</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">,</span>
+            <span class="n">ec</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span>
+            <span class="n">lw</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Data after Abs[</span><span class="se">\u03B4\u03C3</span><span class="s2">]/</span><span class="se">\u03C3</span><span class="s2"> outlier cut&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="o">=</span><span class="p">(</span><span class="n">minx1</span><span class="p">,</span> <span class="n">maxx1</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\u03C3</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;# per bin&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="n">maxx1</span><span class="p">])</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="o">**</span><span class="mi">4</span><span class="p">])</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_dir</span><span class="si">}</span><span class="s2">HistogramSigmaDSC.png&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StatisticalChecks.plot_scatter_sigma_dsc"><a class="viewcode-back" href="../../api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.plot_scatter_sigma_dsc">[docs]</a>    <span class="k">def</span> <span class="nf">plot_scatter_sigma_dsc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates and saves a scatter plot of Abs[\u03B4\u03C3]/\u03C3 vs \u03C3. The plot shows the data before and after the delta-sigma cut was applied.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
+            <span class="s2">&quot;Results from &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ifo_pair</span> <span class="o">+</span> <span class="s2">&quot; for Abs[</span><span class="se">\u03B4\u03C3</span><span class="s2">]/</span><span class="se">\u03C3</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">axs</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">delta_sig_all</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">naive_sigma_all</span><span class="p">,</span>
+            <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
+            <span class="n">c</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;All data&quot;</span><span class="p">,</span>
+            <span class="n">s</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">axs</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">delta_sig_cut</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">naive_sigma_cut</span><span class="p">,</span>
+            <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
+            <span class="n">c</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Data after Abs[</span><span class="se">\u03B4\u03C3</span><span class="s2">]/</span><span class="se">\u03C3</span><span class="s2"> outlier cut&quot;</span><span class="p">,</span>
+            <span class="n">s</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">axs</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Abs[</span><span class="se">\u03B4\u03C3</span><span class="s2">]/</span><span class="se">\u03C3</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\u03C3</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_dir</span><span class="si">}</span><span class="s2">ScatterSigmaDSC.png&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StatisticalChecks.plot_scatter_omega_sigma_dsc"><a class="viewcode-back" href="../../api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.plot_scatter_omega_sigma_dsc">[docs]</a>    <span class="k">def</span> <span class="nf">plot_scatter_omega_sigma_dsc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates and saves a panel plot with scatter plots of Abs[\u03B4\u03C3]/\u03C3 vs (\u03A9-&lt;\u03A9&gt;)/\u03C3, as well as \u03C3 vs (\u03A9-&lt;\u03A9&gt;)/\u03C3. All plots show the data before and after the delta-sigma cut was applied.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">13</span><span class="p">))</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
+            <span class="s2">&quot;Results from &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ifo_pair</span> <span class="o">+</span> <span class="s2">&quot; for Abs[</span><span class="se">\u03B4\u03C3</span><span class="s2">]/</span><span class="se">\u03C3</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">delta_sig_all</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sliding_deviate_all</span><span class="p">,</span>
+            <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
+            <span class="n">c</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;All data&quot;</span><span class="p">,</span>
+            <span class="n">s</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">delta_sig_cut</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sliding_deviate_cut</span><span class="p">,</span>
+            <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
+            <span class="n">c</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Data after Abs[</span><span class="se">\u03B4\u03C3</span><span class="s2">]/</span><span class="se">\u03C3</span><span class="s2"> outlier cut&quot;</span><span class="p">,</span>
+            <span class="n">s</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Abs[</span><span class="se">\u03B4\u03C3</span><span class="s2">]/</span><span class="se">\u03C3</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;(</span><span class="se">\u03A9</span><span class="s2">-&lt;</span><span class="se">\u03A9</span><span class="s2">&gt;)/</span><span class="se">\u03C3</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+
+        <span class="n">maxx1</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_cut</span><span class="p">)</span>
+
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_all</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sliding_deviate_all</span><span class="p">,</span>
+            <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
+            <span class="n">c</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;All data&quot;</span><span class="p">,</span>
+            <span class="n">s</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_cut</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sliding_deviate_cut</span><span class="p">,</span>
+            <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
+            <span class="n">c</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Data after Abs[</span><span class="se">\u03B4\u03C3</span><span class="s2">]/</span><span class="se">\u03C3</span><span class="s2"> outlier cut&quot;</span><span class="p">,</span>
+            <span class="n">s</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\u03C3</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;(</span><span class="se">\u03A9</span><span class="s2">-&lt;</span><span class="se">\u03A9</span><span class="s2">&gt;)/</span><span class="se">\u03C3</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="n">maxx1</span><span class="p">])</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_dir</span><span class="si">}</span><span class="s2">ScatterOmegaSigmaDSC.png&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StatisticalChecks.plot_hist_omega_pre_post_dsc"><a class="viewcode-back" href="../../api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.plot_hist_omega_pre_post_dsc">[docs]</a>    <span class="k">def</span> <span class="nf">plot_hist_omega_pre_post_dsc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates and saves a histogram of the (\u03A9-&lt;\u03A9&gt;)/\u03C3 distribution. The plot shows the data before and after the delta-sigma cut was applied.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
+            <span class="s2">&quot;Results from &quot;</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ifo_pair</span>
+            <span class="o">+</span> <span class="s2">&quot;: Histogram of (</span><span class="se">\u03A9</span><span class="s2">-&lt;</span><span class="se">\u03A9</span><span class="s2">&gt;)/</span><span class="se">\u03C3</span><span class="s2"> with outlier cuts&quot;</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">axs</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sliding_deviate_all</span><span class="p">,</span>
+            <span class="n">bins</span><span class="o">=</span><span class="mi">101</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span>
+            <span class="n">ec</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span>
+            <span class="n">lw</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;All data&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">axs</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sliding_deviate_cut</span><span class="p">,</span>
+            <span class="n">bins</span><span class="o">=</span><span class="mi">101</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">,</span>
+            <span class="n">ec</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span>
+            <span class="n">lw</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Data after Abs[</span><span class="se">\u03B4\u03C3</span><span class="s2">]/</span><span class="se">\u03C3</span><span class="s2"> outlier cut&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">axs</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;(</span><span class="se">\u03A9</span><span class="s2">-&lt;</span><span class="se">\u03A9</span><span class="s2">&gt;)/</span><span class="se">\u03C3</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;# per bin&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">-</span><span class="mi">60</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+        <span class="n">axs</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1e4</span><span class="p">)</span>
+        <span class="n">axs</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+        <span class="n">axs</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_dir</span><span class="si">}</span><span class="s2">HistogramOmegaPrePostDSC.png&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StatisticalChecks.plot_KS_test"><a class="viewcode-back" href="../../api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.plot_KS_test">[docs]</a>    <span class="k">def</span> <span class="nf">plot_KS_test</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates and saves a panel plot with results of the Kolmogorov-Smirnov test for Gaussianity. The cumulative distribution of the data is compared to the one of Gaussian data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bias_factor</span> <span class="o">=</span> <span class="n">calc_bias</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">segment_duration</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">deltaF</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">deltaT</span><span class="p">)</span>
+        <span class="n">dof_scale_factor</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="mf">3.0</span> <span class="o">/</span> <span class="mf">35.0</span><span class="p">)</span>
+        <span class="n">lx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sliding_deviate_cut</span><span class="p">)</span>
+        <span class="n">cdf_x</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">lx</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">lx</span><span class="p">,</span> <span class="n">lx</span><span class="p">)</span>
+
+        <span class="n">sorted_deviates_U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sliding_deviate_cut</span><span class="p">)</span>
+        <span class="n">phi_x_U</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span>
+            <span class="mf">1.0</span> <span class="o">+</span> <span class="n">special</span><span class="o">.</span><span class="n">erf</span><span class="p">(</span><span class="n">sorted_deviates_U</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">bias_factor</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="n">dks_x</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">cdf_x</span> <span class="o">-</span> <span class="n">phi_x_U</span><span class="p">))</span>
+        <span class="n">lx_eff</span> <span class="o">=</span> <span class="n">lx</span> <span class="o">*</span> <span class="n">dof_scale_factor</span>
+
+        <span class="n">lam</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">lx_eff</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.12</span> <span class="o">+</span> <span class="mf">0.11</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">lx_eff</span><span class="p">))</span> <span class="o">*</span> <span class="n">dks_x</span>
+        <span class="n">pval_KS</span> <span class="o">=</span> <span class="n">StatKS</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span>
+
+        <span class="n">count</span><span class="p">,</span> <span class="n">bins_count</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sliding_deviate_cut</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+
+        <span class="n">pdf</span> <span class="o">=</span> <span class="n">count</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+        <span class="n">cdf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span>
+
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
+            <span class="s2">&quot;Results from &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ifo_pair</span> <span class="o">+</span> <span class="s2">&quot; for Abs[</span><span class="se">\u03B4\u03C3</span><span class="s2">]/</span><span class="se">\u03C3</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sorted_deviates_U</span><span class="p">,</span> <span class="n">cdf_x</span><span class="p">,</span> <span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Data&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="n">sorted_deviates_U</span><span class="p">,</span>
+            <span class="n">phi_x_U</span><span class="p">,</span>
+            <span class="s2">&quot;r&quot;</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Erf with </span><span class="se">\u03C3</span><span class="s2">=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">bias_factor</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
+        <span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+            <span class="n">bins_count</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="mf">0.8</span><span class="p">,</span>
+            <span class="s2">&quot;KS-statistic: &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">dks_x</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+            <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="o">+</span> <span class="s2">&quot;p-value: &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">pval_KS</span><span class="p">,</span> <span class="mi">3</span><span class="p">)),</span>
+        <span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower right&quot;</span><span class="p">)</span>
+
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="n">bins_count</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span>
+            <span class="n">cdf</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">special</span><span class="o">.</span><span class="n">erf</span><span class="p">(</span><span class="n">bins_count</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">bias_factor</span><span class="p">))),</span>
+        <span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+            <span class="s2">&quot;Maximum absolute difference: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">dks_x</span><span class="p">,</span> <span class="mi">3</span><span class="p">)),</span>
+            <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">0.025</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">),</span>
+            <span class="n">xycoords</span><span class="o">=</span><span class="s2">&quot;axes fraction&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_dir</span><span class="si">}</span><span class="s2">KSTest.png&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StatisticalChecks.plot_hist_scatter_omega_sigma"><a class="viewcode-back" href="../../api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.plot_hist_scatter_omega_sigma">[docs]</a>    <span class="k">def</span> <span class="nf">plot_hist_scatter_omega_sigma</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates and saves a panel plot with a scatter plot of \u03C3 vs (\u03A9-&lt;\u03A9&gt;)/\u03C3, as well as histograms of the \u03C3 and (\u03A9-&lt;\u03A9&gt;)/\u03C3 distributions. All plots show the data after the delta-sigma cut.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">muXY</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_cut</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sliding_deviate_cut</span><span class="p">)</span>
+        <span class="n">binsize</span> <span class="o">=</span> <span class="mf">0.2</span>
+        <span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">binsize</span><span class="p">)</span>
+        <span class="n">count</span><span class="p">,</span> <span class="n">bins_count</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sliding_deviate_cut</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">)</span>
+
+        <span class="n">bias_factor</span> <span class="o">=</span> <span class="n">calc_bias</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">segment_duration</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">deltaF</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">deltaT</span><span class="p">)</span>
+        <span class="n">dof_scale_factor</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="mf">3.0</span> <span class="o">/</span> <span class="mf">35.0</span><span class="p">)</span>
+        <span class="n">lx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sliding_deviate_cut</span><span class="p">)</span>
+        <span class="n">cdf_x</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">lx</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">lx</span><span class="p">,</span> <span class="n">lx</span><span class="p">)</span>
+
+        <span class="n">sorted_deviates_U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sliding_deviate_cut</span><span class="p">)</span>
+        <span class="n">phi_x_U</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span>
+            <span class="mf">1.0</span> <span class="o">+</span> <span class="n">special</span><span class="o">.</span><span class="n">erf</span><span class="p">(</span><span class="n">sorted_deviates_U</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">bias_factor</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="n">dks_x</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">cdf_x</span> <span class="o">-</span> <span class="n">phi_x_U</span><span class="p">))</span>
+
+        <span class="n">muR</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sliding_deviate_cut</span><span class="p">)</span>
+        <span class="n">sigmaR</span> <span class="o">=</span> <span class="n">bias_factor</span>
+        <span class="n">theory</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">((</span><span class="n">bins_count</span> <span class="o">-</span> <span class="n">muR</span> <span class="o">+</span> <span class="n">binsize</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">sigmaR</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">tmax</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">count</span><span class="p">))</span>
+
+        <span class="n">nbins</span> <span class="o">=</span> <span class="mi">200</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+        <span class="n">gs</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_gridspec</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">wspace</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">),</span> <span class="p">(</span><span class="n">ax3</span><span class="p">,</span> <span class="n">ax4</span><span class="p">)</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">sharex</span><span class="o">=</span><span class="s2">&quot;col&quot;</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="s2">&quot;row&quot;</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_cut</span><span class="p">,</span>
+            <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">,</span>
+            <span class="n">ec</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span>
+            <span class="n">lw</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;vertical&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Relative Frequency, N&quot;</span><span class="p">)</span>
+
+        <span class="n">ax2</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+
+        <span class="n">maxx1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_cut</span><span class="p">)</span> <span class="o">/</span> <span class="mi">4</span>
+        <span class="n">ax3</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+            <span class="mf">1.35</span> <span class="o">*</span> <span class="n">maxx1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="mf">2.75</span><span class="p">,</span>
+            <span class="s2">&quot;N = &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_cut</span><span class="p">))</span>
+            <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\u03C3</span><span class="s2">$_</span><span class="si">{XY}</span><span class="s2">^2$ = &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">muXY</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">0.2e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\u03C1</span><span class="s2"> = </span><span class="se">\u03C3</span><span class="s2">$_</span><span class="si">{XY}</span><span class="s2">^2$/</span><span class="se">\u03C3</span><span class="s2">$_</span><span class="si">{X}</span><span class="s2">$</span><span class="se">\u03C3</span><span class="s2">$_</span><span class="si">{Y}</span><span class="s2">$ = &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">muXY</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">muXY</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">muXY</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span><span class="si">:</span><span class="s2">0.2e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\u03A3</span><span class="s2"> (</span><span class="se">\u03A9</span><span class="s2">$_i$-&lt;</span><span class="se">\u03A9</span><span class="s2">&gt;)$^2$/</span><span class="se">\u03C3</span><span class="s2">$_i$$^2$ = &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sliding_deviate_cut</span><span class="o">**</span><span class="mi">2</span><span class="p">))),</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+            <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">boxstyle</span><span class="o">=</span><span class="s2">&quot;round&quot;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">ax3</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_cut</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sliding_deviate_cut</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;b&quot;</span>
+        <span class="p">)</span>
+        <span class="n">ax3</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\u03C3</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;(</span><span class="se">\u03A9</span><span class="s2">-&lt;</span><span class="se">\u03A9</span><span class="s2">&gt;)/</span><span class="se">\u03C3</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">ax3</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">maxx1</span><span class="p">)</span>
+        <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+
+        <span class="n">ax4</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sliding_deviate_cut</span><span class="p">,</span>
+            <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">,</span>
+            <span class="n">ec</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span>
+            <span class="n">lw</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;horizontal&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ax4</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tmax</span> <span class="o">*</span> <span class="n">theory</span><span class="p">,</span> <span class="n">bins_count</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+        <span class="n">ax4</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+            <span class="mi">10</span><span class="p">,</span>
+            <span class="mf">4.4</span><span class="p">,</span>
+            <span class="s2">&quot;Fit: $e^{-x^2/(2</span><span class="se">\u03C3</span><span class="s2">^2)}$; </span><span class="se">\u03C3</span><span class="s2"> = &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">bias_factor</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">KS-test: &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">dks_x</span><span class="p">,</span> <span class="mi">3</span><span class="p">)),</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+            <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">boxstyle</span><span class="o">=</span><span class="s2">&quot;round&quot;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">ax4</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Relative Frequency, N&quot;</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_dir</span><span class="si">}</span><span class="s2">HistogramScatterOmegaSigma.png&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StatisticalChecks.plot_hist_sigma_squared"><a class="viewcode-back" href="../../api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.plot_hist_sigma_squared">[docs]</a>    <span class="k">def</span> <span class="nf">plot_hist_sigma_squared</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates and saves a histogram of \u03C3^2/&lt;\u03C3^2&gt;. The plot shows data after the delta-sigma cut.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
+            <span class="s2">&quot;Results from &quot;</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ifo_pair</span>
+            <span class="o">+</span> <span class="s2">&quot;: Distribution of </span><span class="se">\u03C3</span><span class="s2">$^2$/&lt;</span><span class="se">\u03C3</span><span class="s2">$^2$&gt;&quot;</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">axs</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span>
+            <span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_cut</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_cut</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">bins</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">,</span>
+            <span class="n">ec</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span>
+            <span class="n">lw</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Data after Abs[</span><span class="se">\u03B4\u03C3</span><span class="s2">]/</span><span class="se">\u03C3</span><span class="s2"> outlier cut&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">axs</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\u03C3</span><span class="s2">$^2$/&lt;</span><span class="se">\u03C3</span><span class="s2">$^2$&gt;&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;# per bin&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_dir</span><span class="si">}</span><span class="s2">HistogramSigmaSquared.png&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StatisticalChecks.plot_omega_time_fit"><a class="viewcode-back" href="../../api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.plot_omega_time_fit">[docs]</a>    <span class="k">def</span> <span class="nf">plot_omega_time_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates and saves a plot of \u03A9 as a function of time and fits the data to perform a linear trend analysis. The plot shows data after the delta-sigma cut.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\u03A9</span><span class="s2"> vs time for each segment&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+        <span class="n">t_obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">days_cut</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sliding_omega_cut</span><span class="p">))</span>
+
+        <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">t_obs</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">t_obs</span> <span class="o">+</span> <span class="n">b</span>
+
+        <span class="n">popt</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span>
+            <span class="n">func</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">days_cut</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sliding_omega_cut</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_cut</span>
+        <span class="p">)</span>
+        <span class="n">c1</span><span class="p">,</span> <span class="n">c2</span> <span class="o">=</span> <span class="n">popt</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">popt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">axs</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">days_cut</span><span class="p">,</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">days_cut</span><span class="p">,</span> <span class="n">c1</span><span class="p">,</span> <span class="n">c2</span><span class="p">),</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">days_cut</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sliding_omega_cut</span><span class="p">,</span> <span class="s2">&quot;b.&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">axs</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">days_cut</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_cut</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+        <span class="n">axs</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">days_cut</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sliding_sigmas_cut</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+        <span class="n">axs</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Days since start of run&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\u03A9</span><span class="s2">$_i$&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">days_cut</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">days_cut</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">axs</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">6</span> <span class="o">*</span> <span class="n">scale</span><span class="p">,</span> <span class="mi">6</span> <span class="o">*</span> <span class="n">scale</span><span class="p">)</span>
+        <span class="n">axs</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">scale</span> <span class="o">*</span> <span class="mf">4.25</span><span class="p">,</span>
+            <span class="s2">&quot;Linear trend analysis: </span><span class="se">\u03A9</span><span class="s2">(t) = C$_1$*(t-T$_</span><span class="si">{obs}</span><span class="s2">$/2)*T$_</span><span class="si">{obs}</span><span class="s2">$ + C$_2$</span><span class="se">\n</span><span class="s2">C$_1$ = &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">c1</span><span class="si">:</span><span class="s2">.3e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">C$_2$ = &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">c2</span><span class="si">:</span><span class="s2">.3e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+            <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">boxstyle</span><span class="o">=</span><span class="s2">&quot;round&quot;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_dir</span><span class="si">}</span><span class="s2">OmegaTimeFit.png&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StatisticalChecks.generate_all_plots"><a class="viewcode-back" href="../../api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.generate_all_plots">[docs]</a>    <span class="k">def</span> <span class="nf">generate_all_plots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates and saves all the statistical analysis plots.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_running_point_estimate</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_running_sigma</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_IFFT_point_estimate_integrand</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_point_estimate_integrand</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_cumulative_point_estimate</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_real_point_estimate_integrand</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_imaginary_point_estimate_integrand</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_sensitivity_integrand</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_cumulative_sensitivity_integrand</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_omega_sigma_in_time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_hist_sigma_dsc</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_scatter_sigma_dsc</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_scatter_omega_sigma_dsc</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_hist_omega_pre_post_dsc</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_KS_test</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_hist_scatter_omega_sigma</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_hist_sigma_squared</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_omega_time_fit</span><span class="p">()</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+pygwb.orfs.Sminus
+=================
+
+.. currentmodule:: pygwb.orfs
+
+.. autofunction:: Sminus

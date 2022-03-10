@@ -1,0 +1,6 @@
+pygwb.notch.comb
+================
+
+.. currentmodule:: pygwb.notch
+
+.. autofunction:: comb

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pygwb.baseline.Baseline &mdash; pygwb 0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pygwb.network" href="pygwb.network.html" />
+    <link rel="prev" title="pygwb.baseline.get_baselines" href="pygwb.baseline.get_baselines.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> pygwb
+          </a>
+              <div class="version">
+                0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="pygwb.detector.html">pygwb.detector</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="pygwb.baseline.html">pygwb.baseline</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pygwb.baseline.get_baselines.html">pygwb.baseline.get_baselines</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">pygwb.baseline.Baseline</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.network.html">pygwb.network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.spectral.html">pygwb.spectral</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.postprocessing.html">pygwb.postprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.pe.html">pygwb.pe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.statistical_checks.html">pygwb.statistical_checks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.simulator.html">pygwb.simulator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.delta_sigma_cut.html">pygwb.delta_sigma_cut</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.notch.html">pygwb.notch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.constants.html">pygwb.constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.orfs.html">pygwb.orfs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.parameters.html">pygwb.parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.util.html">pygwb.util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="pygwb.baseline.html">pygwb.baseline</a> &raquo;</li>
+      <li>pygwb.baseline.Baseline</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/pygwb.baseline.Baseline.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="pygwb-baseline-baseline">
+<h1>pygwb.baseline.Baseline<a class="headerlink" href="#pygwb-baseline-baseline" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pygwb.baseline.Baseline">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pygwb.baseline.</span></span><span class="sig-name descname"><span class="pre">Baseline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometer_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometer_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calibration_epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">notch_list_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zeropad_csd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_fftgram</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hann'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap_factor_welch_psd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N_average_segments_welch_psd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/baseline.html#Baseline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.baseline.Baseline" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.baseline.Baseline.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometer_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometer_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calibration_epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">notch_list_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zeropad_csd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_fftgram</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hann'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap_factor_welch_psd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N_average_segments_welch_psd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/baseline.html#Baseline.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.baseline.Baseline.__init__" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name: str</strong></dt><dd><p>Name for the baseline, e.g H1H2</p>
+</dd>
+<dt><strong>interferometer_1/2: bilby Interferometer object</strong></dt><dd><p>the two detectors spanning the baseline</p>
+</dd>
+<dt><strong>duration: float, optional</strong></dt><dd><p>the duration in seconds of each data segment in the interferometers.
+None by default, in which case duration is inherited from the interferometers.</p>
+</dd>
+<dt><strong>frequencies: array_like, optional</strong></dt><dd><p>the frequency array for the Baseline and
+interferometers</p>
+</dd>
+<dt><strong>calibration_epsilon: float, optional</strong></dt><dd><p>calibration uncertainty for this baseline</p>
+</dd>
+<dt><strong>notch_list_path: str, optional</strong></dt><dd><p>file path of the baseline notch list</p>
+</dd>
+<dt><strong>overlap_factor: float, optional</strong></dt><dd><p>factor by which to overlap the segments in the psd and csd estimation.
+Default is 1/2, if set to 0 no overlap is performed.</p>
+</dd>
+<dt><strong>zeropad_csd: bool, optional</strong></dt><dd><p>if True, applies zeropadding in the csd estimation. True by default.</p>
+</dd>
+<dt><strong>window_fftgram: str, optional</strong></dt><dd><p>what type of window to use to produce the fftgrams</p>
+</dd>
+<dt><strong>overlap_factor_welch_psd: float, optional</strong></dt><dd><p>Amount of overlap between data blocks used in pwelch method (range between 0 and 1)
+(default 0, no overlap)</p>
+</dd>
+<dt><strong>N_average_segments_welch_psd: int, optional</strong></dt><dd><p>Number of segments used for PSD averaging (from both sides of the segment of interest)
+N_avg_segs should be even and &gt;= 2</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.baseline.Baseline.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pygwb.baseline.Baseline.__call__" title="Permalink to this definition"></a></dt>
+<dd><p>Call self as a function.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.baseline.Baseline.__init__" title="pygwb.baseline.Baseline.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(name, interferometer_1, ...[, ...])</p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">calc_baseline_orf</span></code>(polarization)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.baseline.Baseline.calculate_delta_sigma_cut" title="pygwb.baseline.Baseline.calculate_delta_sigma_cut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_delta_sigma_cut</span></code></a>(delta_sigma_cut, ...)</p></td>
+<td><p>Calculates the delta sigma cut using the naive and average psds, if set in the baseline.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_durations_match_baseline_ifos</span></code>(duration)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_ifo_durations_match</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_ifo_sampling_frequencies_match</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_sampling_frequencies_match_baseline_ifos</span></code>(...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.baseline.Baseline.crop_frequencies_average_psd_csd" title="pygwb.baseline.Baseline.crop_frequencies_average_psd_csd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">crop_frequencies_average_psd_csd</span></code></a>(flow, fhigh)</p></td>
+<td><p>crop frequencies of average PSDs and CSDS.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_interferometers</span></code>(interferometers[, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_parameters</span></code>(interferometer_1, ...[, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">hdf5_save</span></code>(filename, frequencies, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">hdf5_save_csd</span></code>(filename, freqs, csd, psd_1, psd_2)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">json_save</span></code>(filename, frequencies, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.baseline.Baseline.json_save_csd" title="pygwb.baseline.Baseline.json_save_csd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">json_save_csd</span></code></a>(filename, freqs, csd, psd_1, psd_2)</p></td>
+<td><p>It seems that saving spectrograms in json does not work, hence everything is converted into a list and saved that way in the json file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.baseline.Baseline.load_from_pickle" title="pygwb.baseline.Baseline.load_from_pickle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_from_pickle</span></code></a>(filename)</p></td>
+<td><p>Loads entire baseline object from pickle file</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">npz_save</span></code>(filename, frequencies, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">npz_save_csd</span></code>(filename, freqs, csd, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pickle_save</span></code>(filename, frequencies, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pickle_save_csd</span></code>(filename, freqs, csd, psd_1, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.baseline.Baseline.save_data" title="pygwb.baseline.Baseline.save_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_data</span></code></a>(save_data_type, filename)</p></td>
+<td><p>Saves the overall point estimate Y, its error bar sigma, the frequency-dependent estimates and variances and the corresponding frequencies in the required save_data_type, which can be npz, pickle, json or hdf5.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.baseline.Baseline.save_to_pickle" title="pygwb.baseline.Baseline.save_to_pickle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_to_pickle</span></code></a>(filename)</p></td>
+<td><p>Saves entire baseline object to pickle file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.baseline.Baseline.set_average_cross_spectral_density" title="pygwb.baseline.Baseline.set_average_cross_spectral_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_average_cross_spectral_density</span></code></a>()</p></td>
+<td><p>If csd has been calculated, sets the average csd for the baseline</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.baseline.Baseline.set_average_power_spectral_densities" title="pygwb.baseline.Baseline.set_average_power_spectral_densities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_average_power_spectral_densities</span></code></a>()</p></td>
+<td><p>If psds have been calculated, sets the average psd in each ifo</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.baseline.Baseline.set_cross_and_power_spectral_density" title="pygwb.baseline.Baseline.set_cross_and_power_spectral_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_cross_and_power_spectral_density</span></code></a>(...)</p></td>
+<td><p>Sets the power spectral density in each interferometer and the cross spectral density for the baseline object when data are available</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_frequency_mask</span></code>(notch_list_path)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.baseline.Baseline.set_point_estimate_sigma" title="pygwb.baseline.Baseline.set_point_estimate_sigma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_point_estimate_sigma</span></code></a>([badtimes, ...])</p></td>
+<td><p>Set point estimate sigma based on a set of parameters.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.baseline.Baseline.set_point_estimate_sigma_spectrogram" title="pygwb.baseline.Baseline.set_point_estimate_sigma_spectrogram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_point_estimate_sigma_spectrogram</span></code></a>([...])</p></td>
+<td><p>Set point estimate and sigma spectrogram.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.baseline.Baseline.set_point_estimate_sigma_spectrum" title="pygwb.baseline.Baseline.set_point_estimate_sigma_spectrum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_point_estimate_sigma_spectrum</span></code></a>([...])</p></td>
+<td><p>Sets time-integrated point estimate spectrum and variance in each frequency bin.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">badGPStimes</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">delta_sigmas</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">duration</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">frequencies</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gamma_v</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">overlap_reduction_function</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">sampling_frequency</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">scalar_overlap_reduction_function</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tensor_overlap_reduction_function</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_overlap_reduction_function</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.baseline.Baseline.calculate_delta_sigma_cut">
+<span class="sig-name descname"><span class="pre">calculate_delta_sigma_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_sigma_cut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alphas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fhigh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1726</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/baseline.html#Baseline.calculate_delta_sigma_cut"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.baseline.Baseline.calculate_delta_sigma_cut" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates the delta sigma cut using the naive and average psds, if set in the baseline.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>delta_sigma_cut: float</strong></dt><dd><p>the cutoff to implement in the delta sigma cut.</p>
+</dd>
+<dt><strong>alphas: list</strong></dt><dd><p>set of spectral indices to use in the delta sigma cut calculation.</p>
+</dd>
+<dt><strong>flow: float, optional</strong></dt><dd><p>low frequency. Default is 20 Hz.</p>
+</dd>
+<dt><strong>fhigh: float, optional</strong></dt><dd><p>high frequency. Default is 1726 Hz.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.baseline.Baseline.crop_frequencies_average_psd_csd">
+<span class="sig-name descname"><span class="pre">crop_frequencies_average_psd_csd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flow</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fhigh</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/baseline.html#Baseline.crop_frequencies_average_psd_csd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.baseline.Baseline.crop_frequencies_average_psd_csd" title="Permalink to this definition"></a></dt>
+<dd><p>crop frequencies of average PSDs and CSDS. Done in place. This is not completely implemented yet.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.baseline.Baseline.json_save_csd">
+<span class="sig-name descname"><span class="pre">json_save_csd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freqs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psd_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psd_2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/baseline.html#Baseline.json_save_csd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.baseline.Baseline.json_save_csd" title="Permalink to this definition"></a></dt>
+<dd><p>It seems that saving spectrograms in json does not work, hence everything is converted into a list and saved that way in the json file.
+A second issue is that json does not seem to recognise complex values, hence the csd is split up into a real and imaginary part.
+When loading in this json file, one needs to ‘reconstruct’ the csd as a spectrogram using these two lists and the times and frequencies.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.baseline.Baseline.load_from_pickle">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_from_pickle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/baseline.html#Baseline.load_from_pickle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.baseline.Baseline.load_from_pickle" title="Permalink to this definition"></a></dt>
+<dd><p>Loads entire baseline object from pickle file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.baseline.Baseline.save_data">
+<span class="sig-name descname"><span class="pre">save_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_data_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/baseline.html#Baseline.save_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.baseline.Baseline.save_data" title="Permalink to this definition"></a></dt>
+<dd><p>Saves the overall point estimate Y, its error bar sigma,
+the frequency-dependent estimates and variances and the corresponding frequencies
+in the required save_data_type, which can be npz, pickle, json or hdf5.
+You can call upon this data afterwards when loaoding in using the [‘key’] dictionary format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>save_data_type: str</strong></dt><dd><p>The required type of data file where the information will be stored</p>
+</dd>
+<dt><strong>filename: str</strong></dt><dd><p>the path/name of the file in which you want to save</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.baseline.Baseline.save_to_pickle">
+<span class="sig-name descname"><span class="pre">save_to_pickle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/baseline.html#Baseline.save_to_pickle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.baseline.Baseline.save_to_pickle" title="Permalink to this definition"></a></dt>
+<dd><p>Saves entire baseline object to pickle file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.baseline.Baseline.set_average_cross_spectral_density">
+<span class="sig-name descname"><span class="pre">set_average_cross_spectral_density</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/baseline.html#Baseline.set_average_cross_spectral_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.baseline.Baseline.set_average_cross_spectral_density" title="Permalink to this definition"></a></dt>
+<dd><p>If csd has been calculated, sets the average csd for the baseline</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.baseline.Baseline.set_average_power_spectral_densities">
+<span class="sig-name descname"><span class="pre">set_average_power_spectral_densities</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/baseline.html#Baseline.set_average_power_spectral_densities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.baseline.Baseline.set_average_power_spectral_densities" title="Permalink to this definition"></a></dt>
+<dd><p>If psds have been calculated, sets the average psd in each ifo</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.baseline.Baseline.set_cross_and_power_spectral_density">
+<span class="sig-name descname"><span class="pre">set_cross_and_power_spectral_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency_resolution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/baseline.html#Baseline.set_cross_and_power_spectral_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.baseline.Baseline.set_cross_and_power_spectral_density" title="Permalink to this definition"></a></dt>
+<dd><p>Sets the power spectral density in each interferometer
+and the cross spectral density for the baseline object when data are available</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frequency_resolution: float</strong></dt><dd><p>the frequency resolution at which the cross and power spectral densities are calculated.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.baseline.Baseline.set_point_estimate_sigma">
+<span class="sig-name descname"><span class="pre">set_point_estimate_sigma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">badtimes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_weighting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fref</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fhigh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1726</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">notch_list_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/baseline.html#Baseline.set_point_estimate_sigma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.baseline.Baseline.set_point_estimate_sigma" title="Permalink to this definition"></a></dt>
+<dd><p>Set point estimate sigma based on a set of parameters. This is estimate of omega_gw in each frequency bin.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>badtimes: np.array, optional</strong></dt><dd><p>array of times to exclude from point estimate/sigma calculation. If no times are passed, none will be excluded.</p>
+</dd>
+<dt><strong>apply_weighting: bool, optional</strong></dt><dd><p>apply weighting flag; if True, the point estimate and sigma will be weighted using the alpha passed here. Default is True.</p>
+</dd>
+<dt><strong>alpha: float, optional</strong></dt><dd><p>spectral index to use in the re-weighting. Default is 0.</p>
+</dd>
+<dt><strong>fref: float, optional</strong></dt><dd><p>reference frequency to use in the re-weighting. Default is 25.</p>
+</dd>
+<dt><strong>flow: float, optional</strong></dt><dd><p>low frequency. Default is 20 Hz.</p>
+</dd>
+<dt><strong>fhigh: float, optional</strong></dt><dd><p>high frequency. Default is 1726 Hz.</p>
+</dd>
+<dt><strong>notch_list_path: str, optional</strong></dt><dd><p>path to the notch list to use in the spectrum; if the notch_list isn’t set in the baseline, user can pass it directly here. If it is not set and if none is passed no notches will be applied.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.baseline.Baseline.set_point_estimate_sigma_spectrogram">
+<span class="sig-name descname"><span class="pre">set_point_estimate_sigma_spectrogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weight_spectrogram</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fref</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fhigh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1726</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/baseline.html#Baseline.set_point_estimate_sigma_spectrogram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.baseline.Baseline.set_point_estimate_sigma_spectrogram" title="Permalink to this definition"></a></dt>
+<dd><p>Set point estimate and sigma spectrogram. Resulting spectrogram
+<em>does not include frequency weighting for alpha</em>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.baseline.Baseline.set_point_estimate_sigma_spectrum">
+<span class="sig-name descname"><span class="pre">set_point_estimate_sigma_spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">badtimes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_spectrogram</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fref</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fhigh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1726</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">notch_list_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/baseline.html#Baseline.set_point_estimate_sigma_spectrum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.baseline.Baseline.set_point_estimate_sigma_spectrum" title="Permalink to this definition"></a></dt>
+<dd><p>Sets time-integrated point estimate spectrum and variance in each frequency bin.
+Point estimate is <em>unweighted</em> by alpha.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>badtimes: np.array, optional</strong></dt><dd><p>array of times to exclude from point estimate/sigma calculation. If no times are passed, none will be excluded.</p>
+</dd>
+<dt><strong>weight_spectrogram: bool, optional</strong></dt><dd><p>weight spectrogram flag; if True, the spectrogram will be re-weighted using the alpha passed here.Default is False.</p>
+</dd>
+<dt><strong>alpha: float, optional</strong></dt><dd><p>spectral index to use in the re-weighting. Default is 0.</p>
+</dd>
+<dt><strong>fref: float, optional</strong></dt><dd><p>reference frequency to use in the re-weighting. Default is 25.</p>
+</dd>
+<dt><strong>flow: float, optional</strong></dt><dd><p>low frequency. Default is 20 Hz.</p>
+</dd>
+<dt><strong>fhigh: float, optional</strong></dt><dd><p>high frequency. Default is 1726 Hz.</p>
+</dd>
+<dt><strong>notch_list_path: str, optional</strong></dt><dd><p>path to the notch list to use in the spectrum. If none is passed no notches will be applied - even if set in the baseline. This is to ensure notching isn’t applied automatically to spectra; it is applied automatically only when integrating over frequencies.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pygwb.baseline.get_baselines.html" class="btn btn-neutral float-left" title="pygwb.baseline.get_baselines" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pygwb.network.html" class="btn btn-neutral float-right" title="pygwb.network" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

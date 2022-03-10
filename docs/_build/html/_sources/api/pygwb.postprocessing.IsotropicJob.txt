@@ -1,0 +1,37 @@
+pygwb.postprocessing.IsotropicJob
+=================================
+
+.. currentmodule:: pygwb.postprocessing
+
+.. autoclass:: IsotropicJob
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+   .. automethod:: __call__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~IsotropicJob.__init__
+      ~IsotropicJob.apply_bad_gps_times
+      ~IsotropicJob.calculate_broadband_statistics
+      ~IsotropicJob.calculate_segment_by_segment_broadband_statistics
+      ~IsotropicJob.consistency_check
+      ~IsotropicJob.from_matlab_file
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~IsotropicJob.dim2
+   
+   

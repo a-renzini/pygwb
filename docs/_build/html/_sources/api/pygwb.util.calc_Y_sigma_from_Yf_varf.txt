@@ -1,0 +1,6 @@
+pygwb.util.calc\_Y\_sigma\_from\_Yf\_varf
+=========================================
+
+.. currentmodule:: pygwb.util
+
+.. autofunction:: calc_Y_sigma_from_Yf_varf

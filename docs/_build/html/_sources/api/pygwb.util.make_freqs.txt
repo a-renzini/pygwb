@@ -1,0 +1,6 @@
+pygwb.util.make\_freqs
+======================
+
+.. currentmodule:: pygwb.util
+
+.. autofunction:: make_freqs

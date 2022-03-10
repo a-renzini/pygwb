@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pygwb.util &mdash; pygwb 0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pygwb.util.StatKS" href="pygwb.util.StatKS.html" />
+    <link rel="prev" title="pygwb.parameters.Parameters" href="pygwb.parameters.Parameters.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> pygwb
+          </a>
+              <div class="version">
+                0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="pygwb.detector.html">pygwb.detector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.baseline.html">pygwb.baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.network.html">pygwb.network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.spectral.html">pygwb.spectral</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.postprocessing.html">pygwb.postprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.pe.html">pygwb.pe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.statistical_checks.html">pygwb.statistical_checks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.simulator.html">pygwb.simulator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.delta_sigma_cut.html">pygwb.delta_sigma_cut</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.notch.html">pygwb.notch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.constants.html">pygwb.constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.orfs.html">pygwb.orfs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.parameters.html">pygwb.parameters</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">pygwb.util</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.util.StatKS.html">pygwb.util.StatKS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.util.calc_Y_sigma_from_Yf_varf.html">pygwb.util.calc_Y_sigma_from_Yf_varf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.util.calc_bias.html">pygwb.util.calc_bias</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.util.calc_rho1.html">pygwb.util.calc_rho1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.util.calculate_point_estimate_sigma_spectrogram.html">pygwb.util.calculate_point_estimate_sigma_spectrogram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.util.cleanup_dir.html">pygwb.util.cleanup_dir</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.util.interpolate_frequency_series.html">pygwb.util.interpolate_frequency_series</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.util.make_dir.html">pygwb.util.make_dir</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.util.make_freqs.html">pygwb.util.make_freqs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.util.omega_to_power.html">pygwb.util.omega_to_power</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.util.read_jobfiles.html">pygwb.util.read_jobfiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.util.slice_time_series.html">pygwb.util.slice_time_series</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.util.window_factors.html">pygwb.util.window_factors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.util.FrequencySeries.html">pygwb.util.FrequencySeries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.util.TimeSeries.html">pygwb.util.TimeSeries</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>pygwb.util</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/pygwb.util.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="module-pygwb.util">
+<span id="pygwb-util"></span><h1>pygwb.util<a class="headerlink" href="#module-pygwb.util" title="Permalink to this headline"></a></h1>
+<p class="rubric">Functions</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="pygwb.util.StatKS.html#pygwb.util.StatKS" title="pygwb.util.StatKS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StatKS</span></code></a>(DKS)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pygwb.util.calc_Y_sigma_from_Yf_varf.html#pygwb.util.calc_Y_sigma_from_Yf_varf" title="pygwb.util.calc_Y_sigma_from_Yf_varf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calc_Y_sigma_from_Yf_varf</span></code></a>(Y_f, var_f[, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pygwb.util.calc_bias.html#pygwb.util.calc_bias" title="pygwb.util.calc_bias"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calc_bias</span></code></a>(segmentDuration, deltaF, deltaT[, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pygwb.util.calc_rho1.html#pygwb.util.calc_rho1" title="pygwb.util.calc_rho1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calc_rho1</span></code></a>(N)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pygwb.util.calculate_point_estimate_sigma_spectrogram.html#pygwb.util.calculate_point_estimate_sigma_spectrogram" title="pygwb.util.calculate_point_estimate_sigma_spectrogram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_point_estimate_sigma_spectrogram</span></code></a>(...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pygwb.util.cleanup_dir.html#pygwb.util.cleanup_dir" title="pygwb.util.cleanup_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cleanup_dir</span></code></a>(outdir)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pygwb.util.interpolate_frequency_series.html#pygwb.util.interpolate_frequency_series" title="pygwb.util.interpolate_frequency_series"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate_frequency_series</span></code></a>(fSeries, ...)</p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pygwb.util.make_dir.html#pygwb.util.make_dir" title="pygwb.util.make_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_dir</span></code></a>(dirname)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pygwb.util.make_freqs.html#pygwb.util.make_freqs" title="pygwb.util.make_freqs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_freqs</span></code></a>(Nsamples, deltaF)</p></td>
+<td><p>Function that makes an array of frequencies given the sampling rate and the segment duration specified in the initial parameter file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pygwb.util.omega_to_power.html#pygwb.util.omega_to_power" title="pygwb.util.omega_to_power"><code class="xref py py-obj docutils literal notranslate"><span class="pre">omega_to_power</span></code></a>(omega_GWB, frequencies)</p></td>
+<td><p>Function that computes the GW power spectrum starting from the omega_GWB spectrum.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pygwb.util.read_jobfiles.html#pygwb.util.read_jobfiles" title="pygwb.util.read_jobfiles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_jobfiles</span></code></a>(njobs, directory, segment_duration)</p></td>
+<td><p>Method that reads in the job files to extract quantities such as the point estimate and sigmas.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pygwb.util.slice_time_series.html#pygwb.util.slice_time_series" title="pygwb.util.slice_time_series"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slice_time_series</span></code></a>(timeseries, istart, iend)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pygwb.util.window_factors.html#pygwb.util.window_factors" title="pygwb.util.window_factors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">window_factors</span></code></a>(N)</p></td>
+<td><p>calculate window factors for a hann window</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="pygwb.util.FrequencySeries.html#pygwb.util.FrequencySeries" title="pygwb.util.FrequencySeries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FrequencySeries</span></code></a>(freqs, data)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pygwb.util.TimeSeries.html#pygwb.util.TimeSeries" title="pygwb.util.TimeSeries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TimeSeries</span></code></a>(times, data)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pygwb.parameters.Parameters.html" class="btn btn-neutral float-left" title="pygwb.parameters.Parameters" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pygwb.util.StatKS.html" class="btn btn-neutral float-right" title="pygwb.util.StatKS" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

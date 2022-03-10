@@ -1,0 +1,6 @@
+pygwb.orfs.T\_right\_left
+=========================
+
+.. currentmodule:: pygwb.orfs
+
+.. autofunction:: T_right_left

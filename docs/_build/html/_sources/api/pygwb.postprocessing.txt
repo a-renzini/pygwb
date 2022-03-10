@@ -1,0 +1,42 @@
+﻿pygwb.postprocessing
+====================
+
+.. currentmodule:: pygwb.postprocessing
+
+.. automodule:: pygwb.postprocessing
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      postprocess_Y_sigma
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      IsotropicJob
+      SingleStochasticJob
+      StochasticJobList
+   
+   
+
+   
+   
+   
+
+
+

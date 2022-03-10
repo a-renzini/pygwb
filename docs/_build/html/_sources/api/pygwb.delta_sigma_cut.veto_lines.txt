@@ -1,0 +1,6 @@
+pygwb.delta\_sigma\_cut.veto\_lines
+===================================
+
+.. currentmodule:: pygwb.delta_sigma_cut
+
+.. autofunction:: veto_lines

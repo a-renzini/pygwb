@@ -1,0 +1,33 @@
+﻿pygwb.statistical\_checks
+=========================
+
+.. currentmodule:: pygwb.statistical_checks
+
+.. automodule:: pygwb.statistical_checks
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      StatisticalChecks
+   
+   
+
+   
+   
+   
+
+
+

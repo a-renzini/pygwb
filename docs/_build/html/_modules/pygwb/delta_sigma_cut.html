@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pygwb.delta_sigma_cut &mdash; pygwb 0.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/tabs.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/tabs.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> pygwb
+          </a>
+              <div class="version">
+                0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.detector.html">pygwb.detector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.baseline.html">pygwb.baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.network.html">pygwb.network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.spectral.html">pygwb.spectral</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.postprocessing.html">pygwb.postprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.pe.html">pygwb.pe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.statistical_checks.html">pygwb.statistical_checks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.simulator.html">pygwb.simulator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.delta_sigma_cut.html">pygwb.delta_sigma_cut</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.notch.html">pygwb.notch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.constants.html">pygwb.constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.orfs.html">pygwb.orfs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.parameters.html">pygwb.parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pygwb.util.html">pygwb.util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>pygwb.delta_sigma_cut</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pygwb.delta_sigma_cut</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">loguru</span> <span class="kn">import</span> <span class="n">logger</span>
+
+<span class="kn">from</span> <span class="nn">pygwb.notch</span> <span class="kn">import</span> <span class="n">StochNotch</span><span class="p">,</span> <span class="n">StochNotchList</span>
+
+<span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">calc_bias</span>
+
+
+<div class="viewcode-block" id="dsc_cut"><a class="viewcode-back" href="../../api/pygwb.delta_sigma_cut.dsc_cut.html#pygwb.delta_sigma_cut.dsc_cut">[docs]</a><span class="k">def</span> <span class="nf">dsc_cut</span><span class="p">(</span>
+    <span class="n">naive_sigma</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">slide_sigma</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">dsc</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
+    <span class="n">bf_ss</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">bf_ns</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function that performs the delta sigma cut, a veto that marks certain GPS times as unusable if the estimations of</span>
+<span class="sd">    the PSD in the naive (estimating sigma in bin J) and sliding (estimating sigma in bins J \pm 1) differ by more than</span>
+<span class="sd">    a certain factor (default: dsc=0.2)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ==========</span>
+<span class="sd">    naive_sigma: array</span>
+<span class="sd">        Naive sigma</span>
+
+<span class="sd">    slide_sigma: array</span>
+<span class="sd">        Sliding sigma</span>
+
+<span class="sd">    dsc: float</span>
+<span class="sd">        Threshold to perform the delta sigma cut</span>
+
+<span class="sd">    bf_ss: float</span>
+<span class="sd">        Sliding bias factor</span>
+
+<span class="sd">    bf_ns: float</span>
+<span class="sd">        Naive bias factor</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    dsigma &gt;= dsc: bool</span>
+<span class="sd">        True: the segment&#39;s delta sigma exceeds the threshold value, thus making its corresponding GPStime BAD</span>
+<span class="sd">        False:  the segment&#39;s delta sigma is less than the threshold value, thus making its corresponding GPStime GOOD</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">dsigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">slide_sigma</span> <span class="o">*</span> <span class="n">bf_ss</span> <span class="o">-</span> <span class="n">naive_sigma</span> <span class="o">*</span> <span class="n">bf_ns</span><span class="p">)</span> <span class="o">/</span> <span class="n">slide_sigma</span> <span class="o">*</span> <span class="n">bf_ss</span>
+
+    <span class="k">return</span> <span class="n">dsigma</span> <span class="o">&gt;=</span> <span class="n">dsc</span></div>
+
+
+<div class="viewcode-block" id="calc_Hf"><a class="viewcode-back" href="../../api/pygwb.delta_sigma_cut.calc_Hf.html#pygwb.delta_sigma_cut.calc_Hf">[docs]</a><span class="k">def</span> <span class="nf">calc_Hf</span><span class="p">(</span><span class="n">freqs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">fref</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function that calculates the H(f) power law</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ==========</span>
+<span class="sd">    freqs: array</span>
+<span class="sd">        An array of frequencies from an FFT</span>
+
+<span class="sd">    alpha: float</span>
+<span class="sd">        spectral index</span>
+
+<span class="sd">    fref: int</span>
+<span class="sd">        reference frequency</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    H(f): array</span>
+<span class="sd">        H(f) power law frequencies weighted by alpha</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">Hf</span> <span class="o">=</span> <span class="p">(</span><span class="n">freqs</span> <span class="o">/</span> <span class="n">fref</span><span class="p">)</span> <span class="o">**</span> <span class="n">alpha</span>
+    <span class="k">return</span> <span class="n">Hf</span>  <span class="c1"># do for different power laws , take all badgps times from all alphas, multiple calls in main func</span></div>
+
+
+<div class="viewcode-block" id="calc_sigma_alpha"><a class="viewcode-back" href="../../api/pygwb.delta_sigma_cut.calc_sigma_alpha.html#pygwb.delta_sigma_cut.calc_sigma_alpha">[docs]</a><span class="k">def</span> <span class="nf">calc_sigma_alpha</span><span class="p">(</span><span class="n">sensitivity_integrand_with_Hf</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function that calculates the sliding or naive sigma by integrating over the sensitivity integrand</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ==========</span>
+<span class="sd">    sensitivity_integrand_with_Hf: array</span>
+<span class="sd">        An array that has been calculated with calc_sens_integrand(), given by S_\alpha (f) in</span>
+<span class="sd">        https://git.ligo.org/stochastic_lite/stochastic_lite/-/issues/11#note_242064</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    sigma_alpha: float</span>
+<span class="sd">        value of sigma for a particular alpha, PSD, and delta_f; can be naive or sliding depending on PSD used</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">sigma_alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">sensitivity_integrand_with_Hf</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">sigma_alpha</span></div>
+
+
+<div class="viewcode-block" id="calc_sens_integrand"><a class="viewcode-back" href="../../api/pygwb.delta_sigma_cut.calc_sens_integrand.html#pygwb.delta_sigma_cut.calc_sens_integrand">[docs]</a><span class="k">def</span> <span class="nf">calc_sens_integrand</span><span class="p">(</span>
+    <span class="n">freq</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">P1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">P2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">window1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">window2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">delta_f</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">T</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+    <span class="n">orf</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">H0</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">67.9e3</span> <span class="o">/</span> <span class="mf">3.086e22</span><span class="p">,</span>
+<span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function that calculates the sensitivity integrand in</span>
+<span class="sd">    https://git.ligo.org/stochastic_lite/stochastic_lite/-/issues/11#note_242064</span>
+<span class="sd">    Implicilty for \alpha=0</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ==========</span>
+<span class="sd">    freq: array</span>
+<span class="sd">        An array of frequencies from a PSD</span>
+
+<span class="sd">    P1: array</span>
+<span class="sd">        the PSD of detector #1; size should equal size of freq</span>
+
+<span class="sd">    P2: array</span>
+<span class="sd">        the PSD of detector #2; size should equal size of freq</span>
+
+<span class="sd">    window1: array</span>
+<span class="sd">        typically Hann window of size np.hanning(4096*192)</span>
+
+<span class="sd">    window2: array</span>
+<span class="sd">        typically Hann window of size np.hanning(4096*192)</span>
+
+<span class="sd">    delta_f: float</span>
+<span class="sd">        frequency resolution (Hz)</span>
+
+<span class="sd">    T: int</span>
+<span class="sd">        coherence time (s)</span>
+
+<span class="sd">    orf: array</span>
+<span class="sd">        the overlap reduction function as a function of frequency that quantifies the overlap of a detector baseline,</span>
+<span class="sd">        which depends on the detector locations, relative orientations, etc.</span>
+
+<span class="sd">    H0: float</span>
+<span class="sd">        the Hubble constant</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    sens_integrand: array</span>
+<span class="sd">        the sensitivity integrand</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">w1w2bar</span><span class="p">,</span> <span class="n">w1w2squaredbar</span><span class="p">,</span> <span class="n">oo</span> <span class="o">=</span> <span class="n">WindowFactors</span><span class="p">(</span><span class="n">window1</span><span class="p">,</span> <span class="n">window2</span><span class="p">)</span>
+    <span class="n">S_alpha</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">H0</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">freq</span><span class="o">**</span><span class="mi">3</span>
+    <span class="n">sigma_square_avg</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">w1w2squaredbar</span> <span class="o">/</span> <span class="n">w1w2bar</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="o">*</span> <span class="mi">1</span>
+        <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">T</span> <span class="o">*</span> <span class="n">delta_f</span><span class="p">)</span>
+        <span class="o">*</span> <span class="n">P1</span>
+        <span class="o">*</span> <span class="n">P2</span>
+        <span class="o">/</span> <span class="p">(</span><span class="n">orf</span><span class="o">**</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">S_alpha</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">sigma_square_avg</span></div>
+
+
+<div class="viewcode-block" id="WindowFactors"><a class="viewcode-back" href="../../api/pygwb.delta_sigma_cut.WindowFactors.html#pygwb.delta_sigma_cut.WindowFactors">[docs]</a><span class="k">def</span> <span class="nf">WindowFactors</span><span class="p">(</span><span class="n">window1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">window2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function that calculates the necessary window factors in line 24 of</span>
+<span class="sd">    https://git.ligo.org/stochastic-public/stochastic_cleaned/-/blob/master/CrossCorr/src_cc/normalization.m</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ==========</span>
+<span class="sd">    window1: array</span>
+<span class="sd">        typically Hann window of size np.hanning(4096*192)</span>
+
+<span class="sd">    window2: array</span>
+<span class="sd">        typically Hann window of size np.hanning(4096*192)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    w1w2bar: array</span>
+<span class="sd">        Average of the product of the two windows</span>
+
+<span class="sd">    w1w2squaredbar: array</span>
+<span class="sd">        average of the product of the squares of the two windows</span>
+
+<span class="sd">    w1w2ovlsquaredbar: array</span>
+<span class="sd">        average of the product of the first half times second half of each window</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">N1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">window1</span><span class="p">)</span>
+    <span class="n">N2</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">window2</span><span class="p">)</span>
+    <span class="n">Nred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">gcd</span><span class="p">(</span><span class="n">N1</span><span class="p">,</span> <span class="n">N2</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">indices1</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Nred</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">N1</span> <span class="o">/</span> <span class="n">Nred</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">indices2</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Nred</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">N2</span> <span class="o">/</span> <span class="n">Nred</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">window1red</span> <span class="o">=</span> <span class="n">window1</span><span class="p">[</span><span class="n">indices1</span><span class="p">]</span>
+    <span class="n">window2red</span> <span class="o">=</span> <span class="n">window2</span><span class="p">[</span><span class="n">indices2</span><span class="p">]</span>
+
+    <span class="c1"># extract 1st and 2nd half of windows</span>
+
+    <span class="n">cut</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">Nred</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+
+    <span class="n">firsthalf1</span> <span class="o">=</span> <span class="n">window1red</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">cut</span><span class="p">]</span>
+    <span class="n">secondhalf1</span> <span class="o">=</span> <span class="n">window1red</span><span class="p">[</span><span class="n">cut</span><span class="p">:</span><span class="n">Nred</span><span class="p">]</span>
+
+    <span class="n">firsthalf2</span> <span class="o">=</span> <span class="n">window2red</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">cut</span><span class="p">]</span>
+    <span class="n">secondhalf2</span> <span class="o">=</span> <span class="n">window2red</span><span class="p">[</span><span class="n">cut</span><span class="p">:</span><span class="n">Nred</span><span class="p">]</span>
+
+    <span class="c1"># calculate window factors</span>
+    <span class="n">w1w2bar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">window1red</span> <span class="o">*</span> <span class="n">window2red</span><span class="p">)</span>
+    <span class="n">w1w2squaredbar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">window1red</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">window2red</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">w1w2ovlsquaredbar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">firsthalf1</span> <span class="o">*</span> <span class="n">secondhalf1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">firsthalf2</span> <span class="o">*</span> <span class="n">secondhalf2</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">w1w2bar</span><span class="p">,</span> <span class="n">w1w2squaredbar</span><span class="p">,</span> <span class="n">w1w2ovlsquaredbar</span></div>
+
+
+<div class="viewcode-block" id="veto_lines"><a class="viewcode-back" href="../../api/pygwb.delta_sigma_cut.veto_lines.html#pygwb.delta_sigma_cut.veto_lines">[docs]</a><span class="k">def</span> <span class="nf">veto_lines</span><span class="p">(</span><span class="n">freqs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">lines</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function that vetos noise lines</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ==========</span>
+<span class="sd">    freqs: array</span>
+<span class="sd">        An array of frequencies from a PSD</span>
+
+<span class="sd">    lines: array</span>
+<span class="sd">        a matrix of form [fmin,fmax] that gives the frequency range of the line</span>
+
+<span class="sd">    df: float</span>
+<span class="sd">        the frequency bin, used if you want to veto frequencies with a frequency bin of the line</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    veto: bool</span>
+<span class="sd">        True: this frequency is contaminated by a noise line</span>
+<span class="sd">        False: this frequency is fine to use</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nbins</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">freqs</span><span class="p">)</span>
+    <span class="n">veto</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nbins</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;bool&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">veto</span>
+
+    <span class="n">fmins</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">fmaxs</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">fbin</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">freqs</span><span class="p">)):</span>
+        <span class="n">freq</span> <span class="o">=</span> <span class="n">freqs</span><span class="p">[</span><span class="n">fbin</span><span class="p">]</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">((</span><span class="n">freq</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="n">fmins</span> <span class="o">-</span> <span class="n">df</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">freq</span> <span class="o">&lt;=</span> <span class="n">fmaxs</span> <span class="o">+</span> <span class="n">df</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">index</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">veto</span><span class="p">[</span><span class="n">fbin</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">veto</span></div>
+
+
+<div class="viewcode-block" id="run_dsc"><a class="viewcode-back" href="../../api/pygwb.delta_sigma_cut.run_dsc.html#pygwb.delta_sigma_cut.run_dsc">[docs]</a><span class="k">def</span> <span class="nf">run_dsc</span><span class="p">(</span>
+    <span class="n">dsc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">segment_duration</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">sampling_frequency</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">psd1_naive</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">psd2_naive</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">psd1_slide</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">psd2_slide</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">alphas</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">notch_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function that runs the delta sigma cut</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ==========</span>
+<span class="sd">    dsc: float</span>
+<span class="sd">        The value of the delta sigma cut to use</span>
+
+<span class="sd">    segment_duration: int</span>
+<span class="sd">        Duration of each segment</span>
+
+<span class="sd">    psd1_naive; psd2_naive: array</span>
+<span class="sd">        an FFTgram of the PSD computed naively, as in in the particular bin J for detector #1 and #2</span>
+
+<span class="sd">    psd1_slide, psd2_slide: array</span>
+<span class="sd">        an FFTgram of the PSD computed by considering the noise in adjacent bins to the bin J, i.e. J-1, J+1 for</span>
+<span class="sd">        detectors #1 and #2</span>
+
+<span class="sd">    alphas: array</span>
+<span class="sd">        the spectral indices to use; the code combines the BadGPStimes from each alpha</span>
+
+<span class="sd">    notch_path: str</span>
+<span class="sd">        path to the notch list file</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    BadGPStimes: array</span>
+<span class="sd">        an array of the GPS times to not be considered based on the chosen value of the delta sigma cut</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">notch_path</span><span class="p">:</span>
+        <span class="n">lines_stochnotch</span> <span class="o">=</span> <span class="n">StochNotchList</span><span class="o">.</span><span class="n">load_from_file</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">notch_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">lines_stochnotch</span><span class="p">),</span> <span class="mi">2</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">notch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines_stochnotch</span><span class="p">):</span>
+            <span class="n">lines</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">lines_stochnotch</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">minimum_frequency</span>
+            <span class="n">lines</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">lines_stochnotch</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">maximum_frequency</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running delta sigma cut&quot;</span><span class="p">)</span>
+    <span class="n">nalphas</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">alphas</span><span class="p">)</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">psd1_naive</span><span class="o">.</span><span class="n">times</span><span class="p">)</span>
+    <span class="n">ntimes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">psd1_naive</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="n">psd1_naive</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">value</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">bf_ns</span> <span class="o">=</span> <span class="n">calc_bias</span><span class="p">(</span><span class="n">segment_duration</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>  <span class="c1"># Naive estimate</span>
+    <span class="n">bf_ss</span> <span class="o">=</span> <span class="n">calc_bias</span><span class="p">(</span><span class="n">segment_duration</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">N_avg_segs</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># Sliding estimate</span>
+    <span class="n">freqs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">psd1_naive</span><span class="o">.</span><span class="n">frequencies</span><span class="p">)</span>
+    <span class="n">overall_cut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ntimes</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;bool&quot;</span><span class="p">)</span>
+    <span class="n">cuts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nalphas</span><span class="p">,</span> <span class="n">ntimes</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;bool&quot;</span><span class="p">)</span>
+
+    <span class="n">veto</span> <span class="o">=</span> <span class="n">veto_lines</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">lines</span><span class="p">)</span>
+    <span class="n">keep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">~</span><span class="n">veto</span><span class="p">)</span>
+
+    <span class="n">window1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hanning</span><span class="p">(</span><span class="n">segment_duration</span> <span class="o">*</span> <span class="n">sampling_frequency</span><span class="p">)</span>
+    <span class="n">window2</span> <span class="o">=</span> <span class="n">window1</span>
+    <span class="k">for</span> <span class="n">alpha</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nalphas</span><span class="p">):</span>
+        <span class="n">Hf</span> <span class="o">=</span> <span class="n">calc_Hf</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">alphas</span><span class="p">[</span><span class="n">alpha</span><span class="p">])</span>
+        <span class="n">cut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ntimes</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;bool&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">time</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">)):</span>
+            <span class="n">psd1_naive_time</span> <span class="o">=</span> <span class="n">psd1_naive</span><span class="p">[</span><span class="n">time</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">psd1_slide_time</span> <span class="o">=</span> <span class="n">psd1_slide</span><span class="p">[</span><span class="n">time</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">psd2_naive_time</span> <span class="o">=</span> <span class="n">psd2_naive</span><span class="p">[</span><span class="n">time</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">psd2_slide_time</span> <span class="o">=</span> <span class="n">psd2_slide</span><span class="p">[</span><span class="n">time</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">naive_sensitivity_integrand_with_Hf</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">calc_sens_integrand</span><span class="p">(</span>
+                    <span class="n">freqs</span><span class="p">,</span> <span class="n">psd1_naive_time</span><span class="p">,</span> <span class="n">psd2_naive_time</span><span class="p">,</span> <span class="n">window1</span><span class="p">,</span> <span class="n">window2</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">dt</span>
+                <span class="p">)</span>
+                <span class="o">/</span> <span class="n">Hf</span><span class="o">**</span><span class="mi">2</span>
+            <span class="p">)</span>
+            <span class="n">slide_sensitivity_integrand_with_Hf</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">calc_sens_integrand</span><span class="p">(</span>
+                    <span class="n">freqs</span><span class="p">,</span> <span class="n">psd1_slide_time</span><span class="p">,</span> <span class="n">psd2_slide_time</span><span class="p">,</span> <span class="n">window1</span><span class="p">,</span> <span class="n">window2</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">dt</span>
+                <span class="p">)</span>
+                <span class="o">/</span> <span class="n">Hf</span><span class="o">**</span><span class="mi">2</span>
+            <span class="p">)</span>
+            <span class="n">naive_sigma_alpha</span> <span class="o">=</span> <span class="n">calc_sigma_alpha</span><span class="p">(</span>
+                <span class="n">naive_sensitivity_integrand_with_Hf</span><span class="p">[</span><span class="n">keep</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">slide_sigma_alpha</span> <span class="o">=</span> <span class="n">calc_sigma_alpha</span><span class="p">(</span>
+                <span class="n">slide_sensitivity_integrand_with_Hf</span><span class="p">[</span><span class="n">keep</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">cut</span><span class="p">[</span><span class="n">time</span><span class="p">]</span> <span class="o">=</span> <span class="n">dsc_cut</span><span class="p">(</span><span class="n">naive_sigma_alpha</span><span class="p">,</span> <span class="n">slide_sigma_alpha</span><span class="p">,</span> <span class="n">dsc</span><span class="p">,</span> <span class="n">bf_ss</span><span class="p">,</span> <span class="n">bf_ns</span><span class="p">)</span>
+
+        <span class="n">cuts</span><span class="p">[</span><span class="n">alpha</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">cut</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">time</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">)):</span>
+        <span class="n">overall_cut</span><span class="p">[</span><span class="n">time</span><span class="p">]</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">cuts</span><span class="p">[:,</span> <span class="n">time</span><span class="p">])</span>
+
+    <span class="n">BadGPStimes</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">overall_cut</span><span class="p">)]</span>
+
+    <span class="k">return</span> <span class="n">BadGPStimes</span><span class="p">,</span> <span class="n">cuts</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

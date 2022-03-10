@@ -1,0 +1,6 @@
+pygwb.baseline.get\_baselines
+=============================
+
+.. currentmodule:: pygwb.baseline
+
+.. autofunction:: get_baselines

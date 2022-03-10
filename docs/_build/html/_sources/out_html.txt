@@ -1,0 +1,67 @@
+Running Sphinx v4.4.0
+making output directory... done
+[autosummary] generating autosummary for: api/pygwb.constants.txt, api/pygwb.pe.txt, api/pygwb.postprocessing.txt, api/pygwb.spectral.txt, api/pygwb.util.txt, conf.py, conf_old.py, contributing.rst, index.rst, installation.rst, out_html.txt, templates/custom-class-template.rst, templates/custom-module-template.rst
+Failed to import postprocessing.
+Possible hints:
+* KeyError: 'postprocessing'
+* ModuleNotFoundError: No module named 'postprocessing'
+Failed to import constants.
+Possible hints:
+* KeyError: 'constants'
+* ModuleNotFoundError: No module named 'constants'
+Failed to import pe.
+Possible hints:
+* ModuleNotFoundError: No module named 'pe'
+* KeyError: 'pe'
+Failed to import util.
+Possible hints:
+* KeyError: 'util'
+* ModuleNotFoundError: No module named 'util'
+Failed to import spectral.
+Possible hints:
+* KeyError: 'spectral'
+* ModuleNotFoundError: No module named 'spectral'
+building [mo]: targets for 0 po files that are out of date
+building [html]: targets for 13 source files that are out of date
+updating environment: [new config] 13 added, 0 changed, 0 removed
+reading sources... [  7%] api/pygwb.constants
+reading sources... [ 15%] api/pygwb.pe
+reading sources... [ 23%] api/pygwb.postprocessing
+reading sources... [ 30%] api/pygwb.spectral
+reading sources... [ 38%] api/pygwb.util
+reading sources... [ 46%] conf
+reading sources... [ 53%] conf_old
+reading sources... [ 61%] contributing
+reading sources... [ 69%] index
+reading sources... [ 76%] installation
+reading sources... [ 84%] out_html
+reading sources... [ 92%] templates/custom-class-template
+reading sources... [100%] templates/custom-module-template
+
+looking for now-outdated files... none found
+pickling environment... done
+checking consistency... done
+preparing documents... done
+writing output... [  7%] api/pygwb.constants
+writing output... [ 15%] api/pygwb.pe
+writing output... [ 23%] api/pygwb.postprocessing
+writing output... [ 30%] api/pygwb.spectral
+writing output... [ 38%] api/pygwb.util
+writing output... [ 46%] conf
+writing output... [ 53%] conf_old
+writing output... [ 61%] contributing
+writing output... [ 69%] index
+writing output... [ 76%] installation
+writing output... [ 84%] out_html
+writing output... [ 92%] templates/custom-class-template
+writing output... [100%] templates/custom-module-template
+
+generating indices... genindex py-modindex done
+writing additional pages... search done
+copying static files... done
+copying extra files... done
+dumping search index in English (code: en)... done
+dumping object inventory... done
+build succeeded, 38 warnings.
+
+The HTML pages are in _build/html.

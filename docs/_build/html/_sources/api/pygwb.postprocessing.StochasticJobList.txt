@@ -1,0 +1,35 @@
+pygwb.postprocessing.StochasticJobList
+======================================
+
+.. currentmodule:: pygwb.postprocessing
+
+.. autoclass:: StochasticJobList
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+   .. automethod:: __call__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~StochasticJobList.__init__
+      ~StochasticJobList.combine_jobs
+      ~StochasticJobList.load_job_file
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~StochasticJobList.file_types
+      ~StochasticJobList.search_types
+   
+   

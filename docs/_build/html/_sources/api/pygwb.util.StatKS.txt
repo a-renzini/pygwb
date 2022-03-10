@@ -1,0 +1,6 @@
+pygwb.util.StatKS
+=================
+
+.. currentmodule:: pygwb.util
+
+.. autofunction:: StatKS

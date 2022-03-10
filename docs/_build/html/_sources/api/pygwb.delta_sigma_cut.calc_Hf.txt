@@ -1,0 +1,6 @@
+pygwb.delta\_sigma\_cut.calc\_Hf
+================================
+
+.. currentmodule:: pygwb.delta_sigma_cut
+
+.. autofunction:: calc_Hf

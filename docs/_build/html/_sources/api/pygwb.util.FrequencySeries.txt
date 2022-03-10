@@ -1,0 +1,27 @@
+pygwb.util.FrequencySeries
+==========================
+
+.. currentmodule:: pygwb.util
+
+.. autoclass:: FrequencySeries
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+   .. automethod:: __call__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~FrequencySeries.__init__
+      ~FrequencySeries.coarse_grain
+   
+   
+
+   
+   
+   

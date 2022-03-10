@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pygwb.statistical_checks.StatisticalChecks &mdash; pygwb 0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pygwb.simulator" href="pygwb.simulator.html" />
+    <link rel="prev" title="pygwb.statistical_checks" href="pygwb.statistical_checks.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> pygwb
+          </a>
+              <div class="version">
+                0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="pygwb.detector.html">pygwb.detector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.baseline.html">pygwb.baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.network.html">pygwb.network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.spectral.html">pygwb.spectral</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.postprocessing.html">pygwb.postprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.pe.html">pygwb.pe</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="pygwb.statistical_checks.html">pygwb.statistical_checks</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">pygwb.statistical_checks.StatisticalChecks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.simulator.html">pygwb.simulator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.delta_sigma_cut.html">pygwb.delta_sigma_cut</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.notch.html">pygwb.notch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.constants.html">pygwb.constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.orfs.html">pygwb.orfs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.parameters.html">pygwb.parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pygwb.util.html">pygwb.util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="pygwb.statistical_checks.html">pygwb.statistical_checks</a> &raquo;</li>
+      <li>pygwb.statistical_checks.StatisticalChecks</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/pygwb.statistical_checks.StatisticalChecks.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="pygwb-statistical-checks-statisticalchecks">
+<h1>pygwb.statistical_checks.StatisticalChecks<a class="headerlink" href="#pygwb-statistical-checks-statisticalchecks" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pygwb.statistical_checks.</span></span><span class="sig-name descname"><span class="pre">StatisticalChecks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">segment_duration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">njobs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deltaT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deltaF</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dsc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifo_pair</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pproc_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_bad_times</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/statistical_checks.html#StatisticalChecks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">segment_duration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">njobs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deltaT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deltaF</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dsc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifo_pair</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pproc_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_bad_times</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/statistical_checks.html#StatisticalChecks.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Class for the statistical analysis of the results, which generates and saves plots.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>segment_duration: int</strong></dt><dd><p>Duration of a segment in seconds</p>
+</dd>
+<dt><strong>njobs: int</strong></dt><dd><p>Number of jobs</p>
+</dd>
+<dt><strong>deltaT: float</strong></dt><dd><p>Time delta T used in the analysis</p>
+</dd>
+<dt><strong>deltaF: float</strong></dt><dd><p>Frequency delta f used in the analysis</p>
+</dd>
+<dt><strong>dsc: float</strong></dt><dd><p>Value used for the delta-sigma cut</p>
+</dd>
+<dt><strong>ifo_pair: str</strong></dt><dd><p>Name of the baseline. E.g.: “H1L1”</p>
+</dd>
+<dt><strong>mat_dir: str</strong></dt><dd><p>Directory where the mat files are stored</p>
+</dd>
+<dt><strong>pproc_dir: str</strong></dt><dd><p>Directory where the output of post-processing is stored</p>
+</dd>
+<dt><strong>plot_dir: str</strong></dt><dd><p>Directory where the statistical checks plots will be saved</p>
+</dd>
+<dt><strong>read_bad_times: boolean</strong></dt><dd><p>Boolean indicating whether the bad GPS times (after delta-sigma cut) should be read in from file (i.e. True) or computed on the fly here (i.e. False)</p>
+</dd>
+<dt><strong>segs: float</strong></dt><dd><p>Parameter used to perform the delta-sigma cut on the fly</p>
+</dd>
+<dt><strong>Returns</strong></dt><dd></dd>
+<dt><strong>=======</strong></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks.__call__" title="Permalink to this definition"></a></dt>
+<dd><p>Call self as a function.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.statistical_checks.StatisticalChecks.__init__" title="pygwb.statistical_checks.StatisticalChecks.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(segment_duration, njobs, deltaT, ...)</p></td>
+<td><p>Class for the statistical analysis of the results, which generates and saves plots.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.statistical_checks.StatisticalChecks.generate_all_plots" title="pygwb.statistical_checks.StatisticalChecks.generate_all_plots"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_all_plots</span></code></a>()</p></td>
+<td><p>Generates and saves all the statistical analysis plots.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.statistical_checks.StatisticalChecks.get_data_after_dsc_cut" title="pygwb.statistical_checks.StatisticalChecks.get_data_after_dsc_cut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_data_after_dsc_cut</span></code></a>(read_bad_times[, segs])</p></td>
+<td><p>Gets the data (such as times, omegas, sigmas) after the delta sigma cut. Parameters ========== read_bad_times: boolean     Boolean indicating whether the bad GPS times (after delta-sigma cut) should be read in from file (i.e. True) or computed on the fly here (i.e. False) segs: float     Parameter used to perform the delta-sigma cut on the fly.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.statistical_checks.StatisticalChecks.get_data_before_dsc_cut" title="pygwb.statistical_checks.StatisticalChecks.get_data_before_dsc_cut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_data_before_dsc_cut</span></code></a>()</p></td>
+<td><p>Gets the data (such as times, omegas, sigmas) before the delta sigma cut.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.statistical_checks.StatisticalChecks.get_ifft_integrand" title="pygwb.statistical_checks.StatisticalChecks.get_ifft_integrand"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_ifft_integrand</span></code></a>()</p></td>
+<td><p>Gets the inverse Fourier transform of the FFT point estimate integrand from file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.statistical_checks.StatisticalChecks.get_pt_estimate_integrand" title="pygwb.statistical_checks.StatisticalChecks.get_pt_estimate_integrand"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_pt_estimate_integrand</span></code></a>()</p></td>
+<td><p>Gets the point estimate integrand from file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.statistical_checks.StatisticalChecks.get_running_pt_estimate" title="pygwb.statistical_checks.StatisticalChecks.get_running_pt_estimate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_running_pt_estimate</span></code></a>()</p></td>
+<td><p>Get the running point estimate from file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.statistical_checks.StatisticalChecks.get_sensitivity_integrand" title="pygwb.statistical_checks.StatisticalChecks.get_sensitivity_integrand"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_sensitivity_integrand</span></code></a>()</p></td>
+<td><p>Gets the sensitivity integrand from file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.statistical_checks.StatisticalChecks.plot_IFFT_point_estimate_integrand" title="pygwb.statistical_checks.StatisticalChecks.plot_IFFT_point_estimate_integrand"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_IFFT_point_estimate_integrand</span></code></a>()</p></td>
+<td><p>Generates and saves a plot of the IFFT of the point estimate integrand.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.statistical_checks.StatisticalChecks.plot_KS_test" title="pygwb.statistical_checks.StatisticalChecks.plot_KS_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_KS_test</span></code></a>()</p></td>
+<td><p>Generates and saves a panel plot with results of the Kolmogorov-Smirnov test for Gaussianity.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.statistical_checks.StatisticalChecks.plot_cumulative_point_estimate" title="pygwb.statistical_checks.StatisticalChecks.plot_cumulative_point_estimate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_cumulative_point_estimate</span></code></a>()</p></td>
+<td><p>Generates and saves a plot of the cumulative point estimate.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.statistical_checks.StatisticalChecks.plot_cumulative_sensitivity_integrand" title="pygwb.statistical_checks.StatisticalChecks.plot_cumulative_sensitivity_integrand"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_cumulative_sensitivity_integrand</span></code></a>()</p></td>
+<td><p>Generates and saves a plot of the cumulative sensitivity integrand.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.statistical_checks.StatisticalChecks.plot_hist_omega_pre_post_dsc" title="pygwb.statistical_checks.StatisticalChecks.plot_hist_omega_pre_post_dsc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_hist_omega_pre_post_dsc</span></code></a>()</p></td>
+<td><p>Generates and saves a histogram of the (Ω-&lt;Ω&gt;)/σ distribution.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.statistical_checks.StatisticalChecks.plot_hist_scatter_omega_sigma" title="pygwb.statistical_checks.StatisticalChecks.plot_hist_scatter_omega_sigma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_hist_scatter_omega_sigma</span></code></a>()</p></td>
+<td><p>Generates and saves a panel plot with a scatter plot of σ vs (Ω-&lt;Ω&gt;)/σ, as well as histograms of the σ and (Ω-&lt;Ω&gt;)/σ distributions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.statistical_checks.StatisticalChecks.plot_hist_sigma_dsc" title="pygwb.statistical_checks.StatisticalChecks.plot_hist_sigma_dsc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_hist_sigma_dsc</span></code></a>()</p></td>
+<td><p>Generates and saves a panel plot with a histogram of Abs[δσ]/σ, as well as a histogram of σ.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.statistical_checks.StatisticalChecks.plot_hist_sigma_squared" title="pygwb.statistical_checks.StatisticalChecks.plot_hist_sigma_squared"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_hist_sigma_squared</span></code></a>()</p></td>
+<td><p>Generates and saves a histogram of σ^2/&lt;σ^2&gt;.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.statistical_checks.StatisticalChecks.plot_imaginary_point_estimate_integrand" title="pygwb.statistical_checks.StatisticalChecks.plot_imaginary_point_estimate_integrand"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_imaginary_point_estimate_integrand</span></code></a>()</p></td>
+<td><p>Generates and saves a plot of the imaginary part of the point estimate integrand.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.statistical_checks.StatisticalChecks.plot_omega_sigma_in_time" title="pygwb.statistical_checks.StatisticalChecks.plot_omega_sigma_in_time"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_omega_sigma_in_time</span></code></a>()</p></td>
+<td><p>Generates and saves a panel plot with a scatter plot of σ vs (Ω-&lt;Ω&gt;)/σ, as well as the evolution of Ω, σ, and (Ω-&lt;Ω&gt;)/σ as a function of the days since the start of the run.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.statistical_checks.StatisticalChecks.plot_omega_time_fit" title="pygwb.statistical_checks.StatisticalChecks.plot_omega_time_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_omega_time_fit</span></code></a>()</p></td>
+<td><p>Generates and saves a plot of Ω as a function of time and fits the data to perform a linear trend analysis.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.statistical_checks.StatisticalChecks.plot_point_estimate_integrand" title="pygwb.statistical_checks.StatisticalChecks.plot_point_estimate_integrand"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_point_estimate_integrand</span></code></a>()</p></td>
+<td><p>Generates and saves a plot of the point estimate integrand.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.statistical_checks.StatisticalChecks.plot_real_point_estimate_integrand" title="pygwb.statistical_checks.StatisticalChecks.plot_real_point_estimate_integrand"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_real_point_estimate_integrand</span></code></a>()</p></td>
+<td><p>Generates and saves a plot of the real part of the point estimate integrand.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.statistical_checks.StatisticalChecks.plot_running_point_estimate" title="pygwb.statistical_checks.StatisticalChecks.plot_running_point_estimate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_running_point_estimate</span></code></a>()</p></td>
+<td><p>Generates and saves a plot of the running point estimate.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.statistical_checks.StatisticalChecks.plot_running_sigma" title="pygwb.statistical_checks.StatisticalChecks.plot_running_sigma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_running_sigma</span></code></a>()</p></td>
+<td><p>Generates and saves a plot of the running sigma.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.statistical_checks.StatisticalChecks.plot_scatter_omega_sigma_dsc" title="pygwb.statistical_checks.StatisticalChecks.plot_scatter_omega_sigma_dsc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_scatter_omega_sigma_dsc</span></code></a>()</p></td>
+<td><p>Generates and saves a panel plot with scatter plots of Abs[δσ]/σ vs (Ω-&lt;Ω&gt;)/σ, as well as σ vs (Ω-&lt;Ω&gt;)/σ.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.statistical_checks.StatisticalChecks.plot_scatter_sigma_dsc" title="pygwb.statistical_checks.StatisticalChecks.plot_scatter_sigma_dsc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_scatter_sigma_dsc</span></code></a>()</p></td>
+<td><p>Generates and saves a scatter plot of Abs[δσ]/σ vs σ.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.statistical_checks.StatisticalChecks.plot_sensitivity_integrand" title="pygwb.statistical_checks.StatisticalChecks.plot_sensitivity_integrand"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_sensitivity_integrand</span></code></a>()</p></td>
+<td><p>Generates and saves a plot of the sensitivity integrand.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks.generate_all_plots">
+<span class="sig-name descname"><span class="pre">generate_all_plots</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/statistical_checks.html#StatisticalChecks.generate_all_plots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks.generate_all_plots" title="Permalink to this definition"></a></dt>
+<dd><p>Generates and saves all the statistical analysis plots.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks.get_data_after_dsc_cut">
+<span class="sig-name descname"><span class="pre">get_data_after_dsc_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">read_bad_times</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/statistical_checks.html#StatisticalChecks.get_data_after_dsc_cut"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks.get_data_after_dsc_cut" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the data (such as times, omegas, sigmas) after the delta sigma cut.
+Parameters
+==========
+read_bad_times: boolean</p>
+<blockquote>
+<div><p>Boolean indicating whether the bad GPS times (after delta-sigma cut) should be read in from file (i.e. True) or computed on the fly here (i.e. False)</p>
+</div></blockquote>
+<dl class="simple">
+<dt>segs: float</dt><dd><p>Parameter used to perform the delta-sigma cut on the fly</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks.get_data_before_dsc_cut">
+<span class="sig-name descname"><span class="pre">get_data_before_dsc_cut</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/statistical_checks.html#StatisticalChecks.get_data_before_dsc_cut"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks.get_data_before_dsc_cut" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the data (such as times, omegas, sigmas) before the delta sigma cut.
+Parameters
+==========</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks.get_ifft_integrand">
+<span class="sig-name descname"><span class="pre">get_ifft_integrand</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/statistical_checks.html#StatisticalChecks.get_ifft_integrand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks.get_ifft_integrand" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the inverse Fourier transform of the FFT point estimate integrand from file.
+Parameters
+==========</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks.get_pt_estimate_integrand">
+<span class="sig-name descname"><span class="pre">get_pt_estimate_integrand</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/statistical_checks.html#StatisticalChecks.get_pt_estimate_integrand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks.get_pt_estimate_integrand" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the point estimate integrand from file.
+Parameters
+==========</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks.get_running_pt_estimate">
+<span class="sig-name descname"><span class="pre">get_running_pt_estimate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/statistical_checks.html#StatisticalChecks.get_running_pt_estimate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks.get_running_pt_estimate" title="Permalink to this definition"></a></dt>
+<dd><p>Get the running point estimate from file.
+Parameters
+==========</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks.get_sensitivity_integrand">
+<span class="sig-name descname"><span class="pre">get_sensitivity_integrand</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/statistical_checks.html#StatisticalChecks.get_sensitivity_integrand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks.get_sensitivity_integrand" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the sensitivity integrand from file.
+Parameters
+==========</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks.plot_IFFT_point_estimate_integrand">
+<span class="sig-name descname"><span class="pre">plot_IFFT_point_estimate_integrand</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/statistical_checks.html#StatisticalChecks.plot_IFFT_point_estimate_integrand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks.plot_IFFT_point_estimate_integrand" title="Permalink to this definition"></a></dt>
+<dd><p>Generates and saves a plot of the IFFT of the point estimate integrand.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks.plot_KS_test">
+<span class="sig-name descname"><span class="pre">plot_KS_test</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/statistical_checks.html#StatisticalChecks.plot_KS_test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks.plot_KS_test" title="Permalink to this definition"></a></dt>
+<dd><p>Generates and saves a panel plot with results of the Kolmogorov-Smirnov test for Gaussianity. The cumulative distribution of the data is compared to the one of Gaussian data.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks.plot_cumulative_point_estimate">
+<span class="sig-name descname"><span class="pre">plot_cumulative_point_estimate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/statistical_checks.html#StatisticalChecks.plot_cumulative_point_estimate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks.plot_cumulative_point_estimate" title="Permalink to this definition"></a></dt>
+<dd><p>Generates and saves a plot of the cumulative point estimate.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks.plot_cumulative_sensitivity_integrand">
+<span class="sig-name descname"><span class="pre">plot_cumulative_sensitivity_integrand</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/statistical_checks.html#StatisticalChecks.plot_cumulative_sensitivity_integrand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks.plot_cumulative_sensitivity_integrand" title="Permalink to this definition"></a></dt>
+<dd><p>Generates and saves a plot of the cumulative sensitivity integrand.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks.plot_hist_omega_pre_post_dsc">
+<span class="sig-name descname"><span class="pre">plot_hist_omega_pre_post_dsc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/statistical_checks.html#StatisticalChecks.plot_hist_omega_pre_post_dsc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks.plot_hist_omega_pre_post_dsc" title="Permalink to this definition"></a></dt>
+<dd><p>Generates and saves a histogram of the (Ω-&lt;Ω&gt;)/σ distribution. The plot shows the data before and after the delta-sigma cut was applied.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks.plot_hist_scatter_omega_sigma">
+<span class="sig-name descname"><span class="pre">plot_hist_scatter_omega_sigma</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/statistical_checks.html#StatisticalChecks.plot_hist_scatter_omega_sigma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks.plot_hist_scatter_omega_sigma" title="Permalink to this definition"></a></dt>
+<dd><p>Generates and saves a panel plot with a scatter plot of σ vs (Ω-&lt;Ω&gt;)/σ, as well as histograms of the σ and (Ω-&lt;Ω&gt;)/σ distributions. All plots show the data after the delta-sigma cut.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks.plot_hist_sigma_dsc">
+<span class="sig-name descname"><span class="pre">plot_hist_sigma_dsc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/statistical_checks.html#StatisticalChecks.plot_hist_sigma_dsc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks.plot_hist_sigma_dsc" title="Permalink to this definition"></a></dt>
+<dd><p>Generates and saves a panel plot with a histogram of Abs[δσ]/σ, as well as a histogram of σ. Both plots show the data before and after the delta-sigma cut was applied.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks.plot_hist_sigma_squared">
+<span class="sig-name descname"><span class="pre">plot_hist_sigma_squared</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/statistical_checks.html#StatisticalChecks.plot_hist_sigma_squared"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks.plot_hist_sigma_squared" title="Permalink to this definition"></a></dt>
+<dd><p>Generates and saves a histogram of σ^2/&lt;σ^2&gt;. The plot shows data after the delta-sigma cut.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks.plot_imaginary_point_estimate_integrand">
+<span class="sig-name descname"><span class="pre">plot_imaginary_point_estimate_integrand</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/statistical_checks.html#StatisticalChecks.plot_imaginary_point_estimate_integrand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks.plot_imaginary_point_estimate_integrand" title="Permalink to this definition"></a></dt>
+<dd><p>Generates and saves a plot of the imaginary part of the point estimate integrand.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks.plot_omega_sigma_in_time">
+<span class="sig-name descname"><span class="pre">plot_omega_sigma_in_time</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/statistical_checks.html#StatisticalChecks.plot_omega_sigma_in_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks.plot_omega_sigma_in_time" title="Permalink to this definition"></a></dt>
+<dd><p>Generates and saves a panel plot with a scatter plot of σ vs (Ω-&lt;Ω&gt;)/σ, as well as the evolution of Ω, σ, and (Ω-&lt;Ω&gt;)/σ as a function of the days since the start of the run. All plots show the data before and after the delta-sigma cut was applied.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks.plot_omega_time_fit">
+<span class="sig-name descname"><span class="pre">plot_omega_time_fit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/statistical_checks.html#StatisticalChecks.plot_omega_time_fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks.plot_omega_time_fit" title="Permalink to this definition"></a></dt>
+<dd><p>Generates and saves a plot of Ω as a function of time and fits the data to perform a linear trend analysis. The plot shows data after the delta-sigma cut.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks.plot_point_estimate_integrand">
+<span class="sig-name descname"><span class="pre">plot_point_estimate_integrand</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/statistical_checks.html#StatisticalChecks.plot_point_estimate_integrand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks.plot_point_estimate_integrand" title="Permalink to this definition"></a></dt>
+<dd><p>Generates and saves a plot of the point estimate integrand.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks.plot_real_point_estimate_integrand">
+<span class="sig-name descname"><span class="pre">plot_real_point_estimate_integrand</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/statistical_checks.html#StatisticalChecks.plot_real_point_estimate_integrand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks.plot_real_point_estimate_integrand" title="Permalink to this definition"></a></dt>
+<dd><p>Generates and saves a plot of the real part of the point estimate integrand.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks.plot_running_point_estimate">
+<span class="sig-name descname"><span class="pre">plot_running_point_estimate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/statistical_checks.html#StatisticalChecks.plot_running_point_estimate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks.plot_running_point_estimate" title="Permalink to this definition"></a></dt>
+<dd><p>Generates and saves a plot of the running point estimate.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks.plot_running_sigma">
+<span class="sig-name descname"><span class="pre">plot_running_sigma</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/statistical_checks.html#StatisticalChecks.plot_running_sigma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks.plot_running_sigma" title="Permalink to this definition"></a></dt>
+<dd><p>Generates and saves a plot of the running sigma.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks.plot_scatter_omega_sigma_dsc">
+<span class="sig-name descname"><span class="pre">plot_scatter_omega_sigma_dsc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/statistical_checks.html#StatisticalChecks.plot_scatter_omega_sigma_dsc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks.plot_scatter_omega_sigma_dsc" title="Permalink to this definition"></a></dt>
+<dd><p>Generates and saves a panel plot with scatter plots of Abs[δσ]/σ vs (Ω-&lt;Ω&gt;)/σ, as well as σ vs (Ω-&lt;Ω&gt;)/σ. All plots show the data before and after the delta-sigma cut was applied.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks.plot_scatter_sigma_dsc">
+<span class="sig-name descname"><span class="pre">plot_scatter_sigma_dsc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/statistical_checks.html#StatisticalChecks.plot_scatter_sigma_dsc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks.plot_scatter_sigma_dsc" title="Permalink to this definition"></a></dt>
+<dd><p>Generates and saves a scatter plot of Abs[δσ]/σ vs σ. The plot shows the data before and after the delta-sigma cut was applied.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.statistical_checks.StatisticalChecks.plot_sensitivity_integrand">
+<span class="sig-name descname"><span class="pre">plot_sensitivity_integrand</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/statistical_checks.html#StatisticalChecks.plot_sensitivity_integrand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.statistical_checks.StatisticalChecks.plot_sensitivity_integrand" title="Permalink to this definition"></a></dt>
+<dd><p>Generates and saves a plot of the sensitivity integrand.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"></dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pygwb.statistical_checks.html" class="btn btn-neutral float-left" title="pygwb.statistical_checks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pygwb.simulator.html" class="btn btn-neutral float-right" title="pygwb.simulator" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
