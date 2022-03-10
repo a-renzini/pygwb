@@ -1,37 +1,20 @@
-pygwb
-==============================================
+.. pygwb documentation master file, created by
+   sphinx-quickstart on Thu Mar 10 10:11:19 2022.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
 
-.. currentmodule:: pygwb
-
-.. automodule:: pygwb
-    :members:
-
-.. toctree::
-
-    installation
-    contributing
-
-API:
-----
-
-.. autosummary::
-   :toctree: api
-   :template: custom-module-template.rst
-   :caption: API:
-   :recursive:
-
-   constants
-   cross_correlation
-   pe
-   post_processing
-   util
+Welcome to pygwb's documentation!
+=================================
 
 .. toctree::
-   :maxdepth: 1
-   :caption: Examples:
+   :maxdepth: 2
+   :caption: Contents:
 
-   analyze_colored_noise_and_signal
-   analyze_O2_open_data
-   density_estimation
-   run_PE_on_O1_O2
-   simulate_and_analyze_white_noise_and_signal
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
