@@ -1,20 +1,46 @@
-.. pygwb documentation master file, created by
-   sphinx-quickstart on Thu Mar 10 10:11:19 2022.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+pygwb
+==============================================
 
-Welcome to pygwb's documentation!
-=================================
+.. currentmodule:: pygwb
+
+.. automodule:: pygwb
+    :members:
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
 
+    installation
+    contributing
 
+API:
+----
 
-Indices and tables
-==================
+.. autosummary::
+   :toctree: api
+   :template: custom-module-template.rst
+   :caption: API:
+   :recursive:
+   
+   detector
+   baseline
+   network
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   pre-processing
+   spectral
+   postprocessing
+   pe
+   statistical_checks
+
+   simulator
+
+   delta_sigma_cut
+   notch
+   
+   constants
+   orfs   
+   parameters
+   util
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Examples:
+
