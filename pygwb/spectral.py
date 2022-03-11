@@ -477,3 +477,9 @@ def running_mean(data, coarsening_factor=1, axis=-1):
         np.swapaxes(cumsum[coarsening_factor:] - cumsum[:-coarsening_factor], axis, -1)
         / coarsening_factor
     )
+
+
+def reweight_spectral_object(spec, freqs, new_alpha, new_fref, old_alpha=0, old_fref=1):
+    weights_old = (freqs / old_fref)**old_alpha
+    weights_new = (freqs / new_fref)**new_alpha
+    return (spec.T * (weights_new / weights_old)).T
