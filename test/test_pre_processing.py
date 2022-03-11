@@ -106,3 +106,6 @@ class Test(unittest.TestCase):
             pre_processing.set_start_time(t0, tf, 2, segment_duration, True),
             1238184444.0,
         )
+
+if __name__ == "__main__":
+    unittest.main()

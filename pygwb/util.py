@@ -100,7 +100,7 @@ def window_factors(N):
 
 
 def calc_Y_sigma_from_Yf_varf(
-    Y_f, var_f, freqs=None, alpha=0, fref=1, weight_spectrum=True
+    Y_f, var_f, freqs=None, alpha=0, fref=25, weight_spectrum=True
 ):
     if weight_spectrum and freqs is None:
         raise ValueError(
@@ -112,10 +112,7 @@ def calc_Y_sigma_from_Yf_varf(
         weights = np.ones(Y_f.shape)
 
     var = 1 / np.sum(var_f ** (-1) * weights**2)
-
-    # Y = np.sum(Y_f * var_f**(-1)) / np.sum( var_f**(-1) )
     Y = np.nansum(Y_f * weights * (var / var_f))
-
     sigma = np.sqrt(var)
 
     return Y, sigma
@@ -127,7 +124,7 @@ def calc_rho1(N):
     return rho1
 
 
-def calc_bias(segmentDuration, deltaF, deltaT, N_avg_segs=1):
+def calc_bias(segmentDuration, deltaF, deltaT, N_avg_segs=2):
     N = int(segmentDuration / deltaT)
     rho1 = calc_rho1(N)
     Nsegs = 2 * segmentDuration * deltaF - 1
