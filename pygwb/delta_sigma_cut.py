@@ -311,7 +311,7 @@ def run_dsc(
     ntimes = len(times)
     df = psd1_naive.df.value
     dt = psd1_naive.df.value ** (-1)
-    bf_ns = calc_bias(segment_duration, df, dt)  # Naive estimate
+    bf_ns = calc_bias(segment_duration, df, dt, N_avg_segs=1)  # Naive estimate
     bf_ss = calc_bias(segment_duration, df, dt, N_avg_segs=2)  # Sliding estimate
     freqs = np.array(psd1_naive.frequencies)
     overall_cut = np.zeros((ntimes, 1), dtype="bool")
