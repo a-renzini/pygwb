@@ -1,15 +1,19 @@
-pygwb
+pygwb documentation
 ==============================================
-
-.. currentmodule:: pygwb
 
 .. automodule:: pygwb
     :members:
 
 .. toctree::
+   :maxdepth: 1
+   :caption: Contents:
 
-    installation
-    contributing
+   installation
+   contributing
+   tutorials
+
+
+.. currentmodule:: pygwb
 
 API:
 ----
@@ -24,7 +28,6 @@ API:
    baseline
    network
 
-   pre-processing
    spectral
    postprocessing
    pe
@@ -42,5 +45,7 @@ API:
 
 .. toctree::
    :maxdepth: 1
-   :caption: Examples:
+   :caption: Tutorials:
 
+   tutorials/generate_stochastic_background_in_network
+   tutorials/generate_stochastic_data_recovery_test

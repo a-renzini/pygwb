@@ -22,6 +22,7 @@ import sys
 import pygwb
 
 sys.path.insert(0, os.path.abspath("../"))
+sys.path.insert(0, os.path.abspath("../tutorials/"))
 
 # -- General configuration ------------------------------------------------
 
@@ -50,7 +51,7 @@ templates_path = ["templates"]
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
-source_suffix = [".txt", ".rst", ".ipynb"]
+source_suffix = [".txt", ".rst" ]
 
 # The master toctree document.
 master_doc = "index"
@@ -82,7 +83,7 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "requirements.txt"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "requirements.txt",'**.ipynb_checkpoints' ]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
@@ -188,5 +189,12 @@ texinfo_documents = [
 
 numpydoc_show_class_members = False
 
+
+# List of arguments to be passed to the kernel that executes the notebooks:
+nbsphinx_execute_arguments = [
+    "--InlineBackend.figure_formats={'svg', 'pdf'}",
+    "--InlineBackend.rc={'figure.dpi': 96}",
+]
+
 # nbsphinx options
-nbsphinx_execute = "never"
+#nbsphinx_execute = "always"
