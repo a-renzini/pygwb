@@ -112,7 +112,7 @@ documentation:
     - apt-get -yqq update
     - apt-get -yqq install pandoc
     - pip install --upgrade pip setuptools
-    - pip install sphinx numpydoc nbsphinx sphinx_rtd_theme sphinx-tabs autodoc
+    - pip install sphinx numpydoc nbsphinx sphinx_rtd_theme sphinx-tabs autodoc ipython-genutils
     - pip install .
 
   script:
