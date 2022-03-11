@@ -1,10 +1,10 @@
 import unittest
 
 import numpy as np
+from gwpy.frequencyseries import FrequencySeries
+from gwpy.spectrogram import Spectrogram
 
 from pygwb.spectral import coarse_grain, coarse_grain_exact, reweight_spectral_object
-from gwpy.spectrogram import Spectrogram
-from gwpy.frequencyseries import FrequencySeries
 
 
 class TestReweightFunction(unittest.TestCase):
