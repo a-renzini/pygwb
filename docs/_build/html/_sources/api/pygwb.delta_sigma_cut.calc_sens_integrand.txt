@@ -1,6 +1,0 @@
-pygwb.delta\_sigma\_cut.calc\_sens\_integrand
-=============================================
-
-.. currentmodule:: pygwb.delta_sigma_cut
-
-.. autofunction:: calc_sens_integrand

@@ -1,6 +1,0 @@
-pygwb.spectral.fftgram
-======================
-
-.. currentmodule:: pygwb.spectral
-
-.. autofunction:: fftgram

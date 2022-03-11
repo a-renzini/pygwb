@@ -1,6 +1,0 @@
-pygwb.orfs.calc\_orf
-====================
-
-.. currentmodule:: pygwb.orfs
-
-.. autofunction:: calc_orf

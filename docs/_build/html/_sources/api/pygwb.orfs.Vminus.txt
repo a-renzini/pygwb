@@ -1,6 +1,0 @@
-pygwb.orfs.Vminus
-=================
-
-.. currentmodule:: pygwb.orfs
-
-.. autofunction:: Vminus

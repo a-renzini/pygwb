@@ -1,6 +1,0 @@
-pygwb.util.slice\_time\_series
-==============================
-
-.. currentmodule:: pygwb.util
-
-.. autofunction:: slice_time_series

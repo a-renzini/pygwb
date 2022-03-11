@@ -1,6 +1,0 @@
-pygwb.delta\_sigma\_cut.dsc\_cut
-================================
-
-.. currentmodule:: pygwb.delta_sigma_cut
-
-.. autofunction:: dsc_cut

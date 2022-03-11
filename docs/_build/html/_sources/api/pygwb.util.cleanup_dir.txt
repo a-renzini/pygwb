@@ -1,6 +1,0 @@
-pygwb.util.cleanup\_dir
-=======================
-
-.. currentmodule:: pygwb.util
-
-.. autofunction:: cleanup_dir

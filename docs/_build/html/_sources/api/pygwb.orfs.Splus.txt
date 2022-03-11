@@ -1,6 +1,0 @@
-pygwb.orfs.Splus
-================
-
-.. currentmodule:: pygwb.orfs
-
-.. autofunction:: Splus

@@ -1,6 +1,0 @@
-pygwb.util.make\_dir
-====================
-
-.. currentmodule:: pygwb.util
-
-.. autofunction:: make_dir

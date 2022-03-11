@@ -1,6 +1,0 @@
-pygwb.notch.pulsar\_injections
-==============================
-
-.. currentmodule:: pygwb.notch
-
-.. autofunction:: pulsar_injections

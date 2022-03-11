@@ -1,6 +1,0 @@
-pygwb.notch.power\_lines
-========================
-
-.. currentmodule:: pygwb.notch
-
-.. autofunction:: power_lines

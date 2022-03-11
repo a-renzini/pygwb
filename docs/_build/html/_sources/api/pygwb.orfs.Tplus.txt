@@ -1,6 +1,0 @@
-pygwb.orfs.Tplus
-================
-
-.. currentmodule:: pygwb.orfs
-
-.. autofunction:: Tplus

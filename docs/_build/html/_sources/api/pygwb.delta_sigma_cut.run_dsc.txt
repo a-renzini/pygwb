@@ -1,6 +1,0 @@
-pygwb.delta\_sigma\_cut.run\_dsc
-================================
-
-.. currentmodule:: pygwb.delta_sigma_cut
-
-.. autofunction:: run_dsc

@@ -1,6 +1,0 @@
-pygwb.util.read\_jobfiles
-=========================
-
-.. currentmodule:: pygwb.util
-
-.. autofunction:: read_jobfiles
