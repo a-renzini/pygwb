@@ -22,7 +22,6 @@ import sys
 import pygwb
 
 sys.path.insert(0, os.path.abspath("../"))
-sys.path.insert(0, os.path.abspath("../tutorials/"))
 
 # -- General configuration ------------------------------------------------
 

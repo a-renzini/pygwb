@@ -47,5 +47,5 @@ API:
    :maxdepth: 1
    :caption: Tutorials:
 
-   tutorials/generate_stochastic_background_in_network
-   tutorials/generate_stochastic_data_recovery_test
+   generate_stochastic_background_in_network
+   generate_stochastic_data_recovery_test
