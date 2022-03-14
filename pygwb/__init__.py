@@ -1,4 +1,4 @@
-"""Stochastic lite"""
+"""pygwb"""
 
 import os
 

@@ -1,15 +1,19 @@
-pygwb
+pygwb documentation
 ==============================================
-
-.. currentmodule:: pygwb
 
 .. automodule:: pygwb
     :members:
 
 .. toctree::
+   :maxdepth: 1
+   :caption: Contents:
 
-    installation
-    contributing
+   installation
+   contributing
+   tutorials
+
+
+.. currentmodule:: pygwb
 
 API:
 ----
@@ -19,19 +23,30 @@ API:
    :template: custom-module-template.rst
    :caption: API:
    :recursive:
+   
+   detector
+   baseline
+   network
 
-   constants
-   cross_correlation
+   spectral
+   postprocessing
    pe
-   post_processing
+   statistical_checks
+
+   simulator
+
+   delta_sigma_cut
+   notch
+   
+   constants
+   orfs   
+   parameters
    util
 
 .. toctree::
    :maxdepth: 1
-   :caption: Examples:
+   :caption: Tutorials:
 
-   analyze_colored_noise_and_signal
-   analyze_O2_open_data
-   density_estimation
-   run_PE_on_O1_O2
-   simulate_and_analyze_white_noise_and_signal
+   generate_stochastic_background_in_network
+   generate_stochastic_data_recovery_test
+   run_pe

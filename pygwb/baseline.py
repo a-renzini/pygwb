@@ -441,7 +441,6 @@ class Baseline(object):
                 overlap_factor=self.overlap_factor,
                 window_fftgram=self.window_fftgram,
                 overlap_factor_welch_psd=self.overlap_factor_welch_psd,
-                N_average_segments_welch_psd=self.N_average_segments_welch_psd,
             )
         except AttributeError:
             raise AssertionError(
@@ -453,7 +452,6 @@ class Baseline(object):
                 overlap_factor=self.overlap_factor,
                 window_fftgram=self.window_fftgram,
                 overlap_factor_welch_psd=self.overlap_factor_welch_psd,
-                N_average_segments_welch_psd=self.N_average_segments_welch_psd,
             )
         except AttributeError:
             raise AssertionError(
