@@ -49,3 +49,4 @@ API:
 
    generate_stochastic_background_in_network
    generate_stochastic_data_recovery_test
+   run_pe
