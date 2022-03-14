@@ -133,20 +133,23 @@ def before_after_average(psd_gram, segment_duration, N_avg_segs):
     -------
     avg_psd: averaged psd gram
     """
+    # TODO: Raise exception when N_avg_segs is not >=2 and even
     stride = psd_gram.dx.value
     overlap = segment_duration - stride
-    strides_per_psd = int(np.ceil((N_avg_segs / 2) * segment_duration / stride))
+    # TODO: Check whether the below conditions work when (segment_duration / stride) is not an integer
     strides_per_segment = int(np.ceil(segment_duration / stride))
-    time_offset = strides_per_psd * overlap * psd_gram.times.unit
-    after_segment_offset = strides_per_psd + strides_per_segment
-
+    strides_per_psd = int(N_avg_segs / 2) * strides_per_segment
+    no_of_strides_oneside = strides_per_psd + strides_per_segment
+    
     avg_psd = psd_gram.copy()
-    # TODO: Check whether this works for PSD duration < segment duration
     # TODO: Check whether this works for N_avg_seg >2
+    # TODO: Resolve the issue with 3 segments case
     avg_psd = (
-        avg_psd[:-after_segment_offset] + avg_psd[after_segment_offset:]
+        avg_psd[:-no_of_strides_oneside] + avg_psd[no_of_strides_oneside:]
     ) / N_avg_segs
-    avg_psd.times = psd_gram.times[:-after_segment_offset] + time_offset
+    # properly set the start times of the averaged PSDs
+    time_offset = (N_avg_segs/2) * segment_duration * psd_gram.times.unit
+    avg_psd.times = psd_gram.times[:-no_of_strides_oneside] + time_offset
 
     return avg_psd
 
