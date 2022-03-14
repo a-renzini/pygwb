@@ -28,7 +28,6 @@ stages:
     - python -c "import pygwb.argument_parser"
     - python -c "import pygwb.baseline"
     - python -c "import pygwb.constants"
-    - python -c "import pygwb.cross_correlation"
     - python -c "import pygwb.delta_sigma_cut"
     - python -c "import pygwb.detector"
     - python -c "import pygwb.network"
@@ -113,7 +112,7 @@ documentation:
     - apt-get -yqq update
     - apt-get -yqq install pandoc
     - pip install --upgrade pip setuptools
-    - pip install sphinx numpydoc nbsphinx sphinx_rtd_theme sphinx-tabs autodoc
+    - pip install sphinx numpydoc nbsphinx sphinx_rtd_theme sphinx-tabs autodoc ipython-genutils
     - pip install .
 
   script:

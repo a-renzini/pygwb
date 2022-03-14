@@ -4,33 +4,38 @@ from gwpy import signal, timeseries
 
 
 def set_start_time(
-    job_start_GPS, job_end_GPS, buffer_secs, segment_duration, do_sidereal=0
+    job_start_GPS: int,
+    job_end_GPS: int,
+    buffer_secs: int,
+    segment_duration: int,
+    do_sidereal: bool = False,
 ):
-    """Function to identify segment start times
+    """
+    Function to identify segment start times
     either with or without sidereal option
 
     Parameters
     ==========
-    job_start_GPS: int_like
+    job_start_GPS: int
         Integer indicating the start time (in GPS)
         of the data
 
-    job_end_GPS: int_like
+    job_end_GPS: int
         Integer indicating the end time (in GPS)
         of the data
 
-    buffer_secs: int_like
+    buffer_secs: int
         Number of cropped seconds
 
-    segment_duration: int_like
+    segment_duration: int
         Duration of each segment
 
-    do_sidereal: binary_like
-        --
+    do_sidereal: bool
+        ---
 
     Returns
     =======
-    centered_start_time: int_like
+    centered_start_time: int
         Integer with the initial time of the segment to be pre-processed
     """
     if not do_sidereal:
@@ -52,26 +57,27 @@ def set_start_time(
     return centered_start_time
 
 
-def read_data(IFO, data_type, channel, t0, tf):
-    """Function doing the reading of the data to be used in the
+def read_data(IFO: str, data_type: str, channel: str, t0: int, tf: int):
+    """
+    Function doing the reading of the data to be used in the
     stochastic pipeline
 
     Parameters
     ==========
-    IFO: string_like
+    IFO: string
         Interferometer from which to retrieve the data
 
-    data_type: string_like
+    data_type: string
         String indicating the type of data to be read,
         either 'public' or 'private'
 
-    channel: string_like
+    channel: string
         Name of the channel (e.g.: "L1:GWOSC-4KHZ_R1_STRAIN")
 
-    t0: int_like
+    t0: int
         GPS time of the start of the data taking
 
-    tf: int_like
+    tf: int
         GPS time of the end of the data taking
 
     Returns
@@ -83,6 +89,7 @@ def read_data(IFO, data_type, channel, t0, tf):
         data = timeseries.TimeSeries.fetch_open_data(IFO, t0, tf, sample_rate=16384)
     elif data_type == "private":
         data = timeseries.TimeSeries.get(channel, t0, tf)
+        data.channel = channel
     elif data_type == "injection":
         pass
     else:
@@ -93,37 +100,29 @@ def read_data(IFO, data_type, channel, t0, tf):
 
 
 def apply_high_pass_filter(
-    timeseries, sample_rate, cutoff_frequency, number_cropped_seconds=2
+    timeseries: timeseries.TimeSeries,
+    sample_rate: int,
+    cutoff_frequency: float,
+    number_cropped_seconds: int = 2,
 ):
-    """Function to apply a high pass filter to a timeseries
+    """
+    Function to apply a high pass filter to a timeseries
 
     Parameters
     ==========
     timeseries: gwpy_timeseries
         Timeseries to which to apply the high pass filter
 
-    sample_rate: int_like
+    sample_rate: int
         Sampling rate of the timeseries
 
-    cutoff_frequency: int_like
+    cutoff_frequency: float
         Frequency (in Hz) from which to start applying the
         high pass filter
 
-    number_cropped_seconds: int_like
+    number_cropped_seconds: int
         Number of seconds to remove at the beginning and end
         of the high-passed data
-
-    fstop: float
-        Stop-band edge frequency, defaults to frequency * 1.5
-
-    gpass: float_like
-        The maximum loss in the passband (dB)
-
-    gstop: float_like
-        The minimum attenuation in the stopband (dB)
-
-    type: str_like
-        The filter type, either 'iir' or 'fir'
 
     Returns
     =======
@@ -139,62 +138,49 @@ def apply_high_pass_filter(
 
 
 def resample_filter(
-    time_series_data,
-    new_sample_rate,
-    cutoff_frequency,
-    number_cropped_seconds=2,
-    window_downsampling="hamming",
-    ftype="fir",
+    time_series_data: timeseries.TimeSeries,
+    new_sample_rate: int,
+    cutoff_frequency: float,
+    number_cropped_seconds: int = 2,
+    window_downsampling: str = "hamming",
+    ftype: str = "fir",
 ):
-    """Function doing part of the pre-processing
+    """
+    Function doing part of the pre-processing
     (resampling,filtering and fftgram computation)
     of the data to be used in the stochastic pipeline
 
     Parameters
     ==========
 
-    time_series_data: gwpy_timeseries_like
+    time_series_data: gwpy_timeseries
         timeseries data to be analysed in the pipeline
 
-    new_sample_rate: int_like
+    new_sample_rate: int
         Sampling rate of the downsampled-timeseries
 
-    cutoff_frequency: int_like
+    cutoff_frequency: float
         Frequency (in Hz) from which to start applying the
         high pass filter
 
-    fftlength: int_length
-        Length (in s) of each segment in which
-        to compute an FFT
-
-    overlap: int_length
-        Length (in s) of the overlap between segments
-
-    number_cropped_seconds: int_like
+    number_cropped_seconds: int
         Number of seconds to remove at the beginning and end
         of the high-passed data
 
-    zeropad: bool
-        Whether to zero pad the data equal to the length of FFT or not
-        (default False)
-
-    window_downsampling: string_like
+    window_downsampling: string
         Type of window used to downsample
 
-    ftype: string_like
+    ftype: string
         Type of filter to use in the downsampling
 
-    window_fftgram: string_like
-        Type of window to compute the Fast Fourier
-        transform
 
     Returns
     =======
     filtered: gwpy_timeseries
-        Timseries containing the filtered and high passed data
+        Timeseries containing the filtered and high passed data
     """
     resampled = time_series_data.resample(new_sample_rate, window_downsampling, ftype)
-    sample_rate = time_series_data.sample_rate.value
+    sample_rate = resampled.sample_rate.value
     filtered = apply_high_pass_filter(
         timeseries=resampled,
         sample_rate=sample_rate,
@@ -206,78 +192,65 @@ def resample_filter(
 
 
 def preprocessing_data_channel_name(
-    IFO,
-    t0,
-    tf,
-    data_type,
-    channel,
-    new_sample_rate,
-    cutoff_frequency,
-    segment_duration,
-    number_cropped_seconds=2,
-    window_downsampling="hamming",
-    ftype="fir",
+    IFO: str,
+    t0: int,
+    tf: int,
+    data_type: str,
+    channel: str,
+    new_sample_rate: int,
+    cutoff_frequency: float,
+    segment_duration: int,
+    number_cropped_seconds: int = 2,
+    window_downsampling: str = "hamming",
+    ftype: str = "fir",
 ):
-    """Function doing the pre-processing of the data to be used in the
+    """
+    Function doing the pre-processing of the data to be used in the
     stochastic pipeline
 
     Parameters
     ==========
-    IFO: string_like
+    IFO: string
         Interferometer from which to retrieve the data
 
-    t0: int_like
+    t0: int
         GPS time of the start of the data taking
 
-    tf: int_like
+    tf: int
         GPS time of the end of the data taking
 
-    data_type: string_like
+    data_type: string
         String indicating the type of data to be read,
         either 'public' or 'private'
 
-    channel: string_like
+    channel: string
         Name of the channel (e.g.: "L1:GWOSC-4KHZ_R1_STRAIN")
 
-    new_sample_rate:int_like
+    new_sample_rate:int
         Sampling rate of the downsampled-timeseries
 
-    cutoff_frequency: int_like
+    cutoff_frequency: float
         Frequency (in Hz) from which to start applying the
         high pass filter
 
-    fftlength: int_length
-        Length (in s) of each segment in which
-        to compute an FFT
-
-    segment_duration: int_like
+    segment_duration: int
         Duration of each segment (argument of set_start_time)
 
-    overlap: int_length
-        Length (in s) of the overlap between segments
-
-    number_cropped_seconds: int_like
+    number_cropped_seconds: int
         Number of seconds to remove at the beginning and end
         of the high-passed data
 
-    zeropad: bool
-        Whether to zero pad the data equal to the length of FFT or not
-        (default False)
-
-    window_downsampling: string_like
+    window_downsampling: string
         Type of window used to downsample
 
-    ftype: string_like
+    ftype: string
         Type of filter to use in the downsampling
 
-    window_fftgram: string_like
-        Type of window to compute the Fast Fourier
-        transform
 
     Returns
     =======
     filtered: gwpy_timeseries
-        Timseries containing the filtered and high passed data
+        Timeseries containing the filtered and high passed data
     """
     data_start_time = set_start_time(
         job_start_GPS=t0,
@@ -305,77 +278,63 @@ def preprocessing_data_channel_name(
 
 
 def preprocessing_data_timeseries_array(
-    t0,
-    tf,
-    IFO,
-    array,
-    new_sample_rate,
-    cutoff_frequency,
-    segment_duration,
-    sample_rate=4096,
-    number_cropped_seconds=2,
-    window_downsampling="hamming",
-    ftype="fir",
+    t0: int,
+    tf: int,
+    IFO: str,
+    array: np.ndarray,
+    new_sample_rate: int,
+    cutoff_frequency: float,
+    segment_duration: int,
+    sample_rate: int = 4096,
+    number_cropped_seconds: int = 2,
+    window_downsampling: str = "hamming",
+    ftype: str = "fir",
 ):
-    """Function doing the pre-processing of a time-series array to be used in the
+    """
+    Function doing the pre-processing of a time-series array to be used in the
     stochastic pipeline
 
     Parameters
     ==========
-    t0: int_like
+    t0: int
         GPS time of the start of the data taking
 
-    tf: int_like
+    tf: int
         GPS time of the end of the data taking
 
-    IFO: string_like
+    IFO: string
         Interferometer from which to retrieve the data
 
-    array: array_like
+    array: array
         Array containing a timeseries
 
-    new_sample_rate:int_like
+    new_sample_rate:int
         Sampling rate of the downsampled-timeseries
 
-    cutoff_frequency: int_like
+    cutoff_frequency: float
         Frequency (in Hz) from which to start applying the
         high pass filter
 
-    fftlength: int_length
-        Length (in s) of each segment in which
-        to compute an FFT
-
-    segment_duration: int_like
+    segment_duration: int
         Duration of each segment (argument of set_start_time)
 
-    zeropad: bool
-        Whether to zero pad the data equal to the length of FFT or not
-        (default False)
-
-    overlap: int_length
-        Length (in s) of the overlap between segments
-
-    sample_rate: int_like
+    sample_rate: int
         Sampling rate of the original timeseries
 
-    number_cropped_seconds: int_like
+    number_cropped_seconds: int
         Number of seconds to remove at the beginning and end
         of the high-passed data
 
-    window_downsampling: string_like
+    window_downsampling: string
         Type of window used to downsample
 
-    ftype: string_like
+    ftype: string
         Type of filter to use in the downsampling
-
-    window_fftgram: string_like
-        Type of window to compute the Fast Fourier
-        transform
 
     Returns
     =======
     filtered: gwpy_timeseries
-        Timseries containing the filtered and high passed data
+        Timeseries containing the filtered and high passed data
     """
     data_start_time = set_start_time(
         job_start_GPS=t0,
@@ -400,55 +359,43 @@ def preprocessing_data_timeseries_array(
 
 
 def preprocessing_data_gwpy_timeseries(
-    IFO,
-    gwpy_timeseries,
-    new_sample_rate,
-    cutoff_frequency,
-    number_cropped_seconds,
-    window_downsampling="hamming",
-    ftype="fir",
+    IFO: str,
+    gwpy_timeseries: timeseries.TimeSeries,
+    new_sample_rate: int,
+    cutoff_frequency: float,
+    number_cropped_seconds: int = 2,
+    window_downsampling: str = "hamming",
+    ftype: str = "fir",
 ):
-    """Function doing the pre-processing of a gwpy timeseries to be used in the
+    """
+    Function doing the pre-processing of a gwpy timeseries to be used in the
     stochastic pipeline
 
     Parameters
     ==========
 
-    gwpy_timeseries: gwpy timeseries
+    IFO: string
+        Interferometer from which to retrieve the data
+
+    gwpy_timeseries: gwpy_timeseries
         Timeseries from gwpy
 
-    new_sample_rate:int_like
+    new_sample_rate:int
         Sampling rate of the downsampled-timeseries
 
-    cutoff_frequency: int_like
+    cutoff_frequency: float
         Frequency (in Hz) from which to start applying the
         high pass filter
 
-    number_cropped_seconds: int_like
+    number_cropped_seconds: int
         Number of seconds to remove at the beginning and end
         of the high-passed data
 
-    fftlength: int_length
-        Length (in s) of each segment in which
-        to compute an FFT
-
-    number_cropped_seconds: int_like
-        Number of seconds to remove at the beginning and end
-        of the high-passed data
-
-    zeropad: bool
-        Whether to zero pad the data equal to the length of FFT or not
-        (default False)
-
-    overlap: int_length
-        Length (in s) of the overlap between segments
-
-    window_fftgram: string_like
-        Type of window to compute the Fast Fourier
-        transform
-
-    window_downsampling: string_like
+    window_downsampling: string
         Type of window used to downsample
+
+    ftype: string
+        Type of filter to use in the downsampling
 
     Returns
     =======

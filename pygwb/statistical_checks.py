@@ -551,7 +551,7 @@ class StatisticalChecks(object):
         axs[1].legend()
         axs[1].set_yscale("log")
         axs[1].set_xlim([0, maxx1])
-        axs[1].set_ylim([1, 10 ** 4])
+        axs[1].set_ylim([1, 10**4])
 
         plt.savefig(f"{self.plot_dir}HistogramSigmaDSC.png")
 
@@ -799,7 +799,7 @@ class StatisticalChecks(object):
 
         muR = np.mean(self.sliding_deviate_cut)
         sigmaR = bias_factor
-        theory = np.exp(-((bins_count - muR + binsize / 2) ** 2) / (2 * sigmaR ** 2))
+        theory = np.exp(-((bins_count - muR + binsize / 2) ** 2) / (2 * sigmaR**2))
         tmax = 10 ** np.log10(np.max(count))
 
         nbins = 200
@@ -829,7 +829,7 @@ class StatisticalChecks(object):
             + "\n\u03C1 = \u03C3$_{XY}^2$/\u03C3$_{X}$\u03C3$_{Y}$ = "
             + str(f"{muXY[0, 1] / np.sqrt(muXY[0, 0] * muXY[1, 1]):0.2e}")
             + "\n\u03A3 (\u03A9$_i$-<\u03A9>)$^2$/\u03C3$_i$$^2$ = "
-            + str(np.floor(np.sum(self.sliding_deviate_cut ** 2))),
+            + str(np.floor(np.sum(self.sliding_deviate_cut**2))),
             fontsize=9,
             bbox=dict(boxstyle="round", facecolor="white", alpha=0.3),
         )
@@ -884,7 +884,7 @@ class StatisticalChecks(object):
         )
 
         axs.hist(
-            1 / np.mean(self.sliding_sigmas_cut ** 2) * self.sliding_sigmas_cut ** 2,
+            1 / np.mean(self.sliding_sigmas_cut**2) * self.sliding_sigmas_cut**2,
             bins=300,
             color="b",
             ec="k",

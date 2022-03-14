@@ -2,37 +2,38 @@ import gwpy.spectrogram
 import numpy as np
 from scipy.signal import get_window, spectrogram
 
+from .constants import H0
+
 
 def fftgram(
-    time_series_data, fftlength, overlap_length=0, zeropad=False, window_fftgram="hann"
+    time_series_data,
+    fftlength,
+    overlap_factor=0,
+    zeropad=False,
+    window_fftgram="boxcar",
 ):
     """Function that creates an fftgram from a timeseries
 
     Parameters
-    ==========
+    ----------
     time_series_data: gwpy_timeseries
         Timeseries from which to compute the fftgram
-
-    fftlength: int_length
-        Length (in no. of data points) of each segment in which
+    fftlength: int
+        Length of each segment (in seconds) for which
         to compute an FFT
-
-    overlap: int_length
-        Length (in no.of data points) of overlap in calculating FFT
+    overlap_factor: float
+        Factor of overlap between adjacent FFT segments (values range from 0 to 1)
         (default 0 (no overlap))
-
     zeropadd: bool
         Whether to zero pad the data equal to the length of FFT or not
         (default False)
-
-    window_fftgram: string_like
-        Type of window to compute the Fast Fourier
-        transform
+    window_fftgram: str
+        Type of window to use for FFT (default no window)
 
     Returns
-    =======
-    fftgram: FFTgram
-        FFTgram containing several psds (or csds)
+    -------
+    data_fftgram: gwpy fftgram (complex)
+        fftgram containing several PSDs (or CSDs) in a matrix format
     """
 
     sample_rate = int(1 / time_series_data.dt.value)
@@ -44,7 +45,7 @@ def fftgram(
             fs=sample_rate,
             window=window_fftgram,
             nperseg=fftlength * sample_rate,
-            noverlap=overlap_length * sample_rate,
+            noverlap=overlap_factor * fftlength * sample_rate,
             nfft=2 * fftlength * sample_rate,
             mode="complex",
             detrend=False,
@@ -55,94 +56,108 @@ def fftgram(
             fs=sample_rate,
             window=window_fftgram,
             nperseg=fftlength * sample_rate,
-            noverlap=overlap_length * sample_rate,
+            noverlap=overlap_factor * fftlength * sample_rate,
             nfft=fftlength * sample_rate,
             mode="complex",
             detrend=False,
         )
 
     data_fftgram = gwpy.spectrogram.Spectrogram(
-        Sxx.T, times=t + time_series_data.t0.value - (fftlength / 2), frequencies=f
+        Sxx.T, times=t + time_series_data.t0.value - (fftlength/2), frequencies=f  # - (fftlength / 2)
     )
 
     return data_fftgram
 
 
-def pwelch_psd(data, segment_duration, do_overlap=True):
+def pwelch_psd(data_fftgram, segment_duration, overlap_factor=0):
     """
     Estimate PSD using pwelch method.
 
     Parameters
     ==========
-    data: gwpy fftgram
-        The data to coarse grain
+    data_fftgram: gwpy fftgram (complex)
+        fft gram data to be averaged
     segment_duration: int
-        segment duration over which PSD needs to be averaged
-    do_overlap: bool
-        Whether to calculate overlapping PSD spectrograms
+        data duration over which PSDs need to be averaged;
+        should be greater than or equal to the duration used for FFT
+    overlap_factor: float
+        Amount of overlap between adjacent average PSDs, can vary between 0 and 1 (default 0);
+        This factor should be same as the one used for CSD estimation
 
     Returns
     =======
-    gwpy spectrogram
+    averaged_psd: gwpy psd spectrogram
         averaged over segments
     """
 
-    averaging_factor = round(segment_duration / data.dt.value)
-    if do_overlap:
-        seg_indices = np.arange(1, len(data), round(averaging_factor / 2))
-        seg_indices = seg_indices[seg_indices <= len(data) + 2 - averaging_factor]
-    else:  # NOT CHECKED
-        seg_indices = np.arange(1, len(data), averaging_factor)[0:-1]
+    averaging_factor = round(segment_duration / data_fftgram.dt.value)
+    if overlap_factor == 0:  # no overlap (TODO : Check whether this works)
+        seg_indices = np.arange(1, len(data_fftgram), averaging_factor)[0:-1]
+    else:  # overlapping segments (TODO : Check whether it works for overlap_factor!=0.5)
+        seg_indices = np.arange(
+            1, len(data_fftgram), round(averaging_factor * overlap_factor)
+        )
+        seg_indices = seg_indices[
+            seg_indices <= len(data_fftgram) + 2 - averaging_factor
+        ]
 
-    averaged = data[0 : len(seg_indices)].copy()  # temporary spectrogram
+    averaged_psd = data_fftgram[0 : len(seg_indices)].copy()  # temporary spectrogram
     kk = 0
     for ii in seg_indices - 1:
-        averaged[kk] = data[ii : ii + 11].mean(axis=0)
+        averaged_psd[kk] = data_fftgram[ii : ii + 11].mean(axis=0)
         kk = kk + 1
-    averaged.times = (
-        averaged.epoch.value * data.times.unit + (seg_indices - 1) * data.dt
+    averaged_psd.times = (
+        averaged_psd.epoch.value * data_fftgram.times.unit
+        + (seg_indices - 1) * data_fftgram.dt
     )
 
-    return np.real(averaged)
+    return np.real(averaged_psd)
 
 
-def before_after_average(psd_gram, segment_duration, psd_duration):
+def before_after_average(psd_gram, segment_duration, N_avg_segs):
     """
-    Average the first independent entry before and after for a specified time
-    offset.
+    Average the requested number of PSDs from segments adjacent to the segment of interest
+    (for which CDS is calculated)
 
     Parameters
-    ==========
-    psd_gram: psd.spectrogram.Spectrogram
-        The input spectrogram
+    ----------
+    psd_gram: gwpy psd spectrogram
+        Input spectrogram
     segment_duration: float
-        The duration of data going into each analyzed segment.
-    psd_duration: float
-        The duration of data going into each PSD estimate.
-        This should probably be an integer multiple of the segment duration
-        but it might still work if not.
+        Duration of data going into each analyzed segment.
+    N_avg_segs: int
+        Number of segments used for PSD averaging (from both sides of the segment of interest)
+        N_avg_segs should be even and >= 2
+
+    Returns
+    -------
+    avg_psd: averaged psd gram
     """
     stride = psd_gram.dx.value
     overlap = segment_duration - stride
-    strides_per_psd = int(np.ceil(psd_duration / stride))
+    strides_per_psd = int(np.ceil((N_avg_segs / 2) * segment_duration / stride))
     strides_per_segment = int(np.ceil(segment_duration / stride))
     time_offset = strides_per_psd * overlap * psd_gram.times.unit
     after_segment_offset = strides_per_psd + strides_per_segment
 
-    output = psd_gram.copy()
-    output = (output[:-after_segment_offset:] + output[after_segment_offset:]) / 2
-    output.times = psd_gram.times[:-after_segment_offset] + time_offset
+    avg_psd = psd_gram.copy()
+    # TODO: Check whether this works for PSD duration < segment duration
+    # TODO: Check whether this works for N_avg_seg >2
+    avg_psd = (
+        avg_psd[:-after_segment_offset] + avg_psd[after_segment_offset:]
+    ) / N_avg_segs
+    avg_psd.times = psd_gram.times[:-after_segment_offset] + time_offset
 
-    return output
+    return avg_psd
 
 
 def coarse_grain(data, coarsening_factor):
     """
     Coarse grain a frequency series by an integer factor.
 
-    If the coarsening factor is even there are coarsening_factor + 1 entries
+    If the coarsening factor is even, there are coarsening_factor + 1 entries
     in the input data that contribute to each coarse frequency bin, however,
-    the first an last contribute only a half to the frequency below and half
+    the first and last contribute only a half to the frequency below and half
     to the frequency above.
 
     If the coarsening factor is odd, there are no edge effects that have to be
@@ -162,7 +177,7 @@ def coarse_grain(data, coarsening_factor):
 
     Returns
     =======
-    array-like
+    coarsened: array-like
         The coarse-grained data
     """
     if coarsening_factor == 1:
@@ -206,7 +221,7 @@ def coarse_grain_exact(data, coarsening_factor):
 
     Returns
     =======
-    array-like
+    output: array-like
         The coarse-grained data
     """
     from scipy.integrate import cumtrapz
@@ -239,7 +254,7 @@ def coarse_grain_naive(data, coarsening_factor):
 
     Returns
     =======
-    array-like
+    coarsened:array-like
         The coarse-grained data
     """
     coarsening_factor = int(coarsening_factor)
@@ -317,39 +332,55 @@ def coarse_grain_spectrogram(
 
 
 def cross_spectral_density(
-    time_series1,
-    time_series2,
+    time_series_data1,
+    time_series_data2,
     segment_duration,
     frequency_resolution,
-    do_overlap=False,
-    overlap_factor=0.5,
-    zeropad=True,
-    window_fftgram="hann",
+    overlap_factor=0,
+    zeropad=False,
+    window_fftgram="boxcar",
 ):
     """
     Compute the cross spectral density from two time series inputs
 
     Parameters
     ----------
-    time_series1: array-like
-    time_series2: array-like
+    time_series_data1: gwpy timeseries
+        Timeseries data of detector1
+    time_series_data2: gwpy timeseries
+        Timeseries data of detector2
+    segment duration: int
+        data duration over which CSDs need to be calculated
+    frequency_resolution: float
+        Frequency resolution of the final CSDs; This is achieved by averaing in
+        frequency domain
+    overlap_factor: float, optional
+        Amount of overlap between adjacent segments (range between 0 and 1)
+        This factor should be same as the one used for power_spectral_density
+        (default 0, no overlap)
+    zeropadd: bool, optional
+        Whether to zero pad the data equal to the length of FFT used
+        (default False)
+    window_fftgram: str, optional
+        Type of window to use for FFT (default no window)
 
     Returns
     -------
-    gwpy spectrogram of cross spectral density
+    csd_spectrogram: gwpy spectrogram
+       cross spectral density of the two timeseries
     """
 
     fft_gram_1 = fftgram(
-        time_series1,
+        time_series_data1,
         segment_duration,
-        overlap_length=segment_duration * overlap_factor * int(do_overlap),
+        overlap_factor=overlap_factor,
         zeropad=zeropad,
         window_fftgram=window_fftgram,
     )
     fft_gram_2 = fftgram(
-        time_series2,
+        time_series_data2,
         segment_duration,
-        overlap_length=segment_duration * overlap_factor * int(do_overlap),
+        overlap_factor=overlap_factor,
         zeropad=zeropad,
         window_fftgram=window_fftgram,
     )
@@ -365,36 +396,56 @@ def power_spectral_density(
     time_series_data,
     segment_duration,
     frequency_resolution,
-    do_overlap=True,
-    overlap_factor=0.5,
-    do_overlap_welch_psd=True,
-    zeropad=False,
-    window_fftgram="hann",
+    overlap_factor=0,
+    overlap_factor_welch_psd=0,
+    window_fftgram="boxcar",
 ):
     """
-    Compute the power spectral density of a time series using pwelch method
+    Compute the PSDs of every segment (defined by the segment duration)
+    in the time series using pwelch method
 
     Parameters
     ----------
     time_series_data: gwpy timeseries
+        Timeseries from which to compute PSDs
+    segment duration: int
+        data duration over which each PSDs need to be calculated
+    frequency_resolution: float
+        Frequency resolution of the final PSDs; This sets the time duration
+        over which FFTs are calculated in the pwelch method
+    overlap_factor: float, optional
+        Amount of overlap between adjacent segments (range between 0 and 1)
+        This factor should be same as the one used for cross_spectral_density
+        (default 0, no overlap)
+    overlap_factor_welch_psd: float, optional
+        Amount of overlap between data blocks used in pwelch method (range between 0 and 1)
+        (default 0, no overlap)
+    window_fftgram: str, optional
+        Type of window to use for FFT (default no window)
 
     Returns
     -------
-    gwpy spectrogram of power spectral density
+    psd_spectrogram: gwpy PSD spectrogram
+        PSD spectrogram with each PSD duration equal to segment duration
     """
 
+    # Length of data blocks to be used in pwelch
     fftlength = int(1.0 / frequency_resolution)
+
+    # No zero-pad is used in the PSD estimation
     fft_gram_data = fftgram(
         time_series_data,
         fftlength,
-        overlap_length=fftlength * overlap_factor * int(do_overlap),
-        zeropad=zeropad,
+        overlap_factor=overlap_factor,
+        zeropad=False,
         window_fftgram=window_fftgram,
     )
+
+    # Use pwelch method (averaging) to get PSDs for each segment duration of data
     psd_spectrogram = pwelch_psd(
         2 * np.conj(fft_gram_data) * fft_gram_data,
         segment_duration,
-        do_overlap=do_overlap_welch_psd,
+        overlap_factor=overlap_factor,
     )
 
     return psd_spectrogram

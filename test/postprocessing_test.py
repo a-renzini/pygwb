@@ -19,6 +19,7 @@ SAMPLE_RATE = 128
 
 TESTMATFILE = "test/pproc/stoch.job1.mat"
 
+
 # test object
 class SingleStochJobTest(unittest.TestCase):
     """
@@ -105,3 +106,6 @@ class IsotropicJobTest(unittest.TestCase):
         self.assertTrue(newjob.segdur == 60)
         self.assertTrue(newjob.sample_rate == 128)
         self.assertTrue(newjob.df == 0.25)
+
+if __name__ == "__main__":
+    unittest.main()

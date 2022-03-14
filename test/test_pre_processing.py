@@ -35,10 +35,10 @@ class Test(unittest.TestCase):
         pass
 
     def test_pre_processing(self):
-        """Two tests are performed for each pre_processing function
-        Test1: we make sure the output has 3 psds
-        Test2: we make sure the output has a sampling
-            frequency of 1/192.0 Hz
+        """
+        Test1: we make sure the output of each pre_processing function has 3 psds
+        Test2: we make sure the output of each pre_processing function has a sampling frequency of 1/192.0 Hz
+        Test3: we test the different outputs of set_start_time
         """
         channel = "L1:'GWOSC-16KHZ_R1_STRAIN'"
         t0 = 1238183936
@@ -97,3 +97,15 @@ class Test(unittest.TestCase):
 
         self.assertEqual(len(timeseries_output3), 1802240)
         self.assertEqual(timeseries_output1.sample_rate.value, 4096.0)
+
+        self.assertEqual(
+            pre_processing.set_start_time(t0, tf, 2, segment_duration, False),
+            1238183994.0,
+        )
+        self.assertEqual(
+            pre_processing.set_start_time(t0, tf, 2, segment_duration, True),
+            1238184444.0,
+        )
+
+if __name__ == "__main__":
+    unittest.main()
