@@ -95,7 +95,6 @@ def calc_sigma_alpha(sensitivity_integrand_with_Hf: np.ndarray):
 
     return sigma_alpha
 
-
 def calc_sens_integrand(
     freq: np.ndarray,
     P1: np.ndarray,
@@ -262,8 +261,8 @@ def run_dsc(
     psd1_slide: np.ndarray,
     psd2_slide: np.ndarray,
     alphas: np.ndarray,
-    notch_path: str,
-    orf: np.array
+    orf: np.array,
+    notch_list_path: str = "",
 ):
 
     """
@@ -277,17 +276,17 @@ def run_dsc(
     segment_duration: int
         Duration of each segment
 
-    psd1_naive; psd2_naive: array
+    psd1_naive; psd2_naive: np.array
         an FFTgram of the PSD computed naively, as in in the particular bin J for detector #1 and #2
 
-    psd1_slide, psd2_slide: array
+    psd1_slide, psd2_slide: np.array
         an FFTgram of the PSD computed by considering the noise in adjacent bins to the bin J, i.e. J-1, J+1 for
         detectors #1 and #2
 
-    alphas: array
+    alphas: np.array
         the spectral indices to use; the code combines the BadGPStimes from each alpha
 
-    notch_path: str
+    notch_list_path: np.array
         path to the notch list file
 
     orf: array
@@ -296,12 +295,11 @@ def run_dsc(
 
     Returns
     =======
-    BadGPStimes: array
+    BadGPStimes: np.array
         an array of the GPS times to not be considered based on the chosen value of the delta sigma cut
     """
-
-    if notch_path:
-        lines_stochnotch = StochNotchList.load_from_file(f"{notch_path}")
+    if notch_list_path:
+        lines_stochnotch = StochNotchList.load_from_file(f"{notch_list_path}")
         lines = np.zeros((len(lines_stochnotch), 2))
 
         for index, notch in enumerate(lines_stochnotch):
@@ -337,14 +335,14 @@ def run_dsc(
             psd2_slide_time = psd2_slide[time, :]
             naive_sensitivity_integrand_with_Hf = (
                 calc_sens_integrand(
-                    freqs, psd1_naive_time, psd2_naive_time, window1, window2, df, dt, orf
+                    freqs, psd1_naive_time, psd2_naive_time, window1, window2, df, orf, T=dt
                 )
                 / Hf**2
             )
 
             slide_sensitivity_integrand_with_Hf = (
                 calc_sens_integrand(
-                    freqs, psd1_slide_time, psd2_slide_time, window1, window2, df, dt, orf
+                    freqs, psd1_slide_time, psd2_slide_time, window1, window2, df, orf, T=dt
                 )
                 / Hf**2
             )

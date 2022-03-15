@@ -63,7 +63,9 @@ def fftgram(
         )
 
     data_fftgram = gwpy.spectrogram.Spectrogram(
-        Sxx.T, times=t + time_series_data.t0.value - (fftlength/2), frequencies=f  # - (fftlength / 2)
+        Sxx.T,
+        times=t + time_series_data.t0.value - (fftlength / 2),
+        frequencies=f,  # - (fftlength / 2)
     )
 
     return data_fftgram
@@ -140,7 +142,7 @@ def before_after_average(psd_gram, segment_duration, N_avg_segs):
     strides_per_segment = int(np.ceil(segment_duration / stride))
     strides_per_psd = int(N_avg_segs / 2) * strides_per_segment
     no_of_strides_oneside = strides_per_psd + strides_per_segment
-    
+
     avg_psd = psd_gram.copy()
     # TODO: Check whether this works for N_avg_seg >2
     # TODO: Resolve the issue with 3 segments case
@@ -148,7 +150,7 @@ def before_after_average(psd_gram, segment_duration, N_avg_segs):
         avg_psd[:-no_of_strides_oneside] + avg_psd[no_of_strides_oneside:]
     ) / N_avg_segs
     # properly set the start times of the averaged PSDs
-    time_offset = (N_avg_segs/2) * segment_duration * psd_gram.times.unit
+    time_offset = (N_avg_segs / 2) * segment_duration * psd_gram.times.unit
     avg_psd.times = psd_gram.times[:-no_of_strides_oneside] + time_offset
 
     return avg_psd
@@ -400,7 +402,6 @@ def power_spectral_density(
     segment_duration,
     frequency_resolution,
     overlap_factor=0,
-    overlap_factor_welch_psd=0,
     window_fftgram="boxcar",
 ):
     """
@@ -419,9 +420,6 @@ def power_spectral_density(
     overlap_factor: float, optional
         Amount of overlap between adjacent segments (range between 0 and 1)
         This factor should be same as the one used for cross_spectral_density
-        (default 0, no overlap)
-    overlap_factor_welch_psd: float, optional
-        Amount of overlap between data blocks used in pwelch method (range between 0 and 1)
         (default 0, no overlap)
     window_fftgram: str, optional
         Type of window to use for FFT (default no window)
