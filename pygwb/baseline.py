@@ -811,6 +811,7 @@ class Baseline(object):
             self.interferometer_2.average_psd,
             alphas,
             self.notch_list_path,
+            orf = self.tensor_overlap_reduction_function
         )
         self.badGPStimes = badGPStimes
         self.delta_sigmas = delta_sigmas
