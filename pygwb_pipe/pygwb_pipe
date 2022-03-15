@@ -1,3 +1,5 @@
+#!/bin/env python
+
 import json
 import os
 import sys
@@ -6,15 +8,15 @@ from pathlib import Path
 import bilby
 import matplotlib.pyplot as plt
 import numpy as np
+import pipeline_argument_parser
 from loguru import logger
 
-import pygwb.argument_parser
 from pygwb.baseline import Baseline
 from pygwb.detector import Interferometer
 from pygwb.parameters import Parameters
 
 if __name__ == "__main__":
-    parser = pygwb.argument_parser.parser
+    parser = pipeline_argument_parser.parser
     args = parser.parse_args()
     params = Parameters.from_file(args.param_file)
     if args.t0 is not None:
@@ -33,7 +35,8 @@ if __name__ == "__main__":
     """
     X TODO X make this into a param in the arg class?
     """
-    Boolean_CSD = True  # if False, it will only compute the CSDs and PSDs, if True, it will compute until the point estimates
+    pipe_calc_point_estimate = True  # if False, it will only compute the CSDs and PSDs, if True, it will compute until the point estimates
+    pipe_pickle_baseline = True
 
     ifo_H = Interferometer.from_parameters("H1", params)
     ifo_L = Interferometer.from_parameters("L1", params)
@@ -58,18 +61,6 @@ if __name__ == "__main__":
     if abs(deltaF - params.frequency_resolution) > 1e-6:
         raise ValueError("Frequency resolution in PSD/CSD is different than requested.")
 
-    """
-    eventually could move this into baseline? it's just for the dsc calculation...
-    """
-    stride = params.segment_duration * (1 - params.overlap_factor)
-    csd_segment_offset = int(np.ceil(params.segment_duration / stride))
-    base_HL.interferometer_1.psd_spectrogram = base_HL.interferometer_1.psd_spectrogram[
-        csd_segment_offset:-csd_segment_offset
-    ]
-    base_HL.interferometer_2.psd_spectrogram = base_HL.interferometer_2.psd_spectrogram[
-        csd_segment_offset:-csd_segment_offset
-    ]
-
     base_HL.calculate_delta_sigma_cut(
         params.delta_sigma_cut,
         params.alphas,
@@ -81,7 +72,7 @@ if __name__ == "__main__":
         f"times flagged by the delta sigma cut as badGPStimes:{base_HL.badGPStimes}"
     )
 
-    if Boolean_CSD:
+    if pipe_calc_point_estimate:
         logger.info(f"calculating the point estimate and sigma...")
 
         base_HL.set_point_estimate_sigma(
@@ -108,6 +99,10 @@ if __name__ == "__main__":
             params.save_data_type,
             data_file_name,
         )
+        if pipe_pickle_baseline:
+            logger.info("Pickling the baseline.")
+            pickle_name = f"{base_HL.name}_{int(params.t0)}-{int(params.tf)}.pickle"
+            base_HL.save_to_pickle(pickle_name)
 
     else:
         logger.info("Saving average psds and csd to file.")

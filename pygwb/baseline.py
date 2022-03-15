@@ -30,7 +30,6 @@ class Baseline(object):
         overlap_factor=0.5,
         zeropad_csd=True,
         window_fftgram="hann",
-        overlap_factor_welch_psd=0,
         N_average_segments_welch_psd=2,
         sampling_frequency=None,
     ):
@@ -58,9 +57,6 @@ class Baseline(object):
             if True, applies zeropadding in the csd estimation. True by default.
         window_fftgram: str, optional
             what type of window to use to produce the fftgrams
-        overlap_factor_welch_psd: float, optional
-            Amount of overlap between data blocks used in pwelch method (range between 0 and 1)
-            (default 0, no overlap)
         N_average_segments_welch_psd: int, optional
             Number of segments used for PSD averaging (from both sides of the segment of interest)
             N_avg_segs should be even and >= 2
@@ -73,7 +69,6 @@ class Baseline(object):
         self.overlap_factor = overlap_factor
         self.zeropad_csd = zeropad_csd
         self.window_fftgram = window_fftgram
-        self.overlap_factor_welch_psd = overlap_factor_welch_psd
         self.N_average_segments_welch_psd = N_average_segments_welch_psd
         self._tensor_orf_calculated = False
         self._vector_orf_calculated = False
@@ -321,7 +316,7 @@ class Baseline(object):
 
     @property
     def delta_sigmas(self):
-        if hasattr(self, "delta_sigmas"):
+        if hasattr(self, "_delta_sigmas"):
             return self._delta_sigmas
         else:
             raise ValueError(
@@ -410,7 +405,6 @@ class Baseline(object):
             overlap_factor=parameters.overlap_factor,
             zeropad_csd=parameters.zeropad_csd,
             window_fftgram=parameters.window_fftgram,
-            overlap_factor_welch_psd=parameters.overlap_factor_welch_psd,
             N_average_segments_welch_psd=parameters.N_average_segments_welch_psd,
             sampling_frequency=parameters.new_sample_rate,
         )
@@ -440,7 +434,6 @@ class Baseline(object):
                 frequency_resolution,
                 overlap_factor=self.overlap_factor,
                 window_fftgram=self.window_fftgram,
-                overlap_factor_welch_psd=self.overlap_factor_welch_psd,
             )
         except AttributeError:
             raise AssertionError(
@@ -451,7 +444,6 @@ class Baseline(object):
                 frequency_resolution,
                 overlap_factor=self.overlap_factor,
                 window_fftgram=self.window_fftgram,
-                overlap_factor_welch_psd=self.overlap_factor_welch_psd,
             )
         except AttributeError:
             raise AssertionError(
@@ -485,8 +477,8 @@ class Baseline(object):
 
         # TODO: make this less fragile.
         # For now, recalculate ORF in case frequencies have changed.
-        self._tensor_orf_calculated = False
-        self.frequencies = self.csd.frequencies.value
+        # self._tensor_orf_calculated = False
+        # self.frequencies = self.csd.frequencies.value
 
     def set_average_cross_spectral_density(self):
         """If csd has been calculated, sets the average csd for the baseline"""
@@ -503,6 +495,7 @@ class Baseline(object):
         # TODO: make this less fragile.
         # For now, recalculate ORF in case frequencies have changed.
         self._tensor_orf_calculated = False
+        self.frequencies = self.csd.frequencies.value
 
     def crop_frequencies_average_psd_csd(self, flow, fhigh):
         """crop frequencies of average PSDs and CSDS. Done in place. This is not completely implemented yet.
@@ -744,10 +737,12 @@ class Baseline(object):
             logger.debug("loading notches from", self.notch_list_path)
             lines_object = StochNotchList.load_from_file(self.notch_list_path)
             _, notch_indexes = lines_object.get_idxs(Y_spec.frequencies.value)
+            self.set_frequency_mask(self.notch_list_path)
         elif notch_list_path:
             logger.debug("loading notches from", notch_list_path)
             lines_object = StochNotchList.load_from_file(notch_list_path)
             _, notch_indexes = lines_object.get_idxs(Y_spec.frequencies.value)
+            self.set_frequency_mask(notch_list_path)
         else:
             notch_indexes = np.arange(Y_spec.size)
 
@@ -772,11 +767,7 @@ class Baseline(object):
         self.sigma = sigma
 
     def calculate_delta_sigma_cut(
-        self,
-        delta_sigma_cut,
-        alphas,
-        flow=20,
-        fhigh=1726,
+        self, delta_sigma_cut, alphas, flow=20, fhigh=1726, notch_list_path=""
     ):
         """Calculates the delta sigma cut using the naive and average psds, if set in the baseline.
 
@@ -790,16 +781,24 @@ class Baseline(object):
             low frequency. Default is 20 Hz.
         fhigh: float, optional
             high frequency. Default is 1726 Hz.
+        notch_list_path: str, optional
+            file path of the baseline notch list
         """
+        if not notch_list_path:
+            notch_list_path = self.notch_list_path
 
         deltaF = self.frequencies[1] - self.frequencies[0]
         self.crop_frequencies_average_psd_csd(flow=flow, fhigh=fhigh)
-        naive_psd_1_cropped = self.interferometer_1.psd_spectrogram.crop_frequencies(
-            flow, fhigh + deltaF
-        )
-        naive_psd_2_cropped = self.interferometer_2.psd_spectrogram.crop_frequencies(
-            flow, fhigh + deltaF
-        )
+        stride = self.duration * (1 - self.overlap_factor)
+        csd_segment_offset = int(np.ceil(self.duration / stride))
+        naive_psd_1 = self.interferometer_1.psd_spectrogram[
+            csd_segment_offset:-csd_segment_offset
+        ]
+        naive_psd_2 = self.interferometer_2.psd_spectrogram[
+            csd_segment_offset:-csd_segment_offset
+        ]
+        naive_psd_1_cropped = naive_psd_1.crop_frequencies(flow, fhigh + deltaF)
+        naive_psd_2_cropped = naive_psd_2.crop_frequencies(flow, fhigh + deltaF)
 
         badGPStimes, delta_sigmas = run_dsc(
             delta_sigma_cut,
@@ -810,8 +809,8 @@ class Baseline(object):
             self.interferometer_1.average_psd,
             self.interferometer_2.average_psd,
             alphas,
-            self.notch_list_path,
-            orf = self.tensor_overlap_reduction_function
+            self.tensor_overlap_reduction_function,
+            notch_list_path=notch_list_path,
         )
         self.badGPStimes = badGPStimes
         self.delta_sigmas = delta_sigmas

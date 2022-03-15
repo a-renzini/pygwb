@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 from gwpy import timeseries
 
-from pygwb import pre_processing, spectral
+from pygwb import preprocessing, spectral
 
 # Analysis parameters
 IFO1 = "H1"
@@ -26,49 +26,49 @@ dsc = 0.2
 alphas = [-5, 0, 3]
 notch_file = "test/test_data/Official_O3_HL_notchlist.txt"
 
-ifo1_filtered = pre_processing.preprocessing_data_channel_name(
-        IFO=IFO1,
-        t0=t0,
-        tf=tf,
-        data_type=data_type,
-        channel=IFO1 + ":" + channel_suffix,
-        new_sample_rate=new_sample_rate,
-        cutoff_frequency=cutoff_frequency,
-        segment_duration=segment_duration,
-        number_cropped_seconds=2,
-        window_downsampling="hamming",
-        ftype="fir",
+ifo1_filtered = preprocessing.preprocessing_data_channel_name(
+    IFO=IFO1,
+    t0=t0,
+    tf=tf,
+    data_type=data_type,
+    channel=IFO1 + ":" + channel_suffix,
+    new_sample_rate=new_sample_rate,
+    cutoff_frequency=cutoff_frequency,
+    segment_duration=segment_duration,
+    number_cropped_seconds=2,
+    window_downsampling="hamming",
+    ftype="fir",
 )
 
-ifo2_filtered = pre_processing.preprocessing_data_channel_name(
-        IFO=IFO2,
-        t0=t0,
-        tf=tf,
-        data_type=data_type,
-        channel=IFO2 + ":" + channel_suffix,
-        new_sample_rate=new_sample_rate,
-        cutoff_frequency=cutoff_frequency,
-        segment_duration=segment_duration,
-        number_cropped_seconds=2,
-        window_downsampling="hamming",
-        ftype="fir",
+ifo2_filtered = preprocessing.preprocessing_data_channel_name(
+    IFO=IFO2,
+    t0=t0,
+    tf=tf,
+    data_type=data_type,
+    channel=IFO2 + ":" + channel_suffix,
+    new_sample_rate=new_sample_rate,
+    cutoff_frequency=cutoff_frequency,
+    segment_duration=segment_duration,
+    number_cropped_seconds=2,
+    window_downsampling="hamming",
+    ftype="fir",
 )
 
 naive_psd_1 = spectral.power_spectral_density(
-        ifo1_filtered,
-        segment_duration,
-        frequency_resolution,
-        overlap_factor=0.5,
-        overlap_factor_welch_psd=0.5,
-        window_fftgram="hann",
+    ifo1_filtered,
+    segment_duration,
+    frequency_resolution,
+    overlap_factor=0.5,
+    overlap_factor_welch_psd=0.5,
+    window_fftgram="hann",
 )
 naive_psd_2 = spectral.power_spectral_density(
-        ifo2_filtered,
-        segment_duration,
-        frequency_resolution,
-        overlap_factor=0.5,
-        overlap_factor_welch_psd=0.5,
-        window_fftgram="hann",
+    ifo2_filtered,
+    segment_duration,
+    frequency_resolution,
+    overlap_factor=0.5,
+    overlap_factor_welch_psd=0.5,
+    window_fftgram="hann",
 )
 
 # adjacent averated PSDs (detector 1) for each possible CSD
@@ -91,11 +91,16 @@ csd_segment_offset = int(np.ceil(segment_duration / stride))
 naive_psd_1 = naive_psd_1[csd_segment_offset : -(csd_segment_offset + 1) + 1]
 naive_psd_2 = naive_psd_2[csd_segment_offset : -(csd_segment_offset + 1) + 1]
 
-my_saved_output = {'naive_psd_1':naive_psd_1, 'naive_psd_2':naive_psd_2, 'avg_psd_1':avg_psd_1, 'avg_psd_2':avg_psd_2}
+my_saved_output = {
+    "naive_psd_1": naive_psd_1,
+    "naive_psd_2": naive_psd_2,
+    "avg_psd_1": avg_psd_1,
+    "avg_psd_2": avg_psd_2,
+}
 
 test = Path(__file__).parent.resolve()
-pickle_path = 'naive_and_sliding_psds.pickle'
+pickle_path = "naive_and_sliding_psds.pickle"
 print(pickle_path)
 
-with open(pickle_path, 'wb') as handle:
-        pickle.dump(my_saved_output, handle)
+with open(pickle_path, "wb") as handle:
+    pickle.dump(my_saved_output, handle)
