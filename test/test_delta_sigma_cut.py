@@ -59,7 +59,9 @@ class Test(unittest.TestCase):
             psd2_slide=avg_psd_2,
             alphas=alphas,
             notch_path=notch_file,
+            orf=np.array([1])
         )
+        
         self.assertTrue(badGPStimes[0], 1.24764440e09)
         self.assertTrue(badGPStimes[1], 1.24764449e09)
         self.assertTrue(badGPStimes[2], 1.24764459e09)

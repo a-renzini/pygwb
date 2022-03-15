@@ -44,7 +44,7 @@ def dsc_cut(
 
     dsigma = np.abs(slide_sigma * bf_ss - naive_sigma * bf_ns) / slide_sigma * bf_ss
 
-    return dsigma >= dsc
+    return dsigma >= dsc, dsigma
 
 
 def calc_Hf(freqs: np.ndarray, alpha: float = 0, fref: int = 20):
@@ -103,8 +103,8 @@ def calc_sens_integrand(
     window1: np.ndarray,
     window2: np.ndarray,
     delta_f: float,
+    orf: np.array,
     T: int = 32,
-    orf=1,
     H0: float = 67.9e3 / 3.086e22,
 ):
 
@@ -263,6 +263,7 @@ def run_dsc(
     psd2_slide: np.ndarray,
     alphas: np.ndarray,
     notch_path: str,
+    orf: np.array
 ):
 
     """
@@ -288,6 +289,10 @@ def run_dsc(
 
     notch_path: str
         path to the notch list file
+
+    orf: array
+        the overlap reduction function as a function of frequency that quantifies the overlap of a detector baseline,
+        which depends on the detector locations, relative orientations, etc.
 
     Returns
     =======
@@ -332,13 +337,14 @@ def run_dsc(
             psd2_slide_time = psd2_slide[time, :]
             naive_sensitivity_integrand_with_Hf = (
                 calc_sens_integrand(
-                    freqs, psd1_naive_time, psd2_naive_time, window1, window2, df, dt
+                    freqs, psd1_naive_time, psd2_naive_time, window1, window2, df, dt, orf
                 )
                 / Hf**2
             )
+
             slide_sensitivity_integrand_with_Hf = (
                 calc_sens_integrand(
-                    freqs, psd1_slide_time, psd2_slide_time, window1, window2, df, dt
+                    freqs, psd1_slide_time, psd2_slide_time, window1, window2, df, dt, orf
                 )
                 / Hf**2
             )
@@ -348,7 +354,7 @@ def run_dsc(
             slide_sigma_alpha = calc_sigma_alpha(
                 slide_sensitivity_integrand_with_Hf[keep]
             )
-            cut[time] = dsc_cut(naive_sigma_alpha, slide_sigma_alpha, dsc, bf_ss, bf_ns)
+            cut[time], dsigma = dsc_cut(naive_sigma_alpha, slide_sigma_alpha, dsc, bf_ss, bf_ns)
 
         cuts[alpha, :] = np.squeeze(cut)
 
@@ -357,4 +363,4 @@ def run_dsc(
 
     BadGPStimes = times[np.squeeze(overall_cut)]
 
-    return BadGPStimes, cuts
+    return BadGPStimes, dsigma
