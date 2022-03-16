@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 from gwpy import timeseries
 
-from pygwb import pre_processing
+from pygwb import preprocessing
 
 
 class Test(unittest.TestCase):
@@ -16,10 +16,10 @@ class Test(unittest.TestCase):
         segment_duration = 192
         number_cropped_seconds = 2
         data_type = "public"
-        data_start_time = pre_processing.set_start_time(
+        data_start_time = preprocessing.set_start_time(
             t0, tf, number_cropped_seconds, segment_duration
         )
-        self.timeseries_data = pre_processing.read_data(
+        self.timeseries_data = preprocessing.read_data(
             IFO, data_type, channel, data_start_time - number_cropped_seconds, tf
         )
         self.timeseries_array = np.array(self.timeseries_data.value)
@@ -34,10 +34,10 @@ class Test(unittest.TestCase):
 
         pass
 
-    def test_pre_processing(self):
+    def test_preprocessing(self):
         """
-        Test1: we make sure the output of each pre_processing function has 3 psds
-        Test2: we make sure the output of each pre_processing function has a sampling frequency of 1/192.0 Hz
+        Test1: we make sure the output of each preprocessing function has 3 psds
+        Test2: we make sure the output of each preprocessing function has a sampling frequency of 1/192.0 Hz
         Test3: we test the different outputs of set_start_time
         """
         channel = "L1:'GWOSC-16KHZ_R1_STRAIN'"
@@ -51,7 +51,7 @@ class Test(unittest.TestCase):
         print(len(self.timeseries_data))
         print(len(self.timeseries_array))
 
-        timeseries_output1 = pre_processing.preprocessing_data_channel_name(
+        timeseries_output1 = preprocessing.preprocessing_data_channel_name(
             IFO=IFO,
             t0=t0,
             tf=tf,
@@ -68,7 +68,7 @@ class Test(unittest.TestCase):
         self.assertEqual(len(timeseries_output1), 1802240)
         self.assertEqual(timeseries_output1.sample_rate.value, 4096.0)
 
-        timeseries_output2 = pre_processing.preprocessing_data_timeseries_array(
+        timeseries_output2 = preprocessing.preprocessing_data_timeseries_array(
             t0=t0,
             tf=tf,
             IFO=IFO,
@@ -85,7 +85,7 @@ class Test(unittest.TestCase):
         self.assertEqual(len(timeseries_output2), 1802240)
         self.assertEqual(timeseries_output2.sample_rate.value, 4096.0)
 
-        timeseries_output3 = pre_processing.preprocessing_data_gwpy_timeseries(
+        timeseries_output3 = preprocessing.preprocessing_data_gwpy_timeseries(
             IFO=IFO,
             gwpy_timeseries=self.a,
             new_sample_rate=new_sample_rate,
@@ -99,13 +99,14 @@ class Test(unittest.TestCase):
         self.assertEqual(timeseries_output1.sample_rate.value, 4096.0)
 
         self.assertEqual(
-            pre_processing.set_start_time(t0, tf, 2, segment_duration, False),
+            preprocessing.set_start_time(t0, tf, 2, segment_duration, False),
             1238183994.0,
         )
         self.assertEqual(
-            pre_processing.set_start_time(t0, tf, 2, segment_duration, True),
+            preprocessing.set_start_time(t0, tf, 2, segment_duration, True),
             1238184444.0,
         )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 
 from pygwb.delta_sigma_cut import run_dsc
+from pygwb.notch import StochNotchList
 
 
 def read_notch_list(notch_file):
@@ -38,16 +39,15 @@ class Test(unittest.TestCase):
         notch_file = "test/test_data/Official_O3_HL_notchlist.txt"
 
         test = Path(__file__).parent.resolve()
-        pickle_path = test/'test_data/naive_and_sliding_psds.pickle'
-        print(pickle_path)
+        pickle_path = test / "test_data/naive_and_sliding_psds.pickle"
 
-        with open(pickle_path, 'rb') as handle:
+        with open(pickle_path, "rb") as handle:
             pickle_loaded = pickle.load(handle)
 
-        naive_psd_1 = pickle_loaded['naive_psd_1']
-        naive_psd_2 = pickle_loaded['naive_psd_2']
-        avg_psd_1 = pickle_loaded['avg_psd_1']
-        avg_psd_2 = pickle_loaded['avg_psd_2']
+        naive_psd_1 = pickle_loaded["naive_psd_1"]
+        naive_psd_2 = pickle_loaded["naive_psd_2"]
+        avg_psd_1 = pickle_loaded["avg_psd_1"]
+        avg_psd_2 = pickle_loaded["avg_psd_2"]
 
         badGPStimes, _ = run_dsc(
             dsc=dsc,
@@ -58,11 +58,14 @@ class Test(unittest.TestCase):
             psd1_slide=avg_psd_1,
             psd2_slide=avg_psd_2,
             alphas=alphas,
-            notch_path=notch_file,
+            orf=np.array([1]),
+            notch_list_path=notch_file,
         )
+        
         self.assertTrue(badGPStimes[0], 1.24764440e09)
         self.assertTrue(badGPStimes[1], 1.24764449e09)
         self.assertTrue(badGPStimes[2], 1.24764459e09)
+
 
 if __name__ == "__main__":
     unittest.main()
