@@ -9,7 +9,7 @@ from pygwb import detector, parameters
 class TestInterferometer(unittest.TestCase):
     def setUp(self):
         self.ifo = "H1"
-        param_file = "./pygwb_pipe/parameters.ini"
+        param_file = "./test/test_data/parameters_detector_test.ini"
         self.parameters = parameters.Parameters.from_file(param_file)
         self.kwargs = {
             param: getattr(self.parameters, param)
