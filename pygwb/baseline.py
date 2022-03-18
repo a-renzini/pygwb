@@ -864,6 +864,8 @@ class Baseline(object):
             self.sigma,
             self.point_estimate_spectrogram,
             self.sigma_spectrogram,
+            self.badGPStimes,
+            self.delta_sigmas,
         )
 
     def save_psds_csds(
@@ -927,6 +929,8 @@ class Baseline(object):
         sigma,
         point_estimate_spectrogram,
         sigma_spectrogram,
+        badGPStimes, 
+        delta_sigmas,
     ):
         np.savez(
             filename,
@@ -937,6 +941,8 @@ class Baseline(object):
             sigma=sigma,
             point_estimate_spectrogram=point_estimate_spectrogram,
             sigma_spectrogram=sigma_spectrogram,
+            badGPStimes=badGPStimes,
+            delta_sigmas=delta_sigmas,
         )
 
     def _pickle_save(
@@ -949,6 +955,8 @@ class Baseline(object):
         sigma,
         point_estimate_spectrogram,
         sigma_spectrogram,
+        badGPStimes, 
+        delta_sigmas,
     ):
         save_dictionary = {
             "frequencies": frequencies,
@@ -958,6 +966,8 @@ class Baseline(object):
             "sigma": sigma,
             "point_estimate_spectrogram": point_estimate_spectrogram,
             "sigma_spectrogram": sigma_spectrogram,
+            "badGPStimes": badGPStimes, 
+            "delta_sigmas": delta_sigmas,
         }
 
         with open(filename, "wb") as f:
@@ -973,6 +983,8 @@ class Baseline(object):
         sigma,
         point_estimate_spectrogram,
         sigma_spectrogram,
+        badGPStimes, 
+        delta_sigmas,
     ):
         list_freqs = frequencies.tolist()
         list_point_estimate_spectrum = point_estimate_spectrum.value.tolist()
@@ -994,6 +1006,8 @@ class Baseline(object):
             "point_estimate_spectrogram_times": point_estimate_segment_times,
             "sigma_spectrogram": list_sigma_segment,
             "sigma_spectrogram_times": sigma_segment_times,
+            "badGPStime": badGPStimes,
+            "delta_sigmas": delta_sigmas,
         }
 
         with open(filename, "w") as outfile:
@@ -1009,6 +1023,8 @@ class Baseline(object):
         sigma,
         point_estimate_spectrogram,
         sigma_spectrogram,
+        badGPStimes,
+        delta_sigmas,
     ):
         hf = h5py.File(filename, "w")
 
@@ -1021,6 +1037,8 @@ class Baseline(object):
             "point_estimate_spectrogram", data=point_estimate_spectrogram
         ),
         hf.create_dataset("sigma_spectrogram", data=sigma_spectrogram)
+        hf.create_dataset("badGPStimes", data=badGPStimes)
+        hf.create_dataset("delta_sigmas", data=delta_sigmas)
 
         hf.close()
 
