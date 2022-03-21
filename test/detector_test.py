@@ -37,13 +37,14 @@ class TestInterferometer(unittest.TestCase):
         del self.parameters
         del self.kwargs
 
+    def test_from_parameters(self):
+        ifo = detector.Interferometer.from_parameters(self.ifo, self.parameters)
+        self.assertTrue(ifo.name, self.ifo)
+
     def test_get_empty_interferometer(self):
         ifo = detector.Interferometer.get_empty_interferometer(self.ifo)
         self.assertTrue(ifo.name, self.ifo)
         return ifo
-
-    def test_from_parameters(self):
-        return 0
 
     def test_set_timeseries_from_channel_name(self):
         ifo = self.test_get_empty_interferometer()
