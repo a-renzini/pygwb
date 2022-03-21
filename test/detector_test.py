@@ -42,6 +42,9 @@ class TestInterferometer(unittest.TestCase):
         self.assertTrue(ifo.name, self.ifo)
         return ifo
 
+    def test_from_parameters(self):
+        return 0
+
     def test_set_timeseries_from_channel_name(self):
         ifo = self.test_get_empty_interferometer()
         ifo.set_timeseries_from_channel_name(**self.kwargs)
