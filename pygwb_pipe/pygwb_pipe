@@ -95,7 +95,11 @@ if __name__ == "__main__":
             "Saving point_estimate and sigma spectrograms, spectra, and final values to file."
         )
         logger.info("Saving average psds and csd to file.")
-        base_HL.save_data(
+        base_HL.save_point_estimate_spectra(
+            params.save_data_type,
+            data_file_name,
+        )
+        base_HL.save_psds_csds(
             params.save_data_type,
             data_file_name,
         )
@@ -109,7 +113,7 @@ if __name__ == "__main__":
 
         data_file_name = f"psds_csds_{int(params.t0)}-{int(params.tf)}"
 
-        base_HL.npz_save_csd(
+        base_HL.npz_save_psds_csds(
             data_file_name,
             base_HL.frequencies,
             base_HL.csd,

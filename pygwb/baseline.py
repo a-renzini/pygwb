@@ -815,7 +815,7 @@ class Baseline(object):
         self.badGPStimes = badGPStimes
         self.delta_sigmas = delta_sigmas
 
-    def save_data(
+    def save_point_estimate_spectra(
         self,
         save_data_type,
         filename,
@@ -835,23 +835,19 @@ class Baseline(object):
         """
 
         if save_data_type == "pickle":
-            save = self.pickle_save
-            save_csd = self.pickle_save_csd
+            save = self._pickle_save
             ext = ".p"
 
         elif save_data_type == "npz":
-            save = self.npz_save
-            save_csd = self.npz_save_csd
+            save = self._npz_save
             ext = ".npz"
 
         elif save_data_type == "json":
-            save = self.json_save
-            save_csd = self.json_save_csd
+            save = self._json_save
             ext = ".json"
 
         elif save_data_type == "hdf5":
-            save = self.hdf5_save
-            save_csd = self.hdf5_save_csd
+            save = self._hdf5_save
             ext = ".h5"
 
         else:
@@ -869,15 +865,59 @@ class Baseline(object):
             self.point_estimate_spectrogram,
             self.sigma_spectrogram,
         )
+
+    def save_psds_csds(
+        self,
+        save_data_type,
+        filename,
+    ):
+        """Saves the average and naive psds and csds and the corresponding frequencies
+        in the required save_data_type, which can be npz, pickle, json or hdf5.
+        You can call upon this data afterwards when loaoding in using the ['key'] dictionary format.
+
+        Parameters
+        ==========
+        save_data_type: str
+            The required type of data file where the information will be stored
+        filename: str
+            the path/name of the file in which you want to save
+
+        """
+
+        if save_data_type == "pickle":
+            save_csd = self._pickle_save_csd
+            ext = ".p"
+
+        elif save_data_type == "npz":
+            save_csd = self._npz_save_csd
+            ext = ".npz"
+
+        elif save_data_type == "json":
+            save_csd = self._json_save_csd
+            ext = ".json"
+
+        elif save_data_type == "hdf5":
+            save_csd = self._hdf5_save_csd
+            ext = ".h5"
+
+        else:
+            raise ValueError(
+                "The provided data type is not supported, try using 'pickle', 'npz', 'json' or 'hdf5' instead."
+            )
+
         save_csd(
             f"psds_csds_{filename}{ext}",
             self.frequencies,
+            self.csd,
             self.average_csd,
+            self.interferometer_1.psd_spectrogram,
+            self.interferometer_2.psd_spectrogram,
             self.interferometer_1.average_psd,
             self.interferometer_2.average_psd,
         )
 
-    def npz_save(
+
+    def _npz_save(
         self,
         filename,
         frequencies,
@@ -899,7 +939,7 @@ class Baseline(object):
             sigma_spectrogram=sigma_spectrogram,
         )
 
-    def pickle_save(
+    def _pickle_save(
         self,
         filename,
         frequencies,
@@ -923,7 +963,7 @@ class Baseline(object):
         with open(filename, "wb") as f:
             pickle.dump(save_dictionary, f)
 
-    def json_save(
+    def _json_save(
         self,
         filename,
         frequencies,
@@ -959,7 +999,7 @@ class Baseline(object):
         with open(filename, "w") as outfile:
             json.dump(save_dictionary, outfile)
 
-    def hdf5_save(
+    def _hdf5_save(
         self,
         filename,
         frequencies,
@@ -984,18 +1024,21 @@ class Baseline(object):
 
         hf.close()
 
-    def npz_save_csd(self, filename, freqs, csd, avg_psd_1, avg_psd_2):
+    def _npz_save_csd(self, filename, freqs, csd, avg_csd, psd_1, psd_2, avg_psd_1, avg_psd_2):
         np.savez(
-            filename, freqs=freqs, csd=csd, avg_psd_1=avg_psd_1, avg_psd_2=avg_psd_2
+            filename, freqs=freqs, csd=csd, avg_csd=avg_csd, psd_1=psd_1, psd_2=psd_2, avg_psd_1=avg_psd_1, avg_psd_2=avg_psd_2
         )
 
-    def pickle_save_csd(self, filename, freqs, csd, psd_1, psd_2):
+    def _pickle_save_csd(self, filename, freqs, csd, avg_psd, psd_1, psd_2, avg_psd_1, avg_psd_2):
 
         save_dictionary = {
             "freqs": freqs,
             "csd": csd,
-            "avg_psd_1": psd_1,
-            "avg_psd_2": psd_2,
+            "avg_csd": avg_csd,
+            "psd_1": psd_1,
+            "psd_2": psd_2,
+            "avg_psd_1": avg_psd_1,
+            "avg_psd_2": avg_psd_2,
         }
 
         # with open(filename, "wb") as f:
@@ -1004,7 +1047,7 @@ class Baseline(object):
         with open(filename, "wb") as f:
             pickle.dump(save_dictionary, f)
 
-    def json_save_csd(self, filename, freqs, csd, psd_1, psd_2):
+    def json_save_csd(self, filename, freqs, csd, avg_csd, psd_1, psd_2, avg_psd_1, avg_psd_2):
         """
         It seems that saving spectrograms in json does not work, hence everything is converted into a list and saved that way in the json file.
         A second issue is that json does not seem to recognise complex values, hence the csd is split up into a real and imaginary part.
@@ -1021,38 +1064,65 @@ class Baseline(object):
         real_csd_list = real_csd.tolist()
         imag_csd_list = imag_csd.tolist()
         csd_times = csd.times.value.tolist()
+        list_avg_csd = avg_csd.value.tolist()
+        real_avg_csd = np.zeros(np.shape(list_avg_csd))
+        imag_avg_csd = np.zeros(np.shape(list_avg_csd))
+        for index, row in enumerate(list_avg_csd):
+            for j, elem in enumerate(row):
+                real_avg_csd[index, j] = elem.real
+                imag_avg_csd[index, j] = elem.imag
+        real_avg_csd_list = real_avg_csd.tolist()
+        imag_avg_csd_list = imag_avg_csd.tolist()
+        avg_csd_times = avg_csd.times.value.tolist()
         list_psd_1 = psd_1.value.tolist()
         psd_times = psd_1.times.value.tolist()
         list_psd_2 = psd_2.value.tolist()
         psd_2_times = psd_2.times.value.tolist()
+        list_avg_psd_1 = avg_psd_1.value.tolist()
+        avg_psd_times = avg_psd_1.times.value.tolist()
+        list_avg_psd_2 = avg_psd_2.value.tolist()
+        avg_psd_2_times = avg_psd_2.times.value.tolist()
 
         save_dictionary = {
             "freqs": list_freqs,
             "csd_real": real_csd_list,
             "csd_imag": imag_csd_list,
             "csd_times": csd_times,
-            "avg_psd_1": list_psd_1,
+            "avg_csd_real": real_avg_csd_list,
+            "avg_csd_imag": imag_avg_csd_list,
+            "avg_csd_times": avg_csd_times,
+            "psd_1": list_psd_1,
             "psd_1_times": psd_times,
-            "avg_psd_2": list_psd_2,
+            "psd_2": list_psd_2,
             "psd_2_times": psd_2_times,
+            "avg_psd_1": list_avg_psd_1,
+            "avg_psd_1_times": avg_psd_times,
+            "avg_avg_psd_2": list_avg_psd_2,
+            "avg_psd_2_times": avg_psd_2_times,
         }
 
         with open(filename, "w") as outfile:
             json.dump(save_dictionary, outfile)
 
-    def hdf5_save_csd(self, filename, freqs, csd, psd_1, psd_2):
+    def _hdf5_save_csd(self, filename, freqs, csd, avg_csd, psd_1, psd_2, avg_psd_1, avg_psd_2):
         hf = h5py.File(filename, "w")
 
         csd_times = csd.times.value
         psd_1_times = psd_1.times.value
         psd_2_times = psd_2.times.value
+        avg_csd_times = avg_csd.times.value
+        avg_psd_1_times = avg_psd_1.times.value
+        avg_psd_2_times = avg_psd_2.times.value
 
         hf.create_dataset("freqs", data=freqs)
 
         csd_group = hf.create_group("csd_group")
-
         csd_group.create_dataset("csd", data=csd)
         csd_group.create_dataset("csd_times", data=csd_times)
+
+        avg_csd_group = hf.create_group("avg_csd_group")
+        avg_csd_group.create_dataset("avg_csd", data=avg_csd)
+        avg_csd_group.create_dataset("avg_csd_times", data=avg_csd_times)
 
         psd_group = hf.create_group("psds_group")
 
@@ -1064,6 +1134,15 @@ class Baseline(object):
         psd_2_group.create_dataset("psd_2", data=psd_2)
         psd_2_group.create_dataset("psd_2_times", data=psd_2_times)
 
+        avg_psd_group = hf.create_group("avg_psds_group")
+
+        avg_psd_1_group = hf.create_group("avg_psds_group/avg_psd_1")
+        avg_psd_1_group.create_dataset("avg_psd_1", data=avg_psd_1)
+        avg_psd_1_group.create_dataset("avg_psd_1_times", data=avg_psd_1_times)
+
+        avg_psd_2_group = hf.create_group("avg_psds_group/avg_psd_2")
+        avg_psd_2_group.create_dataset("avg_psd_2", data=avg_psd_2)
+        avg_psd_2_group.create_dataset("avg_psd_2_times", data=avg_psd_2_times)
         hf.close()
 
 
