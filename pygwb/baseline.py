@@ -30,7 +30,6 @@ class Baseline(object):
         overlap_factor=0.5,
         zeropad_csd=True,
         window_fftgram="hann",
-        overlap_factor_welch_psd=0,
         N_average_segments_welch_psd=2,
         sampling_frequency=None,
     ):
@@ -58,9 +57,6 @@ class Baseline(object):
             if True, applies zeropadding in the csd estimation. True by default.
         window_fftgram: str, optional
             what type of window to use to produce the fftgrams
-        overlap_factor_welch_psd: float, optional
-            Amount of overlap between data blocks used in pwelch method (range between 0 and 1)
-            (default 0, no overlap)
         N_average_segments_welch_psd: int, optional
             Number of segments used for PSD averaging (from both sides of the segment of interest)
             N_avg_segs should be even and >= 2
@@ -73,7 +69,6 @@ class Baseline(object):
         self.overlap_factor = overlap_factor
         self.zeropad_csd = zeropad_csd
         self.window_fftgram = window_fftgram
-        self.overlap_factor_welch_psd = overlap_factor_welch_psd
         self.N_average_segments_welch_psd = N_average_segments_welch_psd
         self._tensor_orf_calculated = False
         self._vector_orf_calculated = False
@@ -321,7 +316,7 @@ class Baseline(object):
 
     @property
     def delta_sigmas(self):
-        if hasattr(self, "delta_sigmas"):
+        if hasattr(self, "_delta_sigmas"):
             return self._delta_sigmas
         else:
             raise ValueError(
@@ -410,7 +405,6 @@ class Baseline(object):
             overlap_factor=parameters.overlap_factor,
             zeropad_csd=parameters.zeropad_csd,
             window_fftgram=parameters.window_fftgram,
-            overlap_factor_welch_psd=parameters.overlap_factor_welch_psd,
             N_average_segments_welch_psd=parameters.N_average_segments_welch_psd,
             sampling_frequency=parameters.new_sample_rate,
         )
@@ -440,8 +434,6 @@ class Baseline(object):
                 frequency_resolution,
                 overlap_factor=self.overlap_factor,
                 window_fftgram=self.window_fftgram,
-                overlap_factor_welch_psd=self.overlap_factor_welch_psd,
-                N_average_segments_welch_psd=self.N_average_segments_welch_psd,
             )
         except AttributeError:
             raise AssertionError(
@@ -452,8 +444,6 @@ class Baseline(object):
                 frequency_resolution,
                 overlap_factor=self.overlap_factor,
                 window_fftgram=self.window_fftgram,
-                overlap_factor_welch_psd=self.overlap_factor_welch_psd,
-                N_average_segments_welch_psd=self.N_average_segments_welch_psd,
             )
         except AttributeError:
             raise AssertionError(
@@ -487,8 +477,8 @@ class Baseline(object):
 
         # TODO: make this less fragile.
         # For now, recalculate ORF in case frequencies have changed.
-        self._tensor_orf_calculated = False
-        self.frequencies = self.csd.frequencies.value
+        # self._tensor_orf_calculated = False
+        # self.frequencies = self.csd.frequencies.value
 
     def set_average_cross_spectral_density(self):
         """If csd has been calculated, sets the average csd for the baseline"""
@@ -505,6 +495,7 @@ class Baseline(object):
         # TODO: make this less fragile.
         # For now, recalculate ORF in case frequencies have changed.
         self._tensor_orf_calculated = False
+        self.frequencies = self.csd.frequencies.value
 
     def crop_frequencies_average_psd_csd(self, flow, fhigh):
         """crop frequencies of average PSDs and CSDS. Done in place. This is not completely implemented yet.
@@ -746,10 +737,12 @@ class Baseline(object):
             logger.debug("loading notches from", self.notch_list_path)
             lines_object = StochNotchList.load_from_file(self.notch_list_path)
             _, notch_indexes = lines_object.get_idxs(Y_spec.frequencies.value)
+            self.set_frequency_mask(self.notch_list_path)
         elif notch_list_path:
             logger.debug("loading notches from", notch_list_path)
             lines_object = StochNotchList.load_from_file(notch_list_path)
             _, notch_indexes = lines_object.get_idxs(Y_spec.frequencies.value)
+            self.set_frequency_mask(notch_list_path)
         else:
             notch_indexes = np.arange(Y_spec.size)
 
@@ -774,11 +767,7 @@ class Baseline(object):
         self.sigma = sigma
 
     def calculate_delta_sigma_cut(
-        self,
-        delta_sigma_cut,
-        alphas,
-        flow=20,
-        fhigh=1726,
+        self, delta_sigma_cut, alphas, flow=20, fhigh=1726, notch_list_path=""
     ):
         """Calculates the delta sigma cut using the naive and average psds, if set in the baseline.
 
@@ -792,16 +781,24 @@ class Baseline(object):
             low frequency. Default is 20 Hz.
         fhigh: float, optional
             high frequency. Default is 1726 Hz.
+        notch_list_path: str, optional
+            file path of the baseline notch list
         """
+        if not notch_list_path:
+            notch_list_path = self.notch_list_path
 
         deltaF = self.frequencies[1] - self.frequencies[0]
         self.crop_frequencies_average_psd_csd(flow=flow, fhigh=fhigh)
-        naive_psd_1_cropped = self.interferometer_1.psd_spectrogram.crop_frequencies(
-            flow, fhigh + deltaF
-        )
-        naive_psd_2_cropped = self.interferometer_2.psd_spectrogram.crop_frequencies(
-            flow, fhigh + deltaF
-        )
+        stride = self.duration * (1 - self.overlap_factor)
+        csd_segment_offset = int(np.ceil(self.duration / stride))
+        naive_psd_1 = self.interferometer_1.psd_spectrogram[
+            csd_segment_offset:-csd_segment_offset
+        ]
+        naive_psd_2 = self.interferometer_2.psd_spectrogram[
+            csd_segment_offset:-csd_segment_offset
+        ]
+        naive_psd_1_cropped = naive_psd_1.crop_frequencies(flow, fhigh + deltaF)
+        naive_psd_2_cropped = naive_psd_2.crop_frequencies(flow, fhigh + deltaF)
 
         badGPStimes, delta_sigmas = run_dsc(
             delta_sigma_cut,
@@ -812,12 +809,13 @@ class Baseline(object):
             self.interferometer_1.average_psd,
             self.interferometer_2.average_psd,
             alphas,
-            self.notch_list_path,
+            self.tensor_overlap_reduction_function,
+            notch_list_path=notch_list_path,
         )
         self.badGPStimes = badGPStimes
         self.delta_sigmas = delta_sigmas
 
-    def save_data(
+    def save_point_estimate_spectra(
         self,
         save_data_type,
         filename,
@@ -837,23 +835,19 @@ class Baseline(object):
         """
 
         if save_data_type == "pickle":
-            save = self.pickle_save
-            save_csd = self.pickle_save_csd
+            save = self._pickle_save
             ext = ".p"
 
         elif save_data_type == "npz":
-            save = self.npz_save
-            save_csd = self.npz_save_csd
+            save = self._npz_save
             ext = ".npz"
 
         elif save_data_type == "json":
-            save = self.json_save
-            save_csd = self.json_save_csd
+            save = self._json_save
             ext = ".json"
 
         elif save_data_type == "hdf5":
-            save = self.hdf5_save
-            save_csd = self.hdf5_save_csd
+            save = self._hdf5_save
             ext = ".h5"
 
         else:
@@ -871,15 +865,59 @@ class Baseline(object):
             self.point_estimate_spectrogram,
             self.sigma_spectrogram,
         )
+
+    def save_psds_csds(
+        self,
+        save_data_type,
+        filename,
+    ):
+        """Saves the average and naive psds and csds and the corresponding frequencies
+        in the required save_data_type, which can be npz, pickle, json or hdf5.
+        You can call upon this data afterwards when loaoding in using the ['key'] dictionary format.
+
+        Parameters
+        ==========
+        save_data_type: str
+            The required type of data file where the information will be stored
+        filename: str
+            the path/name of the file in which you want to save
+
+        """
+
+        if save_data_type == "pickle":
+            save_csd = self._pickle_save_csd
+            ext = ".p"
+
+        elif save_data_type == "npz":
+            save_csd = self._npz_save_csd
+            ext = ".npz"
+
+        elif save_data_type == "json":
+            save_csd = self._json_save_csd
+            ext = ".json"
+
+        elif save_data_type == "hdf5":
+            save_csd = self._hdf5_save_csd
+            ext = ".h5"
+
+        else:
+            raise ValueError(
+                "The provided data type is not supported, try using 'pickle', 'npz', 'json' or 'hdf5' instead."
+            )
+
         save_csd(
             f"psds_csds_{filename}{ext}",
             self.frequencies,
+            self.csd,
             self.average_csd,
+            self.interferometer_1.psd_spectrogram,
+            self.interferometer_2.psd_spectrogram,
             self.interferometer_1.average_psd,
             self.interferometer_2.average_psd,
         )
 
-    def npz_save(
+
+    def _npz_save(
         self,
         filename,
         frequencies,
@@ -901,7 +939,7 @@ class Baseline(object):
             sigma_spectrogram=sigma_spectrogram,
         )
 
-    def pickle_save(
+    def _pickle_save(
         self,
         filename,
         frequencies,
@@ -925,7 +963,7 @@ class Baseline(object):
         with open(filename, "wb") as f:
             pickle.dump(save_dictionary, f)
 
-    def json_save(
+    def _json_save(
         self,
         filename,
         frequencies,
@@ -961,7 +999,7 @@ class Baseline(object):
         with open(filename, "w") as outfile:
             json.dump(save_dictionary, outfile)
 
-    def hdf5_save(
+    def _hdf5_save(
         self,
         filename,
         frequencies,
@@ -986,18 +1024,21 @@ class Baseline(object):
 
         hf.close()
 
-    def npz_save_csd(self, filename, freqs, csd, avg_psd_1, avg_psd_2):
+    def _npz_save_csd(self, filename, freqs, csd, avg_csd, psd_1, psd_2, avg_psd_1, avg_psd_2):
         np.savez(
-            filename, freqs=freqs, csd=csd, avg_psd_1=avg_psd_1, avg_psd_2=avg_psd_2
+            filename, freqs=freqs, csd=csd, avg_csd=avg_csd, psd_1=psd_1, psd_2=psd_2, avg_psd_1=avg_psd_1, avg_psd_2=avg_psd_2
         )
 
-    def pickle_save_csd(self, filename, freqs, csd, psd_1, psd_2):
+    def _pickle_save_csd(self, filename, freqs, csd, avg_psd, psd_1, psd_2, avg_psd_1, avg_psd_2):
 
         save_dictionary = {
             "freqs": freqs,
             "csd": csd,
-            "avg_psd_1": psd_1,
-            "avg_psd_2": psd_2,
+            "avg_csd": avg_csd,
+            "psd_1": psd_1,
+            "psd_2": psd_2,
+            "avg_psd_1": avg_psd_1,
+            "avg_psd_2": avg_psd_2,
         }
 
         # with open(filename, "wb") as f:
@@ -1006,7 +1047,7 @@ class Baseline(object):
         with open(filename, "wb") as f:
             pickle.dump(save_dictionary, f)
 
-    def json_save_csd(self, filename, freqs, csd, psd_1, psd_2):
+    def json_save_csd(self, filename, freqs, csd, avg_csd, psd_1, psd_2, avg_psd_1, avg_psd_2):
         """
         It seems that saving spectrograms in json does not work, hence everything is converted into a list and saved that way in the json file.
         A second issue is that json does not seem to recognise complex values, hence the csd is split up into a real and imaginary part.
@@ -1023,38 +1064,65 @@ class Baseline(object):
         real_csd_list = real_csd.tolist()
         imag_csd_list = imag_csd.tolist()
         csd_times = csd.times.value.tolist()
+        list_avg_csd = avg_csd.value.tolist()
+        real_avg_csd = np.zeros(np.shape(list_avg_csd))
+        imag_avg_csd = np.zeros(np.shape(list_avg_csd))
+        for index, row in enumerate(list_avg_csd):
+            for j, elem in enumerate(row):
+                real_avg_csd[index, j] = elem.real
+                imag_avg_csd[index, j] = elem.imag
+        real_avg_csd_list = real_avg_csd.tolist()
+        imag_avg_csd_list = imag_avg_csd.tolist()
+        avg_csd_times = avg_csd.times.value.tolist()
         list_psd_1 = psd_1.value.tolist()
         psd_times = psd_1.times.value.tolist()
         list_psd_2 = psd_2.value.tolist()
         psd_2_times = psd_2.times.value.tolist()
+        list_avg_psd_1 = avg_psd_1.value.tolist()
+        avg_psd_times = avg_psd_1.times.value.tolist()
+        list_avg_psd_2 = avg_psd_2.value.tolist()
+        avg_psd_2_times = avg_psd_2.times.value.tolist()
 
         save_dictionary = {
             "freqs": list_freqs,
             "csd_real": real_csd_list,
             "csd_imag": imag_csd_list,
             "csd_times": csd_times,
-            "avg_psd_1": list_psd_1,
+            "avg_csd_real": real_avg_csd_list,
+            "avg_csd_imag": imag_avg_csd_list,
+            "avg_csd_times": avg_csd_times,
+            "psd_1": list_psd_1,
             "psd_1_times": psd_times,
-            "avg_psd_2": list_psd_2,
+            "psd_2": list_psd_2,
             "psd_2_times": psd_2_times,
+            "avg_psd_1": list_avg_psd_1,
+            "avg_psd_1_times": avg_psd_times,
+            "avg_avg_psd_2": list_avg_psd_2,
+            "avg_psd_2_times": avg_psd_2_times,
         }
 
         with open(filename, "w") as outfile:
             json.dump(save_dictionary, outfile)
 
-    def hdf5_save_csd(self, filename, freqs, csd, psd_1, psd_2):
+    def _hdf5_save_csd(self, filename, freqs, csd, avg_csd, psd_1, psd_2, avg_psd_1, avg_psd_2):
         hf = h5py.File(filename, "w")
 
         csd_times = csd.times.value
         psd_1_times = psd_1.times.value
         psd_2_times = psd_2.times.value
+        avg_csd_times = avg_csd.times.value
+        avg_psd_1_times = avg_psd_1.times.value
+        avg_psd_2_times = avg_psd_2.times.value
 
         hf.create_dataset("freqs", data=freqs)
 
         csd_group = hf.create_group("csd_group")
-
         csd_group.create_dataset("csd", data=csd)
         csd_group.create_dataset("csd_times", data=csd_times)
+
+        avg_csd_group = hf.create_group("avg_csd_group")
+        avg_csd_group.create_dataset("avg_csd", data=avg_csd)
+        avg_csd_group.create_dataset("avg_csd_times", data=avg_csd_times)
 
         psd_group = hf.create_group("psds_group")
 
@@ -1066,6 +1134,15 @@ class Baseline(object):
         psd_2_group.create_dataset("psd_2", data=psd_2)
         psd_2_group.create_dataset("psd_2_times", data=psd_2_times)
 
+        avg_psd_group = hf.create_group("avg_psds_group")
+
+        avg_psd_1_group = hf.create_group("avg_psds_group/avg_psd_1")
+        avg_psd_1_group.create_dataset("avg_psd_1", data=avg_psd_1)
+        avg_psd_1_group.create_dataset("avg_psd_1_times", data=avg_psd_1_times)
+
+        avg_psd_2_group = hf.create_group("avg_psds_group/avg_psd_2")
+        avg_psd_2_group.create_dataset("avg_psd_2", data=avg_psd_2)
+        avg_psd_2_group.create_dataset("avg_psd_2_times", data=avg_psd_2_times)
         hf.close()
 
 
