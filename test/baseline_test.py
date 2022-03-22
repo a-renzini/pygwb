@@ -3,9 +3,11 @@ import os
 import unittest
 
 import bilby
+import gwpy.testing.utils
 import numpy as np
+import pytest
 
-from pygwb import baseline
+from pygwb import baseline, parameters
 
 
 class TestBaseline(unittest.TestCase):
@@ -196,11 +198,104 @@ class TestBaseline(unittest.TestCase):
             "H1H2",
             self.interferometer_1,
             self.interferometer_2,
-            )
-        base.save_to_pickle('test/test_data/baseline_pickle_test.pickle')
+        )
+        base.save_to_pickle("test/test_data/baseline_pickle_test.pickle")
 
     def test_load_from_pickle(self):
-        base = baseline.Baseline.load_from_pickle('test/test_data/baseline_pickle_test.pickle')
+        base = baseline.Baseline.load_from_pickle(
+            "test/test_data/baseline_pickle_test.pickle"
+        )
+
+    def test_from_parameters(self):
+        param_file = "test/test_data/parameters_test.ini"
+        params = parameters.Parameters.from_file(param_file)
+        base = baseline.Baseline.from_parameters(
+            self.interferometer_1, self.interferometer_2, params
+        )
+
+    def test_set_cross_and_power_spectral_density(self):
+        pickled_base = baseline.Baseline.load_from_pickle(
+            "test/test_data/H1L1_1247644138-1247645038.pickle"
+        )
+        pickled_ifo_1 = pickled_base.interferometer_1
+        pickled_ifo_2 = pickled_base.interferometer_2
+        PSD_1_test = pickled_ifo_1.psd_spectrogram
+        PSD_2_test = pickled_ifo_2.psd_spectrogram
+        CSD_test = pickled_base.csd
+
+        ifo_1 = copy.deepcopy(pickled_ifo_1)
+        ifo_2 = copy.deepcopy(pickled_ifo_2)
+        ifo_1.psd_spectrogram = None
+        ifo_2.psd_spectrogram = None
+        frequency_resolution = PSD_1_test.df.value
+        base = baseline.Baseline.from_interferometers([ifo_1, ifo_2])
+        base.set_cross_and_power_spectral_density(frequency_resolution)
+        gwpy.testing.utils.assert_quantity_sub_equal(
+            PSD_1_test, base.interferometer_1.psd_spectrogram, almost_equal=True
+        )
+        gwpy.testing.utils.assert_quantity_sub_equal(
+            PSD_2_test, base.interferometer_2.psd_spectrogram, almost_equal=True
+        )
+        gwpy.testing.utils.assert_quantity_sub_equal(
+            CSD_test, base.csd, almost_equal=True
+        )
+
+    def test_set_average_power_spectral_densities(self):
+        pickled_base = baseline.Baseline.load_from_pickle(
+            "test/test_data/H1L1_1247644138-1247645038.pickle"
+        )
+        pickled_base.crop_frequencies_average_psd_csd(50, 500)
+        pickled_ifo_1 = pickled_base.interferometer_1
+        pickled_ifo_2 = pickled_base.interferometer_2
+        PSD_1_test = pickled_ifo_1.average_psd
+        PSD_2_test = pickled_ifo_2.average_psd
+
+        ifo_1 = copy.deepcopy(pickled_ifo_1)
+        ifo_2 = copy.deepcopy(pickled_ifo_2)
+        ifo_1.average_psd = None
+        ifo_2.average_psd = None
+        base = baseline.Baseline.from_interferometers([ifo_1, ifo_2])
+        base.set_average_power_spectral_densities()
+        base.frequencies = pickled_base.frequencies
+        base.crop_frequencies_average_psd_csd(50, 500)
+        gwpy.testing.utils.assert_quantity_sub_equal(
+            PSD_1_test, base.interferometer_1.average_psd, almost_equal=True
+        )
+        gwpy.testing.utils.assert_quantity_sub_equal(
+            PSD_2_test, base.interferometer_2.average_psd, almost_equal=True
+        )
+
+    def test_set_average_cross_spectral_density(self):
+        pickled_base = baseline.Baseline.load_from_pickle(
+            "test/test_data/H1L1_1247644138-1247645038.pickle"
+        )
+        pickled_base.crop_frequencies_average_psd_csd(50, 500)
+        pickled_ifo_1 = pickled_base.interferometer_1
+        pickled_ifo_2 = pickled_base.interferometer_2
+        CSD_test = pickled_base.average_csd
+
+        base = copy.deepcopy(pickled_base)
+        base.average_csd = None
+        base.set_average_cross_spectral_density()
+        base.crop_frequencies_average_psd_csd(50, 500)
+        gwpy.testing.utils.assert_quantity_sub_equal(
+            CSD_test, base.average_csd, almost_equal=True
+        )
+
+    def test_calculate_delta_sigma_cut(self):
+        pickled_base = baseline.Baseline.load_from_pickle(
+            "test/test_data/H1L1_1247644138-1247645038.pickle"
+        )
+        badGPStimes_test = pickled_base.badGPStimes
+        dsc_test = pickled_base.delta_sigmas
+        base = copy.deepcopy(pickled_base)
+        base.badGPStimes = None
+        base.delta_sigmas = None
+        notch_file = "test/test_data/Official_O3_HL_notchlist.txt"
+        base.calculate_delta_sigma_cut(
+            delta_sigma_cut=0.2, alphas=[-5, 0, 3], notch_list_path=notch_file
+        )
+        self.assertEqual(badGPStimes_test.tolist(), base.badGPStimes.tolist())
 
 
 if __name__ == "__main__":

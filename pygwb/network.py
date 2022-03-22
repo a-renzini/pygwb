@@ -21,7 +21,6 @@ class Network(object):
         overlap_factor=0.5,
         zeropad_csd=True,
         window_fftgram="hann",
-        overlap_factor_welch_psd=0,
         N_average_segments_welch_psd=2,
     ):
         """
@@ -50,9 +49,6 @@ class Network(object):
             if True, applies zeropadding in the csd estimation. True by default.
         window_fftgram: str, optional
             what type of window to use to produce the fftgrams
-        overlap_factor_welch_psd: float, optional
-            Amount of overlap between data blocks used in pwelch method (range between 0 and 1)
-            (default 0, no overlap)
         N_average_segments_welch_psd: int, optional
             Number of segments used for PSD averaging (from both sides of the segment of interest)
             N_avg_segs should be even and >= 2
@@ -82,7 +78,6 @@ class Network(object):
                     overlap_factor=overlap_factor,
                     zeropad_csd=zeropad_csd,
                     window_fftgram=window_fftgram,
-                    overlap_factor_welch_psd=overlap_factor_welch_psd,
                     N_average_segments_welch_psd=N_average_segments_welch_psd,
                 )
             )
@@ -133,7 +128,9 @@ class Network(object):
                 ifo.duration = duration
             return
         try:
-            duration = next(ifo.duration is not None for ifo in self.interferometers)
+            duration = next(
+                ifo.duration for ifo in self.interferometers if ifo.duration is not None
+            )
         except StopIteration:
             warnings.warn(
                 "The Network duration is not set, "

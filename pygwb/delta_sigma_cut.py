@@ -44,7 +44,7 @@ def dsc_cut(
 
     dsigma = np.abs(slide_sigma * bf_ss - naive_sigma * bf_ns) / slide_sigma * bf_ss
 
-    return dsigma >= dsc
+    return dsigma >= dsc, dsigma
 
 
 def calc_Hf(freqs: np.ndarray, alpha: float = 0, fref: int = 20):
@@ -95,7 +95,6 @@ def calc_sigma_alpha(sensitivity_integrand_with_Hf: np.ndarray):
 
     return sigma_alpha
 
-
 def calc_sens_integrand(
     freq: np.ndarray,
     P1: np.ndarray,
@@ -103,8 +102,8 @@ def calc_sens_integrand(
     window1: np.ndarray,
     window2: np.ndarray,
     delta_f: float,
+    orf: np.array,
     T: int = 32,
-    orf=1,
     H0: float = 67.9e3 / 3.086e22,
 ):
 
@@ -237,11 +236,14 @@ def veto_lines(freqs: np.ndarray, lines: np.ndarray, df: float = 0):
         True: this frequency is contaminated by a noise line
         False: this frequency is fine to use
     """
+    nbins = len(freqs)
+    veto = np.zeros((nbins, 1), dtype="bool")
+
+    if not len(lines):
+        return veto
 
     fmins = lines[:, 0]
     fmaxs = lines[:, 1]
-    nbins = len(freqs)
-    veto = np.zeros((nbins, 1), dtype="bool")
     for fbin in range(len(freqs)):
         freq = freqs[fbin]
         index = np.argwhere((freq >= (fmins - df)) & (freq <= fmaxs + df))
@@ -259,7 +261,8 @@ def run_dsc(
     psd1_slide: np.ndarray,
     psd2_slide: np.ndarray,
     alphas: np.ndarray,
-    notch_path: str,
+    orf: np.array,
+    notch_list_path: str = "",
 ):
 
     """
@@ -273,32 +276,37 @@ def run_dsc(
     segment_duration: int
         Duration of each segment
 
-    psd1_naive; psd2_naive: array
+    psd1_naive; psd2_naive: np.array
         an FFTgram of the PSD computed naively, as in in the particular bin J for detector #1 and #2
 
-    psd1_slide, psd2_slide: array
+    psd1_slide, psd2_slide: np.array
         an FFTgram of the PSD computed by considering the noise in adjacent bins to the bin J, i.e. J-1, J+1 for
         detectors #1 and #2
 
-    alphas: array
+    alphas: np.array
         the spectral indices to use; the code combines the BadGPStimes from each alpha
 
-    notch_path: str
+    notch_list_path: np.array
         path to the notch list file
+
+    orf: array
+        the overlap reduction function as a function of frequency that quantifies the overlap of a detector baseline,
+        which depends on the detector locations, relative orientations, etc.
 
     Returns
     =======
-    BadGPStimes: array
+    BadGPStimes: np.array
         an array of the GPS times to not be considered based on the chosen value of the delta sigma cut
     """
+    if notch_list_path:
+        lines_stochnotch = StochNotchList.load_from_file(f"{notch_list_path}")
+        lines = np.zeros((len(lines_stochnotch), 2))
 
-    lines_stochnotch = StochNotchList.load_from_file(f"{notch_path}")
-
-    lines = np.zeros((len(lines_stochnotch), 2))
-
-    for index, notch in enumerate(lines_stochnotch):
-        lines[index, 0] = lines_stochnotch[index].minimum_frequency
-        lines[index, 1] = lines_stochnotch[index].maximum_frequency
+        for index, notch in enumerate(lines_stochnotch):
+            lines[index, 0] = lines_stochnotch[index].minimum_frequency
+            lines[index, 1] = lines_stochnotch[index].maximum_frequency
+    else:
+        lines = np.zeros((0, 2))
 
     logger.info("Running delta sigma cut")
     nalphas = len(alphas)
@@ -306,11 +314,14 @@ def run_dsc(
     ntimes = len(times)
     df = psd1_naive.df.value
     dt = psd1_naive.df.value ** (-1)
-    bf_ns = calc_bias(segment_duration, df, dt)  # Naive estimate
+    bf_ns = calc_bias(segment_duration, df, dt, N_avg_segs=1)  # Naive estimate
     bf_ss = calc_bias(segment_duration, df, dt, N_avg_segs=2)  # Sliding estimate
     freqs = np.array(psd1_naive.frequencies)
     overall_cut = np.zeros((ntimes, 1), dtype="bool")
     cuts = np.zeros((nalphas, ntimes), dtype="bool")
+
+    veto = veto_lines(freqs, lines)
+    keep = np.squeeze(~veto)
 
     window1 = np.hanning(segment_duration * sampling_frequency)
     window2 = window1
@@ -324,25 +335,24 @@ def run_dsc(
             psd2_slide_time = psd2_slide[time, :]
             naive_sensitivity_integrand_with_Hf = (
                 calc_sens_integrand(
-                    freqs, psd1_naive_time, psd2_naive_time, window1, window2, df, dt
+                    freqs, psd1_naive_time, psd2_naive_time, window1, window2, df, orf, T=dt
                 )
                 / Hf**2
             )
+
             slide_sensitivity_integrand_with_Hf = (
                 calc_sens_integrand(
-                    freqs, psd1_slide_time, psd2_slide_time, window1, window2, df, dt
+                    freqs, psd1_slide_time, psd2_slide_time, window1, window2, df, orf, T=dt
                 )
                 / Hf**2
             )
-            veto = veto_lines(freqs, lines)
-            keep = np.squeeze(~veto)
             naive_sigma_alpha = calc_sigma_alpha(
                 naive_sensitivity_integrand_with_Hf[keep]
             )
             slide_sigma_alpha = calc_sigma_alpha(
                 slide_sensitivity_integrand_with_Hf[keep]
             )
-            cut[time] = dsc_cut(naive_sigma_alpha, slide_sigma_alpha, dsc, bf_ss, bf_ns)
+            cut[time], dsigma = dsc_cut(naive_sigma_alpha, slide_sigma_alpha, dsc, bf_ss, bf_ns)
 
         cuts[alpha, :] = np.squeeze(cut)
 
@@ -351,4 +361,4 @@ def run_dsc(
 
     BadGPStimes = times[np.squeeze(overall_cut)]
 
-    return BadGPStimes, cuts
+    return BadGPStimes, dsigma
