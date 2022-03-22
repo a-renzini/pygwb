@@ -63,10 +63,10 @@ basic-3.10:
     - pip install pre-commit
 
     # Run precommits (black, flake8, spellcheck, isort, no merge conflicts, etc)
-    - pre-commit run --files pygwb/**.py --verbose --show-diff-on-failure
-    - pre-commit run --files pygwb_pipe/**.py --verbose --show-diff-on-failure
-    - pre-commit run --files test/**.py --verbose --show-diff-on-failure
-    - pre-commit run --files tutorials/**.py --verbose --show-diff-on-failure
+    - pre-commit run --files pygwb/*.py --verbose --show-diff-on-failure
+    - pre-commit run --files pygwb_pipe/*.py --verbose --show-diff-on-failure
+    - pre-commit run --files test/*.py --verbose --show-diff-on-failure
+    - pre-commit run --files tutorials/*.py --verbose --show-diff-on-failure
     - pre-commit run --files *.py --verbose --show-diff-on-failure
 
 precommits-py3.8:
