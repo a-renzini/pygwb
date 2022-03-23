@@ -29,3 +29,8 @@ repos:
         language: python
         additional_dependencies:
             - flynt
+-   repo: https://github.com/ColmTalbot/nbstrip
+    rev: v0.1.0
+    hooks:
+    -   id: nbstrip
+        args: [-i, -v]
