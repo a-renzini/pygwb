@@ -918,7 +918,6 @@ class Baseline(object):
             self.interferometer_2.average_psd,
         )
 
-
     def _npz_save(
         self,
         filename,
@@ -1042,12 +1041,23 @@ class Baseline(object):
 
         hf.close()
 
-    def _npz_save_csd(self, filename, freqs, csd, avg_csd, psd_1, psd_2, avg_psd_1, avg_psd_2):
+    def _npz_save_csd(
+        self, filename, freqs, csd, avg_csd, psd_1, psd_2, avg_psd_1, avg_psd_2
+    ):
         np.savez(
-            filename, freqs=freqs, csd=csd, avg_csd=avg_csd, psd_1=psd_1, psd_2=psd_2, avg_psd_1=avg_psd_1, avg_psd_2=avg_psd_2
+            filename,
+            freqs=freqs,
+            csd=csd,
+            avg_csd=avg_csd,
+            psd_1=psd_1,
+            psd_2=psd_2,
+            avg_psd_1=avg_psd_1,
+            avg_psd_2=avg_psd_2,
         )
 
-    def _pickle_save_csd(self, filename, freqs, csd, avg_psd, psd_1, psd_2, avg_psd_1, avg_psd_2):
+    def _pickle_save_csd(
+        self, filename, freqs, csd, avg_psd, psd_1, psd_2, avg_psd_1, avg_psd_2
+    ):
 
         save_dictionary = {
             "freqs": freqs,
@@ -1065,7 +1075,9 @@ class Baseline(object):
         with open(filename, "wb") as f:
             pickle.dump(save_dictionary, f)
 
-    def json_save_csd(self, filename, freqs, csd, avg_csd, psd_1, psd_2, avg_psd_1, avg_psd_2):
+    def json_save_csd(
+        self, filename, freqs, csd, avg_csd, psd_1, psd_2, avg_psd_1, avg_psd_2
+    ):
         """
         It seems that saving spectrograms in json does not work, hence everything is converted into a list and saved that way in the json file.
         A second issue is that json does not seem to recognise complex values, hence the csd is split up into a real and imaginary part.
@@ -1122,7 +1134,9 @@ class Baseline(object):
         with open(filename, "w") as outfile:
             json.dump(save_dictionary, outfile)
 
-    def _hdf5_save_csd(self, filename, freqs, csd, avg_csd, psd_1, psd_2, avg_psd_1, avg_psd_2):
+    def _hdf5_save_csd(
+        self, filename, freqs, csd, avg_csd, psd_1, psd_2, avg_psd_1, avg_psd_2
+    ):
         hf = h5py.File(filename, "w")
 
         csd_times = csd.times.value

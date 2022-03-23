@@ -61,7 +61,7 @@ class Test(unittest.TestCase):
             orf=np.array([1]),
             notch_list_path=notch_file,
         )
-        
+
         self.assertTrue(badGPStimes[0], 1.24764440e09)
         self.assertTrue(badGPStimes[1], 1.24764449e09)
         self.assertTrue(badGPStimes[2], 1.24764459e09)

@@ -95,6 +95,7 @@ def calc_sigma_alpha(sensitivity_integrand_with_Hf: np.ndarray):
 
     return sigma_alpha
 
+
 def calc_sens_integrand(
     freq: np.ndarray,
     P1: np.ndarray,
@@ -335,14 +336,28 @@ def run_dsc(
             psd2_slide_time = psd2_slide[time, :]
             naive_sensitivity_integrand_with_Hf = (
                 calc_sens_integrand(
-                    freqs, psd1_naive_time, psd2_naive_time, window1, window2, df, orf, T=dt
+                    freqs,
+                    psd1_naive_time,
+                    psd2_naive_time,
+                    window1,
+                    window2,
+                    df,
+                    orf,
+                    T=dt,
                 )
                 / Hf**2
             )
 
             slide_sensitivity_integrand_with_Hf = (
                 calc_sens_integrand(
-                    freqs, psd1_slide_time, psd2_slide_time, window1, window2, df, orf, T=dt
+                    freqs,
+                    psd1_slide_time,
+                    psd2_slide_time,
+                    window1,
+                    window2,
+                    df,
+                    orf,
+                    T=dt,
                 )
                 / Hf**2
             )
@@ -352,7 +367,9 @@ def run_dsc(
             slide_sigma_alpha = calc_sigma_alpha(
                 slide_sensitivity_integrand_with_Hf[keep]
             )
-            cut[time], dsigma = dsc_cut(naive_sigma_alpha, slide_sigma_alpha, dsc, bf_ss, bf_ns)
+            cut[time], dsigma = dsc_cut(
+                naive_sigma_alpha, slide_sigma_alpha, dsc, bf_ss, bf_ns
+            )
 
         cuts[alpha, :] = np.squeeze(cut)
 
