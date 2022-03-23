@@ -179,7 +179,7 @@ def resample_filter(
     filtered: gwpy_timeseries
         Timeseries containing the filtered and high passed data
     """
-    if new_sample_rate % 2!=0:
+    if new_sample_rate % 2 != 0:
         raise ValueError("New sample rate is not even.")
     resampled = time_series_data.resample(new_sample_rate, window_downsampling, ftype)
     sample_rate = resampled.sample_rate.value
