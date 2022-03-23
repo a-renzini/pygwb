@@ -2,6 +2,8 @@ import unittest
 
 import numpy as np
 from gwpy import timeseries
+from gwpy.frequencyseries import FrequencySeries
+from gwpy.spectrogram import Spectrogram
 
 from pygwb.spectral import (
     before_after_average,
@@ -9,11 +11,8 @@ from pygwb.spectral import (
     coarse_grain_exact,
     cross_spectral_density,
     power_spectral_density,
+    reweight_spectral_object,
 )
-from gwpy.frequencyseries import FrequencySeries
-from gwpy.spectrogram import Spectrogram
-
-from pygwb.spectral import coarse_grain, coarse_grain_exact, reweight_spectral_object
 
 
 class TestReweightFunction(unittest.TestCase):
