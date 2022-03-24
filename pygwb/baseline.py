@@ -594,7 +594,7 @@ class Baseline(object):
             Weight spectrogram flag; if True, the spectrogram will be re-weighted using the alpha passed here.
             Default is False.
         alpha: float, optional
-            Ppectral index to use in the re-weighting. Default is 0.
+            Spectral index to use in the re-weighting. Default is 0.
         fref: float, optional
             Reference frequency to use in the re-weighting. Default is 25.
         flow: float, optional
@@ -700,7 +700,7 @@ class Baseline(object):
             Apply weighting flag; if True, the point estimate and sigma will be weighted using the alpha passed here.
             Default is True.
         alpha: float, optional
-            Ppectral index to use in the re-weighting. Default is 0.
+            Spectral index to use in the re-weighting. Default is 0.
         fref: float, optional
             Reference frequency to use in the re-weighting. Default is 25.
         flow: float, optional
