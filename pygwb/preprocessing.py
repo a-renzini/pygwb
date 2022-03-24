@@ -57,7 +57,7 @@ def set_start_time(
     return centered_start_time
 
 
-def read_data(IFO: str, data_type: str, channel: str, t0: int, tf: int):
+def read_data(IFO: str, data_type: str, channel: str, t0: int, tf: int, mock_data_path: str = ''):
     """
     Function doing the reading of the data to be used in the
     stochastic pipeline
@@ -69,7 +69,8 @@ def read_data(IFO: str, data_type: str, channel: str, t0: int, tf: int):
 
     data_type: string
         String indicating the type of data to be read,
-        either 'public' or 'private'
+        either 'public' or 'private' or 'mock'
+        if 'mock', need to also pass a mock_data_path
 
     channel: string
         Name of the channel (e.g.: "L1:GWOSC-4KHZ_R1_STRAIN")
@@ -80,6 +81,8 @@ def read_data(IFO: str, data_type: str, channel: str, t0: int, tf: int):
     tf: int
         GPS time of the end of the data taking
 
+    mock_data_path: str, optional
+
     Returns
     =======
     data: TimeSeries object
@@ -87,14 +90,18 @@ def read_data(IFO: str, data_type: str, channel: str, t0: int, tf: int):
     """
     if data_type == "public":
         data = timeseries.TimeSeries.fetch_open_data(IFO, t0, tf, sample_rate=16384)
-    elif data_type == "private":
-        data = timeseries.TimeSeries.get(channel, t0, tf)
         data.channel = channel
-    elif data_type == "injection":
-        pass
+    elif data_type == "private":
+        data = timeseries.TimeSeries.get(channel, start=t0, end=tf, verbose=True)
+        data.channel = channel
+    elif data_type == "mock":
+        data = timeseries.TimeSeries.read(source=mock_data_path, channel=channel, start=t0, end=tf)
+        data.channel = channel
+        data.name = IFO
+        
     else:
         raise ValueError(
-            "Wrong data type. Choose between: public, private and injection"
+            "Wrong data type. Choose between: public, private and mock"
         )
     return data
 
@@ -120,9 +127,9 @@ def apply_high_pass_filter(
         Frequency (in Hz) from which to start applying the
         high pass filter
 
-    number_cropped_seconds: int
+    number_cropped_seconds: int, optional
         Number of seconds to remove at the beginning and end
-        of the high-passed data
+        of the high-passed data; default is 2
 
     Returns
     =======
@@ -205,6 +212,7 @@ def preprocessing_data_channel_name(
     number_cropped_seconds: int = 2,
     window_downsampling: str = "hamming",
     ftype: str = "fir",
+    mock_data_path: str = '',
 ):
     """
     Function doing the pre-processing of the data to be used in the
@@ -266,6 +274,7 @@ def preprocessing_data_channel_name(
         channel=channel,
         t0=data_start_time - number_cropped_seconds,
         tf=tf,
+        mock_data_path=mock_data_path
     )
 
     filtered = resample_filter(
@@ -414,3 +423,4 @@ def preprocessing_data_gwpy_timeseries(
         ftype=ftype,
     )
     return filtered
+

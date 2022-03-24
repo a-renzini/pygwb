@@ -29,6 +29,7 @@ class Parameters:
     flow: int
     fhigh: int
     coarse_grain: int
+    mock_data_path_dict: dict = field(default_factory=lambda: {})
     notch_list_path: str = ""
     N_average_segments_welch_psd: int = 2
     window_fftgram: str = "hann"
@@ -45,6 +46,7 @@ class Parameters:
             raise OSError("Your paramfile doesn't exist!")
 
         param = configparser.ConfigParser()
+        param.optionxform = str
         param.read(str(param_file))
 
         t0 = param.getfloat("parameters", "t0")
@@ -76,6 +78,7 @@ class Parameters:
         alphas_delta_sigma_cut = param.get("parameters", "alphas_delta_sigma_cut")
         save_data_type = param.get("parameters", "save_data_type")
 
+        mock_data_path_dict = dict(param.items("mock_data"))
         return cls(
             t0,
             tf,
@@ -94,6 +97,7 @@ class Parameters:
             flow,
             fhigh,
             coarse_grain,
+            mock_data_path_dict,
             notch_list_path,
             N_average_segments_welch_psd,
             window_fftgram,
