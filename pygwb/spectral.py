@@ -489,22 +489,22 @@ def reweight_spectral_object(spec, freqs, new_alpha, new_fref, old_alpha=0.0, ol
     Parameters
     ----------
         spec: array-like
-            spectrum or spectrogram (with shape N_frequencies x Ntimes)
+            Spectrum or spectrogram (with shape N_frequencies x Ntimes)
         freqs: array-like
-            frequencies at which spec is evaluated
+            Frequencies associated with `spec`.
         new_alpha: float
-            new spectral index
+            New spectral index
         new_fref: float
-            new reference frequency
+            New reference frequency
         old_alpha: float, optional
-            spectral index of input `spec` array (i.e. weighting of `spec`). Defaults to zero (assumes unweighted)
+            Spectral index of input `spec` array (i.e. weighting of `spec`). Defaults to zero (assumes unweighted)
         old_fref:
-            reference frequency of current `spec` weighting (assumes 1 Hz)
+            Reference frequency of current `spec` weighting (assumes 1 Hz)
 
     Returns
     -------
         new_spec: array-like
-            reweighted spectrum or spectrogram array.
+            Reweighted spectrum or spectrogram array.
     """
     weights_old = (freqs / old_fref)**old_alpha
     weights_new = (freqs / new_fref)**new_alpha

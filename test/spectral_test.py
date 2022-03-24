@@ -1,10 +1,10 @@
 import unittest
 
+import gwpy.testing.utils
 import numpy as np
 from gwpy import timeseries
 from gwpy.frequencyseries import FrequencySeries
 from gwpy.spectrogram import Spectrogram
-import gwpy.testing.utils
 
 from pygwb.spectral import (
     before_after_average,
