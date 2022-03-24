@@ -232,6 +232,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
             window_downsampling=window_downsampling,
             ftype=ftype,
         )
+        self.timeseries.channel = kwargs.pop("channel")
         self._check_timeseries_sample_rate(new_sample_rate)
 
     def set_timeseries_from_gwpy_timeseries(self, gwpy_timeseries, **kwargs):
@@ -263,6 +264,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
             window_downsampling=window_downsampling,
             ftype=ftype,
         )
+        self.timeseries.channel = kwargs.pop("channel")
         self._check_timeseries_sample_rate(new_sample_rate)
 
     def set_psd_spectrogram(

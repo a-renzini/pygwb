@@ -29,6 +29,7 @@ class TestInterferometer(unittest.TestCase):
                 "N_average_segments_welch_psd",
             ]
         }
+        self.kwargs["mock_data_path"]=''
         with open("./test/test_data/detector_testdata_H1.pickle", "rb") as pkl:
             self.testdata = pickle.load(pkl)
 
