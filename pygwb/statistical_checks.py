@@ -3,233 +3,211 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy import integrate, special
 from scipy.optimize import curve_fit
+import pickle
+import h5py
 
-from pygwb.util import StatKS, calc_bias, read_jobfiles
-
+from pygwb.util import StatKS, calc_bias, calc_Y_sigma_from_Yf_varf
+from pygwb.delta_sigma_cut import calc_sens_integrand, calc_sigma_alpha, calc_Hf, WindowFactors
+from pygwb.parameters import Parameters
+from pygwb.baseline import Baseline
 
 class StatisticalChecks(object):
-    def __init__(
-        self,
-        segment_duration,
-        njobs,
-        deltaT,
-        deltaF,
-        dsc,
-        ifo_pair,
-        mat_dir,
-        pproc_dir,
-        plot_dir,
-        read_bad_times,
-        segs=None,
-    ):
+    def __init__(self, sliding_times_all, sliding_omega_all, sliding_sigmas_all, naive_sigma_all, badGPSTimes, delta_sigmas, plot_dir,baseline_name, segment_duration, deltaF, deltaT):
         """
-        Class for the statistical analysis of the results, which generates and saves plots.
-
-        Parameters
-        ==========
-        segment_duration: int
-            Duration of a segment in seconds
-        njobs: int
-            Number of jobs
-        deltaT: float
-            Time delta T used in the analysis
-        deltaF: float
-            Frequency delta f used in the analysis
-        dsc: float
-            Value used for the delta-sigma cut
-        ifo_pair: str
-            Name of the baseline. E.g.: "H1L1"
-        mat_dir: str
-            Directory where the mat files are stored
-        pproc_dir: str
-            Directory where the output of post-processing is stored
-        plot_dir: str
-            Directory where the statistical checks plots will be saved
-        read_bad_times: boolean
-            Boolean indicating whether the bad GPS times (after delta-sigma cut) should be read in from file (i.e. True) or computed on the fly here (i.e. False)
-        segs: float
-            Parameter used to perform the delta-sigma cut on the fly
-        Returns
-        =======
         """
-        self.plot_dir = plot_dir
-        self.pproc_dir = pproc_dir
-        self.mat_dir = mat_dir
-        self.segment_duration = segment_duration
-        self.njobs = njobs
-        self.deltaT = deltaT
-        self.deltaF = deltaF
-        self.dsc = dsc
-        self.ifo_pair = ifo_pair
-        self.get_data_before_dsc_cut()
-        self.get_data_after_dsc_cut(read_bad_times, segs)
-        self.get_running_pt_estimate()
-        self.get_pt_estimate_integrand()
-        self.get_sensitivity_integrand()
-        self.get_ifft_integrand()
-
-    def get_data_before_dsc_cut(self):
-        """
-        Gets the data (such as times, omegas, sigmas) before the delta sigma cut.
-        Parameters
-        ==========
-
-        Returns
-        =======
-        """
-        (
-            self.sliding_times_all,
-            self.sliding_omega_all,
-            self.sliding_sigmas_all,
-            self.naive_sigma_all,
-        ) = read_jobfiles(self.njobs, self.mat_dir, self.segment_duration)
-        self.days_all = (self.sliding_times_all - self.sliding_times_all[0]) / 86400.0
+        #self.params = Parameters.from_file(args.param_file)
+        self.sliding_times_all=sliding_times_all
+        self.days_all=(sliding_times_all-sliding_times_all[0])/86400.
+        self.sliding_omega_all=sliding_omega_all
+        self.sliding_sigmas_all=sliding_sigmas_all
+        self.naive_sigma_all = naive_sigma_all
+        self.badGPStimes = badGPSTimes
+        self.delta_sigmas_all = delta_sigmas
         self.sliding_deviate_all = (
             self.sliding_omega_all - np.mean(self.sliding_omega_all)
         ) / self.sliding_sigmas_all
-        self.delta_sig_all = (
-            np.abs(self.naive_sigma_all - self.sliding_sigmas_all)
-            / self.naive_sigma_all
-        )
-
-    def get_data_after_dsc_cut(self, read_bad_times, segs=None):
+        
+        #self.point_estimate_integrand = point_estimate_integrand
+        #self.sensitivity_integrand = sensitivity_integrand
+        self.plot_dir = plot_dir
+        self.baseline_name = baseline_name
+        self.segment_duration=segment_duration
+        self.deltaF=deltaF
+        self.deltaT=deltaT
+        
+        self.sliding_times_cut, self.days_cut, self.sliding_omega_cut, self.sliding_sigmas_cut, self.naive_sigma_cut, self.delta_sigmas_cut, self.sliding_deviate_cut = self.get_data_after_dsc()
+        
+        self.running_pt_estimate, self.running_sigmas = self.compute_running_quantities()
+        #self.alpha = alpha
+        #self.fref = fref
+        
+    @classmethod
+    def from_baseline_pickle(
+        cls,
+        file_path,
+        alpha,
+        fref,
+        deltaF, deltaT,
+        plot_dir
+    ):
         """
-        Gets the data (such as times, omegas, sigmas) after the delta sigma cut.
-        Parameters
-        ==========
-        read_bad_times: boolean
-            Boolean indicating whether the bad GPS times (after delta-sigma cut) should be read in from file (i.e. True) or computed on the fly here (i.e. False)
-        segs: float
-            Parameter used to perform the delta-sigma cut on the fly
+        """
+        baseline = Baseline.load_from_pickle(file_path)
+        
+        orf = baseline.overlap_reduction_function()
+        
+        sliding_times_all=baseline.point_estimate_spectrogram.times.value
+        sliding_omega_all=np.zeros_like(sliding_times_all)
+        sliding_sigmas_all=np.zeros_like(sliding_times_all)
+        
+        for time in range(len(sliding_times_all)):
+            sliding_omega_all[time], sliding_sigmas_all[time] = calc_Y_sigma_from_Yf_varf(baseline.point_estimate_spectrogram.value[time], baseline.sigma_spectrogram.value[time], freqs = baseline.point_estimate_spectrogram.frequencies.value, alpha = alpha, fref=fref, weight_spectrum=True)
+            naive_sigma_all[time] = calc_naive_sigma(baseline.interferometer_1.psd_spectrogram.frequencies.value, baseline.interferometer_1.psd_spectrogram.value[time], baseline.interferometer_2.psd_spectrogram.value[time], orf, df, segment_duration, sampling_frequency, alpha)
+        
+        badGPSTimes=baseline.badGPStimes
+        delta_sigmas=baseline.delta_sigmas
+        return cls(sliding_times_all, sliding_omega_all, sliding_sigmas_all, naive_sigma_all, badGPSTimes, delta_sigmas, plot_dir,baseline.name, baseline.duration, deltaF, deltaT)
+    
+    @classmethod
+    def from_pickle(cls,point_est_file_path, PSD_file_path, alpha, fref, deltaF,deltaT, segment_duration, plot_dir, baseline_name, orf):
+        """
+        """
+        with (open(point_est_file_path, "rb")) as f:
+            while True:
+                try:
+                    point_est_file_data = pickle.load(f)
+                except EOFError:
+                    break
+                    
+        sliding_times_all = point_est_file_data['point_estimate_spectrogram'].times.value
+        sliding_omega_all=np.zeros_like(sliding_times_all)
+        sliding_sigmas_all=np.zeros_like(sliding_times_all)
+        
+        for time in range(len(sliding_times_all)):
+            sliding_omega_all[time], sliding_sigmas_all[time] = calc_Y_sigma_from_Yf_varf(point_est_file_data['point_estimate_spectrogram'].value[time], point_est_file_data['sigma_spectrogram'].value[time], freqs = point_est_file_data['point_estimate_spectrogram'].frequencies.value, alpha = alpha, fref=fref, weight_spectrum=True)
+            
+        badGPSTimes=point_est_file_data['badGPStimes']
+        delta_sigmas=point_est_file_data['delta_sigmas'][0]
+        
+        with (open(PSD_file_path, "rb")) as f:
+            while True:
+                try:
+                    PSD_file_data = pickle.load(f)
+                except EOFError:
+                    break
+        naive_sigma_all= np.zeros_like(sliding_times_all)
+        orf = PSD_file_data['psd_1'].frequencies.value[1:] #Need to change
+        sampling_frequency=1/deltaT
+        for time in range(len(sliding_times_all)):
+            naive_sigma_all[time] = calc_naive_sigma(PSD_file_data['psd_1'].frequencies.value[1:], PSD_file_data['psd_1'].value[time][1:], PSD_file_data['psd_2'].value[time][1:], orf, deltaF, segment_duration, sampling_frequency, alpha)
+            
+        return cls(sliding_times_all, sliding_omega_all, sliding_sigmas_all, naive_sigma_all, badGPSTimes, delta_sigmas, plot_dir, baseline_name, segment_duration, deltaF, deltaT)
+    
+    @classmethod
+    def from_hdf5(cls, point_est_file_path, PSD_file_path, alpha, fref, deltaF,deltaT, segment_duration, plot_dir, baseline_name, orf):
+        """
+        """
+        with h5py.File(PSD_file_path, "r") as f:
+            sliding_times_all = f['psds_group']['psd_1']['psd_1_times'][:]
+            naive_sigma_all= np.zeros_like(sliding_times_all)
+            orf = f['psds_group']['psd_1']['psd_1'][0][:] #Need to change
+            sampling_frequency=1/deltaT
+            for time in range(len(sliding_times_all)):
+                naive_sigma_all[time] = calc_naive_sigma(f['psds_group']['psd_1']['psd_1'][time][:], f['psds_group']['psd_1']['psd_1'][time][:], f['psds_group']['psd_2']['psd_2'][time][:], orf, deltaF, segment_duration, sampling_frequency, alpha)
+        sliding_omega_all=np.zeros_like(sliding_times_all)
+        sliding_sigmas_all=np.zeros_like(sliding_times_all)
+        
+        with h5py.File(point_est_file_path, "r") as f:
+            point_estimate_spectrogram = f['point_estimate_spectrogram'][:]
+            sigma_spectrogram = f['sigma_spectrogram'][:]
+            freqs = f['freqs'][:]
+            print(point_estimate_spectrogram.shape)
+            for time in range(len(sliding_times_all)):
+                sliding_omega_all[time], sliding_sigmas_all[time] = calc_Y_sigma_from_Yf_varf(point_estimate_spectrogram[time][:], sigma_spectrogram[time][:], freqs = freqs, alpha = alpha, fref=fref, weight_spectrum=True)
 
-        Returns
-        =======
+            badGPSTimes = f['badGPStimes'][:]
+            delta_sigmas = f['delta_sigmas'][0][:]
+            #point_estimate_spectrum = f['point_estimate_spectrum']
+            
+        return cls(sliding_times_all, sliding_omega_all, sliding_sigmas_all, naive_sigma_all, badGPSTimes, delta_sigmas, plot_dir, baseline_name, segment_duration, deltaF, deltaT)
+
+        
+    def get_data_after_dsc(self):
+        """
+        """
+        bad_gps_times = self.badGPStimes
+        bad_gps_mask = [(t not in bad_gps_times) for t in self.sliding_times_all]
+        
+        sliding_times_cut = self.sliding_times_all.copy()
+        days_cut = self.days_all.copy()
+        sliding_omega_cut = self.sliding_omega_all.copy()
+        sliding_sigmas_cut = self.sliding_sigmas_all.copy()
+        naive_sigma_cut = self.naive_sigma_all.copy()
+        delta_sigma_cut=self.delta_sigmas_all.copy()
+        sliding_deviate_cut=self.sliding_deviate_all.copy()
+        
+        sliding_times_cut = sliding_times_cut[bad_gps_mask]
+        days_cut = days_cut[bad_gps_mask]
+        sliding_omega_cut = sliding_omega_cut[bad_gps_mask]
+        sliding_sigmas_cut = sliding_sigmas_cut[bad_gps_mask]
+        naive_sigma_cut = naive_sigma_cut[bad_gps_mask]
+        delta_sigma_cut = delta_sigma_cut[bad_gps_mask]
+        sliding_deviate_cut = sliding_deviate_cut[bad_gps_mask]
+
+        return sliding_times_cut, days_cut, sliding_omega_cut, sliding_sigmas_cut, naive_sigma_cut, delta_sigma_cut, sliding_deviate_cut
+        
+    def compute_running_quantities(self):
+        """
+        Function that computes the running point estimate and running sigmas from the sliding point estimate and sliding sigmas. This is done only for the values after the delta sigma cut.
+        """
+        running_pt_estimate = self.sliding_omega_cut.copy()
+        running_sigmas = self.sliding_sigmas_cut.copy()
+        
+        ii=0
+        while ii < self.sliding_times_cut.shape[0]-1:
+            ii+=1
+            numerator = running_pt_estimate[ii-1]/(running_sigmas[ii-1]**2) + self.sliding_omega_cut[ii]/(self.sliding_sigmas_cut[ii]**2);
+            denominator = 1./(running_sigmas[ii-1]**2) + 1/(self.sliding_sigmas_cut[ii]**2)
+            running_pt_estimate[ii] = numerator/denominator
+            running_sigmas[ii] = np.sqrt(1./denominator);
+        
+        return running_pt_estimate, running_sigmas
+
+    
+    def compute_ifft_integrand(self):
+        """
         """
 
-        self.sliding_omega_cut = np.array([])
-        self.sliding_sigmas_cut = np.array([])
-        self.delta_sig_cut = np.array([])
-        self.naive_sigma_cut = np.array([])
-        self.days_cut = np.array([])
+        numFreqs = self.point_estimate_integrand.shape[0]
+        freqs = flow + self.deltaF * np.arange(0,numFreqs)
+        fhigh = flow + self.deltaF*numFreqs
 
-        if read_bad_times:
-            file_bad = open(f"{self.pproc_dir[:-3]}badGPSTimes.dat", "r")
-            lines_bad = file_bad.readlines()
-            bad_times = np.array([])
-            for line in lines_bad:
-                temp = line.strip("\n")
-                bad_times = np.append(bad_times, np.array([float(temp)]))
+        fNyq = 1/2/self.deltaT
 
-            for ii in range(self.delta_sig_all.shape[0]):
-                if self.sliding_times_all[ii] not in bad_times:
-                    self.sliding_omega_cut = np.append(
-                        self.sliding_omega_cut, self.sliding_omega_all[ii]
-                    )
-                    self.naive_sigma_cut = np.append(
-                        self.naive_sigma_cut, self.naive_sigma_all[ii]
-                    )
-                    self.sliding_sigmas_cut = np.append(
-                        self.sliding_sigmas_cut, self.sliding_sigmas_all[ii]
-                    )
-                    self.delta_sig_cut = np.append(
-                        self.delta_sig_cut, self.delta_sig_all[ii]
-                    )
-                    self.days_cut = np.append(self.days_cut, self.days_all[ii])
+        numFreqs_pre = np.floor(flow/self.deltaF)-1
+        f_pre = deltaF*np.arange(1,numFreqs_pre+1)
+        numFreqs_post = np.floor((fNyq - fhigh)/self.deltaF)
+        f_post = fhigh + self.deltaF*np.arange(0,numFreqs_post)
+        fp =  np.concatenate((f_pre, freqs, f_post))
+        fn = -np.flipud(fp)
+        f_tot = np.concatenate((fn, 0, fp))
 
-            self.sliding_deviate_cut = (
-                self.sliding_omega_cut - np.mean(self.sliding_omega_cut)
-            ) / self.sliding_sigmas_cut
-        else:
-            nn = 2 * 9 / 11 * segs
-            bf_ss = nn / (nn - 1)
-            nn = 9 / 11 * segs
-            bf_ns = nn / (nn - 1)
+        integrand_pre  = np.zeros(numFreqs_pre)
+        integrand_post = np.zeros(numFreqs_post)
+        integrand_p = np.concatenate((integrand_pre, self.ptEstIntegrand, integrand_post))
 
-            for ii in range(self.delta_sig_all.shape[0]):
-                if self.delta_sig_all[ii] < dsc:
-                    self.sliding_omega_cut = np.append(
-                        self.sliding_omega_cut, self.sliding_omega_all[ii]
-                    )
-                    self.naive_sigma_cut = np.append(
-                        self.naive_sigma_cut, self.naive_sigma_all[ii]
-                    )
-                    self.sliding_sigmas_cut = np.append(
-                        self.sliding_sigmas_cut, self.sliding_sigmas_all[ii]
-                    )
-                    self.delta_sig_cut = np.append(
-                        self.delta_sig_cut, self.delta_sig_all[ii]
-                    )
-                    self.days_cut = np.append(self.days_cut, self.days_all[ii])
+        integrand_n = np.flipud(conj(integrand_p))
+        #see for complexFlag in Matlab
 
-            self.sliding_deviate_cut = (
-                self.sliding_omega_cut - np.mean(self.sliding_omega_cut)
-            ) / self.sliding_sigmas_cut
+        integrand_tot = np.concatenate((np.array([0]),integrand_p, integrand_n))
 
-    def get_running_pt_estimate(self):
-        """
-        Get the running point estimate from file.
-        Parameters
-        ==========
-
-        Returns
-        =======
-        """
-        st, self.Y, self.sig = np.loadtxt(
-            f"{self.pproc_dir+self.ifo_pair}_runningPointEstimate.dat",
-            unpack=True,
-            skiprows=3,
-        )
-        self.days = (st - st[0]) / 86400.0
-
-    def get_pt_estimate_integrand(self):
-        """
-        Gets the point estimate integrand from file.
-        Parameters
-        ==========
-
-        Returns
-        =======
-        """
-        filename_pt = self.pproc_dir + self.ifo_pair + "_ptEstIntegrand.dat"
-        self.pt_est_integrand = np.genfromtxt(filename_pt, comments="%")
-        self.cum_pt_estimate = integrate.cumtrapz(
-            self.pt_est_integrand[:, 2], self.pt_est_integrand[:, 1]
-        )
-
-    def get_sensitivity_integrand(self):
-        """
-        Gets the sensitivity integrand from file.
-        Parameters
-        ==========
-
-        Returns
-        =======
-        """
-        filename_sens = self.pproc_dir + self.ifo_pair + "_sensIntegrand.dat"
-        self.sensitivity_integrand = np.genfromtxt(filename_sens, comments="%")
-        self.cumul_sensitivity = integrate.cumtrapz(
-            self.sensitivity_integrand[:, 2], self.sensitivity_integrand[:, 1]
-        )
-
-    def get_ifft_integrand(self):
-        """
-        Gets the inverse Fourier transform of the FFT point estimate integrand from file.
-        Parameters
-        ==========
-
-        Returns
-        =======
-
-        """
-        FFTcontent = [
-            i.strip().split()
-            for i in open(
-                f"{self.pproc_dir+self.ifo_pair}_FFTofPtEstIntegrand.dat"
-            ).readlines()[3:]
-        ]
-        self.t = [float(FFTcontent[i][0]) for i in range(len(FFTcontent))]
-        self.omega_t = [float(FFTcontent[i][1]) for i in range(len(FFTcontent))]
-
+        fft_integrand = np.fft.fftshift(np.fft.fft(self.deltaF*integrand_tot))
+        
+        t_array = np.arrange(-1./(2*self.deltaF)+self.deltaT,1./(2*self.params.deltaF),self.params.deltaT)
+        omega_t = np.flipud(fft_integrand)
+        
+        return t_array, omega_t
+    
     def plot_running_point_estimate(self):
         """
         Generates and saves a plot of the running point estimate.
@@ -243,17 +221,16 @@ class StatisticalChecks(object):
         """
         fig = plt.figure()
         plt.plot(
-            self.days, self.Y, ".", color="black", markersize=2, label=self.ifo_pair
-        )
-        plt.plot(self.days, self.Y + 1.65 * self.sig, ".", color="green", markersize=2)
-        plt.plot(self.days, self.Y - 1.65 * self.sig, ".", color="blue", markersize=2)
+            self.days_cut, self.running_pt_estimate, ".", color="black", markersize=2, label=self.baseline_name)
+        plt.plot(self.days_cut, self.running_pt_estimate + 1.65 * self.running_sigmas, ".", color="green", markersize=2)
+        plt.plot(self.days_cut, self.running_pt_estimate - 1.65 * self.running_sigmas, ".", color="blue", markersize=2)
         plt.grid(True)
-        plt.ylim(-5e-7, 5e-7)
-        plt.xlim(self.days[0], self.days[-1])
+        #plt.ylim(-5e-7, max())
+        plt.xlim(self.days_cut[0], self.days_cut[-1])
         plt.xlabel("Days since start of run")
         plt.ylabel("Point estimate +/- 1.65\u03C3")
         plt.legend()
-        plt.savefig(f"{self.plot_dir}RunningPointEstimate.png")
+        plt.savefig(f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-running_point_estimate.png")
 
     def plot_running_sigma(self):
         """
@@ -267,14 +244,14 @@ class StatisticalChecks(object):
 
         """
         fig = plt.figure()
-        plt.semilogy(self.days, self.sig, color="blue", label=self.ifo_pair)
+        plt.semilogy(self.days_cut, self.running_sigmas, color="blue", label=self.baseline_name)
         plt.grid(True)
-        plt.ylim(1e-8, 1e-3)
-        plt.xlim(self.days[0], self.days[-1])
+        #plt.ylim(1e-8, 1e-3)
+        plt.xlim(self.days_cut[0], self.days_cut[-1])
         plt.xlabel("Days since start of run")
         plt.ylabel("\u03C3")
         plt.legend()
-        plt.savefig(f"{self.plot_dir}RunningSigma.png")
+        plt.savefig(f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-running_sigma.png")
 
     def plot_IFFT_point_estimate_integrand(self):
         """
@@ -288,14 +265,14 @@ class StatisticalChecks(object):
 
         """
         fig = plt.figure()
-        plt.plot(self.t, self.omega_t, color="b", label=self.ifo_pair)
+        plt.plot(self.t, self.omega_t, color="b", label=self.baseline_name)
         plt.grid(True)
-        plt.ylim(-1.5e-7, 1e-7)
+        #plt.ylim(-1.5e-7, 1e-7)
         plt.xlim(-20, 20)
         plt.xlabel("Lag (s)")
         plt.ylabel("IFFT of Integrand of Pt Estimate")
         plt.legend()
-        plt.savefig(f"{self.plot_dir}IFFTPointEstimateIntegrand.png")
+        plt.savefig(f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-IFFT_point_estimate_integrand.png")
 
     def plot_point_estimate_integrand(self):
         """
@@ -310,15 +287,12 @@ class StatisticalChecks(object):
         """
         plt.figure(figsize=(10, 8))
         plt.semilogy(
-            self.pt_est_integrand[:, 1],
-            np.sqrt(
-                abs(self.pt_est_integrand[:, 2] ** 2 + self.pt_est_integrand[:, 3] ** 2)
-            ),
-        )
+            self.freqs,
+            abs(self.pt_est_integrand))
         plt.xlabel("Frequency [Hz]", size=18)
         plt.ylabel("Abs(point estimate integrand)", size=18)
         plt.savefig(
-            f"{self.plot_dir}AbsPointEstimateIntegrand.png", bbox_inches="tight"
+            f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-abs_point_estimate_integrand.png", bbox_inches="tight"
         )
 
     def plot_cumulative_point_estimate(self):
@@ -332,11 +306,14 @@ class StatisticalChecks(object):
         =======
 
         """
+        cum_pt_estimate = integrate.cumtrapz(
+            np.real(self.pt_est_integrand), self.freqs
+        )
         plt.figure(figsize=(10, 8))
-        plt.plot(self.pt_est_integrand[:-1, 1], self.cum_pt_estimate)
+        plt.plot(self.freqs[:-1], cum_pt_estimate)
         plt.xlabel("Frequency [Hz]", size=18)
         plt.ylabel("Cumulative point estimate", size=18)
-        plt.savefig(f"{self.plot_dir}CumulativePointEstimate.png", bbox_inches="tight")
+        plt.savefig(f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-cumulative_point_estimate.png", bbox_inches="tight")
 
     def plot_real_point_estimate_integrand(self):
         """
@@ -350,11 +327,11 @@ class StatisticalChecks(object):
 
         """
         plt.figure(figsize=(10, 8))
-        plt.plot(self.pt_est_integrand[:, 1], self.pt_est_integrand[:, 2])
+        plt.plot(self.freqs, np.real(self.pt_est_integrand))
         plt.xlabel("Frequency [Hz]", size=18)
         plt.ylabel("Re(point estimate integrand)", size=18)
         plt.savefig(
-            f"{self.plot_dir}RealPointEstimateIntegrand.png", bbox_inches="tight"
+            f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-real_point_estimate_integrand.png", bbox_inches="tight"
         )
 
     def plot_imaginary_point_estimate_integrand(self):
@@ -369,11 +346,11 @@ class StatisticalChecks(object):
 
         """
         plt.figure(figsize=(10, 8))
-        plt.plot(self.pt_est_integrand[:, 1], self.pt_est_integrand[:, 3])
+        plt.plot(self.freqs, np.imag(self.pt_est_integrand))
         plt.xlabel("Frequency [Hz]", size=18)
         plt.ylabel("Im(point estimate integrand)", size=18)
         plt.savefig(
-            f"{self.plot_dir}ImagPointEstimateIntegrand.png", bbox_inches="tight"
+            f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-imag_point_estimate_integrand.png", bbox_inches="tight"
         )
 
     def plot_sensitivity_integrand(self):
@@ -391,7 +368,7 @@ class StatisticalChecks(object):
         plt.plot(self.sensitivity_integrand[:, 1], self.sensitivity_integrand[:, 2])
         plt.xlabel("Frequency [Hz]", size=18)
         plt.ylabel("Sensitivity integrand", size=18)
-        plt.savefig(f"{self.plot_dir}SensitivityIntegrand.png", bbox_inches="tight")
+        plt.savefig(f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-sensitivity_integrand.png", bbox_inches="tight")
 
     def plot_cumulative_sensitivity_integrand(self):
         """
@@ -404,12 +381,16 @@ class StatisticalChecks(object):
         =======
 
         """
+        
+        cumul_sensitivity = integrate.cumtrapz(
+            self.sensitivity_integrand, self.freqs
+        )
         plt.figure(figsize=(10, 8))
-        plt.plot(self.sensitivity_integrand[:-1, 1], self.cumul_sensitivity)
+        plt.plot(self.freqs[:-1], cumul_sensitivity)
         plt.xlabel("Frequency [Hz]", size=18)
         plt.ylabel("Cumulative sensitivity", size=18)
         plt.savefig(
-            f"{self.plot_dir}CumulativeSensitivityIntegrand.png", bbox_inches="tight"
+            f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-cumulative_sensitivity_integrand.png", bbox_inches="tight"
         )
 
     def plot_omega_sigma_in_time(self):
@@ -425,7 +406,7 @@ class StatisticalChecks(object):
         """
         fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(20, 20))
         fig.suptitle(
-            "Results from " + self.ifo_pair + " for Abs[\u03B4\u03C3]/\u03C3 cut",
+            "Results from " + self.baseline_name + " for Abs[\u03B4\u03C3]/\u03C3 cut",
             fontsize=20,
         )
 
@@ -482,7 +463,7 @@ class StatisticalChecks(object):
         axs[1, 1].set_ylabel("(\u03A9-<\u03A9>)/\u03C3")
         axs[1, 1].legend(loc="upper left")
 
-        plt.savefig(f"{self.plot_dir}OmegaSigmaTime.png")
+        plt.savefig(f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-omega_sigma_time.png")
 
     def plot_hist_sigma_dsc(self):
         """
@@ -497,12 +478,12 @@ class StatisticalChecks(object):
         """
         fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(13, 13))
         fig.suptitle(
-            "Results from " + self.ifo_pair + " for Abs[\u03B4\u03C3]/\u03C3",
+            "Results from " + self.baseline_name + " for Abs[\u03B4\u03C3]/\u03C3",
             fontsize=20,
         )
 
         axs[0].hist(
-            self.delta_sig_all,
+            self.delta_sigmas_all,
             bins=80,
             color="r",
             ec="k",
@@ -511,7 +492,7 @@ class StatisticalChecks(object):
             range=(0.0001, 1),
         )
         axs[0].hist(
-            self.delta_sig_cut,
+            self.delta_sigmas_cut,
             bins=80,
             color="b",
             ec="k",
@@ -521,7 +502,7 @@ class StatisticalChecks(object):
         )
         axs[0].set_xlabel("Abs[\u03B4\u03C3]/\u03C3")
         axs[0].set_ylabel("# per bin")
-        axs[0].set_xlim([0, 1])
+        #axs[0].set_xlim([0, 1])
         axs[0].legend()
 
         minx1 = min(self.sliding_sigmas_cut)
@@ -550,10 +531,10 @@ class StatisticalChecks(object):
         axs[1].set_ylabel("# per bin")
         axs[1].legend()
         axs[1].set_yscale("log")
-        axs[1].set_xlim([0, maxx1])
-        axs[1].set_ylim([1, 10**4])
+        #axs[1].set_xlim([0, maxx1])
+        #axs[1].set_ylim([1, 10 ** 4])
 
-        plt.savefig(f"{self.plot_dir}HistogramSigmaDSC.png")
+        plt.savefig(f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-histogram_sigma_dsc.png")
 
     def plot_scatter_sigma_dsc(self):
         """
@@ -568,12 +549,12 @@ class StatisticalChecks(object):
         """
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(9, 9))
         fig.suptitle(
-            "Results from " + self.ifo_pair + " for Abs[\u03B4\u03C3]/\u03C3",
+            "Results from " + self.baseline_name + " for Abs[\u03B4\u03C3]/\u03C3",
             fontsize=20,
         )
 
         axs.scatter(
-            self.delta_sig_all,
+            self.delta_sigmas_all,
             self.naive_sigma_all,
             marker=".",
             c="r",
@@ -581,7 +562,7 @@ class StatisticalChecks(object):
             s=5,
         )
         axs.scatter(
-            self.delta_sig_cut,
+            self.delta_sigmas_cut,
             self.naive_sigma_cut,
             marker=".",
             c="b",
@@ -592,7 +573,7 @@ class StatisticalChecks(object):
         axs.set_ylabel("\u03C3")
         axs.legend()
 
-        plt.savefig(f"{self.plot_dir}ScatterSigmaDSC.png")
+        plt.savefig(f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-scatter_sigma_dsc.png")
 
     def plot_scatter_omega_sigma_dsc(self):
         """
@@ -607,12 +588,12 @@ class StatisticalChecks(object):
         """
         fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(13, 13))
         fig.suptitle(
-            "Results from " + self.ifo_pair + " for Abs[\u03B4\u03C3]/\u03C3",
+            "Results from " + self.baseline_name + " for Abs[\u03B4\u03C3]/\u03C3",
             fontsize=20,
         )
 
         axs[0].scatter(
-            self.delta_sig_all,
+            self.delta_sigmas_all,
             self.sliding_deviate_all,
             marker=".",
             c="r",
@@ -620,7 +601,7 @@ class StatisticalChecks(object):
             s=3,
         )
         axs[0].scatter(
-            self.delta_sig_cut,
+            self.delta_sigmas_cut,
             self.sliding_deviate_cut,
             marker=".",
             c="b",
@@ -630,8 +611,8 @@ class StatisticalChecks(object):
         axs[0].set_xlabel("Abs[\u03B4\u03C3]/\u03C3")
         axs[0].set_ylabel("(\u03A9-<\u03A9>)/\u03C3")
         axs[0].legend()
-        axs[0].set_xlim(0, 2)
-        axs[0].set_ylim(-20, 20)
+        #axs[0].set_xlim(0, 2)
+        #axs[0].set_ylim(-20, 20)
 
         maxx1 = max(self.sliding_sigmas_cut)
 
@@ -653,11 +634,11 @@ class StatisticalChecks(object):
         )
         axs[1].set_xlabel("\u03C3")
         axs[1].set_ylabel("(\u03A9-<\u03A9>)/\u03C3")
-        axs[1].set_xlim([0, maxx1])
-        axs[1].set_ylim([-20, 20])
+        #axs[1].set_xlim([0, maxx1])
+        #axs[1].set_ylim([-20, 20])
         axs[1].legend()
 
-        plt.savefig(f"{self.plot_dir}ScatterOmegaSigmaDSC.png")
+        plt.savefig(f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-scatter_omega_sigma_dsc.png")
 
     def plot_hist_omega_pre_post_dsc(self):
         """
@@ -673,7 +654,7 @@ class StatisticalChecks(object):
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(9, 9))
         fig.suptitle(
             "Results from "
-            + self.ifo_pair
+            + self.baseline_name
             + ": Histogram of (\u03A9-<\u03A9>)/\u03C3 with outlier cuts",
             fontsize=20,
         )
@@ -684,26 +665,23 @@ class StatisticalChecks(object):
             color="r",
             ec="k",
             lw=0.5,
-            label="All data",
-            range=(-50, 50),
-        )
+            label="All data")
         axs.hist(
             self.sliding_deviate_cut,
             bins=101,
             color="b",
             ec="k",
             lw=0.5,
-            label="Data after Abs[\u03B4\u03C3]/\u03C3 outlier cut",
-            range=(-50, 50),
+            label="Data after Abs[\u03B4\u03C3]/\u03C3 outlier cut"
         )
         axs.set_xlabel("(\u03A9-<\u03A9>)/\u03C3")
         axs.set_ylabel("# per bin")
-        axs.set_xlim(-60, 60)
-        axs.set_ylim(1, 1e4)
+        #axs.set_xlim(-60, 60)
+        #axs.set_ylim(1, 1e4)
         axs.legend()
         axs.set_yscale("log")
 
-        plt.savefig(f"{self.plot_dir}HistogramOmegaPrePostDSC.png")
+        plt.savefig(f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-histogram_omega_dsc.png")
 
     def plot_KS_test(self):
         """
@@ -738,7 +716,7 @@ class StatisticalChecks(object):
 
         fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(9, 9))
         fig.suptitle(
-            "Results from " + self.ifo_pair + " for Abs[\u03B4\u03C3]/\u03C3",
+            "Results from " + self.baseline_name + " for Abs[\u03B4\u03C3]/\u03C3",
             fontsize=16,
         )
         axs[0].plot(sorted_deviates_U, cdf_x, "k", label="Data")
@@ -768,7 +746,7 @@ class StatisticalChecks(object):
             xy=(0.025, 0.9),
             xycoords="axes fraction",
         )
-        plt.savefig(f"{self.plot_dir}KSTest.png")
+        plt.savefig(f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-KS_test.png")
 
     def plot_hist_scatter_omega_sigma(self):
         """
@@ -799,7 +777,7 @@ class StatisticalChecks(object):
 
         muR = np.mean(self.sliding_deviate_cut)
         sigmaR = bias_factor
-        theory = np.exp(-((bins_count - muR + binsize / 2) ** 2) / (2 * sigmaR**2))
+        theory = np.exp(-((bins_count - muR + binsize / 2) ** 2) / (2 * sigmaR ** 2))
         tmax = 10 ** np.log10(np.max(count))
 
         nbins = 200
@@ -829,7 +807,7 @@ class StatisticalChecks(object):
             + "\n\u03C1 = \u03C3$_{XY}^2$/\u03C3$_{X}$\u03C3$_{Y}$ = "
             + str(f"{muXY[0, 1] / np.sqrt(muXY[0, 0] * muXY[1, 1]):0.2e}")
             + "\n\u03A3 (\u03A9$_i$-<\u03A9>)$^2$/\u03C3$_i$$^2$ = "
-            + str(np.floor(np.sum(self.sliding_deviate_cut**2))),
+            + str(np.floor(np.sum(self.sliding_deviate_cut ** 2))),
             fontsize=9,
             bbox=dict(boxstyle="round", facecolor="white", alpha=0.3),
         )
@@ -838,8 +816,8 @@ class StatisticalChecks(object):
         )
         ax3.set_xlabel("\u03C3")
         ax3.set_ylabel("(\u03A9-<\u03A9>)/\u03C3")
-        ax3.set_xlim(0, maxx1)
-        ax3.set_ylim(-6, 6)
+        #ax3.set_xlim(0, maxx1)
+        #ax3.set_ylim(-6, 6)
 
         ax4.hist(
             self.sliding_deviate_cut,
@@ -862,7 +840,7 @@ class StatisticalChecks(object):
         )
         ax4.set_xlabel("Relative Frequency, N")
 
-        plt.savefig(f"{self.plot_dir}HistogramScatterOmegaSigma.png")
+        plt.savefig(f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-histogram_scatter_omega_sigma.png")
 
     def plot_hist_sigma_squared(self):
         """
@@ -878,13 +856,13 @@ class StatisticalChecks(object):
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(9, 9))
         fig.suptitle(
             "Results from "
-            + self.ifo_pair
+            + self.baseline_name
             + ": Distribution of \u03C3$^2$/<\u03C3$^2$>",
             fontsize=20,
         )
 
         axs.hist(
-            1 / np.mean(self.sliding_sigmas_cut**2) * self.sliding_sigmas_cut**2,
+            1 / np.mean(self.sliding_sigmas_cut ** 2) * self.sliding_sigmas_cut ** 2,
             bins=300,
             color="b",
             ec="k",
@@ -895,7 +873,7 @@ class StatisticalChecks(object):
         axs.set_ylabel("# per bin")
         axs.legend()
 
-        plt.savefig(f"{self.plot_dir}HistogramSigmaSquared.png")
+        plt.savefig(f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-histogram_sigma_squared.png")
 
     def plot_omega_time_fit(self):
         """
@@ -928,7 +906,7 @@ class StatisticalChecks(object):
         axs.set_xlabel("Days since start of run")
         axs.set_ylabel("\u03A9$_i$")
         axs.set_xlim(self.days_cut[0], self.days_cut[-1])
-        axs.set_ylim(-6 * scale, 6 * scale)
+        #axs.set_ylim(-6 * scale, 6 * scale)
         axs.text(
             0.5,
             scale * 4.25,
@@ -936,10 +914,10 @@ class StatisticalChecks(object):
             + str(f"{c1:.3e}")
             + "\nC$_2$ = "
             + str(f"{c2:.3e}"),
-            fontsize=15,
+            fontsize=1,
             bbox=dict(boxstyle="round", facecolor="white", alpha=1),
         )
-        plt.savefig(f"{self.plot_dir}OmegaTimeFit.png")
+        plt.savefig(f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-omega_time_fit.png")
 
     def generate_all_plots(self):
         """
@@ -963,10 +941,46 @@ class StatisticalChecks(object):
         self.plot_cumulative_sensitivity_integrand()
         self.plot_omega_sigma_in_time()
         self.plot_hist_sigma_dsc()
-        self.plot_scatter_sigma_dsc()
+        self.plot_ylimma_dsc()
         self.plot_scatter_omega_sigma_dsc()
         self.plot_hist_omega_pre_post_dsc()
         self.plot_KS_test()
         self.plot_hist_scatter_omega_sigma()
         self.plot_hist_sigma_squared()
         self.plot_omega_time_fit()
+        
+def calc_sens_integrand_alpha(freqs, psd1_slide, psd2_slide, orf, segment_duration, alpha):
+    """
+    """
+    const_factor = ((10*np.pi**2)/(3*H0**2))
+        
+    window1 = np.hanning(segment_duration * sampling_frequency)
+    window2 = window1
+    w1w2bar, w1w2squaredbar, oo = WindowFactors(window1, window2)
+        
+    integrand=2*orf**2*(freqs/fref)**(2*alpha)/(freqs**6*psd1_slide*psd2_slide)
+    
+    sensitivity_integrand = 1./segment_duration*(1./const_factor**2)*w1w2bar**2/w1w2squaredbar*integrand
+        
+    return sensitivity_integrand
+    
+def calc_naive_sigma(freqs, psd1_naive, psd2_naive, orf, deltaF, segment_duration, sampling_frequency, alpha):
+    """
+    """
+    Hf = calc_Hf(freqs, alpha)
+    deltaT=1./deltaF
+        
+    window1 = np.hanning(segment_duration * sampling_frequency)
+    window2 = window1
+
+    naive_sensitivity_integrand_with_Hf = (
+            calc_sens_integrand(
+                freqs, psd1_naive, psd2_naive, window1, window2, deltaF, orf, T=deltaT
+            )
+            / Hf**2
+        )
+
+    naive_sigma_alpha = calc_sigma_alpha(
+            naive_sensitivity_integrand_with_Hf
+        )
+    return naive_sigma_alpha
