@@ -649,7 +649,7 @@ class Baseline(object):
 
         point_estimate, sigma = postprocess_Y_sigma(
             self.point_estimate_spectrogram.value,
-            self.sigma_spectrogram.value**2,
+            self.sigma_spectrogram.value ** 2,
             self.duration,
             deltaF,
             self.sampling_frequency,
@@ -760,7 +760,7 @@ class Baseline(object):
                 "Be careful, in general weighting is not applied until this point"
             )
             Y, sigma = calc_Y_sigma_from_Yf_varf(
-                self.point_estimate_spectrum.value, self.sigma_spectrogram.value**2
+                self.point_estimate_spectrum.value, self.sigma_spectrogram.value ** 2
             )
 
         self.point_estimate = Y
@@ -854,7 +854,7 @@ class Baseline(object):
             raise ValueError(
                 "The provided data type is not supported, try using 'pickle', 'npz', 'json' or 'hdf5' instead."
             )
-            
+
         save(
             f"{filename}{ext}",
             self.frequencies,
@@ -928,7 +928,7 @@ class Baseline(object):
         sigma,
         point_estimate_spectrogram,
         sigma_spectrogram,
-        badGPStimes, 
+        badGPStimes,
         delta_sigmas,
     ):
         np.savez(
@@ -954,7 +954,7 @@ class Baseline(object):
         sigma,
         point_estimate_spectrogram,
         sigma_spectrogram,
-        badGPStimes, 
+        badGPStimes,
         delta_sigmas,
     ):
         save_dictionary = {
@@ -965,7 +965,7 @@ class Baseline(object):
             "sigma": sigma,
             "point_estimate_spectrogram": point_estimate_spectrogram,
             "sigma_spectrogram": sigma_spectrogram,
-            "badGPStimes": badGPStimes, 
+            "badGPStimes": badGPStimes,
             "delta_sigmas": delta_sigmas,
         }
 
@@ -982,7 +982,7 @@ class Baseline(object):
         sigma,
         point_estimate_spectrogram,
         sigma_spectrogram,
-        badGPStimes, 
+        badGPStimes,
         delta_sigmas,
     ):
         list_freqs = frequencies.tolist()
@@ -1146,7 +1146,7 @@ class Baseline(object):
         avg_psd_1_times = avg_psd_1.times.value
         avg_psd_2_times = avg_psd_2.times.value
 
-        hf.create_dataset("freqs", data = frequencies)
+        hf.create_dataset("freqs", data=frequencies)
 
         csd_group = hf.create_group("csd_group")
         csd_group.create_dataset("csd", data=csd)
@@ -1159,12 +1159,12 @@ class Baseline(object):
         psd_group = hf.create_group("psds_group")
 
         psd_1_group = hf.create_group("psds_group/psd_1")
-        psd_1_group.create_dataset("psd_1", data = avg_psd_1)
-        psd_1_group.create_dataset("psd_1_times", data = psd_1_times)
+        psd_1_group.create_dataset("psd_1", data=avg_psd_1)
+        psd_1_group.create_dataset("psd_1_times", data=psd_1_times)
 
         psd_2_group = hf.create_group("psds_group/psd_2")
-        psd_2_group.create_dataset("psd_2", data = avg_psd_2)
-        psd_2_group.create_dataset("psd_2_times", data = psd_2_times)
+        psd_2_group.create_dataset("psd_2", data=avg_psd_2)
+        psd_2_group.create_dataset("psd_2_times", data=psd_2_times)
 
         avg_psd_group = hf.create_group("avg_psds_group")
 

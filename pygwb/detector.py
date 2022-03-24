@@ -138,7 +138,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
         if parameters.mock_data_path_dict:
             mock_data_path = parameters.mock_data_path_dict[name]
         else:
-            mock_data_path = ''
+            mock_data_path = ""
         ifo.set_timeseries_from_channel_name(
             channel,
             t0=parameters.t0,

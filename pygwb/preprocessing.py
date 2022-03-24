@@ -57,7 +57,9 @@ def set_start_time(
     return centered_start_time
 
 
-def read_data(IFO: str, data_type: str, channel: str, t0: int, tf: int, mock_data_path: str = ''):
+def read_data(
+    IFO: str, data_type: str, channel: str, t0: int, tf: int, mock_data_path: str = ""
+):
     """
     Function doing the reading of the data to be used in the
     stochastic pipeline
@@ -95,14 +97,14 @@ def read_data(IFO: str, data_type: str, channel: str, t0: int, tf: int, mock_dat
         data = timeseries.TimeSeries.get(channel, start=t0, end=tf, verbose=True)
         data.channel = channel
     elif data_type == "mock":
-        data = timeseries.TimeSeries.read(source=mock_data_path, channel=channel, start=t0, end=tf)
+        data = timeseries.TimeSeries.read(
+            source=mock_data_path, channel=channel, start=t0, end=tf
+        )
         data.channel = channel
         data.name = IFO
-        
+
     else:
-        raise ValueError(
-            "Wrong data type. Choose between: public, private and mock"
-        )
+        raise ValueError("Wrong data type. Choose between: public, private and mock")
     return data
 
 
@@ -212,7 +214,7 @@ def preprocessing_data_channel_name(
     number_cropped_seconds: int = 2,
     window_downsampling: str = "hamming",
     ftype: str = "fir",
-    mock_data_path: str = '',
+    mock_data_path: str = "",
 ):
     """
     Function doing the pre-processing of the data to be used in the
@@ -274,7 +276,7 @@ def preprocessing_data_channel_name(
         channel=channel,
         t0=data_start_time - number_cropped_seconds,
         tf=tf,
-        mock_data_path=mock_data_path
+        mock_data_path=mock_data_path,
     )
 
     filtered = resample_filter(
@@ -423,4 +425,3 @@ def preprocessing_data_gwpy_timeseries(
         ftype=ftype,
     )
     return filtered
-
