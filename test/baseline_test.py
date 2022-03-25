@@ -207,7 +207,7 @@ class TestBaseline(unittest.TestCase):
         )
 
     def test_from_parameters(self):
-        param_file = "test/test_data/parameters_test.ini"
+        param_file = "test/test_data/parameters_baseline_test.ini"
         params = parameters.Parameters.from_file(param_file)
         base = baseline.Baseline.from_parameters(
             self.interferometer_1, self.interferometer_2, params
