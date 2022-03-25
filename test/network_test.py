@@ -6,8 +6,7 @@ import bilby
 import gwpy
 import numpy as np
 
-from pygwb import network
-from pygwb import baseline
+from pygwb import baseline, network
 
 
 class TestNetwork(unittest.TestCase):
