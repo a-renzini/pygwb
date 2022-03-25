@@ -26,10 +26,10 @@ class TestNotch(unittest.TestCase):
         self.stoch_notch_list_4.append(notch.StochNotch(7.51,7.6,'This is a test notch'))
         self.stoch_notch_list_5 = notch.StochNotchList([])
         self.stoch_notch_list_5.append(notch.StochNotch(4.875,4.99,'This is a test notch'))
-        self.stoch_notch_list_4.append(notch.StochNotch(5.4375,5.475,'This is a test notch'))
-        self.stoch_notch_list_4.append(notch.StochNotch(5.7875,6.025,'This is a test notch'))
-        self.stoch_notch_list_4.append(notch.StochNotch(6.3875,6.5125,'This is a test notch'))
-        self.stoch_notch_list_4.append(notch.StochNotch(6.875,7,'This is a test notch'))
+        self.stoch_notch_list_5.append(notch.StochNotch(5.4375,5.475,'This is a test notch'))
+        self.stoch_notch_list_5.append(notch.StochNotch(5.7875,6.025,'This is a test notch'))
+        self.stoch_notch_list_5.append(notch.StochNotch(6.3875,6.5125,'This is a test notch'))
+        self.stoch_notch_list_5.append(notch.StochNotch(6.875,7,'This is a test notch'))
         self.stoch_notch_list_5.append(notch.StochNotch(7.51,7.6,'This is a test notch'))
 
 
@@ -60,7 +60,8 @@ class TestNotch(unittest.TestCase):
 
         idxs1,inv_idxs1 = self.stoch_notch_list_4.get_idxs(freqs)
         idxs2,inv_idxs2 = self.stoch_notch_list_5.get_idxs(freqs)
-
+        
+        print(freqs)
         print(idxs1)
         print(anwser_1)
         print(idxs2)
