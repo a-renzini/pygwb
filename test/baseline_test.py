@@ -297,6 +297,70 @@ class TestBaseline(unittest.TestCase):
         )
         self.assertEqual(badGPStimes_test.tolist(), base.badGPStimes.tolist())
 
+    def test_set_point_estimate_sigma(self):
+        pickled_base = baseline.Baseline.load_from_pickle(
+            "test/test_data/H1L1_1247644138-1247645038.pickle"
+        )
+        # save these for later...
+        pickled_ifo_1 = pickled_base.interferometer_1
+        pickled_ifo_2 = pickled_base.interferometer_2
+        PSD_1_test = pickled_ifo_1.average_psd
+        PSD_2_test = pickled_ifo_2.average_psd
+        CSD_test = pickled_base.average_csd
+        point_estimate_test = pickled_base.point_estimate
+        sigma_test = pickled_base.sigma
+
+        point_estimate_spectrum_test = pickled_base.point_estimate_spectrum
+        sigma_spectrum_test = pickled_base.sigma_spectrum
+
+        point_estimate_spectrogram_test = pickled_base.point_estimate_spectrogram
+        sigma_spectrogram_test = pickled_base.sigma_spectrogram
+
+        # get rid of a few things...
+        ifo_1 = copy.deepcopy(pickled_ifo_1)
+        ifo_2 = copy.deepcopy(pickled_ifo_2)
+        ifo_1.psd_spectrogram = None
+        ifo_2.psd_spectrogram = None
+        pickled_ifo_1.average_psd = None
+        pickled_ifo_2.average_psd = None
+        base = copy.deepcopy(pickled_base)
+        frequency_resolution = PSD_1_test.df.value
+
+        # create new baseline from ifo's
+        base = baseline.Baseline.from_interferometers([ifo_1, ifo_2])
+        base.set_cross_and_power_spectral_density(frequency_resolution)
+        base.set_average_cross_spectral_density()
+        base.crop_frequencies_average_psd_csd(pickled_base.frequencies[0], pickled_base.frequencies[-1])
+
+        # run dsc
+        base.calculate_delta_sigma_cut(
+            delta_sigma_cut=np.inf, alphas=[-5, 0, 3], notch_list_path='test/test_data/Official_O3_HL_notchlist.txt'
+        )
+
+        # set point estimate, sigma with notch list
+        base.set_point_estimate_sigma(notch_list_path="test/test_data/Official_O3_HL_notchlist.txt")
+
+        # check point estimate, sigma spectrum
+        gwpy.testing.utils.assert_quantity_sub_equal(
+            point_estimate_spectrum_test, base.point_estimate_spectrum, almost_equal=True
+        )
+
+        gwpy.testing.utils.assert_quantity_sub_equal(
+            sigma_spectrum_test, base.sigma_spectrum, almost_equal=True
+        )
+
+        # check point estimate, sigma spectrograms
+        gwpy.testing.utils.assert_quantity_sub_equal(
+            sigma_spectrogram_test, base.sigma_spectrogram, almost_equal=True
+        )
+
+        gwpy.testing.utils.assert_quantity_sub_equal(
+            point_estimate_spectrogram_test, base.point_estimate_spectrogram, almost_equal=True
+        )
+        # check final point estimate and sigma values
+        self.assertAlmostEqual(sigma_test, base.sigma)
+        self.assertAlmostEqual(point_estimate_test, base.point_estimate)
+
 
 if __name__ == "__main__":
     unittest.main()
