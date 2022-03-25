@@ -588,19 +588,24 @@ class Baseline(object):
         Parameters
         ==========
         badtimes: np.array, optional
-            array of times to exclude from point estimate/sigma calculation. If no times are passed, none will be excluded.
+            Array of times to exclude from point estimate/sigma calculation.
+            If no times are passed, none will be excluded.
         weight_spectrogram: bool, optional
-            weight spectrogram flag; if True, the spectrogram will be re-weighted using the alpha passed here.Default is False.
+            Weight spectrogram flag; if True, the spectrogram will be re-weighted using the alpha passed here.
+            Default is False.
         alpha: float, optional
-            spectral index to use in the re-weighting. Default is 0.
+            Spectral index to use in the re-weighting. Default is 0.
         fref: float, optional
-            reference frequency to use in the re-weighting. Default is 25.
+            Reference frequency to use in the re-weighting. Default is 25.
         flow: float, optional
-            low frequency. Default is 20 Hz.
+            Low frequency. Default is 20 Hz.
         fhigh: float, optional
-            high frequency. Default is 1726 Hz.
+            High frequency. Default is 1726 Hz.
         notch_list_path: str, optional
-            path to the notch list to use in the spectrum. If none is passed no notches will be applied - even if set in the baseline. This is to ensure notching isn't applied automatically to spectra; it is applied automatically only when integrating over frequencies.
+            path to the notch list to use in the spectrum.
+	    If none is passed no notches will be applied - even if set in the baseline.
+	    This is to ensure notching isn't applied automatically to spectra;
+            it is applied automatically only when integrating over frequencies.
         """
 
         # set unweighted point estimate and sigma spectrograms
@@ -689,19 +694,22 @@ class Baseline(object):
         Parameters
         ==========
         badtimes: np.array, optional
-            array of times to exclude from point estimate/sigma calculation. If no times are passed, none will be excluded.
+            Array of times to exclude from point estimate/sigma calculation.
+            If no times are passed, none will be excluded.
         apply_weighting: bool, optional
-            apply weighting flag; if True, the point estimate and sigma will be weighted using the alpha passed here. Default is True.
+            Apply weighting flag; if True, the point estimate and sigma will be weighted using the alpha passed here.
+            Default is True.
         alpha: float, optional
-            spectral index to use in the re-weighting. Default is 0.
+            Spectral index to use in the re-weighting. Default is 0.
         fref: float, optional
-            reference frequency to use in the re-weighting. Default is 25.
+            Reference frequency to use in the re-weighting. Default is 25.
         flow: float, optional
-            low frequency. Default is 20 Hz.
+            Low frequency. Default is 20 Hz.
         fhigh: float, optional
-            high frequency. Default is 1726 Hz.
+            High frequency. Default is 1726 Hz.
         notch_list_path: str, optional
-            path to the notch list to use in the spectrum; if the notch_list isn't set in the baseline, user can pass it directly here. If it is not set and if none is passed no notches will be applied.
+            Path to the notch list to use in the spectrum; if the notch_list isn't set in the baseline,
+            user can pass it directly here. If it is not set and if none is passed no notches will be applied.
         """
         # TODO: Add check if badtimes is passed and point estimate spectrum
         # already exists...
