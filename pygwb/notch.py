@@ -88,7 +88,6 @@ class StochNotchList(list):
 
         df = np.abs(frequency_array[2]-frequency_array[1])
         idxs = []
-        print(df)
         df_str = str(df)
         precision = df_str[::-1].find('.')
         for my_iter in range(len(frequency_array)):          
@@ -111,11 +110,7 @@ class StochNotchList(list):
                 for notch in self:
                     if not(notch.maximum_frequency <= round(frequency_array[my_iter-1],precision) ) and not ( notch.minimum_frequency >= round(frequency_array[my_iter+1],precision)): 
                         
-                        print(notch.maximum_frequency,round(frequency_array[my_iter-1],precision))
-                        print(notch.minimum_frequency,frequency_array[my_iter+1])
-                        print(notch.maximum_frequency <= frequency_array[my_iter-1])
-                        print(notch.minimum_frequency >= frequency_array[my_iter+1])
-                        print(not(notch.maximum_frequency <= frequency_array[my_iter-1] ) and not ( notch.minimum_frequency >= frequency_array[my_iter+1]))                       
+               
                         
                         temp = True
                         break
