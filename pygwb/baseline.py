@@ -1139,10 +1139,11 @@ class Baseline(object):
     ):
         data_dict = gwpy.timeseries.TimeSeriesDict()
         spectrograms = [csd, avg_csd, psd_1, psd_2, avg_psd_1, avg_psd_2]
-        channels = ['csd', 'avg_csd', 'psd_1', 'psd_2', 'avg_psd_1', 'avg_psd_2']
+        channels = ["csd", "avg_csd", "psd_1", "psd_2", "avg_psd_1", "avg_psd_2"]
         for (channel, spec) in zip(channels, spectrograms):
             data_dict[channel] = spec
-        data_dict.write(filename, format='hdf5')
+        data_dict.write(filename, format="hdf5")
+
 
 def get_baselines(interferometers, frequencies=None):
     """

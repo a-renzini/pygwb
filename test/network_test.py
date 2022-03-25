@@ -80,16 +80,16 @@ class TestNetwork(unittest.TestCase):
         net.set_interferometer_data_from_simulator(
             GWB_intensity, N_segments, sampling_frequency
         )
-        self.assertFalse(np.isnan(net.interferometers[0].strain_data.time_domain_strain).any())
+        self.assertFalse(
+            np.isnan(net.interferometers[0].strain_data.time_domain_strain).any()
+        )
 
-
-#    def test_save_interferometer_data_to_file(self):
+    #    def test_save_interferometer_data_to_file(self):
 
     def test_combine_point_estimate_sigma_spectra(self):
         self.net_load.combine_point_estimate_sigma_spectra()
         self.assertFalse(np.isnan(self.net_load.point_estimate_spectrum).any())
         self.assertFalse(np.isnan(self.net_load.sigma_spectrum).any())
-
 
     def test_combine_point_estimate_sigma(self):
         self.net_load.combine_point_estimate_sigma()
