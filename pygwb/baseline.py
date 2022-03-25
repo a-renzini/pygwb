@@ -603,8 +603,8 @@ class Baseline(object):
             High frequency. Default is 1726 Hz.
         notch_list_path: str, optional
             path to the notch list to use in the spectrum.
-	    If none is passed no notches will be applied - even if set in the baseline.
-	    This is to ensure notching isn't applied automatically to spectra;
+            If none is passed no notches will be applied - even if set in the baseline.
+            This is to ensure notching isn't applied automatically to spectra;
             it is applied automatically only when integrating over frequencies.
         """
 
@@ -654,7 +654,7 @@ class Baseline(object):
 
         point_estimate, sigma = postprocess_Y_sigma(
             self.point_estimate_spectrogram.value,
-            self.sigma_spectrogram.value**2,
+            self.sigma_spectrogram.value ** 2,
             self.duration,
             deltaF,
             self.sampling_frequency,
@@ -768,7 +768,7 @@ class Baseline(object):
                 "Be careful, in general weighting is not applied until this point"
             )
             Y, sigma = calc_Y_sigma_from_Yf_varf(
-                self.point_estimate_spectrum.value, self.sigma_spectrogram.value**2
+                self.point_estimate_spectrum.value, self.sigma_spectrogram.value ** 2
             )
 
         self.point_estimate = Y
@@ -862,7 +862,7 @@ class Baseline(object):
             raise ValueError(
                 "The provided data type is not supported, try using 'pickle', 'npz', 'json' or 'hdf5' instead."
             )
-            
+
         save(
             f"{filename}{ext}",
             self.frequencies,
@@ -936,7 +936,7 @@ class Baseline(object):
         sigma,
         point_estimate_spectrogram,
         sigma_spectrogram,
-        badGPStimes, 
+        badGPStimes,
         delta_sigmas,
     ):
         np.savez(
@@ -962,7 +962,7 @@ class Baseline(object):
         sigma,
         point_estimate_spectrogram,
         sigma_spectrogram,
-        badGPStimes, 
+        badGPStimes,
         delta_sigmas,
     ):
         save_dictionary = {
@@ -973,7 +973,7 @@ class Baseline(object):
             "sigma": sigma,
             "point_estimate_spectrogram": point_estimate_spectrogram,
             "sigma_spectrogram": sigma_spectrogram,
-            "badGPStimes": badGPStimes, 
+            "badGPStimes": badGPStimes,
             "delta_sigmas": delta_sigmas,
         }
 
@@ -990,7 +990,7 @@ class Baseline(object):
         sigma,
         point_estimate_spectrogram,
         sigma_spectrogram,
-        badGPStimes, 
+        badGPStimes,
         delta_sigmas,
     ):
         list_freqs = frequencies.tolist()
@@ -1143,47 +1143,14 @@ class Baseline(object):
             json.dump(save_dictionary, outfile)
 
     def _hdf5_save_csd(
-        self, filename, freqs, csd, avg_csd, psd_1, psd_2, avg_psd_1, avg_psd_2
+        self, filename, csd, avg_csd, psd_1, psd_2, avg_psd_1, avg_psd_2
     ):
-        hf = h5py.File(filename, "w")
-
-        csd_times = csd.times.value
-        psd_1_times = psd_1.times.value
-        psd_2_times = psd_2.times.value
-        avg_csd_times = avg_csd.times.value
-        avg_psd_1_times = avg_psd_1.times.value
-        avg_psd_2_times = avg_psd_2.times.value
-
-        hf.create_dataset("freqs", data = frequencies)
-
-        csd_group = hf.create_group("csd_group")
-        csd_group.create_dataset("csd", data=csd)
-        csd_group.create_dataset("csd_times", data=csd_times)
-
-        avg_csd_group = hf.create_group("avg_csd_group")
-        avg_csd_group.create_dataset("avg_csd", data=avg_csd)
-        avg_csd_group.create_dataset("avg_csd_times", data=avg_csd_times)
-
-        psd_group = hf.create_group("psds_group")
-
-        psd_1_group = hf.create_group("psds_group/psd_1")
-        psd_1_group.create_dataset("psd_1", data = avg_psd_1)
-        psd_1_group.create_dataset("psd_1_times", data = psd_1_times)
-
-        psd_2_group = hf.create_group("psds_group/psd_2")
-        psd_2_group.create_dataset("psd_2", data = avg_psd_2)
-        psd_2_group.create_dataset("psd_2_times", data = psd_2_times)
-
-        avg_psd_group = hf.create_group("avg_psds_group")
-
-        avg_psd_1_group = hf.create_group("avg_psds_group/avg_psd_1")
-        avg_psd_1_group.create_dataset("avg_psd_1", data=avg_psd_1)
-        avg_psd_1_group.create_dataset("avg_psd_1_times", data=avg_psd_1_times)
-
-        avg_psd_2_group = hf.create_group("avg_psds_group/avg_psd_2")
-        avg_psd_2_group.create_dataset("avg_psd_2", data=avg_psd_2)
-        avg_psd_2_group.create_dataset("avg_psd_2_times", data=avg_psd_2_times)
-        hf.close()
+        data_dict = gwpy.timeseries.TimeSeriesDict()
+        spectrograms = [csd, avg_csd, psd_1, psd_2, avg_psd_1, avg_psd_2]
+        channels = ["csd", "avg_csd", "psd_1", "psd_2", "avg_psd_1", "avg_psd_2"]
+        for (channel, spec) in zip(channels, spectrograms):
+            data_dict[channel] = spec
+        data_dict.write(filename, format="hdf5")
 
 
 def get_baselines(interferometers, frequencies=None):

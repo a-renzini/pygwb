@@ -480,9 +480,11 @@ def running_mean(data, coarsening_factor=1, axis=-1):
     )
 
 
-def reweight_spectral_object(spec, freqs, new_alpha, new_fref, old_alpha=0.0, old_fref=1.0):
+def reweight_spectral_object(
+    spec, freqs, new_alpha, new_fref, old_alpha=0.0, old_fref=1.0
+):
     """
-    Reweight a spectrum or spectrogram object. 
+    Reweight a spectrum or spectrogram object.
     Input spectrogram assumes a shape of: N_frequencies x N_times
     This is meant to be a helper function used to change the spectral index of the stochastic results.
 
@@ -506,6 +508,6 @@ def reweight_spectral_object(spec, freqs, new_alpha, new_fref, old_alpha=0.0, ol
         new_spec: array-like
             Reweighted spectrum or spectrogram array.
     """
-    weights_old = (freqs / old_fref)**old_alpha
-    weights_new = (freqs / new_fref)**new_alpha
+    weights_old = (freqs / old_fref) ** old_alpha
+    weights_new = (freqs / new_fref) ** new_alpha
     return (spec.T * (weights_new / weights_old)).T
