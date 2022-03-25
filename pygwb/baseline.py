@@ -603,8 +603,8 @@ class Baseline(object):
             High frequency. Default is 1726 Hz.
         notch_list_path: str, optional
             path to the notch list to use in the spectrum.
-	    If none is passed no notches will be applied - even if set in the baseline.
-	    This is to ensure notching isn't applied automatically to spectra;
+            If none is passed no notches will be applied - even if set in the baseline.
+            This is to ensure notching isn't applied automatically to spectra;
             it is applied automatically only when integrating over frequencies.
         """
 
