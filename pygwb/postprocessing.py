@@ -44,9 +44,9 @@ def postprocess_Y_sigma(Y_fs, var_fs, segment_duration, deltaF, new_sample_rate)
         + GAMMA_even
         - k
         * (GAMMA_odd + GAMMA_even - (1 / 2) * (1 / var_fs[0, :] + 1 / var_fs[-1, :]))
-    ) / (1 - (k**2 / 4) * sigma2_oo * sigma2_ee * sigma2IJ**2)
+    ) / (1 - (k ** 2 / 4) * sigma2_oo * sigma2_ee * sigma2IJ ** 2)
     bias = calc_bias(segment_duration, deltaF, 1 / new_sample_rate, N_avg_segs=2)
     logger.debug(f"Bias factor: {bias}")
-    var_f_new = (1 / inv_var_f_new) * bias**2
+    var_f_new = (1 / inv_var_f_new) * bias ** 2
 
     return Y_f_new, var_f_new

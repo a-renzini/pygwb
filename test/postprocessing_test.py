@@ -28,9 +28,7 @@ class PostProcessingTest(unittest.TestCase):
     """
 
     def test_average_over_times(self):
-        newY1, newvar1 = postprocess_Y_sigma(
-            Y, SIGMA, SEGDUR, DELTAF, SAMPLE_RATE
-        )
+        newY1, newvar1 = postprocess_Y_sigma(Y, SIGMA, SEGDUR, DELTAF, SAMPLE_RATE)
 
         # check size
         self.assertTrue(np.size(newY1) == NFREQS)

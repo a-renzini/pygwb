@@ -150,14 +150,14 @@ def calc_sens_integrand(
     """
 
     w1w2bar, w1w2squaredbar, oo = WindowFactors(window1, window2)
-    S_alpha = 3 * H0**2 / (10 * np.pi**2) * 1.0 / freq**3
+    S_alpha = 3 * H0 ** 2 / (10 * np.pi ** 2) * 1.0 / freq ** 3
     sigma_square_avg = (
-        (w1w2squaredbar / w1w2bar**2)
+        (w1w2squaredbar / w1w2bar ** 2)
         * 1
         / (2 * T * delta_f)
         * P1
         * P2
-        / (orf**2.0 * S_alpha**2)
+        / (orf ** 2.0 * S_alpha ** 2)
     )
 
     return sigma_square_avg
@@ -209,7 +209,7 @@ def WindowFactors(window1: np.ndarray, window2: np.ndarray):
 
     # calculate window factors
     w1w2bar = np.mean(window1red * window2red)
-    w1w2squaredbar = np.mean((window1red**2) * (window2red**2))
+    w1w2squaredbar = np.mean((window1red ** 2) * (window2red ** 2))
     w1w2ovlsquaredbar = np.mean((firsthalf1 * secondhalf1) * (firsthalf2 * secondhalf2))
 
     return w1w2bar, w1w2squaredbar, w1w2ovlsquaredbar
@@ -345,7 +345,7 @@ def run_dsc(
                     orf,
                     T=dt,
                 )
-                / Hf**2
+                / Hf ** 2
             )
 
             slide_sensitivity_integrand_with_Hf = (
@@ -359,7 +359,7 @@ def run_dsc(
                     orf,
                     T=dt,
                 )
-                / Hf**2
+                / Hf ** 2
             )
             naive_sigma_alpha = calc_sigma_alpha(
                 naive_sensitivity_integrand_with_Hf[keep]

@@ -201,15 +201,16 @@ class Network(object):
         """
         Combines the point estimate and sigma spectra from different baselines in the Network and stores them as attributes.
         """
+        print(self.baselines)
         point_estimate_spectra = np.array(
             [base.point_estimate_spectrum for base in self.baselines]
         )
         sigma_spectra = np.array([base.sigma_spectrum for base in self.baselines])
 
         self.point_estimate_spectrum = np.sum(
-            point_estimate_spectra / sigma_spectra**2
-        ) / np.sum(1 / sigma_spectra**2)
-        self.sigma_spectrum = 1 / np.sqrt(np.sum(1 / sigma_spectra**2))
+            point_estimate_spectra / sigma_spectra ** 2
+        ) / np.sum(1 / sigma_spectra ** 2)
+        self.sigma_spectrum = 1 / np.sqrt(np.sum(1 / sigma_spectra ** 2))
 
     def combine_point_estimate_sigma(
         self,
@@ -242,10 +243,10 @@ class Network(object):
 
             point_estimates = np.array([base.point_estimate for base in self.baselines])
             sigmas = np.array([base.sigma for base in self.baselines])
-        self.point_estimate = np.sum(point_estimates / sigmas**2) / np.sum(
-            1 / sigmas**2
+        self.point_estimate = np.sum(point_estimates / sigmas ** 2) / np.sum(
+            1 / sigmas ** 2
         )
-        self.sigma = 1 / np.sqrt(np.sum(1 / sigmas**2))
+        self.sigma = 1 / np.sqrt(np.sum(1 / sigmas ** 2))
 
 
 #    def set_interferometer_data_from_file(self, file):
