@@ -1135,48 +1135,14 @@ class Baseline(object):
             json.dump(save_dictionary, outfile)
 
     def _hdf5_save_csd(
-        self, filename, freqs, csd, avg_csd, psd_1, psd_2, avg_psd_1, avg_psd_2
+        self, filename, csd, avg_csd, psd_1, psd_2, avg_psd_1, avg_psd_2
     ):
-        hf = h5py.File(filename, "w")
-
-        csd_times = csd.times.value
-        psd_1_times = psd_1.times.value
-        psd_2_times = psd_2.times.value
-        avg_csd_times = avg_csd.times.value
-        avg_psd_1_times = avg_psd_1.times.value
-        avg_psd_2_times = avg_psd_2.times.value
-
-        hf.create_dataset("freqs", data=frequencies)
-
-        csd_group = hf.create_group("csd_group")
-        csd_group.create_dataset("csd", data=csd)
-        csd_group.create_dataset("csd_times", data=csd_times)
-
-        avg_csd_group = hf.create_group("avg_csd_group")
-        avg_csd_group.create_dataset("avg_csd", data=avg_csd)
-        avg_csd_group.create_dataset("avg_csd_times", data=avg_csd_times)
-
-        psd_group = hf.create_group("psds_group")
-
-        psd_1_group = hf.create_group("psds_group/psd_1")
-        psd_1_group.create_dataset("psd_1", data=avg_psd_1)
-        psd_1_group.create_dataset("psd_1_times", data=psd_1_times)
-
-        psd_2_group = hf.create_group("psds_group/psd_2")
-        psd_2_group.create_dataset("psd_2", data=avg_psd_2)
-        psd_2_group.create_dataset("psd_2_times", data=psd_2_times)
-
-        avg_psd_group = hf.create_group("avg_psds_group")
-
-        avg_psd_1_group = hf.create_group("avg_psds_group/avg_psd_1")
-        avg_psd_1_group.create_dataset("avg_psd_1", data=avg_psd_1)
-        avg_psd_1_group.create_dataset("avg_psd_1_times", data=avg_psd_1_times)
-
-        avg_psd_2_group = hf.create_group("avg_psds_group/avg_psd_2")
-        avg_psd_2_group.create_dataset("avg_psd_2", data=avg_psd_2)
-        avg_psd_2_group.create_dataset("avg_psd_2_times", data=avg_psd_2_times)
-        hf.close()
-
+        data_dict = gwpy.timeseries.TimeSeriesDict()
+        spectrograms = [csd, avg_csd, psd_1, psd_2, avg_psd_1, avg_psd_2]
+        channels = ['csd', 'avg_csd', 'psd_1', 'psd_2', 'avg_psd_1', 'avg_psd_2']
+        for (channel, spec) in zip(channels, spectrograms):
+            data_dict[channel] = spec
+        data_dict.write(filename, format='hdf5')
 
 def get_baselines(interferometers, frequencies=None):
     """
