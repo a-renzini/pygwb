@@ -85,6 +85,7 @@ setup(
         "astropy",
         "lalsuite",
         "loguru",
+        "jinja2==2.4.0",
     ],
     classifiers=[
         "Programming Language :: Python :: 3.8",
