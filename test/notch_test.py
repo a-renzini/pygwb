@@ -18,19 +18,19 @@ class TestNotch(unittest.TestCase):
         self.stoch_notch_list_3.append(notch.StochNotch(12.42,12.45,'Pulsar injection'))
         self.stoch_notch_list_3.append(notch.StochNotch(16.58,17.61,'H1 calibration line'))
         self.stoch_notch_list_4 = notch.StochNotchList([])
-        self.stoch_notch_list_4.append(notch.StochNotch(4.875,5.0125,'This is a test notch'))
+        self.stoch_notch_list_4.append(notch.StochNotch(4.875,4.99,'This is a test notch'))
         self.stoch_notch_list_4.append(notch.StochNotch(5.4375,5.475,'This is a test notch'))
         self.stoch_notch_list_4.append(notch.StochNotch(5.7875,6.025,'This is a test notch'))
         self.stoch_notch_list_4.append(notch.StochNotch(6.3875,6.5125,'This is a test notch'))
         self.stoch_notch_list_4.append(notch.StochNotch(6.875,7,'This is a test notch'))
         self.stoch_notch_list_4.append(notch.StochNotch(7.51,7.6,'This is a test notch'))
         self.stoch_notch_list_5 = notch.StochNotchList([])
-        self.stoch_notch_list_5.append(notch.StochNotch(4.875,4.99,'This is a test notch'))
+        self.stoch_notch_list_5.append(notch.StochNotch(4.875,4.875,'This is a test notch'))
         self.stoch_notch_list_5.append(notch.StochNotch(5.4375,5.475,'This is a test notch'))
         self.stoch_notch_list_5.append(notch.StochNotch(5.7875,6.025,'This is a test notch'))
         self.stoch_notch_list_5.append(notch.StochNotch(6.3875,6.5125,'This is a test notch'))
         self.stoch_notch_list_5.append(notch.StochNotch(6.875,7,'This is a test notch'))
-        self.stoch_notch_list_5.append(notch.StochNotch(7.51,7.6,'This is a test notch'))
+        self.stoch_notch_list_5.append(notch.StochNotch(7.625,7.7,'This is a test notch'))
 
 
 
@@ -51,7 +51,7 @@ class TestNotch(unittest.TestCase):
     def test_get_idxs(self):
         epsilon = 1e-4
         freqs = np.arange(5.,7.5+epsilon,0.125)
-        anwser_1 = [True,True,False,True,True,False,True,True,True,True,False,True,True,True,False,True,True,False,False,True,True]
+        anwser_1 = [True,False,False,True,True,False,True,True,True,True,False,True,True,True,False,True,True,False,False,False,True]
         anwser_1_b = [not elem for elem in anwser_1]
         anwser_2 = [False,False,False,True,True,False,True,True,True,True,False,True,True,True,False,True,True,False,False,False,False]
         anwser_2_b = [not elem for elem in anwser_2]
