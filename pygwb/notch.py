@@ -87,8 +87,8 @@ class StochNotchList(list):
             if my_iter == 0:
                 for notch in self:
                     if not(
-                        notch.maximum_frequency <= frequency_array[my_iter]-df  
-                        and   notch.minimum_frequency >= frequency_array[my_iter+1]
+                        notch.maximum_frequency <= frequency_array[my_iter] - df  
+                        and   notch.minimum_frequency >= frequency_array[my_iter + 1]
                     ):
                         idxs.append(True)
                     else:
@@ -96,8 +96,8 @@ class StochNotchList(list):
             elif my_iter == len(frequency_array) - 1:
                 for notch in self:
                     if not(
-                        notch.maximum_frequency <= frequency_array[my_iteri-1]  
-                        and   notch.minimum_frequency >= frequency_array[my_iter]+df
+                        notch.maximum_frequency <= frequency_array[my_iter - 1]  
+                        and   notch.minimum_frequency >= frequency_array[my_iter] + df
                     ):
                         idxs.append(True)
                     else:
@@ -105,8 +105,8 @@ class StochNotchList(list):
             else:
                 for notch in self:
                     if not(
-                        notch.maximum_frequency <= frequency_array[my_iteri-1]  
-                        and   notch.minimum_frequency >= frequency_array[my_iter+1]
+                        notch.maximum_frequency <= frequency_array[my_iter - 1]  
+                        and   notch.minimum_frequency >= frequency_array[my_iter + 1]
                     ): 
                         idxs.append(True)
                     else:
