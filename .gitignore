@@ -12,3 +12,4 @@ tests/results/
 *.vscode
 build/
 *.egg*
+docs/_build
