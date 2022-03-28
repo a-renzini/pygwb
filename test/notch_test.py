@@ -218,7 +218,6 @@ class TestNotch(unittest.TestCase):
   
     def test_pulsar_injections(self):
     
-        #my_compare_notch_list = notch.StochNotchList([])
         my_compare_notch_list = notch.pulsar_injections(filename="test/test_data/pulsar.dat",t_start=1238112018, t_end=1269363618, doppler=1e-4)
         
         fmin_comp = [12.425369523451533,26.32748345804803]
@@ -230,7 +229,6 @@ class TestNotch(unittest.TestCase):
                 check = True
             else:
                 check = False
-                #break
 
         self.assertTrue(check)
 
