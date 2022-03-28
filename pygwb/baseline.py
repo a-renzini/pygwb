@@ -1051,7 +1051,16 @@ class Baseline(object):
         hf.close()
 
     def _npz_save_csd(
-        self, filename, freqs, avg_freqs, csd, avg_csd, psd_1, psd_2, avg_psd_1, avg_psd_2
+        self,
+        filename,
+        freqs,
+        avg_freqs,
+        csd,
+        avg_csd,
+        psd_1,
+        psd_2,
+        avg_psd_1,
+        avg_psd_2,
     ):
         np.savez(
             filename,
@@ -1066,7 +1075,16 @@ class Baseline(object):
         )
 
     def _pickle_save_csd(
-        self, filename, freqs, avg_freqs, csd, avg_psd, psd_1, psd_2, avg_psd_1, avg_psd_2
+        self,
+        filename,
+        freqs,
+        avg_freqs,
+        csd,
+        avg_psd,
+        psd_1,
+        psd_2,
+        avg_psd_1,
+        avg_psd_2,
     ):
 
         save_dictionary = {
@@ -1087,7 +1105,16 @@ class Baseline(object):
             pickle.dump(save_dictionary, f)
 
     def json_save_csd(
-        self, filename, freqs, avg_freqs, csd, avg_csd, psd_1, psd_2, avg_psd_1, avg_psd_2
+        self,
+        filename,
+        freqs,
+        avg_freqs,
+        csd,
+        avg_csd,
+        psd_1,
+        psd_2,
+        avg_psd_1,
+        avg_psd_2,
     ):
         """
         It seems that saving spectrograms in json does not work, hence everything is converted into a list and saved that way in the json file.
@@ -1148,7 +1175,16 @@ class Baseline(object):
             json.dump(save_dictionary, outfile)
 
     def _hdf5_save_csd(
-        self, filename, freqs, avg_freqs, csd, avg_csd, psd_1, psd_2, avg_psd_1, avg_psd_2
+        self,
+        filename,
+        freqs,
+        avg_freqs,
+        csd,
+        avg_csd,
+        psd_1,
+        psd_2,
+        avg_psd_1,
+        avg_psd_2,
     ):
         hf = h5py.File(filename, "w")
 
