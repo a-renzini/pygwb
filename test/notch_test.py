@@ -131,12 +131,14 @@ class TestNotch(unittest.TestCase):
             False,
         ]
         anwser_2_b = [not elem for elem in anwser_2]
+        print(len(freqs))
         test_idxs = np.ones(len(freqs))
         test_inv_idxs = np.ones(len(freqs))
 
         idxs1, inv_idxs1 = self.stoch_notch_list_4.get_idxs(freqs)
         idxs2, inv_idxs2 = self.stoch_notch_list_5.get_idxs(freqs)
 
+        print(len(idxs1))
         print(freqs)
         print(idxs1)
         print(anwser_1)
