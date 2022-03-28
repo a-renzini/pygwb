@@ -1,6 +1,7 @@
 import argparse
 import sys
 from dataclasses import asdict, dataclass, field
+from pathlib import Path
 from typing import List
 
 if sys.version_info >= (3, 0):
@@ -28,21 +29,24 @@ class Parameters:
     flow: int
     fhigh: int
     coarse_grain: int
-    welch_psd_duration: float
+    mock_data_path_dict: dict = field(default_factory=lambda: {})
+    notch_list_path: str = ""
+    N_average_segments_welch_psd: int = 2
     window_fftgram: str = "hann"
     calibration_epsilon: float = 0
-    do_overlap: bool = False
     overlap_factor: float = 0.5
-    zeropad_psd: bool = False
     zeropad_csd: bool = True
-    do_overlap_welch_psd: bool = True
     delta_sigma_cut: float = 0.2
     alphas_delta_sigma_cut: List = field(default_factory=lambda: [-5, 0, 3])
     save_data_type: str = "json"
 
     @classmethod
     def from_file(cls, param_file):
+        if not Path(param_file).exists():
+            raise OSError("Your paramfile doesn't exist!")
+
         param = configparser.ConfigParser()
+        param.optionxform = str
         param.read(str(param_file))
 
         t0 = param.getfloat("parameters", "t0")
@@ -62,18 +66,19 @@ class Parameters:
         fref = param.getint("parameters", "fref")
         flow = param.getint("parameters", "flow")
         fhigh = param.getint("parameters", "fhigh")
-        welch_psd_duration = param.getfloat("parameters", "welch_psd_duration")
+        notch_list_path = param.get("parameters", "notch_list_path")
+        N_average_segments_welch_psd = param.getfloat(
+            "parameters", "N_average_segments_welch_psd"
+        )
         coarse_grain = param.getint("parameters", "coarse_grain")
         calibration_epsilon = param.getfloat("parameters", "calibration_epsilon")
-        do_overlap = param.getboolean("parameters", "do_overlap")
         overlap_factor = param.getfloat("parameters", "overlap_factor")
-        zeropad_psd = param.getboolean("parameters", "zeropad_psd")
         zeropad_csd = param.getboolean("parameters", "zeropad_csd")
-        do_overlap_welch_psd = param.getboolean("parameters", "do_overlap_welch_psd")
         delta_sigma_cut = param.getfloat("parameters", "delta_sigma_cut")
         alphas_delta_sigma_cut = param.get("parameters", "alphas_delta_sigma_cut")
         save_data_type = param.get("parameters", "save_data_type")
 
+        mock_data_path_dict = dict(param.items("mock_data"))
         return cls(
             t0,
             tf,
@@ -92,14 +97,13 @@ class Parameters:
             flow,
             fhigh,
             coarse_grain,
-            welch_psd_duration,
+            mock_data_path_dict,
+            notch_list_path,
+            N_average_segments_welch_psd,
             window_fftgram,
             calibration_epsilon,
-            do_overlap,
             overlap_factor,
-            zeropad_psd,
             zeropad_csd,
-            do_overlap_welch_psd,
             delta_sigma_cut,
             alphas_delta_sigma_cut,
             save_data_type,

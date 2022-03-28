@@ -1,0 +1,122 @@
+#!/bin/env python
+
+import json
+import os
+import sys
+from pathlib import Path
+
+import bilby
+import matplotlib.pyplot as plt
+import numpy as np
+import pipeline_argument_parser
+from loguru import logger
+
+from pygwb.baseline import Baseline
+from pygwb.detector import Interferometer
+from pygwb.parameters import Parameters
+
+if __name__ == "__main__":
+    parser = pipeline_argument_parser.parser
+    args = parser.parse_args()
+    params = Parameters.from_file(args.param_file)
+    if args.t0 is not None:
+        params.t0 = args.t0
+    if args.tf is not None:
+        params.tf = args.tf
+    params.alphas = json.loads(params.alphas_delta_sigma_cut)
+    logger.info(f"Successfully imported parameters from paramfile.")
+    outfile_path = Path(args.param_file)
+    outfile_path = outfile_path.with_name(
+        f"{outfile_path.stem}_final{outfile_path.suffix}"
+    )
+    params.save_paramfile(str(outfile_path))
+    logger.info(f"Saved final param file at {outfile_path}.")
+
+    """
+    X TODO X make this into a param in the arg class?
+    """
+    pipe_calc_point_estimate = True  # if False, it will only compute the CSDs and PSDs, if True, it will compute until the point estimates
+    pipe_pickle_baseline = True
+
+    ifo_H = Interferometer.from_parameters("H1", params)
+    ifo_L = Interferometer.from_parameters("L1", params)
+    logger.info(f"Loaded up interferometers with selected parameters.")
+
+    base_HL = Baseline.from_parameters(ifo_H, ifo_L, params)
+    logger.info(
+        f"Baseline with interferometers {ifo_H.name}, {ifo_L.name} initialised."
+    )
+
+    logger.info(f"Setting PSDs and CSDs of the baseline...")
+    base_HL.set_cross_and_power_spectral_density(params.frequency_resolution)
+    base_HL.set_average_power_spectral_densities()
+    base_HL.set_average_cross_spectral_density()
+
+    logger.info(f"... done.")
+
+    """
+    check nothing's gone wrong in the frequency handling...
+    """
+    deltaF = base_HL.frequencies[1] - base_HL.frequencies[0]
+    if abs(deltaF - params.frequency_resolution) > 1e-6:
+        raise ValueError("Frequency resolution in PSD/CSD is different than requested.")
+
+    base_HL.calculate_delta_sigma_cut(
+        params.delta_sigma_cut,
+        params.alphas,
+        flow=params.flow,
+        fhigh=params.fhigh,
+    )
+
+    logger.info(
+        f"times flagged by the delta sigma cut as badGPStimes:{base_HL.badGPStimes}"
+    )
+
+    if pipe_calc_point_estimate:
+        logger.info(f"calculating the point estimate and sigma...")
+
+        base_HL.set_point_estimate_sigma(
+            alpha=params.alpha,
+            fref=params.fref,
+            flow=params.flow,
+            fhigh=params.fhigh,
+            badtimes=np.array([]),  # use this line to override the delta sigma cut
+        )
+
+        logger.success(
+            f"Ran stochastic search over times {int(params.t0)}-{int(params.tf)}"
+        )
+        logger.success(f"\tPOINT ESIMATE: {base_HL.point_estimate:e}")
+        logger.success(f"\tSIGMA: {base_HL.sigma:e}")
+
+        data_file_name = f"point_estimate_sigma_{int(params.t0)}-{int(params.tf)}"
+
+        logger.info(
+            "Saving point_estimate and sigma spectrograms, spectra, and final values to file."
+        )
+        logger.info("Saving average psds and csd to file.")
+        base_HL.save_point_estimate_spectra(
+            params.save_data_type,
+            data_file_name,
+        )
+        base_HL.save_psds_csds(
+            params.save_data_type,
+            data_file_name,
+        )
+        if pipe_pickle_baseline:
+            logger.info("Pickling the baseline.")
+            pickle_name = f"{base_HL.name}_{int(params.t0)}-{int(params.tf)}.pickle"
+            base_HL.save_to_pickle(pickle_name)
+
+    else:
+        logger.info("Saving average psds and csd to file.")
+
+        data_file_name = f"psds_csds_{int(params.t0)}-{int(params.tf)}"
+
+        base_HL.npz_save_psds_csds(
+            data_file_name,
+            base_HL.frequencies,
+            base_HL.csd,
+            base_HL.interferometer_1.average_psd,
+            base_HL.interferometer_2.average_psd,
+        )

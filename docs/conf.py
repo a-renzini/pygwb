@@ -50,15 +50,15 @@ templates_path = ["templates"]
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
-source_suffix = [".txt", ".rst", ".ipynb"]
+source_suffix = [".txt", ".rst"]
 
 # The master toctree document.
 master_doc = "index"
 
 # General information about the project.
-project = u"pygwb"
-copyright = u"2021, Andrew Matas"
-author = u"Andrew Matas"
+project = "pygwb"
+copyright = "2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang"
+author = "Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -82,7 +82,13 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "requirements.txt"]
+exclude_patterns = [
+    "_build",
+    "Thumbs.db",
+    ".DS_Store",
+    "requirements.txt",
+    "**.ipynb_checkpoints",
+]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
@@ -155,8 +161,8 @@ latex_documents = [
     (
         master_doc,
         "pygwb.tex",
-        u"pygwb Documentation",
-        u"Andrew Matas",
+        "pygwb Documentation",
+        "Andrew Matas",
         "manual",
     ),
 ]
@@ -166,7 +172,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [(master_doc, "pygwb", u"pygwb Documentation", [author], 1)]
+man_pages = [(master_doc, "pygwb", "pygwb Documentation", [author], 1)]
 
 
 # -- Options for Texinfo output -------------------------------------------
@@ -178,7 +184,7 @@ texinfo_documents = [
     (
         master_doc,
         "pygwb",
-        u"pygwb Documentation",
+        "pygwb Documentation",
         author,
         "pygwb",
         "Lightweight stochastic GWB",
@@ -188,5 +194,12 @@ texinfo_documents = [
 
 numpydoc_show_class_members = False
 
+
+# List of arguments to be passed to the kernel that executes the notebooks:
+nbsphinx_execute_arguments = [
+    "--InlineBackend.figure_formats={'svg', 'pdf'}",
+    "--InlineBackend.rc={'figure.dpi': 96}",
+]
+
 # nbsphinx options
-nbsphinx_execute = "never"
+# nbsphinx_execute = "always"
