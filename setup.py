@@ -86,6 +86,7 @@ setup(
         "lalsuite",
         "loguru",
         "jinja2==3.0.3",
+        "virtualenv==20.13.4",
     ],
     classifiers=[
         "Programming Language :: Python :: 3.8",
