@@ -28,6 +28,7 @@ API:
    baseline
    network
 
+   preprocessing
    spectral
    postprocessing
    pe
