@@ -917,7 +917,8 @@ class Baseline(object):
 
         save_csd(
             f"psds_csds_{filename}{ext}",
-            self.frequencies,
+            self.csd.frequencies.value,
+            self.average_csd.frequencies.value,
             self.csd,
             self.average_csd,
             self.interferometer_1.psd_spectrogram,
@@ -1050,11 +1051,21 @@ class Baseline(object):
         hf.close()
 
     def _npz_save_csd(
-        self, filename, freqs, csd, avg_csd, psd_1, psd_2, avg_psd_1, avg_psd_2
+        self,
+        filename,
+        freqs,
+        avg_freqs,
+        csd,
+        avg_csd,
+        psd_1,
+        psd_2,
+        avg_psd_1,
+        avg_psd_2,
     ):
         np.savez(
             filename,
             freqs=freqs,
+            avg_freqs=avg_freqs,
             csd=csd,
             avg_csd=avg_csd,
             psd_1=psd_1,
@@ -1064,11 +1075,21 @@ class Baseline(object):
         )
 
     def _pickle_save_csd(
-        self, filename, freqs, csd, avg_psd, psd_1, psd_2, avg_psd_1, avg_psd_2
+        self,
+        filename,
+        freqs,
+        avg_freqs,
+        csd,
+        avg_psd,
+        psd_1,
+        psd_2,
+        avg_psd_1,
+        avg_psd_2,
     ):
 
         save_dictionary = {
             "freqs": freqs,
+            "avg_freqs": avg_freqs,
             "csd": csd,
             "avg_csd": avg_csd,
             "psd_1": psd_1,
@@ -1084,15 +1105,25 @@ class Baseline(object):
             pickle.dump(save_dictionary, f)
 
     def json_save_csd(
-        self, filename, freqs, csd, avg_csd, psd_1, psd_2, avg_psd_1, avg_psd_2
+        self,
+        filename,
+        freqs,
+        avg_freqs,
+        csd,
+        avg_csd,
+        psd_1,
+        psd_2,
+        avg_psd_1,
+        avg_psd_2,
     ):
         """
         It seems that saving spectrograms in json does not work, hence everything is converted into a list and saved that way in the json file.
         A second issue is that json does not seem to recognise complex values, hence the csd is split up into a real and imaginary part.
         When loading in this json file, one needs to 'reconstruct' the csd as a spectrogram using these two lists and the times and frequencies.
         """
-        list_freqs = frequencies.tolist()
-        list_csd = average_csd.value.tolist()
+        list_freqs = freqs.tolist()
+        list_avg_freqs = avg_freqs.tolist()
+        list_csd = csd.value.tolist()
         real_csd = np.zeros(np.shape(list_csd))
         imag_csd = np.zeros(np.shape(list_csd))
         for index, row in enumerate(list_csd):
@@ -1123,6 +1154,7 @@ class Baseline(object):
 
         save_dictionary = {
             "frequencies": list_freqs,
+            "avg_frequencies": list_avg_freqs,
             "csd_real": real_csd_list,
             "csd_imag": imag_csd_list,
             "csd_times": csd_times,
@@ -1143,14 +1175,57 @@ class Baseline(object):
             json.dump(save_dictionary, outfile)
 
     def _hdf5_save_csd(
-        self, filename, csd, avg_csd, psd_1, psd_2, avg_psd_1, avg_psd_2
+        self,
+        filename,
+        freqs,
+        avg_freqs,
+        csd,
+        avg_csd,
+        psd_1,
+        psd_2,
+        avg_psd_1,
+        avg_psd_2,
     ):
-        data_dict = gwpy.timeseries.TimeSeriesDict()
-        spectrograms = [csd, avg_csd, psd_1, psd_2, avg_psd_1, avg_psd_2]
-        channels = ["csd", "avg_csd", "psd_1", "psd_2", "avg_psd_1", "avg_psd_2"]
-        for (channel, spec) in zip(channels, spectrograms):
-            data_dict[channel] = spec
-        data_dict.write(filename, format="hdf5")
+        hf = h5py.File(filename, "w")
+
+        csd_times = csd.times.value
+        psd_1_times = psd_1.times.value
+        psd_2_times = psd_2.times.value
+        avg_csd_times = avg_csd.times.value
+        avg_psd_1_times = avg_psd_1.times.value
+        avg_psd_2_times = avg_psd_2.times.value
+
+        hf.create_dataset("freqs", data=freqs)
+        hf.create_dataset("avg_freqs", data=avg_freqs)
+
+        csd_group = hf.create_group("csd_group")
+        csd_group.create_dataset("csd", data=csd)
+        csd_group.create_dataset("csd_times", data=csd_times)
+
+        avg_csd_group = hf.create_group("avg_csd_group")
+        avg_csd_group.create_dataset("avg_csd", data=avg_csd)
+        avg_csd_group.create_dataset("avg_csd_times", data=avg_csd_times)
+
+        psd_group = hf.create_group("psds_group")
+
+        psd_1_group = hf.create_group("psds_group/psd_1")
+        psd_1_group.create_dataset("psd_1", data=psd_1)
+        psd_1_group.create_dataset("psd_1_times", data=psd_1_times)
+
+        psd_2_group = hf.create_group("psds_group/psd_2")
+        psd_2_group.create_dataset("psd_2", data=psd_2)
+        psd_2_group.create_dataset("psd_2_times", data=psd_2_times)
+
+        avg_psd_group = hf.create_group("avg_psds_group")
+
+        avg_psd_1_group = hf.create_group("avg_psds_group/avg_psd_1")
+        avg_psd_1_group.create_dataset("avg_psd_1", data=avg_psd_1)
+        avg_psd_1_group.create_dataset("avg_psd_1_times", data=avg_psd_1_times)
+
+        avg_psd_2_group = hf.create_group("avg_psds_group/avg_psd_2")
+        avg_psd_2_group.create_dataset("avg_psd_2", data=avg_psd_2)
+        avg_psd_2_group.create_dataset("avg_psd_2_times", data=avg_psd_2_times)
+        hf.close()
 
 
 def get_baselines(interferometers, frequencies=None):
