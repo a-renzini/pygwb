@@ -27,8 +27,10 @@ class TestInterferometer(unittest.TestCase):
                 "frequency_resolution",
                 "overlap_factor",
                 "N_average_segments_welch_psd",
+                "time_shift",
             ]
         }
+        self.kwargs["local_data_path"] = ""
         with open("./test/test_data/detector_testdata_H1.pickle", "rb") as pkl:
             self.testdata = pickle.load(pkl)
 
@@ -36,6 +38,10 @@ class TestInterferometer(unittest.TestCase):
         del self.ifo
         del self.parameters
         del self.kwargs
+
+    def test_from_parameters(self):
+        ifo = detector.Interferometer.from_parameters(self.ifo, self.parameters)
+        self.assertTrue(ifo.name, self.ifo)
 
     def test_get_empty_interferometer(self):
         ifo = detector.Interferometer.get_empty_interferometer(self.ifo)

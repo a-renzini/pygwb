@@ -40,6 +40,8 @@ def dsc_cut(
     dsigma >= dsc: bool
         True: the segment's delta sigma exceeds the threshold value, thus making its corresponding GPStime BAD
         False:  the segment's delta sigma is less than the threshold value, thus making its corresponding GPStime GOOD
+    dsigma: np.array
+        values of the difference between sliding sigma and naive sigma, i.e.: real value of the delta sigma cut per segment
     """
 
     dsigma = np.abs(slide_sigma * bf_ss - naive_sigma * bf_ns) / slide_sigma * bf_ss
@@ -95,6 +97,7 @@ def calc_sigma_alpha(sensitivity_integrand_with_Hf: np.ndarray):
 
     return sigma_alpha
 
+
 def calc_sens_integrand(
     freq: np.ndarray,
     P1: np.ndarray,
@@ -148,15 +151,15 @@ def calc_sens_integrand(
         the sensitivity integrand
     """
 
-    w1w2bar, w1w2squaredbar, oo = WindowFactors(window1, window2)
-    S_alpha = 3 * H0**2 / (10 * np.pi**2) * 1.0 / freq**3
+    w1w2bar, w1w2squaredbar, oo = WindowFactors(window1=window1, window2=window2)
+    S_alpha = 3 * H0 ** 2 / (10 * np.pi ** 2) * 1.0 / freq ** 3
     sigma_square_avg = (
-        (w1w2squaredbar / w1w2bar**2)
+        (w1w2squaredbar / w1w2bar ** 2)
         * 1
         / (2 * T * delta_f)
         * P1
         * P2
-        / (orf**2.0 * S_alpha**2)
+        / (np.power(orf, 2.0) * S_alpha ** 2)
     )
 
     return sigma_square_avg
@@ -208,7 +211,7 @@ def WindowFactors(window1: np.ndarray, window2: np.ndarray):
 
     # calculate window factors
     w1w2bar = np.mean(window1red * window2red)
-    w1w2squaredbar = np.mean((window1red**2) * (window2red**2))
+    w1w2squaredbar = np.mean((window1red ** 2) * (window2red ** 2))
     w1w2ovlsquaredbar = np.mean((firsthalf1 * secondhalf1) * (firsthalf2 * secondhalf2))
 
     return w1w2bar, w1w2squaredbar, w1w2ovlsquaredbar
@@ -314,51 +317,77 @@ def run_dsc(
     ntimes = len(times)
     df = psd1_naive.df.value
     dt = psd1_naive.df.value ** (-1)
-    bf_ns = calc_bias(segment_duration, df, dt, N_avg_segs=1)  # Naive estimate
-    bf_ss = calc_bias(segment_duration, df, dt, N_avg_segs=2)  # Sliding estimate
+    bf_ns = calc_bias(
+        segmentDuration=segment_duration, deltaF=df, deltaT=dt, N_avg_segs=1
+    )  # Naive estimate
+    bf_ss = calc_bias(
+        segmentDuration=segment_duration, deltaF=df, deltaT=dt, N_avg_segs=2
+    )  # Sliding estimate
     freqs = np.array(psd1_naive.frequencies)
     overall_cut = np.zeros((ntimes, 1), dtype="bool")
     cuts = np.zeros((nalphas, ntimes), dtype="bool")
-
-    veto = veto_lines(freqs, lines)
+    dsigmas = np.zeros((nalphas, ntimes))
+    veto = veto_lines(freqs=freqs, lines=lines)
     keep = np.squeeze(~veto)
 
     window1 = np.hanning(segment_duration * sampling_frequency)
     window2 = window1
     for alpha in range(nalphas):
-        Hf = calc_Hf(freqs, alphas[alpha])
+        Hf = calc_Hf(freqs=freqs, alpha=alphas[alpha])
         cut = np.zeros((ntimes, 1), dtype="bool")
+        dsigma = np.zeros((ntimes, 1), dtype="bool")
         for time in range(len(times)):
             psd1_naive_time = psd1_naive[time, :]
             psd1_slide_time = psd1_slide[time, :]
             psd2_naive_time = psd2_naive[time, :]
             psd2_slide_time = psd2_slide[time, :]
+
             naive_sensitivity_integrand_with_Hf = (
                 calc_sens_integrand(
-                    freqs, psd1_naive_time, psd2_naive_time, window1, window2, df, orf, T=dt
+                    freq=freqs,
+                    P1=psd1_naive_time,
+                    P2=psd2_naive_time,
+                    window1=window1,
+                    window2=window2,
+                    delta_f=df,
+                    orf=orf,
+                    T=dt,
                 )
-                / Hf**2
+                / Hf ** 2
             )
-
             slide_sensitivity_integrand_with_Hf = (
                 calc_sens_integrand(
-                    freqs, psd1_slide_time, psd2_slide_time, window1, window2, df, orf, T=dt
+                    freq=freqs,
+                    P1=psd1_slide_time,
+                    P2=psd2_slide_time,
+                    window1=window1,
+                    window2=window2,
+                    delta_f=df,
+                    orf=orf,
+                    T=dt,
                 )
-                / Hf**2
+                / Hf ** 2
             )
             naive_sigma_alpha = calc_sigma_alpha(
-                naive_sensitivity_integrand_with_Hf[keep]
+                sensitivity_integrand_with_Hf=naive_sensitivity_integrand_with_Hf[keep]
             )
             slide_sigma_alpha = calc_sigma_alpha(
-                slide_sensitivity_integrand_with_Hf[keep]
+                sensitivity_integrand_with_Hf=slide_sensitivity_integrand_with_Hf[keep]
             )
-            cut[time], dsigma = dsc_cut(naive_sigma_alpha, slide_sigma_alpha, dsc, bf_ss, bf_ns)
+            cut[time], dsigma[time] = dsc_cut(
+                naive_sigma=naive_sigma_alpha,
+                slide_sigma=slide_sigma_alpha,
+                dsc=dsc,
+                bf_ss=bf_ss,
+                bf_ns=bf_ns,
+            )
 
         cuts[alpha, :] = np.squeeze(cut)
+        dsigmas[alpha, :] = np.squeeze(dsigma)
 
     for time in range(len(times)):
         overall_cut[time] = any(cuts[:, time])
 
     BadGPStimes = times[np.squeeze(overall_cut)]
 
-    return BadGPStimes, dsigma
+    return BadGPStimes, dsigmas

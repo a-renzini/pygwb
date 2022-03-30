@@ -16,6 +16,7 @@ class Test(unittest.TestCase):
         segment_duration = 192
         number_cropped_seconds = 2
         data_type = "public"
+        time_shift = 0
         data_start_time = preprocessing.set_start_time(
             t0, tf, number_cropped_seconds, segment_duration
         )
@@ -48,9 +49,7 @@ class Test(unittest.TestCase):
         new_sample_rate = 4096
         cutoff_frequency = 11
         segment_duration = 192
-        print(len(self.timeseries_data))
-        print(len(self.timeseries_array))
-
+        time_shift = 0
         timeseries_output1 = preprocessing.preprocessing_data_channel_name(
             IFO=IFO,
             t0=t0,
@@ -63,6 +62,7 @@ class Test(unittest.TestCase):
             number_cropped_seconds=2,
             window_downsampling="hamming",
             ftype="fir",
+            time_shift=time_shift,
         )
 
         self.assertEqual(len(timeseries_output1), 1802240)
@@ -80,6 +80,7 @@ class Test(unittest.TestCase):
             number_cropped_seconds=2,
             window_downsampling="hamming",
             ftype="fir",
+            time_shift=time_shift,
         )
 
         self.assertEqual(len(timeseries_output2), 1802240)
@@ -93,6 +94,7 @@ class Test(unittest.TestCase):
             number_cropped_seconds=2,
             window_downsampling="hamming",
             ftype="fir",
+            time_shift=time_shift,
         )
 
         self.assertEqual(len(timeseries_output3), 1802240)

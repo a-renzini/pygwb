@@ -1,10 +1,4 @@
 repos:
--   repo: https://github.com/ambv/black
-    rev: 21.12b0
-    hooks:
-      - id: black
-        language_version: python3
-        files: ^test/*.py
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.1.0
     hooks:
@@ -29,3 +23,8 @@ repos:
         language: python
         additional_dependencies:
             - flynt
+-   repo: https://github.com/ColmTalbot/nbstrip
+    rev: v0.1.0
+    hooks:
+    -   id: nbstrip
+        args: [-i, -v]
