@@ -124,8 +124,7 @@ class StatisticalChecks(object):
             naive_sigma_all[time] = calc_naive_sigma(baseline.interferometer_1.psd_spectrogram.frequencies.value, baseline.interferometer_1.psd_spectrogram.value[time], baseline.interferometer_2.psd_spectrogram.value[time], orf_new.value, params.frequency_resolution, params.segment_duration, params.new_sample_rate, params.alpha)
         
         badGPSTimes=baseline.badGPStimes
-        delta_sigmas=abs(np.random.randn(sliding_times_all.shape[0]))
-        #delta_sigmas=baseline.delta_sigmas[1] #Selects the value for alpha=0
+        delta_sigmas=baseline.delta_sigmas[1] #Selects the value for alpha=0
         
         sensitivity_integrand = 1./baseline.sigma_spectrum.value**2
         point_estimate_integrand = baseline.point_estimate_spectrum.value
