@@ -1,16 +1,28 @@
+import pickle
+
+import gwpy
+import h5py
 import matplotlib
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy import integrate, special, stats
 from scipy.optimize import curve_fit
-import pickle
-import h5py
-import gwpy
 
-from pygwb.util import StatKS, calc_bias, calc_Y_sigma_from_Yf_varf, interpolate_frequency_series
-from pygwb.delta_sigma_cut import calc_sens_integrand, calc_sigma_alpha, calc_Hf, WindowFactors
-from pygwb.parameters import Parameters
 from pygwb.baseline import Baseline
+from pygwb.delta_sigma_cut import (
+    WindowFactors,
+    calc_Hf,
+    calc_sens_integrand,
+    calc_sigma_alpha,
+)
+from pygwb.parameters import Parameters
+from pygwb.util import (
+    StatKS,
+    calc_bias,
+    calc_Y_sigma_from_Yf_varf,
+    interpolate_frequency_series,
+)
+
 
 class StatisticalChecks(object):
     def __init__(self, sliding_times_all, sliding_omega_all, sliding_sigmas_all, naive_sigma_all, sensitivity_integrand, point_estimate_integrand, freqs, badGPSTimes, delta_sigmas, plot_dir, baseline_name, param_file):
