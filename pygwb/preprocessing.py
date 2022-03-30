@@ -225,8 +225,8 @@ def self_gate_data(
         Timeseries containing the gated data
     """
 
+    from gwpy.segments import Segment, SegmentList
     from scipy.signal import find_peaks
-    from gwpy.segments import (Segment, SegmentList)
     # Find points to gate based on a threshold
     sample = time_series_data.sample_rate.to('Hz').value
     data = time_series_data.whiten() if whiten else time_series_data

@@ -4,12 +4,13 @@ import os
 import bilby.gw.detector
 import numpy as np
 from bilby.gw.detector.psd import PowerSpectralDensity
+from gwpy.segments import SegmentList
 
 from .preprocessing import (
     preprocessing_data_channel_name,
     preprocessing_data_gwpy_timeseries,
     preprocessing_data_timeseries_array,
-    self_gate_data
+    self_gate_data,
 )
 from .spectral import before_after_average, power_spectral_density
 
@@ -66,6 +67,8 @@ class Interferometer(bilby.gw.detector.Interferometer):
             gwpy spectrogram of power spectral density
 
         """
+        self.gates = SegmentList() 
+        self.gate_pad = None
         super(Interferometer, self).__init__(*args, **kwargs)
 
     @classmethod
@@ -338,13 +341,14 @@ class Interferometer(bilby.gw.detector.Interferometer):
         gate_threshold = kwargs.pop("gate_threshold")
         cluster_window = kwargs.pop("cluster_window")
         gate_whiten = kwargs.pop("gate_whiten")
-        self.timeseries, self.gates = self_gate_data(self.timeseries,
+        self.timeseries, new_gates = self_gate_data(self.timeseries,
             tzero=gate_tzero,
             tpad=gate_tpad,
             gate_threshold=gate_threshold,
             cluster_window=cluster_window,
             whiten=gate_whiten,
         )
+        self.gates = self.gates | new_gates
         self.gate_pad = gate_tpad
 
     def _check_ifo_name(self, name):
