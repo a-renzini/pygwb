@@ -65,6 +65,10 @@ class Interferometer(bilby.gw.detector.Interferometer):
             timeseries object with resampling/high-pass filter applied.
         psd_spectrogram : gwpy spectrogram
             gwpy spectrogram of power spectral density
+        gates: gwpy SegmentList
+            List of segments that have been gated, not including any additional padding. 
+        gate_pad: float
+            List of segments that have been gated, not including any additional padding. 
 
         """
         self.gates = SegmentList() 
@@ -336,6 +340,28 @@ class Interferometer(bilby.gw.detector.Interferometer):
             )
 
     def gate_data_apply(self, **kwargs):
+        """
+        Self-gate the tgwpy timeseries associated with this timeseries. The list
+        of times gated and the padding applied are stored as properties of the Interferometer.
+
+        Parameters
+        ==========
+        gate_tzero : float
+            half-width time duration (seconds) in which the timeseries is
+            set to zero
+        gate_tpad : float
+            half-width time duration (seconds) in which the Planck window
+            is tapered
+        gate_threshold : float
+            amplitude threshold, if the data exceeds this value a gating window
+            will be placed
+        cluster_window : float
+            time duration (seconds) over which gating points will be clustered
+        gate_whiten : bool
+            if True, data will be whitened before gating points are discovered,
+            use of this option is highly recommended
+
+        """
         gate_tzero = kwargs.pop("gate_tzero")
         gate_tpad = kwargs.pop("gate_tpad")
         gate_threshold = kwargs.pop("gate_threshold")

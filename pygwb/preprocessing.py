@@ -219,10 +219,39 @@ def self_gate_data(
     time_series_data: gwpy_timeseries
         timeseries data to be analysed in the pipeline
 
+    tzero : `int`, optional
+        half-width time duration (seconds) in which the timeseries is
+        set to zero
+
+    tpad : `int`, optional
+        half-width time duration (seconds) in which the Planck window
+        is tapered
+
+    whiten : `bool`, optional
+        if True, data will be whitened before gating points are discovered,
+        use of this option is highly recommended
+
+    threshold : `float`, optional
+        amplitude threshold, if the data exceeds this value a gating window
+        will be placed
+
+    cluster_window : `float`, optional
+        time duration (seconds) over which gating points will be clustered
+
     Returns
     =======
     gated: gwpy_timeseries
         Timeseries containing the gated data
+
+    deadtime: `gwpy.segments.SegmentList` 
+        SegmentList containing the times that were gated, not including
+        any padding applied
+
+    Notes
+    -----
+    This method is based on `gwpy.timeseries.gate`. See
+    https://gwpy.github.io/docs/latest/api/gwpy.timeseries.TimeSeries/?highlight=timeseries#gwpy.timeseries.TimeSeries.gate
+    for additional details.
     """
 
     from gwpy.segments import Segment, SegmentList
