@@ -89,17 +89,27 @@ class Parameters:
         time_shift = param.getint("parameters", "time_shift")
         if param.has_option("parameters", "gate_data"):
             gate_data = param.getboolean("parameters", "gate_data")
+        else: 
+            gate_data = False
+        if param.has_option("parameters", "gate_tzero"):
             gate_tzero = param.getfloat("parameters", "gate_tzero")
+        else:
+            gate_tzero = 1.0
+        if param.has_option("parameters", "gate_tpad"):
             gate_tpad = param.getfloat("parameters", "gate_tpad")  
+        else:
+            gate_tpad = 0.5
+        if param.has_option("parameters", "gate_threshold"):
             gate_threshold = param.getfloat("parameters", "gate_threshold") 
+        else:
+            gate_threshold = 50.0
+        if param.has_option("parameters", "cluster_window"):
             cluster_window = param.getfloat("parameters", "cluster_window") 
+        else:
+            cluster_window = 0.50
+        if param.has_option("parameters", "gate_whiten"):
             gate_whiten = param.getboolean("parameters", "gate_whiten")
         else:
-            gate_data = False
-            gate_tzero = 1.0
-            gate_tpad = 0.5
-            gate_threshold = 50.0
-            cluster_window = 0.50
             gate_whiten = True
 
         local_data_path_dict = dict(param.items("local_data"))
