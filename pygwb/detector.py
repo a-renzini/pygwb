@@ -68,7 +68,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
         gates: gwpy SegmentList
             List of segments that have been gated, not including any additional padding. 
         gate_pad: float
-            List of segments that have been gated, not including any additional padding. 
+            Duration of padding used when applying gates. 
 
         """
         self.gates = SegmentList() 
