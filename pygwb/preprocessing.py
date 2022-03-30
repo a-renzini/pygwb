@@ -201,6 +201,47 @@ def resample_filter(
 
     return filtered
 
+def self_gate_data(
+    time_series_data: timeseries.TimeSeries,
+    tzero: float = 1.0,
+    tpad: float = 0.5,
+    gate_threshold: float = 50.0,
+    cluster_window: float = 0.5,
+    whiten: bool = True,
+):
+    """
+    Function to self-gate 
+    data to be used in the stochastic pipeline
+
+    Parameters
+    ==========
+
+    time_series_data: gwpy_timeseries
+        timeseries data to be analysed in the pipeline
+
+    Returns
+    =======
+    gated: gwpy_timeseries
+        Timeseries containing the gated data
+    """
+
+    from scipy.signal import find_peaks
+    from gwpy.segments import (Segment, SegmentList)
+    # Find points to gate based on a threshold
+    sample = time_series_data.sample_rate.to('Hz').value
+    data = time_series_data.whiten() if whiten else time_series_data
+    window_samples = cluster_window * sample
+    gates = find_peaks(abs(data.value), height=gate_threshold,
+                       distance=window_samples)[0]
+    # represent gates as time segments
+    deadtime = SegmentList([Segment(
+        time_series_data.t0.value + (k / sample) - tzero,
+        time_series_data.t0.value + (k / sample) + tzero,
+    ) for k in gates]).coalesce()
+    # return the self-gated timeseries
+    gated = time_series_data.mask(deadtime=deadtime, const=0, tpad=tpad)
+    return gated, deadtime
+
 
 def shift_timeseries(time_series_data: timeseries.TimeSeries, time_shift: int = 0):
 

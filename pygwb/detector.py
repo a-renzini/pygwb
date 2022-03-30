@@ -9,6 +9,7 @@ from .preprocessing import (
     preprocessing_data_channel_name,
     preprocessing_data_gwpy_timeseries,
     preprocessing_data_timeseries_array,
+    self_gate_data
 )
 from .spectral import before_after_average, power_spectral_density
 
@@ -135,6 +136,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
         """
         ifo = cls.get_empty_interferometer(name)
         channel = str(ifo.name + ":" + parameters.channel)
+        
         if parameters.local_data_path_dict:
             local_data_path = parameters.local_data_path_dict[name]
         else:
@@ -329,6 +331,21 @@ class Interferometer(bilby.gw.detector.Interferometer):
             print(
                 "PSDs have not been calculated yet! Need to set_psd_spectrogram first."
             )
+
+    def gate_data_apply(self, **kwargs):
+        gate_tzero = kwargs.pop("gate_tzero")
+        gate_tpad = kwargs.pop("gate_tpad")
+        gate_threshold = kwargs.pop("gate_threshold")
+        cluster_window = kwargs.pop("cluster_window")
+        gate_whiten = kwargs.pop("gate_whiten")
+        self.timeseries, self.gates = self_gate_data(self.timeseries,
+            tzero=gate_tzero,
+            tpad=gate_tpad,
+            gate_threshold=gate_threshold,
+            cluster_window=cluster_window,
+            whiten=gate_whiten,
+        )
+        self.gate_pad = gate_tpad
 
     def _check_ifo_name(self, name):
         if not self.name == name:
