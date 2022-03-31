@@ -16,14 +16,14 @@ from pygwb.delta_sigma_cut import (
     calc_sigma_alpha,
 )
 from pygwb.parameters import Parameters
+from pygwb.postprocessing import postprocess_Y_sigma
 from pygwb.util import (
     StatKS,
     calc_bias,
     calc_Y_sigma_from_Yf_varf,
+    calculate_point_estimate_sigma_integrand,
     interpolate_frequency_series,
-    calculate_point_estimate_sigma_integrand
 )
-from pygwb.postprocessing import postprocess_Y_sigma
 
 
 class StatisticalChecks(object):
