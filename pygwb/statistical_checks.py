@@ -21,7 +21,9 @@ from pygwb.util import (
     calc_bias,
     calc_Y_sigma_from_Yf_varf,
     interpolate_frequency_series,
+    calculate_point_estimate_sigma_integrand
 )
+from pygwb.postprocessing import postprocess_Y_sigma
 
 
 class StatisticalChecks(object):
@@ -130,17 +132,33 @@ class StatisticalChecks(object):
         sliding_omega_all=np.zeros_like(sliding_times_all)
         sliding_sigmas_all=np.zeros_like(sliding_times_all)
         naive_sigma_all= np.zeros_like(sliding_times_all)
-        
+
         for time in range(len(sliding_times_all)):
             sliding_omega_all[time], sliding_sigmas_all[time] = calc_Y_sigma_from_Yf_varf(baseline.point_estimate_spectrogram.value[time], baseline.sigma_spectrogram.value[time], freqs = baseline.point_estimate_spectrogram.frequencies.value, alpha = params.alpha, fref=params.fref, weight_spectrum=False)
             naive_sigma_all[time] = calc_naive_sigma(baseline.interferometer_1.psd_spectrogram.frequencies.value, baseline.interferometer_1.psd_spectrogram.value[time], baseline.interferometer_2.psd_spectrogram.value[time], orf_new.value, params.frequency_resolution, params.segment_duration, params.new_sample_rate, params.alpha)
         
         badGPSTimes=baseline.badGPStimes
         delta_sigmas=baseline.delta_sigmas[1] #Selects the value for alpha=0
-        
+        bad_times_indexes = np.array(
+            [np.any(t == badGPSTimes) for t in sliding_times_all]
+        )
+
         sensitivity_integrand = 1./baseline.sigma_spectrum.value**2
-        point_estimate_integrand = baseline.point_estimate_spectrum.value
-        return cls(sliding_times_all, sliding_omega_all, sliding_sigmas_all, naive_sigma_all, sensitivity_integrand, point_estimate_integrand, baseline.point_estimate_spectrogram.frequencies.value, badGPSTimes, delta_sigmas, plot_dir, baseline.name, param_file)
+        
+        Y_fs, var_fs = calculate_point_estimate_sigma_integrand(baseline.frequencies, baseline.average_csd, baseline.interferometer_1.average_psd, baseline.interferometer_2.average_psd, orf.value, params.new_sample_rate, params.segment_duration, fref=params.fref, alpha=0, weight_spectrogram=False)
+        
+        Y_fs[bad_times_indexes,:]=0
+        var_fs[bad_times_indexes,:]=np.inf
+
+        pt_est_integrand, varf = postprocess_Y_sigma(
+            Y_fs.value,
+            var_fs.value,
+            params.segment_duration,
+            params.frequency_resolution,
+            params.new_sample_rate,
+        )
+        
+        return cls(sliding_times_all, sliding_omega_all, sliding_sigmas_all, naive_sigma_all, sensitivity_integrand, pt_est_integrand, baseline.point_estimate_spectrogram.frequencies.value, badGPSTimes, delta_sigmas, plot_dir, baseline.name, param_file)
     
     
     @classmethod
@@ -186,9 +204,11 @@ class StatisticalChecks(object):
         
         badGPSTimes=point_est_file_data['badGPStimes']
         delta_sigmas=point_est_file_data['delta_sigmas'][1] #Selects value corresponding to alpha=0
-        
+        bad_times_indexes = np.array(
+            [np.any(t == badGPSTimes) for t in sliding_times_all]
+        )
+
         sensitivity_integrand = 1./point_est_file_data['sigma_spectrum'].value**2
-        point_estimate_integrand = point_est_file_data['point_estimate_spectrum'].value
         
         with (open(PSD_file_path, "rb")) as f:
             while True:
@@ -199,54 +219,103 @@ class StatisticalChecks(object):
                     
         freqs =  PSD_file_data['psd_1'].frequencies.value[1:]
         
-        orf_new = interpolate_frequency_series(orf, freqs)
+        orf_naive = interpolate_frequency_series(orf, PSD_file_data['psd_1'].frequencies.value[1:])
         
         naive_sigma_all= np.zeros_like(sliding_times_all)
         
         for time in range(len(sliding_times_all)):
-            naive_sigma_all[time] = calc_naive_sigma(PSD_file_data['psd_1'].frequencies.value[1:], PSD_file_data['psd_1'].value[time][1:], PSD_file_data['psd_2'].value[time][1:], orf_new.value, params.frequency_resolution, params.segment_duration, params.new_sample_rate, params.alpha)
+            naive_sigma_all[time] = calc_naive_sigma(PSD_file_data['psd_1'].frequencies.value[1:], PSD_file_data['psd_1'].value[time][1:], PSD_file_data['psd_2'].value[time][1:], orf_naive.value, params.frequency_resolution, params.segment_duration, params.new_sample_rate, params.alpha)
+            
+        orf_avg = interpolate_frequency_series(orf, PSD_file_data['avg_psd_1'].frequencies.value)
         
-        return cls(sliding_times_all, sliding_omega_all, sliding_sigmas_all, naive_sigma_all, sensitivity_integrand, point_estimate_integrand, point_est_file_data['sigma_spectrum'].frequencies, badGPSTimes, delta_sigmas, plot_dir, baseline_name, param_file)
-    
-    
-    @classmethod
-    def from_file(cls, point_est_file_path, PSD_file_path, param_file, plot_dir, baseline_name, orf):
-        file_name, file_extension = os.path.splitext(point_est_file_path)
-    
-        if file_extension==(".p" or ".pickle"):
-            pass
-        elif filefile_extension==".h5":
-            pass
-        else:
-            pass #return error
+        Y_fs, var_fs = calculate_point_estimate_sigma_integrand(PSD_file_data['avg_psd_1'].frequencies.value, PSD_file_data['avg_csd'].value, PSD_file_data['avg_psd_1'].value, PSD_file_data['avg_psd_2'].value, orf_avg.value, params.new_sample_rate, params.segment_duration, fref=params.fref, alpha=0, weight_spectrogram=False)
+        
+        Y_fs[bad_times_indexes,:]=0
+        var_fs[bad_times_indexes,:]=np.inf
+
+        pt_est_integrand, varf = postprocess_Y_sigma(
+            Y_fs.value,
+            var_fs.value,
+            params.segment_duration,
+            params.frequency_resolution,
+            params.new_sample_rate,
+        )
+        
+        return cls(sliding_times_all, sliding_omega_all, sliding_sigmas_all, naive_sigma_all, sensitivity_integrand, pt_est_integrand, point_est_file_data['sigma_spectrum'].frequencies, badGPSTimes, delta_sigmas, plot_dir, baseline_name, param_file)
+
     
     @classmethod
     def from_hdf5(cls, point_est_file_path, PSD_file_path, param_file, plot_dir, baseline_name, orf):
         """
-        """
+        Method to initialize the statistical checks class from an hdf5 file. 
+        
+        Parameters
+        ==========
+        point_est_file_path: str
+            String with the path to the file containing the point estimate and sigma spectrograms, point estimate and sigma spectra, the bad GPS times, and the value of the delta sigmas.
+        PSD_file_path: str
+            String with path to the file containing the power spectral densities and cross spectral densities of the two interferometers.
+        param_file: str
+            String with path to the file containing the parameters that were used for the analysis run.
+        plot_dir: str
+            String with the path to which the output of the statistical checks (various plots) will be saved.
+        basline_name: str
+            Name of the baseline
+        orf: gwpy.frequencyseries
+            Overlap reduction function (as a gwpy frequency series object) for the baseline under consideration. This overlap reduction function will be used in the computation of the naive sigmas.
+            
+        Returns
+        =======
+        Initializes an instance of the statistical checks class.
+        """  
+        params = Parameters.from_file(param_file)
+        
         with h5py.File(PSD_file_path, "r") as f:
             sliding_times_all = f['psds_group']['psd_1']['psd_1_times'][:]
             naive_sigma_all= np.zeros_like(sliding_times_all)
-            orf = f['psds_group']['psd_1']['psd_1'][0][:] #Need to change
-            sampling_frequency=1/deltaT
+            orf_naive = interpolate_frequency_series(orf, f['freqs'][1:])
+            orf_avg = interpolate_frequency_series(orf, f['avg_freqs'][1:])
+            
             for time in range(len(sliding_times_all)):
-                naive_sigma_all[time] = calc_naive_sigma(f['psds_group']['psd_1']['psd_1'][time][:], f['psds_group']['psd_1']['psd_1'][time][:], f['psds_group']['psd_2']['psd_2'][time][:], orf, deltaF, segment_duration, sampling_frequency, alpha)
+                naive_sigma_all[time] = calc_naive_sigma(f['freqs'][1:], f['psds_group']['psd_1']['psd_1'][time][1:], f['psds_group']['psd_2']['psd_2'][time][1:], orf_naive.value, params.frequency_resolution, params.segment_duration, params.new_sample_rate, alpha=0)
+            
+            avg_psd_1=f['avg_psds_group']['avg_psd_1']['avg_psd_1'][:]
+            avg_psd_2=f['avg_psds_group']['avg_psd_1']['avg_psd_1'][:]
+            avg_csd=f['avg_csd_group']['avg_csd'][:]
+
         sliding_omega_all=np.zeros_like(sliding_times_all)
         sliding_sigmas_all=np.zeros_like(sliding_times_all)
         
         with h5py.File(point_est_file_path, "r") as f:
             point_estimate_spectrogram = f['point_estimate_spectrogram'][:]
             sigma_spectrogram = f['sigma_spectrogram'][:]
+            sensitivity_integrand = 1./f['sigma_spectrum'][:]**2
+
             freqs = f['freqs'][:]
-            print(point_estimate_spectrogram.shape)
+
             for time in range(len(sliding_times_all)):
-                sliding_omega_all[time], sliding_sigmas_all[time] = calc_Y_sigma_from_Yf_varf(point_estimate_spectrogram[time][:], sigma_spectrogram[time][:], freqs = freqs, alpha = alpha, fref=fref, weight_spectrum=True)
+                sliding_omega_all[time], sliding_sigmas_all[time] = calc_Y_sigma_from_Yf_varf(point_estimate_spectrogram[time][:], sigma_spectrogram[time][:], freqs = freqs, alpha = 0, fref=params.fref, weight_spectrum=False)
 
             badGPSTimes = f['badGPStimes'][:]
-            delta_sigmas = f['delta_sigmas'][0][:]
-            #point_estimate_spectrum = f['point_estimate_spectrum']
+            delta_sigmas = f['delta_sigmas'][1][:]
+            bad_times_indexes = np.array(
+            [np.any(t == badGPSTimes) for t in sliding_times_all]
+        )
+        
+            Y_fs, var_fs = calculate_point_estimate_sigma_integrand(freqs, avg_csd, avg_psd_1, avg_psd_2, orf_avg.value, params.new_sample_rate, params.segment_duration, fref=params.fref, alpha=0, weight_spectrogram=False)
+        
+            Y_fs[bad_times_indexes,:]=0
+            var_fs[bad_times_indexes,:]=np.inf
+
+            pt_est_integrand, varf = postprocess_Y_sigma(
+                Y_fs,
+                var_fs,
+                params.segment_duration,
+                params.frequency_resolution,
+                params.new_sample_rate,
+            )
             
-        return cls(sliding_times_all, sliding_omega_all, sliding_sigmas_all, naive_sigma_all, badGPSTimes, delta_sigmas, plot_dir, baseline_name, segment_duration, deltaF, deltaT)
+        return cls(sliding_times_all, sliding_omega_all, sliding_sigmas_all, naive_sigma_all, sensitivity_integrand, pt_est_integrand, freqs, badGPSTimes, delta_sigmas, plot_dir, baseline_name, param_file)
 
         
     def get_data_after_dsc(self):
@@ -385,7 +454,6 @@ class StatisticalChecks(object):
         plt.plot(self.days_cut, self.running_pt_estimate + 1.65 * self.running_sigmas, ".", color="green", markersize=2)
         plt.plot(self.days_cut, self.running_pt_estimate - 1.65 * self.running_sigmas, ".", color="blue", markersize=2)
         plt.grid(True)
-        #plt.ylim(-5e-7, max())
         plt.xlim(self.days_cut[0], self.days_cut[-1])
         plt.xlabel("Days since start of run")
         plt.ylabel("Point estimate +/- 1.65\u03C3")
@@ -406,7 +474,6 @@ class StatisticalChecks(object):
         fig = plt.figure()
         plt.semilogy(self.days_cut, self.running_sigmas, color="blue", label=self.baseline_name)
         plt.grid(True)
-        #plt.ylim(1e-8, 1e-3)
         plt.xlim(self.days_cut[0], self.days_cut[-1])
         plt.xlabel("Days since start of run")
         plt.ylabel("\u03C3")
@@ -429,7 +496,6 @@ class StatisticalChecks(object):
         fig = plt.figure()
         plt.plot(t_array, omega_array, color="b", label=self.baseline_name)
         plt.grid(True)
-        #plt.ylim(-1.5e-7, 1e-7)
         plt.xlim(t_array[0], t_array[-1])
         plt.xlabel("Lag (s)")
         plt.ylabel("IFFT of Integrand of Pt Estimate")
@@ -665,7 +731,6 @@ class StatisticalChecks(object):
         )
         axs[0].set_xlabel("Abs[\u03B4\u03C3]/\u03C3")
         axs[0].set_ylabel("# per bin")
-        #axs[0].set_xlim([0, 1])
         axs[0].legend()
 
         minx1 = min(self.sliding_sigmas_cut)
@@ -694,8 +759,6 @@ class StatisticalChecks(object):
         axs[1].set_ylabel("# per bin")
         axs[1].legend()
         axs[1].set_yscale("log")
-        #axs[1].set_xlim([0, maxx1])
-        #axs[1].set_ylim([1, 10 ** 4])
 
         plt.savefig(f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-histogram_sigma_dsc.png")
 
@@ -774,8 +837,6 @@ class StatisticalChecks(object):
         axs[0].set_xlabel("Abs[\u03B4\u03C3]/\u03C3")
         axs[0].set_ylabel("(\u03A9-<\u03A9>)/\u03C3")
         axs[0].legend()
-        #axs[0].set_xlim(0, 2)
-        #axs[0].set_ylim(-20, 20)
 
         maxx1 = max(self.sliding_sigmas_cut)
 
@@ -797,8 +858,6 @@ class StatisticalChecks(object):
         )
         axs[1].set_xlabel("\u03C3")
         axs[1].set_ylabel("(\u03A9-<\u03A9>)/\u03C3")
-        #axs[1].set_xlim([0, maxx1])
-        #axs[1].set_ylim([-20, 20])
         axs[1].legend()
 
         plt.savefig(f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-scatter_omega_sigma_dsc.png")
@@ -839,8 +898,6 @@ class StatisticalChecks(object):
         )
         axs.set_xlabel("(\u03A9-<\u03A9>)/\u03C3")
         axs.set_ylabel("# per bin")
-        #axs.set_xlim(-60, 60)
-        #axs.set_ylim(1, 1e4)
         axs.legend()
         axs.set_yscale("log")
 
@@ -978,8 +1035,6 @@ class StatisticalChecks(object):
         )
         ax3.set_xlabel("\u03C3")
         ax3.set_ylabel("(\u03A9-<\u03A9>)/\u03C3")
-        #ax3.set_xlim(0, maxx1)
-        #ax3.set_ylim(-6, 6)
 
         ax4.hist(
             self.sliding_deviate_cut,
@@ -1068,7 +1123,6 @@ class StatisticalChecks(object):
         axs.set_xlabel("Days since start of run")
         axs.set_ylabel("\u03A9$_i$")
         axs.set_xlim(self.days_cut[0], self.days_cut[-1])
-        #axs.set_ylim(-6 * scale, 6 * scale)
         axs.annotate("Linear trend analysis: \u03A9(t) = C$_1$*(t-T$_{obs}$/2)*T$_{obs}$ + C$_2$\nC$_1$ = "
             + str(f"{c1:.3e}")
             + "\nC$_2$ = "
