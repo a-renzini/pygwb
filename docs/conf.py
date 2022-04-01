@@ -162,7 +162,7 @@ latex_documents = [
         master_doc,
         "pygwb.tex",
         "pygwb Documentation",
-        "Andrew Matas",
+        "Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang",
         "manual",
     ),
 ]
