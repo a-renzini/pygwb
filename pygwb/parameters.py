@@ -29,7 +29,8 @@ class Parameters:
     flow: int
     fhigh: int
     coarse_grain: int
-    mock_data_path_dict: dict = field(default_factory=lambda: {})
+    interferometer_list: List = field(default_factory=lambda: ["H1", "L1"])
+    local_data_path_dict: dict = field(default_factory=lambda: {})
     notch_list_path: str = ""
     N_average_segments_welch_psd: int = 2
     window_fftgram: str = "hann"
@@ -39,6 +40,7 @@ class Parameters:
     delta_sigma_cut: float = 0.2
     alphas_delta_sigma_cut: List = field(default_factory=lambda: [-5, 0, 3])
     save_data_type: str = "json"
+    time_shift: int = 0
 
     @classmethod
     def from_file(cls, param_file):
@@ -71,14 +73,16 @@ class Parameters:
             "parameters", "N_average_segments_welch_psd"
         )
         coarse_grain = param.getint("parameters", "coarse_grain")
+        interferometer_list = param.get("parameters", "interferometer_list")
         calibration_epsilon = param.getfloat("parameters", "calibration_epsilon")
         overlap_factor = param.getfloat("parameters", "overlap_factor")
         zeropad_csd = param.getboolean("parameters", "zeropad_csd")
         delta_sigma_cut = param.getfloat("parameters", "delta_sigma_cut")
         alphas_delta_sigma_cut = param.get("parameters", "alphas_delta_sigma_cut")
         save_data_type = param.get("parameters", "save_data_type")
+        time_shift = param.getint("parameters", "time_shift")
 
-        mock_data_path_dict = dict(param.items("mock_data"))
+        local_data_path_dict = dict(param.items("local_data"))
         return cls(
             t0,
             tf,
@@ -97,7 +101,8 @@ class Parameters:
             flow,
             fhigh,
             coarse_grain,
-            mock_data_path_dict,
+            interferometer_list,
+            local_data_path_dict,
             notch_list_path,
             N_average_segments_welch_psd,
             window_fftgram,
@@ -107,6 +112,7 @@ class Parameters:
             delta_sigma_cut,
             alphas_delta_sigma_cut,
             save_data_type,
+            time_shift,
         )
 
     def __post_init__(self):

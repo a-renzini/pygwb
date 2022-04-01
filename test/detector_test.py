@@ -27,9 +27,10 @@ class TestInterferometer(unittest.TestCase):
                 "frequency_resolution",
                 "overlap_factor",
                 "N_average_segments_welch_psd",
+                "time_shift",
             ]
         }
-        self.kwargs["mock_data_path"] = ""
+        self.kwargs["local_data_path"] = ""
         with open("./test/test_data/detector_testdata_H1.pickle", "rb") as pkl:
             self.testdata = pickle.load(pkl)
 
