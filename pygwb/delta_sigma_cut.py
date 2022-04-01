@@ -335,7 +335,7 @@ def run_dsc(
     for alpha in range(nalphas):
         Hf = calc_Hf(freqs=freqs, alpha=alphas[alpha])
         cut = np.zeros((ntimes, 1), dtype="bool")
-        dsigma = np.zeros((ntimes, 1), dtype="bool")
+        dsigma = np.zeros((ntimes, 1), dtype="float")
         for time in range(len(times)):
             psd1_naive_time = psd1_naive[time, :]
             psd1_slide_time = psd1_slide[time, :]

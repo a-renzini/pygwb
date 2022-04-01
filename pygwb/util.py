@@ -211,61 +211,6 @@ def interpolate_frequency_series(fSeries, new_frequencies):
         spectrum_func(new_frequencies), frequencies=new_frequencies
     )
 
-
-def read_jobfiles(njobs, directory, segment_duration):
-    """
-    Method that reads in the job files to extract quantities such as the point estimate and sigmas.
-
-    Parameters
-    ==========
-    njobs: int
-        Number of jobs
-    directory: str
-        Directory where the mat files are stored
-    segment_duration: int
-        Duration of a segment in seconds
-
-    Returns
-    =======
-    sliding_times_all: array
-        Array containing all the GPS times for this particular run
-    sliding_omega_all: array
-        Array containing the omega point estimate for this particular run
-    sliding_sigmas_all: array
-        Array containing the sigmas for this particular run
-    naive_sigma_all: array
-        Array containing the naive sigmas for this particular run
-    """
-    sliding_omega_all = np.array([])
-    sliding_sigmas_all = np.array([])
-    naive_sigma_all = np.array([])
-    sliding_times_all = np.array([])
-    for nn in range(njobs):
-        jn = nn + 1
-        file1 = "%sH1L1.job%d.mat" % (directory, jn)
-        with h5py.File(file1, "r") as FF:
-            try:
-                sliding_omega_all = np.append(
-                    sliding_omega_all,
-                    np.array(FF["ccStat"][0]).flatten() / segment_duration,
-                )
-                sliding_sigmas_all = np.append(
-                    sliding_sigmas_all,
-                    np.array(FF["ccSigma"][0]).flatten() / segment_duration,
-                )
-                naive_sigma_all = np.append(
-                    naive_sigma_all,
-                    np.array(FF["naiSigma"][0]).flatten() / segment_duration,
-                )
-                sliding_times_all = np.append(
-                    sliding_times_all, np.array(FF["segmentStartTime"][0]).flatten()
-                )
-            except:
-                print("No data for job %u" % jn)
-                continue
-    return sliding_times_all, sliding_omega_all, sliding_sigmas_all, naive_sigma_all
-
-
 def StatKS(DKS):
     jmax = 500
     pvalue = 0.0
@@ -290,6 +235,35 @@ def calculate_point_estimate_sigma_spectrogram(
     if weight_spectrogram:
         S_alpha *= (freqs / fref) ** alpha
     Y_fs = np.real(csd) / (orf * S_alpha)
+    var_fs = (
+        1
+        / (2 * segment_duration * (freqs[1] - freqs[0]))
+        * avg_psd_1
+        * avg_psd_2
+        / (orf ** 2 * S_alpha ** 2)
+    )
+
+    w1w2bar, w1w2squaredbar, _, _ = window_factors(sample_rate * segment_duration)
+
+    var_fs = var_fs * w1w2squaredbar / w1w2bar ** 2
+    return Y_fs, var_fs
+
+def calculate_point_estimate_sigma_integrand(
+    freqs,
+    csd,
+    avg_psd_1,
+    avg_psd_2,
+    orf,
+    sample_rate,
+    segment_duration,
+    fref=1,
+    alpha=0,
+    weight_spectrogram=False,
+):
+    S_alpha = 3 * H0 ** 2 / (10 * np.pi ** 2) / freqs ** 3
+    if weight_spectrogram:
+        S_alpha *= (freqs / fref) ** alpha
+    Y_fs = csd / (orf * S_alpha)
     var_fs = (
         1
         / (2 * segment_duration * (freqs[1] - freqs[0]))
