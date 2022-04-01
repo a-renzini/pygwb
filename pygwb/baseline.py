@@ -9,8 +9,7 @@ import numpy as np
 from bilby.core.utils import create_frequency_series
 from loguru import logger
 
-from pygwb.delta_sigma_cut import run_dsc
-
+from .delta_sigma_cut import run_dsc
 from .notch import StochNotchList
 from .orfs import calc_orf
 from .postprocessing import postprocess_Y_sigma
@@ -624,8 +623,6 @@ class Baseline(object):
         deltaF = self.frequencies[1] - self.frequencies[0]
 
         if notch_list_path:
-            print(f" notch list path {notch_list_path}")
-            logger.debug("Correct baseline")
             lines_object = StochNotchList.load_from_file(notch_list_path)
             notches, _ = lines_object.get_idxs(self.frequencies)
         else:
@@ -725,7 +722,7 @@ class Baseline(object):
             )
             self.set_point_estimate_sigma_spectrum(
                 badtimes=badtimes,
-                #notch_list_path=notch_list_path,
+                # notch_list_path=notch_list_path,
                 weight_spectrogram=False,
                 alpha=alpha,
                 fref=fref,
@@ -745,7 +742,7 @@ class Baseline(object):
         # must agree with those after cropping, so the notches must agree with the params
         # struct in some way. Seems dangerous
         if self.notch_list_path:
-            logger.debug("loading notches from " + self.notch_list_path)
+            logger.debug("loading notches from", self.notch_list_path)
             lines_object = StochNotchList.load_from_file(self.notch_list_path)
             _, notch_indexes = lines_object.get_idxs(Y_spec.frequencies.value)
             self.set_frequency_mask(self.notch_list_path)
@@ -920,7 +917,7 @@ class Baseline(object):
 
         save_csd(
             f"psds_csds_{filename}{ext}",
-            self.frequencies,
+            self.csd.frequencies.value,
             self.average_csd.frequencies.value,
             self.csd,
             self.average_csd,
@@ -1006,9 +1003,6 @@ class Baseline(object):
 
         list_sigma_segment = sigma_spectrogram.value.tolist()
         sigma_segment_times = sigma_spectrogram.times.value.tolist()
-        
-        badGPStimes_list = badGPStimes.tolist()
-        delta_sigmas_list = delta_sigmas.value
 
         save_dictionary = {
             "frequencies": list_freqs,
@@ -1020,8 +1014,8 @@ class Baseline(object):
             "point_estimate_spectrogram_times": point_estimate_segment_times,
             "sigma_spectrogram": list_sigma_segment,
             "sigma_spectrogram_times": sigma_segment_times,
-            "badGPStimes": badGPStimes_list,
-            "delta_sigmas": delta_sigmas_list,
+            "badGPStime": badGPStimes,
+            "delta_sigmas": delta_sigmas,
         }
 
         with open(filename, "w") as outfile:
@@ -1045,18 +1039,15 @@ class Baseline(object):
         hf.create_dataset("freqs", data=frequencies)
         hf.create_dataset("point_estimate_spectrum", data=point_estimate_spectrum)
         hf.create_dataset("sigma_spectrum", data=sigma_spectrum)
-        hf.create_dataset("point_estimate", data=point_estimate, dtype='float')
-        hf.create_dataset("sigma", data=sigma,dtype='float')
+        hf.create_dataset("point_estimate", data=point_estimate)
+        hf.create_dataset("sigma", data=sigma)
         hf.create_dataset(
             "point_estimate_spectrogram", data=point_estimate_spectrogram
         ),
         hf.create_dataset("sigma_spectrogram", data=sigma_spectrogram)
         hf.create_dataset("badGPStimes", data=badGPStimes)
-        if type(delta_sigmas) == float:
-            hf.create_dataset("delta_sigmas", data=delta_sigmas, dtype='float')
-        else:
-            hf.create_dataset("delta_sigmas", data=delta_sigmas)
-            
+        hf.create_dataset("delta_sigmas", data=delta_sigmas)
+
         hf.close()
 
     def _npz_save_csd(
@@ -1089,7 +1080,7 @@ class Baseline(object):
         freqs,
         avg_freqs,
         csd,
-        avg_csd,
+        avg_psd,
         psd_1,
         psd_2,
         avg_psd_1,
@@ -1113,7 +1104,7 @@ class Baseline(object):
         with open(filename, "wb") as f:
             pickle.dump(save_dictionary, f)
 
-    def _json_save_csd(
+    def json_save_csd(
         self,
         filename,
         freqs,
@@ -1176,7 +1167,7 @@ class Baseline(object):
             "psd_2_times": psd_2_times,
             "avg_psd_1": list_avg_psd_1,
             "avg_psd_1_times": avg_psd_times,
-            "avg_psd_2": list_avg_psd_2,
+            "avg_avg_psd_2": list_avg_psd_2,
             "avg_psd_2_times": avg_psd_2_times,
         }
 
@@ -1235,8 +1226,6 @@ class Baseline(object):
         avg_psd_2_group.create_dataset("avg_psd_2", data=avg_psd_2)
         avg_psd_2_group.create_dataset("avg_psd_2_times", data=avg_psd_2_times)
         hf.close()
-
-
 
 
 def get_baselines(interferometers, frequencies=None):
