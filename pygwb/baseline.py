@@ -19,6 +19,9 @@ from .util import calc_Y_sigma_from_Yf_varf, calculate_point_estimate_sigma_spec
 
 
 class Baseline(object):
+    """
+    Baseline object for stochastic analyses. 
+    """
     def __init__(
         self,
         name,
@@ -35,6 +38,8 @@ class Baseline(object):
         sampling_frequency=None,
     ):
         """
+        Instantiate a Baseline.
+
         Parameters
         ----------
         name: str

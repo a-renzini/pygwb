@@ -13,7 +13,7 @@ from .spectral import coarse_grain
 
 def window_factors(N):
     """
-    Calculates window factors for a hann window.
+    Calculate window factors for a hann window.
     """
     w = np.hanning(N)
     w1w2bar = np.mean(w ** 2)
@@ -32,7 +32,7 @@ def calc_Y_sigma_from_Yf_varf(
     Y_f, var_f, freqs=None, alpha=0, fref=25, weight_spectrum=True
 ):
     """
-    Calculates the omega point estimate and sigma from their respective spectra,
+    Calculate the omega point estimate and sigma from their respective spectra,
     taking into account the desired spectral weighting. 
     To apply weighting, the frequency array associated to the spectra must be supplied.
 
@@ -70,7 +70,7 @@ def calc_Y_sigma_from_Yf_varf(
 
 def calc_rho1(N):
     """
-    Calculates the combined window factor rho.
+    Calculate the combined window factor rho.
 
     Parameters
     ==========
@@ -84,7 +84,7 @@ def calc_rho1(N):
 
 def calc_bias(segmentDuration, deltaF, deltaT, N_avg_segs=2):
     """
-    Calculates the bias factor introduced by welch averaging.
+    Calculate the bias factor introduced by welch averaging.
 
     Parameters
     ==========
@@ -108,7 +108,7 @@ def calc_bias(segmentDuration, deltaF, deltaT, N_avg_segs=2):
 
 def omega_to_power(omega_GWB, frequencies):
     """
-    Computes the GW power spectrum starting from the omega_GWB
+    Compute the GW power spectrum starting from the omega_GWB
     spectrum.
 
     Parameters
@@ -129,7 +129,7 @@ def omega_to_power(omega_GWB, frequencies):
 
 def make_freqs(Nsamples, deltaF):
     """
-    Makes an array of frequencies given the sampling rate
+    Make an array of frequencies given the sampling rate
     and the segment duration specified in the initial parameter file.
 
     Parameters
@@ -152,7 +152,7 @@ def make_freqs(Nsamples, deltaF):
 
 def interpolate_frequency_series(fSeries, new_frequencies):
     """
-    Interpolates a frequency series, given a new set of frequencies.
+    Interpolate a frequency series, given a new set of frequencies.
 
     Parameters
     ==========
@@ -172,7 +172,7 @@ def interpolate_frequency_series(fSeries, new_frequencies):
 
 def StatKS(DKS):
     """
-    Computes the KS test.
+    Compute the KS test.
     """
     jmax = 500
     pvalue = 0.0
@@ -193,10 +193,34 @@ def calculate_point_estimate_sigma_spectrogram(
     alpha=0,
     weight_spectrogram=False,
 ):
-"""
-Calculates the Omega point estimate and associated sigma spectrograms,
-given a set of cross-spectral and power-spectral density spectrograms.
-"""
+    """
+    Calculate the Omega point estimate and associated sigma spectrograms,
+    given a set of cross-spectral and power-spectral density spectrograms.
+    
+    Parameters
+    ==========
+    freqs: array_like
+        Frequencies associated to the spectrograms.
+    csd: gwpy Spectrogram
+        CSD spectrogram for detectors 1 and 2.
+    avg_psd_1: gwpy Spectrogram
+        Spectrogram of averaged PSDs for detector 1.
+    avg_psd_2: gwpy Spectrogram
+        Spectrogram of averaged PSDs for detector 2.
+    orf: array_like
+        Overlap reduction function.
+    sample_rate: float
+        Sampling rate of the data.
+    segment_duration: float
+        Duration of each segment in seconds. 
+    fref: float, optional
+        Reference frequency to use in the weighting calculation.
+        Final result refers to this frequency.
+    alpha: float, optional
+        Spectral index to use in the weighting.
+    weight_spectrogram: bool, optional
+        Flag to apply spectral weighting, True by default. 
+    """
     S_alpha = 3 * H0 ** 2 / (10 * np.pi ** 2) / freqs ** 3
     if weight_spectrogram:
         S_alpha *= (freqs / fref) ** alpha
@@ -226,11 +250,35 @@ def calculate_point_estimate_sigma_integrand(
     alpha=0,
     weight_spectrogram=False,
 ):
-"""
-Calculates the Omega point estimate and associated sigma integrand,
-given a set of cross-spectral and power-spectral density spectrograms.
-This is particularly useful for statistical checks.
-"""
+    """
+    Calculate the Omega point estimate and associated sigma integrand,
+    given a set of cross-spectral and power-spectral density spectrograms.
+    This is particularly useful for statistical checks.
+    
+    Parameters
+    ==========
+    freqs: array_like
+        Frequencies associated to the spectrograms.
+    csd: gwpy Spectrogram
+        CSD spectrogram for detectors 1 and 2.
+    avg_psd_1: gwpy Spectrogram
+        Spectrogram of averaged PSDs for detector 1.
+    avg_psd_2: gwpy Spectrogram
+        Spectrogram of averaged PSDs for detector 2.
+    orf: array_like
+        Overlap reduction function.
+    sample_rate: float
+        Sampling rate of the data.
+    segment_duration: float
+        Duration of each segment in seconds. 
+    fref: float, optional
+        Reference frequency to use in the weighting calculation.
+        Final result refers to this frequency.
+    alpha: float, optional
+        Spectral index to use in the weighting.
+    weight_spectrogram: bool, optional
+        Flag to apply spectral weighting, True by default. 
+    """
     S_alpha = 3 * H0 ** 2 / (10 * np.pi ** 2) / freqs ** 3
     if weight_spectrogram:
         S_alpha *= (freqs / fref) ** alpha

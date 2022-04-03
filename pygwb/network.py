@@ -10,6 +10,13 @@ from .simulator import Simulator
 
 
 class Network(object):
+    """
+    Network object for stochastic analyses with multiple functionalities:
+        * data simulation
+        * stochastic pre-processing
+        * isotropic stochastic analysis
+    """
+
     def __init__(
         self,
         name,
@@ -24,10 +31,7 @@ class Network(object):
         N_average_segments_welch_psd=2,
     ):
         """
-        pygwb Network object with multiple functionalities
-        * data simulation
-        * stochastic pre-processing
-        * isotropic stochastic analysis
+        Instantiate a Network object.
 
         Parameters
         ----------
