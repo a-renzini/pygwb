@@ -52,4 +52,5 @@ API:
    generate_stochastic_data_recovery_test
    integrationTest_O3_data
    Understand_dsc
+   run_pe
    statistical_checks

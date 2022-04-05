@@ -82,7 +82,7 @@ precommits-py3.8:
     - pip install pytest pytest-cov coverage-badge
   script:
     - pip install .
-    - pytest --cov=pygwb
+    - pytest --cov=pygwb --cov-config=.coveragerc
 
 python-3.8:
   <<: *test-python
