@@ -188,12 +188,13 @@ class StochNotchList(list):
         )
 
         cls = StochNotchList([])
-        if type(fmin) == list:
+        if np.ndim(fmin) == 1:
             for i in range(len(fmin)):
                 cls.append(StochNotch(fmin[i], fmax[i], desc[i]))
-        else:
+        elif np.ndim(fmin) == 0:
             cls.append(StochNotch(fmin, fmax, desc))
-
+        else:
+            raise TypeError("Notch list from file has too many dimensions.")
         return cls
 
     @classmethod
