@@ -511,3 +511,15 @@ def reweight_spectral_object(
     weights_old = (freqs / old_fref) ** old_alpha
     weights_new = (freqs / new_fref) ** new_alpha
     return (spec.T * (weights_new / weights_old)).T
+
+#class WeightedSpectrogram(gwpy.spectrogramSpectrogram):
+#    
+#    """Subclass of gwpy's Spectrogram class
+#        with built-in spectral weighting, tailored to stochastic analyses.
+#    """
+#
+#    def __init__(self, *args, **kwargs):
+#        """Instantiate an SPectrogram:w
+#        class
+#        """
+#        super(WeightedSpectrogram, self).__init__(*args, **kwargs)

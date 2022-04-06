@@ -1,6 +1,7 @@
 import argparse
 import sys
 from dataclasses import asdict, dataclass, field
+import json
 from pathlib import Path
 from typing import List
 
@@ -12,23 +13,23 @@ else:
 
 @dataclass
 class Parameters:
-    t0: float
-    tf: float
-    data_type: str
-    channel: str
-    new_sample_rate: int
-    cutoff_frequency: int
-    segment_duration: int
-    number_cropped_seconds: int
-    window_downsampling: str
-    ftype: str
-    frequency_resolution: float
-    polarization: str
-    alpha: float
-    fref: int
-    flow: int
-    fhigh: int
-    coarse_grain: int
+    t0: float = 0
+    tf: float = 100
+    data_type: str = "public"
+    channel: str = "GWOSC-16KHZ_R1_STRAIN"
+    new_sample_rate: int = 4096
+    cutoff_frequency: int = 11
+    segment_duration: int = 192
+    number_cropped_seconds: int = 2
+    window_downsampling: str = "hamming"
+    ftype: str = "fir"
+    frequency_resolution: float = 0.03125
+    polarization: str = "tensor"
+    alpha: float = 0
+    fref: int = 25
+    flow: int = 20
+    fhigh: int = 1726
+    coarse_grain: int = 0
     interferometer_list: List = field(default_factory=lambda: ["H1", "L1"])
     local_data_path_dict: dict = field(default_factory=lambda: {})
     notch_list_path: str = ""
@@ -41,79 +42,6 @@ class Parameters:
     alphas_delta_sigma_cut: List = field(default_factory=lambda: [-5, 0, 3])
     save_data_type: str = "json"
     time_shift: int = 0
-
-    @classmethod
-    def from_file(cls, param_file):
-        if not Path(param_file).exists():
-            raise OSError("Your paramfile doesn't exist!")
-
-        param = configparser.ConfigParser()
-        param.optionxform = str
-        param.read(str(param_file))
-
-        t0 = param.getfloat("parameters", "t0")
-        tf = param.getfloat("parameters", "tf")
-        data_type = param.get("parameters", "data_type")
-        channel = param.get("parameters", "channel")
-        new_sample_rate = param.getint("parameters", "new_sample_rate")
-        cutoff_frequency = param.getint("parameters", "cutoff_frequency")
-        segment_duration = param.getint("parameters", "segment_duration")
-        number_cropped_seconds = param.getint("parameters", "number_cropped_seconds")
-        window_downsampling = param.get("parameters", "window_downsampling")
-        ftype = param.get("parameters", "ftype")
-        window_fftgram = param.get("parameters", "window_fftgram")
-        frequency_resolution = param.getfloat("parameters", "frequency_resolution")
-        polarization = param.get("parameters", "polarization")
-        alpha = param.getfloat("parameters", "alpha")
-        fref = param.getint("parameters", "fref")
-        flow = param.getint("parameters", "flow")
-        fhigh = param.getint("parameters", "fhigh")
-        notch_list_path = param.get("parameters", "notch_list_path")
-        N_average_segments_welch_psd = param.getfloat(
-            "parameters", "N_average_segments_welch_psd"
-        )
-        coarse_grain = param.getint("parameters", "coarse_grain")
-        interferometer_list = param.get("parameters", "interferometer_list")
-        calibration_epsilon = param.getfloat("parameters", "calibration_epsilon")
-        overlap_factor = param.getfloat("parameters", "overlap_factor")
-        zeropad_csd = param.getboolean("parameters", "zeropad_csd")
-        delta_sigma_cut = param.getfloat("parameters", "delta_sigma_cut")
-        alphas_delta_sigma_cut = param.get("parameters", "alphas_delta_sigma_cut")
-        save_data_type = param.get("parameters", "save_data_type")
-        time_shift = param.getint("parameters", "time_shift")
-
-        local_data_path_dict = dict(param.items("local_data"))
-        return cls(
-            t0,
-            tf,
-            data_type,
-            channel,
-            new_sample_rate,
-            cutoff_frequency,
-            segment_duration,
-            number_cropped_seconds,
-            window_downsampling,
-            ftype,
-            frequency_resolution,
-            polarization,
-            alpha,
-            fref,
-            flow,
-            fhigh,
-            coarse_grain,
-            interferometer_list,
-            local_data_path_dict,
-            notch_list_path,
-            N_average_segments_welch_psd,
-            window_fftgram,
-            calibration_epsilon,
-            overlap_factor,
-            zeropad_csd,
-            delta_sigma_cut,
-            alphas_delta_sigma_cut,
-            save_data_type,
-            time_shift,
-        )
 
     def __post_init__(self):
         self.overlap = self.segment_duration / 2
@@ -130,3 +58,42 @@ class Parameters:
         param["parameters"] = param_dict
         with open(output_path, "w") as configfile:
             param.write(configfile)
+
+    def update_from_dictionary(self, **kwargs):
+        """Update parameters from a dictionary"""
+        ann = getattr(self, "__annotations__", {})
+        for name, dtype in ann.items():
+            if name in kwargs:
+                try:
+                    kwargs[name] = dtype(kwargs[name])
+                except TypeError:
+                    pass
+                setattr(self, name, kwargs[name])
+        self.alphas_delta_sigma_cut = json.loads(self.alphas_delta_sigma_cut)
+        self.interferometer_list = json.loads(self.interferometer_list)
+
+    def update_from_file(self, path: str) -> None:
+        """Update parameters from an ini file"""
+        config = configparser.ConfigParser()
+        config.read(path)
+        mega_list = []
+        for field in ["parameters", "local_data"]:
+            mega_list.extend(config.items(field))
+        dictionary = dict(mega_list)
+        self.update_from_dictionary(**dictionary)
+
+    def update_from_arguments(self, args: List[str]) -> None:
+        """Update parameters from a set of arguments"""
+        if not args:
+            return
+        ann = getattr(self, "__annotations__", {})
+        parser = argparse.ArgumentParser()
+        for name, dtype in ann.items():
+            parser.add_argument(f"--{name}", type=dtype, required=False)
+        parsed, _ = parser.parse_known_args(args)
+        dictionary = vars(parsed)
+        for item in dictionary.copy():
+            if dictionary[item] is None:
+                dictionary.pop(item)
+        self.update_from_dictionary(**dictionary)
+
