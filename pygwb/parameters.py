@@ -73,6 +73,7 @@ class Parameters:
     def update_from_file(self, path: str) -> None:
         """Update parameters from an ini file"""
         config = configparser.ConfigParser()
+        config.optionxform = str
         config.read(path)
         mega_list = config.items('parameters')
         dictionary = dict(mega_list)
@@ -82,7 +83,6 @@ class Parameters:
         for item in dictionary.copy():
             if not dictionary[item]:
                 dictionary.pop(item)
-        print(dictionary)
         self.update_from_dictionary(**dictionary)
 
     def update_from_arguments(self, args: List[str]) -> None:
