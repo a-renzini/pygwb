@@ -1,7 +1,7 @@
 import argparse
+import json
 import sys
 from dataclasses import asdict, dataclass, field
-import json
 from pathlib import Path
 from typing import List
 
