@@ -76,9 +76,13 @@ class Parameters:
         config.read(path)
         mega_list = config.items('parameters')
         dictionary = dict(mega_list)
-        dictionary['alphas_delta_sigma_cut'] = json.loads(dictionary['alphas_delta_sigma_cut'])
-        dictionary['interferometer_list'] = json.loads(dictionary['interferometer_list'])
+        if dictionary['alphas_delta_sigma_cut']: dictionary['alphas_delta_sigma_cut'] = json.loads(dictionary['alphas_delta_sigma_cut'])
+        if dictionary['interferometer_list']: dictionary['interferometer_list'] = json.loads(dictionary['interferometer_list'])
         dictionary['local_data_path_dict'] = dict(config.items("local_data"))
+        for item in dictionary.copy():
+            if not dictionary[item]:
+                dictionary.pop(item)
+        print(dictionary)
         self.update_from_dictionary(**dictionary)
 
     def update_from_arguments(self, args: List[str]) -> None:
