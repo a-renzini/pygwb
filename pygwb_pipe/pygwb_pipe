@@ -37,6 +37,20 @@ if __name__ == "__main__":
     ifo_2 = Interferometer.from_parameters(params.interferometer_list[1], params)
     logger.info(f"Loaded up interferometers with selected parameters.")
 
+    if params.gate_data:
+        logger.info(f"Applying gates.")
+        gate_params = { 
+                "gate_tzero":params.gate_tzero,
+                "gate_tpad":params.gate_tpad,
+                "gate_threshold":params.gate_threshold,
+                "cluster_window":params.cluster_window,
+                "gate_whiten":params.gate_whiten,
+                }
+        ifo_1.gate_data_apply(**gate_params)
+        logger.info(f"Gates for IFO 1:{ifo_1.gates}")
+        ifo_2.gate_data_apply(**gate_params)
+        logger.info(f"Gates for IFO 2:{ifo_2.gates}")
+
     base_12 = Baseline.from_parameters(ifo_1, ifo_2, params)
     logger.info(
         f"Baseline with interferometers {ifo_1.name}, {ifo_2.name} initialised."

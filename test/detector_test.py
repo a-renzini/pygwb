@@ -107,6 +107,27 @@ class TestInterferometer(unittest.TestCase):
             True,
         )
 
+    def test_gwpy_timeseries_gating(self):
+        gwpy_timeseries = self.testdata["original_timeseries"]
+        ifo = self.test_get_empty_interferometer()
+        ifo.set_timeseries_from_gwpy_timeseries(
+            gwpy_timeseries=gwpy_timeseries, **self.kwargs
+        )
+        gate_tzero = 1.0
+        gate_tpad = 0.5
+        gate_threshold = 50.0
+        cluster_window = 0.5
+        gate_whiten = True
+        _known_gate = 1247644447 
+        ifo.gate_data_apply(
+            gate_tzero = gate_tzero, gate_tpad = gate_tpad,
+            gate_threshold = gate_threshold, cluster_window = cluster_window,
+            gate_whiten = gate_whiten,
+        )
+        self.assertTrue(max(ifo.timeseries.whiten().value) < gate_threshold, True)
+        self.assertTrue((_known_gate in ifo.gates), True)
+        self.assertTrue(abs(ifo.gates), 2*gate_tzero)
+        self.assertTrue(ifo.gate_pad, gate_tpad)
 
 if __name__ == "__main__":
     unittest.main()
