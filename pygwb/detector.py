@@ -4,11 +4,13 @@ import os
 import bilby.gw.detector
 import numpy as np
 from bilby.gw.detector.psd import PowerSpectralDensity
+from gwpy.segments import SegmentList
 
 from .preprocessing import (
     preprocessing_data_channel_name,
     preprocessing_data_gwpy_timeseries,
     preprocessing_data_timeseries_array,
+    self_gate_data,
 )
 from .spectral import before_after_average, power_spectral_density
 
@@ -63,8 +65,14 @@ class Interferometer(bilby.gw.detector.Interferometer):
             timeseries object with resampling/high-pass filter applied.
         psd_spectrogram : gwpy spectrogram
             gwpy spectrogram of power spectral density
+        gates: gwpy SegmentList
+            List of segments that have been gated, not including any additional padding. 
+        gate_pad: float
+            Duration of padding used when applying gates. 
 
         """
+        self.gates = SegmentList() 
+        self.gate_pad = None
         super(Interferometer, self).__init__(*args, **kwargs)
 
     @classmethod
@@ -135,6 +143,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
         """
         ifo = cls.get_empty_interferometer(name)
         channel = str(ifo.name + ":" + parameters.channel)
+        
         if parameters.local_data_path_dict:
             local_data_path = parameters.local_data_path_dict[name]
         else:
@@ -329,6 +338,44 @@ class Interferometer(bilby.gw.detector.Interferometer):
             print(
                 "PSDs have not been calculated yet! Need to set_psd_spectrogram first."
             )
+
+    def gate_data_apply(self, **kwargs):
+        """
+        Self-gate the tgwpy timeseries associated with this timeseries. The list
+        of times gated and the padding applied are stored as properties of the Interferometer.
+
+        Parameters
+        ==========
+        gate_tzero : float
+            half-width time duration (seconds) in which the timeseries is
+            set to zero
+        gate_tpad : float
+            half-width time duration (seconds) in which the Planck window
+            is tapered
+        gate_threshold : float
+            amplitude threshold, if the data exceeds this value a gating window
+            will be placed
+        cluster_window : float
+            time duration (seconds) over which gating points will be clustered
+        gate_whiten : bool
+            if True, data will be whitened before gating points are discovered,
+            use of this option is highly recommended
+
+        """
+        gate_tzero = kwargs.pop("gate_tzero")
+        gate_tpad = kwargs.pop("gate_tpad")
+        gate_threshold = kwargs.pop("gate_threshold")
+        cluster_window = kwargs.pop("cluster_window")
+        gate_whiten = kwargs.pop("gate_whiten")
+        self.timeseries, new_gates = self_gate_data(self.timeseries,
+            tzero=gate_tzero,
+            tpad=gate_tpad,
+            gate_threshold=gate_threshold,
+            cluster_window=cluster_window,
+            whiten=gate_whiten,
+        )
+        self.gates = self.gates | new_gates
+        self.gate_pad = gate_tpad
 
     def _check_ifo_name(self, name):
         if not self.name == name:

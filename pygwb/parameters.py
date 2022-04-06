@@ -42,6 +42,12 @@ class Parameters:
     alphas_delta_sigma_cut: List = field(default_factory=lambda: [-5, 0, 3])
     save_data_type: str = "json"
     time_shift: int = 0
+    gate_data: bool = False
+    gate_tzero: float = 1.0
+    gate_tpad: float = 0.5 
+    gate_threshold: float = 50.0
+    cluster_window: float = 0.5
+    gate_whiten: bool = True
 
     def __post_init__(self):
         self.overlap = self.segment_duration / 2

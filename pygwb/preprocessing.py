@@ -201,6 +201,77 @@ def resample_filter(
 
     return filtered
 
+def self_gate_data(
+    time_series_data: timeseries.TimeSeries,
+    tzero: float = 1.0,
+    tpad: float = 0.5,
+    gate_threshold: float = 50.0,
+    cluster_window: float = 0.5,
+    whiten: bool = True,
+):
+    """
+    Function to self-gate 
+    data to be used in the stochastic pipeline
+
+    Parameters
+    ==========
+
+    time_series_data: gwpy_timeseries
+        timeseries data to be analysed in the pipeline
+
+    tzero : `int`, optional
+        half-width time duration (seconds) in which the timeseries is
+        set to zero
+
+    tpad : `int`, optional
+        half-width time duration (seconds) in which the Planck window
+        is tapered
+
+    whiten : `bool`, optional
+        if True, data will be whitened before gating points are discovered,
+        use of this option is highly recommended
+
+    threshold : `float`, optional
+        amplitude threshold, if the data exceeds this value a gating window
+        will be placed
+
+    cluster_window : `float`, optional
+        time duration (seconds) over which gating points will be clustered
+
+    Returns
+    =======
+    gated: gwpy_timeseries
+        Timeseries containing the gated data
+
+    deadtime: `gwpy.segments.SegmentList` 
+        SegmentList containing the times that were gated, not including
+        any padding applied
+
+    Notes
+    -----
+    This method is based on `gwpy.timeseries.gate`. See
+    https://gwpy.github.io/docs/latest/api/gwpy.timeseries.TimeSeries/?highlight=timeseries#gwpy.timeseries.TimeSeries.gate
+    for additional details.
+    """
+
+    from gwpy.segments import Segment, SegmentList
+    from scipy.signal import find_peaks
+
+    # Find points to gate based on a threshold
+    sample = time_series_data.sample_rate.to('Hz').value
+    data = time_series_data.whiten() if whiten else time_series_data
+    window_samples = cluster_window * sample
+    gates = find_peaks(abs(data.value), height=gate_threshold,
+                       distance=window_samples)[0]
+    # represent gates as time segments
+    deadtime = SegmentList([Segment(
+        time_series_data.t0.value + (k / sample) - tzero,
+        time_series_data.t0.value + (k / sample) + tzero,
+    ) for k in gates]).coalesce()
+    # return the self-gated timeseries
+    gated = time_series_data.mask(deadtime=deadtime, const=0, tpad=tpad)
+    return gated, deadtime
+
 
 def shift_timeseries(time_series_data: timeseries.TimeSeries, time_shift: int = 0):
 
