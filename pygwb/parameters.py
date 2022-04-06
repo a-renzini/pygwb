@@ -69,17 +69,16 @@ class Parameters:
                 except TypeError:
                     pass
                 setattr(self, name, kwargs[name])
-        self.alphas_delta_sigma_cut = json.loads(self.alphas_delta_sigma_cut)
-        self.interferometer_list = json.loads(self.interferometer_list)
 
     def update_from_file(self, path: str) -> None:
         """Update parameters from an ini file"""
         config = configparser.ConfigParser()
         config.read(path)
-        mega_list = []
-        for field in ["parameters", "local_data"]:
-            mega_list.extend(config.items(field))
+        mega_list = config.items('parameters')
         dictionary = dict(mega_list)
+        dictionary['alphas_delta_sigma_cut'] = json.loads(dictionary['alphas_delta_sigma_cut'])
+        dictionary['interferometer_list'] = json.loads(dictionary['interferometer_list'])
+        dictionary['local_data_path_dict'] = dict(config.items("local_data"))
         self.update_from_dictionary(**dictionary)
 
     def update_from_arguments(self, args: List[str]) -> None:
@@ -90,10 +89,21 @@ class Parameters:
         parser = argparse.ArgumentParser()
         for name, dtype in ann.items():
             parser.add_argument(f"--{name}", type=dtype, required=False)
+        parser.add_argument("--H1", type=str, required=False)
+        parser.add_argument("--L1", type=str, required=False)
+        parser.add_argument("--V", type=str, required=False)
         parsed, _ = parser.parse_known_args(args)
         dictionary = vars(parsed)
         for item in dictionary.copy():
             if dictionary[item] is None:
                 dictionary.pop(item)
+        local_data_path_dict = {}
+        if 'H1' in dictionary:
+            local_data_path_dict['H1'] = dictionary['H1']
+        if 'L1' in dictionary:
+            local_data_path_dict['L1'] = dictionary['L1']
+        if 'V' in dictionary:
+            local_data_path_dict['V'] = dictionary['V']
+        dictionary['local_data_path_dict'] = local_data_path_dict
         self.update_from_dictionary(**dictionary)
 
