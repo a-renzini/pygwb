@@ -136,7 +136,7 @@ def before_after_average(psd_gram, segment_duration, N_avg_segs):
     avg_psd: averaged psd gram
     """
     # TODO: Raise exception when N_avg_segs is not >=2 and even
-    stride = psd_gram.dx.value
+    stride = round(psd_gram.dx.value)
     overlap = segment_duration - stride
     # TODO: Check whether the below conditions work when (segment_duration / stride) is not an integer
     strides_per_segment = int(np.ceil(segment_duration / stride))

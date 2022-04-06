@@ -25,9 +25,7 @@ if __name__ == "__main__":
     file_parser.add_argument(
         "--output_path", help="Location to save output to", action="store", type=str, required=False
     )
-
     known_args, other_args = file_parser.parse_known_args()
-    assert isinstance(other_args, list)
 
     if known_args.param_file:
         params.update_from_file(known_args.param_file)
