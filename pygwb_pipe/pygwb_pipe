@@ -15,30 +15,41 @@ from pygwb.baseline import Baseline
 from pygwb.detector import Interferometer
 from pygwb.parameters import Parameters
 
-if __name__ == "__main__":
-    params = Parameters()
+def help_arguments(parent):
+    ann = getattr(Parameters, "__annotations__", {})
+    parser = argparse.ArgumentParser(parents=[parent])
+    for name, dtype in ann.items():
+        parser.add_argument(f"--{name}", type=dtype, required=False)
+    return parser
 
-    file_parser = argparse.ArgumentParser()
+if __name__ == "__main__":
+
+    params = Parameters()
+    file_parser = argparse.ArgumentParser(add_help=False)
     file_parser.add_argument(
         "--param_file", help="Parameter file", action="store", type=str, required=False
     )
     file_parser.add_argument(
         "--output_path", help="Location to save output to", action="store", type=str, required=False
     )
-    known_args, other_args = file_parser.parse_known_args()
 
-    if known_args.param_file:
-        params.update_from_file(known_args.param_file)
-    params.update_from_arguments(other_args)
+    help_args = help_arguments(file_parser)
+    help_args.parse_known_args()  # for help
+
+    script_args, parameters_args = file_parser.parse_known_args()
+
+    if script_args.param_file:
+        params.update_from_file(script_args.param_file)
+    params.update_from_arguments(parameters_args)
     logger.info(f"Successfully imported parameters from paramfile and input.")
 
-    if known_args.output_path:
-        output_path = Path(known_args.output_path)
+    if script_args.output_path:
+        output_path = Path(script_args.output_path)
     else: 
         output_path = Path('')
 
-    if known_args.param_file:
-        outfile_path = f"{output_path}/{Path(known_args.param_file).stem}_final{Path(known_args.param_file).suffix}"
+    if script_args.param_file:
+        outfile_path = f"{output_path}/{Path(script_args.param_file).stem}_final{Path(script_args.param_file).suffix}"
     else:
         outfile_path = Path(f"{output_path}/parameters_final.ini")
     params.save_paramfile(str(outfile_path))
