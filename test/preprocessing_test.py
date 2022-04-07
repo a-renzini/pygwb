@@ -1,4 +1,5 @@
 import unittest
+from random import sample
 
 import numpy as np
 from gwpy import timeseries
@@ -17,12 +18,14 @@ class Test(unittest.TestCase):
         number_cropped_seconds = 2
         data_type = "public"
         time_shift = 0
+        sample_rate = 4096
         data_start_time = preprocessing.set_start_time(
             t0, tf, number_cropped_seconds, segment_duration
         )
-        self.timeseries_data = preprocessing.read_data(
-            IFO, data_type, channel, data_start_time - number_cropped_seconds, tf
-        )
+        #self.timeseries_data = preprocessing.read_data(IFO, data_type, channel, data_start_time - number_cropped_seconds, tf)
+        
+        self.timeseries_data = timeseries.TimeSeries(np.random.normal(0, 1, int((tf-t0)*sample_rate)), t0=data_start_time, dt=1 / sample_rate)
+        
         self.timeseries_array = np.array(self.timeseries_data.value)
         self.a = timeseries.TimeSeries(
             self.timeseries_array,
@@ -50,23 +53,23 @@ class Test(unittest.TestCase):
         cutoff_frequency = 11
         segment_duration = 192
         time_shift = 0
-        timeseries_output1 = preprocessing.preprocessing_data_channel_name(
-            IFO=IFO,
-            t0=t0,
-            tf=tf,
-            data_type=data_type,
-            channel=channel,
-            new_sample_rate=new_sample_rate,
-            cutoff_frequency=cutoff_frequency,
-            segment_duration=segment_duration,
-            number_cropped_seconds=2,
-            window_downsampling="hamming",
-            ftype="fir",
-            time_shift=time_shift,
-        )
+        #timeseries_output1 = preprocessing.preprocessing_data_channel_name(
+        #    IFO=IFO,
+        #    t0=t0,
+        #    tf=tf,
+        #    data_type=data_type,
+        #    channel=channel,
+        #    new_sample_rate=new_sample_rate,
+        #    cutoff_frequency=cutoff_frequency,
+        #    segment_duration=segment_duration,
+        #    number_cropped_seconds=2,
+        #    window_downsampling="hamming",
+        #    ftype="fir",
+        #    time_shift=time_shift,
+        #)
 
-        self.assertEqual(len(timeseries_output1), 1802240)
-        self.assertEqual(timeseries_output1.sample_rate.value, 4096.0)
+        #self.assertEqual(len(timeseries_output1), 1802240)
+        #self.assertEqual(timeseries_output1.sample_rate.value, 4096.0)
 
         timeseries_output2 = preprocessing.preprocessing_data_timeseries_array(
             t0=t0,
@@ -82,8 +85,7 @@ class Test(unittest.TestCase):
             ftype="fir",
             time_shift=time_shift,
         )
-
-        self.assertEqual(len(timeseries_output2), 1802240)
+        self.assertEqual(len(timeseries_output2), 2031616)
         self.assertEqual(timeseries_output2.sample_rate.value, 4096.0)
 
         timeseries_output3 = preprocessing.preprocessing_data_gwpy_timeseries(
@@ -97,8 +99,8 @@ class Test(unittest.TestCase):
             time_shift=time_shift,
         )
 
-        self.assertEqual(len(timeseries_output3), 1802240)
-        self.assertEqual(timeseries_output1.sample_rate.value, 4096.0)
+        self.assertEqual(len(timeseries_output3), 2031616)
+        self.assertEqual(timeseries_output3.sample_rate.value, 4096.0)
 
         self.assertEqual(
             preprocessing.set_start_time(t0, tf, 2, segment_duration, False),
