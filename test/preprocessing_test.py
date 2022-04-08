@@ -22,11 +22,11 @@ class Test(unittest.TestCase):
         data_start_time = preprocessing.set_start_time(
             t0, tf, number_cropped_seconds, segment_duration
         )
-        #self.timeseries_data = preprocessing.read_data(IFO, data_type, channel, data_start_time - number_cropped_seconds, tf)
-        
+
         self.timeseries_data = timeseries.TimeSeries(np.random.normal(0, 1, int((tf-t0)*sample_rate)), t0=data_start_time, dt=1 / sample_rate)
         
         self.timeseries_array = np.array(self.timeseries_data.value)
+
         self.a = timeseries.TimeSeries(
             self.timeseries_array,
             t0=data_start_time,
@@ -86,11 +86,11 @@ class Test(unittest.TestCase):
             time_shift=time_shift,
         )
         self.assertEqual(len(timeseries_output2), 2031616)
-        self.assertEqual(timeseries_output2.sample_rate.value, 4096.0)
+        self.assertEqual(timeseries_output2.sample_rate.value, 4096.0) 
 
         timeseries_output3 = preprocessing.preprocessing_data_gwpy_timeseries(
             IFO=IFO,
-            gwpy_timeseries=self.a,
+            gwpy_timeseries=self.timeseries_data,
             new_sample_rate=new_sample_rate,
             cutoff_frequency=cutoff_frequency,
             number_cropped_seconds=2,
