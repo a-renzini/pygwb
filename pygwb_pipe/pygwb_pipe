@@ -14,12 +14,13 @@ from loguru import logger
 from pygwb.baseline import Baseline
 from pygwb.detector import Interferometer
 from pygwb.parameters import Parameters
+from pygwb.parameters import ParametersHelp
 
 def help_arguments(parent):
     ann = getattr(Parameters, "__annotations__", {})
     parser = argparse.ArgumentParser(parents=[parent])
     for name, dtype in ann.items():
-        parser.add_argument(f"--{name}", type=dtype, required=False)
+        parser.add_argument(f"--{name}", type=dtype, required=False, help_txt = ParameterHelp[name].help)
     return parser
 
 if __name__ == "__main__":
@@ -35,6 +36,7 @@ if __name__ == "__main__":
 
     help_args = help_arguments(file_parser)
     help_args.parse_known_args()  # for help
+    exit()
 
     script_args, parameters_args = file_parser.parse_known_args()
 
