@@ -1,5 +1,5 @@
 import argparse
-import enum 
+import enum
 import json
 import sys
 from dataclasses import asdict, dataclass, field
@@ -156,10 +156,6 @@ class ParametersHelp(enum.Enum):
     gate_threshold = "Gate threshold. Default is 50."
     cluster_window = "Cluster window. Default is 0.5."
     gate_whiten = "Whether to whiten when gating. Default is True."
-
-    # Essendo una classe, possiamo dargli dei metodi
-
-    # Ogni istanza (self) ha "name" e "value"
 
     @property
     def help(self):
