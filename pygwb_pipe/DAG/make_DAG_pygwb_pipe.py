@@ -1,3 +1,4 @@
+import argparse
 import numpy as np
 from pathlib import Path
 import sys
@@ -8,15 +9,34 @@ def sortingFunction(item):
     return int(item.stem.split("-")[2])
 
 
-# Filepaths
-parentdir = Path.home() / "PROJECTS/pygwb/pygwb_pipe/DAG/"
-subfile = parentdir / "condor/Simulated_Data_New_Pipeline.sub"
+dag_parser = argparse.ArgumentParser(add_help=False)
+dag_parser.add_argument(
+    "--subfile", help="Submission file.", action="store", type=str
+) #"condor/Simulated_Data_New_Pipeline.sub"
+dag_parser.add_argument(
+    "--data_path", help="Path to data files folder.", action="store", type=Path
+) #"PROJECTS/SMDC_2021/100_day_test_pygwb/MDC_Generation_2/output/"
+dag_parser.add_argument(
+    "--parentdir", help="Starting folder.", action="store", type=Path, required=False
+)
+dag_parser.add_argument(
+    "--param_file", help="Path to parameters.ini file.", action="store", type=str, required=False
+)
+dag_parser.add_argument(
+    "--dag_name", help="Dag file name.", action="store", type=str, required=False
+)
+dag_args = dag_parser.parse_args() 
 
-# Args
-path = Path.home() / "PROJECTS/SMDC_2021/100_day_test_pygwb/MDC_Generation_2/output/"
-files_H_sorted = [f for f in path.glob("H*.*") if f.is_file()]
-files_L_sorted = [f for f in path.glob("L*.*") if f.is_file()]
-inipath = Path.home() / "PROJECTS/pygwb/pygwb_pipe/parameters_mock.ini"
+if not dag_args.parentdir:
+    dag_args.parentdir = Path('./')
+if not dag_args.param_file:
+    dag_args.param_file = '../parameters_mock.ini'
+if not dag_args.dag_name:
+    dag_args.dag_name = "condor_simulated_100_day_MDC_2.dag"
+
+# Files
+files_H_sorted = [f for f in dag_args.data_path.glob("H*.*") if f.is_file()]
+files_L_sorted = [f for f in dag_args.data_path.glob("L*.*") if f.is_file()]
 
 
 files_H_sorted.sort(key=sortingFunction)
@@ -27,18 +47,16 @@ n_Files = np.size(files_H_sorted)
 
 times = np.arange(0, n_Files * 86400, 7200)
 
-# path = "/home/arianna.renzini/PROJECTS/SMDC_2021/100_day_test_pygwb/MDC_Generation/output/"
-
 lil_times = times[0:15]
 
-outputdir = parentdir / "output"
+outputdir = dag_args.parentdir / "output"
 logdir = outputdir / "condorLogs"
 
 # Make directories
 logdir.mkdir(parents=True, exist_ok=True)
 outputdir.mkdir(parents=True, exist_ok=True)
 
-dag = outputdir / "condor_simulated_100_day_MDC_2.dag"
+dag = outputdir / dag_args.dag_name
 
 with open(dag, "w") as dagfile:
 
@@ -74,13 +92,13 @@ with open(dag, "w") as dagfile:
             path_H1 = [path_H1, files_H_sorted[index_file + 1]]
             path_L1 = [path_L1, files_L_sorted[index_file + 1]]
 
-        path_H1 = path / path_H1
-        path_L1 = path / path_L1
+        path_H1 = dag_args.data_path / path_H1
+        path_L1 = dag_args.data_path / path_L1
 
-        dagfile.write(f"JOB {index} {subfile}\n")
+        dagfile.write(f"JOB {index} {dag_args.param_file}\n")
         dagfile.write(
             f'VARS {index} job="{index}" ARGS="--t0 {time} --tf {time+7200} '
             f"--H1 {path_H1} --L1 {path_L1} --output_path {outputdir} "
-            f'--param_file {inipath}" logdir="{logdir}"\n'
+            f'--param_file {dag_args.param_file}" logdir="{logdir}"\n'
         )
         dagfile.write("\n")
