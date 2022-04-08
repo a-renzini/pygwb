@@ -1,4 +1,5 @@
 import argparse
+import enum 
 import json
 import sys
 from dataclasses import asdict, dataclass, field
@@ -118,8 +119,8 @@ class Parameters:
         self.update_from_dictionary(**dictionary)
 
 
-class ParameterHelp(enum.Enum):
-	"""Description of the arguments in the Parameters class"""
+class ParametersHelp(enum.Enum):
+    """Description of the arguments in the Parameters class"""
     t0 = "Initial time."
     tf = "Final time."
     data_type = "Type of data to access/download; options are private, public, local. Default is public."
@@ -141,9 +142,9 @@ class ParameterHelp(enum.Enum):
     local_data_path_dict = "Dictionary of local data, if the local data option is chosen. Default is empty."
     notch_list_path = "Path to the notch list file. Default is empty."
     N_average_segments_welch_psd = "Number of segments to average over when calculating the psd with Welch method. Default is 2."
-    window_fftgram = 
-    calibration_epsilon = 
-    overlap_factor = "Factor by which to overlap consecutive segments for analysis. Default is 0.5(50% overlap)"
+    window_fftgram = "Window to use when producing fftgrams for psds and csds. Default is \"hann\"."
+    calibration_epsilon = "Calibation coefficient. Default is 0."
+    overlap_factor = "Factor by which to overlap consecutive segments for analysis. Default is 0.5 (50%% overlap)"
     zeropad_csd = "Whether to zeropad the csd or not. Default is True."
     delta_sigma_cut = "Cutoff value for the delta sigma cut. Default is 0.2."
     alphas_delta_sigma_cut = "List of spectral indexes to use in delta sigma cut calculation. Default is [-5, 0, 3]."
@@ -151,7 +152,7 @@ class ParameterHelp(enum.Enum):
     time_shift = "Seconds to timeshift the data by in preprocessing. Default is 0."
     gate_data = "Whether to apply self-gating to the data in preprocessing. Default is False."
     gate_tzero = "Gate tzero. Default is 1.0."
-    gate_tpad = "Fate tpad. Default is 0.5."
+    gate_tpad = "Gate tpad. Default is 0.5."
     gate_threshold = "Gate threshold. Default is 50."
     cluster_window = "Cluster window. Default is 0.5."
     gate_whiten = "Whether to whiten when gating. Default is True."
