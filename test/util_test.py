@@ -1,6 +1,10 @@
 import unittest
 
-from pygwb.util import calc_rho1
+import gwpy
+import gwpy.testing.utils
+import numpy as np
+
+from pygwb import util
 
 
 class WindowTest(unittest.TestCase):
@@ -10,8 +14,25 @@ class WindowTest(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
-    def test_rho1(self):
-        self.assertEqual(calc_rho1(100000), 0.027775555605193483)
+    def test_window_factors(self):
+        window_check = tuple((1.0, 1.0, 0.0, 0.0))
+        self.assertEqual(util.window_factors(1), window_check)
+
+    def test_calc_rho1(self):
+        self.assertEqual(util.calc_rho1(100000), 0.027775555605193483)
+
+    def test_calc_bias(self):
+        self.assertEqual(util.calc_bias(192, 1 / 32, 32), 1.0480235570801641)
+
+    def test_omega_to_power(self):
+        frequencies = np.arange(1.0, 100.0)
+        omega = frequencies ** 3
+        omega_check = gwpy.frequencyseries.FrequencySeries(
+            3.19242291e-37 * np.ones(len(frequencies)), frequencies=frequencies
+        )
+        gwpy.testing.utils.assert_quantity_sub_equal(
+            util.omega_to_power(omega, frequencies), omega_check, almost_equal=True
+        )
 
 
 if __name__ == "__main__":
