@@ -1,3 +1,4 @@
+import pickle
 import unittest
 from random import sample
 
@@ -19,10 +20,12 @@ class Test(unittest.TestCase):
         data_type = "public"
         time_shift = 0
         sample_rate = 4096
+        local_data_path = './test_data/data_gwf_preproc_testing.gwf'
+
         data_start_time = preprocessing.set_start_time(
             t0, tf, number_cropped_seconds, segment_duration
         )
-
+        self.data_start_time = data_start_time
         self.timeseries_data = timeseries.TimeSeries(np.random.normal(0, 1, int((tf-t0)*sample_rate)), t0=data_start_time, dt=1 / sample_rate)
         
         self.timeseries_array = np.array(self.timeseries_data.value)
@@ -32,6 +35,10 @@ class Test(unittest.TestCase):
             t0=data_start_time,
             sample_rate=1.0 / self.timeseries_data.dt,
         )
+
+        data_to_write = self.timeseries_data
+        data_to_write.write(local_data_path)
+
         return None
 
     def tearDown(self) -> None:
@@ -53,23 +60,27 @@ class Test(unittest.TestCase):
         cutoff_frequency = 11
         segment_duration = 192
         time_shift = 0
-        #timeseries_output1 = preprocessing.preprocessing_data_channel_name(
-        #    IFO=IFO,
-        #    t0=t0,
-        #    tf=tf,
-        #    data_type=data_type,
-        #    channel=channel,
-        #    new_sample_rate=new_sample_rate,
-        #    cutoff_frequency=cutoff_frequency,
-        #    segment_duration=segment_duration,
-        #    number_cropped_seconds=2,
-        #    window_downsampling="hamming",
-        #    ftype="fir",
-        #    time_shift=time_shift,
-        #)
+        local_data_path = './test_data/data_gwf_preproc_testing.gwf'
 
-        #self.assertEqual(len(timeseries_output1), 1802240)
-        #self.assertEqual(timeseries_output1.sample_rate.value, 4096.0)
+
+        timeseries_output1 = preprocessing.preprocessing_data_channel_name(
+            IFO=IFO,
+            t0=t0,
+            tf=tf,
+            data_type="local",
+            channel=None,
+            new_sample_rate=new_sample_rate,
+            cutoff_frequency=cutoff_frequency,
+            segment_duration=segment_duration,
+            number_cropped_seconds=2,
+            window_downsampling="hamming",
+            ftype="fir",
+            time_shift=time_shift,
+            local_data_path=local_data_path,
+        )
+
+        self.assertEqual(len(timeseries_output1), 1802240)
+        self.assertEqual(timeseries_output1.sample_rate.value, 4096.0)
 
         timeseries_output2 = preprocessing.preprocessing_data_timeseries_array(
             t0=t0,
@@ -110,6 +121,12 @@ class Test(unittest.TestCase):
             preprocessing.set_start_time(t0, tf, 2, segment_duration, True),
             1238184444.0,
         )
+        time_shifted_data = preprocessing.shift_timeseries(time_series_data = self.timeseries_data, time_shift = 1)
+        self.assertEqual(
+            self.timeseries_data.value[0],
+            time_shifted_data.value[1],
+        )
+        
 
 
 if __name__ == "__main__":
