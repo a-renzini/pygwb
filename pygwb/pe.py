@@ -220,7 +220,7 @@ class BrokenPowerLawModel(GWBModel):
 
 class TripleBrokenPowerLawModel(GWBModel):
     """
-    The tripple broken power law is defined as: 
+    The triple broken power law is defined as: 
     
     .. math:: 
         \Omega(f) = \begin{cases}
@@ -239,9 +239,9 @@ class TripleBrokenPowerLawModel(GWBModel):
     alpha_3 : float
         spectral index of the broken power law (:math:`\alpha_3`)
     fbreak1 : float
-        1st break frequency for the tripple broken power law (:math:`\f_1`)
+        1st break frequency for the triple broken power law (:math:`\f_1`)
     fbreak2 : float
-        2nd break frequency for the tripple broken power law (:math:`\f_2`)
+        2nd break frequency for the triple broken power law (:math:`\f_2`)
     frequencies : numpy.ndarray
         array of frequencies at which to evaluate the model
     """
