@@ -54,40 +54,71 @@ class GWBModel(bilby.Likelihood):
         """function for evaluating model"""
         pass
 
-    def log_likelihood(self):
-        """
-        log likelihood
-        """
-        ll = 0
-        for orf, bline in zip(self.orfs, self.baselines):
-            model = orf * self.model_function(bline)
-            res = model - bline.point_estimate
-            ll += -0.5 * np.sum(res ** 2 / bline.sigma ** 2) - 0.5 * np.sum(
-                np.log(2 * np.pi * bline.sigma ** 2)
+    def log_likelihood_IJ(self, baseline, noise=False):
+        if noise:
+            Y_model_f = 0
+        else:
+            Y_model_f = self.OmegaGW(baseline.freqs)
+
+        # simple likelihood without calibration uncertainty
+        if baseline.calibration_epsilon == 0:
+            logL_IJ = -0.5 * (
+                np.sum((baseline.point_estimate - Y_model_f) ** 2 / baseline.sigma)
+                + np.sum(np.log(2 * np.pi * baseline.sigma))
             )
+
+        # likelihood with calibration uncertainty marginalizatione done analytically
+        # see https://stochastic-alog.ligo.org/aLOG//index.php?callRep=339711
+        # note \cal{N} = \Prod_j sqrt(2*pi*sigma_j^2)
+        else:
+            A = baseline.calibration_epsilon ** (-2) + np.sum(
+                Y_model_f ** 2 / baseline.sigma
+            )
+            B = baseline.calibration_epsilon ** (-2) + np.sum(
+                Y_model_f * baseline.point_estimate / baseline.sigma
+            )
+            C = baseline.calibration_epsilon ** (-2) + np.sum(
+                baseline.point_estimate ** 2 / baseline.sigma
+            )
+            log_norm = -0.5 * np.sum(np.log(2 * np.pi * baseline.sigma))
+
+            logL_IJ = (
+                log_norm
+                - 0.5 * np.log(A * baseline.calibration_epsilon ** 2)
+                + np.log(1 + erf(B / np.sqrt(2 * A)))
+                - np.log(1 + erf(1 / np.sqrt(2 * baseline.calibration_epsilon ** 2)))
+                - 0.5 * (C - B ** 2 / A)
+            )
+
+        return logL_IJ
+
+    def log_likelihood(self):
+        ll = 0
+        for baseline in self.baselines:
+            ll = ll + self.log_likelihood_IJ(baseline, noise=False)
         return ll
 
     def noise_log_likelihood(self):
-        # noise log likelihood is just calculating
-        # gaussian log likelihood with no model.
         ll = 0
-        for bline in self.baselines:
-            ll += -0.5 * np.sum(
-                bline.point_estimate ** 2 / bline.sigma ** 2
-            ) - 0.5 * np.sum(np.log(2 * np.pi * bline.sigma ** 2))
+        for baseline in self.baselines:
+            ll = ll + self.log_likelihood_IJ(baseline, noise=True)
         return ll
 
-
 class PowerLawModel(GWBModel):
-    """
+    """    
+    Power law model is defined as: 
+    
+    .. math:: 
+    \Omega(f) = \Omega_{\text{ref}} \left(\frac{f}{f_{\text{ref}}}\right)^{\alpha}
+    
     Parameters:
     -----------
     fref : float
-        reference frequency for defining the model
+        reference frequency for defining the model (:math:`f_{\text{ref}`)
     omega_ref : float
-        amplitude of signal at fref
+        amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
     alpha : float
-        spectral index of the power law
+        spectral index of the power law (:math:`\alpha`)
     frequencies : numpy.ndarray
         array of frequencies at which to evaluate the model
     """
@@ -126,16 +157,24 @@ class PowerLawModel(GWBModel):
 
 class BrokenPowerLawModel(GWBModel):
     """
+    Broken Power law model is defined as: 
+    
+    .. math:: 
+        \Omega(f) = \begin{cases}
+            \Omega_{\text{ref}} \left( \frac{f}{f_{\text{ref}}} \right) ^ {\alpha_1}, f \leqslant f_{\text{ref}} \\
+            \Omega_{\text{ref}} \left( \frac{f}{f_{\text{ref}}} \right) ^ {\alpha_2}, f > f_{\text{ref}}
+        \end{cases}
+    
     Parameters:
     -----------
     omega_ref : float
-        amplitude of signal at fref
+        amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
     alpha_1 : float
-        spectral index of the broken power law
+        spectral index of the broken power law (:math:`\alpha_1`)
     alpha_2 : float
-        spectral index of the broken power law
+        spectral index of the broken power law (:math:`\alpha_2`)
     fbreak : float
-        break frequency for the broken power law
+        break frequency for the broken power law (:math:`f_{\text{ref}}`)
     frequencies : numpy.ndarray
         array of frequencies at which to evaluate the model
     """
@@ -181,20 +220,28 @@ class BrokenPowerLawModel(GWBModel):
 
 class TripleBrokenPowerLawModel(GWBModel):
     """
+    The tripple broken power law is defined as: 
+    
+    .. math:: 
+        \Omega(f) = \begin{cases}
+            \Omega_{\text{ref}} \left( \frac{f}{f_1} \right) ^ {\alpha_1}, f \leqslant f_1 \\
+            \Omega_{\text{ref}} \left( \frac{f}{f_1} \right) ^ {\alpha_2}, f_1 < f \leqslant f_2  \\
+            \Omega_{\text{ref}} \left( \frac{f_2}{f_1} \right) ^{\alpha_2} \left( \frac{f}{f_2} \right)^{\alpha_3}, f > f_2
+        \end{cases}
     Parameters:
     -----------
     omega_ref : float
-        amplitude of signal at fref
+        amplitude of signal at fref (:math:`\Omega_{\text{ref}}`) 
     alpha_1 : float
-        spectral index of the broken power law
+        spectral index of the broken power law (:math:`\alpha_1`)
     alpha_2 : float
-        spectral index of the broken power law
+        spectral index of the broken power law (:math:`\alpha_2`)
     alpha_3 : float
-        spectral index of the broken power law
+        spectral index of the broken power law (:math:`\alpha_3`)
     fbreak1 : float
-        break frequency for the broken power law
-    fbreak1 : float
-        break frequency for the broken power law
+        1st break frequency for the tripple broken power law (:math:`\f_1`)
+    fbreak2 : float
+        2nd break frequency for the tripple broken power law (:math:`\f_2`)
     frequencies : numpy.ndarray
         array of frequencies at which to evaluate the model
     """
@@ -253,20 +300,26 @@ class TripleBrokenPowerLawModel(GWBModel):
 
 class SmoothBrokenPowerLawModel(GWBModel):
     """
+    
+    The smooth broken power law is defined as: 
+    
+    .. math:: 
+    \Omega(f) = \Omega_{\text{ref}}\left(\frac{f}{f_{\text{ref}}}\right) ^{\alpha_1} \left[1+\left(\frac{f}{f_{\text{ref}}}\right)^{\Delta}\right]^{\frac{\alpha_2-\alpha_1}{\Delta}}
+    
     Parameters:
     -----------
     omega_ref : float
-        amplitude of signal at fref
-    delta : float
-        smoothing variable for the smooth broken power law
+        amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
+    Delta : float
+        smoothing variable for the smooth broken power law (:math:`\Delta`)
     alpha_1 : float
-        low-frequency spectral index of the smooth broken power law
+        low-frequency spectral index of the smooth broken power law (:math:`\alpha_1`)
     alpha_2 : float
-       (alpha_2 - alpha_1)/Delta is high-frequency spectral index of the smooth broken power law
+       (alpha_2 - alpha_1)/Delta is high-frequency spectral index of the smooth broken power law (:math:`\alpha_2`)
     fbreak : float
-        break frequency for the smooth broken power law
+        break frequency for the smooth broken power law (:math:`f_{\text{ref}}`)
     frequencies : numpy.ndarray
-        array of frequencies at which to evaluate the model
+        array of frequencies at which to evaluate the model 
     """
 
     def __init__(self, **kwargs):
@@ -314,14 +367,21 @@ class SmoothBrokenPowerLawModel(GWBModel):
 
 class SchumannModel(GWBModel):
     """
+    
+    The Schumann model is defined as: 
+    
+    
+    .. math::
+     \Omega(f) = \sum_{ij} \kappa_i \kappa_j \left(\frac{f}{f_{\text{ref}}}\right)^{-\beta_i-\beta_j} M_{ij}(f) \times 10^{-46}
+    
     Parameters:
     -----------
     fref : float
-        reference frequency for defining the model
+        reference frequency for defining the model (:math:`f_{\text{ref}}`)
     kappa_i : float
-        amplitude of coupling function of ifo i at 10 Hz
+        amplitude of coupling function of ifo i at 10 Hz (:math:`\kappa_i`)
     beta_i : float
-        spectral index of coupling function of ifo i
+        spectral index of coupling function of ifo i (:math:`\beta_i`)
     frequencies : numpy.ndarray
         array of frequencies at which to evaluate the model
     """
@@ -393,14 +453,26 @@ class SchumannModel(GWBModel):
 
 class TVSPowerLawModel(GWBModel):
     """
+    The Tensor-Vector-Scalar polarization (T,V,S) power-law model is defined as: 
+    
+    .. math:: 
+    
+        \Omega(f) = \Omega _T + \Omega _V + \Omega _S 
+    
+        \Omega _T = \Omega _{{\text{ref}},T} \left( \frac{f}{f_{\text{ref}}}\right)^{\alpha _T}
+        
+        \Omega _V = (\gamma _V/\gamma_T)~\Omega _{{\text{ref}},V} \left( \frac{f}{f_{\text{ref}}}\right)^{\alpha _V}
+        
+        \Omega _S = (\gamma_S/\gamma_T)~\Omega _{{\text{ref}},S} \left( \frac{f}{f_{\text{ref}}}\right)^{\alpha _S}
+        
     Parameters:
     -----------
     fref : float
-        reference frequency for defining the model
+        reference frequency for defining the model (:math:`f_{\text{ref}}`)
     omega_ref_pol : float
-        amplitude of signal at fref for polarization pol
+        amplitude of signal at fref for polarization pol (:math:`\Omega_{{\text{ref}}_{\text{pol}}}
     alpha_pol : float
-        spectral index of the power law for polarization pol
+        spectral index of the power law for polarization pol (:math:`\alpha_{\text{pol}})
     frequencies : numpy.ndarray
         array of frequencies at which to evaluate the model
     """
@@ -454,16 +526,22 @@ class TVSPowerLawModel(GWBModel):
 
 class PVPowerLawModel(GWBModel):
     """
+    The parity violation model can be defined as: 
+    
+    .. math:: 
+        \Omega(f) = \left(1 + \Pi \frac{\gamma _V}{\gamma _I}\right) \Omega_{\text{ref}} \left( \frac{f}{f_{\text{ref}}} \right)^{\alpha}
+
+    
     Parameters:
     -----------
     fref : float
-        reference frequency for defining the model
+        reference frequency for defining the model (:math:`f_{\text{ref}}`)
     omega_ref : float
-        amplitude of signal at fref
+        amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
     alpha : float
-        spectral index of the power law
+        spectral index of the power law (:math:`\alpha`)
     Pi : float
-        degree of parity violation
+        degree of parity violation (:math:`\pi`)
     frequencies : numpy.ndarray
         array of frequencies at which to evaluate the model
     """
@@ -508,16 +586,20 @@ class PVPowerLawModel(GWBModel):
 
 class PVPowerLawModel2(GWBModel):
     """
+    The parity violation model 2 can be defined as: 
+    .. math:: 
+         \Omega(f) = \left(1 + f^{\beta} \frac{\gamma_V}{\gamma _I}\right) \Omega_{\text{ref}}\left(\frac{f}{f_{\text{ref}}} \right)^{\alpha}
+    
     Parameters:
     -----------
     fref : float
-        reference frequency for defining the model
+        reference frequency for defining the model (:math:`f_{\text{ref}}`)
     omega_ref : float
-        amplitude of signal at fref
+        amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
     alpha : float
-        spectral index of the power law
+        spectral index of the power law (:math:`\alpha`)
     beta : float
-        spectral index of the degree of parity violation
+        spectral index of the degree of parity violation (:math:`\beta`)
     frequencies : numpy.ndarray
         array of frequencies at which to evaluate the model
     """
