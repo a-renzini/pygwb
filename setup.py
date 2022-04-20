@@ -73,9 +73,10 @@ setup(
     author_email="arianna.renzini@ligo.org",
     license="MIT",
     version=VERSION,
-    packages=["pygwb", "pygwb_pipe"],
-    package_dir={"pygwb": "pygwb", "pygwb_pipe": "pygwb_pipe"},
-    package_data={"pygwb": [".version"], "pygwb_pipe": [".version"]},
+    packages=["pygwb"],
+    package_dir={"pygwb": "pygwb"},
+    package_data={"pygwb": [".version"]},
+    scripts=['pygwb_pipe/pygwb_pipe'],
     install_requires=[
         "numpy",
         "matplotlib",
@@ -96,3 +97,4 @@ setup(
     ],
     python_requires=">=3.8",
 )
+

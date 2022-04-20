@@ -24,8 +24,7 @@ def help_arguments(parent):
         parser.add_argument(f"--{name}", help=name_help, type=dtype, required=False)
     return parser
 
-if __name__ == "__main__":
-
+def main():
     params = Parameters()
     pipe_parser = argparse.ArgumentParser(add_help=False)
     pipe_parser.add_argument(
@@ -160,3 +159,6 @@ if __name__ == "__main__":
             base_12.interferometer_1.average_psd,
             base_12.interferometer_2.average_psd,
         )
+
+if __name__ == "__main__":
+    main()
