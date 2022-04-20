@@ -69,13 +69,14 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://git.ligo.org/pygwb/pygwb",
-    author="Andrew Matas",
-    author_email="andrew.matas@ligo.org",
+    author="Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang",
+    author_email="arianna.renzini@ligo.org",
     license="MIT",
     version=VERSION,
     packages=["pygwb"],
     package_dir={"pygwb": "pygwb"},
     package_data={"pygwb": [".version"]},
+    scripts=['pygwb_pipe/pygwb_pipe'],
     install_requires=[
         "numpy",
         "matplotlib",
@@ -96,3 +97,4 @@ setup(
     ],
     python_requires=">=3.8",
 )
+

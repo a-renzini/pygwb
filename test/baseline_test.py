@@ -162,7 +162,8 @@ class TestBaseline(unittest.TestCase):
 
     def test_from_parameters(self):
         param_file = "test/test_data/parameters_baseline_test.ini"
-        params = parameters.Parameters.from_file(param_file)
+        params = parameters.Parameters()
+        params.update_from_file(param_file)
         base = baseline.Baseline.from_parameters(
             self.interferometer_1, self.interferometer_2, params
         )
@@ -374,9 +375,9 @@ class TestBaseline(unittest.TestCase):
             "test/test_data/H1L1_1247644138-1247645038.pickle"
         )
         save_data_type = "npz"
-        filename = "4138-5038"
+        filename = "psds_csds_4138-5038"
         pickled_base.save_psds_csds(save_data_type, filename)
-        Loading_npzfile = np.load("psds_csds_" + filename + '.npz')
+        Loading_npzfile = np.load(f'{filename}.npz')
              
         loaded_frequencies = Loading_npzfile["freqs"]
         test_frequencies = pickled_base.frequencies
@@ -461,9 +462,9 @@ class TestBaseline(unittest.TestCase):
             "test/test_data/H1L1_1247644138-1247645038.pickle"
         )
         save_data_type = "pickle"
-        filename = "4138-5038"
+        filename = "psds_csds_4138-5038"
         pickled_base.save_psds_csds(save_data_type, filename)
-        with open("psds_csds_" + filename + '.p', "rb") as f:
+        with open(f"{filename}.p", "rb") as f:
             Loading_picklefile =  pickle.load(f)
              
         loaded_frequencies = Loading_picklefile["freqs"]
@@ -549,9 +550,9 @@ class TestBaseline(unittest.TestCase):
             "test/test_data/H1L1_1247644138-1247645038.pickle"
         )
         save_data_type = "json"
-        filename = "4138-5038"
+        filename = "psds_csds_4138-5038"
         pickled_base.save_psds_csds(save_data_type, filename)
-        with open("psds_csds_" + filename + ".json", 'r') as j:
+        with open(f"{filename}.json", 'r') as j:
             Loading_jsonfile = json.loads(j.read())
              
         loaded_frequencies = Loading_jsonfile["frequencies"]
@@ -644,9 +645,9 @@ class TestBaseline(unittest.TestCase):
             "test/test_data/H1L1_1247644138-1247645038.pickle"
         )
         save_data_type = "hdf5"
-        filename = "4138-5038_new"
+        filename = "psds_csds_4138-5038"
         pickled_base.save_psds_csds(save_data_type, filename)
-        hf = h5py.File(f"psds_csds_{filename}.h5", "r")
+        hf = h5py.File(f"{filename}.h5", "r")
              
         loaded_frequencies = list(hf.get("freqs"))
         test_frequencies = pickled_base.frequencies
