@@ -97,7 +97,7 @@ def main():
             path_H1 = dag_args.data_path / path_H1
             path_L1 = dag_args.data_path / path_L1
     
-            dagfile.write(f"JOB {index} {dag_args.param_file}\n")
+            dagfile.write(f"JOB {index} {dag_args.subfile}\n")
             dagfile.write(
                 f'VARS {index} job="{index}" ARGS="--t0 {time} --tf {time+7200} '
                 f"--H1 {path_H1} --L1 {path_L1} --output_path {outputdir} "
