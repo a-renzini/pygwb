@@ -1122,25 +1122,47 @@ class Baseline(object):
         sigma_spectrogram,
         badGPStimes,
         delta_sigmas,
+        compress = False,
     ):
         hf = h5py.File(filename, "w")
-
-        hf.create_dataset("freqs", data=frequencies)
-        hf.create_dataset("point_estimate_spectrum", data=point_estimate_spectrum)
-        hf.create_dataset("sigma_spectrum", data=sigma_spectrum)
-        hf.create_dataset("point_estimate", data=point_estimate, dtype='float')
-        hf.create_dataset("sigma", data=sigma,dtype='float')
-        hf.create_dataset(
-            "point_estimate_spectrogram", data=point_estimate_spectrogram
-        ),
-        hf.create_dataset("sigma_spectrogram", data=sigma_spectrogram)
-        hf.create_dataset("badGPStimes", data=badGPStimes)
-        if type(delta_sigmas) == float:
-            hf.create_dataset("delta_sigmas", data=delta_sigmas, dtype='float')
-        else:
-            hf.create_dataset("delta_sigmas", data=delta_sigmas)
+        
+        if compress:
+            hf.create_dataset("freqs", data=frequencies, compression="gzip")
+            hf.create_dataset("point_estimate_spectrum", data=point_estimate_spectrum, compression="gzip")
+            hf.create_dataset("sigma_spectrum", data=sigma_spectrum, compression="gzip")
+            hf.create_dataset("point_estimate", data=point_estimate, dtype='float', compression="gzip")
+            hf.create_dataset("sigma", data=sigma,dtype='float', compression="gzip")
+            hf.create_dataset(
+                "point_estimate_spectrogram", data=point_estimate_spectrogram, compression="gzip"
+            ),
+            hf.create_dataset("sigma_spectrogram", data=sigma_spectrogram, compression="gzip")
+            hf.create_dataset("badGPStimes", data=badGPStimes, compression="gzip")
+            if type(delta_sigmas) == float:
+                hf.create_dataset("delta_sigmas", data=delta_sigmas, dtype='float', compression="gzip")
+            else:
+                hf.create_dataset("delta_sigmas", data=delta_sigmas, compression="gzip")
             
-        hf.close()
+        
+            hf.close()
+            
+        else:
+            hf.create_dataset("freqs", data=frequencies)
+            hf.create_dataset("point_estimate_spectrum", data=point_estimate_spectrum)
+            hf.create_dataset("sigma_spectrum", data=sigma_spectrum)
+            hf.create_dataset("point_estimate", data=point_estimate, dtype='float')
+            hf.create_dataset("sigma", data=sigma,dtype='float')
+            hf.create_dataset(
+                "point_estimate_spectrogram", data=point_estimate_spectrogram
+            ),
+            hf.create_dataset("sigma_spectrogram", data=sigma_spectrogram)
+            hf.create_dataset("badGPStimes", data=badGPStimes)
+            if type(delta_sigmas) == float:
+                hf.create_dataset("delta_sigmas", data=delta_sigmas, dtype='float')
+            else:
+                hf.create_dataset("delta_sigmas", data=delta_sigmas)
+            
+        
+            hf.close()
 
     def _npz_save_csd(
         self,
@@ -1277,6 +1299,7 @@ class Baseline(object):
         psd_2,
         avg_psd_1,
         avg_psd_2,
+        compress = False,
     ):
         hf = h5py.File(filename, "w")
 
@@ -1286,39 +1309,76 @@ class Baseline(object):
         avg_csd_times = avg_csd.times.value
         avg_psd_1_times = avg_psd_1.times.value
         avg_psd_2_times = avg_psd_2.times.value
+        
+        if compress:
+                   
+            hf.create_dataset("freqs", data=freqs, compression="gzip")
+            hf.create_dataset("avg_freqs", data=avg_freqs, compression="gzip")
 
-        hf.create_dataset("freqs", data=freqs)
-        hf.create_dataset("avg_freqs", data=avg_freqs)
+            csd_group = hf.create_group("csd_group")
+            csd_group.create_dataset("csd", data=csd, compression="gzip")
+            csd_group.create_dataset("csd_times", data=csd_times, compression="gzip")
 
-        csd_group = hf.create_group("csd_group")
-        csd_group.create_dataset("csd", data=csd)
-        csd_group.create_dataset("csd_times", data=csd_times)
+            avg_csd_group = hf.create_group("avg_csd_group")
+            avg_csd_group.create_dataset("avg_csd", data=avg_csd, compression="gzip")
+            avg_csd_group.create_dataset("avg_csd_times", data=avg_csd_times, compression="gzip")
 
-        avg_csd_group = hf.create_group("avg_csd_group")
-        avg_csd_group.create_dataset("avg_csd", data=avg_csd)
-        avg_csd_group.create_dataset("avg_csd_times", data=avg_csd_times)
+            psd_group = hf.create_group("psds_group")
 
-        psd_group = hf.create_group("psds_group")
+            psd_1_group = hf.create_group("psds_group/psd_1")
+            psd_1_group.create_dataset("psd_1", data=psd_1, compression="gzip")
+            psd_1_group.create_dataset("psd_1_times", data=psd_1_times, compression="gzip")
 
-        psd_1_group = hf.create_group("psds_group/psd_1")
-        psd_1_group.create_dataset("psd_1", data=psd_1)
-        psd_1_group.create_dataset("psd_1_times", data=psd_1_times)
+            psd_2_group = hf.create_group("psds_group/psd_2")
+            psd_2_group.create_dataset("psd_2", data=psd_2, compression="gzip")
+            psd_2_group.create_dataset("psd_2_times", data=psd_2_times, compression="gzip")
 
-        psd_2_group = hf.create_group("psds_group/psd_2")
-        psd_2_group.create_dataset("psd_2", data=psd_2)
-        psd_2_group.create_dataset("psd_2_times", data=psd_2_times)
+            avg_psd_group = hf.create_group("avg_psds_group")
 
-        avg_psd_group = hf.create_group("avg_psds_group")
+            avg_psd_1_group = hf.create_group("avg_psds_group/avg_psd_1")
+            avg_psd_1_group.create_dataset("avg_psd_1", data=avg_psd_1, compression="gzip")
+            avg_psd_1_group.create_dataset("avg_psd_1_times", data=avg_psd_1_times, compression="gzip")
 
-        avg_psd_1_group = hf.create_group("avg_psds_group/avg_psd_1")
-        avg_psd_1_group.create_dataset("avg_psd_1", data=avg_psd_1)
-        avg_psd_1_group.create_dataset("avg_psd_1_times", data=avg_psd_1_times)
+            avg_psd_2_group = hf.create_group("avg_psds_group/avg_psd_2")
+            avg_psd_2_group.create_dataset("avg_psd_2", data=avg_psd_2, compression="gzip")
+            avg_psd_2_group.create_dataset("avg_psd_2_times", data=avg_psd_2_times, compression="gzip")
+            
+            hf.close()
 
-        avg_psd_2_group = hf.create_group("avg_psds_group/avg_psd_2")
-        avg_psd_2_group.create_dataset("avg_psd_2", data=avg_psd_2)
-        avg_psd_2_group.create_dataset("avg_psd_2_times", data=avg_psd_2_times)
-        hf.close()
+        else:
+                   
+            hf.create_dataset("freqs", data=freqs)
+            hf.create_dataset("avg_freqs", data=avg_freqs)
 
+            csd_group = hf.create_group("csd_group")
+            csd_group.create_dataset("csd", data=csd)
+            csd_group.create_dataset("csd_times", data=csd_times)
+
+            avg_csd_group = hf.create_group("avg_csd_group")
+            avg_csd_group.create_dataset("avg_csd", data=avg_csd)
+            avg_csd_group.create_dataset("avg_csd_times", data=avg_csd_times)
+
+            psd_group = hf.create_group("psds_group")
+
+            psd_1_group = hf.create_group("psds_group/psd_1")
+            psd_1_group.create_dataset("psd_1", data=psd_1)
+            psd_1_group.create_dataset("psd_1_times", data=psd_1_times)
+
+            psd_2_group = hf.create_group("psds_group/psd_2")
+            psd_2_group.create_dataset("psd_2", data=psd_2)
+            psd_2_group.create_dataset("psd_2_times", data=psd_2_times)
+
+            avg_psd_group = hf.create_group("avg_psds_group")
+
+            avg_psd_1_group = hf.create_group("avg_psds_group/avg_psd_1")
+            avg_psd_1_group.create_dataset("avg_psd_1", data=avg_psd_1)
+            avg_psd_1_group.create_dataset("avg_psd_1_times", data=avg_psd_1_times)
+
+            avg_psd_2_group = hf.create_group("avg_psds_group/avg_psd_2")
+            avg_psd_2_group.create_dataset("avg_psd_2", data=avg_psd_2)
+            avg_psd_2_group.create_dataset("avg_psd_2_times", data=avg_psd_2_times)
+            
+            hf.close()
 
 
 
