@@ -1,5 +1,6 @@
 #!/bin/env python
 
+import argparse
 import json
 import os
 import sys
@@ -8,22 +9,51 @@ from pathlib import Path
 import bilby
 import matplotlib.pyplot as plt
 import numpy as np
-import pipeline_argument_parser
 from loguru import logger
 
 from pygwb.baseline import Baseline
 from pygwb.detector import Interferometer
+from pygwb.parameters import Parameters
+from pygwb.parameters import ParametersHelp
+
+def help_arguments(parent):
+    ann = getattr(Parameters, "__annotations__", {})
+    parser = argparse.ArgumentParser(parents=[parent])
+    for name, dtype in ann.items():
+        name_help = ParametersHelp[name].help
+        parser.add_argument(f"--{name}", help=name_help, type=dtype, required=False)
+    return parser
 
 if __name__ == "__main__":
-    args = pipeline_argument_parser.args
-    params = pipeline_argument_parser.params
-    params.alphas = json.loads(params.alphas_delta_sigma_cut)
-    params.interferometer_list = json.loads(params.interferometer_list)
-    logger.info(f"Successfully imported parameters from paramfile.")
-    outfile_path = Path(args.param_file)
-    outfile_path = outfile_path.with_name(
-        f"{outfile_path.stem}_final{outfile_path.suffix}"
+
+    params = Parameters()
+    pipe_parser = argparse.ArgumentParser(add_help=False)
+    pipe_parser.add_argument(
+        "--param_file", help="Parameter file", action="store", type=str, required=False
     )
+    pipe_parser.add_argument(
+        "--output_path", help="Location to save output to", action="store", type=str, required=False
+    )
+
+    help_args = help_arguments(pipe_parser)
+    help_args.parse_known_args()  # for help
+
+    script_args, parameters_args = pipe_parser.parse_known_args()
+
+    if script_args.param_file:
+        params.update_from_file(script_args.param_file)
+    params.update_from_arguments(parameters_args)
+    logger.info(f"Successfully imported parameters from paramfile and input.")
+
+    if script_args.output_path:
+        output_path = Path(script_args.output_path)
+    else: 
+        output_path = Path('')
+
+    if script_args.param_file:
+        outfile_path = f"{output_path}/{Path(script_args.param_file).stem}_final{Path(script_args.param_file).suffix}"
+    else:
+        outfile_path = Path(f"{output_path}/parameters_final.ini")
     params.save_paramfile(str(outfile_path))
     logger.info(f"Saved final param file at {outfile_path}.")
 
@@ -32,7 +62,7 @@ if __name__ == "__main__":
     """
     pipe_calc_point_estimate = True  # if False, it will only compute the CSDs and PSDs, if True, it will compute until the point estimates
     pipe_pickle_baseline = True
-
+    
     ifo_1 = Interferometer.from_parameters(params.interferometer_list[0], params)
     ifo_2 = Interferometer.from_parameters(params.interferometer_list[1], params)
     logger.info(f"Loaded up interferometers with selected parameters.")
@@ -72,7 +102,7 @@ if __name__ == "__main__":
 
     base_12.calculate_delta_sigma_cut(
         params.delta_sigma_cut,
-        params.alphas,
+        params.alphas_delta_sigma_cut,
         flow=params.flow,
         fhigh=params.fhigh,
     )
@@ -98,7 +128,7 @@ if __name__ == "__main__":
         logger.success(f"\tPOINT ESIMATE: {base_12.point_estimate:e}")
         logger.success(f"\tSIGMA: {base_12.sigma:e}")
 
-        data_file_name = f"point_estimate_sigma_{int(params.t0)}-{int(params.tf)}"
+        data_file_name = f"{output_path}/point_estimate_sigma_{int(params.t0)}-{int(params.tf)}"
 
         logger.info(
             "Saving point_estimate and sigma spectrograms, spectra, and final values to file."
@@ -108,13 +138,14 @@ if __name__ == "__main__":
             params.save_data_type,
             data_file_name,
         )
+        csd_file_name = f"{output_path}/csds_psds_{int(params.t0)}-{int(params.tf)}"
         base_12.save_psds_csds(
             params.save_data_type,
-            data_file_name,
+            csd_file_name,
         )
         if pipe_pickle_baseline:
             logger.info("Pickling the baseline.")
-            pickle_name = f"{base_12.name}_{int(params.t0)}-{int(params.tf)}.pickle"
+            pickle_name = f"{output_path}/{base_12.name}_{int(params.t0)}-{int(params.tf)}.pickle"
             base_12.save_to_pickle(pickle_name)
 
     else:

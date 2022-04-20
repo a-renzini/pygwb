@@ -355,7 +355,6 @@ def preprocessing_data_gwpy_timeseries(
         window_downsampling=window_downsampling,
         ftype=ftype,
     )
-    print(filtered)
     if time_shift > 0:
         return shift_timeseries(time_series_data=filtered, time_shift=time_shift)
     else:
