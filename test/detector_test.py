@@ -43,14 +43,20 @@ class TestInterferometer(unittest.TestCase):
     def test_from_parameters(self):
         ifo = detector.Interferometer.from_parameters(self.ifo, self.parameters)
         self.assertTrue(ifo.name, self.ifo)
+        self.assertTrue(ifo.timeseries._name,"Strain")
+        self.assertTrue(ifo.timeseries._channel, f'{self.ifo}:{self.kwargs["channel"]}')
+        self.assertTrue(ifo.timeseries._x0.value, f'{self.kwargs["t0"]}')
+        self.assertTrue(ifo.timeseries._dx.value, f'{self.kwargs["tf"]}-{self.kwargs["t0"]}')
 
     def test_get_empty_interferometer(self):
         ifo = detector.Interferometer.get_empty_interferometer(self.ifo)
         self.assertTrue(ifo.name, self.ifo)
-        return ifo
+        self.assertTrue(ifo.length, 4.0)
+        self.assertTrue(ifo.latitude, 46.45514666666667)
+        self.assertTrue(ifo.longitude, -119.4076571388889)
 
     def test_set_timeseries_from_channel_name(self):
-        ifo = self.test_get_empty_interferometer()
+        ifo = detector.Interferometer.get_empty_interferometer(self.ifo)
         ifo.set_timeseries_from_channel_name(**self.kwargs)
         self.assertTrue(
             np.all(
@@ -63,7 +69,7 @@ class TestInterferometer(unittest.TestCase):
     def test_set_timeseries_from_timeseries_array(self):
         timeseries_array = self.testdata["original_timeseries"].value
         sample_rate = self.testdata["original_timeseries"].sample_rate.value
-        ifo = self.test_get_empty_interferometer()
+        ifo = detector.Interferometer.get_empty_interferometer(self.ifo)
         ifo.set_timeseries_from_timeseries_array(
             timeseries_array, sample_rate, **self.kwargs
         )
@@ -77,7 +83,7 @@ class TestInterferometer(unittest.TestCase):
 
     def test_gwpy_timeseries_spectrogram_average_psd(self):
         gwpy_timeseries = self.testdata["original_timeseries"]
-        ifo = self.test_get_empty_interferometer()
+        ifo = detector.Interferometer.get_empty_interferometer(self.ifo)
         ifo.set_timeseries_from_gwpy_timeseries(
             gwpy_timeseries=gwpy_timeseries, **self.kwargs
         )
@@ -110,7 +116,7 @@ class TestInterferometer(unittest.TestCase):
 
     def test_gwpy_timeseries_gating(self):
         gwpy_timeseries = self.testdata["original_timeseries"]
-        ifo = self.test_get_empty_interferometer()
+        ifo = detector.Interferometer.get_empty_interferometer(self.ifo)
         ifo.set_timeseries_from_gwpy_timeseries(
             gwpy_timeseries=gwpy_timeseries, **self.kwargs
         )
