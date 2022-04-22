@@ -88,79 +88,6 @@ class StochNotchList(list):
         return False
 
     def get_idxs(self, frequency_array):
-        """Get a boolean mask for the frequencies in frequency_array in the notch list
-
-        Parameters
-        ==========
-        frequency_array: np.ndarray
-            An array of frequencies
-
-        Returns
-        =======
-        idxs: np.ndarray
-            An array of booleans which are True for frequencies in the notch list
-        inv_idxs: np.ndarray
-            An array of booleans which are False for frequencies in the notch list
-
-        """
-
-        #        idxs = []
-        #        for f in frequency_array:
-        #            idxs.append(self.check_frequency(f))
-        #        inv_idxs = [not elem for elem in idxs]
-        #        return idxs, inv_idxs
-        """
-        df = np.abs(frequency_array[2] - frequency_array[1])
-        idxs = []
-        #df_str = str(df)
-        #precision = df_str[::-1].find(".")
-        for my_iter in range(len(frequency_array)):
-            temp = 0
-            if my_iter == 0:
-                for notch in self:
-                    if not (
-                        notch.maximum_frequency
-                        <= frequency_array[my_iter] - df
-                    ) and not (
-                        notch.minimum_frequency
-                        >= frequency_array[my_iter + 1]
-                    ):
-                        temp = True
-                        break
-                    else:
-                        temp = False
-            elif my_iter == len(frequency_array) - 1:
-                for notch in self:
-                    if not (
-                        notch.maximum_frequency
-                        <= frequency_array[my_iter - 1]
-                    ) and not (
-                        notch.minimum_frequency
-                        >= frequency_array[my_iter] + df
-                    ):
-                        temp = True
-                        break
-                    else:
-                        temp = False
-            else:
-                for notch in self:
-                    if not (
-                        notch.maximum_frequency
-                        <= frequency_array[my_iter - 1]
-                    ) and not (
-                        notch.minimum_frequency
-                        >= frequency_array[my_iter + 1]
-                    ):
-
-                        temp = True
-                        break
-                    else:
-                        temp = False
-            idxs.append(temp)
-        inv_idxs = [not elem for elem in idxs]
-        return idxs, inv_idxs
-        """
-
         """ Get a boolean mask for the frequencies in frequency_array in the notch list
 
         Parameters
@@ -170,8 +97,8 @@ class StochNotchList(list):
 
         Returns
         =======
-        idxs: np.ndarray
-            An array of booleans that are True for frequencies in the notch
+        notched: np.ndarray
+            An array of booleans that are False for frequencies in the notch
 
         Notes
         =====
