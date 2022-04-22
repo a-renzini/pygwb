@@ -88,18 +88,18 @@ class StochNotchList(list):
 
         df = np.abs(frequency_array[2] - frequency_array[1])
         idxs = []
-        df_str = str(df)
-        precision = df_str[::-1].find(".")
+        #df_str = str(df)
+        #precision = df_str[::-1].find(".")
         for my_iter in range(len(frequency_array)):
             temp = 0
             if my_iter == 0:
                 for notch in self:
                     if not (
                         notch.maximum_frequency
-                        <= round(frequency_array[my_iter], precision) - df
+                        <= frequency_array[my_iter] - df
                     ) and not (
                         notch.minimum_frequency
-                        >= round(frequency_array[my_iter + 1], precision)
+                        >= frequency_array[my_iter + 1]
                     ):
                         temp = True
                         break
@@ -109,10 +109,10 @@ class StochNotchList(list):
                 for notch in self:
                     if not (
                         notch.maximum_frequency
-                        <= round(frequency_array[my_iter - 1], precision)
+                        <= frequency_array[my_iter - 1]
                     ) and not (
                         notch.minimum_frequency
-                        >= round(frequency_array[my_iter], precision) + df
+                        >= frequency_array[my_iter] + df
                     ):
                         temp = True
                         break
@@ -122,10 +122,10 @@ class StochNotchList(list):
                 for notch in self:
                     if not (
                         notch.maximum_frequency
-                        <= round(frequency_array[my_iter - 1], precision)
+                        <= frequency_array[my_iter - 1]
                     ) and not (
                         notch.minimum_frequency
-                        >= round(frequency_array[my_iter + 1], precision)
+                        >= frequency_array[my_iter + 1]
                     ):
 
                         temp = True
