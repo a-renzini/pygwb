@@ -140,9 +140,9 @@ class TestNotch(unittest.TestCase):
         notched1 = self.stoch_notch_list_4.get_idxs(freqs)
         notched2 = self.stoch_notch_list_5.get_idxs(freqs)
 
-        print(len(nocthed1))
+        print(len(notched1))
         print(freqs)
-        print(nocthed1)
+        print(notched1)
         print(anwser_1_b)
         print(notched2)
         print(anwser_2_b)

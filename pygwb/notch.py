@@ -180,7 +180,6 @@ class StochNotchList(list):
         notched = np.ones(len(frequency_array), dtype=bool)
         for notch in self:
             notched = notched & notch.get_idxs(frequency_array)
-            print(notched)
         return notched
 
     def save_to_txt(self, filename):
@@ -272,8 +271,7 @@ class StochNotchList(list):
             fmin_b[i] = float(fmin[i])
             fmax_b[i] = float(fmax[i])
 
-        print(fmin, fmax)
-
+        
         cls = StochNotchList([])
         for i in range(len(fmin_b)):
             cls.append(StochNotch(fmin_b[i], fmax_b[i], desc[i]))
