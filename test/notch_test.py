@@ -135,8 +135,6 @@ class TestNotch(unittest.TestCase):
         test_idxs = np.ones(len(freqs))
         test_inv_idxs = np.ones(len(freqs))
 
-        #idxs1, inv_idxs1 = self.stoch_notch_list_4.get_idxs(freqs)
-        #idxs2, inv_idxs2 = self.stoch_notch_list_5.get_idxs(freqs)
         notched1 = self.stoch_notch_list_4.get_idxs(freqs)
         notched2 = self.stoch_notch_list_5.get_idxs(freqs)
 
@@ -147,9 +145,7 @@ class TestNotch(unittest.TestCase):
         print(notched2)
         print(anwser_2_b)
 
-        #self.assertTrue(np.array_equal(idxs1, anwser_1))
         self.assertTrue(np.array_equal(notched1, anwser_1_b))
-        #self.assertTrue(np.array_equal(idxs2, anwser_2))
         self.assertTrue(np.array_equal(notched2, anwser_2_b))
 
     def test_save_to_and_load_from_txt(self):
