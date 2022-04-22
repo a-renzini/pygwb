@@ -177,7 +177,7 @@ class StochNotchList(list):
         =====
         This notches any frequency that may have overlapping frequency content with the notch.
         """
-        notched = np.ones(frequency_array, dtype=bool)
+        notched = np.ones(len(frequency_array), dtype=bool)
         for notch in self:
             notched = notched & notch.get_idxs(frequency_array)
             print(notched)
