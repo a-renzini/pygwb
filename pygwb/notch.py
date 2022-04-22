@@ -20,6 +20,30 @@ class StochNotch(Notch):
     def print_notch(self):
         print(self.minimum_frequency, self.maximum_frequency, self.description)
 
+    def get_idxs(self, frequency_array):
+        """ Get a boolean mask for the frequencies in frequency_array in the notch
+
+        Parameters
+        ==========
+        frequency_array: np.ndarray
+            An array of frequencies
+
+        Returns
+        =======
+        idxs: np.ndarray
+            An array of booleans that are True for frequencies in the notch
+
+        Notes
+        =====
+        This notches any frequency that may have overlapping frequency content with the notch.
+        """
+        df = np.abs(frequency_array[1] - frequency_array[0])
+        frequencies_below = np.concatenate([frequency_array[:1]-df, frequency_array[:-1]])
+        frequencies_above = np.concatenate([frequency_array[1:], frequency_array[-1:]+df])
+        lower = (frequencies_below > self.maximum_frequency)
+        upper = (frequencies_above < self.minimum_frequency)
+        return lower | upper
+
 
 class StochNotchList(list):
     def __init__(self, notch_list):
@@ -85,7 +109,7 @@ class StochNotchList(list):
         #            idxs.append(self.check_frequency(f))
         #        inv_idxs = [not elem for elem in idxs]
         #        return idxs, inv_idxs
-
+        """
         df = np.abs(frequency_array[2] - frequency_array[1])
         idxs = []
         #df_str = str(df)
@@ -135,6 +159,29 @@ class StochNotchList(list):
             idxs.append(temp)
         inv_idxs = [not elem for elem in idxs]
         return idxs, inv_idxs
+        """
+
+        """ Get a boolean mask for the frequencies in frequency_array in the notch list
+
+        Parameters
+        ==========
+        frequency_array: np.ndarray
+            An array of frequencies
+
+        Returns
+        =======
+        idxs: np.ndarray
+            An array of booleans that are True for frequencies in the notch
+
+        Notes
+        =====
+        This notches any frequency that may have overlapping frequency content with the notch.
+        """
+        notched = np.ones(frequency_array, dtype=bool)
+        for notch in self:
+            notched = notched & notch.get_idxs(frequency_array)
+            print(notched)
+        return notched
 
     def save_to_txt(self, filename):
         """Save the nocth list to a txt-file (after sorting)
