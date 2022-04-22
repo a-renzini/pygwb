@@ -28,46 +28,6 @@ def window_factors(N):
     return w1w2bar, w1w2squaredbar, w1w2ovlbar, w1w2squaredovlbar
 
 
-def calc_Y_sigma_from_Yf_varf(
-    Y_f, var_f, freqs=None, alpha=0, fref=25, weight_spectrum=True
-):
-    """
-    Calculate the omega point estimate and sigma from their respective spectra,
-    taking into account the desired spectral weighting. 
-    To apply weighting, the frequency array associated to the spectra must be supplied.
-
-    Parameters
-    ==========
-    Y_f: array_like
-        Point estimate spectrum
-    var_f: array_like
-        Sigma spectrum    
-    freqs: array_like, optional
-        Frequency array associated to the point estimate and sigma spectra.
-    alpha: float, optional
-        Spectral index to use in the weighting.
-    fref: float, optional
-        Reference frequency to use in the weighting calculation.
-        Final result refers to this frequency.
-    weight_spectrogram: bool, optional
-        Flag to apply spectral weighting, True by default.  
-    """
-    if weight_spectrum and freqs is None:
-        raise ValueError(
-            "Must supply frequency array if you want to weight the spectrum when combining"
-        )
-    if weight_spectrum:
-        weights = (freqs / fref) ** alpha
-    else:
-        weights = np.ones(Y_f.shape)
-
-    var = 1 / np.sum(var_f ** (-1) * weights ** 2)
-    Y = np.nansum(Y_f * weights * (var / var_f))
-    sigma = np.sqrt(var)
-
-    return Y, sigma
-
-
 def calc_rho1(N):
     """
     Calculate the combined window factor rho.
@@ -179,6 +139,46 @@ def StatKS(DKS):
     for jj in np.arange(1, jmax + 1):
         pvalue += 2.0 * (-1) ** (jj + 1) * np.exp(-2.0 * jj ** 2 * DKS ** 2)
     return pvalue
+
+
+def calc_Y_sigma_from_Yf_varf(
+    Y_f, var_f, freqs=None, alpha=0, fref=25, weight_spectrum=True
+):
+    """
+    Calculate the omega point estimate and sigma from their respective spectra,
+    taking into account the desired spectral weighting. 
+    To apply weighting, the frequency array associated to the spectra must be supplied.
+
+    Parameters
+    ==========
+    Y_f: array_like
+        Point estimate spectrum
+    var_f: array_like
+        Sigma spectrum    
+    freqs: array_like, optional
+        Frequency array associated to the point estimate and sigma spectra.
+    alpha: float, optional
+        Spectral index to use in the weighting.
+    fref: float, optional
+        Reference frequency to use in the weighting calculation.
+        Final result refers to this frequency.
+    weight_spectrogram: bool, optional
+        Flag to apply spectral weighting, True by default.  
+    """
+    if weight_spectrum and freqs is None:
+        raise ValueError(
+            "Must supply frequency array if you want to weight the spectrum when combining"
+        )
+    if weight_spectrum:
+        weights = (freqs / fref) ** alpha
+    else:
+        weights = np.ones(Y_f.shape)
+
+    var = 1 / np.sum(var_f ** (-1) * weights ** 2)
+    Y = np.nansum(Y_f * weights * (var / var_f))
+    sigma = np.sqrt(var)
+
+    return Y, sigma
 
 
 def calculate_point_estimate_sigma_spectrogram(

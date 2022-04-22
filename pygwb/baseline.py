@@ -1002,7 +1002,7 @@ class Baseline(object):
             )
 
         save_csd(
-            f"psds_csds_{filename}{ext}",
+            f"{filename}{ext}",
             self.frequencies,
             self.average_csd.frequencies.value,
             self.csd,
