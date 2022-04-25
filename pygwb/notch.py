@@ -170,42 +170,6 @@ class StochNotchList(list):
             raise TypeError("Notch list from file has too many dimensions.")
         return cls
 
-    @classmethod
-    def load_from_file_pre_pyGWB(cls, filename):
-        """Load an already existing notch list from a txt-file (with formatting as produced by old code)
-
-        Parameters
-        ==========
-        filename: str
-            Filename of the file containing the notchlist to be read in
-
-
-        """
-
-        fmin, fmax = np.loadtxt(
-            filename, skiprows=1, unpack=True, usecols=(0, 1), dtype=str
-        )
-        for i in range(len(fmin)):
-            fmin[i] = fmin[i][1:-1]
-            fmax[i] = fmax[i][:-1]
-        _, desc = np.loadtxt(
-            filename, skiprows=1, delimiter="\t", unpack=True, usecols=(0, 1), dtype=str
-        )
-
-        fmin_b = np.zeros(len(fmin))
-        fmax_b = np.zeros(len(fmax))
-        for i in range(len(fmin)):
-            fmin_b[i] = float(fmin[i])
-            fmax_b[i] = float(fmax[i])
-
-        
-        cls = StochNotchList([])
-        for i in range(len(fmin_b)):
-            cls.append(StochNotch(fmin_b[i], fmax_b[i], desc[i]))
-
-        return cls
-
-
 def power_lines(fundamental=60, nharmonics=40, df=0.2):
     """
     Create list of power line harmonics (nharmonics*fundamental Hz) to remove
