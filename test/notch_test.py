@@ -31,7 +31,7 @@ class TestNotch(unittest.TestCase):
         )
         self.stoch_notch_list_4 = notch.StochNotchList([])
         self.stoch_notch_list_4.append(
-            notch.StochNotch(4.875, 4.99, "This is a test notch")
+            notch.StochNotch(4.9375, 4.99, "This is a test notch")
         )
         self.stoch_notch_list_4.append(
             notch.StochNotch(5.4375, 5.475, "This is a test notch")
@@ -132,8 +132,6 @@ class TestNotch(unittest.TestCase):
         ]
         anwser_2_b = [not elem for elem in anwser_2]
         print(len(freqs))
-        #test_idxs = np.ones(len(freqs))
-        #test_inv_idxs = np.ones(len(freqs))
 
         notched1 = self.stoch_notch_list_4.get_notch_mask(freqs)
         notched2 = self.stoch_notch_list_5.get_notch_mask(freqs)
