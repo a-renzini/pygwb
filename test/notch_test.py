@@ -148,14 +148,6 @@ class TestNotch(unittest.TestCase):
         self.assertTrue(np.array_equal(notched1, anwser_1_b))
         self.assertTrue(np.array_equal(notched2, anwser_2_b))
 
-    def test_O3notchlist(self):
-
-        my_notch_list = notch.StochNotchList([])
-        my_notch_list = my_compare_notch_list.load_from_file(
-            "test/test_data/Official_O3_HL_notchlist.txt"
-        )
-        self.stoch_notch_list_1.save_to_txt("test/notches_pyGWB.txt")
-
 
     def test_save_to_and_load_from_txt(self):
 
@@ -231,66 +223,6 @@ class TestNotch(unittest.TestCase):
                 check = False
                 break
         self.assertTrue(check)
-
-    def test_load_from_file_pre_pyGWB(self):
-
-        my_compare_notch_list = notch.StochNotchList([])
-        my_compare_notch_list = my_compare_notch_list.load_from_file_pre_pyGWB(
-            "test/test_data/TestNotchList_pre-pyGWB.dat"
-        )
-
-        print(len(my_compare_notch_list), len(self.stoch_notch_list_3))
-        print(my_compare_notch_list, self.stoch_notch_list_3)
-
-        if len(my_compare_notch_list) == len(self.stoch_notch_list_3):
-            check_1 = True
-        else:
-            check_1 = False
-
-        self.assertTrue(check_1)
-
-        for i in range(len(my_compare_notch_list)):
-            if (
-                my_compare_notch_list[i].minimum_frequency
-                == self.stoch_notch_list_3[i].minimum_frequency
-            ):
-                check_2 = True
-            else:
-                check_2 = False
-                break
-            if (
-                my_compare_notch_list[i].maximum_frequency
-                == self.stoch_notch_list_3[i].maximum_frequency
-            ):
-                check_3 = True
-            else:
-                check_3 = False
-                break
-            if (
-                my_compare_notch_list[i].description
-                == self.stoch_notch_list_3[i].description
-            ):
-                check_4 = True
-            else:
-                check_4 = False
-                break
-            print(
-                my_compare_notch_list[i].minimum_frequency,
-                self.stoch_notch_list_3[i].minimum_frequency,
-            )
-            print(
-                my_compare_notch_list[i].maximum_frequency,
-                self.stoch_notch_list_3[i].maximum_frequency,
-            )
-            print(
-                my_compare_notch_list[i].description,
-                self.stoch_notch_list_3[i].description,
-            )
-
-        print(check_2, check_3, check_4)
-        self.assertTrue(check_2)
-        self.assertTrue(check_3)
-        self.assertTrue(check_4)
 
     def test_power_lines(self):
 
