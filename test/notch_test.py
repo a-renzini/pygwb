@@ -80,7 +80,7 @@ class TestNotch(unittest.TestCase):
             test_results.append(self.stoch_notch_list_1.check_frequency(freq))
         self.assertTrue(np.all(test_results))
 
-    def test_get_idxs(self):
+    def test_get_notch_mask(self):
         epsilon = 1e-4
         freqs = np.arange(5.0, 7.5 + epsilon, 0.125)
         anwser_1 = [
@@ -132,11 +132,11 @@ class TestNotch(unittest.TestCase):
         ]
         anwser_2_b = [not elem for elem in anwser_2]
         print(len(freqs))
-        test_idxs = np.ones(len(freqs))
-        test_inv_idxs = np.ones(len(freqs))
+        #test_idxs = np.ones(len(freqs))
+        #test_inv_idxs = np.ones(len(freqs))
 
-        notched1 = self.stoch_notch_list_4.get_idxs(freqs)
-        notched2 = self.stoch_notch_list_5.get_idxs(freqs)
+        notched1 = self.stoch_notch_list_4.get_notch_maskreqs)
+        notched2 = self.stoch_notch_list_5.get_notch_amsk(freqs)
 
         print(len(notched1))
         print(freqs)
@@ -147,6 +147,15 @@ class TestNotch(unittest.TestCase):
 
         self.assertTrue(np.array_equal(notched1, anwser_1_b))
         self.assertTrue(np.array_equal(notched2, anwser_2_b))
+
+    def test_O3notchlist(self):
+
+        my_notch_list = notch.StochNotchList([])
+        my_notch_list = my_compare_notch_list.load_from_file(
+            "test/test_data/Official_O3_HL_notchlist.txt"
+        )
+        self.stoch_notch_list_1.save_to_txt("test/notches_pyGWB.txt")
+
 
     def test_save_to_and_load_from_txt(self):
 

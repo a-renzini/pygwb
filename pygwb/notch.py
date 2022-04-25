@@ -20,7 +20,7 @@ class StochNotch(Notch):
     def print_notch(self):
         print(self.minimum_frequency, self.maximum_frequency, self.description)
 
-    def get_idxs(self, frequency_array):
+    def get_notch_mask(self, frequency_array):
         """ Get a boolean mask for the frequencies in frequency_array in the notch
 
         Parameters
@@ -30,8 +30,8 @@ class StochNotch(Notch):
 
         Returns
         =======
-        idxs: np.ndarray
-            An array of booleans that are True for frequencies in the notch
+        lower | upper: np.ndarray
+            An array of booleans that are False for frequencies in the notch
 
         Notes
         =====
@@ -40,8 +40,8 @@ class StochNotch(Notch):
         df = np.abs(frequency_array[1] - frequency_array[0])
         frequencies_below = np.concatenate([frequency_array[:1]-df, frequency_array[:-1]])
         frequencies_above = np.concatenate([frequency_array[1:], frequency_array[-1:]+df])
-        lower = (frequencies_below >= self.maximum_frequency)
-        upper = (frequencies_above <= self.minimum_frequency)
+        lower = (frequencies_below - df/2 >= self.maximum_frequency)
+        upper = (frequencies_above + df/2 <= self.minimum_frequency)
         return lower | upper
 
 
@@ -87,7 +87,7 @@ class StochNotchList(list):
                 return True
         return False
 
-    def get_idxs(self, frequency_array):
+    def get_notch_mask(self, frequency_array):
         """ Get a boolean mask for the frequencies in frequency_array in the notch list
 
         Parameters
@@ -106,7 +106,7 @@ class StochNotchList(list):
         """
         notched = np.ones(len(frequency_array), dtype=bool)
         for notch in self:
-            notched = notched & notch.get_idxs(frequency_array)
+            notched = notched & notch.get_notch_mask(frequency_array)
         return notched
 
     def save_to_txt(self, filename):
