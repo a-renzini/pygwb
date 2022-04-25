@@ -1,12 +1,19 @@
 import sys
 
+import bilby
 import gwpy
+import h5py
 import numpy as np
+from loguru import logger
 from bilby.core.utils import create_frequency_series
-from scipy.signal.windows import hann
 
+from pygwb.baseline import Baseline
+from pygwb.constants import H0
 from pygwb.baseline import get_baselines
 from pygwb.util import interpolate_frequency_series
+
+import os
+import argparse
 
 if sys.version_info >= (3, 0):
     import configparser
@@ -23,7 +30,6 @@ class Simulator(object):
         duration,
         sampling_frequency,
         start_time=0.0,
-        save_to_file=False,
         no_noise=False,
     ):
         """
@@ -43,8 +49,6 @@ class Simulator(object):
             Sampling frequency
         start_time: float
             Start time of the simulation
-        save_to_file: boolean
-            Flag that turns on/off the option to save the simulated data to a file
         no_noise: boolean
             Flag that sets the noise_PSDs to 0
 
@@ -73,6 +77,9 @@ class Simulator(object):
             self.deltaT = 1 / self.sampling_frequency
 
             self.noise_PSD_array = self.get_noise_PSD_array()
+            
+            self.no_noise = no_noise
+            
             if no_noise == True:
                 self.noise_PSD_array = np.zeros_like(self.noise_PSD_array)
 
@@ -84,7 +91,7 @@ class Simulator(object):
             self.intensity_GW = interpolate_frequency_series(
                 intensity_GW, self.frequencies
             )
-
+            
     def get_frequencies(self):
         """
         Computes an array of frequencies with given sampling frequency and duration.
@@ -197,13 +204,18 @@ class Simulator(object):
             An array of size Nd (number of detectors) with gwpy TimeSeries with the
             data containing the simulated isotropic stochastic background.
         """
-        y = self.simulate_data()
-        data_temp = self.splice_segments(y)
+        y_signal = self.simulate("signal")
+        data_signal_temp = self.splice_segments(y_signal)
+        if not self.no_noise:
+            y_noise = self.simulate("noise")
+            data_noise_temp = self.splice_segments(y_noise)
+        else:
+            data_noise_temp = np.zeros_like(data_signal_temp)
         data = np.zeros(self.Nd, dtype=gwpy.timeseries.TimeSeries)
         for ii in range(self.Nd):
-            print(f"{self.interferometers[ii].name}:SIM-STOCH_INJ")
+            logger.info(f"Adding data to channel {self.interferometers[ii].name}:SIM-STOCH_INJ")
             data[ii] = gwpy.timeseries.TimeSeries(
-                data_temp[ii].astype("float64"),
+                (data_signal_temp[ii]+data_noise_temp[ii]).astype("float64"),
                 t0=self.t0,
                 dt=self.deltaT,
                 channel=f"{self.interferometers[ii].name}:SIM-STOCH_INJ",
@@ -243,13 +255,16 @@ class Simulator(object):
         orf_array = orf_array + orf_array.transpose()
         return orf_array
 
-    def covariance_matrix(self):
+    def covariance_matrix(self,flag):
         """
         Function to compute the covariance matrix corresponding to a stochastic
         background in the various detectors.
 
         Parameters
         ==========
+        flaf: str
+            Either flagged as "noise" or "signal", to allow for different generation of
+            covariance matrix in both cases.
 
         Returns
         =======
@@ -261,14 +276,20 @@ class Simulator(object):
         orf_array = self.orf_to_array()
 
         C = np.zeros((self.Nd, self.Nd, self.Nf))
+        if flag=='noise':
+            for ii in range(self.Nd):
+                for jj in range(self.Nd):
+                    if ii == jj:
+                        C[ii, jj, :] = self.noise_PSD_array[ii]
+        elif flag=='signal':
+            for ii in range(self.Nd):
+                for jj in range(self.Nd):
+                    if ii == jj:
+                        C[ii, jj, :] = self.intensity_GW.value[:]
+                    else:
+                        C[ii, jj, :] = orf_array[ii, jj] * self.intensity_GW.value[:]
+        C[C == 0.0] = 1.0e-60
 
-        for ii in range(self.Nd):
-            for jj in range(self.Nd):
-                if ii == jj:
-                    C[ii, jj, :] = self.noise_PSD_array[ii] + self.intensity_GW.value[:]
-                else:
-                    C[ii, jj, :] = orf_array[ii, jj] * self.intensity_GW.value[:]
-        C[C == 0.0] = 1.0e-45
         C = self.N_samples_per_segment / (self.deltaT * 4) * C
         return C
 
@@ -338,11 +359,11 @@ class Simulator(object):
         """
         eigval, eigvec = self.compute_eigval_eigvec(C)
 
-        A = np.einsum("...ij,jk...", np.sqrt(eigval), eigvec.transpose())
+        A = np.einsum("...ij,jk...", np.sqrt(eigval+0j), eigvec.transpose())
         x = np.einsum("...j,...jk", z, A)
         return x
 
-    def simulate_data(self):
+    def simulate(self,flag):
         """
         Function that simulates the data corresponding to an isotropic stochastic
         background.
@@ -356,7 +377,7 @@ class Simulator(object):
             Array of size Nd x 2*(N_segments+1) x N_samples_per_segment containing the
             various segments with the simulated data.
         """
-        C = self.covariance_matrix()
+        C = self.covariance_matrix(flag)
 
         y = np.zeros(
             (self.Nd, 2 * self.N_segments + 1, self.N_samples_per_segment),
@@ -412,6 +433,7 @@ class Simulator(object):
             detectors, where Nd is the number of detectors.
         """
         w = np.zeros(self.N_samples_per_segment)
+
         for ii in range(self.N_samples_per_segment):
             w[ii] = np.sin(np.pi * ii / self.N_samples_per_segment)
 
