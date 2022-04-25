@@ -135,8 +135,8 @@ class TestNotch(unittest.TestCase):
         #test_idxs = np.ones(len(freqs))
         #test_inv_idxs = np.ones(len(freqs))
 
-        notched1 = self.stoch_notch_list_4.get_notch_maskreqs)
-        notched2 = self.stoch_notch_list_5.get_notch_amsk(freqs)
+        notched1 = self.stoch_notch_list_4.get_notch_mask(freqs)
+        notched2 = self.stoch_notch_list_5.get_notch_mask(freqs)
 
         print(len(notched1))
         print(freqs)
