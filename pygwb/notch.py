@@ -40,13 +40,16 @@ class StochNotch(Notch):
         df = np.abs(frequency_array[1] - frequency_array[0])
         frequencies_below = np.concatenate([frequency_array[:1]-df, frequency_array[:-1]])
         frequencies_above = np.concatenate([frequency_array[1:], frequency_array[-1:]+df])
-        lower = (frequencies_below + df/2 <= self.maximum_frequency)
-        upper = (frequencies_above - df/2 >= self.minimum_frequency)
+        lower = (frequencies_below + df/2 >= self.maximum_frequency)
+        upper = (frequencies_above - df/2 <= self.minimum_frequency)
         #lower = (frequencies_below + df/2. >= self.minimum_frequency)
         #upper = (frequencies_above - df/2. <= self.maximum_frequency)
-        print(lower,upper,not(lower & upper))
-        return not(lower & upper)
+        #print(lower,upper,not(lower & upper))
+        return lower | upper
 
+#        lower = (frequencies_below >= self.maximum_frequency)
+#        upper = (frequencies_above <= self.minimum_frequency)
+#        return lower | upper
 
 class StochNotchList(list):
     def __init__(self, notch_list):
