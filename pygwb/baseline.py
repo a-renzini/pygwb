@@ -147,7 +147,7 @@ class Baseline(object):
         )
         if notch_list_path:
             notch_list = StochNotchList.load_from_file(notch_list_path)
-            notch_mask = notch_list.get_idxs(self.frequencies)
+            notch_mask = notch_list.get_notch_mask(self.frequencies)
             mask = np.logical_and(mask, notch_mask)
         return mask
 
@@ -706,7 +706,7 @@ class Baseline(object):
             print(f" notch list path {notch_list_path}")
             logger.debug("Correct baseline")
             lines_object = StochNotchList.load_from_file(notch_list_path)
-            notches = lines_object.get_idxs(self.frequencies)
+            notches = lines_object.get_notch_mask(self.frequencies)
         else:
             notches = np.array([], dtype=int)
 
@@ -827,12 +827,12 @@ class Baseline(object):
         if self.notch_list_path:
             logger.debug("loading notches from " + self.notch_list_path)
             lines_object = StochNotchList.load_from_file(self.notch_list_path)
-            notch_indexes = lines_object.get_idxs(Y_spec.frequencies.value)
+            notch_indexes = lines_object.get_notch_mask(Y_spec.frequencies.value)
             self.set_frequency_mask(self.notch_list_path)
         elif notch_list_path:
             logger.debug("loading notches from", notch_list_path)
             lines_object = StochNotchList.load_from_file(notch_list_path)
-            notch_indexes = lines_object.get_idxs(Y_spec.frequencies.value)
+            notch_indexes = lines_object.get_notch_mask(Y_spec.frequencies.value)
             self.set_frequency_mask(notch_list_path)
         else:
             notch_indexes = np.arange(Y_spec.size)
