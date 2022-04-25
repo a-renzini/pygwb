@@ -1,19 +1,17 @@
+import argparse
+import os
 import sys
 
 import bilby
 import gwpy
 import h5py
 import numpy as np
-from loguru import logger
 from bilby.core.utils import create_frequency_series
+from loguru import logger
 
-from pygwb.baseline import Baseline
+from pygwb.baseline import Baseline, get_baselines
 from pygwb.constants import H0
-from pygwb.baseline import get_baselines
 from pygwb.util import interpolate_frequency_series
-
-import os
-import argparse
 
 if sys.version_info >= (3, 0):
     import configparser
