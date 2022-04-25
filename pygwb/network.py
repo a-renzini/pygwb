@@ -178,7 +178,7 @@ class Network(object):
             Start time of the simulated data. If not passed (None), will check for interferometer's timeseries start time.
             If not specified either, start time will default to zero.
         inject_into_data_flag: boolean
-            Flag that specifies wether or not the simulated data needs to be injected into data, i.e. if there is already
+            Flag that specifies whether or not the simulated data needs to be injected into data, i.e. if there is already
             data present in the interferometers of the network. If so, only data will be simulated and no extra noise will
             be added on top of the simulated data.
         """
