@@ -86,7 +86,7 @@ class TestNotch(unittest.TestCase):
 
     def test_get_notch_mask(self):
         epsilon = 1e-4
-        freqs = np.arange(5.0, 7.5 + epsilon, 0.125)
+        freqs = np.arange(5.0, 6.875 + epsilon, 0.125)
         anwser_1 = [
             True,
             False,
@@ -125,12 +125,12 @@ class TestNotch(unittest.TestCase):
             False,
         ]
         anwser_2_b = [not elem for elem in anwser_2]
-        print(len(freqs))
 
         notched1 = self.stoch_notch_list_4.get_notch_mask(freqs)
         notched2 = self.stoch_notch_list_5.get_notch_mask(freqs)
 
         print(len(notched1))
+        print(len(anwser_1_b))
         print(freqs)
         print(notched1)
         print(anwser_1_b)
