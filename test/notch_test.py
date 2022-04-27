@@ -37,10 +37,10 @@ class TestNotch(unittest.TestCase):
             notch.StochNotch(5.2, 5.21, "This is a test notch")
         )
         self.stoch_notch_list_4.append(
-            notch.StochNotch(5.55, 6.58, "This is a test notch")
+            notch.StochNotch(5.55, 5.58, "This is a test notch")
         )
         self.stoch_notch_list_4.append(
-            notch.StochNotch(5.8, 6.1, "This is a test notch")
+            notch.StochNotch(5.9, 6.1, "This is a test notch")
         )
         self.stoch_notch_list_4.append(
             notch.StochNotch(6.4375, 6.5625, "This is a test notch")
@@ -56,7 +56,7 @@ class TestNotch(unittest.TestCase):
             notch.StochNotch(5.2, 5.21, "This is a test notch")
         )
         self.stoch_notch_list_5.append(
-            notch.StochNotch(5.55, 6.58, "This is a test notch")
+            notch.StochNotch(5.55, 5.58, "This is a test notch")
         )
         self.stoch_notch_list_5.append(
             notch.StochNotch(5.8, 6.1, "This is a test notch")
