@@ -31,42 +31,46 @@ class TestNotch(unittest.TestCase):
         )
         self.stoch_notch_list_4 = notch.StochNotchList([])
         self.stoch_notch_list_4.append(
-            notch.StochNotch(4.9375, 4.99, "This is a test notch")
+            notch.StochNotch(4,4.9375, "This is a test notch")
         )
         self.stoch_notch_list_4.append(
-            notch.StochNotch(5.4375, 5.475, "This is a test notch")
+            notch.StochNotch(5.2, 5.21, "This is a test notch")
         )
         self.stoch_notch_list_4.append(
-            notch.StochNotch(5.7875, 6.025, "This is a test notch")
+            notch.StochNotch(5.55, 6.58, "This is a test notch")
         )
         self.stoch_notch_list_4.append(
-            notch.StochNotch(6.3875, 6.5125, "This is a test notch")
+            notch.StochNotch(5.8, 6.1, "This is a test notch")
         )
         self.stoch_notch_list_4.append(
-            notch.StochNotch(6.875, 7, "This is a test notch")
+            notch.StochNotch(6.4375, 6.5625, "This is a test notch")
         )
         self.stoch_notch_list_4.append(
-            notch.StochNotch(7.51, 7.6, "This is a test notch")
+            notch.StochNotch(6.9375, 7., "This is a test notch")
         )
         self.stoch_notch_list_5 = notch.StochNotchList([])
         self.stoch_notch_list_5.append(
-            notch.StochNotch(4.8, 4.875, "This is a test notch")
+            notch.StochNotch(4,4.9, "This is a test notch")
         )
         self.stoch_notch_list_5.append(
-            notch.StochNotch(5.4375, 5.475, "This is a test notch")
+            notch.StochNotch(5.2, 5.21, "This is a test notch")
         )
         self.stoch_notch_list_5.append(
-            notch.StochNotch(5.7875, 6.025, "This is a test notch")
+            notch.StochNotch(5.55, 6.58, "This is a test notch")
         )
         self.stoch_notch_list_5.append(
-            notch.StochNotch(6.3875, 6.5125, "This is a test notch")
+            notch.StochNotch(5.8, 6.1, "This is a test notch")
         )
         self.stoch_notch_list_5.append(
-            notch.StochNotch(6.875, 7, "This is a test notch")
+            notch.StochNotch(6.4375, 6.5625, "This is a test notch")
         )
         self.stoch_notch_list_5.append(
-            notch.StochNotch(7.625, 7.7, "This is a test notch")
+            notch.StochNotch(6.4375, 6.5625, "This is a redundant test notch")
         )
+        self.stoch_notch_list_5.append(
+            notch.StochNotch(6.94, 7., "This is a test notch")
+        )
+
 
     def tearDown(self):
         del self.stoch_notch_list_1
@@ -86,12 +90,8 @@ class TestNotch(unittest.TestCase):
         anwser_1 = [
             True,
             False,
-            False,
-            True,
             True,
             False,
-            True,
-            True,
             True,
             True,
             False,
@@ -101,8 +101,7 @@ class TestNotch(unittest.TestCase):
             False,
             True,
             True,
-            False,
-            False,
+            True,            
             False,
             True,
         ]
@@ -110,12 +109,8 @@ class TestNotch(unittest.TestCase):
         anwser_2 = [
             False,
             False,
-            False,
-            True,
             True,
             False,
-            True,
-            True,
             True,
             True,
             False,
@@ -125,8 +120,7 @@ class TestNotch(unittest.TestCase):
             False,
             True,
             True,
-            False,
-            False,
+            True,
             False,
             False,
         ]
