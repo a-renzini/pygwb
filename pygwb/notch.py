@@ -30,7 +30,7 @@ class StochNotch(Notch):
 
         Returns
         =======
-        lower | upper: np.ndarray
+        notch_mask: np.ndarray
             An array of booleans that are False for frequencies in the notch
 
         Notes
@@ -42,7 +42,8 @@ class StochNotch(Notch):
         frequencies_above = np.concatenate([frequency_array[1:], frequency_array[-1:]+df])
         lower = (frequencies_below + df/2 <= self.maximum_frequency)
         upper = (frequencies_above - df/2 >= self.minimum_frequency)
-        return not(lower & upper)
+        notch_mask = [not elem for elem in (lower & upper)]
+        return notch_mask
 
 class StochNotchList(list):
     def __init__(self, notch_list):
@@ -96,17 +97,17 @@ class StochNotchList(list):
 
         Returns
         =======
-        notched: np.ndarray
+        notch_mask: np.ndarray
             An array of booleans that are False for frequencies in the notch
 
         Notes
         =====
         This notches any frequency that may have overlapping frequency content with the notch.
         """
-        notched = np.ones(len(frequency_array), dtype=bool)
+        notch_mask = np.ones(len(frequency_array), dtype=bool)
         for notch in self:
-            notched = notched & notch.get_notch_mask(frequency_array)
-        return notched
+            notch_mask = notch_mask & notch.get_notch_mask(frequency_array)
+        return notch_mask
 
     def save_to_txt(self, filename):
         """Save the nocth list to a txt-file (after sorting)
