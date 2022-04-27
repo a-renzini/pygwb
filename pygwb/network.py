@@ -158,17 +158,52 @@ class Network(object):
         self.duration = duration
 
     def set_interferometer_data_from_simulator(
-        self, GWB_intensity, N_segments, sampling_frequency, inject_into_data_flag=False
+        self, GWB_intensity, N_segments, sampling_frequency=None, start_time=None, inject_into_data_flag=False
     ):
         """
-        Fill interferometers with data from simulation
+        Fill interferometers with data from simulation. Data can already be present in the intereferometers of the network,
+        in which case the simulated data will be injected on top of the data already present.
+        
+        Parameters
+        ==========
+        
+        GWB_intensity: gwpy.frequencyseries.FrequencySeries
+            A gwpy.frequencyseries.FrequencySeries containing the desired strain power spectrum
+        N_segments: int
+            Number of segments to simulate
+        sampling_frequency: float
+            Sampling frequency at which the data needs to be simulated. If not specified (None), will check for interferometer's 
+            sampling frequency.
+        start_time: float
+            Start time of the simulated data. If not passed (None), will check for interferometer's timeseries start time.
+            If not specified either, start time will default to zero.
+        inject_into_data_flag: boolean
+            Flag that specifies whether or not the simulated data needs to be injected into data, i.e. if there is already
+            data present in the interferometers of the network. If so, only data will be simulated and no extra noise will
+            be added on top of the simulated data.
         """
+        no_noise=inject_into_data_flag
+        if start_time==None:
+            try:
+                start_time=self.interferometers[0].timeseries.times.value[0]
+            except:
+                start_time=0.0
+                warnings.warn("User did not specify a start time. Setting start time to zero.")
+                
+        if sampling_frequency==None:
+            try:
+                sampling_frequency=self.interferometers[0].sampling_frequency
+            except:
+                raise ValueError("Sampling frequency was not set. Please set sampling frequency in interferometers or pass directly to function.")
+                
         data_simulator = Simulator(
             self.interferometers,
             GWB_intensity,
             N_segments,
             duration=self.duration,
+            start_time=start_time,
             sampling_frequency=sampling_frequency,
+            no_noise=no_noise,
         )
         data = data_simulator.get_data_for_interferometers()
 
