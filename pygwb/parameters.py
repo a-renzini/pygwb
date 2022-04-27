@@ -14,6 +14,7 @@ else:
 
 @dataclass
 class Parameters:
+    """Parameters class: a dataclass which contains all parameters required for initialising a pygwb Interferometer, a pygwb Baseline, and run pygwb_pipe."""
     t0: float = 0
     tf: float = 100
     data_type: str = "public"
@@ -30,7 +31,7 @@ class Parameters:
     fref: int = 25
     flow: int = 20
     fhigh: int = 1726
-    coarse_grain: int = 0
+    coarse_grain: bool = False
     interferometer_list: List = field(default_factory=lambda: ["H1", "L1"])
     local_data_path_dict: dict = field(default_factory=lambda: {})
     notch_list_path: str = ""
@@ -51,13 +52,19 @@ class Parameters:
     gate_whiten: bool = True
 
     def __post_init__(self):
-        self.overlap = self.segment_duration / 2
         if self.coarse_grain:
             self.fft_length = self.segment_duration
         else:
             self.fft_length = int(1 / self.frequency_resolution)
 
     def save_paramfile(self, output_path):
+        """Save parameters to a parameters ini file.
+        
+        Parameters
+        ----------
+        output_path: str
+            Full path for output parameters ini file. 
+        """
         param = configparser.ConfigParser()
         param_dict = asdict(self)
         for key, value in param_dict.items():
@@ -67,7 +74,13 @@ class Parameters:
             param.write(configfile)
 
     def update_from_dictionary(self, **kwargs):
-        """Update parameters from a dictionary"""
+        """Update parameters from a dictionary
+        
+        Parameters
+        ----------
+        **kwargs: **dictionary
+            Dictionary of parameters to update.
+        """
         ann = getattr(self, "__annotations__", {})
         for name, dtype in ann.items():
             if name in kwargs:
@@ -78,7 +91,13 @@ class Parameters:
                 setattr(self, name, kwargs[name])
 
     def update_from_file(self, path: str) -> None:
-        """Update parameters from an ini file"""
+        """Update parameters from an ini file
+        
+        Parameters
+        ----------
+        path: str
+            Path to parameters ini file to use to update class.
+        """
         config = configparser.ConfigParser()
         config.optionxform = str
         config.read(path)
@@ -93,7 +112,14 @@ class Parameters:
         self.update_from_dictionary(**dictionary)
 
     def update_from_arguments(self, args: List[str]) -> None:
-        """Update parameters from a set of arguments"""
+        """Update parameters from a set of arguments
+        
+        Parameters
+        ----------
+        args: list
+            List of arguments to update in the Class. Format must coincide to argparse formatting, e.g.,
+            ['--t0', '0', '--tf', '100']
+        """
         if not args:
             return
         ann = getattr(self, "__annotations__", {})
