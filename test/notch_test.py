@@ -31,42 +31,46 @@ class TestNotch(unittest.TestCase):
         )
         self.stoch_notch_list_4 = notch.StochNotchList([])
         self.stoch_notch_list_4.append(
-            notch.StochNotch(4.875, 4.99, "This is a test notch")
+            notch.StochNotch(4,4.9375, "This is a test notch")
         )
         self.stoch_notch_list_4.append(
-            notch.StochNotch(5.4375, 5.475, "This is a test notch")
+            notch.StochNotch(5.2, 5.21, "This is a test notch")
         )
         self.stoch_notch_list_4.append(
-            notch.StochNotch(5.7875, 6.025, "This is a test notch")
+            notch.StochNotch(5.55, 5.58, "This is a test notch")
         )
         self.stoch_notch_list_4.append(
-            notch.StochNotch(6.3875, 6.5125, "This is a test notch")
+            notch.StochNotch(5.9, 6.1, "This is a test notch")
         )
         self.stoch_notch_list_4.append(
-            notch.StochNotch(6.875, 7, "This is a test notch")
+            notch.StochNotch(6.4375, 6.5625, "This is a test notch")
         )
         self.stoch_notch_list_4.append(
-            notch.StochNotch(7.51, 7.6, "This is a test notch")
+            notch.StochNotch(6.9375, 7., "This is a test notch")
         )
         self.stoch_notch_list_5 = notch.StochNotchList([])
         self.stoch_notch_list_5.append(
-            notch.StochNotch(4.8, 4.875, "This is a test notch")
+            notch.StochNotch(4,4.9, "This is a test notch")
         )
         self.stoch_notch_list_5.append(
-            notch.StochNotch(5.4375, 5.475, "This is a test notch")
+            notch.StochNotch(5.2, 5.21, "This is a test notch")
         )
         self.stoch_notch_list_5.append(
-            notch.StochNotch(5.7875, 6.025, "This is a test notch")
+            notch.StochNotch(5.55, 5.58, "This is a test notch")
         )
         self.stoch_notch_list_5.append(
-            notch.StochNotch(6.3875, 6.5125, "This is a test notch")
+            notch.StochNotch(5.9, 6.1, "This is a test notch")
         )
         self.stoch_notch_list_5.append(
-            notch.StochNotch(6.875, 7, "This is a test notch")
+            notch.StochNotch(6.4375, 6.5625, "This is a test notch")
         )
         self.stoch_notch_list_5.append(
-            notch.StochNotch(7.625, 7.7, "This is a test notch")
+            notch.StochNotch(6.4375, 6.5625, "This is a redundant test notch")
         )
+        self.stoch_notch_list_5.append(
+            notch.StochNotch(6.94, 7., "This is a test notch")
+        )
+
 
     def tearDown(self):
         del self.stoch_notch_list_1
@@ -80,18 +84,14 @@ class TestNotch(unittest.TestCase):
             test_results.append(self.stoch_notch_list_1.check_frequency(freq))
         self.assertTrue(np.all(test_results))
 
-    def test_get_idxs(self):
+    def test_get_notch_mask(self):
         epsilon = 1e-4
-        freqs = np.arange(5.0, 7.5 + epsilon, 0.125)
+        freqs = np.arange(5.0, 6.875 + epsilon, 0.125)
         anwser_1 = [
             True,
             False,
-            False,
-            True,
             True,
             False,
-            True,
-            True,
             True,
             True,
             False,
@@ -101,8 +101,7 @@ class TestNotch(unittest.TestCase):
             False,
             True,
             True,
-            False,
-            False,
+            True,            
             False,
             True,
         ]
@@ -110,12 +109,8 @@ class TestNotch(unittest.TestCase):
         anwser_2 = [
             False,
             False,
-            False,
-            True,
             True,
             False,
-            True,
-            True,
             True,
             True,
             False,
@@ -125,30 +120,26 @@ class TestNotch(unittest.TestCase):
             False,
             True,
             True,
-            False,
-            False,
+            True,
             False,
             False,
         ]
         anwser_2_b = [not elem for elem in anwser_2]
-        print(len(freqs))
-        test_idxs = np.ones(len(freqs))
-        test_inv_idxs = np.ones(len(freqs))
 
-        idxs1, inv_idxs1 = self.stoch_notch_list_4.get_idxs(freqs)
-        idxs2, inv_idxs2 = self.stoch_notch_list_5.get_idxs(freqs)
+        notched1 = self.stoch_notch_list_4.get_notch_mask(freqs)
+        notched2 = self.stoch_notch_list_5.get_notch_mask(freqs)
 
-        print(len(idxs1))
+        print(len(notched1))
+        print(len(anwser_1_b))
         print(freqs)
-        print(idxs1)
-        print(anwser_1)
-        print(idxs2)
-        print(anwser_2)
+        print(notched1)
+        print(anwser_1_b)
+        print(notched2)
+        print(anwser_2_b)
 
-        self.assertTrue(np.array_equal(idxs1, anwser_1))
-        self.assertTrue(np.array_equal(inv_idxs1, anwser_1_b))
-        self.assertTrue(np.array_equal(idxs2, anwser_2))
-        self.assertTrue(np.array_equal(inv_idxs2, anwser_2_b))
+        self.assertTrue(np.array_equal(notched1, anwser_1_b))
+        self.assertTrue(np.array_equal(notched2, anwser_2_b))
+
 
     def test_save_to_and_load_from_txt(self):
 
@@ -224,66 +215,6 @@ class TestNotch(unittest.TestCase):
                 check = False
                 break
         self.assertTrue(check)
-
-    def test_load_from_file_pre_pyGWB(self):
-
-        my_compare_notch_list = notch.StochNotchList([])
-        my_compare_notch_list = my_compare_notch_list.load_from_file_pre_pyGWB(
-            "test/test_data/TestNotchList_pre-pyGWB.dat"
-        )
-
-        print(len(my_compare_notch_list), len(self.stoch_notch_list_3))
-        print(my_compare_notch_list, self.stoch_notch_list_3)
-
-        if len(my_compare_notch_list) == len(self.stoch_notch_list_3):
-            check_1 = True
-        else:
-            check_1 = False
-
-        self.assertTrue(check_1)
-
-        for i in range(len(my_compare_notch_list)):
-            if (
-                my_compare_notch_list[i].minimum_frequency
-                == self.stoch_notch_list_3[i].minimum_frequency
-            ):
-                check_2 = True
-            else:
-                check_2 = False
-                break
-            if (
-                my_compare_notch_list[i].maximum_frequency
-                == self.stoch_notch_list_3[i].maximum_frequency
-            ):
-                check_3 = True
-            else:
-                check_3 = False
-                break
-            if (
-                my_compare_notch_list[i].description
-                == self.stoch_notch_list_3[i].description
-            ):
-                check_4 = True
-            else:
-                check_4 = False
-                break
-            print(
-                my_compare_notch_list[i].minimum_frequency,
-                self.stoch_notch_list_3[i].minimum_frequency,
-            )
-            print(
-                my_compare_notch_list[i].maximum_frequency,
-                self.stoch_notch_list_3[i].maximum_frequency,
-            )
-            print(
-                my_compare_notch_list[i].description,
-                self.stoch_notch_list_3[i].description,
-            )
-
-        print(check_2, check_3, check_4)
-        self.assertTrue(check_2)
-        self.assertTrue(check_3)
-        self.assertTrue(check_4)
 
     def test_power_lines(self):
 

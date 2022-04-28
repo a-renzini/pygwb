@@ -58,7 +58,7 @@ def set_start_time(
 
 
 def read_data(
-    IFO: str, data_type: str, channel: str, t0: int, tf: int, local_data_path: str = ""
+    IFO: str, data_type: str, channel: str, t0: int, tf: int, local_data_path: str = "", tag: str = 'C00',
 ):
     """
     Function doing the reading of the data to be used in the
@@ -84,6 +84,10 @@ def read_data(
         GPS time of the end of the data taking
 
     local_data_path: str, optional
+        path where local gwf is stored
+    
+    tag: str, optional
+        tag identifying type of data, e.g.: 'C00', 'C01'
 
     Returns
     =======
@@ -91,10 +95,10 @@ def read_data(
         Time series containing the requested data
     """
     if data_type == "public":
-        data = timeseries.TimeSeries.fetch_open_data(IFO, t0, tf, sample_rate=16384)
+        data = timeseries.TimeSeries.fetch_open_data(IFO, t0, tf, sample_rate=16384, tag = tag)
         data.channel = channel
     elif data_type == "private":
-        data = timeseries.TimeSeries.get(channel, start=t0, end=tf, verbose=True)
+        data = timeseries.TimeSeries.get(channel, start=t0, end=tf, verbose=True, tag = tag)
         data.channel = channel
     elif data_type == "local":
         data = timeseries.TimeSeries.read(
@@ -201,6 +205,77 @@ def resample_filter(
 
     return filtered
 
+def self_gate_data(
+    time_series_data: timeseries.TimeSeries,
+    tzero: float = 1.0,
+    tpad: float = 0.5,
+    gate_threshold: float = 50.0,
+    cluster_window: float = 0.5,
+    whiten: bool = True,
+):
+    """
+    Function to self-gate 
+    data to be used in the stochastic pipeline
+
+    Parameters
+    ==========
+
+    time_series_data: gwpy_timeseries
+        timeseries data to be analysed in the pipeline
+
+    tzero : `int`, optional
+        half-width time duration (seconds) in which the timeseries is
+        set to zero
+
+    tpad : `int`, optional
+        half-width time duration (seconds) in which the Planck window
+        is tapered
+
+    whiten : `bool`, optional
+        if True, data will be whitened before gating points are discovered,
+        use of this option is highly recommended
+
+    threshold : `float`, optional
+        amplitude threshold, if the data exceeds this value a gating window
+        will be placed
+
+    cluster_window : `float`, optional
+        time duration (seconds) over which gating points will be clustered
+
+    Returns
+    =======
+    gated: gwpy_timeseries
+        Timeseries containing the gated data
+
+    deadtime: `gwpy.segments.SegmentList` 
+        SegmentList containing the times that were gated, not including
+        any padding applied
+
+    Notes
+    -----
+    This method is based on `gwpy.timeseries.gate`. See
+    https://gwpy.github.io/docs/latest/api/gwpy.timeseries.TimeSeries/?highlight=timeseries#gwpy.timeseries.TimeSeries.gate
+    for additional details.
+    """
+
+    from gwpy.segments import Segment, SegmentList
+    from scipy.signal import find_peaks
+
+    # Find points to gate based on a threshold
+    sample = time_series_data.sample_rate.to('Hz').value
+    data = time_series_data.whiten() if whiten else time_series_data
+    window_samples = cluster_window * sample
+    gates = find_peaks(abs(data.value), height=gate_threshold,
+                       distance=window_samples)[0]
+    # represent gates as time segments
+    deadtime = SegmentList([Segment(
+        time_series_data.t0.value + (k / sample) - tzero,
+        time_series_data.t0.value + (k / sample) + tzero,
+    ) for k in gates]).coalesce()
+    # return the self-gated timeseries
+    gated = time_series_data.mask(deadtime=deadtime, const=0, tpad=tpad)
+    return gated, deadtime
+
 
 def shift_timeseries(time_series_data: timeseries.TimeSeries, time_shift: int = 0):
 
@@ -225,9 +300,72 @@ def shift_timeseries(time_series_data: timeseries.TimeSeries, time_shift: int = 
 
     if time_shift > 0:
         shifted_data = np.roll(time_series_data, time_shift)
+    else:
+        shifted_data = time_series_data 
     return shifted_data
 
+def preprocessing_data_gwpy_timeseries(
+    IFO: str,
+    gwpy_timeseries: timeseries.TimeSeries,
+    new_sample_rate: int,
+    cutoff_frequency: float,
+    number_cropped_seconds: int = 2,
+    window_downsampling: str = "hamming",
+    ftype: str = "fir",
+    time_shift: int = 0,
+):
+    """
+    Function doing the pre-processing of a gwpy timeseries to be used in the
+    stochastic pipeline
 
+    Parameters
+    ==========
+
+    IFO: string
+        Interferometer from which to retrieve the data
+
+    gwpy_timeseries: gwpy_timeseries
+        Timeseries from gwpy
+
+    new_sample_rate:int
+        Sampling rate of the downsampled-timeseries
+
+    cutoff_frequency: float
+        Frequency (in Hz) from which to start applying the
+        high pass filter
+
+    number_cropped_seconds: int
+        Number of seconds to remove at the beginning and end
+        of the high-passed data
+
+    window_downsampling: string
+        Type of window used to downsample
+
+    ftype: string
+        Type of filter to use in the downsampling
+
+    time_shift: int
+        value of the time shift (in seconds)
+
+    Returns
+    =======
+    pre_processed_data: gwpy_timeseries
+        Timeseries containing the filtered and high passed data (shifted if time_shift>0)
+    """
+    time_series_data = gwpy_timeseries
+    filtered = resample_filter(
+        time_series_data=time_series_data,
+        new_sample_rate=new_sample_rate,
+        cutoff_frequency=cutoff_frequency,
+        number_cropped_seconds=number_cropped_seconds,
+        window_downsampling=window_downsampling,
+        ftype=ftype,
+    )
+    if time_shift > 0:
+        return shift_timeseries(time_series_data=filtered, time_shift=time_shift)
+    else:
+        return filtered
+        
 def preprocessing_data_channel_name(
     IFO: str,
     t0: int,
@@ -242,6 +380,7 @@ def preprocessing_data_channel_name(
     ftype: str = "fir",
     time_shift: int = 0,
     local_data_path: str = "",
+    tag: str = 'C00',
 ):
     """
     Function doing the pre-processing of the data to be used in the
@@ -287,6 +426,9 @@ def preprocessing_data_channel_name(
 
     time_shift: int
         value of the time shift (in seconds)
+    
+    tag: str, optional
+        tag identifying type of data, e.g.: 'C00', 'C01'
 
     Returns
     =======
@@ -299,28 +441,30 @@ def preprocessing_data_channel_name(
         buffer_secs=number_cropped_seconds,
         segment_duration=segment_duration,
     )
-    time_series_data = read_data(
+
+    data = read_data(
         IFO=IFO,
         data_type=data_type,
         channel=channel,
         t0=data_start_time - number_cropped_seconds,
         tf=tf,
         local_data_path=local_data_path,
+        tag=tag,
     )
 
-    filtered = resample_filter(
-        time_series_data=time_series_data,
-        new_sample_rate=new_sample_rate,
-        cutoff_frequency=cutoff_frequency,
-        number_cropped_seconds=number_cropped_seconds,
-        window_downsampling=window_downsampling,
-        ftype=ftype,
+    time_series_data = timeseries.TimeSeries(
+        data, t0=data_start_time, sample_rate = data.sample_rate
     )
 
-    if time_shift > 0:
-        return shift_timeseries(time_series_data=filtered, time_shift=time_shift)
-    else:
-        return filtered
+    return preprocessing_data_gwpy_timeseries( 
+    IFO = IFO,
+    gwpy_timeseries = time_series_data,
+    new_sample_rate = new_sample_rate,
+    cutoff_frequency = cutoff_frequency,
+    number_cropped_seconds = 2,
+    window_downsampling= window_downsampling,
+    ftype = ftype,
+    time_shift = time_shift)
 
 
 def preprocessing_data_timeseries_array(
@@ -395,80 +539,15 @@ def preprocessing_data_timeseries_array(
     time_series_data = timeseries.TimeSeries(
         array, t0=data_start_time, sample_rate=sample_rate
     )
-
-    filtered = resample_filter(
-        time_series_data=time_series_data,
-        new_sample_rate=new_sample_rate,
-        cutoff_frequency=cutoff_frequency,
-        number_cropped_seconds=number_cropped_seconds,
-        window_downsampling=window_downsampling,
-        ftype=ftype,
-    )
-
-    if time_shift > 0:
-        return shift_timeseries(time_series_data=filtered, time_shift=time_shift)
-    else:
-        return filtered
+    return preprocessing_data_gwpy_timeseries( 
+    IFO = IFO,
+    gwpy_timeseries = time_series_data,
+    new_sample_rate = new_sample_rate,
+    cutoff_frequency = cutoff_frequency,
+    number_cropped_seconds = 2,
+    window_downsampling= window_downsampling,
+    ftype = ftype,
+    time_shift = time_shift)
 
 
-def preprocessing_data_gwpy_timeseries(
-    IFO: str,
-    gwpy_timeseries: timeseries.TimeSeries,
-    new_sample_rate: int,
-    cutoff_frequency: float,
-    number_cropped_seconds: int = 2,
-    window_downsampling: str = "hamming",
-    ftype: str = "fir",
-    time_shift: int = 0,
-):
-    """
-    Function doing the pre-processing of a gwpy timeseries to be used in the
-    stochastic pipeline
 
-    Parameters
-    ==========
-
-    IFO: string
-        Interferometer from which to retrieve the data
-
-    gwpy_timeseries: gwpy_timeseries
-        Timeseries from gwpy
-
-    new_sample_rate:int
-        Sampling rate of the downsampled-timeseries
-
-    cutoff_frequency: float
-        Frequency (in Hz) from which to start applying the
-        high pass filter
-
-    number_cropped_seconds: int
-        Number of seconds to remove at the beginning and end
-        of the high-passed data
-
-    window_downsampling: string
-        Type of window used to downsample
-
-    ftype: string
-        Type of filter to use in the downsampling
-
-    time_shift: int
-        value of the time shift (in seconds)
-
-    Returns
-    =======
-    pre_processed_data: gwpy_timeseries
-        Timeseries containing the filtered and high passed data (shifted if time_shift>0)
-    """
-    time_series_data = gwpy_timeseries
-    filtered = resample_filter(
-        time_series_data=time_series_data,
-        new_sample_rate=new_sample_rate,
-        cutoff_frequency=cutoff_frequency,
-        number_cropped_seconds=number_cropped_seconds,
-        window_downsampling=window_downsampling,
-        ftype=ftype,
-    )
-    if time_shift > 0:
-        return shift_timeseries(time_series_data=filtered, time_shift=time_shift)
-    else:
-        return filtered

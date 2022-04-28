@@ -20,6 +20,30 @@ class StochNotch(Notch):
     def print_notch(self):
         print(self.minimum_frequency, self.maximum_frequency, self.description)
 
+    def get_notch_mask(self, frequency_array):
+        """ Get a boolean mask for the frequencies in frequency_array in the notch
+
+        Parameters
+        ==========
+        frequency_array: np.ndarray
+            An array of frequencies
+
+        Returns
+        =======
+        notch_mask: np.ndarray
+            An array of booleans that are False for frequencies in the notch
+
+        Notes
+        =====
+        This notches any frequency that may have overlapping frequency content with the notch.
+        """
+        df = np.abs(frequency_array[1] - frequency_array[0])
+        frequencies_below = np.concatenate([frequency_array[:1]-df, frequency_array[:-1]])
+        frequencies_above = np.concatenate([frequency_array[1:], frequency_array[-1:]+df])
+        lower = (frequencies_below + df/2 <= self.maximum_frequency)
+        upper = (frequencies_above - df/2 >= self.minimum_frequency)
+        notch_mask = [not elem for elem in (lower & upper)]
+        return notch_mask
 
 class StochNotchList(list):
     def __init__(self, notch_list):
@@ -63,8 +87,8 @@ class StochNotchList(list):
                 return True
         return False
 
-    def get_idxs(self, frequency_array):
-        """Get a boolean mask for the frequencies in frequency_array in the notch list
+    def get_notch_mask(self, frequency_array):
+        """ Get a boolean mask for the frequencies in frequency_array in the notch list
 
         Parameters
         ==========
@@ -73,68 +97,17 @@ class StochNotchList(list):
 
         Returns
         =======
-        idxs: np.ndarray
-            An array of booleans which are True for frequencies in the notch list
-        inv_idxs: np.ndarray
-            An array of booleans which are False for frequencies in the notch list
+        notch_mask: np.ndarray
+            An array of booleans that are False for frequencies in the notch
 
+        Notes
+        =====
+        This notches any frequency that may have overlapping frequency content with the notch.
         """
-
-        #        idxs = []
-        #        for f in frequency_array:
-        #            idxs.append(self.check_frequency(f))
-        #        inv_idxs = [not elem for elem in idxs]
-        #        return idxs, inv_idxs
-
-        df = np.abs(frequency_array[2] - frequency_array[1])
-        idxs = []
-        df_str = str(df)
-        precision = df_str[::-1].find(".")
-        for my_iter in range(len(frequency_array)):
-            temp = 0
-            if my_iter == 0:
-                for notch in self:
-                    if not (
-                        notch.maximum_frequency
-                        <= round(frequency_array[my_iter], precision) - df
-                    ) and not (
-                        notch.minimum_frequency
-                        >= round(frequency_array[my_iter + 1], precision)
-                    ):
-                        temp = True
-                        break
-                    else:
-                        temp = False
-            elif my_iter == len(frequency_array) - 1:
-                for notch in self:
-                    if not (
-                        notch.maximum_frequency
-                        <= round(frequency_array[my_iter - 1], precision)
-                    ) and not (
-                        notch.minimum_frequency
-                        >= round(frequency_array[my_iter], precision) + df
-                    ):
-                        temp = True
-                        break
-                    else:
-                        temp = False
-            else:
-                for notch in self:
-                    if not (
-                        notch.maximum_frequency
-                        <= round(frequency_array[my_iter - 1], precision)
-                    ) and not (
-                        notch.minimum_frequency
-                        >= round(frequency_array[my_iter + 1], precision)
-                    ):
-
-                        temp = True
-                        break
-                    else:
-                        temp = False
-            idxs.append(temp)
-        inv_idxs = [not elem for elem in idxs]
-        return idxs, inv_idxs
+        notch_mask = np.ones(len(frequency_array), dtype=bool)
+        for notch in self:
+            notch_mask = notch_mask & notch.get_notch_mask(frequency_array)
+        return notch_mask
 
     def save_to_txt(self, filename):
         """Save the nocth list to a txt-file (after sorting)
@@ -188,50 +161,14 @@ class StochNotchList(list):
         )
 
         cls = StochNotchList([])
-        if type(fmin) == list:
+        if np.ndim(fmin) == 1:
             for i in range(len(fmin)):
                 cls.append(StochNotch(fmin[i], fmax[i], desc[i]))
-        else:
+        elif np.ndim(fmin) == 0:
             cls.append(StochNotch(fmin, fmax, desc))
-
+        else:
+            raise TypeError("Notch list from file has too many dimensions.")
         return cls
-
-    @classmethod
-    def load_from_file_pre_pyGWB(cls, filename):
-        """Load an already existing notch list from a txt-file (with formatting as produced by old code)
-
-        Parameters
-        ==========
-        filename: str
-            Filename of the file containing the notchlist to be read in
-
-
-        """
-
-        fmin, fmax = np.loadtxt(
-            filename, skiprows=1, unpack=True, usecols=(0, 1), dtype=str
-        )
-        for i in range(len(fmin)):
-            fmin[i] = fmin[i][1:-1]
-            fmax[i] = fmax[i][:-1]
-        _, desc = np.loadtxt(
-            filename, skiprows=1, delimiter="\t", unpack=True, usecols=(0, 1), dtype=str
-        )
-
-        fmin_b = np.zeros(len(fmin))
-        fmax_b = np.zeros(len(fmax))
-        for i in range(len(fmin)):
-            fmin_b[i] = float(fmin[i])
-            fmax_b[i] = float(fmax[i])
-
-        print(fmin, fmax)
-
-        cls = StochNotchList([])
-        for i in range(len(fmin_b)):
-            cls.append(StochNotch(fmin_b[i], fmax_b[i], desc[i]))
-
-        return cls
-
 
 def power_lines(fundamental=60, nharmonics=40, df=0.2):
     """
