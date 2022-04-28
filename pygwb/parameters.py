@@ -61,8 +61,8 @@ class Parameters:
         Path to the notch list file. Default is empty.
     N_average_segments_welch_psd: int
         Number of segments to average over when calculating the psd with Welch method. Default is 2.
-    window_fftgram: str
-        Window to use when producing fftgrams for psds and csds. Default is \"hann\".
+    window_fft_dict: dict
+        Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds. Default is \"hann\".
     calibration_epsilon: float
         Calibation coefficient. Default is 0.
     overlap_factor: float
@@ -111,7 +111,7 @@ class Parameters:
     local_data_path_dict: dict = field(default_factory=lambda: {})
     notch_list_path: str = ""
     N_average_segments_welch_psd: int = 2
-    window_fftgram: str = "hann"
+    window_fft_dict: dict = field(default_factory=lambda: {"window_fftgram": "hann"})
     calibration_epsilon: float = 0
     overlap_factor: float = 0.5
     zeropad_csd: bool = True
@@ -176,10 +176,16 @@ class Parameters:
         config = configparser.ConfigParser()
         config.optionxform = str
         config.read(path)
-        mega_list = config.items('parameters')
+        mega_list = config.items('data_specs')
+        mega_list.extend(config.items('preprocessing'))
+        mega_list.extend(config.items('density_estimation'))
+        mega_list.extend(config.items('preprocessing'))
+        mega_list.extend(config.items('data_quality'))
+        mega_list.extend(config.items('output'))
         dictionary = dict(mega_list)
         if dictionary['alphas_delta_sigma_cut']: dictionary['alphas_delta_sigma_cut'] = json.loads(dictionary['alphas_delta_sigma_cut'])
         if dictionary['interferometer_list']: dictionary['interferometer_list'] = json.loads(dictionary['interferometer_list'])
+        dictionary['window_fft_dict'] = dict(config.items("window_fft_specs"))
         dictionary['local_data_path_dict'] = dict(config.items("local_data"))
         for item in dictionary.copy():
             if not dictionary[item]:
@@ -194,6 +200,21 @@ class Parameters:
         args: list
             List of arguments to update in the Class. Format must coincide to argparse formatting, e.g.,
             ['--t0', '0', '--tf', '100']
+
+        Notes
+        -----
+        Not all possible options are available through argument updating. The two exceptions are the dictionary
+        attributes which can not be parsed easily by argparse. These are
+        * local_data_path_dict: this is composed by paths passed individually using the following notation
+            --H1 : path to data relative to H1
+            --L1 : path to data relative to L1
+            --V1 : path to data relative to V1
+        These are the options currently supported for this dictionary. To add paths to different interferometers, pass
+        these as part of an .ini file, in the relevant section [local_data].
+        * window_fft_dict: this is composed by the single argument
+            -- window_fftgram
+        This is the only option currently supported. To use windows that require extra parameters, pass these as part of an
+        .ini file, in the relevant section [window_fft_specs].
         """
         if not args:
             return
@@ -204,6 +225,7 @@ class Parameters:
         parser.add_argument("--H1", type=str, required=False)
         parser.add_argument("--L1", type=str, required=False)
         parser.add_argument("--V", type=str, required=False)
+        parser.add_argument("--window_fftgram", type=str, required=False)
         parsed, _ = parser.parse_known_args(args)
         dictionary = vars(parsed)
         for item in dictionary.copy():
@@ -217,6 +239,10 @@ class Parameters:
         if 'V' in dictionary:
             local_data_path_dict['V'] = dictionary['V']
         dictionary['local_data_path_dict'] = local_data_path_dict
+        window_fft_dict = {}
+        if 'window_fftgram' in dictionary:
+            window_fft_dict['window_fftgram'] = dictionary['window_fftgram']
+        dictionary['window_fft_dict'] = window_fft_dict
         self.update_from_dictionary(**dictionary)
 
 
@@ -243,7 +269,7 @@ class ParametersHelp(enum.Enum):
     local_data_path_dict = "Dictionary of local data, if the local data option is chosen. Default is empty."
     notch_list_path = "Path to the notch list file. Default is empty."
     N_average_segments_welch_psd = "Number of segments to average over when calculating the psd with Welch method. Default is 2."
-    window_fftgram = "Window to use when producing fftgrams for psds and csds. Default is \"hann\"."
+    window_fft_dict = "Dictionary containing name and parameters relative to which window to use when producing fftgrams for psds and csds. Default is \"hann\"."
     calibration_epsilon = "Calibation coefficient. Default is 0."
     overlap_factor = "Factor by which to overlap consecutive segments for analysis. Default is 0.5 (50%% overlap)"
     zeropad_csd = "Whether to zeropad the csd or not. Default is True."
