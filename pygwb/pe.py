@@ -10,8 +10,15 @@ class GWBModel(bilby.Likelihood):
     """
     GWB Model
     ---------
-    generic model,
-    contains definitions of log likelihood and noise
+    Generic model, contains the definition of likelihood:
+    
+    .. math:: 
+    p(\hat{C}^{IJ}(f_k) | \mathbf{\Theta}) \propto\exp\left[  -\frac{1}{2} \sum_{IJ}^N \sum_k \left(\frac{\hat{C}^{IJ}(f_k) - \Omega_{\rm M}(f_k|\mathbf{\Theta})}{\sigma^2_{IJ}(f_k)}\right)^2  \right],
+    
+    where :math: `\Omega_{\rm M}(f_k|\mathbf{\Theta})` is the model being fit to data, and :math: `\mathbf{\Theta}` are the model's parameters.
+    
+    The noise likelihood is given by setting :math: `\Omega_{\rm M}(f_k|\mathbf{\Theta})=0`.
+    
     """
 
     def __init__(self, baselines=None, model_name=None, polarizations=None):
