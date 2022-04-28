@@ -1,5 +1,5 @@
 universe = vanilla
-executable = pygwb_pipe
+executable = $(executable)
 getenv = True
 notification = error
 accounting_group = ligo.dev.o4.sgwb.explore.test

@@ -41,6 +41,7 @@ extensions = [
     "sphinx.ext.autosectionlabel",
     "sphinx_tabs.tabs",
     "sphinx.ext.viewcode",
+    "sphinx.ext.napoleon",
 ]
 autosummary_generate = True
 

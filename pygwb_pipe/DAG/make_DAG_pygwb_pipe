@@ -3,8 +3,7 @@
 import argparse
 import numpy as np
 from pathlib import Path
-import sys
-import subprocess
+import sys, shutil
 
 
 def sortingFunction(item):
@@ -59,7 +58,10 @@ def main():
     outputdir.mkdir(parents=True, exist_ok=True)
     
     dag = outputdir / dag_args.dag_name
-    
+
+    # Get the local executable
+    executable = shutil.which('pygwb_pipe')
+
     with open(dag, "w") as dagfile:
     
         for index, time in enumerate(times):
@@ -99,7 +101,7 @@ def main():
     
             dagfile.write(f"JOB {index} {dag_args.subfile}\n")
             dagfile.write(
-                f'VARS {index} job="{index}" ARGS="--t0 {time} --tf {time+7200} '
+                f'VARS {index} job="{index}" executable="{executable}" ARGS="--t0 {time} --tf {time+7200} '
                 f"--H1 {path_H1} --L1 {path_L1} --output_path {outputdir} "
                 f'--param_file {dag_args.param_file}" logdir="{logdir}"\n'
             )
