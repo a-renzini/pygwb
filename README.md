@@ -3,6 +3,8 @@
 
 # pygwb
 
+[**Documentation**](https://pygwb.docs.ligo.org/pygwb/)
+
 ## Installation instructions
 
 * Everything needed is in igwn conda environment
