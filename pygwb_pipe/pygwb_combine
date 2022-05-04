@@ -136,6 +136,8 @@ def main():
         old_alpha=0.0,
         old_fref=25.0,
     )
+    Y_reweight_spectrum /= combine_args.h0 ** 2
+    sigma_reweight_spectrum /= combine_args.h0 ** 2
 
     np.savez(
         pt_est_sigma_spectra_path,
