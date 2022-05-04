@@ -20,6 +20,30 @@ class StochNotch(Notch):
     def print_notch(self):
         print(self.minimum_frequency, self.maximum_frequency, self.description)
 
+    def get_notch_mask(self, frequency_array):
+        """ Get a boolean mask for the frequencies in frequency_array in the notch
+
+        Parameters
+        ==========
+        frequency_array: np.ndarray
+            An array of frequencies
+
+        Returns
+        =======
+        notch_mask: np.ndarray
+            An array of booleans that are False for frequencies in the notch
+
+        Notes
+        =====
+        This notches any frequency that may have overlapping frequency content with the notch.
+        """
+        df = np.abs(frequency_array[1] - frequency_array[0])
+        frequencies_below = np.concatenate([frequency_array[:1]-df, frequency_array[:-1]])
+        frequencies_above = np.concatenate([frequency_array[1:], frequency_array[-1:]+df])
+        lower = (frequencies_below + df/2 <= self.maximum_frequency)
+        upper = (frequencies_above - df/2 >= self.minimum_frequency)
+        notch_mask = [not elem for elem in (lower & upper)]
+        return notch_mask
 
 class StochNotchList(list):
     def __init__(self, notch_list):
@@ -28,7 +52,7 @@ class StochNotchList(list):
         Parameters
         ==========
         notch_list: list
-            A list of length-3 tuples of the (max, min) frequency; description for the notches.
+            A list of length-3 tuples of the (min, max) frequency; description for the notches.
 
         Raises
         ======
@@ -63,8 +87,8 @@ class StochNotchList(list):
                 return True
         return False
 
-    def get_idxs(self, frequency_array):
-        """Get a boolean mask for the frequencies in frequency_array in the notch list
+    def get_notch_mask(self, frequency_array):
+        """ Get a boolean mask for the frequencies in frequency_array in the notch list
 
         Parameters
         ==========
@@ -73,18 +97,17 @@ class StochNotchList(list):
 
         Returns
         =======
-        idxs: np.ndarray
-            An array of booleans which are True for frequencies in the notch list
-        inv_idxs: np.ndarray
-            An array of booleans which are False for frequencies in the notch list
+        notch_mask: np.ndarray
+            An array of booleans that are False for frequencies in the notch
 
+        Notes
+        =====
+        This notches any frequency that may have overlapping frequency content with the notch.
         """
-
-        idxs = []
-        for f in frequency_array:
-            idxs.append(self.check_frequency(f))
-        inv_idxs = [not elem for elem in idxs]
-        return idxs, inv_idxs
+        notch_mask = np.ones(len(frequency_array), dtype=bool)
+        for notch in self:
+            notch_mask = notch_mask & notch.get_notch_mask(frequency_array)
+        return notch_mask
 
     def save_to_txt(self, filename):
         """Save the nocth list to a txt-file (after sorting)
@@ -123,6 +146,14 @@ class StochNotchList(list):
 
     @classmethod
     def load_from_file(cls, filename):
+        """Load an already existing notch list from a txt-file (with formatting as produced by this code)
+
+        Parameters
+        ==========
+        filename: str
+            Filename of the file containing the notchlist to be read in
+
+        """
 
         fmin, fmax = np.loadtxt(filename, delimiter=",", unpack=True, usecols=(0, 1))
         desc = np.loadtxt(
@@ -130,52 +161,28 @@ class StochNotchList(list):
         )
 
         cls = StochNotchList([])
-        for i in range(len(fmin)):
-            cls.append(StochNotch(fmin[i], fmax[i], desc[i]))
-
+        if np.ndim(fmin) == 1:
+            for i in range(len(fmin)):
+                cls.append(StochNotch(fmin[i], fmax[i], desc[i]))
+        elif np.ndim(fmin) == 0:
+            cls.append(StochNotch(fmin, fmax, desc))
+        else:
+            raise TypeError("Notch list from file has too many dimensions.")
         return cls
-
-    @classmethod
-    def load_from_file_pre_pyGWB(cls, filename):
-
-        fmin, fmax = np.loadtxt(
-            filename, skiprows=1, unpack=True, usecols=(0, 1), dtype=str
-        )
-        for i in range(len(fmin)):
-            fmin[i] = fmin[i][1:-1]
-            fmax[i] = fmax[i][:-1]
-        _, desc = np.loadtxt(
-            filename, skiprows=1, delimiter="\t", unpack=True, usecols=(0, 1), dtype=str
-        )
-
-        fmin_b = np.zeros(len(fmin))
-        fmax_b = np.zeros(len(fmax))
-        for i in range(len(fmin)):
-            fmin_b[i] = float(fmin[i])
-            fmax_b[i] = float(fmax[i])
-
-        print(fmin, fmax)
-
-        cls = StochNotchList([])
-        for i in range(len(fmin_b)):
-            cls.append(StochNotch(fmin_b[i], fmax_b[i], desc[i]))
-
-        return cls
-
 
 def power_lines(fundamental=60, nharmonics=40, df=0.2):
     """
     Create list of power line harmonics (nharmonics*fundamental Hz) to remove
 
     Parameters
-    ----------
+    ==========
     fundamental: float
         Fundamental frequency of the first harmonic
     nharmonics: float
         Number of harmonics (should include all harmonics within studied frequency range of the study)
 
     Returns
-    -------
+    =======
     notches: list of NoiseLine objects
         List of lines you want to be notched in NoisLine format
 
@@ -195,7 +202,7 @@ def comb(f0, f_spacing, n_harmonics, df, description=None):
     Create a list of comb lines to remove with the form 'f0+n*f_spacing, n=0,1,...,n_harmonics-1'
 
     Parameters
-    ----------
+    ==========
     f0: float
         Fundamental frequency of the first harmonic
     f_spacing: float
@@ -208,7 +215,7 @@ def comb(f0, f_spacing, n_harmonics, df, description=None):
         Optional additional description, e.g. known source of the comb
 
     Returns
-    -------
+    =======
     notches: list of NoiseLine objects
         List of lines you want to be notched in NoisLine format
 
@@ -231,7 +238,7 @@ def pulsar_injections(filename, t_start, t_end, doppler=1e-4):
     Create list of frequencies contaminated by pulsar injections
 
     Parameters
-    ----------
+    ==========
     filename: str
         Filename of list containing information about pulsar injections. e.g. for O3 at https://git.ligo.org/stochastic/stochasticdetchar/-/blob/master/O3/notchlists/make_notchlist/input/pulsars.dat
     t_start: int
@@ -242,7 +249,7 @@ def pulsar_injections(filename, t_start, t_end, doppler=1e-4):
         Doppler shift; typical value of v/c for Earth motion in solar system = 1e-4 (default)
 
     Returns
-    -------
+    =======
     notches: list of NoiseLine objects
         List of lines you want to be notched in NoisLine format
     """
