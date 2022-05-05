@@ -154,7 +154,7 @@ class Parameters:
         
         Parameters
         ----------
-        dict_in: dictionary
+        kwargs: dictionary
             Dictionary of parameters to update.
         """
         ann = getattr(self, "__annotations__", {})
