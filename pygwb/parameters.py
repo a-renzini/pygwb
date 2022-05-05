@@ -149,12 +149,12 @@ class Parameters:
         with open(output_path, "w") as configfile:
             param.write(configfile)
 
-    def update_from_dictionary(self, **kwargs):
+    def update_from_dictionary(self, kwargs):
         """Update parameters from a dictionary
         
         Parameters
         ----------
-        **kwargs: **dictionary
+        dict_in: dictionary
             Dictionary of parameters to update.
         """
         ann = getattr(self, "__annotations__", {})
@@ -194,7 +194,7 @@ class Parameters:
         for item in dictionary.copy():
             if not dictionary[item]:
                 dictionary.pop(item)
-        self.update_from_dictionary(**dictionary)
+        self.update_from_dictionary(dictionary)
 
     def update_from_arguments(self, args: List[str]) -> None:
         """Update parameters from a set of arguments
@@ -251,7 +251,7 @@ class Parameters:
             window_fft_dict['window_fftgram'] = dictionary['window_fftgram']
             dictionary.pop('window_fftgram')
         dictionary['window_fft_dict'] = window_fft_dict
-        self.update_from_dictionary(**dictionary)
+        self.update_from_dictionary(dictionary)
 
 
 class ParametersHelp(enum.Enum):
