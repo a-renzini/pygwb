@@ -5,6 +5,7 @@ import sys
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import List
+import warnings
 
 if sys.version_info >= (3, 0):
     import configparser
@@ -164,6 +165,9 @@ class Parameters:
                 except TypeError:
                     pass
                 setattr(self, name, kwargs[name])
+        for name in kwargs:
+            if name not in ann.items():
+                warnings.warn(f"{name} is not an expected parameter and will be ignored.")
 
     def update_from_file(self, path: str) -> None:
         """Update parameters from an ini file
