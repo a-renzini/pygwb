@@ -166,7 +166,7 @@ class Parameters:
                     pass
                 setattr(self, name, kwargs[name])
         for name in kwargs:
-            if name not in ann.items():
+            if name not in ann.keys():
                 warnings.warn(f"{name} is not an expected parameter and will be ignored.")
 
     def update_from_file(self, path: str) -> None:
