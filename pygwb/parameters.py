@@ -247,7 +247,7 @@ class Parameters:
 
 
 class ParametersHelp(enum.Enum):
-    """Description of the arguments in the Parameters class"""
+    """Description of the arguments in the Parameters class. This is an enumeration class and is not meant for user interaction."""
     t0 = "Initial time."
     tf = "Final time."
     data_type = "Type of data to access/download; options are private, public, local. Default is public."
