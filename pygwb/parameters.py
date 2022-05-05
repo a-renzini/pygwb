@@ -2,10 +2,10 @@ import argparse
 import enum
 import json
 import sys
+import warnings
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import List
-import warnings
 
 if sys.version_info >= (3, 0):
     import configparser
