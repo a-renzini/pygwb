@@ -1,14 +1,13 @@
 import argparse
+import enum
 import json
 import sys
 import warnings
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
-
-import enum
+from typing import List
 
 import json5
-from dataclasses import asdict, dataclass, field
-from typing import List
 
 if sys.version_info >= (3, 0):
     import configparser
