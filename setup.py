@@ -86,6 +86,7 @@ setup(
         "astropy",
         "lalsuite",
         "loguru",
+        "json5",
         "jinja2==3.0.3",
     ],
     classifiers=[

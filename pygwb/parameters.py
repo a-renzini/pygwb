@@ -1,6 +1,6 @@
 import argparse
 import enum
-import json
+import json, json5
 import sys
 import warnings
 from dataclasses import asdict, dataclass, field
@@ -133,22 +133,6 @@ class Parameters:
         else:
             self.fft_length = int(1 / self.frequency_resolution)
 
-    def save_paramfile(self, output_path):
-        """Save parameters to a parameters ini file.
-        
-        Parameters
-        ----------
-        output_path: str
-            Full path for output parameters ini file. 
-        """
-        param = configparser.ConfigParser()
-        param_dict = asdict(self)
-        for key, value in param_dict.items():
-            param_dict[key] = str(value)
-        param["parameters"] = param_dict
-        with open(output_path, "w") as configfile:
-            param.write(configfile)
-
     def update_from_dictionary(self, kwargs):
         """Update parameters from a dictionary
         
@@ -183,12 +167,12 @@ class Parameters:
         mega_list = config.items('data_specs')
         mega_list.extend(config.items('preprocessing'))
         mega_list.extend(config.items('density_estimation'))
-        mega_list.extend(config.items('preprocessing'))
+        mega_list.extend(config.items('postprocessing'))
         mega_list.extend(config.items('data_quality'))
         mega_list.extend(config.items('output'))
         dictionary = dict(mega_list)
-        if dictionary['alphas_delta_sigma_cut']: dictionary['alphas_delta_sigma_cut'] = json.loads(dictionary['alphas_delta_sigma_cut'])
-        if dictionary['interferometer_list']: dictionary['interferometer_list'] = json.loads(dictionary['interferometer_list'])
+        if dictionary['alphas_delta_sigma_cut']: dictionary['alphas_delta_sigma_cut'] = json5.loads(dictionary['alphas_delta_sigma_cut'])
+        if dictionary['interferometer_list']: dictionary['interferometer_list'] = json5.loads(dictionary['interferometer_list'])
         dictionary['window_fft_dict'] = dict(config.items("window_fft_specs"))
         dictionary['local_data_path_dict'] = dict(config.items("local_data"))
         for item in dictionary.copy():
@@ -252,6 +236,71 @@ class Parameters:
             dictionary.pop('window_fftgram')
         dictionary['window_fft_dict'] = window_fft_dict
         self.update_from_dictionary(dictionary)
+
+    def save_paramfile(self, output_path):
+        """Save parameters to a parameters ini file.
+        
+        Parameters
+        ----------
+        output_path: str
+            Full path for output parameters ini file. 
+        """
+        param = configparser.ConfigParser()
+        param.optionxform = str
+        param_dict = asdict(self)
+        #for key, value in param_dict.items():
+        #    param_dict[key] = str(value)
+        data_specs_dict = {}
+        data_specs_dict["interferometer_list"] = param_dict["interferometer_list"]
+        data_specs_dict["t0"] = param_dict["t0"] 
+        data_specs_dict["tf"] =  param_dict["tf"]
+        data_specs_dict["data_type"] = param_dict["data_type"] 
+        data_specs_dict["channel"] = param_dict["channel"] 
+        data_specs_dict["time_shift"] = param_dict["time_shift"]
+        param["data_specs"] = data_specs_dict
+
+        preprocessing_dict = {}
+        preprocessing_dict["new_sample_rate"] = param_dict["new_sample_rate"]
+        preprocessing_dict["cutoff_frequency"] = param_dict["cutoff_frequency"]
+        preprocessing_dict["segment_duration"] = param_dict["segment_duration"]
+        preprocessing_dict["number_cropped_seconds"] = param_dict["number_cropped_seconds"]
+        preprocessing_dict["window_downsampling"] = param_dict["window_downsampling"]
+        preprocessing_dict["ftype"] = param_dict["ftype"]
+        param["preprocessing"] = preprocessing_dict
+
+        param["window_fft_specs"] = self.window_fft_dict
+
+        density_estimation_dict = {}
+        density_estimation_dict["frequency_resolution"] = param_dict["frequency_resolution"]
+        density_estimation_dict["N_average_segments_welch_psd"] = param_dict["N_average_segments_welch_psd"]
+        density_estimation_dict["coarse_grain"] = param_dict["coarse_grain"]
+        density_estimation_dict["overlap_factor"] = param_dict["overlap_factor"]
+        density_estimation_dict["zeropad_csd"] = param_dict["zeropad_csd"]
+        param["density_estimation"] = density_estimation_dict
+
+        postprocessing_dict = {}
+        postprocessing_dict["polarization"] = param_dict["polarization"] 
+        postprocessing_dict["alpha"] = param_dict["alpha"] 
+        postprocessing_dict["fref"] = param_dict["fref"] 
+        postprocessing_dict["flow"] = param_dict["flow"] 
+        postprocessing_dict["fhigh"] = param_dict["fhigh"] 
+        param["postprocessing"] = postprocessing_dict
+        
+        data_quality_dict = {}
+        data_quality_dict["notch_list_path"] = param_dict["notch_list_path"]
+        data_quality_dict["calibration_epsilon"] = param_dict["calibration_epsilon"]
+        data_quality_dict["alphas_delta_sigma_cut"] = param_dict["alphas_delta_sigma_cut"]
+        data_quality_dict["delta_sigma_cut"] = param_dict["delta_sigma_cut"]
+        param["data_quality"] = data_quality_dict
+
+        output_dict = {}
+        output_dict["save_data_type"] = param_dict["save_data_type"]
+        param["output"] = output_dict
+
+        param["local_data"] = self.local_data_path_dict
+
+        with open(output_path, "w") as configfile:
+            param.write(configfile)
 
 
 class ParametersHelp(enum.Enum):
