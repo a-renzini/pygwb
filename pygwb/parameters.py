@@ -238,14 +238,18 @@ class Parameters:
         local_data_path_dict = {}
         if 'H1' in dictionary:
             local_data_path_dict['H1'] = dictionary['H1']
+            dictionary.pop('H1')
         if 'L1' in dictionary:
             local_data_path_dict['L1'] = dictionary['L1']
+            dictionary.pop('L1')
         if 'V' in dictionary:
             local_data_path_dict['V'] = dictionary['V']
+            dictionary.pop('V')
         dictionary['local_data_path_dict'] = local_data_path_dict
         window_fft_dict = {}
         if 'window_fftgram' in dictionary:
             window_fft_dict['window_fftgram'] = dictionary['window_fftgram']
+            dictionary.pop('window_fftgram')
         dictionary['window_fft_dict'] = window_fft_dict
         self.update_from_dictionary(**dictionary)
 
