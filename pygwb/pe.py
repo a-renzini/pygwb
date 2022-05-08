@@ -7,7 +7,7 @@ from .baseline import Baseline
 
 
 class GWBModel(bilby.Likelihood):
-    """
+    r"""
     GWB Model
     ---------
     Generic model, contains the definition of likelihood:
@@ -53,12 +53,12 @@ class GWBModel(bilby.Likelihood):
 
     @abstractmethod
     def parameters(self):
-        """Parameters. Should return a dict"""
+        """Parameters. Should return a dictionary"""
         pass
 
     @abstractmethod
     def model_function(self):
-        """function for evaluating model"""
+        """Function for evaluating model"""
         pass
 
     def log_likelihood_IJ(self, baseline, noise=False):
@@ -112,7 +112,7 @@ class GWBModel(bilby.Likelihood):
         return ll
 
 class PowerLawModel(GWBModel):
-    """    
+    r"""    
     Power law model is defined as: 
     
     .. math:: 
@@ -163,7 +163,7 @@ class PowerLawModel(GWBModel):
 
 
 class BrokenPowerLawModel(GWBModel):
-    """
+    r"""
     Broken Power law model is defined as: 
     
     .. math:: 
@@ -226,7 +226,7 @@ class BrokenPowerLawModel(GWBModel):
 
 
 class TripleBrokenPowerLawModel(GWBModel):
-    """
+    r"""
     The triple broken power law is defined as: 
     
     .. math:: 
@@ -306,7 +306,7 @@ class TripleBrokenPowerLawModel(GWBModel):
 
 
 class SmoothBrokenPowerLawModel(GWBModel):
-    """
+    r"""
     
     The smooth broken power law is defined as: 
     
@@ -373,7 +373,7 @@ class SmoothBrokenPowerLawModel(GWBModel):
 
 
 class SchumannModel(GWBModel):
-    """
+    r"""
     
     The Schumann model is defined as: 
     
@@ -459,7 +459,7 @@ class SchumannModel(GWBModel):
 
 
 class TVSPowerLawModel(GWBModel):
-    """
+    r"""
     The Tensor-Vector-Scalar polarization (T,V,S) power-law model is defined as: 
     
     .. math:: 
@@ -532,7 +532,7 @@ class TVSPowerLawModel(GWBModel):
 
 
 class PVPowerLawModel(GWBModel):
-    """
+    r"""
     The parity violation model can be defined as: 
     
     .. math:: 
@@ -592,7 +592,7 @@ class PVPowerLawModel(GWBModel):
 
 
 class PVPowerLawModel2(GWBModel):
-    """
+    r"""
     The parity violation model 2 can be defined as: 
     .. math:: 
          \Omega(f) = \left(1 + f^{\beta} \frac{\gamma_V}{\gamma _I}\right) \Omega_{\text{ref}}\left(\frac{f}{f_{\text{ref}}} \right)^{\alpha}
