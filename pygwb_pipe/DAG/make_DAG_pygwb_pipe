@@ -1,0 +1,87 @@
+#!/bin/env python
+
+import argparse
+import numpy as np
+from pathlib import Path
+import sys, shutil, os
+
+
+def sortingFunction(item):
+    return int(item.stem.split("-")[2])
+
+def main():
+    dag_parser = argparse.ArgumentParser()
+    dag_parser.add_argument(
+        "--subfile", help="Submission file.", action="store", type=str
+    ) #"condor/Simulated_Data_New_Pipeline.sub"
+    dag_parser.add_argument(
+        "--data_path", help="Path to data files folder.", action="store", type=Path
+    ) #"PROJECTS/SMDC_2021/100_day_test_pygwb/MDC_Generation_2/output/"
+    dag_parser.add_argument(
+        "--job_duration", help="Each job duration in seconds.", action="store", type=int, required=False
+    ) #default job duration is entire file.
+    dag_parser.add_argument(
+        "--parentdir", help="Starting folder.", action="store", type=Path, required=False
+    )
+    dag_parser.add_argument(
+        "--param_file", help="Path to parameters.ini file.", action="store", type=str, required=False
+    )
+    dag_parser.add_argument(
+        "--dag_name", help="Dag file name.", action="store", type=str, required=False
+    )
+    dag_args = dag_parser.parse_args() 
+    
+    if not dag_args.parentdir:
+        dag_args.parentdir = Path(os.path.abspath('./'))
+    if not dag_args.param_file:
+        dag_args.param_file = os.path.abspath('../parameters_mock.ini')
+    if not dag_args.dag_name:
+        dag_args.dag_name = "condor_simulated_100_day_MDC_2.dag"
+    
+    # Files
+    files_H_sorted = [f for f in dag_args.data_path.glob("H*.*") if f.is_file()]
+    files_L_sorted = [f for f in dag_args.data_path.glob("L*.*") if f.is_file()]
+    
+    
+    files_H_sorted.sort(key=sortingFunction)
+    files_L_sorted.sort(key=sortingFunction)
+    
+    n_Files = np.size(files_H_sorted)
+
+    outputdir = dag_args.parentdir / "output"
+    logdir = outputdir / "condorLogs"
+    
+    # Make directories
+    logdir.mkdir(parents=True, exist_ok=True)
+    outputdir.mkdir(parents=True, exist_ok=True)
+    
+    dag = outputdir / dag_args.dag_name
+
+    # Get the local executable
+    executable = shutil.which('pygwb_pipe')
+    
+    with open(dag, "w") as dagfile:
+    
+        for idx in range(n_Files):
+            time = sortingFunction(files_H_sorted[idx]) 
+
+            path_H1 = os.path.abspath(files_H_sorted[idx])#dag_args.data_path / path_H1
+            path_L1 = os.path.abspath(files_L_sorted[idx])#dag_args.data_path / path_L1
+
+            if not dag_args.job_duration:
+                try:
+                    dag_args.job_duration = int(files_H_sorted[idx].stem.split("-")[3])
+                except:
+                    raise ValueError("Unexpected format for file name -- please set job_duration explicitly.")
+    
+            dagfile.write(f"JOB {idx} {os.path.abspath(dag_args.subfile)}\n")
+            dagfile.write(
+                f'VARS {idx} job="{idx}" executable="{executable}" ARGS="--t0 {time} --tf {time+dag_args.job_duration} '
+                f"--H1 {path_H1} --L1 {path_L1} --output_path {outputdir} "
+                f'--param_file {os.path.abspath(dag_args.param_file)}" logdir="{logdir}"\n'
+            )
+            dagfile.write("\n")
+
+if __name__ == "__main__":
+    main()
+

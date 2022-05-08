@@ -58,7 +58,7 @@ def set_start_time(
 
 
 def read_data(
-    IFO: str, data_type: str, channel: str, t0: int, tf: int, local_data_path: str = ""
+    IFO: str, data_type: str, channel: str, t0: int, tf: int, local_data_path: str = "", tag: str = 'C00',
 ):
     """
     Function doing the reading of the data to be used in the
@@ -84,6 +84,10 @@ def read_data(
         GPS time of the end of the data taking
 
     local_data_path: str, optional
+        path where local gwf is stored
+    
+    tag: str, optional
+        tag identifying type of data, e.g.: 'C00', 'C01'
 
     Returns
     =======
@@ -91,10 +95,10 @@ def read_data(
         Time series containing the requested data
     """
     if data_type == "public":
-        data = timeseries.TimeSeries.fetch_open_data(IFO, t0, tf, sample_rate=16384)
+        data = timeseries.TimeSeries.fetch_open_data(IFO, t0, tf, sample_rate=16384, tag = tag)
         data.channel = channel
     elif data_type == "private":
-        data = timeseries.TimeSeries.get(channel, start=t0, end=tf, verbose=True)
+        data = timeseries.TimeSeries.get(channel, start=t0, end=tf, verbose=True, tag = tag)
         data.channel = channel
     elif data_type == "local":
         data = timeseries.TimeSeries.read(
@@ -296,6 +300,8 @@ def shift_timeseries(time_series_data: timeseries.TimeSeries, time_shift: int = 
 
     if time_shift > 0:
         shifted_data = np.roll(time_series_data, time_shift)
+    else:
+        shifted_data = time_series_data 
     return shifted_data
 
 def preprocessing_data_gwpy_timeseries(
@@ -355,7 +361,6 @@ def preprocessing_data_gwpy_timeseries(
         window_downsampling=window_downsampling,
         ftype=ftype,
     )
-    print(filtered)
     if time_shift > 0:
         return shift_timeseries(time_series_data=filtered, time_shift=time_shift)
     else:
@@ -375,6 +380,7 @@ def preprocessing_data_channel_name(
     ftype: str = "fir",
     time_shift: int = 0,
     local_data_path: str = "",
+    tag: str = 'C00',
 ):
     """
     Function doing the pre-processing of the data to be used in the
@@ -420,6 +426,9 @@ def preprocessing_data_channel_name(
 
     time_shift: int
         value of the time shift (in seconds)
+    
+    tag: str, optional
+        tag identifying type of data, e.g.: 'C00', 'C01'
 
     Returns
     =======
@@ -432,6 +441,7 @@ def preprocessing_data_channel_name(
         buffer_secs=number_cropped_seconds,
         segment_duration=segment_duration,
     )
+
     data = read_data(
         IFO=IFO,
         data_type=data_type,
@@ -439,6 +449,7 @@ def preprocessing_data_channel_name(
         t0=data_start_time - number_cropped_seconds,
         tf=tf,
         local_data_path=local_data_path,
+        tag=tag,
     )
 
     time_series_data = timeseries.TimeSeries(
@@ -528,7 +539,6 @@ def preprocessing_data_timeseries_array(
     time_series_data = timeseries.TimeSeries(
         array, t0=data_start_time, sample_rate=sample_rate
     )
-    print(time_series_data)
     return preprocessing_data_gwpy_timeseries( 
     IFO = IFO,
     gwpy_timeseries = time_series_data,
