@@ -11,7 +11,8 @@ class GWBModel(bilby.Likelihood):
     Generic model, contains the definition of likelihood:
     
     .. math:: 
-    p(\hat{C}^{IJ}(f_k) | \mathbf{\Theta}) \propto\exp\left[  -\frac{1}{2} \sum_{IJ}^N \sum_k \left(\frac{\hat{C}^{IJ}(f_k) - \Omega_{\rm M}(f_k|\mathbf{\Theta})}{\sigma^2_{IJ}(f_k)}\right)^2  \right],
+    
+        p(\hat{C}^{IJ}(f_k) | \mathbf{\Theta}) \propto\exp\left[  -\frac{1}{2} \sum_{IJ}^N \sum_k \left(\frac{\hat{C}^{IJ}(f_k) - \Omega_{\rm M}(f_k|\mathbf{\Theta})}{\sigma^2_{IJ}(f_k)}\right)^2  \right],
     
     where :math: `\Omega_{\rm M}(f_k|\mathbf{\Theta})` is the model being fit to data, and :math: `\mathbf{\Theta}` are the model's parameters.
     
@@ -117,7 +118,7 @@ class PowerLawModel(GWBModel):
     Power law model is defined as: 
     
     .. math:: 
-    \Omega(f) = \Omega_{\text{ref}} \left(\frac{f}{f_{\text{ref}}}\right)^{\alpha}
+        \Omega(f) = \Omega_{\text{ref}} \left(\frac{f}{f_{\text{ref}}}\right)^{\alpha}
     
     Parameters:
     -----------
@@ -247,9 +248,9 @@ class TripleBrokenPowerLawModel(GWBModel):
     alpha_3 : float
         spectral index of the broken power law (:math:`\alpha_3`)
     fbreak1 : float
-        1st break frequency for the triple broken power law (:math:`\f_1`)
+        1st break frequency for the triple broken power law (:math:`f_1`)
     fbreak2 : float
-        2nd break frequency for the triple broken power law (:math:`\f_2`)
+        2nd break frequency for the triple broken power law (:math:`f_2`)
     frequencies : numpy.ndarray
         array of frequencies at which to evaluate the model
     """
@@ -312,7 +313,7 @@ class SmoothBrokenPowerLawModel(GWBModel):
     The smooth broken power law is defined as: 
     
     .. math:: 
-    \Omega(f) = \Omega_{\text{ref}}\left(\frac{f}{f_{\text{ref}}}\right) ^{\alpha_1} \left[1+\left(\frac{f}{f_{\text{ref}}}\right)^{\Delta}\right]^{\frac{\alpha_2-\alpha_1}{\Delta}}
+        \Omega(f) = \Omega_{\text{ref}}\left(\frac{f}{f_{\text{ref}}}\right) ^{\alpha_1} \left[1+\left(\frac{f}{f_{\text{ref}}}\right)^{\Delta}\right]^{\frac{\alpha_2-\alpha_1}{\Delta}}
     
     Parameters:
     -----------
@@ -380,7 +381,7 @@ class SchumannModel(GWBModel):
     
     
     .. math::
-     \Omega(f) = \sum_{ij} \kappa_i \kappa_j \left(\frac{f}{f_{\text{ref}}}\right)^{-\beta_i-\beta_j} M_{ij}(f) \times 10^{-46}
+         \Omega(f) = \sum_{ij} \kappa_i \kappa_j \left(\frac{f}{f_{\text{ref}}}\right)^{-\beta_i-\beta_j} M_{ij}(f) \times 10^{-46}
     
     Parameters:
     -----------
@@ -595,6 +596,7 @@ class PVPowerLawModel(GWBModel):
 class PVPowerLawModel2(GWBModel):
     r"""
     The parity violation model 2 can be defined as: 
+    
     .. math:: 
          \Omega(f) = \left(1 + f^{\beta} \frac{\gamma_V}{\gamma _I}\right) \Omega_{\text{ref}}\left(\frac{f}{f_{\text{ref}}} \right)^{\alpha}
     
