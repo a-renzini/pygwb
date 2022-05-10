@@ -14,9 +14,9 @@ class GWBModel(bilby.Likelihood):
     
         p(\hat{C}^{IJ}(f_k) | \mathbf{\Theta}) \propto\exp\left[  -\frac{1}{2} \sum_{IJ}^N \sum_k \left(\frac{\hat{C}^{IJ}(f_k) - \Omega_{\rm M}(f_k|\mathbf{\Theta})}{\sigma^2_{IJ}(f_k)}\right)^2  \right],
     
-    where :math: `\Omega_{\rm M}(f_k|\mathbf{\Theta})` is the model being fit to data, and :math: `\mathbf{\Theta}` are the model's parameters.
+    where :math:`\Omega_{\rm M}(f_k|\mathbf{\Theta})` is the model being fit to data, and :math:`\mathbf{\Theta}` are the model's parameters.
     
-    The noise likelihood is given by setting :math: `\Omega_{\rm M}(f_k|\mathbf{\Theta})=0`.
+    The noise likelihood is given by setting :math:`\Omega_{\rm M}(f_k|\mathbf{\Theta})=0`.
     
     """
 
@@ -61,7 +61,7 @@ class GWBModel(bilby.Likelihood):
         pass
 
     def log_likelihood_IJ(self, baseline, noise=False):
-        """Function for evaluating log likelihood of $IJ$ baseline pair"""
+        """Function for evaluating log likelihood of IJ baseline pair"""
         if noise:
             Y_model_f = 0
         else:
