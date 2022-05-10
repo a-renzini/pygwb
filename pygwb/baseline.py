@@ -460,7 +460,7 @@ class Baseline(object):
     @classmethod
     def load_from_pickle(cls, filename):
         """
-        Load entire baseline object from pickle file
+        Load baseline object from pickle file.
         
         Parameters
         ==========
@@ -472,7 +472,7 @@ class Baseline(object):
 
     def save_to_pickle(self, filename):
         """
-        Save entire baseline object to pickle file
+        Save baseline object to pickle file.
         
         Parameters
         ==========
