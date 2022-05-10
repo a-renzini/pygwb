@@ -1,16 +1,15 @@
+from astropy.io import registry as io_registry
 from gwpy.frequencyseries import FrequencySeries
 from gwpy.spectrogram import Spectrogram
+from gwpy.types.io.hdf5 import register_hdf5_array_io
 
 from pygwb.spectral import reweight_spectral_object
-
-from astropy.io import registry as io_registry
-
-from gwpy.types.io.hdf5 import register_hdf5_array_io
 
 
 class OmegaSpectrogram(Spectrogram):
 
     """Subclass of gwpy's Spectrogram class."""
+
     def __new__(cls, data, **kwargs):
         kwargs.pop("alpha", None)
         kwargs.pop("fref", None)
@@ -58,10 +57,31 @@ class OmegaSpectrogram(Spectrogram):
         raise AttributeError("h0 is protected! To change h0, use the reset_h0 method.")
 
     @classmethod
+    def read(cls, source, *args, **kwargs):
+        """Read data into a Spectrogram. Same usage as read method of gwpy.Spectrogram.
+
+        Parameters
+        ==========
+        source: str
+            Source file path.
+        """
+        return io_registry.read(cls, source, *args, **kwargs)
+
+    def write(self, target, *args, **kwargs):
+        """Write this Spectrogram to a file. Same usage as write method of gwpy.Spectrogram.
+
+        Parameters
+        ==========
+        target: str
+            Target file path.
+        """
+        return io_registry.write(self, target, *args, **kwargs)
+
+    @classmethod
     def load_from_pickle(cls, filename):
         """
         Load spectrogram object from pickle file.
-        
+
         Parameters
         ==========
         filename: str
@@ -73,7 +93,7 @@ class OmegaSpectrogram(Spectrogram):
     def save_to_pickle(self, filename):
         """
         Save spectrogram object to pickle file.
-        
+
         Parameters
         ==========
         filename: str
@@ -131,9 +151,10 @@ class OmegaSpectrogram(Spectrogram):
 class OmegaSpectrum(FrequencySeries):
 
     """Subclass of gwpy's FrequencySeries class."""
-    _metadata_slots = FrequencySeries._metadata_slots + ('alpha', 'fref', 'h0')
-    _print_slots = FrequencySeries._print_slots + ['alpha', 'fref', 'h0']
-    
+
+    _metadata_slots = FrequencySeries._metadata_slots + ("alpha", "fref", "h0")
+    _print_slots = FrequencySeries._print_slots + ["alpha", "fref", "h0"]
+
     def __new__(cls, data, **kwargs):
         kwargs.pop("alpha", None)
         kwargs.pop("fref", None)
@@ -184,10 +205,32 @@ class OmegaSpectrum(FrequencySeries):
         raise AttributeError("h0 is protected! To change h0, use the reset_h0 method.")
 
     @classmethod
+    def read(cls, source, *args, **kwargs):
+        """Read data into a Spectrum. Same usage as read method of gwpy.FrequencySeries.
+
+        Parameters
+        ==========
+        source: str
+            Source file path.
+        """
+        return io_registry.read(cls, source, *args, **kwargs)
+
+    def write(self, target, *args, **kwargs):
+        """Write this Spectrum to a file. Same usage as write method of gwpy.FrequencySeries.
+
+
+        Parameters
+        ==========
+        target: str
+            Target file path.
+        """
+        return io_registry.write(self, target, *args, **kwargs)
+
+    @classmethod
     def load_from_pickle(cls, filename):
         """
         Load spectrum object from pickle file.
-        
+
         Parameters
         ==========
         filename: str
@@ -199,7 +242,7 @@ class OmegaSpectrum(FrequencySeries):
     def save_to_pickle(self, filename):
         """
         Save spectrum object to pickle file.
-        
+
         Parameters
         ==========
         filename: str
@@ -252,51 +295,6 @@ class OmegaSpectrum(FrequencySeries):
         self.value[:] = new_spectrum
         self._h0 = new_h0
 
-    def write(self, target, *args, **kwargs):
-        """Write this `Spectrogram` to a file
-        Arguments and keywords depend on the output format, see the
-        online documentation for full details for each format, the
-        parameters below are common to most formats.
-        Parameters
-        ----------
-        target : `str`
-            output filename
-        format : `str`, optional
-            output format identifier. If not given, the format will be
-            detected if possible. See below for list of acceptable
-            formats.
-        Notes
-        -----"""
-        return io_registry.write(self, target, *args, **kwargs)
-
-    @classmethod
-    def read(cls, source, *args, **kwargs):
-        """Read data into a `Spectrogram`
-        Arguments and keywords depend on the output format, see the
-        online documentation for full details for each format, the
-        parameters below are common to most formats.
-        Parameters
-        ----------
-        source : `str`, `list`
-            Source of data, any of the following:
-            - `str` path of single data file,
-            - `str` path of LAL-format cache file,
-            - `list` of paths.
-        *args
-            Other arguments are (in general) specific to the given
-            ``format``.
-        format : `str`, optional
-            Source format identifier. If not given, the format will be
-            detected if possible. See below for list of acceptable
-            formats.
-        **kwargs
-            Other keywords are (in general) specific to the given ``format``.
-        Returns
-        -------
-        specgram : `Spectrogram`
-        Notes
-        -----"""
-        return io_registry.read(cls, source, *args, **kwargs)
 
 register_hdf5_array_io(OmegaSpectrogram)
 register_hdf5_array_io(OmegaSpectrum)
