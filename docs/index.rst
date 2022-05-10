@@ -31,6 +31,7 @@ API:
    preprocessing
    spectral
    postprocessing
+   omega_spectra
    pe
    statistical_checks
 
