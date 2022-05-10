@@ -8,8 +8,6 @@ from .baseline import Baseline
 
 class GWBModel(bilby.Likelihood):
     r"""
-    GWB Model
-    ---------
     Generic model, contains the definition of likelihood:
     
     .. math:: 
@@ -62,6 +60,7 @@ class GWBModel(bilby.Likelihood):
         pass
 
     def log_likelihood_IJ(self, baseline, noise=False):
+        """Function for evaluating log likelihood of $IJ$ baseline pair"""
         if noise:
             Y_model_f = 0
         else:
@@ -100,12 +99,14 @@ class GWBModel(bilby.Likelihood):
         return logL_IJ
 
     def log_likelihood(self):
+        """Function for evaluating log likelihood of detector network"""
         ll = 0
         for baseline in self.baselines:
             ll = ll + self.log_likelihood_IJ(baseline, noise=False)
         return ll
 
     def noise_log_likelihood(self):
+        """Function for evaluating boise log likelihood of detector network"""
         ll = 0
         for baseline in self.baselines:
             ll = ll + self.log_likelihood_IJ(baseline, noise=True)
