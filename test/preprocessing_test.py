@@ -113,7 +113,7 @@ class Test(unittest.TestCase):
         time_shifted_data = preprocessing.shift_timeseries(time_series_data = self.timeseries_data, time_shift = 1)
         self.assertEqual(
             self.timeseries_data.value[0],
-            time_shifted_data.value[1],
+            time_shifted_data.value[int(1/self.timeseries_data.dt.value)],
         )
         
 

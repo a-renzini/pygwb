@@ -98,7 +98,7 @@ def read_data(
         data = timeseries.TimeSeries.fetch_open_data(IFO, t0, tf, sample_rate=16384, tag = tag)
         data.channel = channel
     elif data_type == "private":
-        data = timeseries.TimeSeries.get(channel, start=t0, end=tf, verbose=True, tag = tag)
+        data = timeseries.TimeSeries.get(channel, start=t0, end=tf, verbose=True)
         data.channel = channel
     elif data_type == "local":
         data = timeseries.TimeSeries.read(
@@ -299,7 +299,7 @@ def shift_timeseries(time_series_data: timeseries.TimeSeries, time_shift: int = 
     """
 
     if time_shift > 0:
-        shifted_data = np.roll(time_series_data, time_shift)
+        shifted_data = np.roll(time_series_data, int(time_shift/time_series_data.dt.value))
     else:
         shifted_data = time_series_data 
     return shifted_data
@@ -442,7 +442,7 @@ def preprocessing_data_channel_name(
         segment_duration=segment_duration,
     )
 
-    data = read_data(
+    time_series_data = read_data(
         IFO=IFO,
         data_type=data_type,
         channel=channel,
@@ -450,10 +450,6 @@ def preprocessing_data_channel_name(
         tf=tf,
         local_data_path=local_data_path,
         tag=tag,
-    )
-
-    time_series_data = timeseries.TimeSeries(
-        data, t0=data_start_time, sample_rate = data.sample_rate
     )
 
     return preprocessing_data_gwpy_timeseries( 
