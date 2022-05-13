@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 from os import listdir
 from os.path import isfile, join
-from pygwb.util import calc_Y_sigma_from_Yf_varf
+from pygwb.postprocessing import calc_Y_sigma_from_Yf_varf
 from pygwb.spectral import reweight_spectral_object
 
 import numpy as np

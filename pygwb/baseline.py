@@ -15,13 +15,14 @@ from .notch import StochNotchList
 from .orfs import calc_orf
 from .postprocessing import postprocess_Y_sigma
 from .spectral import coarse_grain_spectrogram, cross_spectral_density
-from .util import calc_Y_sigma_from_Yf_varf, calculate_point_estimate_sigma_spectrogram
+from .postprocessing import calc_Y_sigma_from_Yf_varf, calculate_point_estimate_sigma_spectrogram
 
 
 class Baseline(object):
     """
-    Baseline object for stochastic analyses. 
+    Baseline object for stochastic analyses.
     """
+
     def __init__(
         self,
         name,
@@ -373,13 +374,13 @@ class Baseline(object):
 
     def calc_baseline_orf(self, polarization):
         """
-        Calculate the overlap reduction function for this baseline. 
+        Calculate the overlap reduction function for this baseline.
         Wraps the orf module.
 
         Parameters
         ==========
         polarisation: str
-            Polarisation of the signal to consider (scalar, vector, tensor) 
+            Polarisation of the signal to consider (scalar, vector, tensor)
             for the orf calculation.
         """
         return calc_orf(
@@ -437,9 +438,9 @@ class Baseline(object):
         interferometer_1/2: bilby Interferometer object
             The two detectors spanning the baseline
         parameters: pygwb Parameters object
-            Parameters object containing necessary parameters for 
-            the instantiation of the baseline, and subsequent 
-            analyses. 
+            Parameters object containing necessary parameters for
+            the instantiation of the baseline, and subsequent
+            analyses.
         """
         name = interferometer_1.name + interferometer_2.name
         return cls(
@@ -452,7 +453,7 @@ class Baseline(object):
             notch_list_path=parameters.notch_list_path,
             overlap_factor=parameters.overlap_factor,
             zeropad_csd=parameters.zeropad_csd,
-            window_fftgram=parameters.window_fft_dict['window_fftgram'],
+            window_fftgram=parameters.window_fft_dict["window_fftgram"],
             N_average_segments_welch_psd=parameters.N_average_segments_welch_psd,
             sampling_frequency=parameters.new_sample_rate,
         )
@@ -461,7 +462,7 @@ class Baseline(object):
     def load_from_pickle(cls, filename):
         """
         Load baseline object from pickle file.
-        
+
         Parameters
         ==========
         filename: str
@@ -473,7 +474,7 @@ class Baseline(object):
     def save_to_pickle(self, filename):
         """
         Save baseline object to pickle file.
-        
+
         Parameters
         ==========
         filename: str
@@ -593,20 +594,20 @@ class Baseline(object):
         """
         Set point estimate and sigma spectrogram. Resulting spectrogram
         *does not include frequency weighting for alpha*.
-        
+
         Parameters
         ==========
         weight_spectrogram: bool, optional
             Flag to apply spectral weighting, True by default.
         alpha: float, optional
-            Spectral index to use in the weighting. 
+            Spectral index to use in the weighting.
         fref: float, optional
             Reference frequency to use in the weighting calculation.
             Final result refers to this frequency.
         flow: float
             Lowest frequency to consider.
         fhigh: float
-            Highest frequency to consider.        
+            Highest frequency to consider.
         """
         # set CSD if not set
         # self.set_average_cross_spectral_density()
@@ -805,7 +806,7 @@ class Baseline(object):
             )
             self.set_point_estimate_sigma_spectrum(
                 badtimes=badtimes,
-                #notch_list_path=notch_list_path,
+                # notch_list_path=notch_list_path,
                 weight_spectrogram=False,
                 alpha=alpha,
                 fref=fref,
@@ -1089,7 +1090,7 @@ class Baseline(object):
 
         list_sigma_segment = sigma_spectrogram.value.tolist()
         sigma_segment_times = sigma_spectrogram.times.value.tolist()
-        
+
         badGPStimes_list = badGPStimes.tolist()
         delta_sigmas_list = delta_sigmas.value
 
@@ -1128,18 +1129,18 @@ class Baseline(object):
         hf.create_dataset("freqs", data=frequencies)
         hf.create_dataset("point_estimate_spectrum", data=point_estimate_spectrum)
         hf.create_dataset("sigma_spectrum", data=sigma_spectrum)
-        hf.create_dataset("point_estimate", data=point_estimate, dtype='float')
-        hf.create_dataset("sigma", data=sigma,dtype='float')
+        hf.create_dataset("point_estimate", data=point_estimate, dtype="float")
+        hf.create_dataset("sigma", data=sigma, dtype="float")
         hf.create_dataset(
             "point_estimate_spectrogram", data=point_estimate_spectrogram
         ),
         hf.create_dataset("sigma_spectrogram", data=sigma_spectrogram)
         hf.create_dataset("badGPStimes", data=badGPStimes)
         if type(delta_sigmas) == float:
-            hf.create_dataset("delta_sigmas", data=delta_sigmas, dtype='float')
+            hf.create_dataset("delta_sigmas", data=delta_sigmas, dtype="float")
         else:
             hf.create_dataset("delta_sigmas", data=delta_sigmas)
-            
+
         hf.close()
 
     def _npz_save_csd(
@@ -1320,11 +1321,9 @@ class Baseline(object):
         hf.close()
 
 
-
-
 def get_baselines(interferometers, frequencies=None):
     """
-    Get set of Baseline objects given a list of interferometers. 
+    Get set of Baseline objects given a list of interferometers.
     Parameters
     ==========
     interferometers: list of bilby interferometer objects
