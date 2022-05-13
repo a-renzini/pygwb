@@ -2,8 +2,10 @@ import pickle
 
 import h5py
 import numpy as np
-from loguru import logger
 from tqdm import tqdm
+
+from loguru import logger
+from pygwb.constants import H0
 
 from .util import calc_bias, window_factors
 
