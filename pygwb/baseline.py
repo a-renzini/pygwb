@@ -13,9 +13,12 @@ from pygwb.delta_sigma_cut import run_dsc
 
 from .notch import StochNotchList
 from .orfs import calc_orf
-from .postprocessing import postprocess_Y_sigma
+from .postprocessing import (
+    calc_Y_sigma_from_Yf_varf,
+    calculate_point_estimate_sigma_spectrogram,
+    postprocess_Y_sigma,
+)
 from .spectral import coarse_grain_spectrogram, cross_spectral_density
-from .postprocessing import calc_Y_sigma_from_Yf_varf, calculate_point_estimate_sigma_spectrogram
 
 
 class Baseline(object):
