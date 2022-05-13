@@ -2,9 +2,12 @@ import argparse
 import enum
 import json
 import sys
+import warnings
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import List
+
+import json5
 
 if sys.version_info >= (3, 0):
     import configparser
@@ -61,8 +64,8 @@ class Parameters:
         Path to the notch list file. Default is empty.
     N_average_segments_welch_psd: int
         Number of segments to average over when calculating the psd with Welch method. Default is 2.
-    window_fftgram: str
-        Window to use when producing fftgrams for psds and csds. Default is \"hann\".
+    window_fft_dict: dict
+        Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds. Default is \"hann\".
     calibration_epsilon: float
         Calibation coefficient. Default is 0.
     overlap_factor: float
@@ -111,7 +114,7 @@ class Parameters:
     local_data_path_dict: dict = field(default_factory=lambda: {})
     notch_list_path: str = ""
     N_average_segments_welch_psd: int = 2
-    window_fftgram: str = "hann"
+    window_fft_dict: dict = field(default_factory=lambda: {"window_fftgram": "hann"})
     calibration_epsilon: float = 0
     overlap_factor: float = 0.5
     zeropad_csd: bool = True
@@ -132,28 +135,12 @@ class Parameters:
         else:
             self.fft_length = int(1 / self.frequency_resolution)
 
-    def save_paramfile(self, output_path):
-        """Save parameters to a parameters ini file.
-        
-        Parameters
-        ----------
-        output_path: str
-            Full path for output parameters ini file. 
-        """
-        param = configparser.ConfigParser()
-        param_dict = asdict(self)
-        for key, value in param_dict.items():
-            param_dict[key] = str(value)
-        param["parameters"] = param_dict
-        with open(output_path, "w") as configfile:
-            param.write(configfile)
-
-    def update_from_dictionary(self, **kwargs):
+    def update_from_dictionary(self, kwargs):
         """Update parameters from a dictionary
         
         Parameters
         ----------
-        **kwargs: **dictionary
+        kwargs: dictionary
             Dictionary of parameters to update.
         """
         ann = getattr(self, "__annotations__", {})
@@ -164,6 +151,9 @@ class Parameters:
                 except TypeError:
                     pass
                 setattr(self, name, kwargs[name])
+        for name in kwargs:
+            if name not in ann.keys():
+                warnings.warn(f"{name} is not an expected parameter and will be ignored.")
 
     def update_from_file(self, path: str) -> None:
         """Update parameters from an ini file
@@ -176,15 +166,21 @@ class Parameters:
         config = configparser.ConfigParser()
         config.optionxform = str
         config.read(path)
-        mega_list = config.items('parameters')
+        mega_list = config.items('data_specs')
+        mega_list.extend(config.items('preprocessing'))
+        mega_list.extend(config.items('density_estimation'))
+        mega_list.extend(config.items('postprocessing'))
+        mega_list.extend(config.items('data_quality'))
+        mega_list.extend(config.items('output'))
         dictionary = dict(mega_list)
-        if dictionary['alphas_delta_sigma_cut']: dictionary['alphas_delta_sigma_cut'] = json.loads(dictionary['alphas_delta_sigma_cut'])
-        if dictionary['interferometer_list']: dictionary['interferometer_list'] = json.loads(dictionary['interferometer_list'])
+        if dictionary['alphas_delta_sigma_cut']: dictionary['alphas_delta_sigma_cut'] = json5.loads(dictionary['alphas_delta_sigma_cut'])
+        if dictionary['interferometer_list']: dictionary['interferometer_list'] = json5.loads(dictionary['interferometer_list'])
+        dictionary['window_fft_dict'] = dict(config.items("window_fft_specs"))
         dictionary['local_data_path_dict'] = dict(config.items("local_data"))
         for item in dictionary.copy():
             if not dictionary[item]:
                 dictionary.pop(item)
-        self.update_from_dictionary(**dictionary)
+        self.update_from_dictionary(dictionary)
 
     def update_from_arguments(self, args: List[str]) -> None:
         """Update parameters from a set of arguments
@@ -194,6 +190,21 @@ class Parameters:
         args: list
             List of arguments to update in the Class. Format must coincide to argparse formatting, e.g.,
             ['--t0', '0', '--tf', '100']
+
+        Notes
+        -----
+        Not all possible options are available through argument updating. The two exceptions are the dictionary
+        attributes which can not be parsed easily by argparse. These are
+        * local_data_path_dict: this is composed by paths passed individually using the following notation
+            --H1 : path to data relative to H1
+            --L1 : path to data relative to L1
+            --V1 : path to data relative to V1
+        These are the options currently supported for this dictionary. To add paths to different interferometers, pass
+        these as part of an .ini file, in the relevant section [local_data].
+        * window_fft_dict: this is composed by the single argument
+            -- window_fftgram
+        This is the only option currently supported. To use windows that require extra parameters, pass these as part of an
+        .ini file, in the relevant section [window_fft_specs].
         """
         if not args:
             return
@@ -204,6 +215,7 @@ class Parameters:
         parser.add_argument("--H1", type=str, required=False)
         parser.add_argument("--L1", type=str, required=False)
         parser.add_argument("--V", type=str, required=False)
+        parser.add_argument("--window_fftgram", type=str, required=False)
         parsed, _ = parser.parse_known_args(args)
         dictionary = vars(parsed)
         for item in dictionary.copy():
@@ -212,16 +224,89 @@ class Parameters:
         local_data_path_dict = {}
         if 'H1' in dictionary:
             local_data_path_dict['H1'] = dictionary['H1']
+            dictionary.pop('H1')
         if 'L1' in dictionary:
             local_data_path_dict['L1'] = dictionary['L1']
+            dictionary.pop('L1')
         if 'V' in dictionary:
             local_data_path_dict['V'] = dictionary['V']
+            dictionary.pop('V')
         dictionary['local_data_path_dict'] = local_data_path_dict
-        self.update_from_dictionary(**dictionary)
+        window_fft_dict = {}
+        if 'window_fftgram' in dictionary:
+            window_fft_dict['window_fftgram'] = dictionary['window_fftgram']
+            dictionary.pop('window_fftgram')
+        dictionary['window_fft_dict'] = window_fft_dict
+        self.update_from_dictionary(dictionary)
+
+    def save_paramfile(self, output_path):
+        """Save parameters to a parameters ini file.
+        
+        Parameters
+        ----------
+        output_path: str
+            Full path for output parameters ini file. 
+        """
+        param = configparser.ConfigParser()
+        param.optionxform = str
+        param_dict = asdict(self)
+        #for key, value in param_dict.items():
+        #    param_dict[key] = str(value)
+        data_specs_dict = {}
+        data_specs_dict["interferometer_list"] = param_dict["interferometer_list"]
+        data_specs_dict["t0"] = param_dict["t0"] 
+        data_specs_dict["tf"] =  param_dict["tf"]
+        data_specs_dict["data_type"] = param_dict["data_type"] 
+        data_specs_dict["channel"] = param_dict["channel"] 
+        data_specs_dict["time_shift"] = param_dict["time_shift"]
+        param["data_specs"] = data_specs_dict
+
+        preprocessing_dict = {}
+        preprocessing_dict["new_sample_rate"] = param_dict["new_sample_rate"]
+        preprocessing_dict["cutoff_frequency"] = param_dict["cutoff_frequency"]
+        preprocessing_dict["segment_duration"] = param_dict["segment_duration"]
+        preprocessing_dict["number_cropped_seconds"] = param_dict["number_cropped_seconds"]
+        preprocessing_dict["window_downsampling"] = param_dict["window_downsampling"]
+        preprocessing_dict["ftype"] = param_dict["ftype"]
+        param["preprocessing"] = preprocessing_dict
+
+        param["window_fft_specs"] = self.window_fft_dict
+
+        density_estimation_dict = {}
+        density_estimation_dict["frequency_resolution"] = param_dict["frequency_resolution"]
+        density_estimation_dict["N_average_segments_welch_psd"] = param_dict["N_average_segments_welch_psd"]
+        density_estimation_dict["coarse_grain"] = param_dict["coarse_grain"]
+        density_estimation_dict["overlap_factor"] = param_dict["overlap_factor"]
+        density_estimation_dict["zeropad_csd"] = param_dict["zeropad_csd"]
+        param["density_estimation"] = density_estimation_dict
+
+        postprocessing_dict = {}
+        postprocessing_dict["polarization"] = param_dict["polarization"] 
+        postprocessing_dict["alpha"] = param_dict["alpha"] 
+        postprocessing_dict["fref"] = param_dict["fref"] 
+        postprocessing_dict["flow"] = param_dict["flow"] 
+        postprocessing_dict["fhigh"] = param_dict["fhigh"] 
+        param["postprocessing"] = postprocessing_dict
+        
+        data_quality_dict = {}
+        data_quality_dict["notch_list_path"] = param_dict["notch_list_path"]
+        data_quality_dict["calibration_epsilon"] = param_dict["calibration_epsilon"]
+        data_quality_dict["alphas_delta_sigma_cut"] = param_dict["alphas_delta_sigma_cut"]
+        data_quality_dict["delta_sigma_cut"] = param_dict["delta_sigma_cut"]
+        param["data_quality"] = data_quality_dict
+
+        output_dict = {}
+        output_dict["save_data_type"] = param_dict["save_data_type"]
+        param["output"] = output_dict
+
+        param["local_data"] = self.local_data_path_dict
+
+        with open(output_path, "w") as configfile:
+            param.write(configfile)
 
 
 class ParametersHelp(enum.Enum):
-    """Description of the arguments in the Parameters class"""
+    """Description of the arguments in the Parameters class. This is an enumeration class and is not meant for user interaction."""
     t0 = "Initial time."
     tf = "Final time."
     data_type = "Type of data to access/download; options are private, public, local. Default is public."
@@ -243,7 +328,7 @@ class ParametersHelp(enum.Enum):
     local_data_path_dict = "Dictionary of local data, if the local data option is chosen. Default is empty."
     notch_list_path = "Path to the notch list file. Default is empty."
     N_average_segments_welch_psd = "Number of segments to average over when calculating the psd with Welch method. Default is 2."
-    window_fftgram = "Window to use when producing fftgrams for psds and csds. Default is \"hann\"."
+    window_fft_dict = "Dictionary containing name and parameters relative to which window to use when producing fftgrams for psds and csds. Default is \"hann\"."
     calibration_epsilon = "Calibation coefficient. Default is 0."
     overlap_factor = "Factor by which to overlap consecutive segments for analysis. Default is 0.5 (50%% overlap)"
     zeropad_csd = "Whether to zeropad the csd or not. Default is True."
