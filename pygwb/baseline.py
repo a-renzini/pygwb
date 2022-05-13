@@ -1127,6 +1127,7 @@ class Baseline(object):
         hf = h5py.File(filename, "w")
         
         if compress:
+            logger.info('Data will be compressed without loss of data')
             hf.create_dataset("freqs", data=frequencies, compression="gzip")
             hf.create_dataset("point_estimate_spectrum", data=point_estimate_spectrum, compression="gzip")
             hf.create_dataset("sigma_spectrum", data=sigma_spectrum, compression="gzip")
