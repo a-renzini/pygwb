@@ -249,7 +249,6 @@ class Network(object):
         """
         Combines the point estimate and sigma spectra from different baselines in the Network and stores them as attributes.
         """
-        print(self.baselines)
         point_estimate_spectra = np.array(
             [base.point_estimate_spectrum for base in self.baselines]
         )

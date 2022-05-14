@@ -2,14 +2,13 @@ import json
 import pickle
 import warnings
 
-import gwpy.frequencyseries
-import gwpy.spectrogram
 import h5py
 import numpy as np
 from bilby.core.utils import create_frequency_series
 from loguru import logger
 
 from pygwb.delta_sigma_cut import run_dsc
+from pygwb.omega_spectra import OmegaSpectrogram, OmegaSpectrum
 
 from .notch import StochNotchList
 from .orfs import calc_orf
@@ -642,17 +641,23 @@ class Baseline(object):
         sigma_name = (
             self.name + f" sigma spectrogram alpha={self.spectrogram_alpha_weight}"
         )
-        self.point_estimate_spectrogram = gwpy.spectrogram.Spectrogram(
+        self.point_estimate_spectrogram = OmegaSpectrogram(
             Y_fs,
             times=self.average_csd.times,
             frequencies=self.average_csd.frequencies,
             name=self.name + f" with alpha={self.spectrogram_alpha_weight}",
+            alpha=alpha,
+            fref=fref,
+            h0=1.0
         )
-        self.sigma_spectrogram = gwpy.spectrogram.Spectrogram(
+        self.sigma_spectrogram = OmegaSpectrogram(
             np.sqrt(var_fs),
             times=self.average_csd.times,
             frequencies=self.average_csd.frequencies,
             name=sigma_name,
+            alpha=alpha,
+            fref=fref,
+            h0=1.0
         )
 
     def set_point_estimate_sigma_spectrum(
@@ -751,17 +756,23 @@ class Baseline(object):
         point_estimate[notches] = 0.0
         sigma[notches] = np.inf
 
-        self.point_estimate_spectrum = gwpy.frequencyseries.FrequencySeries(
+        self.point_estimate_spectrum = OmegaSpectrum(
             point_estimate,
             frequencies=self.frequencies,
             name=self.name + "unweighted point estimate spectrum",
             epoch=epoch,
+            alpha=alpha,
+            fref=fref,
+            h0=1.0
         )
-        self.sigma_spectrum = gwpy.frequencyseries.FrequencySeries(
+        self.sigma_spectrum = OmegaSpectrum(
             np.sqrt(sigma),
             frequencies=self.frequencies,
             name=self.name + "unweighted sigma spectrum",
             epoch=epoch,
+            alpha=alpha,
+            fref=fref,
+            h0=1.0
         )
         self.point_estimate_alpha = 0
 

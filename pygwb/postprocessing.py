@@ -220,3 +220,13 @@ def calculate_point_estimate_sigma_integrand(
 
     var_fs = var_fs * w1w2squaredbar / w1w2bar ** 2
     return Y_fs, var_fs
+
+def combine_spectra_with_sigma_weights(main_spectra, weights_spectra):
+    """
+    """
+    res_1 = 1 / np.sum(1 / weights_spectra ** 2, axis=0)
+    combined_weights_spectrum = np.sqrt(res_1)
+    combined_weighted_spectrum = np.sum(
+        main_spectra / weights_spectra ** 2
+    , axis = 0) * res_1
+    return combined_weighted_spectrum, combined_weights_spectrum
