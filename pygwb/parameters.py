@@ -232,11 +232,11 @@ class Parameters:
             local_data_path_dict['V'] = dictionary['V']
             dictionary.pop('V')
         dictionary['local_data_path_dict'] = local_data_path_dict
-        window_fft_dict = {}
         if 'window_fftgram' in dictionary:
+            window_fft_dict = {}
             window_fft_dict['window_fftgram'] = dictionary['window_fftgram']
             dictionary.pop('window_fftgram')
-        dictionary['window_fft_dict'] = window_fft_dict
+            dictionary['window_fft_dict'] = window_fft_dict
         self.update_from_dictionary(dictionary)
 
     def save_paramfile(self, output_path):
