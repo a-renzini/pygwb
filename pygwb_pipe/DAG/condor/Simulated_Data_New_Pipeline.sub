@@ -5,6 +5,7 @@ notification = error
 accounting_group = ligo.dev.o4.sgwb.explore.test
 arguments = $(ARGS)
 RequestMemory = 14000
+RequestDisk = 500000
 log = $(logdir)/condor_$(job).log
 output = $(logdir)/condor_$(job).out
 error = $(logdir)/condor_$(job).err

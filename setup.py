@@ -76,7 +76,7 @@ setup(
     packages=["pygwb"],
     package_dir={"pygwb": "pygwb"},
     package_data={"pygwb": [".version"]},
-    scripts=['pygwb_pipe/pygwb_pipe'],
+    scripts=['pygwb_pipe/pygwb_pipe','pygwb_pipe/pygwb_combine'],
     install_requires=[
         "numpy",
         "matplotlib",
@@ -86,6 +86,7 @@ setup(
         "astropy",
         "lalsuite",
         "loguru",
+        "json5",
         "jinja2==3.0.3",
     ],
     classifiers=[
