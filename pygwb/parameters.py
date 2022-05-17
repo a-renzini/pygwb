@@ -117,7 +117,7 @@ class Parameters:
     zeropad_csd: bool = True
     delta_sigma_cut: float = 0.2
     alphas_delta_sigma_cut: List = field(default_factory=lambda: [-5, 0, 3])
-    save_data_type: str = "json"
+    save_data_type: str = "npz"
     time_shift: int = 0
     gate_data: bool = False
     gate_tzero: float = 1.0
@@ -181,9 +181,25 @@ class Parameters:
         if dictionary['alphas_delta_sigma_cut']: dictionary['alphas_delta_sigma_cut'] = json.loads(dictionary['alphas_delta_sigma_cut'])
         if dictionary['interferometer_list']: dictionary['interferometer_list'] = json.loads(dictionary['interferometer_list'])
         dictionary['local_data_path_dict'] = dict(config.items("local_data"))
+        if 'H1' in dictionary['local_data_path_dict']:
+            if dictionary['local_data_path_dict']['H1'].startswith('['):
+                dictionary['local_data_path_dict']['H1'] = json.loads(dictionary['local_data_path_dict']['H1'])
+            else:
+                dictionary['local_data_path_dict']['H1'] = dictionary['local_data_path_dict']['H1']
+        if 'L1' in dictionary['local_data_path_dict']:
+            if dictionary['local_data_path_dict']['L1'].startswith('['):
+                dictionary['local_data_path_dict']['L1'] = json.loads(dictionary['local_data_path_dict']['L1'])
+            else:
+                dictionary['local_data_path_dict']['L1'] = dictionary['local_data_path_dict']['L1']
+        if 'V' in dictionary['local_data_path_dict']:
+            if dictionary['local_data_path_dict']['V'].startswith('['):
+                dictionary['local_data_path_dict']['V'] = json.loads(dictionary['local_data_path_dict']['V'])
+            else:
+                dictionary['local_data_path_dict']['V'] = dictionary['local_data_path_dict']['V']
         for item in dictionary.copy():
             if not dictionary[item]:
                 dictionary.pop(item)
+
         self.update_from_dictionary(**dictionary)
 
     def update_from_arguments(self, args: List[str]) -> None:
@@ -201,9 +217,9 @@ class Parameters:
         parser = argparse.ArgumentParser()
         for name, dtype in ann.items():
             parser.add_argument(f"--{name}", type=dtype, required=False)
-        parser.add_argument("--H1", type=str, required=False)
-        parser.add_argument("--L1", type=str, required=False)
-        parser.add_argument("--V", type=str, required=False)
+        parser.add_argument("--H1", required=False)
+        parser.add_argument("--L1", required=False)
+        parser.add_argument("--V", required=False)
         parsed, _ = parser.parse_known_args(args)
         dictionary = vars(parsed)
         for item in dictionary.copy():
@@ -211,11 +227,21 @@ class Parameters:
                 dictionary.pop(item)
         local_data_path_dict = {}
         if 'H1' in dictionary:
-            local_data_path_dict['H1'] = dictionary['H1']
+            if dictionary['H1'].startswith('['):
+                local_data_path_dict['H1'] = json.loads(dictionary['H1'])
+            else:
+                local_data_path_dict['H1'] = dictionary['H1']
         if 'L1' in dictionary:
-            local_data_path_dict['L1'] = dictionary['L1']
+            if dictionary['L1'].startswith('['):
+                local_data_path_dict['L1'] = json.loads(dictionary['L1'])
+            else:
+                local_data_path_dict['L1'] = dictionary['L1']
         if 'V' in dictionary:
-            local_data_path_dict['V'] = dictionary['V']
+            if dictionary['V'].startswith('['):
+                local_data_path_dict['V'] = json.loads(dictionary['V'])
+            else:
+                local_data_path_dict['V'] = dictionary['V']
+
         dictionary['local_data_path_dict'] = local_data_path_dict
         self.update_from_dictionary(**dictionary)
 

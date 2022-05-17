@@ -58,7 +58,7 @@ def set_start_time(
 
 
 def read_data(
-    IFO: str, data_type: str, channel: str, t0: int, tf: int, local_data_path: str = "", tag: str = 'C00',
+    IFO: str, data_type: str, channel: str, t0: int, tf: int, local_data_path, tag: str = 'C00',
 ):
     """
     Function doing the reading of the data to be used in the
