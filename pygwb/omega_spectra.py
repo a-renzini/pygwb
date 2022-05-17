@@ -1,9 +1,10 @@
+import pickle
+
+import numpy as np
 from astropy.io import registry as io_registry
 from gwpy.frequencyseries import FrequencySeries
 from gwpy.spectrogram import Spectrogram
 from gwpy.types.io.hdf5 import register_hdf5_array_io
-import pickle
-import numpy as np
 
 
 class OmegaSpectrogram(Spectrogram):
