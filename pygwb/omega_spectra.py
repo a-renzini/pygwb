@@ -331,3 +331,4 @@ def reweight_spectral_object(
 
 register_hdf5_array_io(OmegaSpectrogram)
 register_hdf5_array_io(OmegaSpectrum)
+
