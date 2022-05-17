@@ -2,11 +2,16 @@ from astropy.io import registry as io_registry
 from gwpy.frequencyseries import FrequencySeries
 from gwpy.spectrogram import Spectrogram
 from gwpy.types.io.hdf5 import register_hdf5_array_io
+import pickle
+import numpy as np
 
 
 class OmegaSpectrogram(Spectrogram):
 
     """Subclass of gwpy's Spectrogram class."""
+
+    _metadata_slots = FrequencySeries._metadata_slots + ("alpha", "fref", "h0")
+    _print_slots = FrequencySeries._print_slots + ["alpha", "fref", "h0"]
 
     def __new__(cls, data, **kwargs):
         kwargs.pop("alpha", None)
@@ -15,9 +20,9 @@ class OmegaSpectrogram(Spectrogram):
         return super(OmegaSpectrogram, cls).__new__(cls, data, **kwargs)
 
     def __init__(self, data, alpha=None, fref=None, h0=1.0, **kwargs):
-        if not isinstance(alpha, (float, int)):
+        if not isinstance(alpha, (float, int, np.number)):
             raise ValueError("Spectral index alpha must be a valid number.")
-        if not isinstance(fref, (float, int)):
+        if not isinstance(fref, (float, int, np.number)):
             raise ValueError("Reference frequency fref must be a valid number.")
         self._alpha = alpha
         self._fref = fref
@@ -160,9 +165,9 @@ class OmegaSpectrum(FrequencySeries):
         return super(OmegaSpectrum, cls).__new__(cls, data, **kwargs)
 
     def __init__(self, data, alpha=None, fref=None, h0=1.0, **kwargs):
-        if not isinstance(alpha, (float, int)):
+        if not isinstance(alpha, (float, int, np.number)):
             raise ValueError("Spectral index alpha must be a valid number.")
-        if not isinstance(fref, (float, int)):
+        if not isinstance(fref, (float, int, np.number)):
             raise ValueError("Reference frequency fref must be a valid number.")
         self._alpha = alpha
         self._fref = fref
@@ -193,10 +198,7 @@ class OmegaSpectrum(FrequencySeries):
     @property
     def h0(self):
         """Hubble parameter h0"""
-        if self._h0_set:
-            return self._h0
-        else:
-            raise ValueError("Hubble parameter h0 has not yet been set")
+        return self._h0
 
     @h0.setter
     def h0(self, h0):
