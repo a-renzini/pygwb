@@ -87,6 +87,8 @@ def main():
     
     #executable = '/home/max.lalleman/public_html/Code/New_Clone_pyGWB/pygwb/pygwb_pipe/pygwb_pipe' #Used if no pyGWB env installed. 
     
+    at_the_end = False
+    
     # Writing the DAG file
     
     with open(dag, "w") as dagfile:
@@ -111,7 +113,10 @@ def main():
                 path_L1 = os.path.abspath(L1_file) #dag_args.data_path / path_L1
                 
             next_file_time = sortingFunction(path_H1) + filelength
-            if time + dag_args.job_duration > next_file_time:
+            if time + dag_args.job_duration > n_Files*filelength:
+                at_the_end = True
+
+            elif time + dag_args.job_duration > next_file_time:
                 path_H1 = Path(path_H1)
                 index_file = files_H_sorted.index(path_H1)
                 path_H1 = str(path_H1)
@@ -120,15 +125,31 @@ def main():
                 
                 path_H1 = '[\\\\\\"{0}\\\\\\",\\\\\\"{1}\\\\\\"]'.format(path_H1[0], path_H1[1])
                 path_L1 = '[\\\\\\"{0}\\\\\\",\\\\\\"{1}\\\\\\"]'.format(path_L1[0], path_L1[1])
+            
+            else:
+                pass
                 
-            dagfile.write(f"JOB {idx} {os.path.abspath(dag_args.subfile)}\n")
-            dagfile.write(
-                f'VARS {idx} job="{idx}" executable="{executable}" '
-                f'ARGS="--t0 {time} --tf {time+dag_args.job_duration} '
-                f'--H1 {path_H1} --L1 {path_L1} --output_path {outputdir} '
-                f'--param_file {os.path.abspath(dag_args.param_file)}" logdir="{logdir}"\n'
-            )
-            dagfile.write("\n")
+            if at_the_end:
+                tf_value = sortingFunction(files_H_sorted[-1]) + filelength
+                dagfile.write(f"JOB {idx} {os.path.abspath(dag_args.subfile)}\n")
+                dagfile.write(
+                    f'VARS {idx} job="{idx}" executable="{executable}" '
+                    f'ARGS="--t0 {time} --tf {tf_value} '
+                    f'--H1 {path_H1} --L1 {path_L1} --output_path {outputdir} '
+                    f'--param_file {os.path.abspath(dag_args.param_file)}" logdir="{logdir}"\n'
+                )
+                dagfile.write("\n")
+                
+            else:
+                dagfile.write(f"JOB {idx} {os.path.abspath(dag_args.subfile)}\n")
+                dagfile.write(
+                    f'VARS {idx} job="{idx}" executable="{executable}" '
+                    f'ARGS="--t0 {time} --tf {time+dag_args.job_duration} '
+                    f'--H1 {path_H1} --L1 {path_L1} --output_path {outputdir} '
+                    f'--param_file {os.path.abspath(dag_args.param_file)}" logdir="{logdir}"\n'
+                )
+                dagfile.write("\n")
+            
 
 if __name__ == "__main__":
     main()
