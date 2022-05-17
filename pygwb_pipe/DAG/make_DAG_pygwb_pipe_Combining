@@ -71,7 +71,7 @@ def main():
     # Initiating times of jobs    
     times_in_DAGfile = np.arange(0, n_Files*filelength, dag_args.job_duration)
     
-    lil_times = times_in_DAGfile[0:7] #Use this for testing and bug fixing
+    #lil_times = times_in_DAGfile[0:7] #Use this for testing and bug fixing
     
     outputdir = dag_args.parentdir / "output"
     logdir = outputdir / "condorLogs"
@@ -83,15 +83,15 @@ def main():
     dag = outputdir / dag_args.dag_name
 
     # Get the local executable
-    #executable = shutil.which('pygwb_pipe')
+    executable = shutil.which('pygwb_pipe')
     
-    executable = '/home/max.lalleman/public_html/Code/New_Clone_pyGWB/pygwb/pygwb_pipe/pygwb_pipe' #Used if no pyGWB env installed. 
+    #executable = '/home/max.lalleman/public_html/Code/New_Clone_pyGWB/pygwb/pygwb_pipe/pygwb_pipe' #Used if no pyGWB env installed. 
     
     # Writing the DAG file
     
     with open(dag, "w") as dagfile:
     
-        for idx, time in enumerate(lil_times):
+        for idx, time in enumerate(times_in_DAGfile):
             
             if time > (n_Files-1)*filelength:
                 path_H1 = os.path.abspath(files_H_sorted[-1])
