@@ -133,7 +133,7 @@ class TestOmegaSpectrum(unittest.TestCase):
     def test_read_write(self):
         self.omega_spectrum.name = "test_omega_spectrum"
         with tempfile.TemporaryDirectory() as tmpdir:
-            tmp = Path(tmpdir) / "test.{}".format("hdf5")
+            tmp = Path(tmpdir) / "test.hdf5"
             self.omega_spectrum.write(tmp)
             new = OmegaSpectrum.read(tmp)
             gwpy.testing.utils.assert_quantity_sub_equal(new, self.omega_spectrum)
@@ -186,7 +186,7 @@ class TestOmegaSpectrogram(unittest.TestCase):
     def test_read_write(self):
         self.omega_spectrogram.name = "test_omega_spectrogram"
         with tempfile.TemporaryDirectory() as tmpdir:
-            tmp = Path(tmpdir) / "test.{}".format("hdf5")
+            tmp = Path(tmpdir) / "test.hdf5"
             self.omega_spectrogram.write(tmp)
             new = OmegaSpectrogram.read(tmp)
             gwpy.testing.utils.assert_quantity_sub_equal(new, self.omega_spectrogram)
