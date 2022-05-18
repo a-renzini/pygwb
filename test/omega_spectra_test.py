@@ -1,11 +1,18 @@
+import os
+import tempfile
 import unittest
+from pathlib import Path
 
 import gwpy.testing.utils
 import numpy as np
 from gwpy.frequencyseries import FrequencySeries
 from gwpy.spectrogram import Spectrogram
 
-from pygwb.omega_spectra import reweight_spectral_object
+from pygwb.omega_spectra import (
+    OmegaSpectrogram,
+    OmegaSpectrum,
+    reweight_spectral_object,
+)
 
 
 class TestSpectralReweighting(unittest.TestCase):
@@ -89,6 +96,109 @@ class TestSpectralReweighting(unittest.TestCase):
                 old_again_specgram[:, ii],
                 almost_equal=True,
             )
+
+
+class TestOmegaSpectrum(unittest.TestCase):
+    def setUp(self) -> None:
+        self.freqs = np.array([0, 1, 2, 3])
+        self.scale_val = 34.2
+        self.gwpy_spectrum = FrequencySeries(
+            self.scale_val * np.ones(self.freqs.size), frequencies=self.freqs
+        )
+        self.alpha = 0.0
+        self.fref = 25.0
+        self.h0 = 1.0
+        self.omega_spectrum = OmegaSpectrum(
+            self.gwpy_spectrum, alpha=self.alpha, fref=self.fref, h0=self.h0
+        )
+
+    def tearDown(self) -> None:
+        del self.freqs
+        del self.scale_val
+        del self.gwpy_spectrum
+        del self.omega_spectrum
+        del self.alpha
+        del self.fref
+        del self.h0
+
+    def test_alpha_property(self):
+        self.assertEqual(self.omega_spectrum.alpha, self.alpha)
+
+    def test_fref_property(self):
+        self.assertEqual(self.omega_spectrum.fref, self.fref)
+
+    def test_h0_property(self):
+        self.assertEqual(self.omega_spectrum.h0, self.h0)
+
+    def test_read_write(self):
+        self.omega_spectrum.name = "test_omega_spectrum"
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir) / "test.hdf5"
+            self.omega_spectrum.write(tmp)
+            new = OmegaSpectrum.read(tmp)
+            gwpy.testing.utils.assert_quantity_sub_equal(new, self.omega_spectrum)
+
+    def test_save_to_pickle(self):
+        self.omega_spectrum.save_to_pickle("omega_spectrum_test.pickle")
+        os.remove("omega_spectrum_test.pickle")
+
+    def test_load_from_pickle(self):
+        omega_sgram = OmegaSpectrum.load_from_pickle(
+            "test/test_data/omega_spectrum_test.pickle"
+        )
+
+
+class TestOmegaSpectrogram(unittest.TestCase):
+    def setUp(self) -> None:
+        self.freqs = np.array([0, 0.1, 0.2, 0.3])
+        self.scale_val = 34.2
+        self.gwpy_specgram = Spectrogram(
+            self.scale_val * np.ones((2, self.freqs.size)),
+            frequencies=self.freqs,
+            times=np.arange(2),
+        )
+
+        self.alpha = 0.0
+        self.fref = 25.0
+        self.h0 = 1.0
+        self.omega_spectrogram = OmegaSpectrogram(
+            self.gwpy_specgram, alpha=self.alpha, fref=self.fref, h0=self.h0
+        )
+
+    def tearDown(self) -> None:
+        del self.freqs
+        del self.scale_val
+        del self.gwpy_specgram
+        del self.omega_spectrogram
+        del self.alpha
+        del self.fref
+        del self.h0
+
+    def test_alpha_property(self):
+        self.assertEqual(self.omega_spectrogram.alpha, self.alpha)
+
+    def test_fref_property(self):
+        self.assertEqual(self.omega_spectrogram.fref, self.fref)
+
+    def test_h0_property(self):
+        self.assertEqual(self.omega_spectrogram.h0, self.h0)
+
+    def test_read_write(self):
+        self.omega_spectrogram.name = "test_omega_spectrogram"
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir) / "test.hdf5"
+            self.omega_spectrogram.write(tmp)
+            new = OmegaSpectrogram.read(tmp)
+            gwpy.testing.utils.assert_quantity_sub_equal(new, self.omega_spectrogram)
+
+    def test_save_to_pickle(self):
+        self.omega_spectrogram.save_to_pickle("omega_spectrogram_test.pickle")
+        os.remove("omega_spectrogram_test.pickle")
+
+    def test_load_from_pickle(self):
+        omega_sgram = OmegaSpectrogram.load_from_pickle(
+            "test/test_data/omega_spectrogram_test.pickle"
+        )
 
 
 if __name__ == "__main__":

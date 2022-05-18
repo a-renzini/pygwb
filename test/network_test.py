@@ -1,4 +1,3 @@
-import copy
 import os
 import unittest
 
@@ -36,7 +35,9 @@ class TestNetwork(unittest.TestCase):
         pickled_base_1 = baseline.Baseline.load_from_pickle(
             "test/test_data/H1L1_1247644138-1247645038.pickle"
         )
-        pickled_base_2 = copy.deepcopy(pickled_base_1)
+        pickled_base_2 = baseline.Baseline.load_from_pickle(
+            "test/test_data/H1L1_1247644138-1247645038.pickle"
+        )
         bases = [pickled_base_1, pickled_base_2]
         self.net_load = network.Network.from_baselines("test_net", bases)
 

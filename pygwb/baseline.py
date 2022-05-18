@@ -166,7 +166,7 @@ class Baseline(object):
         if self._duration_set:
             return self._duration
         else:
-            raise ValueError("Duration not yet set")
+            raise ValueError("Duration not yet set.")
 
     @duration.setter
     def duration(self, dur):
@@ -218,7 +218,7 @@ class Baseline(object):
         if self._frequencies_set:
             return self._frequencies
         else:
-            raise ValueError("frequencies have not yet been set")
+            raise ValueError("frequencies have not yet been set.")
 
     @frequencies.setter
     def frequencies(self, freqs):
@@ -234,6 +234,78 @@ class Baseline(object):
         if self._vector_orf_calculated:
             delattr(self, "_vector_orf")
             self._vector_orf_calculated = False
+
+    @property
+    def point_estimate_spectrogram(self):
+        if self._point_estimate_spectrogram_set:
+            return self._point_estimate_spectrogram
+        else:
+            raise ValueError("Omega point estimate spectrogram not yet set.")
+
+    @point_estimate_spectrogram.setter
+    def point_estimate_spectrogram(self, pt_est):
+        self._point_estimate_spectrogram = pt_est
+        self._point_estimate_spectrogram_set = True
+
+    @property
+    def sigma_spectrogram(self):
+        if self._sigma_spectrogram_set:
+            return self._sigma_spectrogram
+        else:
+            raise ValueError("Omega sigma spectrogram not yet set.")
+
+    @sigma_spectrogram.setter
+    def sigma_spectrogram(self, sig):
+        self._sigma_spectrogram = sig
+        self._sigma_spectrogram_set = True
+
+    @property
+    def point_estimate_spectrum(self):
+        if self._point_estimate_spectrum_set:
+            return self._point_estimate_spectrum
+        else:
+            raise ValueError("Omega point estimate spectrum not yet set.")
+
+    @point_estimate_spectrum.setter
+    def point_estimate_spectrum(self, pt_est):
+        self._point_estimate_spectrum = pt_est
+        self._point_estimate_spectrum_set = True
+
+    @property
+    def sigma_spectrum(self):
+        if self._sigma_spectrum_set:
+            return self._sigma_spectrum
+        else:
+            raise ValueError("Omega sigma spectrum not yet set.")
+
+    @sigma_spectrum.setter
+    def sigma_spectrum(self, sig):
+        self._sigma_spectrum = sig
+        self._sigma_spectrum_set = True
+
+    @property
+    def point_estimate(self):
+        if self._point_estimate_set:
+            return self._point_estimate
+        else:
+            raise ValueError("Omega point estimate not yet set.")
+
+    @point_estimate.setter
+    def point_estimate(self, pt_est):
+        self._point_estimate = pt_est
+        self._point_estimate_set = True
+
+    @property
+    def sigma(self):
+        if self._sigma_set:
+            return self._sigma
+        else:
+            raise ValueError("Omega sigma not yet set.")
+
+    @sigma.setter
+    def sigma(self, sig):
+        self._sigma = sig
+        self._sigma_set = True
 
     def _check_durations_match_baseline_ifos(self, duration):
         if self.interferometer_1.duration and self.interferometer_2.duration:
@@ -259,10 +331,11 @@ class Baseline(object):
 
     @property
     def sampling_frequency(self):
+        '''Sampling frequency'''
         if hasattr(self, "_sampling_frequency"):
             return self._sampling_frequency
         else:
-            raise ValueError("sampling frequency not set")
+            raise ValueError("sampling frequency not set.")
 
     @sampling_frequency.setter
     def sampling_frequency(self, sampling_frequency):
@@ -320,6 +393,7 @@ class Baseline(object):
 
     @property
     def badGPStimes(self):
+        '''GPS times flagged by delta sigma cut.'''
         if hasattr(self, "_badGPStimes"):
             return self._badGPStimes
         else:
@@ -333,6 +407,7 @@ class Baseline(object):
 
     @property
     def delta_sigmas(self):
+        '''Values of delta sigmas for data segments in the baseline.'''
         if hasattr(self, "_delta_sigmas"):
             return self._delta_sigmas
         else:
@@ -640,7 +715,7 @@ class Baseline(object):
             name=self.name + f" with alpha={alpha}",
             alpha=alpha,
             fref=fref,
-            h0=1.0
+            h0=1.0,
         )
 
         self.sigma_spectrogram = OmegaSpectrogram(
@@ -650,7 +725,7 @@ class Baseline(object):
             name=sigma_name,
             alpha=alpha,
             fref=fref,
-            h0=1.0
+            h0=1.0,
         )
 
     def set_point_estimate_sigma_spectrum(
@@ -737,7 +812,7 @@ class Baseline(object):
             epoch=epoch,
             alpha=alpha,
             fref=fref,
-            h0=1.0
+            h0=1.0,
         )
         self.sigma_spectrum = OmegaSpectrum(
             np.sqrt(sigma),
@@ -746,7 +821,7 @@ class Baseline(object):
             epoch=epoch,
             alpha=alpha,
             fref=fref,
-            h0=1.0
+            h0=1.0,
         )
         self.point_estimate_alpha = 0
 
@@ -1079,7 +1154,7 @@ class Baseline(object):
         sigma_segment_times = sigma_spectrogram.times.value.tolist()
 
         badGPStimes_list = badGPStimes.tolist()
-        delta_sigmas_list = delta_sigmas.value
+        delta_sigmas_list = delta_sigmas.tolist()
 
         save_dictionary = {
             "frequencies": list_freqs,
