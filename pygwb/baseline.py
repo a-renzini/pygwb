@@ -249,7 +249,7 @@ class Baseline(object):
         if self._point_estimate_spectrogram_set:
             return self._point_estimate_spectrogram
         else:
-            raise ValueError("Omega point estimate spectrogram not yet set.")
+            raise ValueError("Omega point estimate spectrogram not yet set. To set it, use `set_point_estimate_sigma_spectrogram` method.")
 
     @point_estimate_spectrogram.setter
     def point_estimate_spectrogram(self, pt_est):
@@ -262,7 +262,7 @@ class Baseline(object):
         if self._sigma_spectrogram_set:
             return self._sigma_spectrogram
         else:
-            raise ValueError("Omega sigma spectrogram not yet set.")
+            raise ValueError("Omega sigma spectrogram not yet set. To set it, use `set_point_estimate_sigma_spectrogram` method.")
 
     @sigma_spectrogram.setter
     def sigma_spectrogram(self, sig):
@@ -275,7 +275,7 @@ class Baseline(object):
         if self._point_estimate_spectrum_set:
             return self._point_estimate_spectrum
         else:
-            raise ValueError("Omega point estimate spectrum not yet set.")
+            raise ValueError("Omega point estimate spectrum not yet set. To set it, use `set_point_estimate_sigma_spectrum` method.")
 
     @point_estimate_spectrum.setter
     def point_estimate_spectrum(self, pt_est):
@@ -288,7 +288,7 @@ class Baseline(object):
         if self._sigma_spectrum_set:
             return self._sigma_spectrum
         else:
-            raise ValueError("Omega sigma spectrum not yet set.")
+            raise ValueError("Omega sigma spectrum not yet set. To set it, use `set_point_estimate_sigma_spectrum` method.")
 
     @sigma_spectrum.setter
     def sigma_spectrum(self, sig):
@@ -301,7 +301,7 @@ class Baseline(object):
         if self._point_estimate_set:
             return self._point_estimate
         else:
-            raise ValueError("Omega point estimate not yet set.")
+            raise ValueError("Omega point estimate not yet set. To set it, use `set_point_estimate_sigma` method.")
 
     @point_estimate.setter
     def point_estimate(self, pt_est):
@@ -314,7 +314,7 @@ class Baseline(object):
         if self._sigma_set:
             return self._sigma
         else:
-            raise ValueError("Omega sigma not yet set.")
+            raise ValueError("Omega sigma not yet set. To set it, use `set_point_estimate_sigma` method.")
 
     @sigma.setter
     def sigma(self, sig):
