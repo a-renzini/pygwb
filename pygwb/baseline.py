@@ -331,6 +331,7 @@ class Baseline(object):
 
     @property
     def sampling_frequency(self):
+        '''Sampling frequency'''
         if hasattr(self, "_sampling_frequency"):
             return self._sampling_frequency
         else:
@@ -392,6 +393,7 @@ class Baseline(object):
 
     @property
     def badGPStimes(self):
+        '''GPS times flagged by delta sigma cut.'''
         if hasattr(self, "_badGPStimes"):
             return self._badGPStimes
         else:
@@ -405,6 +407,7 @@ class Baseline(object):
 
     @property
     def delta_sigmas(self):
+        '''Values of delta sigmas for data segments in the baseline.'''
         if hasattr(self, "_delta_sigmas"):
             return self._delta_sigmas
         else:
