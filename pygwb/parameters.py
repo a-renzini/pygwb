@@ -217,9 +217,9 @@ class Parameters:
         parser = argparse.ArgumentParser()
         for name, dtype in ann.items():
             parser.add_argument(f"--{name}", type=dtype, required=False)
-        parser.add_argument("--H1", required=False)
-        parser.add_argument("--L1", required=False)
-        parser.add_argument("--V", required=False)
+        parser.add_argument("--H1", type=str, required=False)
+        parser.add_argument("--L1", type=str, required=False)
+        parser.add_argument("--V", type=str, required=False)
         parsed, _ = parser.parse_known_args(args)
         dictionary = vars(parsed)
         for item in dictionary.copy():
