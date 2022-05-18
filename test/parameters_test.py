@@ -31,5 +31,9 @@ class TestParameters(unittest.TestCase):
             parser.add_argument(f"--{name}", help=name_help, type=dtype, required=False)
         parser.print_help()  # for help
 
+    def test_save_paramfile(self):
+        self.params.save_paramfile("new_file.ini")
+        self.params.update_from_file("new_file.ini")
+
 if __name__ == "__main__":
     unittest.main()
