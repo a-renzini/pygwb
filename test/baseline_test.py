@@ -229,7 +229,9 @@ class TestBaseline(unittest.TestCase):
         pickled_ifo_2 = pickled_base.interferometer_2
         CSD_test = pickled_base.average_csd
 
-        base = copy.deepcopy(pickled_base)
+        base = baseline.Baseline.load_from_pickle(
+            "test/test_data/H1L1_1247644138-1247645038.pickle"
+        )
         base.average_csd = None
         base.set_average_cross_spectral_density()
         base.crop_frequencies_average_psd_csd(50, 500)
@@ -243,7 +245,9 @@ class TestBaseline(unittest.TestCase):
         )
         badGPStimes_test = pickled_base.badGPStimes
         dsc_test = pickled_base.delta_sigmas
-        base = copy.deepcopy(pickled_base)
+        base = baseline.Baseline.load_from_pickle(
+            "test/test_data/H1L1_1247644138-1247645038.pickle"
+        )
         base.badGPStimes = None
         base.delta_sigmas = None
         notch_file = "test/test_data/Official_O3_HL_notchlist.txt"
@@ -278,7 +282,9 @@ class TestBaseline(unittest.TestCase):
         ifo_2.psd_spectrogram = None
         pickled_ifo_1.average_psd = None
         pickled_ifo_2.average_psd = None
-        base = copy.deepcopy(pickled_base)
+        base = baseline.Baseline.load_from_pickle(
+            "test/test_data/H1L1_1247644138-1247645038.pickle"
+        )
         frequency_resolution = PSD_1_test.df.value
 
         # create new baseline from ifo's
@@ -368,7 +374,7 @@ class TestBaseline(unittest.TestCase):
         
         loaded_delta_sigmas = Loaded_npzfile['delta_sigmas']
         test_delta_sigmas = pickled_base.delta_sigmas
-        self.assertEqual(loaded_delta_sigmas, test_delta_sigmas)
+        self.assertTrue(np.array_equal(loaded_delta_sigmas, test_delta_sigmas))
         
     def test_save_psds_csd_npz(self):
         pickled_base = baseline.Baseline.load_from_pickle(
@@ -455,7 +461,7 @@ class TestBaseline(unittest.TestCase):
         
         loaded_delta_sigmas = Loaded_picklefile['delta_sigmas']
         test_delta_sigmas = pickled_base.delta_sigmas
-        self.assertEqual(loaded_delta_sigmas, test_delta_sigmas)
+        self.assertTrue(np.array_equal(loaded_delta_sigmas, test_delta_sigmas))
         
     def test_save_psds_csd_pickle(self):
         pickled_base = baseline.Baseline.load_from_pickle(
@@ -543,7 +549,7 @@ class TestBaseline(unittest.TestCase):
         
         loaded_delta_sigmas = Loaded_jsonfile['delta_sigmas']
         test_delta_sigmas = pickled_base.delta_sigmas
-        self.assertEqual(loaded_delta_sigmas, test_delta_sigmas)        
+        self.assertTrue(np.array_equal(loaded_delta_sigmas, test_delta_sigmas))
         
     def test_save_psds_csd_json(self):
         pickled_base = baseline.Baseline.load_from_pickle(
@@ -638,7 +644,7 @@ class TestBaseline(unittest.TestCase):
         
         loaded_delta_sigmas = np.float64(hf.get("delta_sigmas"))
         test_delta_sigmas = pickled_base.delta_sigmas
-        self.assertEqual(loaded_delta_sigmas, test_delta_sigmas)
+        self.assertTrue(np.array_equal(loaded_delta_sigmas, test_delta_sigmas))
         
     def test_save_psds_csd_hdf5(self):
         pickled_base = baseline.Baseline.load_from_pickle(
