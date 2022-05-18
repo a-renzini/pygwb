@@ -52,7 +52,7 @@ class TestSpectralReweighting(unittest.TestCase):
         # compare to simple formula to reweight spec with alpha=0 before
         gwpy.testing.utils.assert_quantity_sub_equal(
             new_spec,
-            self.original_spectrum * (self.freqs / fref_new) ** alpha_new,
+            self.original_spectrum / (self.freqs / fref_new) ** alpha_new,
             almost_equal=True,
         )
 
@@ -83,7 +83,7 @@ class TestSpectralReweighting(unittest.TestCase):
         for ii in range(self.original_specgram.times.size):
             gwpy.testing.utils.assert_quantity_sub_equal(
                 new_specgram[:, ii],
-                self.original_specgram[:, ii] * (self.freqs / fref_new) ** alpha_new,
+                self.original_specgram[:, ii] / (self.freqs / fref_new) ** alpha_new,
                 almost_equal=True,
             )
 
