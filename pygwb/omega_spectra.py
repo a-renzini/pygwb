@@ -324,9 +324,8 @@ def reweight_spectral_object(
     """
     weights_old = (freqs / old_fref) ** old_alpha
     weights_new = (freqs / new_fref) ** new_alpha
-    return (spec.T * (weights_new / weights_old)).T
+    return (spec.T * (weights_old / weights_new)).T
 
 
 register_hdf5_array_io(OmegaSpectrogram)
 register_hdf5_array_io(OmegaSpectrum)
-

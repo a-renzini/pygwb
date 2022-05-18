@@ -152,7 +152,7 @@ class Baseline(object):
             notch_list = StochNotchList.load_from_file(notch_list_path)
             notch_mask = notch_list.get_notch_mask(self.frequencies)
             mask = np.logical_and(mask, notch_mask)
-        return mask
+        self.frequency_mask = mask
 
     @property
     def gamma_v(self):
@@ -591,7 +591,7 @@ class Baseline(object):
             self.average_csd = self.average_csd.crop_frequencies(flow, fhigh + deltaF)
 
     def set_point_estimate_sigma_spectrogram(
-        self, weight_spectrogram=False, alpha=0, fref=25, flow=20, fhigh=1726
+        self, alpha=0, fref=25, flow=20, fhigh=1726
     ):
         """
         Set point estimate and sigma spectrogram. Resulting spectrogram
@@ -599,8 +599,6 @@ class Baseline(object):
 
         Parameters
         ==========
-        weight_spectrogram: bool, optional
-            Flag to apply spectral weighting, True by default.
         alpha: float, optional
             Spectral index to use in the weighting.
         fref: float, optional
@@ -628,28 +626,23 @@ class Baseline(object):
             self.overlap_reduction_function,
             self.sampling_frequency,
             self.duration,
-            weight_spectrogram=weight_spectrogram,
             fref=fref,
             alpha=alpha,
         )
 
-        if weight_spectrogram:
-            self.spectrogram_alpha_weight = alpha
-        else:
-            self.spectrogram_alpha_weight = 0
-
         sigma_name = (
-            self.name + f" sigma spectrogram alpha={self.spectrogram_alpha_weight}"
+            self.name + f" sigma spectrogram alpha={alpha}"
         )
         self.point_estimate_spectrogram = OmegaSpectrogram(
             Y_fs,
             times=self.average_csd.times,
             frequencies=self.average_csd.frequencies,
-            name=self.name + f" with alpha={self.spectrogram_alpha_weight}",
+            name=self.name + f" with alpha={alpha}",
             alpha=alpha,
             fref=fref,
             h0=1.0
         )
+
         self.sigma_spectrogram = OmegaSpectrogram(
             np.sqrt(var_fs),
             times=self.average_csd.times,
@@ -663,12 +656,10 @@ class Baseline(object):
     def set_point_estimate_sigma_spectrum(
         self,
         badtimes=None,
-        weight_spectrogram=False,
         alpha=0,
         fref=25,
         flow=20,
         fhigh=1726,
-        notch_list_path="",
     ):
         """
         Set time-integrated point estimate spectrum and variance in each frequency bin.
@@ -679,9 +670,6 @@ class Baseline(object):
         badtimes: np.array, optional
             Array of times to exclude from point estimate/sigma calculation.
             If no times are passed, none will be excluded.
-        weight_spectrogram: bool, optional
-            Weight spectrogram flag; if True, the spectrogram will be re-weighted using the alpha passed here.
-            Default is False.
         alpha: float, optional
             Spectral index to use in the re-weighting. Default is 0.
         fref: float, optional
@@ -703,21 +691,12 @@ class Baseline(object):
                 "Point estimate and sigma spectrograms are not set yet. setting now..."
             )
             self.set_point_estimate_sigma_spectrogram(
-                weight_spectrogram=weight_spectrogram,
                 alpha=alpha,
                 fref=fref,
                 flow=flow,
                 fhigh=fhigh,
             )
         deltaF = self.frequencies[1] - self.frequencies[0]
-
-        if notch_list_path:
-            print(f" notch list path {notch_list_path}")
-            logger.debug("Correct baseline")
-            lines_object = StochNotchList.load_from_file(notch_list_path)
-            notches = lines_object.get_notch_mask(self.frequencies)
-        else:
-            notches = np.array([], dtype=int)
 
         if badtimes is None:
             if hasattr(self, "badGPStimes"):
@@ -751,15 +730,10 @@ class Baseline(object):
             self.sampling_frequency,
         )
 
-        # REWEIGHT FUNCTION, self.spectrogram_alpha_weight is old weight, supplied alpha is new weight.
-        # apply notches now - if passed.
-        point_estimate[notches] = 0.0
-        sigma[notches] = np.inf
-
         self.point_estimate_spectrum = OmegaSpectrum(
             point_estimate,
             frequencies=self.frequencies,
-            name=self.name + "unweighted point estimate spectrum",
+            name=self.name + " point estimate spectrum",
             epoch=epoch,
             alpha=alpha,
             fref=fref,
@@ -768,7 +742,7 @@ class Baseline(object):
         self.sigma_spectrum = OmegaSpectrum(
             np.sqrt(sigma),
             frequencies=self.frequencies,
-            name=self.name + "unweighted sigma spectrum",
+            name=self.name + " sigma spectrum",
             epoch=epoch,
             alpha=alpha,
             fref=fref,
@@ -821,7 +795,6 @@ class Baseline(object):
             self.set_point_estimate_sigma_spectrum(
                 badtimes=badtimes,
                 # notch_list_path=notch_list_path,
-                weight_spectrogram=False,
                 alpha=alpha,
                 fref=fref,
                 flow=flow,
@@ -829,10 +802,10 @@ class Baseline(object):
             )
 
         # crop frequencies according to params before combining over them
-        deltaF = self.frequencies[1] - self.frequencies[0]
-        Y_spec = self.point_estimate_spectrum.crop(flow, fhigh + deltaF)
-        sigma_spec = self.sigma_spectrum.crop(flow, fhigh + deltaF)
-        freq_band_cut = (self.frequencies >= flow) & (self.frequencies <= fhigh)
+        # deltaF = self.frequencies[1] - self.frequencies[0]
+        # Y_spec = self.point_estimate_spectrum.crop(flow, fhigh + deltaF)
+        # sigma_spec = self.sigma_spectrum.crop(flow, fhigh + deltaF)
+        # freq_band_cut = (self.frequencies >= flow) & (self.frequencies <= fhigh)
         # self.frequencies = self.frequencies[freq_band_cut]
 
         # check notch list
@@ -841,36 +814,36 @@ class Baseline(object):
         # struct in some way. Seems dangerous
         if self.notch_list_path:
             logger.debug("loading notches from " + self.notch_list_path)
-            lines_object = StochNotchList.load_from_file(self.notch_list_path)
-            notch_indexes = lines_object.get_notch_mask(Y_spec.frequencies.value)
             self.set_frequency_mask(self.notch_list_path)
         elif notch_list_path:
             logger.debug("loading notches from", notch_list_path)
-            lines_object = StochNotchList.load_from_file(notch_list_path)
-            notch_indexes = lines_object.get_notch_mask(Y_spec.frequencies.value)
             self.set_frequency_mask(notch_list_path)
         else:
-            notch_indexes = np.arange(Y_spec.size)
+            self.set_frequency_mask()
 
         # get Y, sigma
-        if apply_weighting:
-            Y, sigma = calc_Y_sigma_from_Yf_varf(
-                Y_spec.value[notch_indexes],
-                sigma_spec.value[notch_indexes] ** 2,
-                freqs=self.frequencies[notch_indexes],
-                alpha=alpha,
-                fref=fref,
-            )
-        else:
-            logger.info(
-                "Be careful, in general weighting is not applied until this point"
-            )
-            Y, sigma = calc_Y_sigma_from_Yf_varf(
-                self.point_estimate_spectrum.value, self.sigma_spectrogram.value ** 2
-            )
+        # it applies reweighting only if needed
+        Y, sigma = calc_Y_sigma_from_Yf_varf(
+            self.point_estimate_spectrum,
+            self.sigma_spectrum,
+            frequency_mask=self.frequency_mask,
+            alpha=alpha,
+            fref=fref
+        )
 
         self.point_estimate = Y
         self.sigma = sigma
+
+    def reweight(self, new_alpha=None, new_fref=None):
+        if hasattr(self, "point_estimate_spectrogram"):
+            self.point_estimate_spectrogram.reweight(new_alpha, new_fref)
+        if hasattr(self, "sigma_spectrogram"):
+            self.sigma_spectrogram.reweight(new_alpha, new_fref)
+        if hasattr(self, "point_estimate_spectrum"):
+            self.point_estimate_spectrum.reweight()
+        if hasattr(self, "sigma_spectrum"):
+            self.sigma_spectrum.reweight()
+        self.set_point_estimate_sigma()
 
     def calculate_delta_sigma_cut(
         self, delta_sigma_cut, alphas, flow=20, fhigh=1726, notch_list_path=""

@@ -54,9 +54,7 @@ def postprocess_Y_sigma(Y_fs, var_fs, segment_duration, deltaF, new_sample_rate)
     return Y_f_new, var_f_new
 
 
-def calc_Y_sigma_from_Yf_varf(
-    Y_f, var_f, freqs=None, alpha=0, fref=25, weight_spectrum=True
-):
+def calc_Y_sigma_from_Yf_varf(Y_f, sigma_f, frequency_mask=None, alpha=None, fref=None):
     """
     Calculate the omega point estimate and sigma from their respective spectra,
     or spectrograms, taking into account the desired spectral weighting.
@@ -64,19 +62,10 @@ def calc_Y_sigma_from_Yf_varf(
 
     Parameters
     ==========
-    Y_f: array_like
+    Y_f: `pygwb.omega_spectrogram.OmegaSpectrogram`
         Point estimate spectrum
-    var_f: array_like
+    var_f: `pygwb.omega_spectrogram.OmegaSpectrogram`
         Sigma spectrum
-    freqs: array_like, optional
-        Frequency array associated to the point estimate and sigma spectra.
-    alpha: float, optional
-        Spectral index to use in the weighting.
-    fref: float, optional
-        Reference frequency to use in the weighting calculation.
-        Final result refers to this frequency.
-    weight_spectrogram: bool, optional
-        Flag to apply spectral weighting, True by default.
 
     Note
     ====
@@ -84,22 +73,24 @@ def calc_Y_sigma_from_Yf_varf(
     spectrum, without any time-averaging applied.
 
     """
-    if weight_spectrum and freqs is None:
-        raise ValueError(
-            "Must supply frequency array if you want to weight the spectrum when combining"
-        )
-    if weight_spectrum:
-        weights = (freqs / fref) ** alpha
-    else:
-        weights = np.ones(Y_f.shape[-1])
-    var = 1 / np.sum(var_f ** (-1) * weights ** 2, axis=-1)
+    # Reweight in case one wants to pass it.
+    Y_f.reweight(new_alpha=alpha, new_fref=fref)
+    sigma_f.reweight(new_alpha=alpha, new_fref=fref)
+
+    # now just strip off what we need...
+    Y_f = Y_f.value
+    var_f = sigma_f.value**2
+
+    var = 1 / np.sum(var_f[frequency_mask] ** (-1), axis=-1)
+
     if len(Y_f.shape) == 1:
-        Y = np.nansum(Y_f * weights * (var / var_f), axis=-1)
+        Y = np.nansum(Y_f[frequency_mask] * (var / var_f[frequency_mask]), axis=-1)
     # need to make this nan-safe
     elif len(Y_f.shape) == 2:
-        Y = np.einsum("tf, f -> t", (Y_f / var_f), weights) * var
+        Y = np.einsum("tf, f -> t", (Y_f[frequency_mask] / var_f[frequency_mask])) * var
     else:
         raise ValueError("The input is neither a spectrum nor a spectrogram.")
+
     sigma = np.sqrt(var)
 
     return Y, sigma
@@ -115,7 +106,6 @@ def calculate_point_estimate_sigma_spectrogram(
     segment_duration,
     fref=1,
     alpha=0,
-    weight_spectrogram=False,
 ):
     """
     Calculate the Omega point estimate and associated sigma spectrograms,
@@ -146,8 +136,7 @@ def calculate_point_estimate_sigma_spectrogram(
         Flag to apply spectral weighting, True by default.
     """
     S_alpha = 3 * H0 ** 2 / (10 * np.pi ** 2) / freqs ** 3
-    if weight_spectrogram:
-        S_alpha *= (freqs / fref) ** alpha
+    S_alpha *= (freqs / fref) ** alpha
     Y_fs = np.real(csd) / (orf * S_alpha)
     var_fs = (
         1
@@ -173,7 +162,6 @@ def calculate_point_estimate_sigma_integrand(
     segment_duration,
     fref=1,
     alpha=0,
-    weight_spectrogram=False,
 ):
     """
     Calculate the Omega point estimate and associated sigma integrand,
@@ -205,8 +193,7 @@ def calculate_point_estimate_sigma_integrand(
         Flag to apply spectral weighting, True by default.
     """
     S_alpha = 3 * H0 ** 2 / (10 * np.pi ** 2) / freqs ** 3
-    if weight_spectrogram:
-        S_alpha *= (freqs / fref) ** alpha
+    S_alpha *= (freqs / fref) ** alpha
     Y_fs = csd / (orf * S_alpha)
     var_fs = (
         1
