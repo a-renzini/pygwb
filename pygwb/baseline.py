@@ -113,6 +113,7 @@ class Baseline(object):
 
     @property
     def tensor_overlap_reduction_function(self):
+        """Overlap reduction function calculated for tensor polarisation."""
         if not self._tensor_orf_calculated:
             self._tensor_orf = self.calc_baseline_orf("tensor")
             self._tensor_orf_calculated = True
@@ -120,10 +121,12 @@ class Baseline(object):
 
     @property
     def overlap_reduction_function(self):
+        """Overlap reduction function associated to this baseline, calculated for the requested polarisation."""
         return self.tensor_overlap_reduction_function
 
     @property
     def vector_overlap_reduction_function(self):
+        """Overlap reduction function calculated for vector polarisation."""
         if not self._vector_orf_calculated:
             self._vector_orf = self.calc_baseline_orf("vector")
             self._vector_orf_calculated = True
@@ -131,6 +134,7 @@ class Baseline(object):
 
     @property
     def scalar_overlap_reduction_function(self):
+        """Overlap reduction function calculated for scalar polarisation."""
         if not self._scalar_orf_calculated:
             self._scalar_orf = self.calc_baseline_orf("scalar")
             self._scalar_orf_calculated = True
@@ -156,6 +160,8 @@ class Baseline(object):
 
     @property
     def gamma_v(self):
+        """Overlap reduction function for asymmetrically polarised backgrounds, 
+        as descrived in https://arxiv.org/pdf/0707.0535.pdf"""
         if not self._gamma_v_calculated:
             self._gamma_v = self.calc_baseline_orf("right_left")
             self._gamma_v_calculated = True
@@ -163,6 +169,7 @@ class Baseline(object):
 
     @property
     def duration(self):
+        '''Duration in seconds of a unit segment of data stored in the baseline detectors.'''
         if self._duration_set:
             return self._duration
         else:
@@ -215,6 +222,7 @@ class Baseline(object):
 
     @property
     def frequencies(self):
+        '''Frequency array associated to this baseline.'''
         if self._frequencies_set:
             return self._frequencies
         else:
@@ -237,6 +245,7 @@ class Baseline(object):
 
     @property
     def point_estimate_spectrogram(self):
+        '''Point estimate spectrogram (in Omega*h^2 units) calculated using data in this baseline.'''
         if self._point_estimate_spectrogram_set:
             return self._point_estimate_spectrogram
         else:
@@ -249,6 +258,7 @@ class Baseline(object):
 
     @property
     def sigma_spectrogram(self):
+        '''Sigma spectrogram (in Omega*h^2 units) calculated using data in this baseline.'''
         if self._sigma_spectrogram_set:
             return self._sigma_spectrogram
         else:
@@ -261,6 +271,7 @@ class Baseline(object):
 
     @property
     def point_estimate_spectrum(self):
+        '''Point estimate spectrum (in Omega*h^2 units) calculated using data in this baseline.'''
         if self._point_estimate_spectrum_set:
             return self._point_estimate_spectrum
         else:
@@ -273,6 +284,7 @@ class Baseline(object):
 
     @property
     def sigma_spectrum(self):
+        '''Sigma spectrum (in Omega*h^2 units) calculated using data in this baseline.'''
         if self._sigma_spectrum_set:
             return self._sigma_spectrum
         else:
@@ -285,6 +297,7 @@ class Baseline(object):
 
     @property
     def point_estimate(self):
+        '''Point estimate (in Omega*h^2 units) calculated using data in this baseline.'''
         if self._point_estimate_set:
             return self._point_estimate
         else:
@@ -297,6 +310,7 @@ class Baseline(object):
 
     @property
     def sigma(self):
+        '''Sigma (in Omega*h^2 units) calculated using data in this baseline.'''
         if self._sigma_set:
             return self._sigma
         else:
@@ -331,7 +345,8 @@ class Baseline(object):
 
     @property
     def sampling_frequency(self):
-        '''Sampling frequency'''
+        """Sampling frequency of the data stored in this baseline. This must match the 
+        sampling frequency stored in this baseline's interferometers."""
         if hasattr(self, "_sampling_frequency"):
             return self._sampling_frequency
         else:
@@ -393,7 +408,7 @@ class Baseline(object):
 
     @property
     def badGPStimes(self):
-        '''GPS times flagged by delta sigma cut.'''
+        """GPS times flagged by delta sigma cut."""
         if hasattr(self, "_badGPStimes"):
             return self._badGPStimes
         else:
@@ -407,7 +422,7 @@ class Baseline(object):
 
     @property
     def delta_sigmas(self):
-        '''Values of delta sigmas for data segments in the baseline.'''
+        """Values of delta sigmas for data segments in the baseline."""
         if hasattr(self, "_delta_sigmas"):
             return self._delta_sigmas
         else:
@@ -666,7 +681,7 @@ class Baseline(object):
             self.average_csd = self.average_csd.crop_frequencies(flow, fhigh + deltaF)
 
     def set_point_estimate_sigma_spectrogram(
-        self, alpha=0, fref=25, flow=20, fhigh=1726
+        self, alpha=0.0, fref=25, flow=20, fhigh=1726
     ):
         """
         Set point estimate and sigma spectrogram. Resulting spectrogram
@@ -705,9 +720,7 @@ class Baseline(object):
             alpha=alpha,
         )
 
-        sigma_name = (
-            self.name + f" sigma spectrogram alpha={alpha}"
-        )
+        sigma_name = f"{self.name} sigma spectrogram alpha={alpha}"
         self.point_estimate_spectrogram = OmegaSpectrogram(
             Y_fs,
             times=self.average_csd.times,
@@ -731,7 +744,7 @@ class Baseline(object):
     def set_point_estimate_sigma_spectrum(
         self,
         badtimes=None,
-        alpha=0,
+        alpha=0.0,
         fref=25,
         flow=20,
         fhigh=1726,
@@ -829,7 +842,7 @@ class Baseline(object):
         self,
         badtimes=None,
         apply_weighting=True,
-        alpha=0,
+        alpha=0.0,
         fref=25,
         flow=20,
         fhigh=1726,
@@ -903,7 +916,7 @@ class Baseline(object):
             self.sigma_spectrum,
             frequency_mask=self.frequency_mask,
             alpha=alpha,
-            fref=fref
+            fref=fref,
         )
 
         self.point_estimate = Y

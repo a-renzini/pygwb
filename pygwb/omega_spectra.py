@@ -31,7 +31,7 @@ class OmegaSpectrogram(Spectrogram):
 
     @property
     def alpha(self):
-        """Spectral index alpha"""
+        """Spectral index alpha."""
         return self._alpha
 
     @alpha.setter
@@ -42,7 +42,7 @@ class OmegaSpectrogram(Spectrogram):
 
     @property
     def fref(self):
-        """Reference frequency"""
+        """Reference frequency."""
         return self._fref
 
     @fref.setter
@@ -53,7 +53,7 @@ class OmegaSpectrogram(Spectrogram):
 
     @property
     def h0(self):
-        """Hubble parameter h0"""
+        """Hubble parameter h0."""
         return self._h0
 
     @h0.setter
@@ -176,7 +176,7 @@ class OmegaSpectrum(FrequencySeries):
 
     @property
     def alpha(self):
-        """Spectral index alpha"""
+        """Spectral index alpha."""
         return self._alpha
 
     @alpha.setter
@@ -187,7 +187,7 @@ class OmegaSpectrum(FrequencySeries):
 
     @property
     def fref(self):
-        """Reference frequency"""
+        """Reference frequency."""
         return self._fref
 
     @fref.setter
@@ -198,7 +198,7 @@ class OmegaSpectrum(FrequencySeries):
 
     @property
     def h0(self):
-        """Hubble parameter h0"""
+        """Hubble parameter h0."""
         return self._h0
 
     @h0.setter

@@ -11,6 +11,8 @@ from .util import calc_bias, window_factors
 
 
 def postprocess_Y_sigma(Y_fs, var_fs, segment_duration, deltaF, new_sample_rate):
+    '''Run postprocessing of point estimate and sigma spectrograms, combining even and 
+    odd segments. For more details see - '''
     size = np.size(Y_fs, axis=0)
     _, w1w2squaredbar, _, w1w2squaredovlbar = window_factors(
         segment_duration * new_sample_rate
@@ -210,6 +212,24 @@ def calculate_point_estimate_sigma_integrand(
 
 def combine_spectra_with_sigma_weights(main_spectra, weights_spectra):
     """
+    Combine different statistically independent spectra :math: `S_i(f)` using spectral weights :math: `w_i(f)`, as
+
+    .. math::
+    S(f) = \frac{\sum_i \frac{S_i(f)}{w^2_i(f)}}{\sum_i \frac{1}{w^2_i(f)}}, \qquad \sigma = \sqrt{\frac{1}{\sum_i \frac{1}{w^2_i(f)}}}.
+
+    Parameters
+    =========
+    main_spectra: list 
+        List of arrays or FrequencySeries or OmegaSpectrum objects to be combined.
+    weights_spectra: list
+        List of arrays or FrequencySeries or OmegaSpectrum objects to use as weights.
+
+    Returns
+    =======
+    combined_weighted_spectrum: array_like
+        Final spectrum obtained combining the original spectra with given weights.
+    combined_weights_spectrum: array_like
+        Variance associated to the final spectrum obtained combining the given weights.
     """
     res_1 = 1 / np.sum(1 / weights_spectra ** 2, axis=0)
     combined_weights_spectrum = np.sqrt(res_1)

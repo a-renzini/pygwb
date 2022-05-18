@@ -260,7 +260,6 @@ class TestBaseline(unittest.TestCase):
         pickled_base = baseline.Baseline.load_from_pickle(
             "test/test_data/H1L1_1247644138-1247645038.pickle"
         )
-        # save these for later...
         pickled_ifo_1 = pickled_base.interferometer_1
         pickled_ifo_2 = pickled_base.interferometer_2
         PSD_1_test = pickled_ifo_1.average_psd
@@ -275,7 +274,6 @@ class TestBaseline(unittest.TestCase):
         point_estimate_spectrogram_test = pickled_base.point_estimate_spectrogram
         sigma_spectrogram_test = pickled_base.sigma_spectrogram
 
-        # get rid of a few things...
         ifo_1 = copy.deepcopy(pickled_ifo_1)
         ifo_2 = copy.deepcopy(pickled_ifo_2)
         ifo_1.psd_spectrogram = None
@@ -287,7 +285,6 @@ class TestBaseline(unittest.TestCase):
         )
         frequency_resolution = PSD_1_test.df.value
 
-        # create new baseline from ifo's
         base = baseline.Baseline.from_interferometers([ifo_1, ifo_2])
         base.set_cross_and_power_spectral_density(frequency_resolution)
         base.set_average_cross_spectral_density()
@@ -320,7 +317,7 @@ class TestBaseline(unittest.TestCase):
 
         # check point estimate, sigma spectrograms
         gwpy.testing.utils.assert_quantity_sub_equal(
-            sigma_spectrogram_test, base.sigma_spectrogram, almost_equal=True
+            sigma_spectrogram_test, base.sigma_spectrogram, #almost_equal=True
         )
 
         gwpy.testing.utils.assert_quantity_sub_equal(
