@@ -720,7 +720,7 @@ class Baseline(object):
             name=self.name + f" with alpha={self.spectrogram_alpha_weight}",
             alpha=alpha,
             fref=fref,
-            h0=1.0
+            h0=1.0,
         )
         self.sigma_spectrogram = OmegaSpectrogram(
             np.sqrt(var_fs),
@@ -729,7 +729,7 @@ class Baseline(object):
             name=sigma_name,
             alpha=alpha,
             fref=fref,
-            h0=1.0
+            h0=1.0,
         )
 
     def set_point_estimate_sigma_spectrum(
@@ -835,7 +835,7 @@ class Baseline(object):
             epoch=epoch,
             alpha=alpha,
             fref=fref,
-            h0=1.0
+            h0=1.0,
         )
         self.sigma_spectrum = OmegaSpectrum(
             np.sqrt(sigma),
@@ -844,7 +844,7 @@ class Baseline(object):
             epoch=epoch,
             alpha=alpha,
             fref=fref,
-            h0=1.0
+            h0=1.0,
         )
         self.point_estimate_alpha = 0
 
