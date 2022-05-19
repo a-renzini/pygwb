@@ -232,22 +232,13 @@ class Parameters:
             if dictionary[item] is None:
                 dictionary.pop(item)
         local_data_path_dict = {}
-        if 'H1' in dictionary:
-            if dictionary['H1'].startswith('['):
-                local_data_path_dict['H1'] = json.loads(dictionary['H1'])
-            else:
-                local_data_path_dict['H1'] = dictionary['H1']
-        if 'L1' in dictionary:
-            if dictionary['L1'].startswith('['):
-                local_data_path_dict['L1'] = json.loads(dictionary['L1'])
-            else:
-                local_data_path_dict['L1'] = dictionary['L1']
-        if 'V' in dictionary:
-            if dictionary['V'].startswith('['):
-                local_data_path_dict['V'] = json.loads(dictionary['V'])
-            else:
-                local_data_path_dict['V'] = dictionary['V']
-
+        possible_ifos = ['H1', 'L1', 'V', 'K']
+        for ifo in possible_ifos:
+            if ifo in dictionary:
+                if dictionary[ifo].startswith('['):
+                    local_data_path_dict[ifo] = json.loads(dictionary[ifo])
+                else:
+                    local_data_path_dict[ifo] = dictionary[ifo]
         dictionary['local_data_path_dict'] = local_data_path_dict
         if 'window_fftgram' in dictionary:
             window_fft_dict = {}
