@@ -317,7 +317,7 @@ class TestBaseline(unittest.TestCase):
 
         # check point estimate, sigma spectrograms
         gwpy.testing.utils.assert_quantity_sub_equal(
-            sigma_spectrogram_test, base.sigma_spectrogram, #almost_equal=True
+            sigma_spectrogram_test, base.sigma_spectrogram, almost_equal=True
         )
 
         gwpy.testing.utils.assert_quantity_sub_equal(
