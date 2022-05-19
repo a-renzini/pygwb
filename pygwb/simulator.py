@@ -75,9 +75,9 @@ class Simulator(object):
             self.deltaT = 1 / self.sampling_frequency
 
             self.noise_PSD_array = self.get_noise_PSD_array()
-            
+
             self.no_noise = no_noise
-            
+
             if no_noise == True:
                 self.noise_PSD_array = np.zeros_like(self.noise_PSD_array)
 
@@ -89,7 +89,7 @@ class Simulator(object):
             self.intensity_GW = interpolate_frequency_series(
                 intensity_GW, self.frequencies
             )
-            
+
     def get_frequencies(self):
         """
         Computes an array of frequencies with given sampling frequency and duration.
@@ -211,9 +211,11 @@ class Simulator(object):
             data_noise_temp = np.zeros_like(data_signal_temp)
         data = np.zeros(self.Nd, dtype=gwpy.timeseries.TimeSeries)
         for ii in range(self.Nd):
-            logger.info(f"Adding data to channel {self.interferometers[ii].name}:SIM-STOCH_INJ")
+            logger.info(
+                f"Adding data to channel {self.interferometers[ii].name}:SIM-STOCH_INJ"
+            )
             data[ii] = gwpy.timeseries.TimeSeries(
-                (data_signal_temp[ii]+data_noise_temp[ii]).astype("float64"),
+                (data_signal_temp[ii] + data_noise_temp[ii]).astype("float64"),
                 t0=self.t0,
                 dt=self.deltaT,
                 channel=f"{self.interferometers[ii].name}:SIM-STOCH_INJ",
@@ -253,7 +255,7 @@ class Simulator(object):
         orf_array = orf_array + orf_array.transpose()
         return orf_array
 
-    def covariance_matrix(self,flag):
+    def covariance_matrix(self, flag):
         """
         Function to compute the covariance matrix corresponding to a stochastic
         background in the various detectors.
@@ -274,12 +276,12 @@ class Simulator(object):
         orf_array = self.orf_to_array()
 
         C = np.zeros((self.Nd, self.Nd, self.Nf))
-        if flag=='noise':
+        if flag == "noise":
             for ii in range(self.Nd):
                 for jj in range(self.Nd):
                     if ii == jj:
                         C[ii, jj, :] = self.noise_PSD_array[ii]
-        elif flag=='signal':
+        elif flag == "signal":
             for ii in range(self.Nd):
                 for jj in range(self.Nd):
                     if ii == jj:
@@ -357,11 +359,11 @@ class Simulator(object):
         """
         eigval, eigvec = self.compute_eigval_eigvec(C)
 
-        A = np.einsum("...ij,jk...", np.sqrt(eigval+0j), eigvec.transpose())
+        A = np.einsum("...ij,jk...", np.sqrt(eigval + 0j), eigvec.transpose())
         x = np.einsum("...j,...jk", z, A)
         return x
 
-    def simulate(self,flag):
+    def simulate(self, flag):
         """
         Function that simulates the data corresponding to an isotropic stochastic
         background.

@@ -5,8 +5,12 @@ import os
 from pathlib import Path
 from os import listdir
 from os.path import isfile, join
-from pygwb.util import calc_Y_sigma_from_Yf_varf
-from pygwb.spectral import reweight_spectral_object
+from pygwb.postprocessing import (
+    calc_Y_sigma_from_Yf_varf,
+    combine_spectra_with_sigma_weights,
+)
+from pygwb.omega_spectra import OmegaSpectrum, reweight_spectral_object
+from pygwb.baseline import Baseline
 
 import numpy as np
 from loguru import logger
@@ -39,6 +43,9 @@ def main():
         help="Reference frequency to use when presenting results.",
         action="store",
         type=int,
+    )
+    combine_parser.add_argument(
+        "--param_file", help="Parameter file", action="store", type=str
     )
     combine_parser.add_argument(
         "--h0",
@@ -95,16 +102,15 @@ def main():
         f"Saved file with unweighted point estimate and sigma values for all times in run:\n {pt_est_sigma_unweighted_path}."
     )
 
-    Y_spectra_j = np.array(Y_spectra_j)
-    sigma_spectra_j = np.array(sigma_spectra_j)
-
-    sig_inv_squared = np.array([1 / sig ** 2 for sig in sigma_spectra_j])
-    sig_inv_summed = np.sum(sig_inv_squared, axis=0)
-    sigma_spectrum = np.sqrt(1 / sig_inv_summed)
-
-    res = np.sum(Y_spectra_j / sigma_spectra_j ** 2, axis=0)
-    Y_spectrum = res / sig_inv_summed
-
+    Y_spectrum, sigma_spectrum = combine_spectra_with_sigma_weights(
+        np.array(Y_spectra_j), np.array(sigma_spectra_j)
+    )
+    #base_Y = Baseline.from_parameters(combine_args.param_file)
+    #base_Y.point_estimate_spectrum = Y_spectrum
+    #base_Y.sigma_spectrum = sigma_spectrum
+    Y_spectrum = OmegaSpectrum(Y_spectrum, alpha=params.alpha, fref=params.fref, h0=1.0)
+    sigma_spectrum = OmegaSpectrum(sigma_spectrum, alpha=params.alpha, fref=params.fref, h0=1.0)
+    
     Y_estimate, sigma_estimate = calc_Y_sigma_from_Yf_varf(
         Y_spectrum,
         sigma_spectrum ** 2,
