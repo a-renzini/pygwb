@@ -66,12 +66,12 @@ class Interferometer(bilby.gw.detector.Interferometer):
         psd_spectrogram : gwpy spectrogram
             gwpy spectrogram of power spectral density
         gates: gwpy SegmentList
-            List of segments that have been gated, not including any additional padding. 
+            List of segments that have been gated, not including any additional padding.
         gate_pad: float
-            Duration of padding used when applying gates. 
+            Duration of padding used when applying gates.
 
         """
-        self.gates = SegmentList() 
+        self.gates = SegmentList()
         self.gate_pad = None
         super(Interferometer, self).__init__(*args, **kwargs)
 
@@ -143,7 +143,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
         """
         ifo = cls.get_empty_interferometer(name)
         channel = str(ifo.name + ":" + parameters.channel)
-        
+
         if parameters.local_data_path_dict:
             local_data_path = parameters.local_data_path_dict[name]
         else:
@@ -367,7 +367,8 @@ class Interferometer(bilby.gw.detector.Interferometer):
         gate_threshold = kwargs.pop("gate_threshold")
         cluster_window = kwargs.pop("cluster_window")
         gate_whiten = kwargs.pop("gate_whiten")
-        self.timeseries, new_gates = self_gate_data(self.timeseries,
+        self.timeseries, new_gates = self_gate_data(
+            self.timeseries,
             tzero=gate_tzero,
             tpad=gate_tpad,
             gate_threshold=gate_threshold,

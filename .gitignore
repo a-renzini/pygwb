@@ -13,3 +13,9 @@ tests/results/
 build/
 *.egg*
 docs/_build
+docs/api
+docs/tutorials
+docs/templates
+*final.ini
+*.swp
+tutorials/*_samples.dat
