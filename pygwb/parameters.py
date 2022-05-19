@@ -180,21 +180,13 @@ class Parameters:
         if dictionary['interferometer_list']: dictionary['interferometer_list'] = json5.loads(dictionary['interferometer_list'])
         dictionary['window_fft_dict'] = dict(config.items("window_fft_specs"))
         dictionary['local_data_path_dict'] = dict(config.items("local_data"))
-        if 'H1' in dictionary['local_data_path_dict']:
-            if dictionary['local_data_path_dict']['H1'].startswith('['):
-                dictionary['local_data_path_dict']['H1'] = json.loads(dictionary['local_data_path_dict']['H1'])
-            else:
-                dictionary['local_data_path_dict']['H1'] = dictionary['local_data_path_dict']['H1']
-        if 'L1' in dictionary['local_data_path_dict']:
-            if dictionary['local_data_path_dict']['L1'].startswith('['):
-                dictionary['local_data_path_dict']['L1'] = json.loads(dictionary['local_data_path_dict']['L1'])
-            else:
-                dictionary['local_data_path_dict']['L1'] = dictionary['local_data_path_dict']['L1']
-        if 'V' in dictionary['local_data_path_dict']:
-            if dictionary['local_data_path_dict']['V'].startswith('['):
-                dictionary['local_data_path_dict']['V'] = json.loads(dictionary['local_data_path_dict']['V'])
-            else:
-                dictionary['local_data_path_dict']['V'] = dictionary['local_data_path_dict']['V']
+        possible_ifos = ['H1', 'L1', 'V', 'K']
+        for ifo in possible_ifos:
+            if ifo in dictionary['local_data_path_dict']:
+                if dictionary['local_data_path_dict'][ifo].startswith('['):
+                    dictionary['local_data_path_dict'][ifo] = json.loads(dictionary['local_data_path_dict'][ifo])
+                else:
+                    dictionary['local_data_path_dict'][ifo] = dictionary['local_data_path_dict'][ifo]
         for item in dictionary.copy():
             if not dictionary[item]:
                 dictionary.pop(item)
