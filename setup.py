@@ -78,7 +78,7 @@ setup(
     package_data={"pygwb": [".version"]},
     scripts=['pygwb_pipe/pygwb_pipe','pygwb_pipe/pygwb_combine'],
     install_requires=[
-        "numpy==1.19.5",
+        "numpy",
         "matplotlib",
         "scipy==1.8.0",
         "bilby",
