@@ -10,7 +10,7 @@ from pygwb.constants import H0
 from .util import calc_bias, window_factors
 
 
-def postprocess_Y_sigma(Y_fs, var_fs, segment_duration, deltaF, new_sample_rate):
+def postprocess_Y_sigma(Y_fs, var_fs, segment_duration, deltaF, new_sample_rate, window_fftgram_dict={"window_fftgram": "hann"}):
     '''Run postprocessing of point estimate and sigma spectrograms, combining even and 
     odd segments. For more details see - '''
     size = np.size(Y_fs, axis=0)
@@ -49,7 +49,7 @@ def postprocess_Y_sigma(Y_fs, var_fs, segment_duration, deltaF, new_sample_rate)
         - k
         * (GAMMA_odd + GAMMA_even - (1 / 2) * (1 / var_fs[0, :] + 1 / var_fs[-1, :]))
     ) / (1 - (k ** 2 / 4) * sigma2_oo * sigma2_ee * sigma2IJ ** 2)
-    bias = calc_bias(segment_duration, deltaF, 1 / new_sample_rate, N_avg_segs=2)
+    bias = calc_bias(segment_duration, deltaF, 1 / new_sample_rate, N_avg_segs=2, window_fftgram_dict=window_fftgram_dict)
     logger.debug(f"Bias factor: {bias}")
     var_f_new = (1 / inv_var_f_new) * bias ** 2
 

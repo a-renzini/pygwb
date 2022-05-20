@@ -266,6 +266,7 @@ def run_dsc(
     alphas: np.ndarray,
     orf: np.array,
     notch_list_path: str = "",
+    window_fftgram_dict: dict={"window_fftgram": "hann"}
 ):
 
     """
@@ -318,10 +319,10 @@ def run_dsc(
     df = psd1_naive.df.value
     dt = psd1_naive.df.value ** (-1)
     bf_ns = calc_bias(
-        segmentDuration=segment_duration, deltaF=df, deltaT=dt, N_avg_segs=1
+        segmentDuration=segment_duration, deltaF=df, deltaT=dt, N_avg_segs=1, window_fftgram_dict=window_fftgram_dict
     )  # Naive estimate
     bf_ss = calc_bias(
-        segmentDuration=segment_duration, deltaF=df, deltaT=dt, N_avg_segs=2
+        segmentDuration=segment_duration, deltaF=df, deltaT=dt, N_avg_segs=2, window_fftgram_dict=window_fftgram_dict
     )  # Sliding estimate
     freqs = np.array(psd1_naive.frequencies)
     overall_cut = np.zeros((ntimes, 1), dtype="bool")
