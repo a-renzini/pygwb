@@ -58,7 +58,13 @@ def set_start_time(
 
 
 def read_data(
-    IFO: str, data_type: str, channel: str, t0: int, tf: int, local_data_path: str = "", tag: str = 'C00',
+    IFO: str,
+    data_type: str,
+    channel: str,
+    t0: int,
+    tf: int,
+    local_data_path: str = "",
+    tag: str = "C00",
 ):
     """
     Function doing the reading of the data to be used in the
@@ -85,7 +91,7 @@ def read_data(
 
     local_data_path: str, optional
         path where local gwf is stored
-    
+
     tag: str, optional
         tag identifying type of data, e.g.: 'C00', 'C01'
 
@@ -95,10 +101,14 @@ def read_data(
         Time series containing the requested data
     """
     if data_type == "public":
-        data = timeseries.TimeSeries.fetch_open_data(IFO, t0, tf, sample_rate=16384, tag = tag)
+        data = timeseries.TimeSeries.fetch_open_data(
+            IFO, t0, tf, sample_rate=16384, tag=tag
+        )
         data.channel = channel
     elif data_type == "private":
-        data = timeseries.TimeSeries.get(channel, start=t0, end=tf, verbose=True)
+        data = timeseries.TimeSeries.get(
+            channel, start=t0, end=tf, verbose=True, tag=tag
+        )
         data.channel = channel
     elif data_type == "local":
         data = timeseries.TimeSeries.read(
@@ -205,6 +215,7 @@ def resample_filter(
 
     return filtered
 
+
 def self_gate_data(
     time_series_data: timeseries.TimeSeries,
     tzero: float = 1.0,
@@ -214,7 +225,7 @@ def self_gate_data(
     whiten: bool = True,
 ):
     """
-    Function to self-gate 
+    Function to self-gate
     data to be used in the stochastic pipeline
 
     Parameters
@@ -247,7 +258,7 @@ def self_gate_data(
     gated: gwpy_timeseries
         Timeseries containing the gated data
 
-    deadtime: `gwpy.segments.SegmentList` 
+    deadtime: `gwpy.segments.SegmentList`
         SegmentList containing the times that were gated, not including
         any padding applied
 
@@ -262,16 +273,22 @@ def self_gate_data(
     from scipy.signal import find_peaks
 
     # Find points to gate based on a threshold
-    sample = time_series_data.sample_rate.to('Hz').value
+    sample = time_series_data.sample_rate.to("Hz").value
     data = time_series_data.whiten() if whiten else time_series_data
     window_samples = cluster_window * sample
-    gates = find_peaks(abs(data.value), height=gate_threshold,
-                       distance=window_samples)[0]
+    gates = find_peaks(abs(data.value), height=gate_threshold, distance=window_samples)[
+        0
+    ]
     # represent gates as time segments
-    deadtime = SegmentList([Segment(
-        time_series_data.t0.value + (k / sample) - tzero,
-        time_series_data.t0.value + (k / sample) + tzero,
-    ) for k in gates]).coalesce()
+    deadtime = SegmentList(
+        [
+            Segment(
+                time_series_data.t0.value + (k / sample) - tzero,
+                time_series_data.t0.value + (k / sample) + tzero,
+            )
+            for k in gates
+        ]
+    ).coalesce()
     # return the self-gated timeseries
     gated = time_series_data.mask(deadtime=deadtime, const=0, tpad=tpad)
     return gated, deadtime
@@ -301,8 +318,9 @@ def shift_timeseries(time_series_data: timeseries.TimeSeries, time_shift: int = 
     if time_shift > 0:
         shifted_data = np.roll(time_series_data, int(time_shift/time_series_data.dt.value))
     else:
-        shifted_data = time_series_data 
+        shifted_data = time_series_data
     return shifted_data
+
 
 def preprocessing_data_gwpy_timeseries(
     IFO: str,
@@ -365,7 +383,8 @@ def preprocessing_data_gwpy_timeseries(
         return shift_timeseries(time_series_data=filtered, time_shift=time_shift)
     else:
         return filtered
-        
+
+
 def preprocessing_data_channel_name(
     IFO: str,
     t0: int,
@@ -380,7 +399,7 @@ def preprocessing_data_channel_name(
     ftype: str = "fir",
     time_shift: int = 0,
     local_data_path: str = "",
-    tag: str = 'C00',
+    tag: str = "C00",
 ):
     """
     Function doing the pre-processing of the data to be used in the
@@ -426,7 +445,7 @@ def preprocessing_data_channel_name(
 
     time_shift: int
         value of the time shift (in seconds)
-    
+
     tag: str, optional
         tag identifying type of data, e.g.: 'C00', 'C01'
 
@@ -535,15 +554,13 @@ def preprocessing_data_timeseries_array(
     time_series_data = timeseries.TimeSeries(
         array, t0=data_start_time, sample_rate=sample_rate
     )
-    return preprocessing_data_gwpy_timeseries( 
-    IFO = IFO,
-    gwpy_timeseries = time_series_data,
-    new_sample_rate = new_sample_rate,
-    cutoff_frequency = cutoff_frequency,
-    number_cropped_seconds = 2,
-    window_downsampling= window_downsampling,
-    ftype = ftype,
-    time_shift = time_shift)
-
-
-
+    return preprocessing_data_gwpy_timeseries(
+        IFO=IFO,
+        gwpy_timeseries=time_series_data,
+        new_sample_rate=new_sample_rate,
+        cutoff_frequency=cutoff_frequency,
+        number_cropped_seconds=2,
+        window_downsampling=window_downsampling,
+        ftype=ftype,
+        time_shift=time_shift,
+    )

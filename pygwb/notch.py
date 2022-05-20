@@ -21,7 +21,7 @@ class StochNotch(Notch):
         print(self.minimum_frequency, self.maximum_frequency, self.description)
 
     def get_notch_mask(self, frequency_array):
-        """ Get a boolean mask for the frequencies in frequency_array in the notch
+        """Get a boolean mask for the frequencies in frequency_array in the notch
 
         Parameters
         ==========
@@ -38,12 +38,17 @@ class StochNotch(Notch):
         This notches any frequency that may have overlapping frequency content with the notch.
         """
         df = np.abs(frequency_array[1] - frequency_array[0])
-        frequencies_below = np.concatenate([frequency_array[:1]-df, frequency_array[:-1]])
-        frequencies_above = np.concatenate([frequency_array[1:], frequency_array[-1:]+df])
-        lower = (frequencies_below + df/2 <= self.maximum_frequency)
-        upper = (frequencies_above - df/2 >= self.minimum_frequency)
+        frequencies_below = np.concatenate(
+            [frequency_array[:1] - df, frequency_array[:-1]]
+        )
+        frequencies_above = np.concatenate(
+            [frequency_array[1:], frequency_array[-1:] + df]
+        )
+        lower = frequencies_below + df / 2 <= self.maximum_frequency
+        upper = frequencies_above - df / 2 >= self.minimum_frequency
         notch_mask = [not elem for elem in (lower & upper)]
         return notch_mask
+
 
 class StochNotchList(list):
     def __init__(self, notch_list):
@@ -88,7 +93,7 @@ class StochNotchList(list):
         return False
 
     def get_notch_mask(self, frequency_array):
-        """ Get a boolean mask for the frequencies in frequency_array in the notch list
+        """Get a boolean mask for the frequencies in frequency_array in the notch list
 
         Parameters
         ==========
@@ -169,6 +174,7 @@ class StochNotchList(list):
         else:
             raise TypeError("Notch list from file has too many dimensions.")
         return cls
+
 
 def power_lines(fundamental=60, nharmonics=40, df=0.2):
     """
