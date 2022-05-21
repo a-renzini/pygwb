@@ -27,7 +27,7 @@ class Network(object):
         notch_list_path=None,
         overlap_factor=0.5,
         zeropad_csd=True,
-        window_fftgram="hann",
+        window_fftgram_dict={"window_fftgram":"hann"},
         N_average_segments_welch_psd=2,
     ):
         """
@@ -51,8 +51,8 @@ class Network(object):
             factor by which to overlap the segments in the psd and csd estimation. Default is 1/2, if set to 0 no overlap is performed.
         zeropad_csd: bool, optional
             if True, applies zeropadding in the csd estimation. True by default.
-        window_fftgram: str, optional
-            what type of window to use to produce the fftgrams
+        window_fftgram_dict: dictionary, optional
+            Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds. Default is \"hann\".
         N_average_segments_welch_psd: int, optional
             Number of segments used for PSD averaging (from both sides of the segment of interest)
             N_avg_segs should be even and >= 2
@@ -81,7 +81,7 @@ class Network(object):
                     notch_list_path=notch_list_path,
                     overlap_factor=overlap_factor,
                     zeropad_csd=zeropad_csd,
-                    window_fftgram=window_fftgram,
+                    window_fftgram_dict=window_fftgram_dict,
                     N_average_segments_welch_psd=N_average_segments_welch_psd,
                 )
             )
