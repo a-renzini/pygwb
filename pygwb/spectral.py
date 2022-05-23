@@ -2,6 +2,8 @@ import gwpy.spectrogram
 import numpy as np
 from scipy.signal import get_window, spectrogram
 
+from pygwb.util import get_window_tuple
+
 from .constants import H0
 
 
@@ -37,7 +39,8 @@ def fftgram(
     """
 
     sample_rate = int(1 / time_series_data.dt.value)
-    window_fftgram = get_window(window_fftgram_dict['window_fftgram'], fftlength * sample_rate, fftbins=False)
+    window_tuple = get_window_tuple(window_fftgram_dict)
+    window_fftgram = get_window(window_tuple, fftlength * sample_rate, fftbins=False)
 
     if zeropad:
         f, t, Sxx = spectrogram(
@@ -478,5 +481,3 @@ def running_mean(data, coarsening_factor=1, axis=-1):
         np.swapaxes(cumsum[coarsening_factor:] - cumsum[:-coarsening_factor], axis, -1)
         / coarsening_factor
     )
-
-

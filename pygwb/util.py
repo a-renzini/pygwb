@@ -1,3 +1,4 @@
+import copy
 import os
 import shutil
 
@@ -16,7 +17,8 @@ def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}):
     """
     Calculate window factors. By default, for a hann window.
     """
-    w = get_window(window_fftgram_dict['window_fftgram'], N, fftbins=False)
+    window_tuple = get_window_tuple(window_fftgram_dict)
+    w = get_window(window_tuple, N, fftbins=False)
     w1w2bar = np.mean(w ** 2)
     w1w2squaredbar = np.mean(w ** 4)
 
@@ -27,6 +29,18 @@ def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}):
     w1w2ovlbar = 1 / (N / 2.0) * np.sum(w1 * w2)
 
     return w1w2bar, w1w2squaredbar, w1w2ovlbar, w1w2squaredovlbar
+
+
+def get_window_tuple(window_fftgram_dict={"window_fftgram": "hann"}):
+    window_dict = copy.deepcopy(window_fftgram_dict)
+    out = tuple([window_dict["window_fftgram"]])
+    window_dict.pop("window_fftgram")
+    for name in window_dict:
+        if name != "sym":
+            out += tuple([window_dict[name]])
+    if "sym" in window_fftgram_dict:
+        out += tuple([window_dict["sym"]])
+    return out
 
 
 def calc_rho1(N, window_fftgram_dict={"window_fftgram": "hann"}):
@@ -43,7 +57,13 @@ def calc_rho1(N, window_fftgram_dict={"window_fftgram": "hann"}):
     return rho1
 
 
-def calc_bias(segmentDuration, deltaF, deltaT, N_avg_segs=2, window_fftgram_dict={"window_fftgram": "hann"}):
+def calc_bias(
+    segmentDuration,
+    deltaF,
+    deltaT,
+    N_avg_segs=2,
+    window_fftgram_dict={"window_fftgram": "hann"},
+):
     """
     Calculate the bias factor introduced by welch averaging.
 
@@ -141,5 +161,3 @@ def StatKS(DKS):
     for jj in np.arange(1, jmax + 1):
         pvalue += 2.0 * (-1) ** (jj + 1) * np.exp(-2.0 * jj ** 2 * DKS ** 2)
     return pvalue
-
-
