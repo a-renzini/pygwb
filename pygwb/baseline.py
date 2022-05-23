@@ -895,24 +895,12 @@ class Baseline(object):
             )
             self.set_point_estimate_sigma_spectrum(
                 badtimes=badtimes,
-                # notch_list_path=notch_list_path,
                 alpha=alpha,
                 fref=fref,
                 flow=flow,
                 fhigh=fhigh,
             )
 
-        # crop frequencies according to params before combining over them
-        # deltaF = self.frequencies[1] - self.frequencies[0]
-        # Y_spec = self.point_estimate_spectrum.crop(flow, fhigh + deltaF)
-        # sigma_spec = self.sigma_spectrum.crop(flow, fhigh + deltaF)
-        # freq_band_cut = (self.frequencies >= flow) & (self.frequencies <= fhigh)
-        # self.frequencies = self.frequencies[freq_band_cut]
-
-        # check notch list
-        # TODO: make this less fragile...at the moment these indexes
-        # must agree with those after cropping, so the notches must agree with the params
-        # struct in some way. Seems dangerous
         if self.notch_list_path:
             logger.debug("loading notches from " + self.notch_list_path)
             self.set_frequency_mask(self.notch_list_path)
