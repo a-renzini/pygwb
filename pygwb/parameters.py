@@ -176,17 +176,27 @@ class Parameters:
         mega_list.extend(config.items("data_quality"))
         mega_list.extend(config.items("output"))
         dictionary = dict(mega_list)
-        if dictionary['alphas_delta_sigma_cut']: dictionary['alphas_delta_sigma_cut'] = json5.loads(dictionary['alphas_delta_sigma_cut'])
-        if dictionary['interferometer_list']: dictionary['interferometer_list'] = json5.loads(dictionary['interferometer_list'])
-        dictionary['window_fft_dict'] = dict(config.items("window_fft_specs"))
-        dictionary['local_data_path_dict'] = dict(config.items("local_data"))
-        possible_ifos = ['H1', 'L1', 'V', 'K']
+        if dictionary["alphas_delta_sigma_cut"]:
+            dictionary["alphas_delta_sigma_cut"] = json5.loads(
+                dictionary["alphas_delta_sigma_cut"]
+            )
+        if dictionary["interferometer_list"]:
+            dictionary["interferometer_list"] = json5.loads(
+                dictionary["interferometer_list"]
+            )
+        dictionary["window_fft_dict"] = dict(config.items("window_fft_specs"))
+        dictionary["local_data_path_dict"] = dict(config.items("local_data"))
+        possible_ifos = ["H1", "L1", "V", "K"]
         for ifo in possible_ifos:
-            if ifo in dictionary['local_data_path_dict']:
-                if dictionary['local_data_path_dict'][ifo].startswith('['):
-                    dictionary['local_data_path_dict'][ifo] = json.loads(dictionary['local_data_path_dict'][ifo])
+            if ifo in dictionary["local_data_path_dict"]:
+                if dictionary["local_data_path_dict"][ifo].startswith("["):
+                    dictionary["local_data_path_dict"][ifo] = json.loads(
+                        dictionary["local_data_path_dict"][ifo]
+                    )
                 else:
-                    dictionary['local_data_path_dict'][ifo] = dictionary['local_data_path_dict'][ifo]
+                    dictionary["local_data_path_dict"][ifo] = dictionary[
+                        "local_data_path_dict"
+                    ][ifo]
         for item in dictionary.copy():
             if not dictionary[item]:
                 dictionary.pop(item)
@@ -232,20 +242,20 @@ class Parameters:
             if dictionary[item] is None:
                 dictionary.pop(item)
         local_data_path_dict = {}
-        possible_ifos = ['H1', 'L1', 'V', 'K']
+        possible_ifos = ["H1", "L1", "V", "K"]
         for ifo in possible_ifos:
             if ifo in dictionary:
-                if dictionary[ifo].startswith('['):
+                if dictionary[ifo].startswith("["):
                     local_data_path_dict[ifo] = json.loads(dictionary[ifo])
                 else:
                     local_data_path_dict[ifo] = dictionary[ifo]
                 dictionary.pop(ifo)
-        dictionary['local_data_path_dict'] = local_data_path_dict
-        if 'window_fftgram' in dictionary:
+        dictionary["local_data_path_dict"] = local_data_path_dict
+        if "window_fftgram" in dictionary:
             window_fft_dict = {}
-            window_fft_dict['window_fftgram'] = dictionary['window_fftgram']
-            dictionary.pop('window_fftgram')
-            dictionary['window_fft_dict'] = window_fft_dict
+            window_fft_dict["window_fftgram"] = dictionary["window_fftgram"]
+            dictionary.pop("window_fftgram")
+            dictionary["window_fft_dict"] = window_fft_dict
         self.update_from_dictionary(dictionary)
 
     def save_paramfile(self, output_path):

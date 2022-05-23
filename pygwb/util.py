@@ -10,8 +10,6 @@ from scipy.signal import get_window
 
 from pygwb.constants import H0
 
-from .spectral import coarse_grain
-
 
 def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}):
     """

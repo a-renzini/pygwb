@@ -27,7 +27,7 @@ class Network(object):
         notch_list_path=None,
         overlap_factor=0.5,
         zeropad_csd=True,
-        window_fftgram_dict={"window_fftgram":"hann"},
+        window_fftgram_dict={"window_fftgram": "hann"},
         N_average_segments_welch_psd=2,
     ):
         """
