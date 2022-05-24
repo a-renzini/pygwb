@@ -83,8 +83,8 @@ class Baseline(object):
         self._vector_orf_calculated = False
         self._scalar_orf_calculated = False
         self._gamma_v_calculated = False
-        self.sampling_frequency = sampling_frequency
         self.duration = duration
+        self.sampling_frequency = sampling_frequency
         self.frequencies = frequencies
         self.minimum_frequency = max(
             interferometer_1.minimum_frequency, interferometer_2.minimum_frequency
@@ -219,6 +219,14 @@ class Baseline(object):
             warnings.warn("Neither baseline nor interferometer duration is set.")
             self._duration = dur
             self._duration_set = True
+    
+        if self.duration is not None:
+            try:
+                self.frequencies = create_frequency_series(
+                sampling_frequency=self.sampling_frequency, duration=self.duration
+                )
+            except ValueError:
+                pass
 
     @property
     def frequencies(self):
@@ -417,6 +425,11 @@ class Baseline(object):
             )
             self._sampling_frequency = sampling_frequency
             self._sampling_frequency_set = True
+        
+        if (self.duration is not None) and (self.sampling_frequency is not None):
+            self.frequencies = create_frequency_series(
+            sampling_frequency=self.sampling_frequency, duration=self.duration
+        )
 
     @property
     def badGPStimes(self):
@@ -447,6 +460,19 @@ class Baseline(object):
         self._delta_sigmas = delta_sigmas
 
     def check_sampling_frequencies_match_baseline_ifos(self, sampling_frequency):
+        '''Check that the sampling frequency of the two interferometers in this Baseline match the Baseline sampling frequency.
+        
+        Parameters
+        ==========
+        sampling_frequency: float
+            The sampling frequency that is being set for the Baseline. 
+            
+        Notes
+        =====
+        If the sampling frequency passed is `None`, the Baseline sampling frequency will be set to that of the interferometers, if these
+        match. If these don't match, an error will be raised. If the sampling frequency of the interferometers is also `None`, then no 
+        sampling frequency will be set, and the user will can set it at a later time.
+        '''
         if (
             self.interferometer_1.sampling_frequency
             and self.interferometer_2.sampling_frequency
@@ -862,7 +888,7 @@ class Baseline(object):
         notch_list_path="",
     ):
         """
-        Set point estimate sigma based on a set of parameters. This is estimate of omega_gw in each frequency bin.
+        Set point estimate sigma based on a set of parameters. This is the estimate of omega_gw over each frequency bin.
 
         Parameters
         ==========
@@ -924,6 +950,15 @@ class Baseline(object):
         self.sigma = sigma
 
     def reweight(self, new_alpha=None, new_fref=None):
+        '''Reweight all the frequency-weighted attributes of this Baseline, if these are set.
+        
+        Parameters
+        ==========
+        new_alpha: float, optional
+            New alpha to weight the spectra to.
+        new_fref: float, optional
+            New reference frequency to refer the spectra to.
+        '''
         if hasattr(self, "point_estimate_spectrogram"):
             self.point_estimate_spectrogram.reweight(new_alpha, new_fref)
         if hasattr(self, "sigma_spectrogram"):
@@ -951,7 +986,7 @@ class Baseline(object):
         fhigh: float, optional
             high frequency. Default is 1726 Hz.
         notch_list_path: str, optional
-            file path of the baseline notch list
+            file path of the baseline notch list.
         """
         if not notch_list_path:
             notch_list_path = self.notch_list_path

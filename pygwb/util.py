@@ -106,29 +106,6 @@ def omega_to_power(omega_GWB, frequencies):
     return power
 
 
-def make_freqs(Nsamples, deltaF):
-    """
-    Make an array of frequencies given the sampling rate
-    and the segment duration specified in the initial parameter file.
-
-    Parameters
-    =========
-
-    Returns
-    =======
-    freqs: array_like
-        Array of frequencies for which an isotropic stochastic background
-        will be simulated.
-    """
-    if NSamples % 2 == 0:
-        numFreqs = NSamples / 2 - 1
-    else:
-        numFreqs = (NSamples - 1) / 2
-
-    freqs = np.array([deltaF * (i + 1) for i in range(int(numFreqs))])
-    return freqs
-
-
 def interpolate_frequency_series(fSeries, new_frequencies):
     """
     Interpolate a frequency series, given a new set of frequencies.
