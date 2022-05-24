@@ -255,6 +255,21 @@ class Simulator(object):
                 orf_array[ii, jj] = self.orf[index]
                 index += 1
         orf_array = orf_array + orf_array.transpose()
+
+        for ii in range(self.Nd):
+            baseline_name = f"{self.interferometers[ii].name} - {self.interferometers[ii].name}"
+            baseline_temp = Baseline(
+                baseline_name,
+                self.interferometers[ii],
+                self.interferometers[ii],
+                frequencies=self.frequencies,
+            )
+            orf_temp = baseline_temp.overlap_reduction_function
+            
+            if orf_temp.shape[0] != self.frequencies.shape[0]:
+                orf_temp = orf_temp[1:]
+            orf_array[ii,ii] = orf_temp
+            
         return orf_array
 
     def covariance_matrix(self, flag):
@@ -282,12 +297,12 @@ class Simulator(object):
             for ii in range(self.Nd):
                 for jj in range(self.Nd):
                     if ii == jj:
-                        C[ii, jj, :] = self.noise_PSD_array[ii]
+                        C[ii, jj, :] = orf_array[ii, jj] * self.noise_PSD_array[ii]
         elif flag == "signal":
             for ii in range(self.Nd):
                 for jj in range(self.Nd):
                     if ii == jj:
-                        C[ii, jj, :] = self.intensity_GW.value[:]
+                        C[ii, jj, :] = orf_array[ii, jj] * self.intensity_GW.value[:]
                     else:
                         C[ii, jj, :] = orf_array[ii, jj] * self.intensity_GW.value[:]
         C[C == 0.0] = 1.0e-60
