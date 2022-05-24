@@ -288,7 +288,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
         frequency_resolution,
         overlap_factor=0.5,
         overlap_factor_welch_psd=0,
-        window_fftgram="hann",
+        window_fftgram_dict={"window_fftgram": "hann"},
     ):
         """
         Set psd_spectrogram attribute from a given spectrum-related information.
@@ -302,8 +302,8 @@ class Interferometer(bilby.gw.detector.Interferometer):
             Amount of overlap between adjacent segments (range between 0 and 1)
             This factor should be same as the one used for cross_spectral_density
             (default 0, no overlap)
-        window_fftgram: str, optional
-            Type of window to use for FFT (default no window)
+        window_fftgram_dict: dictionary, optional
+            Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds. Default is \"hann\".
 
         """
 
@@ -313,7 +313,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
             self.duration,
             frequency_resolution,
             overlap_factor=overlap_factor,
-            window_fftgram=window_fftgram,
+            window_fftgram_dict=window_fftgram_dict,
         )
         self.psd_spectrogram.channel = self.timeseries.channel
         self._check_spectrogram_channel_name(self.timeseries.channel.name)
