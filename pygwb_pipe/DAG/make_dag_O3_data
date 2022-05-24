@@ -58,7 +58,7 @@ def main():
     
     executable = "/home/max.lalleman/public_html/Code/New_Clone_pyGWB/pygwb/pygwb_pipe/pygwb_pipe"
 
-    # Args
+    # Args and tests for Args
 
     Times_list = np.loadtxt(f"{dag_args.job_file_path}", dtype = 'int',  delimiter = ' ')
     
@@ -83,13 +83,14 @@ def main():
         tf_list = Times_list[:,2]
         length_list = Times_list[:,3]
 
-    print(length_list)
-    print(t0_list)
-    print(tf_list)
+    #print(length_list) # These lines can be used if there is a problem with the script
+    #print(t0_list)
+    #print(tf_list)
 
-    t_index = [index for index,t in enumerate(length_list) if t >= 771] #At the moment, pyGWB cannot handle these very small segments.
+    t_index = [index for index,t in enumerate(length_list) if t >= 771] 
+    # At the moment, pyGWB cannot handle these very small segments. 771 seconds is a guess for cut-off based on small experiments.
 
-    print(t_index)
+    #print(t_index)
     
     t0_actual = t0_list[t_index]
     tf_actual = tf_list[t_index]
@@ -101,7 +102,7 @@ def main():
 
     with open(dag,"w") as dagfile:
 
-        for index,t0 in enumerate(t0_actual):
+        for index,t0 in enumerate(t0_actual): #t0_try instead if you want to test the script
             dagfile.write(f"JOB {index} {os.path.abspath(dag_args.subfile)}\n")
             
             dagfile.write(
