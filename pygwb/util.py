@@ -14,6 +14,18 @@ from pygwb.constants import H0
 def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}):
     """
     Calculate window factors. By default, for a hann window.
+
+    Parameters
+    ==========
+    window_fftgram_dict: dictionary, optional
+        Dictionary with window characteristics. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`
+
+    Returns
+    =======
+    w1w2bar: float
+    w1w2squaredbar: float
+    w1w2ovlbar: float
+    w1w2squaredovlbar: float
     """
     window_tuple = get_window_tuple(window_fftgram_dict)
     w = get_window(window_tuple, N, fftbins=False)
@@ -30,6 +42,23 @@ def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}):
 
 
 def get_window_tuple(window_fftgram_dict={"window_fftgram": "hann"}):
+    """
+    Unpack the `window_fft_dict` dictionary into a `tuple` that may be read by scipy.get_window.
+    
+    Parameters
+    ==========
+    window_fftgram_dict: dictionary, optional
+        Dictionary with window characteristics. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`.
+    
+    Returns
+    =======
+    window_tuple: tuple
+        A tuple containing the window_fft name as the first entry, followed by optional entries of the window_fft_dict.
+
+    Note
+    ====
+    `window_fftgram_dict` is expected to have at least one item, `window_fftgram`.
+    """
     window_dict = copy.deepcopy(window_fftgram_dict)
     out = tuple([window_dict["window_fftgram"]])
     window_dict.pop("window_fftgram")
@@ -49,6 +78,13 @@ def calc_rho1(N, window_fftgram_dict={"window_fftgram": "hann"}):
     ==========
     N: int
         Length of the window.
+    window_fftgram_dict: dictionary, optional
+        Dictionary with window characteristics. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`.
+
+    Returns
+    =======
+    rho1: float
+        The combined window factor.
     """
     w1w2bar, _, w1w2ovlbar, _ = window_factors(N, window_fftgram_dict)
     rho1 = (0.5 * w1w2ovlbar / w1w2bar) ** 2
@@ -75,6 +111,11 @@ def calc_bias(
         Time sampling of welched segment.
     N_avg_segs: int, optional
         Number of segments over which the average is performed.
+
+    Returns
+    =======
+    bias: float
+        The bias factor.
     """
     N = int(segmentDuration / deltaT)
     rho1 = calc_rho1(N, window_fftgram_dict)
@@ -92,11 +133,19 @@ def omega_to_power(omega_GWB, frequencies):
 
     Parameters
     ==========
+    omega_GWB: array_like
+        The omega spectrum to turn into strain power.
+    frequencies: array_like
+        Array of frequencies corresponding to the omega spectrum.
 
     Returns
     =======
     power: gwpy.frequencyseries.FrequencySeries
         A gwpy FrequencySeries containing the GW power spectrum
+
+    Note
+    ====
+    The given frequencies need to match the given spectrum. 
     """
     H_theor = (3 * H0 ** 2) / (10 * np.pi ** 2)
 
@@ -112,8 +161,16 @@ def interpolate_frequency_series(fSeries, new_frequencies):
 
     Parameters
     ==========
-    fSeries: FrequencySeries object
+    fSeries: gwpy.frequencyseries.FrequencySeries
+        The fFrequencySeries to interpolate. 
     new_frequencies: array_like
+        The new set of frequencies to interpolate to.
+
+    Returns
+    =======
+    fSeries_new: gwpy.frequencyseries.FrequencySeries
+        The interpolated FrequencySeries.
+
     """
     spectrum = fSeries.value
     frequencies = fSeries.frequencies.value
