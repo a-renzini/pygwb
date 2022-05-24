@@ -3,7 +3,7 @@
 import argparse
 import numpy as np
 from pathlib import Path
-import sys, shutil, os
+import shutil, os
 
 
 def sortingFunction(item):
