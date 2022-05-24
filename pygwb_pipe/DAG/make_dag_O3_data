@@ -62,6 +62,12 @@ def main():
 
     Times_list = np.loadtxt(f"{dag_args.job_file_path}", dtype = 'int',  delimiter = ' ')
     
+    if dag_args.t0 < Times_list[:,1][0]:
+        raise ValueError("Provided t0 cannot be smaller than smallest t0 in JOB file.")
+    
+    if dag_args.tf > Times_list[:,2][-1]:
+        raise ValueError("Provided tf cannot be larger than largest tf in JOB file.")
+    
     if dag_args.tf is None:
         dag_args.tf = Times_list[:,2][-1]
     
