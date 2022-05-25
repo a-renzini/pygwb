@@ -97,7 +97,7 @@ class TestInterferometer(unittest.TestCase):
         ifo.set_psd_spectrogram(
             frequency_resolution=self.parameters.frequency_resolution,
             overlap_factor=self.parameters.overlap_factor,
-            window_fftgram=self.parameters.window_fft_dict['window_fftgram'],
+            window_fftgram_dict=self.parameters.window_fft_dict,
         )
         self.assertTrue(
             np.all(
