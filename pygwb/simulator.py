@@ -10,7 +10,6 @@ from bilby.core.utils import create_frequency_series
 from loguru import logger
 
 from pygwb.baseline import Baseline, get_baselines
-from pygwb.constants import H0
 from pygwb.util import interpolate_frequency_series
 
 if sys.version_info >= (3, 0):

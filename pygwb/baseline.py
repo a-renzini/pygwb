@@ -17,6 +17,7 @@ from .postprocessing import (
     postprocess_Y_sigma,
 )
 from .spectral import coarse_grain_spectrogram, cross_spectral_density
+from .constants import h0
 
 
 class Baseline(object):
@@ -277,7 +278,7 @@ class Baseline(object):
 
     @property
     def point_estimate_spectrogram(self):
-        """Point estimate spectrogram (in Omega*h^2 units) calculated using data in this baseline."""
+        """Point estimate spectrogram (in Omega units) calculated using data in this baseline."""
         if self._point_estimate_spectrogram_set:
             return self._point_estimate_spectrogram
         else:
@@ -292,7 +293,7 @@ class Baseline(object):
 
     @property
     def sigma_spectrogram(self):
-        """Sigma spectrogram (in Omega*h^2 units) calculated using data in this baseline."""
+        """Sigma spectrogram (in Omega units) calculated using data in this baseline."""
         if self._sigma_spectrogram_set:
             return self._sigma_spectrogram
         else:
@@ -307,7 +308,7 @@ class Baseline(object):
 
     @property
     def point_estimate_spectrum(self):
-        """Point estimate spectrum (in Omega*h^2 units) calculated using data in this baseline."""
+        """Point estimate spectrum (in Omega units) calculated using data in this baseline."""
         if self._point_estimate_spectrum_set:
             return self._point_estimate_spectrum
         else:
@@ -322,7 +323,7 @@ class Baseline(object):
 
     @property
     def sigma_spectrum(self):
-        """Sigma spectrum (in Omega*h^2 units) calculated using data in this baseline."""
+        """Sigma spectrum (in Omega units) calculated using data in this baseline."""
         if self._sigma_spectrum_set:
             return self._sigma_spectrum
         else:
@@ -337,7 +338,7 @@ class Baseline(object):
 
     @property
     def point_estimate(self):
-        """Point estimate (in Omega*h^2 units) calculated using data in this baseline."""
+        """Point estimate (in Omega units) calculated using data in this baseline."""
         if self._point_estimate_set:
             return self._point_estimate
         else:
@@ -352,7 +353,7 @@ class Baseline(object):
 
     @property
     def sigma(self):
-        """Sigma (in Omega*h^2 units) calculated using data in this baseline."""
+        """Sigma (in Omega units) calculated using data in this baseline."""
         if self._sigma_set:
             return self._sigma
         else:
@@ -817,7 +818,7 @@ class Baseline(object):
             name=self.name + f" with alpha={alpha}",
             alpha=alpha,
             fref=fref,
-            h0=1.0,
+            h0=h0,
         )
 
         self.sigma_spectrogram = OmegaSpectrogram(
@@ -827,7 +828,7 @@ class Baseline(object):
             name=sigma_name,
             alpha=alpha,
             fref=fref,
-            h0=1.0,
+            h0=h0,
         )
 
     def set_point_estimate_sigma_spectrum(
@@ -916,7 +917,7 @@ class Baseline(object):
             epoch=epoch,
             alpha=alpha,
             fref=fref,
-            h0=1.0,
+            h0=h0,
         )
         self.sigma_spectrum = OmegaSpectrum(
             np.sqrt(sigma),
@@ -925,7 +926,7 @@ class Baseline(object):
             epoch=epoch,
             alpha=alpha,
             fref=fref,
-            h0=1.0,
+            h0=h0,
         )
         self.point_estimate_alpha = 0
 

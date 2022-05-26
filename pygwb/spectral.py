@@ -4,8 +4,6 @@ from scipy.signal import get_window, spectrogram
 
 from pygwb.util import get_window_tuple
 
-from .constants import H0
-
 
 def fftgram(
     time_series_data,

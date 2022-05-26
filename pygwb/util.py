@@ -147,7 +147,7 @@ def omega_to_power(omega_GWB, frequencies):
     ======
     The given frequencies need to match the given spectrum. 
     """
-    H_theor = (3 * H0 ** 2) / (10 * np.pi ** 2)
+    H_theor = (3 * H0.si.value ** 2) / (10 * np.pi ** 2)
 
     power = H_theor * omega_GWB * frequencies ** (-3)
     power = gwpy.frequencyseries.FrequencySeries(power, frequencies=frequencies)
