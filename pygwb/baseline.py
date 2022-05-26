@@ -986,12 +986,12 @@ class Baseline(object):
                 polarization=polarization,
             )
 
+        if notch_list_path: 
+            self.notch_list_path=notch_list_path
+
         if self.notch_list_path:
             logger.debug("loading notches from " + self.notch_list_path)
             self.set_frequency_mask(self.notch_list_path)
-        elif notch_list_path:
-            logger.debug("loading notches from", notch_list_path)
-            self.set_frequency_mask(notch_list_path)
         else:
             self.set_frequency_mask()
 
