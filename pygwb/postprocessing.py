@@ -69,7 +69,7 @@ def postprocess_Y_sigma(
     return Y_f_new, var_f_new
 
 
-def calc_Y_sigma_from_Yf_varf(Y_f, sigma_f, frequency_mask=True, alpha=None, fref=None):
+def calc_Y_sigma_from_Yf_sigmaf(Y_f, sigma_f, frequency_mask=True, alpha=None, fref=None):
     """
     Calculate the omega point estimate and sigma from their respective spectra,
     or spectrograms, taking into account the desired spectral weighting.

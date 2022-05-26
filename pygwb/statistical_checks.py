@@ -17,7 +17,7 @@ from pygwb.delta_sigma_cut import (
 )
 from pygwb.parameters import Parameters
 from pygwb.postprocessing import (
-    calc_Y_sigma_from_Yf_varf,
+    calc_Y_sigma_from_Yf_sigmaf,
     calculate_point_estimate_sigma_integrand,
     postprocess_Y_sigma,
 )
@@ -157,7 +157,7 @@ class StatisticalChecks(object):
             (
                 sliding_omega_all[time],
                 sliding_sigmas_all[time],
-            ) = calc_Y_sigma_from_Yf_varf(
+            ) = calc_Y_sigma_from_Yf_sigmaf(
                 baseline.point_estimate_spectrogram.value[time],
                 baseline.sigma_spectrogram.value[time],
                 freqs=baseline.point_estimate_spectrogram.frequencies.value,
@@ -275,7 +275,7 @@ class StatisticalChecks(object):
             (
                 sliding_omega_all[time],
                 sliding_sigmas_all[time],
-            ) = calc_Y_sigma_from_Yf_varf(
+            ) = calc_Y_sigma_from_Yf_sigmaf(
                 point_est_file_data["point_estimate_spectrogram"].value[time],
                 point_est_file_data["sigma_spectrogram"].value[time],
                 freqs=point_est_file_data[
@@ -436,7 +436,7 @@ class StatisticalChecks(object):
                 (
                     sliding_omega_all[time],
                     sliding_sigmas_all[time],
-                ) = calc_Y_sigma_from_Yf_varf(
+                ) = calc_Y_sigma_from_Yf_sigmaf(
                     point_estimate_spectrogram[time][:],
                     sigma_spectrogram[time][:],
                     freqs=freqs,

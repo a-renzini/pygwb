@@ -12,7 +12,7 @@ from pygwb.omega_spectra import OmegaSpectrogram, OmegaSpectrum
 from .notch import StochNotchList
 from .orfs import calc_orf
 from .postprocessing import (
-    calc_Y_sigma_from_Yf_varf,
+    calc_Y_sigma_from_Yf_sigmaf,
     calculate_point_estimate_sigma_spectrogram,
     postprocess_Y_sigma,
 )
@@ -997,7 +997,7 @@ class Baseline(object):
 
         # get Y, sigma
         # it applies reweighting only if needed
-        Y, sigma = calc_Y_sigma_from_Yf_varf(
+        Y, sigma = calc_Y_sigma_from_Yf_sigmaf(
             self.point_estimate_spectrum,
             self.sigma_spectrum,
             frequency_mask=self.frequency_mask,

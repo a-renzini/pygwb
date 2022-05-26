@@ -14,7 +14,7 @@ from pygwb.baseline import Baseline
 from pygwb.omega_spectra import OmegaSpectrum, reweight_spectral_object
 from pygwb.parameters import Parameters
 from pygwb.postprocessing import (
-    calc_Y_sigma_from_Yf_varf,
+    calc_Y_sigma_from_Yf_sigmaf,
     combine_spectra_with_sigma_weights,
 )
 
@@ -127,7 +127,7 @@ def main():
         Y_spectrum.frequencies.value <= params.fhigh
     )
 
-    Y_estimate, sigma_estimate = calc_Y_sigma_from_Yf_varf(
+    Y_estimate, sigma_estimate = calc_Y_sigma_from_Yf_sigmaf(
         Y_spectrum,
         sigma_spectrum,
         frequency_mask=mask,
