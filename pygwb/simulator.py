@@ -301,10 +301,8 @@ class Simulator(object):
         elif flag == "signal":
             for ii in range(self.Nd):
                 for jj in range(self.Nd):
-                    if ii == jj:
-                        C[ii, jj, :] = orf_array[ii, jj] * self.intensity_GW.value[:]
-                    else:
-                        C[ii, jj, :] = orf_array[ii, jj] * self.intensity_GW.value[:]
+                    C[ii, jj, :] = orf_array[ii, jj] * self.intensity_GW.value[:]
+                    
         C[C == 0.0] = 1.0e-60
 
         C = self.N_samples_per_segment / (self.deltaT * 4) * C
