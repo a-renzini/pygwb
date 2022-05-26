@@ -820,7 +820,11 @@ class Baseline(object):
         """
 
         # set unweighted point estimate and sigma spectrograms
-        if not hasattr(self, "point_estimate_spectrogram"):
+        if hasattr(self, "point_estimate_spectrogram"):
+            # reweight based on alpha that has been supplied
+            self.point_estimate_spectrogram.reweight(new_alpha=alpha, new_fref=fref)
+            self.sigma_spectrogram.reweight(new_alpha=alpha, new_fref=fref)
+        else:
             logger.info(
                 "Point estimate and sigma spectrograms are not set yet. setting now..."
             )
@@ -920,7 +924,12 @@ class Baseline(object):
         """
         # TODO: Add check if badtimes is passed and point estimate spectrum
         # already exists...
-        if not hasattr(self, "point_estimate_spectrum"):
+        if hasattr(self, "point_estimate_spectrum"):
+            self.point_estimate_spectrum.reweight(new_alpha=alpha, new_fref=fref)
+            self.sigma_spectrum.reweight(new_alpha=alpha, new_fref=fref)
+            self.point_estimate_spectrogram.reweight(new_alpha=alpha, new_fref=fref)
+            self.sigma_spectrogram.reweight(new_alpha=alpha, new_fref=fref)
+        else:
             logger.info(
                 "Point estimate and sigma spectra have not been set before. Setting it now..."
             )
@@ -967,15 +976,7 @@ class Baseline(object):
         new_fref: float, optional
             New reference frequency to refer the spectra to.
         '''
-        if hasattr(self, "point_estimate_spectrogram"):
-            self.point_estimate_spectrogram.reweight(new_alpha, new_fref)
-        if hasattr(self, "sigma_spectrogram"):
-            self.sigma_spectrogram.reweight(new_alpha, new_fref)
-        if hasattr(self, "point_estimate_spectrum"):
-            self.point_estimate_spectrum.reweight()
-        if hasattr(self, "sigma_spectrum"):
-            self.sigma_spectrum.reweight()
-        self.set_point_estimate_sigma()
+        self.set_point_estimate_sigma(alpha=new_alpha, fref=new_fref)
 
     def calculate_delta_sigma_cut(
         self, delta_sigma_cut, alphas, flow=20, fhigh=1726, notch_list_path=""
