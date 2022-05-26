@@ -297,7 +297,7 @@ class Simulator(object):
             for ii in range(self.Nd):
                 for jj in range(self.Nd):
                     if ii == jj:
-                        C[ii, jj, :] = orf_array[ii, jj] * self.noise_PSD_array[ii]
+                        C[ii, jj, :] = self.noise_PSD_array[ii]
         elif flag == "signal":
             for ii in range(self.Nd):
                 for jj in range(self.Nd):
