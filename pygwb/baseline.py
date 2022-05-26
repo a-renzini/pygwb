@@ -112,23 +112,23 @@ class Baseline(object):
             )
 
     @property
-    def tensor_overlap_reduction_function(self):
+    def tensor_overlap_reduction_function(self, frequencies=None):
         """Overlap reduction function calculated for tensor polarisation."""
         if not self._tensor_orf_calculated:
-            self._tensor_orf = self.calc_baseline_orf("tensor")
+            self._tensor_orf = self.calc_baseline_orf("tensor", frequencies=frequencies)
             self._tensor_orf_calculated = True
         return self._tensor_orf
 
     @property
-    def overlap_reduction_function(self):
+    def overlap_reduction_function(self, frequencies=None):
         """Overlap reduction function associated to this baseline, calculated for the requested polarisation."""
-        return self.tensor_overlap_reduction_function
+        return self.tensor_overlap_reduction_function(frequencies=frequencies)
 
     @property
     def vector_overlap_reduction_function(self):
         """Overlap reduction function calculated for vector polarisation."""
         if not self._vector_orf_calculated:
-            self._vector_orf = self.calc_baseline_orf("vector")
+            self._vector_orf = self.calc_baseline_orf("vector", frequencies=frequencies)
             self._vector_orf_calculated = True
         return self._vector_orf
 
@@ -136,7 +136,7 @@ class Baseline(object):
     def scalar_overlap_reduction_function(self):
         """Overlap reduction function calculated for scalar polarisation."""
         if not self._scalar_orf_calculated:
-            self._scalar_orf = self.calc_baseline_orf("scalar")
+            self._scalar_orf = self.calc_baseline_orf("scalar", frequencies=frequencies)
             self._scalar_orf_calculated = True
         return self._scalar_orf
 
@@ -159,11 +159,11 @@ class Baseline(object):
         self.frequency_mask = mask
 
     @property
-    def gamma_v(self):
+    def gamma_v(self, frequencies=None):
         """Overlap reduction function for asymmetrically polarised backgrounds, 
         as descrived in https://arxiv.org/pdf/0707.0535.pdf"""
         if not self._gamma_v_calculated:
-            self._gamma_v = self.calc_baseline_orf("right_left")
+            self._gamma_v = self.calc_baseline_orf("right_left", frequencies=frequencies)
             self._gamma_v_calculated = True
         return self._gamma_v
 
@@ -464,7 +464,7 @@ class Baseline(object):
                 "Interferometer sampling_frequencies do not match each other!"
             )
 
-    def calc_baseline_orf(self, polarization):
+    def calc_baseline_orf(self, polarization, frequencies=None):
         """
         Calculate the overlap reduction function for this baseline.
         Wraps the orf module.
@@ -475,17 +475,32 @@ class Baseline(object):
             Polarisation of the signal to consider (scalar, vector, tensor)
             for the orf calculation.
         """
-        return calc_orf(
-            self.frequencies,
-            self.interferometer_1.vertex,
-            self.interferometer_2.vertex,
-            self.interferometer_1.x,
-            self.interferometer_2.x,
-            self.interferometer_1.y,
-            self.interferometer_2.y,
-            polarization,
-        )
+        if frequencies:
+            calc_orf(
+                frequencies,
+                self.interferometer_1.vertex,
+                self.interferometer_2.vertex,
+                self.interferometer_1.x,
+                self.interferometer_2.x,
+                self.interferometer_1.y,
+                self.interferometer_2.y,
+                polarization,
+            )
+        elif self.frequencies:
+            calc_orf(
+                frequencies,
+                self.interferometer_1.vertex,
+                self.interferometer_2.vertex,
+                self.interferometer_1.x,
+                self.interferometer_2.x,
+                self.interferometer_1.y,
+                self.interferometer_2.y,
+                polarization,
+            )
+        else:
+            Raise ValueError("Frequencies have not been provided for the orf calculation; user should either pass frequencies in or set them for this Baseline.")
 
+        return 
     @classmethod
     def from_interferometers(
         cls,
