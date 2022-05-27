@@ -2,8 +2,7 @@ import numpy as np
 from loguru import logger
 
 from pygwb.notch import StochNotch, StochNotchList
-
-from .util import calc_bias
+from pygwb.util import calc_bias, window_factors
 
 
 def dsc_cut(
@@ -44,68 +43,19 @@ def dsc_cut(
         values of the difference between sliding sigma and naive sigma, i.e.: real value of the delta sigma cut per segment
     """
 
-    dsigma = np.abs(slide_sigma * bf_ss - naive_sigma * bf_ns) / slide_sigma * bf_ss
+    dsigma = np.abs(slide_sigma * bf_ss - naive_sigma * bf_ns) / (slide_sigma * bf_ss)
 
     return dsigma >= dsc, dsigma
 
 
-def calc_Hf(freqs: np.ndarray, alpha: float = 0, fref: int = 20):
 
-    """
-    Function that calculates the H(f) power law
-
-    Parameters
-    ==========
-    freqs: array
-        An array of frequencies from an FFT
-
-    alpha: float
-        spectral index
-
-    fref: int
-        reference frequency
-
-    Returns
-    =======
-    H(f): array
-        H(f) power law frequencies weighted by alpha
-    """
-
-    Hf = (freqs / fref) ** alpha
-    return Hf  # do for different power laws , take all badgps times from all alphas, multiple calls in main func
-
-
-def calc_sigma_alpha(sensitivity_integrand_with_Hf: np.ndarray):
-
-    """
-    Function that calculates the sliding or naive sigma by integrating over the sensitivity integrand
-
-    Parameters
-    ==========
-    sensitivity_integrand_with_Hf: array
-        An array that has been calculated with calc_sens_integrand(), given by S_\alpha (f) in
-        https://git.ligo.org/stochastic_lite/stochastic_lite/-/issues/11#note_242064
-
-
-    Returns
-    =======
-    sigma_alpha: float
-        value of sigma for a particular alpha, PSD, and delta_f; can be naive or sliding depending on PSD used
-    """
-
-    sigma_alpha = np.sqrt(1 / np.sum(sensitivity_integrand_with_Hf))
-
-    return sigma_alpha
-
-
-def calc_sens_integrand(
+def calc_sigma_square_avg(
     freq: np.ndarray,
     P1: np.ndarray,
     P2: np.ndarray,
-    window1: np.ndarray,
-    window2: np.ndarray,
     delta_f: float,
     orf: np.array,
+    N: int,
     T: int = 32,
     H0: float = 67.9e3 / 3.086e22,
 ):
@@ -135,6 +85,9 @@ def calc_sens_integrand(
     delta_f: float
         frequency resolution (Hz)
 
+    N: int 
+        number of samples??
+
     T: int
         coherence time (s)
 
@@ -147,74 +100,20 @@ def calc_sens_integrand(
 
     Returns
     =======
-    sens_integrand: array
-        the sensitivity integrand
+    sigma_square_avg: array
+        sigma square average
     """
 
-    w1w2bar, w1w2squaredbar, oo = WindowFactors(window1=window1, window2=window2)
+    w1w2bar, w1w2squaredbar,_ ,_ = window_factors(N)
     S_alpha = 3 * H0 ** 2 / (10 * np.pi ** 2) * 1.0 / freq ** 3
     sigma_square_avg = (
         (w1w2squaredbar / w1w2bar ** 2)
-        * 1
-        / (2 * T * delta_f)
-        * P1
-        * P2
-        / (np.power(orf, 2.0) * S_alpha ** 2)
+        * 1/ (2 * T * delta_f)* P1
+        * P2/ (np.power(orf, 2.0) * S_alpha ** 2)
     )
 
     return sigma_square_avg
 
-
-def WindowFactors(window1: np.ndarray, window2: np.ndarray):
-
-    """
-    Function that calculates the necessary window factors in line 24 of
-    https://git.ligo.org/stochastic-public/stochastic_cleaned/-/blob/master/CrossCorr/src_cc/normalization.m
-
-    Parameters
-    ==========
-    window1: array
-        typically Hann window of size np.hanning(4096*192)
-
-    window2: array
-        typically Hann window of size np.hanning(4096*192)
-
-    Returns
-    =======
-    w1w2bar: array
-        Average of the product of the two windows
-
-    w1w2squaredbar: array
-        average of the product of the squares of the two windows
-
-    w1w2ovlsquaredbar: array
-        average of the product of the first half times second half of each window
-    """
-
-    N1 = len(window1)
-    N2 = len(window2)
-    Nred = np.gcd(N1, N2).astype(int)
-    indices1 = (np.array(range(0, Nred, 1)) * N1 / Nred).astype(int)
-    indices2 = (np.array(range(0, Nred, 1)) * N2 / Nred).astype(int)
-    window1red = window1[indices1]
-    window2red = window2[indices2]
-
-    # extract 1st and 2nd half of windows
-
-    cut = int(np.floor(Nred / 2))
-
-    firsthalf1 = window1red[0:cut]
-    secondhalf1 = window1red[cut:Nred]
-
-    firsthalf2 = window2red[0:cut]
-    secondhalf2 = window2red[cut:Nred]
-
-    # calculate window factors
-    w1w2bar = np.mean(window1red * window2red)
-    w1w2squaredbar = np.mean((window1red ** 2) * (window2red ** 2))
-    w1w2ovlsquaredbar = np.mean((firsthalf1 * secondhalf1) * (firsthalf2 * secondhalf2))
-
-    return w1w2bar, w1w2squaredbar, w1w2ovlsquaredbar
 
 
 def veto_lines(freqs: np.ndarray, lines: np.ndarray, df: float = 0):
@@ -266,6 +165,7 @@ def run_dsc(
     alphas: np.ndarray,
     orf: np.array,
     notch_list_path: str = "",
+    fref: int=25,
 ):
 
     """
@@ -296,6 +196,9 @@ def run_dsc(
         the overlap reduction function as a function of frequency that quantifies the overlap of a detector baseline,
         which depends on the detector locations, relative orientations, etc.
 
+    fref: int
+        reference frequency
+
     Returns
     =======
     BadGPStimes: np.array
@@ -317,12 +220,14 @@ def run_dsc(
     ntimes = len(times)
     df = psd1_naive.df.value
     dt = psd1_naive.df.value ** (-1)
+    # Naive estimate
     bf_ns = calc_bias(
         segmentDuration=segment_duration, deltaF=df, deltaT=dt, N_avg_segs=1
-    )  # Naive estimate
+    )  
+    # Sliding estimate
     bf_ss = calc_bias(
         segmentDuration=segment_duration, deltaF=df, deltaT=dt, N_avg_segs=2
-    )  # Sliding estimate
+    )  
     freqs = np.array(psd1_naive.frequencies)
     overall_cut = np.zeros((ntimes, 1), dtype="bool")
     cuts = np.zeros((nalphas, ntimes), dtype="bool")
@@ -330,10 +235,8 @@ def run_dsc(
     veto = veto_lines(freqs=freqs, lines=lines)
     keep = np.squeeze(~veto)
 
-    window1 = np.hanning(segment_duration * sampling_frequency)
-    window2 = window1
     for alpha in range(nalphas):
-        Hf = calc_Hf(freqs=freqs, alpha=alphas[alpha])
+        Hf = (freqs / fref) ** alphas[alpha]
         cut = np.zeros((ntimes, 1), dtype="bool")
         dsigma = np.zeros((ntimes, 1), dtype="float")
         for time in range(len(times)):
@@ -343,37 +246,27 @@ def run_dsc(
             psd2_slide_time = psd2_slide[time, :]
 
             naive_sensitivity_integrand_with_Hf = (
-                calc_sens_integrand(
+                calc_sigma_square_avg(
                     freq=freqs,
                     P1=psd1_naive_time,
                     P2=psd2_naive_time,
-                    window1=window1,
-                    window2=window2,
                     delta_f=df,
                     orf=orf,
                     T=dt,
-                )
-                / Hf ** 2
+                )* Hf ** 2
             )
             slide_sensitivity_integrand_with_Hf = (
-                calc_sens_integrand(
+                calc_sigma_square_avg(
                     freq=freqs,
                     P1=psd1_slide_time,
                     P2=psd2_slide_time,
-                    window1=window1,
-                    window2=window2,
                     delta_f=df,
                     orf=orf,
                     T=dt,
-                )
-                / Hf ** 2
+                )* Hf ** 2
             )
-            naive_sigma_alpha = calc_sigma_alpha(
-                sensitivity_integrand_with_Hf=naive_sensitivity_integrand_with_Hf[keep]
-            )
-            slide_sigma_alpha = calc_sigma_alpha(
-                sensitivity_integrand_with_Hf=slide_sensitivity_integrand_with_Hf[keep]
-            )
+            naive_sigma_alpha = np.sqrt(1 / np.sum(naive_sensitivity_integrand_with_Hf[keep]))
+            slide_sigma_alpha = np.sqrt(1 / np.sum(slide_sensitivity_integrand_with_Hf[keep]))
             cut[time], dsigma[time] = dsc_cut(
                 naive_sigma=naive_sigma_alpha,
                 slide_sigma=slide_sigma_alpha,
