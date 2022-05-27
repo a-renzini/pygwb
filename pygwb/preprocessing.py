@@ -316,9 +316,7 @@ def shift_timeseries(time_series_data: timeseries.TimeSeries, time_shift: int = 
     """
 
     if time_shift > 0:
-        shifted_data = np.roll(
-            time_series_data, int(time_shift / time_series_data.dt.value)
-        )
+        shifted_data = np.roll(time_series_data, int(time_shift/time_series_data.dt.value))
     else:
         shifted_data = time_series_data
     return shifted_data
@@ -473,16 +471,15 @@ def preprocessing_data_channel_name(
         tag=tag,
     )
 
-    return preprocessing_data_gwpy_timeseries(
-        IFO=IFO,
-        gwpy_timeseries=time_series_data,
-        new_sample_rate=new_sample_rate,
-        cutoff_frequency=cutoff_frequency,
-        number_cropped_seconds=2,
-        window_downsampling=window_downsampling,
-        ftype=ftype,
-        time_shift=time_shift,
-    )
+    return preprocessing_data_gwpy_timeseries( 
+    IFO = IFO,
+    gwpy_timeseries = time_series_data,
+    new_sample_rate = new_sample_rate,
+    cutoff_frequency = cutoff_frequency,
+    number_cropped_seconds = 2,
+    window_downsampling= window_downsampling,
+    ftype = ftype,
+    time_shift = time_shift)
 
 
 def preprocessing_data_timeseries_array(

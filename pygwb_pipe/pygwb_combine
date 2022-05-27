@@ -1,22 +1,19 @@
 #!/bin/env python
 
 import argparse
-import copy
 import os
+from pathlib import Path
 from os import listdir
 from os.path import isfile, join
-from pathlib import Path
-
-import numpy as np
-from loguru import logger
-
-from pygwb.baseline import Baseline
-from pygwb.omega_spectra import OmegaSpectrum, reweight_spectral_object
-from pygwb.parameters import Parameters
 from pygwb.postprocessing import (
     calc_Y_sigma_from_Yf_varf,
     combine_spectra_with_sigma_weights,
 )
+from pygwb.omega_spectra import OmegaSpectrum, reweight_spectral_object
+from pygwb.baseline import Baseline
+
+import numpy as np
+from loguru import logger
 
 
 def sorting_function(item):
@@ -66,8 +63,6 @@ def main():
     if not combine_args.out_path:
         combine_args.out_path = Path("./")
     combine_args.alpha = np.float(eval(combine_args.alpha))
-    params = Parameters()
-    params.update_from_file(combine_args.param_file)
 
     files_ptest = [
         os.path.join(combine_args.data_path, f)
@@ -107,30 +102,19 @@ def main():
         f"Saved file with unweighted point estimate and sigma values for all times in run:\n {pt_est_sigma_unweighted_path}."
     )
 
-    Y_spectrum_combined, sigma_spectrum_combined = combine_spectra_with_sigma_weights(
+    Y_spectrum, sigma_spectrum = combine_spectra_with_sigma_weights(
         np.array(Y_spectra_j), np.array(sigma_spectra_j)
     )
+    #base_Y = Baseline.from_parameters(combine_args.param_file)
+    #base_Y.point_estimate_spectrum = Y_spectrum
+    #base_Y.sigma_spectrum = sigma_spectrum
+    Y_spectrum = OmegaSpectrum(Y_spectrum, alpha=params.alpha, fref=params.fref, h0=1.0)
+    sigma_spectrum = OmegaSpectrum(sigma_spectrum, alpha=params.alpha, fref=params.fref, h0=1.0)
     
-    Y_spectrum = OmegaSpectrum(Y_spectrum_combined, alpha=params.alpha, fref=params.fref, h0=1.0, name='Y_spectrum', frequencies=frequencies)
-    sigma_spectrum = OmegaSpectrum(sigma_spectrum_combined, alpha=params.alpha, fref=params.fref, h0=1.0, name='sigma_spectrum', frequencies=frequencies)
-    
-    Y_spectrum.write(os.path.join(
-        combine_args.out_path,f"Y_spectrum_{times[0]}-{times[-1]}.hdf5"))
-    sigma_spectrum.write(f"sigma_spectrum_{times[0]}-{times[-1]}.hdf5")
-    logger.info(
-        f"Saved file with combined point estimate and sigma OmegaSpectrum objects for this run.sigma_spectrum"
-    )
-
-    #frequencies mask
-
-    mask = (Y_spectrum.frequencies.value >= params.flow) & (
-        Y_spectrum.frequencies.value <= params.fhigh
-    )
-
     Y_estimate, sigma_estimate = calc_Y_sigma_from_Yf_varf(
         Y_spectrum,
-        sigma_spectrum,
-        frequency_mask=mask,
+        sigma_spectrum ** 2,
+        freqs=frequencies,
         alpha=combine_args.alpha,
         fref=combine_args.fref,
     )
@@ -142,20 +126,31 @@ def main():
         + f" at reference frequency fref={combine_args.fref} with h0={combine_args.h0}:\n [{Y_estimate} +/- {sigma_estimate}]"
     )
 
-
-    Y_reweight_spectrum = OmegaSpectrum(Y_spectrum_combined, alpha=params.alpha, fref=params.fref, h0=1.0, name='Y_spectrum', frequencies=frequencies)
-    Y_reweight_spectrum.reweight(new_alpha=combine_args.alpha, new_fref=combine_args.fref)
-    sigma_reweight_spectrum = OmegaSpectrum(sigma_spectrum_combined, alpha=params.alpha, fref=params.fref, h0=1.0, name='sigma_spectrum', frequencies=frequencies)
-    sigma_reweight_spectrum.reweight(new_alpha=combine_args.alpha, new_fref=combine_args.fref)
-    Y_reweight_spectrum.reset_h0(new_h0=0.7)
-    sigma_reweight_spectrum.reset_h0(new_h0=0.7)
+    Y_reweight_spectrum = reweight_spectral_object(
+        Y_spectrum,
+        frequencies,
+        combine_args.alpha,
+        combine_args.fref,
+        old_alpha=0.0,
+        old_fref=25.0,
+    )
+    sigma_reweight_spectrum = reweight_spectral_object(
+        sigma_spectrum,
+        frequencies,
+        combine_args.alpha,
+        combine_args.fref,
+        old_alpha=0.0,
+        old_fref=25.0,
+    )
+    Y_reweight_spectrum /= combine_args.h0 ** 2
+    sigma_reweight_spectrum /= combine_args.h0 ** 2
 
     np.savez(
         pt_est_sigma_spectra_path,
         point_estimate=Y_estimate,
         sigma_estimate=sigma_estimate,
-        point_estimate_spectrum=Y_reweight_spectrum.value,
-        sigma_spectrum=sigma_reweight_spectrum.value,
+        point_estimate_spectrum=Y_reweight_spectrum,
+        sigma_spectrum=sigma_reweight_spectrum,
     )
     logger.info(
         f"Saved file with weighted point estimate and sigma values and spectra:\n {pt_est_sigma_spectra_path}."

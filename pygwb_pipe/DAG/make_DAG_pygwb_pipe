@@ -1,11 +1,9 @@
 #!/bin/env python
 
 import argparse
-import os
-import shutil
-import sys
-from pathlib import Path
 import numpy as np
+from pathlib import Path
+import sys, shutil, os
 
 
 def sortingFunction(item):

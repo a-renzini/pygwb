@@ -13,8 +13,8 @@ from loguru import logger
 
 from pygwb.baseline import Baseline
 from pygwb.detector import Interferometer
-from pygwb.parameters import Parameters, ParametersHelp
-
+from pygwb.parameters import Parameters
+from pygwb.parameters import ParametersHelp
 
 def help_arguments(parent):
     ann = getattr(Parameters, "__annotations__", {})
