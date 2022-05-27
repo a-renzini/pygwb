@@ -118,7 +118,7 @@ def main():
             fref=params.fref,
             flow=params.flow,
             fhigh=params.fhigh,
-            badtimes=np.array([]),  # use this line to override the delta sigma cut
+            apply_dsc=False
         )
 
         logger.success(

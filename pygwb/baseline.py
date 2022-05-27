@@ -9,6 +9,7 @@ from loguru import logger
 from pygwb.delta_sigma_cut import run_dsc
 from pygwb.omega_spectra import OmegaSpectrogram, OmegaSpectrum
 
+from .constants import h0
 from .notch import StochNotchList
 from .orfs import calc_orf
 from .postprocessing import (
@@ -17,7 +18,6 @@ from .postprocessing import (
     postprocess_Y_sigma,
 )
 from .spectral import coarse_grain_spectrogram, cross_spectral_density
-from .constants import h0
 
 
 class Baseline(object):
@@ -839,6 +839,7 @@ class Baseline(object):
         flow=20,
         fhigh=1726,
         polarization="tensor",
+        apply_dsc=True,
     ):
         """
         Set time-integrated point estimate spectrum and variance in each frequency bin.
@@ -858,8 +859,16 @@ class Baseline(object):
         fhigh: float, optional
             High frequency. Default is 1726 Hz.
         """
+        if apply_dsc == True:
+            if badtimes is None:
+                if hasattr(self, "badGPStimes"):
+                    badtimes = self.badGPStimes
+            else:
+                badtimes = np.append(badtimes, self.badGPStimes)
+                self.badGPStimes = badtimes
+        else:
+            badtimes = np.array([])
 
-        # set unweighted point estimate and sigma spectrograms
         if hasattr(self, "point_estimate_spectrogram"):
             # reweight based on alpha that has been supplied
             self.point_estimate_spectrogram.reweight(new_alpha=alpha, new_fref=fref)
@@ -877,11 +886,6 @@ class Baseline(object):
             )
         deltaF = self.frequencies[1] - self.frequencies[0]
 
-        if badtimes is None:
-            if hasattr(self, "badGPStimes"):
-                badtimes = self.badGPStimes
-            else:
-                badtimes = np.array([])
 
         # should be True for each bad time
         bad_times_indexes = np.array(
@@ -940,6 +944,7 @@ class Baseline(object):
         fhigh=1726,
         notch_list_path="",
         polarization="tensor",
+        apply_dsc=True,
     ):
         """
         Set point estimate sigma based on a set of parameters. This is the estimate of omega_gw over each frequency bin.
@@ -964,8 +969,7 @@ class Baseline(object):
             Path to the notch list to use in the spectrum; if the notch_list isn't set in the baseline,
             user can pass it directly here. If it is not set and if none is passed no notches will be applied.
         """
-        # TODO: Add check if badtimes is passed and point estimate spectrum
-        # already exists...
+
         if hasattr(self, "point_estimate_spectrum"):
             self.point_estimate_spectrum.reweight(new_alpha=alpha, new_fref=fref)
             self.sigma_spectrum.reweight(new_alpha=alpha, new_fref=fref)
@@ -985,6 +989,7 @@ class Baseline(object):
                 flow=flow,
                 fhigh=fhigh,
                 polarization=polarization,
+                apply_dsc=apply_dsc
             )
 
         if notch_list_path: 

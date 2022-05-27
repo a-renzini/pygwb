@@ -1,10 +1,10 @@
 import numpy as np
 from loguru import logger
 
+from pygwb.constants import H0
 from pygwb.notch import StochNotch, StochNotchList
 
 from .util import calc_bias
-from pygwb.constants import H0
 
 
 def dsc_cut(
