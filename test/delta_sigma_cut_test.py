@@ -86,6 +86,7 @@ class Test(unittest.TestCase):
             psd2_naive=naive_psd_2,
             psd1_slide=avg_psd_1,
             psd2_slide=avg_psd_2,
+            sample_rate=sampling_frequency,
             alphas=alphas,
             orf=np.array([1]),
             notch_list_path=notch_file,
