@@ -38,7 +38,10 @@ class Simulator(object):
         interferometers: list of bilby interferometer objects
         intensity_GW: gwpy.frequencyseries.FrequencySeries
             A gwpy.frequencyseries.FrequencySeries containing the desired strain power spectrum
-            which needs to be simulated
+            which needs to be simulated. Note: A range of spectral indices (from -3 to 3) was
+            tested. However, one should be careful for spectral indices outside of this range,
+            as the splicing procedure implemented in this module is known to introduce a bias for
+            some values of the spectral index (usually large negative numbers).
         N_segments: int
             Number of segments that needs to be generated for the simulation
         duration: float
@@ -431,7 +434,11 @@ class Simulator(object):
         """
         This function splices together the various segments to prevent
         artifacts related to the periodicity that can arise from inverse
-        Fourier transforms.
+        Fourier transforms. Note: A range of spectral indices (from -3 to 3) was
+        tested for the GW power spectrum to inject. However, one should be careful 
+        for spectral indices outside of this range, as the splicing procedure 
+        implemented here is known to introduce a bias for some values of the spectral
+        index (usually large negative numbers).
 
         Parameters
         ==========
