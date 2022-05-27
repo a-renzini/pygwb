@@ -36,15 +36,15 @@ class Baseline(object):
         notch_list_path="",
         overlap_factor=0.5,
         zeropad_csd=True,
-        window_fftgram="hann",
+        window_fftgram_dict={"window_fftgram": "hann"},
         N_average_segments_welch_psd=2,
         sampling_frequency=None,
     ):
         """
         Instantiate a Baseline.
 
-        Parameters
-        ----------
+        Parameters:
+        ===========
         name: str
             Name for the baseline, e.g H1H2
         interferometer_1/2: bilby Interferometer object
@@ -64,8 +64,8 @@ class Baseline(object):
             Default is 1/2, if set to 0 no overlap is performed.
         zeropad_csd: bool, optional
             If True, applies zeropadding in the csd estimation. True by default.
-        window_fftgram: str, optional
-            What type of window to use to produce the fftgrams
+        window_fftgram_dict: dictionary, optional
+            Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds. Default is \"hann\".
         N_average_segments_welch_psd: int, optional
             Number of segments used for PSD averaging (from both sides of the segment of interest)
             N_avg_segs should be even and >= 2.
@@ -77,14 +77,14 @@ class Baseline(object):
         self.notch_list_path = notch_list_path
         self.overlap_factor = overlap_factor
         self.zeropad_csd = zeropad_csd
-        self.window_fftgram = window_fftgram
+        self.window_fftgram_dict = window_fftgram_dict
         self.N_average_segments_welch_psd = N_average_segments_welch_psd
         self._tensor_orf_calculated = False
         self._vector_orf_calculated = False
         self._scalar_orf_calculated = False
         self._gamma_v_calculated = False
-        self.sampling_frequency = sampling_frequency
         self.duration = duration
+        self.sampling_frequency = sampling_frequency
         self.frequencies = frequencies
         self.minimum_frequency = max(
             interferometer_1.minimum_frequency, interferometer_2.minimum_frequency
@@ -140,11 +140,11 @@ class Baseline(object):
             self._scalar_orf_calculated = True
         return self._scalar_orf
 
-    def set_frequency_mask(self, notch_list_path=''):
+    def set_frequency_mask(self, notch_list_path=""):
         """
         Set frequency mask to frequencies attribute.
 
-        Parameters
+        Parameters:
         ==========
         notch_list_path: str
             Path to notch list to apply to frequency array.
@@ -160,7 +160,7 @@ class Baseline(object):
 
     @property
     def gamma_v(self):
-        """Overlap reduction function for asymmetrically polarised backgrounds, 
+        """Overlap reduction function for asymmetrically polarised backgrounds,
         as descrived in https://arxiv.org/pdf/0707.0535.pdf"""
         if not self._gamma_v_calculated:
             self._gamma_v = self.calc_baseline_orf("right_left")
@@ -169,7 +169,7 @@ class Baseline(object):
 
     @property
     def duration(self):
-        '''Duration in seconds of a unit segment of data stored in the baseline detectors.'''
+        """Duration in seconds of a unit segment of data stored in the baseline detectors."""
         if self._duration_set:
             return self._duration
         else:
@@ -190,7 +190,7 @@ class Baseline(object):
         Requires that either `duration` is not None or at least one of the
         interferometers has the `duration` set.
 
-        Parameters
+        Parameters:
         ==========
         duration: float, optional
             The duration to set for the Baseline and interferometers
@@ -219,10 +219,18 @@ class Baseline(object):
             warnings.warn("Neither baseline nor interferometer duration is set.")
             self._duration = dur
             self._duration_set = True
+    
+        if self.duration is not None:
+            try:
+                self.frequencies = create_frequency_series(
+                sampling_frequency=self.sampling_frequency, duration=self.duration
+                )
+            except ValueError:
+                pass
 
     @property
     def frequencies(self):
-        '''Frequency array associated to this baseline.'''
+        """Frequency array associated to this baseline."""
         if self._frequencies_set:
             return self._frequencies
         else:
@@ -245,11 +253,13 @@ class Baseline(object):
 
     @property
     def point_estimate_spectrogram(self):
-        '''Point estimate spectrogram (in Omega*h^2 units) calculated using data in this baseline.'''
+        """Point estimate spectrogram (in Omega*h^2 units) calculated using data in this baseline."""
         if self._point_estimate_spectrogram_set:
             return self._point_estimate_spectrogram
         else:
-            raise ValueError("Omega point estimate spectrogram not yet set. To set it, use `set_point_estimate_sigma_spectrogram` method.")
+            raise ValueError(
+                "Omega point estimate spectrogram not yet set. To set it, use `set_point_estimate_sigma_spectrogram` method."
+            )
 
     @point_estimate_spectrogram.setter
     def point_estimate_spectrogram(self, pt_est):
@@ -258,11 +268,13 @@ class Baseline(object):
 
     @property
     def sigma_spectrogram(self):
-        '''Sigma spectrogram (in Omega*h^2 units) calculated using data in this baseline.'''
+        """Sigma spectrogram (in Omega*h^2 units) calculated using data in this baseline."""
         if self._sigma_spectrogram_set:
             return self._sigma_spectrogram
         else:
-            raise ValueError("Omega sigma spectrogram not yet set. To set it, use `set_point_estimate_sigma_spectrogram` method.")
+            raise ValueError(
+                "Omega sigma spectrogram not yet set. To set it, use `set_point_estimate_sigma_spectrogram` method."
+            )
 
     @sigma_spectrogram.setter
     def sigma_spectrogram(self, sig):
@@ -271,11 +283,13 @@ class Baseline(object):
 
     @property
     def point_estimate_spectrum(self):
-        '''Point estimate spectrum (in Omega*h^2 units) calculated using data in this baseline.'''
+        """Point estimate spectrum (in Omega*h^2 units) calculated using data in this baseline."""
         if self._point_estimate_spectrum_set:
             return self._point_estimate_spectrum
         else:
-            raise ValueError("Omega point estimate spectrum not yet set. To set it, use `set_point_estimate_sigma_spectrum` method.")
+            raise ValueError(
+                "Omega point estimate spectrum not yet set. To set it, use `set_point_estimate_sigma_spectrum` method."
+            )
 
     @point_estimate_spectrum.setter
     def point_estimate_spectrum(self, pt_est):
@@ -284,11 +298,13 @@ class Baseline(object):
 
     @property
     def sigma_spectrum(self):
-        '''Sigma spectrum (in Omega*h^2 units) calculated using data in this baseline.'''
+        """Sigma spectrum (in Omega*h^2 units) calculated using data in this baseline."""
         if self._sigma_spectrum_set:
             return self._sigma_spectrum
         else:
-            raise ValueError("Omega sigma spectrum not yet set. To set it, use `set_point_estimate_sigma_spectrum` method.")
+            raise ValueError(
+                "Omega sigma spectrum not yet set. To set it, use `set_point_estimate_sigma_spectrum` method."
+            )
 
     @sigma_spectrum.setter
     def sigma_spectrum(self, sig):
@@ -297,11 +313,13 @@ class Baseline(object):
 
     @property
     def point_estimate(self):
-        '''Point estimate (in Omega*h^2 units) calculated using data in this baseline.'''
+        """Point estimate (in Omega*h^2 units) calculated using data in this baseline."""
         if self._point_estimate_set:
             return self._point_estimate
         else:
-            raise ValueError("Omega point estimate not yet set. To set it, use `set_point_estimate_sigma` method.")
+            raise ValueError(
+                "Omega point estimate not yet set. To set it, use `set_point_estimate_sigma` method."
+            )
 
     @point_estimate.setter
     def point_estimate(self, pt_est):
@@ -310,11 +328,13 @@ class Baseline(object):
 
     @property
     def sigma(self):
-        '''Sigma (in Omega*h^2 units) calculated using data in this baseline.'''
+        """Sigma (in Omega*h^2 units) calculated using data in this baseline."""
         if self._sigma_set:
             return self._sigma
         else:
-            raise ValueError("Omega sigma not yet set. To set it, use `set_point_estimate_sigma` method.")
+            raise ValueError(
+                "Omega sigma not yet set. To set it, use `set_point_estimate_sigma` method."
+            )
 
     @sigma.setter
     def sigma(self, sig):
@@ -345,7 +365,7 @@ class Baseline(object):
 
     @property
     def sampling_frequency(self):
-        """Sampling frequency of the data stored in this baseline. This must match the 
+        """Sampling frequency of the data stored in this baseline. This must match the
         sampling frequency stored in this baseline's interferometers."""
         if hasattr(self, "_sampling_frequency"):
             return self._sampling_frequency
@@ -367,7 +387,7 @@ class Baseline(object):
         Requires that either `sampling_frequency` is not None or at least one of the
         interferometers has the `sampling_frequency` set.
 
-        Parameters
+        Parameters:
         ==========
         sampling_frequency: float, optional
             The sampling_frequency to set for the Baseline and interferometers
@@ -405,6 +425,11 @@ class Baseline(object):
             )
             self._sampling_frequency = sampling_frequency
             self._sampling_frequency_set = True
+        
+        if (self.duration is not None) and (self.sampling_frequency is not None):
+            self.frequencies = create_frequency_series(
+            sampling_frequency=self.sampling_frequency, duration=self.duration
+        )
 
     @property
     def badGPStimes(self):
@@ -435,6 +460,19 @@ class Baseline(object):
         self._delta_sigmas = delta_sigmas
 
     def check_sampling_frequencies_match_baseline_ifos(self, sampling_frequency):
+        '''Check that the sampling frequency of the two interferometers in this Baseline match the Baseline sampling frequency.
+        
+        Parameters:
+        ==========
+        sampling_frequency: float
+            The sampling frequency that is being set for the Baseline. 
+            
+        Notes:
+        =====
+        If the sampling frequency passed is `None`, the Baseline sampling frequency will be set to that of the interferometers, if these
+        match. If these don't match, an error will be raised. If the sampling frequency of the interferometers is also `None`, then no 
+        sampling frequency will be set, and the user will can set it at a later time.
+        '''
         if (
             self.interferometer_1.sampling_frequency
             and self.interferometer_2.sampling_frequency
@@ -469,11 +507,16 @@ class Baseline(object):
         Calculate the overlap reduction function for this baseline.
         Wraps the orf module.
 
-        Parameters
+        Parameters:
         ==========
         polarisation: str
             Polarisation of the signal to consider (scalar, vector, tensor)
             for the orf calculation.
+        
+        Returns:
+        ========
+        orf: array_like
+            Overlap reduction function for the required polarization.
         """
         return calc_orf(
             self.frequencies,
@@ -496,14 +539,18 @@ class Baseline(object):
         """
         Load a Baseline from a list of interferometers.
 
-        Parameters
-        ==========
+        Parameters:
+        ===========
         interferometers: list
             List of interferometer names.
         duration: float, optional
             segment duration
         calibration_epsilon: float, optional
             calibration uncertainty for this baseline
+
+        Returns:
+        ========
+        Baseline: cls
         """
         name = "".join([ifo.name for ifo in interferometers])
         return cls(
@@ -525,14 +572,18 @@ class Baseline(object):
         """
         Load a Baseline from a Parameters object.
 
-        Parameters
-        ==========
+        Parameters:
+        ===========
         interferometer_1/2: bilby Interferometer object
             The two detectors spanning the baseline
         parameters: pygwb Parameters object
             Parameters object containing necessary parameters for
             the instantiation of the baseline, and subsequent
             analyses.
+        
+        Returns:
+        ========
+        Baseline: cls
         """
         name = interferometer_1.name + interferometer_2.name
         return cls(
@@ -545,7 +596,7 @@ class Baseline(object):
             notch_list_path=parameters.notch_list_path,
             overlap_factor=parameters.overlap_factor,
             zeropad_csd=parameters.zeropad_csd,
-            window_fftgram=parameters.window_fft_dict["window_fftgram"],
+            window_fftgram_dict=parameters.window_fft_dict,
             N_average_segments_welch_psd=parameters.N_average_segments_welch_psd,
             sampling_frequency=parameters.new_sample_rate,
         )
@@ -555,10 +606,15 @@ class Baseline(object):
         """
         Load baseline object from pickle file.
 
-        Parameters
-        ==========
+        Parameters:
+        ===========
         filename: str
             Filename (inclusive of path) to load the pickled baseline from.
+
+        Returns:
+        ========
+        Baseline: cls
+            Unpickled Baseline.
         """
         with open(filename, "rb") as f:
             return pickle.load(f)
@@ -567,8 +623,8 @@ class Baseline(object):
         """
         Save baseline object to pickle file.
 
-        Parameters
-        ==========
+        Parameters:
+        ===========
         filename: str
             Filename (inclusive of path) to save the pickled baseline to.
         """
@@ -580,8 +636,8 @@ class Baseline(object):
         Set the power spectral density in each interferometer
         and the cross spectral density for the baseline object when data are available.
 
-        Parameters
-        ==========
+        Parameters:
+        ===========
         frequency_resolution: float
             The frequency resolution at which the cross and power spectral densities are calculated.
         """
@@ -589,7 +645,7 @@ class Baseline(object):
             self.interferometer_1.set_psd_spectrogram(
                 frequency_resolution,
                 overlap_factor=self.overlap_factor,
-                window_fftgram=self.window_fftgram,
+                window_fftgram_dict=self.window_fftgram_dict,
             )
         except AttributeError:
             raise AssertionError(
@@ -599,7 +655,7 @@ class Baseline(object):
             self.interferometer_2.set_psd_spectrogram(
                 frequency_resolution,
                 overlap_factor=self.overlap_factor,
-                window_fftgram=self.window_fftgram,
+                window_fftgram_dict=self.window_fftgram_dict,
             )
         except AttributeError:
             raise AssertionError(
@@ -612,17 +668,13 @@ class Baseline(object):
             frequency_resolution,
             overlap_factor=self.overlap_factor,
             zeropad=self.zeropad_csd,
-            window_fftgram=self.window_fftgram,
+            window_fftgram_dict=self.window_fftgram_dict,
         )
-
-        # TODO: make this less fragile.
-        # For now, reset frequencies,
-        # recalculate ORF in case frequencies have changed.
         self._tensor_orf_calculated = False
         self.frequencies = self.csd.frequencies.value
 
     def set_average_power_spectral_densities(self):
-        """If psds have been calculated, sets the average psd in each ifo"""
+        """If psds have been calculated, sets the before-and-after averaged psds in each ifo"""
         try:
             self.interferometer_1.set_average_psd(self.N_average_segments_welch_psd)
             self.interferometer_2.set_average_psd(self.N_average_segments_welch_psd)
@@ -630,11 +682,6 @@ class Baseline(object):
             print(
                 "PSDs have not been calculated yet! Need to set_cross_and_power_spectral_density first."
             )
-
-        # TODO: make this less fragile.
-        # For now, recalculate ORF in case frequencies have changed.
-        # self._tensor_orf_calculated = False
-        # self.frequencies = self.csd.frequencies.value
 
     def set_average_cross_spectral_density(self):
         """If csd has been calculated, sets the average csd for the baseline"""
@@ -655,7 +702,7 @@ class Baseline(object):
 
     def crop_frequencies_average_psd_csd(self, flow, fhigh):
         """
-        Crop frequencies of average PSDs and CSDS. Done in place. This is not completely implemented yet.
+        Crop frequencies of average PSDs and CSDs. Done in place.
 
         Parameters:
         ===========
@@ -663,6 +710,10 @@ class Baseline(object):
                 Low frequency to crop.
             fhigh: float
                 High frequency to crop.
+
+        Notes:
+        ======
+        This is not completely implemented yet.
         """
         deltaF = self.frequencies[1] - self.frequencies[0]
         indexes = (self.frequencies >= flow) * (self.frequencies <= fhigh)
@@ -687,8 +738,8 @@ class Baseline(object):
         Set point estimate and sigma spectrogram. Resulting spectrogram
         *does not include frequency weighting for alpha*.
 
-        Parameters
-        ==========
+        Parameters:
+        ===========
         alpha: float, optional
             Spectral index to use in the weighting.
         fref: float, optional
@@ -753,8 +804,8 @@ class Baseline(object):
         Set time-integrated point estimate spectrum and variance in each frequency bin.
         Point estimate is *unweighted* by alpha.
 
-        Parameters
-        ==========
+        Parameters:
+        ===========
         badtimes: np.array, optional
             Array of times to exclude from point estimate/sigma calculation.
             If no times are passed, none will be excluded.
@@ -766,15 +817,14 @@ class Baseline(object):
             Low frequency. Default is 20 Hz.
         fhigh: float, optional
             High frequency. Default is 1726 Hz.
-        notch_list_path: str, optional
-            path to the notch list to use in the spectrum.
-            If none is passed no notches will be applied - even if set in the baseline.
-            This is to ensure notching isn't applied automatically to spectra;
-            it is applied automatically only when integrating over frequencies.
         """
 
         # set unweighted point estimate and sigma spectrograms
-        if not hasattr(self, "point_estimate_spectrogram"):
+        if hasattr(self, "point_estimate_spectrogram"):
+            # reweight based on alpha that has been supplied
+            self.point_estimate_spectrogram.reweight(new_alpha=alpha, new_fref=fref)
+            self.sigma_spectrogram.reweight(new_alpha=alpha, new_fref=fref)
+        else:
             logger.info(
                 "Point estimate and sigma spectrograms are not set yet. setting now..."
             )
@@ -816,6 +866,7 @@ class Baseline(object):
             self.duration,
             deltaF,
             self.sampling_frequency,
+            window_fftgram_dict=self.window_fftgram_dict,
         )
 
         self.point_estimate_spectrum = OmegaSpectrum(
@@ -849,10 +900,10 @@ class Baseline(object):
         notch_list_path="",
     ):
         """
-        Set point estimate sigma based on a set of parameters. This is estimate of omega_gw in each frequency bin.
+        Set point estimate sigma based on a set of parameters. This is the estimate of omega_gw over each frequency bin.
 
-        Parameters
-        ==========
+        Parameters:
+        ===========
         badtimes: np.array, optional
             Array of times to exclude from point estimate/sigma calculation.
             If no times are passed, none will be excluded.
@@ -873,7 +924,12 @@ class Baseline(object):
         """
         # TODO: Add check if badtimes is passed and point estimate spectrum
         # already exists...
-        if not hasattr(self, "point_estimate_spectrum"):
+        if hasattr(self, "point_estimate_spectrum"):
+            self.point_estimate_spectrum.reweight(new_alpha=alpha, new_fref=fref)
+            self.sigma_spectrum.reweight(new_alpha=alpha, new_fref=fref)
+            self.point_estimate_spectrogram.reweight(new_alpha=alpha, new_fref=fref)
+            self.sigma_spectrogram.reweight(new_alpha=alpha, new_fref=fref)
+        else:
             logger.info(
                 "Point estimate and sigma spectra have not been set before. Setting it now..."
             )
@@ -882,24 +938,12 @@ class Baseline(object):
             )
             self.set_point_estimate_sigma_spectrum(
                 badtimes=badtimes,
-                # notch_list_path=notch_list_path,
                 alpha=alpha,
                 fref=fref,
                 flow=flow,
                 fhigh=fhigh,
             )
 
-        # crop frequencies according to params before combining over them
-        # deltaF = self.frequencies[1] - self.frequencies[0]
-        # Y_spec = self.point_estimate_spectrum.crop(flow, fhigh + deltaF)
-        # sigma_spec = self.sigma_spectrum.crop(flow, fhigh + deltaF)
-        # freq_band_cut = (self.frequencies >= flow) & (self.frequencies <= fhigh)
-        # self.frequencies = self.frequencies[freq_band_cut]
-
-        # check notch list
-        # TODO: make this less fragile...at the moment these indexes
-        # must agree with those after cropping, so the notches must agree with the params
-        # struct in some way. Seems dangerous
         if self.notch_list_path:
             logger.debug("loading notches from " + self.notch_list_path)
             self.set_frequency_mask(self.notch_list_path)
@@ -923,15 +967,16 @@ class Baseline(object):
         self.sigma = sigma
 
     def reweight(self, new_alpha=None, new_fref=None):
-        if hasattr(self, "point_estimate_spectrogram"):
-            self.point_estimate_spectrogram.reweight(new_alpha, new_fref)
-        if hasattr(self, "sigma_spectrogram"):
-            self.sigma_spectrogram.reweight(new_alpha, new_fref)
-        if hasattr(self, "point_estimate_spectrum"):
-            self.point_estimate_spectrum.reweight()
-        if hasattr(self, "sigma_spectrum"):
-            self.sigma_spectrum.reweight()
-        self.set_point_estimate_sigma()
+        '''Reweight all the frequency-weighted attributes of this Baseline, if these are set.
+        
+        Parameters:
+        ===========
+        new_alpha: float, optional
+            New alpha to weight the spectra to.
+        new_fref: float, optional
+            New reference frequency to refer the spectra to.
+        '''
+        self.set_point_estimate_sigma(alpha=new_alpha, fref=new_fref)
 
     def calculate_delta_sigma_cut(
         self, delta_sigma_cut, alphas, flow=20, fhigh=1726, notch_list_path=""
@@ -939,8 +984,8 @@ class Baseline(object):
         """
         Calculate the delta sigma cut using the naive and average psds, if set in the baseline.
 
-        Parameters
-        ==========
+        Parameters:
+        ===========
         delta_sigma_cut: float
             the cutoff to implement in the delta sigma cut.
         alphas: list
@@ -950,7 +995,7 @@ class Baseline(object):
         fhigh: float, optional
             high frequency. Default is 1726 Hz.
         notch_list_path: str, optional
-            file path of the baseline notch list
+            file path of the baseline notch list.
         """
         if not notch_list_path:
             notch_list_path = self.notch_list_path
@@ -979,6 +1024,7 @@ class Baseline(object):
             alphas,
             self.tensor_overlap_reduction_function,
             notch_list_path=notch_list_path,
+            window_fftgram_dict=self.window_fftgram_dict,
         )
         self.badGPStimes = badGPStimes
         self.delta_sigmas = delta_sigmas
@@ -994,8 +1040,8 @@ class Baseline(object):
         in the required save_data_type, which can be npz, pickle, json or hdf5.
         You can call upon this data afterwards when loaoding in using the ['key'] dictionary format.
 
-        Parameters
-        ==========
+        Parameters:
+        ===========
         save_data_type: str
             The required type of data file where the information will be stored
         filename: str
@@ -1027,6 +1073,7 @@ class Baseline(object):
         save(
             f"{filename}{ext}",
             self.frequencies,
+            self.frequency_mask,
             self.point_estimate_spectrum,
             self.sigma_spectrum,
             self.point_estimate,
@@ -1047,8 +1094,8 @@ class Baseline(object):
         in the required save_data_type, which can be npz, pickle, json or hdf5.
         You can call upon this data afterwards when loaoding in using the ['key'] dictionary format.
 
-        Parameters
-        ==========
+        Parameters:
+        ===========
         save_data_type: str
             The required type of data file where the information will be stored
         filename: str
@@ -1093,6 +1140,7 @@ class Baseline(object):
         self,
         filename,
         frequencies,
+        frequency_mask,
         point_estimate_spectrum,
         sigma_spectrum,
         point_estimate,
@@ -1105,6 +1153,7 @@ class Baseline(object):
         np.savez(
             filename,
             frequencies=frequencies,
+            frequency_mask=frequency_mask,
             point_estimate_spectrum=point_estimate_spectrum,
             sigma_spectrum=sigma_spectrum,
             point_estimate=point_estimate,
@@ -1119,6 +1168,7 @@ class Baseline(object):
         self,
         filename,
         frequencies,
+        frequency_mask,
         point_estimate_spectrum,
         sigma_spectrum,
         point_estimate,
@@ -1130,6 +1180,7 @@ class Baseline(object):
     ):
         save_dictionary = {
             "frequencies": frequencies,
+            "frequency_mask": frequency_mask,
             "point_estimate_spectrum": point_estimate_spectrum,
             "sigma_spectrum": sigma_spectrum,
             "point_estimate": point_estimate,
@@ -1147,6 +1198,7 @@ class Baseline(object):
         self,
         filename,
         frequencies,
+        frequency_mask,
         point_estimate_spectrum,
         sigma_spectrum,
         point_estimate,
@@ -1157,6 +1209,7 @@ class Baseline(object):
         delta_sigmas,
     ):
         list_freqs = frequencies.tolist()
+        list_freq_mask = frequency_mask.tolist()
         list_point_estimate_spectrum = point_estimate_spectrum.value.tolist()
         list_sigma_spectrum = sigma_spectrum.value.tolist()
 
@@ -1171,6 +1224,7 @@ class Baseline(object):
 
         save_dictionary = {
             "frequencies": list_freqs,
+            "frequency_mask": list_freq_mask,
             "point_estimate_spectrum": list_point_estimate_spectrum,
             "sigma_spectrum": list_sigma_spectrum,
             "point_estimate": point_estimate,
@@ -1190,6 +1244,7 @@ class Baseline(object):
         self,
         filename,
         frequencies,
+        frequency_mask,
         point_estimate_spectrum,
         sigma_spectrum,
         point_estimate,
@@ -1198,25 +1253,48 @@ class Baseline(object):
         sigma_spectrogram,
         badGPStimes,
         delta_sigmas,
+        compress = False,
     ):
         hf = h5py.File(filename, "w")
-
-        hf.create_dataset("freqs", data=frequencies)
-        hf.create_dataset("point_estimate_spectrum", data=point_estimate_spectrum)
-        hf.create_dataset("sigma_spectrum", data=sigma_spectrum)
-        hf.create_dataset("point_estimate", data=point_estimate, dtype="float")
-        hf.create_dataset("sigma", data=sigma, dtype="float")
-        hf.create_dataset(
-            "point_estimate_spectrogram", data=point_estimate_spectrogram
-        ),
-        hf.create_dataset("sigma_spectrogram", data=sigma_spectrogram)
-        hf.create_dataset("badGPStimes", data=badGPStimes)
-        if type(delta_sigmas) == float:
-            hf.create_dataset("delta_sigmas", data=delta_sigmas, dtype="float")
+        
+        if compress:
+            logger.info('Data will be compressed without loss of data')
+            hf.create_dataset("freqs", data=frequencies, compression="gzip")
+            hf.create_dataset("point_estimate_spectrum", data=point_estimate_spectrum, compression="gzip")
+            hf.create_dataset("sigma_spectrum", data=sigma_spectrum, compression="gzip")
+            hf.create_dataset("point_estimate", data=point_estimate, dtype='float', compression="gzip")
+            hf.create_dataset("sigma", data=sigma,dtype='float', compression="gzip")
+            hf.create_dataset(
+                "point_estimate_spectrogram", data=point_estimate_spectrogram, compression="gzip"
+            ),
+            hf.create_dataset("sigma_spectrogram", data=sigma_spectrogram, compression="gzip")
+            hf.create_dataset("badGPStimes", data=badGPStimes, compression="gzip")
+            if type(delta_sigmas) == float:
+                hf.create_dataset("delta_sigmas", data=delta_sigmas, dtype='float', compression="gzip")
+            else:
+                hf.create_dataset("delta_sigmas", data=delta_sigmas, compression="gzip")
+            
+        
+            hf.close()
+            
         else:
-            hf.create_dataset("delta_sigmas", data=delta_sigmas)
-
-        hf.close()
+            hf.create_dataset("freqs", data=frequencies)
+            hf.create_dataset("point_estimate_spectrum", data=point_estimate_spectrum)
+            hf.create_dataset("sigma_spectrum", data=sigma_spectrum)
+            hf.create_dataset("point_estimate", data=point_estimate, dtype='float')
+            hf.create_dataset("sigma", data=sigma,dtype='float')
+            hf.create_dataset(
+                "point_estimate_spectrogram", data=point_estimate_spectrogram
+            ),
+            hf.create_dataset("sigma_spectrogram", data=sigma_spectrogram)
+            hf.create_dataset("badGPStimes", data=badGPStimes)
+            if type(delta_sigmas) == float:
+                hf.create_dataset("delta_sigmas", data=delta_sigmas, dtype='float')
+            else:
+                hf.create_dataset("delta_sigmas", data=delta_sigmas)
+            
+        
+            hf.close()
 
     def _npz_save_csd(
         self,
@@ -1353,6 +1431,7 @@ class Baseline(object):
         psd_2,
         avg_psd_1,
         avg_psd_2,
+        compress = False,
     ):
         hf = h5py.File(filename, "w")
 
@@ -1362,46 +1441,88 @@ class Baseline(object):
         avg_csd_times = avg_csd.times.value
         avg_psd_1_times = avg_psd_1.times.value
         avg_psd_2_times = avg_psd_2.times.value
+        
+        if compress:
+                   
+            hf.create_dataset("freqs", data=freqs, compression="gzip")
+            hf.create_dataset("avg_freqs", data=avg_freqs, compression="gzip")
 
-        hf.create_dataset("freqs", data=freqs)
-        hf.create_dataset("avg_freqs", data=avg_freqs)
+            csd_group = hf.create_group("csd_group")
+            csd_group.create_dataset("csd", data=csd, compression="gzip")
+            csd_group.create_dataset("csd_times", data=csd_times, compression="gzip")
 
-        csd_group = hf.create_group("csd_group")
-        csd_group.create_dataset("csd", data=csd)
-        csd_group.create_dataset("csd_times", data=csd_times)
+            avg_csd_group = hf.create_group("avg_csd_group")
+            avg_csd_group.create_dataset("avg_csd", data=avg_csd, compression="gzip")
+            avg_csd_group.create_dataset("avg_csd_times", data=avg_csd_times, compression="gzip")
 
-        avg_csd_group = hf.create_group("avg_csd_group")
-        avg_csd_group.create_dataset("avg_csd", data=avg_csd)
-        avg_csd_group.create_dataset("avg_csd_times", data=avg_csd_times)
+            psd_group = hf.create_group("psds_group")
 
-        psd_group = hf.create_group("psds_group")
+            psd_1_group = hf.create_group("psds_group/psd_1")
+            psd_1_group.create_dataset("psd_1", data=psd_1, compression="gzip")
+            psd_1_group.create_dataset("psd_1_times", data=psd_1_times, compression="gzip")
 
-        psd_1_group = hf.create_group("psds_group/psd_1")
-        psd_1_group.create_dataset("psd_1", data=psd_1)
-        psd_1_group.create_dataset("psd_1_times", data=psd_1_times)
+            psd_2_group = hf.create_group("psds_group/psd_2")
+            psd_2_group.create_dataset("psd_2", data=psd_2, compression="gzip")
+            psd_2_group.create_dataset("psd_2_times", data=psd_2_times, compression="gzip")
 
-        psd_2_group = hf.create_group("psds_group/psd_2")
-        psd_2_group.create_dataset("psd_2", data=psd_2)
-        psd_2_group.create_dataset("psd_2_times", data=psd_2_times)
+            avg_psd_group = hf.create_group("avg_psds_group")
 
-        avg_psd_group = hf.create_group("avg_psds_group")
+            avg_psd_1_group = hf.create_group("avg_psds_group/avg_psd_1")
+            avg_psd_1_group.create_dataset("avg_psd_1", data=avg_psd_1, compression="gzip")
+            avg_psd_1_group.create_dataset("avg_psd_1_times", data=avg_psd_1_times, compression="gzip")
 
-        avg_psd_1_group = hf.create_group("avg_psds_group/avg_psd_1")
-        avg_psd_1_group.create_dataset("avg_psd_1", data=avg_psd_1)
-        avg_psd_1_group.create_dataset("avg_psd_1_times", data=avg_psd_1_times)
+            avg_psd_2_group = hf.create_group("avg_psds_group/avg_psd_2")
+            avg_psd_2_group.create_dataset("avg_psd_2", data=avg_psd_2, compression="gzip")
+            avg_psd_2_group.create_dataset("avg_psd_2_times", data=avg_psd_2_times, compression="gzip")
+            
+            hf.close()
 
-        avg_psd_2_group = hf.create_group("avg_psds_group/avg_psd_2")
-        avg_psd_2_group.create_dataset("avg_psd_2", data=avg_psd_2)
-        avg_psd_2_group.create_dataset("avg_psd_2_times", data=avg_psd_2_times)
-        hf.close()
+        else:
+                   
+            hf.create_dataset("freqs", data=freqs)
+            hf.create_dataset("avg_freqs", data=avg_freqs)
 
+            csd_group = hf.create_group("csd_group")
+            csd_group.create_dataset("csd", data=csd)
+            csd_group.create_dataset("csd_times", data=csd_times)
+
+            avg_csd_group = hf.create_group("avg_csd_group")
+            avg_csd_group.create_dataset("avg_csd", data=avg_csd)
+            avg_csd_group.create_dataset("avg_csd_times", data=avg_csd_times)
+
+            psd_group = hf.create_group("psds_group")
+
+            psd_1_group = hf.create_group("psds_group/psd_1")
+            psd_1_group.create_dataset("psd_1", data=psd_1)
+            psd_1_group.create_dataset("psd_1_times", data=psd_1_times)
+
+            psd_2_group = hf.create_group("psds_group/psd_2")
+            psd_2_group.create_dataset("psd_2", data=psd_2)
+            psd_2_group.create_dataset("psd_2_times", data=psd_2_times)
+
+            avg_psd_group = hf.create_group("avg_psds_group")
+
+            avg_psd_1_group = hf.create_group("avg_psds_group/avg_psd_1")
+            avg_psd_1_group.create_dataset("avg_psd_1", data=avg_psd_1)
+            avg_psd_1_group.create_dataset("avg_psd_1_times", data=avg_psd_1_times)
+
+            avg_psd_2_group = hf.create_group("avg_psds_group/avg_psd_2")
+            avg_psd_2_group.create_dataset("avg_psd_2", data=avg_psd_2)
+            avg_psd_2_group.create_dataset("avg_psd_2_times", data=avg_psd_2_times)
+            
+            hf.close()
 
 def get_baselines(interferometers, frequencies=None):
     """
     Get set of Baseline objects given a list of interferometers.
-    Parameters
-    ==========
-    interferometers: list of bilby interferometer objects
+
+    Parameters:
+    ===========
+    interferometers: list of `pygwb.Interferometer` objects
+
+    Returns:
+    ========
+    baselines: list of pygwb `Baseline` objects
     """
     Nd = len(interferometers)
 
