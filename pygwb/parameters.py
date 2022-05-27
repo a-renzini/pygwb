@@ -121,7 +121,7 @@ class Parameters:
     zeropad_csd: bool = True
     delta_sigma_cut: float = 0.2
     alphas_delta_sigma_cut: List = field(default_factory=lambda: [-5, 0, 3])
-    save_data_type: str = "npz"
+    save_data_type: str = "json"
     time_shift: int = 0
     gate_data: bool = False
     gate_tzero: float = 1.0
