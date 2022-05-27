@@ -2,6 +2,7 @@ import numpy as np
 from loguru import logger
 
 from pygwb.notch import StochNotch, StochNotchList
+from pygwb.postprocessing import calculate_point_estimate_sigma_integrand
 from pygwb.util import calc_bias, window_factors
 
 
@@ -46,74 +47,6 @@ def dsc_cut(
     dsigma = np.abs(slide_sigma * bf_ss - naive_sigma * bf_ns) / (slide_sigma * bf_ss)
 
     return dsigma >= dsc, dsigma
-
-
-
-def calc_sigma_square_avg(
-    freq: np.ndarray,
-    P1: np.ndarray,
-    P2: np.ndarray,
-    delta_f: float,
-    orf: np.array,
-    N: int,
-    T: int = 32,
-    H0: float = 67.9e3 / 3.086e22,
-):
-
-    """
-    Function that calculates the sensitivity integrand in
-    https://git.ligo.org/stochastic_lite/stochastic_lite/-/issues/11#note_242064
-    Implicilty for \alpha=0
-
-    Parameters
-    ==========
-    freq: array
-        An array of frequencies from a PSD
-
-    P1: array
-        the PSD of detector #1; size should equal size of freq
-
-    P2: array
-        the PSD of detector #2; size should equal size of freq
-
-    window1: array
-        typically Hann window of size np.hanning(4096*192)
-
-    window2: array
-        typically Hann window of size np.hanning(4096*192)
-
-    delta_f: float
-        frequency resolution (Hz)
-
-    N: int 
-        number of samples??
-
-    T: int
-        coherence time (s)
-
-    orf: array
-        the overlap reduction function as a function of frequency that quantifies the overlap of a detector baseline,
-        which depends on the detector locations, relative orientations, etc.
-
-    H0: float
-        the Hubble constant
-
-    Returns
-    =======
-    sigma_square_avg: array
-        sigma square average
-    """
-
-    w1w2bar, w1w2squaredbar,_ ,_ = window_factors(N)
-    S_alpha = 3 * H0 ** 2 / (10 * np.pi ** 2) * 1.0 / freq ** 3
-    sigma_square_avg = (
-        (w1w2squaredbar / w1w2bar ** 2)
-        * 1/ (2 * T * delta_f)* P1
-        * P2/ (np.power(orf, 2.0) * S_alpha ** 2)
-    )
-
-    return sigma_square_avg
-
 
 
 def veto_lines(freqs: np.ndarray, lines: np.ndarray, df: float = 0):
@@ -163,8 +96,9 @@ def run_dsc(
     psd1_slide: np.ndarray,
     psd2_slide: np.ndarray,
     alphas: np.ndarray,
+    sample_rate: np.int,
     orf: np.array,
-    N: np.int,
+    fref: np.int,
     notch_list_path: str = "",
     window_fftgram_dict: dict = {"window_fftgram": "hann"},
 ):
@@ -190,14 +124,17 @@ def run_dsc(
     alphas: np.array
         the spectral indices to use; the code combines the BadGPStimes from each alpha
 
+    sample_rate: np.int
+        sampling rate (Hz)
+
     notch_list_path: np.array
         path to the notch list file
 
     orf: array
         the overlap reduction function as a function of frequency that quantifies the overlap of a detector baseline,
         which depends on the detector locations, relative orientations, etc.
-    N: int 
-        number of samples??
+    fref: int 
+        reference frequency (Hz)
 
     fref: int
         reference frequency
@@ -230,14 +167,15 @@ def run_dsc(
         deltaT=dt,
         N_avg_segs=1,
         window_fftgram_dict=window_fftgram_dict,
-    )  # Naive estimate
+    )  
+    # Sliding estimate
     bf_ss = calc_bias(
         segmentDuration=segment_duration,
         deltaF=df,
         deltaT=dt,
         N_avg_segs=2,
         window_fftgram_dict=window_fftgram_dict,
-    )  # Sliding estimate
+    )  
     freqs = np.array(psd1_naive.frequencies)
     overall_cut = np.zeros((ntimes, 1), dtype="bool")
     cuts = np.zeros((nalphas, ntimes), dtype="bool")
@@ -255,32 +193,38 @@ def run_dsc(
             psd2_naive_time = psd2_naive[time, :]
             psd2_slide_time = psd2_slide[time, :]
 
-            naive_sigma_with_Hf = (
-                calc_sigma_square_avg(
-                    freq=freqs,
-                    P1=psd1_naive_time,
-                    P2=psd2_naive_time,
-                    delta_f=df,
+            naive_sigma_with_Hf = calculate_point_estimate_sigma_integrand(
+                    freqs=freqs,
+                    avg_psd_1=psd1_naive_time,
+                    avg_psd_2=psd2_naive_time,
                     orf=orf,
-                    N = N,
-                    T=dt,
+                    sample_rate=sample_rate,
+                    window_fftgram_dict=window_fftgram_dict,
+                    segment_duration=segment_duration,
+                    csd = None,
+                    fref=1,
+                    alpha=0,
                 )/ Hf ** 2
-            )
-            slide_sigma_with_Hf = (
-                calc_sigma_square_avg(
-                    freq=freqs,
-                    P1=psd1_slide_time,
-                    P2=psd2_slide_time,
-                    delta_f=df,
+            
+            slide_sigma_with_Hf = calculate_point_estimate_sigma_integrand(
+                    freqs=freqs,
+                    avg_psd_1=psd1_slide_time,
+                    avg_psd_2=psd2_slide_time,
                     orf=orf,
-                    N = N,
-                    T=dt,
+                    sample_rate=sample_rate,
+                    window_fftgram_dict=window_fftgram_dict,
+                    segment_duration=segment_duration,
+                    csd = None,
+                    fref=1,
+                    alpha=0,
                 )/ Hf ** 2
-            )
+
             naive_sensitivity_integrand_with_Hf = 1./naive_sigma_with_Hf
             slide_sensitivity_integrand_with_Hf = 1./slide_sigma_with_Hf
+
             naive_sigma_alpha = np.sqrt(1 / np.sum(naive_sensitivity_integrand_with_Hf[keep]))
             slide_sigma_alpha = np.sqrt(1 / np.sum(slide_sensitivity_integrand_with_Hf[keep]))
+
             cut[time], dsigma[time] = dsc_cut(
                 naive_sigma=naive_sigma_alpha,
                 slide_sigma=slide_sigma_alpha,
