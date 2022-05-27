@@ -41,8 +41,10 @@ class UtilTest(unittest.TestCase):
         frequencies = np.arange(1.0, 100.0)
         omega = frequencies ** 3
         omega_check = FrequencySeries(
-            3.19242291e-37 * np.ones(len(frequencies)), frequencies=frequencies
+            1.53404298e-37 * np.ones(len(frequencies)), frequencies=frequencies
         )
+        print(omega_check)
+        print(util.omega_to_power(omega, frequencies))
         gwpy.testing.utils.assert_quantity_sub_equal(
             util.omega_to_power(omega, frequencies), omega_check, almost_equal=True
         )
