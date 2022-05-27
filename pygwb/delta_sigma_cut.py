@@ -164,6 +164,7 @@ def run_dsc(
     psd2_slide: np.ndarray,
     alphas: np.ndarray,
     orf: np.array,
+    N: np.int,
     notch_list_path: str = "",
     fref: int=25,
 ):
@@ -195,6 +196,8 @@ def run_dsc(
     orf: array
         the overlap reduction function as a function of frequency that quantifies the overlap of a detector baseline,
         which depends on the detector locations, relative orientations, etc.
+    N: int 
+        number of samples??
 
     fref: int
         reference frequency
@@ -245,26 +248,30 @@ def run_dsc(
             psd2_naive_time = psd2_naive[time, :]
             psd2_slide_time = psd2_slide[time, :]
 
-            naive_sensitivity_integrand_with_Hf = (
+            naive_sigma_with_Hf = (
                 calc_sigma_square_avg(
                     freq=freqs,
                     P1=psd1_naive_time,
                     P2=psd2_naive_time,
                     delta_f=df,
                     orf=orf,
+                    N = N,
                     T=dt,
-                )* Hf ** 2
+                )/ Hf ** 2
             )
-            slide_sensitivity_integrand_with_Hf = (
+            slide_sigma_with_Hf = (
                 calc_sigma_square_avg(
                     freq=freqs,
                     P1=psd1_slide_time,
                     P2=psd2_slide_time,
                     delta_f=df,
                     orf=orf,
+                    N = N,
                     T=dt,
-                )* Hf ** 2
+                )/ Hf ** 2
             )
+            naive_sensitivity_integrand_with_Hf = 1./naive_sigma_with_Hf
+            slide_sensitivity_integrand_with_Hf = 1./slide_sigma_with_Hf
             naive_sigma_alpha = np.sqrt(1 / np.sum(naive_sensitivity_integrand_with_Hf[keep]))
             slide_sigma_alpha = np.sqrt(1 / np.sum(slide_sensitivity_integrand_with_Hf[keep]))
             cut[time], dsigma[time] = dsc_cut(
