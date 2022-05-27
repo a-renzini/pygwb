@@ -171,6 +171,8 @@ def WindowFactors(window1: np.ndarray, window2: np.ndarray):
     Function that calculates the necessary window factors in line 24 of
     https://git.ligo.org/stochastic-public/stochastic_cleaned/-/blob/master/CrossCorr/src_cc/normalization.m
 
+    this function is deprecated
+
     Parameters
     ==========
     window1: array
