@@ -177,13 +177,12 @@ def calculate_point_estimate_sigma_spectrogram(
 
 def calculate_point_estimate_sigma_integrand(
     freqs,
+    csd,
     avg_psd_1,
     avg_psd_2,
     orf,
     sample_rate,
     segment_duration,
-    window_fftgram_dict,
-    csd = None,
     fref=1,
     alpha=0,
 ):
@@ -208,8 +207,6 @@ def calculate_point_estimate_sigma_integrand(
         Sampling rate of the data.
     segment_duration: float
         Duration of each segment in seconds.
-    window_fftgram_dict: dictionary, optional
-        Dictionary with window characteristics. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`
     fref: float, optional
         Reference frequency to use in the weighting calculation.
         Final result refers to this frequency.
@@ -220,33 +217,19 @@ def calculate_point_estimate_sigma_integrand(
     """
     S_alpha = 3 * H0 ** 2 / (10 * np.pi ** 2) / freqs ** 3
     S_alpha *= (freqs / fref) ** alpha
-    if csd==None:
-        var_fs = (
-            1
-            / (2 * segment_duration * (freqs[1] - freqs[0]))
-            * avg_psd_1
-            * avg_psd_2
-            / (orf ** 2 * S_alpha ** 2)
-        )
+    Y_fs = csd / (orf * S_alpha)
+    var_fs = (
+        1
+        / (2 * segment_duration * (freqs[1] - freqs[0]))
+        * avg_psd_1
+        * avg_psd_2
+        / (orf ** 2 * S_alpha ** 2)
+    )
 
-        w1w2bar, w1w2squaredbar, _, _ = window_factors(sample_rate * segment_duration, window_fftgram_dict=window_fftgram_dict)
+    w1w2bar, w1w2squaredbar, _, _ = window_factors(sample_rate * segment_duration)
 
-        var_fs = var_fs * w1w2squaredbar / w1w2bar ** 2
-        return var_fs
-    else: 
-        Y_fs = csd / (orf * S_alpha)
-        var_fs = (
-            1
-            / (2 * segment_duration * (freqs[1] - freqs[0]))
-            * avg_psd_1
-            * avg_psd_2
-            / (orf ** 2 * S_alpha ** 2)
-        )
-
-        w1w2bar, w1w2squaredbar, _, _ = window_factors(sample_rate * segment_duration, window_fftgram_dict=window_fftgram_dict)
-
-        var_fs = var_fs * w1w2squaredbar / w1w2bar ** 2
-        return Y_fs, var_fs
+    var_fs = var_fs * w1w2squaredbar / w1w2bar ** 2
+    return Y_fs, var_fs
 
 
 def combine_spectra_with_sigma_weights(main_spectra, weights_spectra):
