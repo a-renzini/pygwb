@@ -23,12 +23,14 @@ class TestInterferometer(unittest.TestCase):
                 "data_type",
                 "cutoff_frequency",
                 "new_sample_rate",
+                "input_sample_rate",
                 "window_downsampling",
                 "ftype",
                 "frequency_resolution",
                 "overlap_factor",
                 "N_average_segments_welch_psd",
                 "time_shift",
+                "tag",
             ]
         }
         self.kwargs["local_data_path"] = ""
@@ -97,7 +99,7 @@ class TestInterferometer(unittest.TestCase):
         ifo.set_psd_spectrogram(
             frequency_resolution=self.parameters.frequency_resolution,
             overlap_factor=self.parameters.overlap_factor,
-            window_fftgram=self.parameters.window_fft_dict['window_fftgram'],
+            window_fftgram_dict=self.parameters.window_fft_dict,
         )
         self.assertTrue(
             np.all(
