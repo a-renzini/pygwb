@@ -589,7 +589,6 @@ class Baseline(object):
             self.interferometer_1.set_psd_spectrogram(
                 frequency_resolution,
                 overlap_factor=self.overlap_factor,
-                window_fftgram=self.window_fftgram,
             )
         except AttributeError:
             raise AssertionError(

@@ -297,7 +297,6 @@ class Interferometer(bilby.gw.detector.Interferometer):
         frequency_resolution,
         overlap_factor=0.5,
         overlap_factor_welch_psd=0,
-        window_fftgram_dict={"window_fftgram": "hann"},
     ):
         """
         Set psd_spectrogram attribute from a given spectrum-related information.
@@ -322,7 +321,6 @@ class Interferometer(bilby.gw.detector.Interferometer):
             self.duration,
             frequency_resolution,
             overlap_factor=overlap_factor,
-            window_fftgram_dict=window_fftgram_dict,
         )
         self.psd_spectrogram.channel = self.timeseries.channel
         self._check_spectrogram_channel_name(self.timeseries.channel.name)
