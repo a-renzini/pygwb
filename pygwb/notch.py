@@ -95,7 +95,7 @@ class StochNotchList(list):
         frequency_array: np.ndarray
             An array of frequencies
         save_file_flag: boolean
-            A boolean flag indicating wheter to save the notch mask in a file or not
+            A boolean flag indicating whether to save the notch mask in a file or not
         filename: str
             The name of the file where to store the notch mask if save_file_flag is true
 
