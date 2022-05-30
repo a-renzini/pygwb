@@ -87,13 +87,17 @@ class StochNotchList(list):
                 return True
         return False
 
-    def get_notch_mask(self, frequency_array):
+    def get_notch_mask(self, frequency_array,save_file_flag = False,filename = ""):
         """ Get a boolean mask for the frequencies in frequency_array in the notch list
 
         Parameters
         ==========
         frequency_array: np.ndarray
             An array of frequencies
+        save_file_flag: boolean
+            A boolean flag indicating wheter to save the notch mask in a file or not
+        filename: str
+            The name of the file where to store the notch mask if save_file_flag is true
 
         Returns
         =======
@@ -107,6 +111,11 @@ class StochNotchList(list):
         notch_mask = np.ones(len(frequency_array), dtype=bool)
         for notch in self:
             notch_mask = notch_mask & notch.get_notch_mask(frequency_array)
+
+        if save_file_flag == True:
+            if len(filename) == 0:
+                filename = "Notch_mask.txt"
+            save_notch_mask(self, frequency_array, filename)            
         return notch_mask
 
     def save_notch_mask(self, frequency_array, filename):
