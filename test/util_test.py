@@ -1,6 +1,6 @@
 import unittest
 
-import gwpy
+from gwpy.frequencyseries import FrequencySeries
 import gwpy.testing.utils
 import numpy as np
 
