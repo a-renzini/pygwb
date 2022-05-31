@@ -121,7 +121,7 @@ class Parameters:
     zeropad_csd: bool = True
     delta_sigma_cut: float = 0.2
     alphas_delta_sigma_cut: List = field(default_factory=lambda: [-5, 0, 3])
-    save_data_type: str = "npz"
+    save_data_type: str = "json"
     time_shift: int = 0
     gate_data: bool = False
     gate_tzero: float = 1.0
@@ -186,17 +186,6 @@ class Parameters:
             )
         dictionary["window_fft_dict"] = dict(config.items("window_fft_specs"))
         dictionary["local_data_path_dict"] = dict(config.items("local_data"))
-        possible_ifos = ["H1", "L1", "V", "K"]
-        for ifo in possible_ifos:
-            if ifo in dictionary["local_data_path_dict"]:
-                if dictionary["local_data_path_dict"][ifo].startswith("["):
-                    dictionary["local_data_path_dict"][ifo] = json.loads(
-                        dictionary["local_data_path_dict"][ifo]
-                    )
-                else:
-                    dictionary["local_data_path_dict"][ifo] = dictionary[
-                        "local_data_path_dict"
-                    ][ifo]
         for item in dictionary.copy():
             if not dictionary[item]:
                 dictionary.pop(item)
@@ -242,20 +231,21 @@ class Parameters:
             if dictionary[item] is None:
                 dictionary.pop(item)
         local_data_path_dict = {}
-        possible_ifos = ["H1", "L1", "V", "K"]
-        for ifo in possible_ifos:
-            if ifo in dictionary:
-                if dictionary[ifo].startswith("["):
-                    local_data_path_dict[ifo] = json.loads(dictionary[ifo])
-                else:
-                    local_data_path_dict[ifo] = dictionary[ifo]
-                dictionary.pop(ifo)
-        dictionary["local_data_path_dict"] = local_data_path_dict
-        if "window_fftgram" in dictionary:
+        if 'H1' in dictionary:
+            local_data_path_dict['H1'] = dictionary['H1']
+            dictionary.pop('H1')
+        if 'L1' in dictionary:
+            local_data_path_dict['L1'] = dictionary['L1']
+            dictionary.pop('L1')
+        if 'V' in dictionary:
+            local_data_path_dict['V'] = dictionary['V']
+            dictionary.pop('V')
+        dictionary['local_data_path_dict'] = local_data_path_dict
+        if 'window_fftgram' in dictionary:
             window_fft_dict = {}
-            window_fft_dict["window_fftgram"] = dictionary["window_fftgram"]
-            dictionary.pop("window_fftgram")
-            dictionary["window_fft_dict"] = window_fft_dict
+            window_fft_dict['window_fftgram'] = dictionary['window_fftgram']
+            dictionary.pop('window_fftgram')
+            dictionary['window_fft_dict'] = window_fft_dict
         self.update_from_dictionary(dictionary)
 
     def save_paramfile(self, output_path):
