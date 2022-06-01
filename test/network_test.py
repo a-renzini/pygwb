@@ -85,6 +85,7 @@ class TestNetwork(unittest.TestCase):
             np.isnan(net.interferometers[0].strain_data.time_domain_strain).any()
         )
         net.save_interferometer_data_to_file()
+        os.remove('test_net_STRAIN-0-40.hdf5')
 
     #    def test_save_interferometer_data_to_file(self):
 
@@ -108,15 +109,13 @@ class TestNetwork(unittest.TestCase):
         with self.assertRaises(ValueError):
             net_break.combine_point_estimate_sigma_spectra()
 
-
     def test_set_point_estimate_sigma(self):
         self.net_load.set_point_estimate_sigma()
-        self.assertFalse(np.isnan(self.net_load.point_estimate))
-        self.assertFalse(np.isnan(self.net_load.sigma))
+        self.assertEqual(self.net_load.point_estimate, -7.744997527655418e-06)
+        self.assertEqual(self.net_load.sigma, 1.714831916098503e-06)
         self.net_load.set_point_estimate_sigma(notch_list_path='./test/test_data/Official_O3_HL_notchlist.txt')
-        self.assertFalse(np.isnan(self.net_load.point_estimate))
-        self.assertFalse(np.isnan(self.net_load.sigma))
-
+        self.assertEqual(self.net_load.point_estimate, -6.172639848740372e-06)
+        self.assertEqual(self.net_load.sigma, 1.8090359780344857e-06)
 
 if __name__ == "__main__":
     unittest.main()
