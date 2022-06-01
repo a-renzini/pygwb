@@ -10,7 +10,6 @@ from bilby.core.utils import create_frequency_series
 from loguru import logger
 
 from pygwb.baseline import Baseline, get_baselines
-from pygwb.constants import H0
 from pygwb.util import interpolate_frequency_series
 
 if sys.version_info >= (3, 0):
@@ -29,6 +28,7 @@ class Simulator(object):
         sampling_frequency,
         start_time=0.0,
         no_noise=False,
+        orf_polarization='tensor'
     ):
         """
         Class that simulates an isotropic stochastic background.
@@ -84,7 +84,7 @@ class Simulator(object):
             self.baselines = get_baselines(
                 self.interferometers, frequencies=self.frequencies
             )
-            self.orf = self.get_orf()
+            self.orf = self.get_orf(polarization=orf_polarization)
 
             self.intensity_GW = interpolate_frequency_series(
                 intensity_GW, self.frequencies
@@ -145,7 +145,7 @@ class Simulator(object):
                 "The noisePSD of all the detectors needs to be specified!"
             )
 
-    def get_orf(self):
+    def get_orf(self, polarization='tensor'):
         """
         Function that returns a list containing the overlap reduction functions
         for all the baselines in self.baselines.
@@ -160,6 +160,8 @@ class Simulator(object):
             in self.baselines.
         """
         orf_list = []
+        for base in self.baselines:
+            base.orf_polarization = polarization
         orfs = np.array(
             [baseline.overlap_reduction_function for baseline in self.baselines]
         )

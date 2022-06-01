@@ -4,16 +4,16 @@ import warnings
 
 import h5py
 import numpy as np
-from bilby.core.utils import create_frequency_series
 from loguru import logger
 
 from pygwb.delta_sigma_cut import run_dsc
 from pygwb.omega_spectra import OmegaSpectrogram, OmegaSpectrum
 
+from .constants import h0
 from .notch import StochNotchList
 from .orfs import calc_orf
 from .postprocessing import (
-    calc_Y_sigma_from_Yf_varf,
+    calc_Y_sigma_from_Yf_sigmaf,
     calculate_point_estimate_sigma_spectrogram,
     postprocess_Y_sigma,
 )
@@ -83,6 +83,8 @@ class Baseline(object):
         self._vector_orf_calculated = False
         self._scalar_orf_calculated = False
         self._gamma_v_calculated = False
+        self._orf_polarization_set = False
+        self.duration = duration
         self.sampling_frequency = sampling_frequency
         self.duration = duration
         self.frequencies = frequencies
@@ -112,23 +114,51 @@ class Baseline(object):
             )
 
     @property
+    def overlap_reduction_function(self):
+        """Overlap reduction function associated to this baseline, calculated for the requested polarisation."""
+        if self._orf_polarization == 'tensor':
+            return self.tensor_overlap_reduction_function
+        elif self._orf_polarization == 'vector':
+            return self.vector_overlap_reduction_function
+        elif self._orf_polarization == 'scalar':
+            return self.scalar_overlap_reduction_function
+        elif self._orf_polarization == 'right_left':
+            return self.gamma_v
+        else:
+            raise ValueError(
+                "Overlap reduction function to be used has not yet been set. To set it, set the orf_polarization property."
+            )
+
+    @property
+    def orf_polarization(self):
+        """"""
+        if self._orf_polarization_set:
+            return self._orf_polarization
+        else:
+            raise ValueError(
+                "Overlap reduction function polarization han not yet been set."
+            )
+
+    @orf_polarization.setter
+    def orf_polarization(self, pol):
+        self._orf_polarization = pol
+        self._orf_polarization_set = True
+
+    @property
     def tensor_overlap_reduction_function(self):
         """Overlap reduction function calculated for tensor polarisation."""
         if not self._tensor_orf_calculated:
-            self._tensor_orf = self.calc_baseline_orf("tensor")
+            self._tensor_orf = self.calc_baseline_orf(polarization="tensor", frequencies=self.frequencies)
             self._tensor_orf_calculated = True
         return self._tensor_orf
-
-    @property
-    def overlap_reduction_function(self):
-        """Overlap reduction function associated to this baseline, calculated for the requested polarisation."""
-        return self.tensor_overlap_reduction_function
 
     @property
     def vector_overlap_reduction_function(self):
         """Overlap reduction function calculated for vector polarisation."""
         if not self._vector_orf_calculated:
-            self._vector_orf = self.calc_baseline_orf("vector")
+            self._vector_orf = self.calc_baseline_orf(
+                polarization="vector"
+            )
             self._vector_orf_calculated = True
         return self._vector_orf
 
@@ -136,7 +166,9 @@ class Baseline(object):
     def scalar_overlap_reduction_function(self):
         """Overlap reduction function calculated for scalar polarisation."""
         if not self._scalar_orf_calculated:
-            self._scalar_orf = self.calc_baseline_orf("scalar")
+            self._scalar_orf = self.calc_baseline_orf(
+                polarization="scalar"
+            )
             self._scalar_orf_calculated = True
         return self._scalar_orf
 
@@ -159,11 +191,13 @@ class Baseline(object):
         self.frequency_mask = mask
 
     @property
-    def gamma_v(self):
-        """Overlap reduction function for asymmetrically polarised backgrounds, 
+    def gamma_v(self, frequencies=None):
+        """Overlap reduction function for asymmetrically polarised backgrounds,
         as descrived in https://arxiv.org/pdf/0707.0535.pdf"""
         if not self._gamma_v_calculated:
-            self._gamma_v = self.calc_baseline_orf("right_left")
+            self._gamma_v = self.calc_baseline_orf(
+                polarization="right_left"
+            )
             self._gamma_v_calculated = True
         return self._gamma_v
 
@@ -245,7 +279,7 @@ class Baseline(object):
 
     @property
     def point_estimate_spectrogram(self):
-        '''Point estimate spectrogram (in Omega*h^2 units) calculated using data in this baseline.'''
+        """Point estimate spectrogram (in Omega units) calculated using data in this baseline."""
         if self._point_estimate_spectrogram_set:
             return self._point_estimate_spectrogram
         else:
@@ -258,7 +292,7 @@ class Baseline(object):
 
     @property
     def sigma_spectrogram(self):
-        '''Sigma spectrogram (in Omega*h^2 units) calculated using data in this baseline.'''
+        """Sigma spectrogram (in Omega units) calculated using data in this baseline."""
         if self._sigma_spectrogram_set:
             return self._sigma_spectrogram
         else:
@@ -271,7 +305,7 @@ class Baseline(object):
 
     @property
     def point_estimate_spectrum(self):
-        '''Point estimate spectrum (in Omega*h^2 units) calculated using data in this baseline.'''
+        """Point estimate spectrum (in Omega units) calculated using data in this baseline."""
         if self._point_estimate_spectrum_set:
             return self._point_estimate_spectrum
         else:
@@ -284,7 +318,7 @@ class Baseline(object):
 
     @property
     def sigma_spectrum(self):
-        '''Sigma spectrum (in Omega*h^2 units) calculated using data in this baseline.'''
+        """Sigma spectrum (in Omega units) calculated using data in this baseline."""
         if self._sigma_spectrum_set:
             return self._sigma_spectrum
         else:
@@ -297,7 +331,7 @@ class Baseline(object):
 
     @property
     def point_estimate(self):
-        '''Point estimate (in Omega*h^2 units) calculated using data in this baseline.'''
+        """Point estimate (in Omega units) calculated using data in this baseline."""
         if self._point_estimate_set:
             return self._point_estimate
         else:
@@ -310,7 +344,7 @@ class Baseline(object):
 
     @property
     def sigma(self):
-        '''Sigma (in Omega*h^2 units) calculated using data in this baseline.'''
+        """Sigma (in Omega units) calculated using data in this baseline."""
         if self._sigma_set:
             return self._sigma
         else:
@@ -435,6 +469,19 @@ class Baseline(object):
         self._delta_sigmas = delta_sigmas
 
     def check_sampling_frequencies_match_baseline_ifos(self, sampling_frequency):
+        """Check that the sampling frequency of the two interferometers in this Baseline match the Baseline sampling frequency.
+
+        Parameters:
+        ==========
+        sampling_frequency: float
+            The sampling frequency that is being set for the Baseline.
+
+        Notes:
+        =====
+        If the sampling frequency passed is `None`, the Baseline sampling frequency will be set to that of the interferometers, if these
+        match. If these don't match, an error will be raised. If the sampling frequency of the interferometers is also `None`, then no
+        sampling frequency will be set, and the user will can set it at a later time.
+        """
         if (
             self.interferometer_1.sampling_frequency
             and self.interferometer_2.sampling_frequency
@@ -464,7 +511,7 @@ class Baseline(object):
                 "Interferometer sampling_frequencies do not match each other!"
             )
 
-    def calc_baseline_orf(self, polarization):
+    def calc_baseline_orf(self, polarization="tensor", frequencies=None):
         """
         Calculate the overlap reduction function for this baseline.
         Wraps the orf module.
@@ -474,17 +521,38 @@ class Baseline(object):
         polarisation: str
             Polarisation of the signal to consider (scalar, vector, tensor)
             for the orf calculation.
+
+        Returns:
+        ========
+        orf: array_like
+            Overlap reduction function for the required polarization.
         """
-        return calc_orf(
-            self.frequencies,
-            self.interferometer_1.vertex,
-            self.interferometer_2.vertex,
-            self.interferometer_1.x,
-            self.interferometer_2.x,
-            self.interferometer_1.y,
-            self.interferometer_2.y,
-            polarization,
-        )
+        if frequencies is not None:
+            return calc_orf(
+                frequencies,
+                self.interferometer_1.vertex,
+                self.interferometer_2.vertex,
+                self.interferometer_1.x,
+                self.interferometer_2.x,
+                self.interferometer_1.y,
+                self.interferometer_2.y,
+                polarization,
+            )
+        elif self.frequencies is not None:
+            return calc_orf(
+                self.frequencies,
+                self.interferometer_1.vertex,
+                self.interferometer_2.vertex,
+                self.interferometer_1.x,
+                self.interferometer_2.x,
+                self.interferometer_1.y,
+                self.interferometer_2.y,
+                polarization,
+            )
+        else:
+            raise ValueError(
+                "Frequencies have not been provided for the orf calculation; user should either pass frequencies in or set them for this Baseline."
+            )
 
     @classmethod
     def from_interferometers(
@@ -533,6 +601,10 @@ class Baseline(object):
             Parameters object containing necessary parameters for
             the instantiation of the baseline, and subsequent
             analyses.
+
+        Returns:
+        ========
+        Baseline: cls
         """
         name = interferometer_1.name + interferometer_2.name
         return cls(
@@ -681,7 +753,7 @@ class Baseline(object):
             self.average_csd = self.average_csd.crop_frequencies(flow, fhigh + deltaF)
 
     def set_point_estimate_sigma_spectrogram(
-        self, alpha=0.0, fref=25, flow=20, fhigh=1726
+        self, alpha=0.0, fref=25, flow=20, fhigh=1726, polarization="tensor"
     ):
         """
         Set point estimate and sigma spectrogram. Resulting spectrogram
@@ -707,6 +779,9 @@ class Baseline(object):
 
         self.crop_frequencies_average_psd_csd(flow, fhigh)
 
+        if not self._orf_polarization_set:
+            self.orf_polarization = polarization
+
         # don't get rid of information unless we need to.
         Y_fs, var_fs = calculate_point_estimate_sigma_spectrogram(
             self.frequencies,
@@ -728,7 +803,7 @@ class Baseline(object):
             name=self.name + f" with alpha={alpha}",
             alpha=alpha,
             fref=fref,
-            h0=1.0,
+            h0=h0,
         )
 
         self.sigma_spectrogram = OmegaSpectrogram(
@@ -738,7 +813,7 @@ class Baseline(object):
             name=sigma_name,
             alpha=alpha,
             fref=fref,
-            h0=1.0,
+            h0=h0,
         )
 
     def set_point_estimate_sigma_spectrum(
@@ -748,6 +823,8 @@ class Baseline(object):
         fref=25,
         flow=20,
         fhigh=1726,
+        polarization="tensor",
+        apply_dsc=True,
     ):
         """
         Set time-integrated point estimate spectrum and variance in each frequency bin.
@@ -772,9 +849,21 @@ class Baseline(object):
             This is to ensure notching isn't applied automatically to spectra;
             it is applied automatically only when integrating over frequencies.
         """
+        if apply_dsc == True:
+            if badtimes is None:
+                if hasattr(self, "badGPStimes"):
+                    badtimes = self.badGPStimes
+            else:
+                badtimes = np.append(badtimes, self.badGPStimes)
+                self.badGPStimes = badtimes
+        else:
+            badtimes = np.array([])
 
-        # set unweighted point estimate and sigma spectrograms
-        if not hasattr(self, "point_estimate_spectrogram"):
+        if hasattr(self, "point_estimate_spectrogram"):
+            # reweight based on alpha that has been supplied
+            self.point_estimate_spectrogram.reweight(new_alpha=alpha, new_fref=fref)
+            self.sigma_spectrogram.reweight(new_alpha=alpha, new_fref=fref)
+        else:
             logger.info(
                 "Point estimate and sigma spectrograms are not set yet. setting now..."
             )
@@ -783,14 +872,10 @@ class Baseline(object):
                 fref=fref,
                 flow=flow,
                 fhigh=fhigh,
+                polarization=polarization,
             )
         deltaF = self.frequencies[1] - self.frequencies[0]
 
-        if badtimes is None:
-            if hasattr(self, "badGPStimes"):
-                badtimes = self.badGPStimes
-            else:
-                badtimes = np.array([])
 
         # should be True for each bad time
         bad_times_indexes = np.array(
@@ -825,7 +910,7 @@ class Baseline(object):
             epoch=epoch,
             alpha=alpha,
             fref=fref,
-            h0=1.0,
+            h0=h0,
         )
         self.sigma_spectrum = OmegaSpectrum(
             np.sqrt(sigma),
@@ -834,7 +919,7 @@ class Baseline(object):
             epoch=epoch,
             alpha=alpha,
             fref=fref,
-            h0=1.0,
+            h0=h0,
         )
         self.point_estimate_alpha = 0
 
@@ -847,6 +932,8 @@ class Baseline(object):
         flow=20,
         fhigh=1726,
         notch_list_path="",
+        polarization="tensor",
+        apply_dsc=True,
     ):
         """
         Set point estimate sigma based on a set of parameters. This is estimate of omega_gw in each frequency bin.
@@ -871,9 +958,13 @@ class Baseline(object):
             Path to the notch list to use in the spectrum; if the notch_list isn't set in the baseline,
             user can pass it directly here. If it is not set and if none is passed no notches will be applied.
         """
-        # TODO: Add check if badtimes is passed and point estimate spectrum
-        # already exists...
-        if not hasattr(self, "point_estimate_spectrum"):
+
+        if hasattr(self, "point_estimate_spectrum"):
+            self.point_estimate_spectrum.reweight(new_alpha=alpha, new_fref=fref)
+            self.sigma_spectrum.reweight(new_alpha=alpha, new_fref=fref)
+            self.point_estimate_spectrogram.reweight(new_alpha=alpha, new_fref=fref)
+            self.sigma_spectrogram.reweight(new_alpha=alpha, new_fref=fref)
+        else:
             logger.info(
                 "Point estimate and sigma spectra have not been set before. Setting it now..."
             )
@@ -887,31 +978,22 @@ class Baseline(object):
                 fref=fref,
                 flow=flow,
                 fhigh=fhigh,
+                polarization=polarization,
+                apply_dsc=apply_dsc
             )
 
-        # crop frequencies according to params before combining over them
-        # deltaF = self.frequencies[1] - self.frequencies[0]
-        # Y_spec = self.point_estimate_spectrum.crop(flow, fhigh + deltaF)
-        # sigma_spec = self.sigma_spectrum.crop(flow, fhigh + deltaF)
-        # freq_band_cut = (self.frequencies >= flow) & (self.frequencies <= fhigh)
-        # self.frequencies = self.frequencies[freq_band_cut]
+        if notch_list_path: 
+            self.notch_list_path=notch_list_path
 
-        # check notch list
-        # TODO: make this less fragile...at the moment these indexes
-        # must agree with those after cropping, so the notches must agree with the params
-        # struct in some way. Seems dangerous
         if self.notch_list_path:
             logger.debug("loading notches from " + self.notch_list_path)
             self.set_frequency_mask(self.notch_list_path)
-        elif notch_list_path:
-            logger.debug("loading notches from", notch_list_path)
-            self.set_frequency_mask(notch_list_path)
         else:
             self.set_frequency_mask()
 
         # get Y, sigma
         # it applies reweighting only if needed
-        Y, sigma = calc_Y_sigma_from_Yf_varf(
+        Y, sigma = calc_Y_sigma_from_Yf_sigmaf(
             self.point_estimate_spectrum,
             self.sigma_spectrum,
             frequency_mask=self.frequency_mask,
@@ -923,18 +1005,25 @@ class Baseline(object):
         self.sigma = sigma
 
     def reweight(self, new_alpha=None, new_fref=None):
-        if hasattr(self, "point_estimate_spectrogram"):
-            self.point_estimate_spectrogram.reweight(new_alpha, new_fref)
-        if hasattr(self, "sigma_spectrogram"):
-            self.sigma_spectrogram.reweight(new_alpha, new_fref)
-        if hasattr(self, "point_estimate_spectrum"):
-            self.point_estimate_spectrum.reweight()
-        if hasattr(self, "sigma_spectrum"):
-            self.sigma_spectrum.reweight()
-        self.set_point_estimate_sigma()
+        """Reweight all the frequency-weighted attributes of this Baseline, if these are set.
+
+        Parameters:
+        ===========
+        new_alpha: float, optional
+            New alpha to weight the spectra to.
+        new_fref: float, optional
+            New reference frequency to refer the spectra to.
+        """
+        self.set_point_estimate_sigma(alpha=new_alpha, fref=new_fref)
 
     def calculate_delta_sigma_cut(
-        self, delta_sigma_cut, alphas, flow=20, fhigh=1726, notch_list_path=""
+        self,
+        delta_sigma_cut,
+        alphas,
+        flow=20,
+        fhigh=1726,
+        notch_list_path="",
+        polarization="tensor",
     ):
         """
         Calculate the delta sigma cut using the naive and average psds, if set in the baseline.
@@ -954,6 +1043,9 @@ class Baseline(object):
         """
         if not notch_list_path:
             notch_list_path = self.notch_list_path
+
+        if not self._orf_polarization_set:
+            self.orf_polarization = polarization
 
         deltaF = self.frequencies[1] - self.frequencies[0]
         self.crop_frequencies_average_psd_csd(flow=flow, fhigh=fhigh)
@@ -977,7 +1069,7 @@ class Baseline(object):
             self.interferometer_1.average_psd,
             self.interferometer_2.average_psd,
             alphas,
-            self.tensor_overlap_reduction_function,
+            self.overlap_reduction_function,
             notch_list_path=notch_list_path,
         )
         self.badGPStimes = badGPStimes
@@ -1198,25 +1290,58 @@ class Baseline(object):
         sigma_spectrogram,
         badGPStimes,
         delta_sigmas,
+        compress=False,
     ):
         hf = h5py.File(filename, "w")
 
-        hf.create_dataset("freqs", data=frequencies)
-        hf.create_dataset("point_estimate_spectrum", data=point_estimate_spectrum)
-        hf.create_dataset("sigma_spectrum", data=sigma_spectrum)
-        hf.create_dataset("point_estimate", data=point_estimate, dtype="float")
-        hf.create_dataset("sigma", data=sigma, dtype="float")
-        hf.create_dataset(
-            "point_estimate_spectrogram", data=point_estimate_spectrogram
-        ),
-        hf.create_dataset("sigma_spectrogram", data=sigma_spectrogram)
-        hf.create_dataset("badGPStimes", data=badGPStimes)
-        if type(delta_sigmas) == float:
-            hf.create_dataset("delta_sigmas", data=delta_sigmas, dtype="float")
-        else:
-            hf.create_dataset("delta_sigmas", data=delta_sigmas)
+        if compress:
+            logger.info("Data will be compressed without loss of data")
+            hf.create_dataset("freqs", data=frequencies, compression="gzip")
+            hf.create_dataset(
+                "point_estimate_spectrum",
+                data=point_estimate_spectrum,
+                compression="gzip",
+            )
+            hf.create_dataset("sigma_spectrum", data=sigma_spectrum, compression="gzip")
+            hf.create_dataset(
+                "point_estimate", data=point_estimate, dtype="float", compression="gzip"
+            )
+            hf.create_dataset("sigma", data=sigma, dtype="float", compression="gzip")
+            hf.create_dataset(
+                "point_estimate_spectrogram",
+                data=point_estimate_spectrogram,
+                compression="gzip",
+            ),
+            hf.create_dataset(
+                "sigma_spectrogram", data=sigma_spectrogram, compression="gzip"
+            )
+            hf.create_dataset("badGPStimes", data=badGPStimes, compression="gzip")
+            if type(delta_sigmas) == float:
+                hf.create_dataset(
+                    "delta_sigmas", data=delta_sigmas, dtype="float", compression="gzip"
+                )
+            else:
+                hf.create_dataset("delta_sigmas", data=delta_sigmas, compression="gzip")
 
-        hf.close()
+            hf.close()
+
+        else:
+            hf.create_dataset("freqs", data=frequencies)
+            hf.create_dataset("point_estimate_spectrum", data=point_estimate_spectrum)
+            hf.create_dataset("sigma_spectrum", data=sigma_spectrum)
+            hf.create_dataset("point_estimate", data=point_estimate, dtype="float")
+            hf.create_dataset("sigma", data=sigma, dtype="float")
+            hf.create_dataset(
+                "point_estimate_spectrogram", data=point_estimate_spectrogram
+            ),
+            hf.create_dataset("sigma_spectrogram", data=sigma_spectrogram)
+            hf.create_dataset("badGPStimes", data=badGPStimes)
+            if type(delta_sigmas) == float:
+                hf.create_dataset("delta_sigmas", data=delta_sigmas, dtype="float")
+            else:
+                hf.create_dataset("delta_sigmas", data=delta_sigmas)
+
+            hf.close()
 
     def _npz_save_csd(
         self,
@@ -1353,6 +1478,7 @@ class Baseline(object):
         psd_2,
         avg_psd_1,
         avg_psd_2,
+        compress=False,
     ):
         hf = h5py.File(filename, "w")
 
@@ -1363,36 +1489,42 @@ class Baseline(object):
         avg_psd_1_times = avg_psd_1.times.value
         avg_psd_2_times = avg_psd_2.times.value
 
-        hf.create_dataset("freqs", data=freqs)
-        hf.create_dataset("avg_freqs", data=avg_freqs)
+        if compress:
+            compression='gzip'
+        else:
+            compression=None
+
+        hf.create_dataset("freqs", data=freqs, compression=compression)
+        hf.create_dataset("avg_freqs", data=avg_freqs, compression=compression)
 
         csd_group = hf.create_group("csd_group")
-        csd_group.create_dataset("csd", data=csd)
-        csd_group.create_dataset("csd_times", data=csd_times)
+        csd_group.create_dataset("csd", data=csd, compression=compression)
+        csd_group.create_dataset("csd_times", data=csd_times, compression=compression)
 
         avg_csd_group = hf.create_group("avg_csd_group")
-        avg_csd_group.create_dataset("avg_csd", data=avg_csd)
-        avg_csd_group.create_dataset("avg_csd_times", data=avg_csd_times)
+        avg_csd_group.create_dataset("avg_csd", data=avg_csd, compression=compression)
+        avg_csd_group.create_dataset("avg_csd_times", data=avg_csd_times, compression=compression)
 
         psd_group = hf.create_group("psds_group")
 
         psd_1_group = hf.create_group("psds_group/psd_1")
-        psd_1_group.create_dataset("psd_1", data=psd_1)
-        psd_1_group.create_dataset("psd_1_times", data=psd_1_times)
+        psd_1_group.create_dataset("psd_1", data=psd_1, compression=compression)
+        psd_1_group.create_dataset("psd_1_times", data=psd_1_times, compression=compression)
 
         psd_2_group = hf.create_group("psds_group/psd_2")
-        psd_2_group.create_dataset("psd_2", data=psd_2)
-        psd_2_group.create_dataset("psd_2_times", data=psd_2_times)
+        psd_2_group.create_dataset("psd_2", data=psd_2, compression=compression)
+        psd_2_group.create_dataset("psd_2_times", data=psd_2_times, compression=compression)
 
         avg_psd_group = hf.create_group("avg_psds_group")
 
         avg_psd_1_group = hf.create_group("avg_psds_group/avg_psd_1")
-        avg_psd_1_group.create_dataset("avg_psd_1", data=avg_psd_1)
-        avg_psd_1_group.create_dataset("avg_psd_1_times", data=avg_psd_1_times)
+        avg_psd_1_group.create_dataset("avg_psd_1", data=avg_psd_1, compression=compression)
+        avg_psd_1_group.create_dataset("avg_psd_1_times", data=avg_psd_1_times, compression=compression)
 
         avg_psd_2_group = hf.create_group("avg_psds_group/avg_psd_2")
-        avg_psd_2_group.create_dataset("avg_psd_2", data=avg_psd_2)
-        avg_psd_2_group.create_dataset("avg_psd_2_times", data=avg_psd_2_times)
+        avg_psd_2_group.create_dataset("avg_psd_2", data=avg_psd_2, compression=compression)
+        avg_psd_2_group.create_dataset("avg_psd_2_times", data=avg_psd_2_times, compression=compression)
+
         hf.close()
 
 
