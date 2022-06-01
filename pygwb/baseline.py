@@ -36,7 +36,7 @@ class Baseline(object):
         notch_list_path="",
         overlap_factor=0.5,
         zeropad_csd=True,
-        window_fftgram="hann",
+        window_fftgram_dict={"window_fftgram": "hann"},
         N_average_segments_welch_psd=2,
         sampling_frequency=None,
     ):
@@ -64,8 +64,8 @@ class Baseline(object):
             Default is 1/2, if set to 0 no overlap is performed.
         zeropad_csd: bool, optional
             If True, applies zeropadding in the csd estimation. True by default.
-        window_fftgram: str, optional
-            What type of window to use to produce the fftgrams
+        window_fftgram_dict: dictionary, optional
+            Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds. Default is \"hann\".
         N_average_segments_welch_psd: int, optional
             Number of segments used for PSD averaging (from both sides of the segment of interest)
             N_avg_segs should be even and >= 2.
@@ -77,7 +77,7 @@ class Baseline(object):
         self.notch_list_path = notch_list_path
         self.overlap_factor = overlap_factor
         self.zeropad_csd = zeropad_csd
-        self.window_fftgram = window_fftgram
+        self.window_fftgram_dict = window_fftgram_dict
         self.N_average_segments_welch_psd = N_average_segments_welch_psd
         self._tensor_orf_calculated = False
         self._vector_orf_calculated = False
@@ -617,7 +617,7 @@ class Baseline(object):
             notch_list_path=parameters.notch_list_path,
             overlap_factor=parameters.overlap_factor,
             zeropad_csd=parameters.zeropad_csd,
-            window_fftgram=parameters.window_fft_dict["window_fftgram"],
+            window_fftgram_dict=parameters.window_fft_dict,
             N_average_segments_welch_psd=parameters.N_average_segments_welch_psd,
             sampling_frequency=parameters.new_sample_rate,
         )
@@ -661,7 +661,7 @@ class Baseline(object):
             self.interferometer_1.set_psd_spectrogram(
                 frequency_resolution,
                 overlap_factor=self.overlap_factor,
-                window_fftgram=self.window_fftgram,
+                window_fftgram_dict=self.window_fftgram_dict,
             )
         except AttributeError:
             raise AssertionError(
@@ -671,7 +671,7 @@ class Baseline(object):
             self.interferometer_2.set_psd_spectrogram(
                 frequency_resolution,
                 overlap_factor=self.overlap_factor,
-                window_fftgram=self.window_fftgram,
+                window_fftgram_dict=self.window_fftgram_dict,
             )
         except AttributeError:
             raise AssertionError(
@@ -684,7 +684,7 @@ class Baseline(object):
             frequency_resolution,
             overlap_factor=self.overlap_factor,
             zeropad=self.zeropad_csd,
-            window_fftgram=self.window_fftgram,
+            window_fftgram_dict=self.window_fftgram_dict,
         )
 
         # TODO: make this less fragile.
