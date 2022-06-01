@@ -5,7 +5,7 @@ import bilby
 import gwpy
 import numpy as np
 
-from pygwb import baseline, network
+from pygwb import baseline, network, omega_spectra
 
 
 class TestNetwork(unittest.TestCase):
@@ -18,6 +18,7 @@ class TestNetwork(unittest.TestCase):
         self.sampling_frequency = 2048.0
         self.frequencies = np.arange(100)
         self.test_from_baselines()
+        self.test_network_initialisation()
 
     def tearDown(self):
         del self.interferometer_1
@@ -28,8 +29,8 @@ class TestNetwork(unittest.TestCase):
 
     def test_network_initialisation(self):
         ifos = [self.interferometer_1, self.interferometer_2, self.interferometer_3]
-        net = network.Network("test_net", ifos)
-        self.assertTrue(ifos[0].name, net.interferometers[0].name)
+        self.net_ifos = network.Network("test_net", ifos)
+        self.assertTrue(ifos[0].name, self.net_ifos.interferometers[0].name)
 
     def test_from_baselines(self):
         pickled_base_1 = baseline.Baseline.load_from_pickle(
@@ -83,6 +84,7 @@ class TestNetwork(unittest.TestCase):
         self.assertFalse(
             np.isnan(net.interferometers[0].strain_data.time_domain_strain).any()
         )
+        net.save_interferometer_data_to_file()
 
     #    def test_save_interferometer_data_to_file(self):
 
@@ -91,8 +93,24 @@ class TestNetwork(unittest.TestCase):
         self.assertFalse(np.isnan(self.net_load.point_estimate_spectrum).any())
         self.assertFalse(np.isnan(self.net_load.sigma_spectrum).any())
 
-    def test_combine_point_estimate_sigma(self):
-        self.net_load.combine_point_estimate_sigma()
+    def test_break_combine_point_estimate_sigma_spectra(self):
+        with self.assertRaises(AttributeError):
+            self.net_ifos.combine_point_estimate_sigma_spectra()
+        pickled_base_1 = baseline.Baseline.load_from_pickle(
+            "test/test_data/H1L1_1247644138-1247645038.pickle"
+        )
+        pickled_base_2 = baseline.Baseline.load_from_pickle(
+            "test/test_data/H1L1_1247644138-1247645038.pickle"
+        )
+        pickled_base_1.point_estimate_spectrum = omega_spectra.OmegaSpectrum(pickled_base_1.point_estimate_spectrum.value, alpha=5, fref=100, h0=1)
+        bases = [pickled_base_1, pickled_base_2]
+        net_break = network.Network.from_baselines("test_net", bases)
+        with self.assertRaises(ValueError):
+            net_break.combine_point_estimate_sigma_spectra()
+
+
+    def test_set_point_estimate_sigma(self):
+        self.net_load.set_point_estimate_sigma()
         self.assertFalse(np.isnan(self.net_load.point_estimate))
         self.assertFalse(np.isnan(self.net_load.sigma))
 

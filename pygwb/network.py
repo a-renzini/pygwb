@@ -255,14 +255,18 @@ class Network(object):
         """
         Combines the point estimate and sigma spectra from different baselines in the Network and stores them as attributes.
         """
-        point_estimate_spectra = [base.point_estimate_spectrum for base in self.baselines]
-        sigma_spectra = [base.sigma_spectrum for base in self.baselines]
+        try:
+            point_estimate_spectra = [base.point_estimate_spectrum for base in self.baselines]
+            sigma_spectra = [base.sigma_spectrum for base in self.baselines]
+        except AttributeError:
+            raise AttributeError("The Baselines of the Network have not been set!")
+
         alphas = np.array([spec.alpha for spec in point_estimate_spectra])
         frefs = np.array([spec.fref for spec in point_estimate_spectra])
         h0s = np.array([spec.h0 for spec in point_estimate_spectra])
 
         if not np.all(alphas==alphas[0]):
-            raise ValueError("The spectral indeces of the spectra in each Baseline don't match! Spectra may not be combined.")
+            raise ValueError("The spectral indices of the spectra in each Baseline don't match! Spectra may not be combined.")
         if not np.all(frefs==frefs[0]):
             raise ValueError("The reference frequencies of the spectra in each Baseline don't match! Spectra may not be combined.")
         if not np.all(h0s==h0s[0]):
