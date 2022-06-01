@@ -1,6 +1,7 @@
 import numpy as np
 from loguru import logger
 
+from pygwb.constants import H0
 from pygwb.notch import StochNotch, StochNotchList
 
 from .util import calc_bias
@@ -107,7 +108,6 @@ def calc_sens_integrand(
     delta_f: float,
     orf: np.array,
     T: int = 32,
-    H0: float = 67.9e3 / 3.086e22,
 ):
 
     """
@@ -142,9 +142,6 @@ def calc_sens_integrand(
         the overlap reduction function as a function of frequency that quantifies the overlap of a detector baseline,
         which depends on the detector locations, relative orientations, etc.
 
-    H0: float
-        the Hubble constant
-
     Returns
     =======
     sens_integrand: array
@@ -152,7 +149,7 @@ def calc_sens_integrand(
     """
 
     w1w2bar, w1w2squaredbar, oo = WindowFactors(window1=window1, window2=window2)
-    S_alpha = 3 * H0 ** 2 / (10 * np.pi ** 2) * 1.0 / freq ** 3
+    S_alpha = 3 * H0.si.value ** 2 / (10 * np.pi ** 2) * 1.0 / freq ** 3
     sigma_square_avg = (
         (w1w2squaredbar / w1w2bar ** 2)
         * 1

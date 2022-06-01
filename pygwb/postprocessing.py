@@ -56,7 +56,7 @@ def postprocess_Y_sigma(Y_fs, var_fs, segment_duration, deltaF, new_sample_rate)
     return Y_f_new, var_f_new
 
 
-def calc_Y_sigma_from_Yf_varf(Y_f, sigma_f, frequency_mask=None, alpha=None, fref=None):
+def calc_Y_sigma_from_Yf_sigmaf(Y_f, sigma_f, frequency_mask=True, alpha=None, fref=None):
     """
     Calculate the omega point estimate and sigma from their respective spectra,
     or spectrograms, taking into account the desired spectral weighting.
@@ -137,7 +137,7 @@ def calculate_point_estimate_sigma_spectrogram(
     weight_spectrogram: bool, optional
         Flag to apply spectral weighting, True by default.
     """
-    S_alpha = 3 * H0 ** 2 / (10 * np.pi ** 2) / freqs ** 3
+    S_alpha = 3 * H0.si.value ** 2 / (10 * np.pi ** 2) / freqs ** 3
     S_alpha *= (freqs / fref) ** alpha
     Y_fs = np.real(csd) / (orf * S_alpha)
     var_fs = (
@@ -194,7 +194,7 @@ def calculate_point_estimate_sigma_integrand(
     weight_spectrogram: bool, optional
         Flag to apply spectral weighting, True by default.
     """
-    S_alpha = 3 * H0 ** 2 / (10 * np.pi ** 2) / freqs ** 3
+    S_alpha = 3 * H0.si.value ** 2 / (10 * np.pi ** 2) / freqs ** 3
     S_alpha *= (freqs / fref) ** alpha
     Y_fs = csd / (orf * S_alpha)
     var_fs = (
