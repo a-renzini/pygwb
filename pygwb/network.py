@@ -7,6 +7,7 @@ import numpy as np
 from loguru import logger
 
 from .baseline import Baseline
+from .notch import StochNotchList
 from .omega_spectra import OmegaSpectrum
 from .postprocessing import (
     calc_Y_sigma_from_Yf_sigmaf,
@@ -163,6 +164,24 @@ class Network(object):
                 ifo.duration = duration
         self.duration = duration
 
+    def set_frequency_mask(self, notch_list_path, flow=20, fhigh=1726):
+        """
+        Set frequency mask to frequencies attribute.
+
+        Parameters
+        ==========
+        notch_list_path: str
+            Path to notch list to apply to frequency array.
+        """
+        mask = (self.frequencies >= flow) & (
+            self.frequencies <= fhigh
+        )
+        if notch_list_path:
+            notch_list = StochNotchList.load_from_file(notch_list_path)
+            notch_mask = notch_list.get_notch_mask(self.frequencies)
+            mask = np.logical_and(mask, notch_mask)
+        self.frequency_mask = mask
+
     def set_interferometer_data_from_simulator(
         self,
         GWB_intensity,
@@ -256,7 +275,9 @@ class Network(object):
         Combines the point estimate and sigma spectra from different baselines in the Network and stores them as attributes.
         """
         try:
-            point_estimate_spectra = [base.point_estimate_spectrum for base in self.baselines]
+            point_estimate_spectra = [
+                base.point_estimate_spectrum for base in self.baselines
+            ]
             sigma_spectra = [base.sigma_spectrum for base in self.baselines]
         except AttributeError:
             raise AttributeError("The Baselines of the Network have not been set!")
@@ -265,20 +286,57 @@ class Network(object):
         frefs = np.array([spec.fref for spec in point_estimate_spectra])
         h0s = np.array([spec.h0 for spec in point_estimate_spectra])
 
-        if not np.all(alphas==alphas[0]):
-            raise ValueError("The spectral indices of the spectra in each Baseline don't match! Spectra may not be combined.")
-        if not np.all(frefs==frefs[0]):
-            raise ValueError("The reference frequencies of the spectra in each Baseline don't match! Spectra may not be combined.")
-        if not np.all(h0s==h0s[0]):
-            raise ValueError("The cosmology h0 of the spectra in each Baseline don't match! Spectra may not be combined.")
+        if not np.all(alphas == alphas[0]):
+            raise ValueError(
+                "The spectral indices of the spectra in each Baseline don't match! Spectra may not be combined."
+            )
+        if not np.all(frefs == frefs[0]):
+            raise ValueError(
+                "The reference frequencies of the spectra in each Baseline don't match! Spectra may not be combined."
+            )
+        if not np.all(h0s == h0s[0]):
+            raise ValueError(
+                "The cosmology h0 of the spectra in each Baseline don't match! Spectra may not be combined."
+            )
 
-        pt_est_spec, sig_spec = combine_spectra_with_sigma_weights(np.array(point_estimate_spectra), np.array(sigma_spectra))
-        self.point_estimate_spectrum = OmegaSpectrum(pt_est_spec, alpha=alphas[0], fref=frefs[0], h0=h0s[0], name='Y_spectrum_network', frequencies=self.baselines[0].frequencies)
-        self.sigma_spectrum = OmegaSpectrum(sig_spec, alpha=alphas[0], fref=frefs[0], h0=h0s[0], name='sigma_spectrum_network', frequencies=self.baselines[0].frequencies)
+        pt_est_spec, sig_spec = combine_spectra_with_sigma_weights(
+            np.array(point_estimate_spectra), np.array(sigma_spectra)
+        )
+        self.point_estimate_spectrum = OmegaSpectrum(
+            pt_est_spec,
+            alpha=alphas[0],
+            fref=frefs[0],
+            h0=h0s[0],
+            name="Y_spectrum_network",
+            frequencies=self.baselines[0].frequencies,
+        )
+        self.sigma_spectrum = OmegaSpectrum(
+            sig_spec,
+            alpha=alphas[0],
+            fref=frefs[0],
+            h0=h0s[0],
+            name="sigma_spectrum_network",
+            frequencies=self.baselines[0].frequencies,
+        )
 
-    def set_point_estimate_sigma(self):
+    def set_point_estimate_sigma(
+        self,
+        notch_list_path="",
+        flow=20,
+        fhigh=1726,
+    ):
         """
         Set point estimate sigma based the combined spectra from each Baseline. This is estimate of omega_gw in each frequency bin.
+
+        Parameters
+        ==========
+        notch_list_path: str, optional
+            Path to the notch list to use in the spectrum; if the notch_list isn't set in the baseline,
+            user can pass it directly here. If it is not set and if none is passed no notches will be applied.
+        flow: float, optional
+            Low frequency. Default is 20 Hz.
+        fhigh: float, optional
+            High frequency. Default is 1726 Hz.
         """
         if not hasattr(self, "point_estimate_spectrum"):
             logger.info(
@@ -286,12 +344,17 @@ class Network(object):
             )
             self.combine_point_estimate_sigma_spectra()
 
+        self.frequencies = self.point_estimate_spectrum.frequencies.value
+        self.set_frequency_mask(notch_list_path, flow=flow, fhigh=fhigh)
+
         Y, sigma = calc_Y_sigma_from_Yf_sigmaf(
             self.point_estimate_spectrum,
             self.sigma_spectrum,
+            frequency_mask=self.frequency_mask,
         )
 
         self.point_estimate = Y
         self.sigma = sigma
+
 
 # TODO: add options in the network to apply dsc, frequency notching at the network level.

@@ -113,6 +113,9 @@ class TestNetwork(unittest.TestCase):
         self.net_load.set_point_estimate_sigma()
         self.assertFalse(np.isnan(self.net_load.point_estimate))
         self.assertFalse(np.isnan(self.net_load.sigma))
+        self.net_load.set_point_estimate_sigma(notch_list_path='./test/test_data/Official_O3_HL_notchlist.txt')
+        self.assertFalse(np.isnan(self.net_load.point_estimate))
+        self.assertFalse(np.isnan(self.net_load.sigma))
 
 
 if __name__ == "__main__":
