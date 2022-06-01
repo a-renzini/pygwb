@@ -4,8 +4,14 @@ import warnings
 import bilby
 import gwpy
 import numpy as np
+from loguru import logger
 
 from .baseline import Baseline
+from .omega_spectra import OmegaSpectrum
+from .postprocessing import (
+    calc_Y_sigma_from_Yf_sigmaf,
+    combine_spectra_with_sigma_weights,
+)
 from .simulator import Simulator
 
 
@@ -249,63 +255,39 @@ class Network(object):
         """
         Combines the point estimate and sigma spectra from different baselines in the Network and stores them as attributes.
         """
-        point_estimate_spectra = np.array(
-            [base.point_estimate_spectrum for base in self.baselines]
-        )
-        sigma_spectra = np.array([base.sigma_spectrum for base in self.baselines])
+        point_estimate_spectra = [base.point_estimate_spectrum for base in self.baselines]
+        sigma_spectra = [base.sigma_spectrum for base in self.baselines]
+        alphas = np.array([spec.alpha for spec in point_estimate_spectra])
+        frefs = np.array([spec.fref for spec in point_estimate_spectra])
+        h0s = np.array([spec.h0 for spec in point_estimate_spectra])
 
-        self.point_estimate_spectrum = np.sum(
-            point_estimate_spectra / sigma_spectra ** 2
-        ) / np.sum(1 / sigma_spectra ** 2)
-        self.sigma_spectrum = 1 / np.sqrt(np.sum(1 / sigma_spectra ** 2))
+        if not np.all(alphas==alphas[0]):
+            raise ValueError("The spectral indeces of the spectra in each Baseline don't match! Spectra may not be combined.")
+        if not np.all(frefs==frefs[0]):
+            raise ValueError("The reference frequencies of the spectra in each Baseline don't match! Spectra may not be combined.")
+        if not np.all(h0s==h0s[0]):
+            raise ValueError("The cosmology h0 of the spectra in each Baseline don't match! Spectra may not be combined.")
 
-    def combine_point_estimate_sigma(
-        self,
-        alpha=0,
-        fref=25,
-        flow=20,
-        fhigh=500,
-        lines_object=None,
-        apply_weighting=True,
-        badtimes=np.array([], dtype=int),
-    ):
+        pt_est_spec, sig_spec = combine_spectra_with_sigma_weights(np.array(point_estimate_spectra), np.array(sigma_spectra))
+        self.point_estimate_spectrum = OmegaSpectrum(pt_est_spec, alpha=alphas[0], fref=frefs[0], h0=h0s[0], name='Y_spectrum_network', frequencies=self.baselines[0].frequencies)
+        self.sigma_spectrum = OmegaSpectrum(sig_spec, alpha=alphas[0], fref=frefs[0], h0=h0s[0], name='sigma_spectrum_network', frequencies=self.baselines[0].frequencies)
+
+    def set_point_estimate_sigma(self):
         """
-        Combines the point estimate and sigma from different baselines in the Network and stores them as attributes.
+        Set point estimate sigma based the combined spectra from each Baseline. This is estimate of omega_gw in each frequency bin.
         """
-        try:
-            point_estimates = np.array([base.point_estimate for base in self.baselines])
-            sigmas = np.array([base.sigma for base in self.baselines])
-        except AttributeError:
-            for base in baselines:
-                base.set_point_estimate_sigma(
-                    self,
-                    alpha=alpha,
-                    fref=fref,
-                    flow=flow,
-                    fhigh=fhigh,
-                    lines_object=lines_object,
-                    apply_weighting=apply_weighting,
-                    badtimes=badtimes,
-                )
+        if not hasattr(self, "point_estimate_spectrum"):
+            logger.info(
+                "Point estimate and sigma spectra have not been set before. Setting it now..."
+            )
+            self.combine_point_estimate_sigma_spectra()
 
-            point_estimates = np.array([base.point_estimate for base in self.baselines])
-            sigmas = np.array([base.sigma for base in self.baselines])
-        self.point_estimate = np.sum(point_estimates / sigmas ** 2) / np.sum(
-            1 / sigmas ** 2
+        Y, sigma = calc_Y_sigma_from_Yf_sigmaf(
+            self.point_estimate_spectrum,
+            self.sigma_spectrum,
         )
-        self.sigma = 1 / np.sqrt(np.sum(1 / sigmas ** 2))
 
+        self.point_estimate = Y
+        self.sigma = sigma
 
-#    def set_interferometer_data_from_file(self, file):
-#        """
-#        Fill interferometers with data from file
-#        """
-
-
-#     These should be in the baseline class
-
-#     def set_baseline_data_from_CSD(self):
-#         """"""
-
-#     def set_baseline_post_processing(self):
-#         """"""
+# TODO: add options in the network to apply dsc, frequency notching at the network level.
