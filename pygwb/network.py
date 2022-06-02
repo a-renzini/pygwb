@@ -164,7 +164,7 @@ class Network(object):
                 ifo.duration = duration
         self.duration = duration
 
-    def set_frequency_mask(self, notch_list_path, flow=20, fhigh=1726):
+    def set_frequency_mask(self, notch_list_path='', flow=20, fhigh=1726):
         """
         Set frequency mask to frequencies attribute.
 

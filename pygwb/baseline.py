@@ -172,7 +172,7 @@ class Baseline(object):
             self._scalar_orf_calculated = True
         return self._scalar_orf
 
-    def set_frequency_mask(self, notch_list_path):
+    def set_frequency_mask(self, notch_list_path=''):
         """
         Set frequency mask to frequencies attribute.
 
