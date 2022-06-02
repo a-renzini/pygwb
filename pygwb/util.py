@@ -44,12 +44,12 @@ def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}):
 def get_window_tuple(window_fftgram_dict={"window_fftgram": "hann"}):
     """
     Unpack the `window_fft_dict` dictionary into a `tuple` that may be read by scipy.get_window.
-    
+
     Parameters:
     ===========
     window_fftgram_dict: dictionary, optional
         Dictionary with window characteristics. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`.
-    
+
     Returns:
     ========
     window_tuple: tuple
@@ -145,7 +145,7 @@ def omega_to_power(omega_GWB, frequencies):
 
     Notes:
     ======
-    The given frequencies need to match the given spectrum. 
+    The given frequencies need to match the given spectrum.
     """
     H_theor = (3 * H0.si.value ** 2) / (10 * np.pi ** 2)
 
@@ -162,7 +162,7 @@ def interpolate_frequency_series(fSeries, new_frequencies):
     Parameters:
     ===========
     fSeries: gwpy.frequencyseries.FrequencySeries
-        The fFrequencySeries to interpolate. 
+        The fFrequencySeries to interpolate.
     new_frequencies: array_like
         The new set of frequencies to interpolate to.
 

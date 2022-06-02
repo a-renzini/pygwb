@@ -32,6 +32,8 @@ class Parameters:
         Channel name; needs to match an existing channel. Default is \"GWOSC-16KHZ_R1_STRAIN\"
     new_sample_rate: int
         Sample rate to use when downsampling the data (Hz). Default is 4096 Hz.
+    input_sample_rate: int
+        Sample rate of the read data (Hz). Default is 16384 Hz.
     cutoff_frequency: int
         Lower frequency cutoff; applied in filtering in preprocessing (Hz). Default is 11 Hz.
     segment_duration: int
@@ -92,6 +94,8 @@ class Parameters:
         Cluster window. Default is 0.5.
     gate_whiten: bool
         Whether to whiten when gating. Default is True.
+    tag: str
+        Hint for the read_data function to retrieve one specific type of data, e.g.: C00, C01
     """
 
     t0: float = 0
@@ -99,6 +103,7 @@ class Parameters:
     data_type: str = "public"
     channel: str = "GWOSC-16KHZ_R1_STRAIN"
     new_sample_rate: int = 4096
+    input_sample_rate: int = 16384
     cutoff_frequency: int = 11
     segment_duration: int = 192
     number_cropped_seconds: int = 2
@@ -121,7 +126,7 @@ class Parameters:
     zeropad_csd: bool = True
     delta_sigma_cut: float = 0.2
     alphas_delta_sigma_cut: List = field(default_factory=lambda: [-5, 0, 3])
-    save_data_type: str = "json"
+    save_data_type: str = "npz"
     time_shift: int = 0
     gate_data: bool = False
     gate_tzero: float = 1.0
@@ -129,6 +134,7 @@ class Parameters:
     gate_threshold: float = 50.0
     cluster_window: float = 0.5
     gate_whiten: bool = True
+    tag: str = "C00"
 
     def __post_init__(self):
         if self.coarse_grain:
@@ -186,6 +192,17 @@ class Parameters:
             )
         dictionary["window_fft_dict"] = dict(config.items("window_fft_specs"))
         dictionary["local_data_path_dict"] = dict(config.items("local_data"))
+        possible_ifos = ["H1", "L1", "V", "K"]
+        for ifo in possible_ifos:
+            if ifo in dictionary["local_data_path_dict"]:
+                if dictionary["local_data_path_dict"][ifo].startswith("["):
+                    dictionary["local_data_path_dict"][ifo] = json.loads(
+                        dictionary["local_data_path_dict"][ifo]
+                    )
+                else:
+                    dictionary["local_data_path_dict"][ifo] = dictionary[
+                        "local_data_path_dict"
+                    ][ifo]
         for item in dictionary.copy():
             if not dictionary[item]:
                 dictionary.pop(item)
@@ -231,21 +248,20 @@ class Parameters:
             if dictionary[item] is None:
                 dictionary.pop(item)
         local_data_path_dict = {}
-        if 'H1' in dictionary:
-            local_data_path_dict['H1'] = dictionary['H1']
-            dictionary.pop('H1')
-        if 'L1' in dictionary:
-            local_data_path_dict['L1'] = dictionary['L1']
-            dictionary.pop('L1')
-        if 'V' in dictionary:
-            local_data_path_dict['V'] = dictionary['V']
-            dictionary.pop('V')
-        dictionary['local_data_path_dict'] = local_data_path_dict
-        if 'window_fftgram' in dictionary:
+        possible_ifos = ["H1", "L1", "V", "K"]
+        for ifo in possible_ifos:
+            if ifo in dictionary:
+                if dictionary[ifo].startswith("["):
+                    local_data_path_dict[ifo] = json.loads(dictionary[ifo])
+                else:
+                    local_data_path_dict[ifo] = dictionary[ifo]
+                dictionary.pop(ifo)
+        dictionary["local_data_path_dict"] = local_data_path_dict
+        if "window_fftgram" in dictionary:
             window_fft_dict = {}
-            window_fft_dict['window_fftgram'] = dictionary['window_fftgram']
-            dictionary.pop('window_fftgram')
-            dictionary['window_fft_dict'] = window_fft_dict
+            window_fft_dict["window_fftgram"] = dictionary["window_fftgram"]
+            dictionary.pop("window_fftgram")
+            dictionary["window_fft_dict"] = window_fft_dict
         self.update_from_dictionary(dictionary)
 
     def save_paramfile(self, output_path):
@@ -332,6 +348,7 @@ class ParametersHelp(enum.Enum):
     new_sample_rate = (
         "Sample rate to use when downsampling the data (Hz). Default is 4096 Hz."
     )
+    input_sample_rate = "Sample rate of the read data (Hz). Default is 16384 Hz."
     cutoff_frequency = "Lower frequency cutoff; applied in filtering in preprocessing (Hz). Default is 11 Hz."
     segment_duration = "Duration of the individual segments to analyse (seconds). Default is 192 seconds."
     number_cropped_seconds = "Number of seconds to crop at the start and end of the analysed data (seconds). Default is 2 seconds."
@@ -368,6 +385,7 @@ class ParametersHelp(enum.Enum):
     gate_threshold = "Gate threshold. Default is 50."
     cluster_window = "Cluster window. Default is 0.5."
     gate_whiten = "Whether to whiten when gating. Default is True."
+    tag = "Hint for the read_data function to retrieve one specific type of data, e.g.: C00, C01"
 
     @property
     def help(self):

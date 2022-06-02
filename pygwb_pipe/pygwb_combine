@@ -11,6 +11,7 @@ import numpy as np
 from loguru import logger
 
 from pygwb.baseline import Baseline
+from pygwb.constants import h0 as pygwb_h0
 from pygwb.omega_spectra import OmegaSpectrum, reweight_spectral_object
 from pygwb.parameters import Parameters
 from pygwb.postprocessing import (
@@ -62,7 +63,7 @@ def main():
     )
     combine_args = combine_parser.parse_args()
     if not combine_args.h0:
-        combine_args.h0 = 0.7
+        combine_args.h0 = pygwb_h0
     if not combine_args.out_path:
         combine_args.out_path = Path("./")
     combine_args.alpha = np.float(eval(combine_args.alpha))
@@ -111,8 +112,8 @@ def main():
         np.array(Y_spectra_j), np.array(sigma_spectra_j)
     )
     
-    Y_spectrum = OmegaSpectrum(Y_spectrum_combined, alpha=params.alpha, fref=params.fref, h0=1.0, name='Y_spectrum', frequencies=frequencies)
-    sigma_spectrum = OmegaSpectrum(sigma_spectrum_combined, alpha=params.alpha, fref=params.fref, h0=1.0, name='sigma_spectrum', frequencies=frequencies)
+    Y_spectrum = OmegaSpectrum(Y_spectrum_combined, alpha=params.alpha, fref=params.fref, h0=pygwb_h0, name='Y_spectrum', frequencies=frequencies)
+    sigma_spectrum = OmegaSpectrum(sigma_spectrum_combined, alpha=params.alpha, fref=params.fref, h0=pygwb_h0, name='sigma_spectrum', frequencies=frequencies)
     
     Y_spectrum.write(os.path.join(
         combine_args.out_path,f"Y_spectrum_{times[0]}-{times[-1]}.hdf5"))
