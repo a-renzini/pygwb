@@ -116,7 +116,8 @@ def main():
     
     Y_spectrum.write(os.path.join(
         combine_args.out_path,f"Y_spectrum_{times[0]}-{times[-1]}.hdf5"))
-    sigma_spectrum.write(f"sigma_spectrum_{times[0]}-{times[-1]}.hdf5")
+    sigma_spectrum.write(os.path.join(
+        combine_args.out_path,f"sigma_spectrum_{times[0]}-{times[-1]}.hdf5"))
     logger.info(
         f"Saved file with combined point estimate and sigma OmegaSpectrum objects for this run.sigma_spectrum"
     )
