@@ -164,7 +164,7 @@ class Network(object):
                 ifo.duration = duration
         self.duration = duration
 
-    def set_frequency_mask(self, notch_list_path='', flow=20, fhigh=1726):
+    def set_frequency_mask(self, notch_list_path="", flow=20, fhigh=1726):
         """
         Set frequency mask to frequencies attribute.
 
@@ -173,9 +173,7 @@ class Network(object):
         notch_list_path: str
             Path to notch list to apply to frequency array.
         """
-        mask = (self.frequencies >= flow) & (
-            self.frequencies <= fhigh
-        )
+        mask = (self.frequencies >= flow) & (self.frequencies <= fhigh)
         if notch_list_path:
             notch_list = StochNotchList.load_from_file(notch_list_path)
             notch_mask = notch_list.get_notch_mask(self.frequencies)

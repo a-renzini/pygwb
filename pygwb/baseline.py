@@ -116,13 +116,13 @@ class Baseline(object):
     @property
     def overlap_reduction_function(self):
         """Overlap reduction function associated to this baseline, calculated for the requested polarisation."""
-        if self._orf_polarization == 'tensor':
+        if self._orf_polarization == "tensor":
             return self.tensor_overlap_reduction_function
-        elif self._orf_polarization == 'vector':
+        elif self._orf_polarization == "vector":
             return self.vector_overlap_reduction_function
-        elif self._orf_polarization == 'scalar':
+        elif self._orf_polarization == "scalar":
             return self.scalar_overlap_reduction_function
-        elif self._orf_polarization == 'right_left':
+        elif self._orf_polarization == "right_left":
             return self.gamma_v
         else:
             raise ValueError(
@@ -148,7 +148,9 @@ class Baseline(object):
     def tensor_overlap_reduction_function(self):
         """Overlap reduction function calculated for tensor polarisation."""
         if not self._tensor_orf_calculated:
-            self._tensor_orf = self.calc_baseline_orf(polarization="tensor", frequencies=self.frequencies)
+            self._tensor_orf = self.calc_baseline_orf(
+                polarization="tensor", frequencies=self.frequencies
+            )
             self._tensor_orf_calculated = True
         return self._tensor_orf
 
@@ -156,9 +158,7 @@ class Baseline(object):
     def vector_overlap_reduction_function(self):
         """Overlap reduction function calculated for vector polarisation."""
         if not self._vector_orf_calculated:
-            self._vector_orf = self.calc_baseline_orf(
-                polarization="vector"
-            )
+            self._vector_orf = self.calc_baseline_orf(polarization="vector")
             self._vector_orf_calculated = True
         return self._vector_orf
 
@@ -166,13 +166,11 @@ class Baseline(object):
     def scalar_overlap_reduction_function(self):
         """Overlap reduction function calculated for scalar polarisation."""
         if not self._scalar_orf_calculated:
-            self._scalar_orf = self.calc_baseline_orf(
-                polarization="scalar"
-            )
+            self._scalar_orf = self.calc_baseline_orf(polarization="scalar")
             self._scalar_orf_calculated = True
         return self._scalar_orf
 
-    def set_frequency_mask(self, notch_list_path=''):
+    def set_frequency_mask(self, notch_list_path=""):
         """
         Set frequency mask to frequencies attribute.
 
@@ -195,15 +193,13 @@ class Baseline(object):
         """Overlap reduction function for asymmetrically polarised backgrounds,
         as descrived in https://arxiv.org/pdf/0707.0535.pdf"""
         if not self._gamma_v_calculated:
-            self._gamma_v = self.calc_baseline_orf(
-                polarization="right_left"
-            )
+            self._gamma_v = self.calc_baseline_orf(polarization="right_left")
             self._gamma_v_calculated = True
         return self._gamma_v
 
     @property
     def duration(self):
-        '''Duration in seconds of a unit segment of data stored in the baseline detectors.'''
+        """Duration in seconds of a unit segment of data stored in the baseline detectors."""
         if self._duration_set:
             return self._duration
         else:
@@ -256,7 +252,7 @@ class Baseline(object):
 
     @property
     def frequencies(self):
-        '''Frequency array associated to this baseline.'''
+        """Frequency array associated to this baseline."""
         if self._frequencies_set:
             return self._frequencies
         else:
@@ -284,7 +280,9 @@ class Baseline(object):
         if self._point_estimate_spectrogram_set:
             return self._point_estimate_spectrogram
         else:
-            raise ValueError("Omega point estimate spectrogram not yet set. To set it, use `set_point_estimate_sigma_spectrogram` method.")
+            raise ValueError(
+                "Omega point estimate spectrogram not yet set. To set it, use `set_point_estimate_sigma_spectrogram` method."
+            )
 
     @point_estimate_spectrogram.setter
     def point_estimate_spectrogram(self, pt_est):
@@ -297,7 +295,9 @@ class Baseline(object):
         if self._sigma_spectrogram_set:
             return self._sigma_spectrogram
         else:
-            raise ValueError("Omega sigma spectrogram not yet set. To set it, use `set_point_estimate_sigma_spectrogram` method.")
+            raise ValueError(
+                "Omega sigma spectrogram not yet set. To set it, use `set_point_estimate_sigma_spectrogram` method."
+            )
 
     @sigma_spectrogram.setter
     def sigma_spectrogram(self, sig):
@@ -310,7 +310,9 @@ class Baseline(object):
         if self._point_estimate_spectrum_set:
             return self._point_estimate_spectrum
         else:
-            raise ValueError("Omega point estimate spectrum not yet set. To set it, use `set_point_estimate_sigma_spectrum` method.")
+            raise ValueError(
+                "Omega point estimate spectrum not yet set. To set it, use `set_point_estimate_sigma_spectrum` method."
+            )
 
     @point_estimate_spectrum.setter
     def point_estimate_spectrum(self, pt_est):
@@ -323,7 +325,9 @@ class Baseline(object):
         if self._sigma_spectrum_set:
             return self._sigma_spectrum
         else:
-            raise ValueError("Omega sigma spectrum not yet set. To set it, use `set_point_estimate_sigma_spectrum` method.")
+            raise ValueError(
+                "Omega sigma spectrum not yet set. To set it, use `set_point_estimate_sigma_spectrum` method."
+            )
 
     @sigma_spectrum.setter
     def sigma_spectrum(self, sig):
@@ -336,7 +340,9 @@ class Baseline(object):
         if self._point_estimate_set:
             return self._point_estimate
         else:
-            raise ValueError("Omega point estimate not yet set. To set it, use `set_point_estimate_sigma` method.")
+            raise ValueError(
+                "Omega point estimate not yet set. To set it, use `set_point_estimate_sigma` method."
+            )
 
     @point_estimate.setter
     def point_estimate(self, pt_est):
@@ -349,7 +355,9 @@ class Baseline(object):
         if self._sigma_set:
             return self._sigma
         else:
-            raise ValueError("Omega sigma not yet set. To set it, use `set_point_estimate_sigma` method.")
+            raise ValueError(
+                "Omega sigma not yet set. To set it, use `set_point_estimate_sigma` method."
+            )
 
     @sigma.setter
     def sigma(self, sig):
@@ -380,7 +388,7 @@ class Baseline(object):
 
     @property
     def sampling_frequency(self):
-        """Sampling frequency of the data stored in this baseline. This must match the 
+        """Sampling frequency of the data stored in this baseline. This must match the
         sampling frequency stored in this baseline's interferometers."""
         if hasattr(self, "_sampling_frequency"):
             return self._sampling_frequency
@@ -753,11 +761,17 @@ class Baseline(object):
         if hasattr(self, "average_csd"):
             self.average_csd = self.average_csd.crop_frequencies(flow, fhigh + deltaF)
         if hasattr(self, "point_estimate_spectrogram"):
-            self.point_estimate_spectrogram = self.point_estimate_spectrogram.crop_frequencies(flow, fhigh + deltaF)
+            self.point_estimate_spectrogram = (
+                self.point_estimate_spectrogram.crop_frequencies(flow, fhigh + deltaF)
+            )
         if hasattr(self, "sigma_spectrogram"):
-            self.sigma_spectrogram = self.sigma_spectrogram.crop_frequencies(flow, fhigh + deltaF)
+            self.sigma_spectrogram = self.sigma_spectrogram.crop_frequencies(
+                flow, fhigh + deltaF
+            )
         if hasattr(self, "point_estimate_spectrum"):
-            self.point_estimate_spectrum = self.point_estimate_spectrum.crop(flow, fhigh + deltaF)
+            self.point_estimate_spectrum = self.point_estimate_spectrum.crop(
+                flow, fhigh + deltaF
+            )
         if hasattr(self, "sigma_spectrum"):
             self.sigma_spectrum = self.sigma_spectrum.crop(flow, fhigh + deltaF)
         if hasattr(self, "point_estimate"):
@@ -887,7 +901,6 @@ class Baseline(object):
             )
         deltaF = self.frequencies[1] - self.frequencies[0]
 
-
         # should be True for each bad time
         bad_times_indexes = np.array(
             [np.any(t == badtimes) for t in self.point_estimate_spectrogram.times.value]
@@ -990,11 +1003,11 @@ class Baseline(object):
                 flow=flow,
                 fhigh=fhigh,
                 polarization=polarization,
-                apply_dsc=apply_dsc
+                apply_dsc=apply_dsc,
             )
 
-        if notch_list_path: 
-            self.notch_list_path=notch_list_path
+        if notch_list_path:
+            self.notch_list_path = notch_list_path
 
         if self.notch_list_path:
             logger.debug("loading notches from " + self.notch_list_path)
@@ -1379,7 +1392,7 @@ class Baseline(object):
             csd_times=csd.times.value,
             avg_csd_times=avg_csd.times.value,
             psd_times=psd_1.times.value,
-            avg_psd_times=avg_psd_1.times.value
+            avg_psd_times=avg_psd_1.times.value,
         )
 
     def _pickle_save_csd(
@@ -1505,9 +1518,9 @@ class Baseline(object):
         avg_psd_2_times = avg_psd_2.times.value
 
         if compress:
-            compression='gzip'
+            compression = "gzip"
         else:
-            compression=None
+            compression = None
 
         hf.create_dataset("freqs", data=freqs, compression=compression)
         hf.create_dataset("avg_freqs", data=avg_freqs, compression=compression)
@@ -1518,27 +1531,41 @@ class Baseline(object):
 
         avg_csd_group = hf.create_group("avg_csd_group")
         avg_csd_group.create_dataset("avg_csd", data=avg_csd, compression=compression)
-        avg_csd_group.create_dataset("avg_csd_times", data=avg_csd_times, compression=compression)
+        avg_csd_group.create_dataset(
+            "avg_csd_times", data=avg_csd_times, compression=compression
+        )
 
         psd_group = hf.create_group("psds_group")
 
         psd_1_group = hf.create_group("psds_group/psd_1")
         psd_1_group.create_dataset("psd_1", data=psd_1, compression=compression)
-        psd_1_group.create_dataset("psd_1_times", data=psd_1_times, compression=compression)
+        psd_1_group.create_dataset(
+            "psd_1_times", data=psd_1_times, compression=compression
+        )
 
         psd_2_group = hf.create_group("psds_group/psd_2")
         psd_2_group.create_dataset("psd_2", data=psd_2, compression=compression)
-        psd_2_group.create_dataset("psd_2_times", data=psd_2_times, compression=compression)
+        psd_2_group.create_dataset(
+            "psd_2_times", data=psd_2_times, compression=compression
+        )
 
         avg_psd_group = hf.create_group("avg_psds_group")
 
         avg_psd_1_group = hf.create_group("avg_psds_group/avg_psd_1")
-        avg_psd_1_group.create_dataset("avg_psd_1", data=avg_psd_1, compression=compression)
-        avg_psd_1_group.create_dataset("avg_psd_1_times", data=avg_psd_1_times, compression=compression)
+        avg_psd_1_group.create_dataset(
+            "avg_psd_1", data=avg_psd_1, compression=compression
+        )
+        avg_psd_1_group.create_dataset(
+            "avg_psd_1_times", data=avg_psd_1_times, compression=compression
+        )
 
         avg_psd_2_group = hf.create_group("avg_psds_group/avg_psd_2")
-        avg_psd_2_group.create_dataset("avg_psd_2", data=avg_psd_2, compression=compression)
-        avg_psd_2_group.create_dataset("avg_psd_2_times", data=avg_psd_2_times, compression=compression)
+        avg_psd_2_group.create_dataset(
+            "avg_psd_2", data=avg_psd_2, compression=compression
+        )
+        avg_psd_2_group.create_dataset(
+            "avg_psd_2_times", data=avg_psd_2_times, compression=compression
+        )
 
         hf.close()
 
