@@ -266,6 +266,7 @@ class Baseline(object):
     def frequencies(self, freqs):
         self._frequencies = freqs
         self._frequencies_set = True
+        self.frequency_mask = None
         # delete the orfs, set the calculated flag to zero
         if self._tensor_orf_calculated:
             delattr(self, "_tensor_orf")
@@ -751,6 +752,16 @@ class Baseline(object):
             )
         if hasattr(self, "average_csd"):
             self.average_csd = self.average_csd.crop_frequencies(flow, fhigh + deltaF)
+        if hasattr(self, "point_estimate_spectrogram"):
+            self.point_estimate_spectrogram = self.point_estimate_spectrogram.crop_frequencies(flow, fhigh + deltaF)
+        if hasattr(self, "sigma_spectrogram"):
+            self.sigma_spectrogram = self.sigma_spectrogram.crop_frequencies(flow, fhigh + deltaF)
+        if hasattr(self, "point_estimate_spectrum"):
+            self.point_estimate_spectrum = self.point_estimate_spectrum.crop(flow, fhigh + deltaF)
+        if hasattr(self, "sigma_spectrum"):
+            self.sigma_spectrum = self.sigma_spectrum.crop(flow, fhigh + deltaF)
+        if hasattr(self, "point_estimate"):
+            self.set_point_estimate_sigma()
 
     def set_point_estimate_sigma_spectrogram(
         self, alpha=0.0, fref=25, flow=20, fhigh=1726, polarization="tensor"
@@ -1365,6 +1376,10 @@ class Baseline(object):
             psd_2=psd_2,
             avg_psd_1=avg_psd_1,
             avg_psd_2=avg_psd_2,
+            csd_times=csd.times.value,
+            avg_csd_times=avg_csd.times.value,
+            psd_times=psd_1.times.value,
+            avg_psd_times=avg_psd_1.times.value
         )
 
     def _pickle_save_csd(
