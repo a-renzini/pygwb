@@ -28,7 +28,7 @@ class Simulator(object):
         sampling_frequency,
         start_time=0.0,
         no_noise=False,
-        orf_polarization='tensor'
+        orf_polarization="tensor",
     ):
         """
         Class that simulates an isotropic stochastic background.
@@ -145,7 +145,7 @@ class Simulator(object):
                 "The noisePSD of all the detectors needs to be specified!"
             )
 
-    def get_orf(self, polarization='tensor'):
+    def get_orf(self, polarization="tensor"):
         """
         Function that returns a list containing the overlap reduction functions
         for all the baselines in self.baselines.

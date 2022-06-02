@@ -134,7 +134,7 @@ class Parameters:
     gate_threshold: float = 50.0
     cluster_window: float = 0.5
     gate_whiten: bool = True
-    tag: str = 'C00'
+    tag: str = "C00"
 
     def __post_init__(self):
         if self.coarse_grain:
@@ -344,10 +344,12 @@ class ParametersHelp(enum.Enum):
     t0 = "Initial time."
     tf = "Final time."
     data_type = "Type of data to access/download; options are private, public, local. Default is public."
-    channel = "Channel name; needs to match an existing channel. Default is \"GWOSC-16KHZ_R1_STRAIN\" "
-    new_sample_rate = "Sample rate to use when downsampling the data (Hz). Default is 4096 Hz."
+    channel = 'Channel name; needs to match an existing channel. Default is "GWOSC-16KHZ_R1_STRAIN" '
+    new_sample_rate = (
+        "Sample rate to use when downsampling the data (Hz). Default is 4096 Hz."
+    )
     input_sample_rate = "Sample rate of the read data (Hz). Default is 16384 Hz."
-    cutoff_frequency = "Lower frequency cutoff; applied in filtering in preprocessing (Hz). Default is 11 Hz." 
+    cutoff_frequency = "Lower frequency cutoff; applied in filtering in preprocessing (Hz). Default is 11 Hz."
     segment_duration = "Duration of the individual segments to analyse (seconds). Default is 192 seconds."
     number_cropped_seconds = "Number of seconds to crop at the start and end of the analysed data (seconds). Default is 2 seconds."
     window_downsampling = 'Type of window to use in preprocessing. Default is "hamming"'
