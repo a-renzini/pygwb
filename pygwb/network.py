@@ -76,7 +76,7 @@ class Network(object):
 
         baselines = []
         for i, j in combo_tuples:
-            base_name = f"{self.interferometers[i]} - {self.interferometers[j]}"
+            base_name = f"{self.interferometers[i].name} - {self.interferometers[j].name}"
             baselines.append(
                 Baseline(
                     base_name,
