@@ -80,7 +80,7 @@ setup(
     install_requires=[
         "numpy",
         "matplotlib",
-        "scipy",
+        "scipy==1.8.0",
         "bilby",
         "gwpy",
         "astropy",
