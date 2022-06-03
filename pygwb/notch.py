@@ -92,13 +92,17 @@ class StochNotchList(list):
                 return True
         return False
 
-    def get_notch_mask(self, frequency_array):
+    def get_notch_mask(self, frequency_array,save_file_flag = False,filename = ""):
         """Get a boolean mask for the frequencies in frequency_array in the notch list
 
         Parameters
         ==========
         frequency_array: np.ndarray
             An array of frequencies
+        save_file_flag: boolean
+            A boolean flag indicating whether to save the notch mask in a file or not
+        filename: str
+            The name of the file where to store the notch mask if save_file_flag is true
 
         Returns
         =======
@@ -112,7 +116,34 @@ class StochNotchList(list):
         notch_mask = np.ones(len(frequency_array), dtype=bool)
         for notch in self:
             notch_mask = notch_mask & notch.get_notch_mask(frequency_array)
+
+        if save_file_flag == True:
+            if len(filename) == 0:
+                filename = "Notch_mask.txt"
+            save_notch_mask(self, frequency_array, filename)            
         return notch_mask
+
+    def save_notch_mask(self, frequency_array, filename):
+        """ Saves a boolean mask for the frequencies in frequency_array in the notch list
+
+        Parameters
+        ==========
+        frequency_array: np.ndarray
+            An array of frequencies
+
+        filename: str
+            Name of the target file
+
+        Notes
+        =====
+        This saves notch_mask (see get_notch_mask for more information) in a text file. notch_mask is an array of booleans that are False for frequencies in the notch.
+        """
+      
+        notch_mask = self.get_notch_mask(frequency_array)
+        np.savetxt(
+            filename,
+            np.transpose([frequency_array,notch_mask]),
+        )    
 
     def save_to_txt(self, filename):
         """Save the nocth list to a txt-file (after sorting)
@@ -267,18 +298,21 @@ def pulsar_injections(filename, t_start, t_end, doppler=1e-4):
     f2:      allow for doppler shifting
     f0:      central freq over entire period
     df:      width
+    binary:  pulsar binary system, yes or no. If yes the affected with is ~two times larger (by design). We use a conservative factor of 3. 
     """
 
-    t_refs, f_refs, f_dots = np.loadtxt(filename, unpack=True)
+    t_refs, f_refs, f_dots, binary = np.loadtxt(filename, unpack=True, dtype = [('t_refs',float),('f_refs',float),('f_dots',float),('binary',str,3)])
     notches = StochNotchList([])
 
-    for t_ref, f_ref, f_dot in zip(t_refs, f_refs, f_dots):
+    for t_ref, f_ref, f_dot, my_binary in zip(t_refs, f_refs, f_dots, binary):
         f_start = f_ref + f_dot * (t_start - t_ref)
         f_end = f_ref + f_dot * (t_end - t_ref)
         f1 = f_start * (1 + doppler)
         f2 = f_end * (1 - doppler)
         f0 = (f1 + f2) / 2.0
         df = f1 - f2
+        if my_binary == 'yes':
+            df = 3. * df
         notch = StochNotch(f0 - df / 2, f0 + df / 2, "Pulsar injection")
         notches.append(notch)
     return notches
