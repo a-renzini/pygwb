@@ -65,6 +65,7 @@ def read_data(
     tf: int,
     local_data_path: str = "",
     tag: str = "C00",
+    input_sample_rate: int = 16384,
 ):
     """
     Function doing the reading of the data to be used in the
@@ -77,8 +78,10 @@ def read_data(
 
     data_type: string
         String indicating the type of data to be read,
-        either 'public' or 'private' or 'local'
-        if 'local_data_path
+        either:
+        - 'public' : data from GWOSC (https://www.gw-openscience.org/)
+        - 'private' : data from the LIGO-Virgo servers restricted to members of the collaboration
+        - 'local' (if 'local_data_path'): data the user has saved locally
 
     channel: string
         Name of the channel (e.g.: "L1:GWOSC-4KHZ_R1_STRAIN")
@@ -95,6 +98,9 @@ def read_data(
     tag: str, optional
         tag identifying type of data, e.g.: 'C00', 'C01'
 
+    input_sample_rate: int
+        Sampling rate of the timeseries to be read
+
     Returns
     =======
     data: TimeSeries object
@@ -102,13 +108,11 @@ def read_data(
     """
     if data_type == "public":
         data = timeseries.TimeSeries.fetch_open_data(
-            IFO, t0, tf, sample_rate=16384, tag=tag
+            IFO, t0, tf, sample_rate=input_sample_rate, tag=tag
         )
         data.channel = channel
     elif data_type == "private":
-        data = timeseries.TimeSeries.get(
-            channel, start=t0, end=tf, verbose=True, tag=tag
-        )
+        data = timeseries.TimeSeries.get(channel, start=t0, end=tf, verbose=True)
         data.channel = channel
     elif data_type == "local":
         data = timeseries.TimeSeries.read(
@@ -316,7 +320,9 @@ def shift_timeseries(time_series_data: timeseries.TimeSeries, time_shift: int = 
     """
 
     if time_shift > 0:
-        shifted_data = np.roll(time_series_data, int(time_shift/time_series_data.dt.value))
+        shifted_data = np.roll(
+            time_series_data, int(time_shift / time_series_data.dt.value)
+        )
     else:
         shifted_data = time_series_data
     return shifted_data
@@ -400,6 +406,7 @@ def preprocessing_data_channel_name(
     time_shift: int = 0,
     local_data_path: str = "",
     tag: str = "C00",
+    input_sample_rate: int = 16384,
 ):
     """
     Function doing the pre-processing of the data to be used in the
@@ -449,6 +456,9 @@ def preprocessing_data_channel_name(
     tag: str, optional
         tag identifying type of data, e.g.: 'C00', 'C01'
 
+    input_sample_rate: int
+        Sampling rate of the timeseries to be read
+
     Returns
     =======
     pre_processed_data: gwpy_timeseries
@@ -469,17 +479,19 @@ def preprocessing_data_channel_name(
         tf=tf,
         local_data_path=local_data_path,
         tag=tag,
+        input_sample_rate=input_sample_rate,
     )
 
-    return preprocessing_data_gwpy_timeseries( 
-    IFO = IFO,
-    gwpy_timeseries = time_series_data,
-    new_sample_rate = new_sample_rate,
-    cutoff_frequency = cutoff_frequency,
-    number_cropped_seconds = 2,
-    window_downsampling= window_downsampling,
-    ftype = ftype,
-    time_shift = time_shift)
+    return preprocessing_data_gwpy_timeseries(
+        IFO=IFO,
+        gwpy_timeseries=time_series_data,
+        new_sample_rate=new_sample_rate,
+        cutoff_frequency=cutoff_frequency,
+        number_cropped_seconds=2,
+        window_downsampling=window_downsampling,
+        ftype=ftype,
+        time_shift=time_shift,
+    )
 
 
 def preprocessing_data_timeseries_array(

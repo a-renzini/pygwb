@@ -4,8 +4,15 @@ import warnings
 import bilby
 import gwpy
 import numpy as np
+from loguru import logger
 
 from .baseline import Baseline
+from .notch import StochNotchList
+from .omega_spectra import OmegaSpectrum
+from .postprocessing import (
+    calc_Y_sigma_from_Yf_sigmaf,
+    combine_spectra_with_sigma_weights,
+)
 from .simulator import Simulator
 
 
@@ -27,7 +34,7 @@ class Network(object):
         notch_list_path=None,
         overlap_factor=0.5,
         zeropad_csd=True,
-        window_fftgram="hann",
+        window_fftgram_dict={"window_fftgram": "hann"},
         N_average_segments_welch_psd=2,
     ):
         """
@@ -51,8 +58,8 @@ class Network(object):
             factor by which to overlap the segments in the psd and csd estimation. Default is 1/2, if set to 0 no overlap is performed.
         zeropad_csd: bool, optional
             if True, applies zeropadding in the csd estimation. True by default.
-        window_fftgram: str, optional
-            what type of window to use to produce the fftgrams
+        window_fftgram_dict: dictionary, optional
+            Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds. Default is \"hann\".
         N_average_segments_welch_psd: int, optional
             Number of segments used for PSD averaging (from both sides of the segment of interest)
             N_avg_segs should be even and >= 2
@@ -69,7 +76,7 @@ class Network(object):
 
         baselines = []
         for i, j in combo_tuples:
-            base_name = f"{self.interferometers[i]} - {self.interferometers[j]}"
+            base_name = f"{self.interferometers[i].name} - {self.interferometers[j].name}"
             baselines.append(
                 Baseline(
                     base_name,
@@ -81,7 +88,7 @@ class Network(object):
                     notch_list_path=notch_list_path,
                     overlap_factor=overlap_factor,
                     zeropad_csd=zeropad_csd,
-                    window_fftgram=window_fftgram,
+                    window_fftgram_dict=window_fftgram_dict,
                     N_average_segments_welch_psd=N_average_segments_welch_psd,
                 )
             )
@@ -156,6 +163,22 @@ class Network(object):
             for ifo in self.interferometers:
                 ifo.duration = duration
         self.duration = duration
+
+    def set_frequency_mask(self, notch_list_path="", flow=20, fhigh=1726):
+        """
+        Set frequency mask to frequencies attribute.
+
+        Parameters
+        ==========
+        notch_list_path: str
+            Path to notch list to apply to frequency array.
+        """
+        mask = (self.frequencies >= flow) & (self.frequencies <= fhigh)
+        if notch_list_path:
+            notch_list = StochNotchList.load_from_file(notch_list_path)
+            notch_mask = notch_list.get_notch_mask(self.frequencies)
+            mask = np.logical_and(mask, notch_mask)
+        self.frequency_mask = mask
 
     def set_interferometer_data_from_simulator(
         self,
@@ -249,63 +272,87 @@ class Network(object):
         """
         Combines the point estimate and sigma spectra from different baselines in the Network and stores them as attributes.
         """
-        point_estimate_spectra = np.array(
-            [base.point_estimate_spectrum for base in self.baselines]
+        try:
+            point_estimate_spectra = [
+                base.point_estimate_spectrum for base in self.baselines
+            ]
+            sigma_spectra = [base.sigma_spectrum for base in self.baselines]
+        except AttributeError:
+            raise AttributeError("The Baselines of the Network have not been set!")
+
+        alphas = np.array([spec.alpha for spec in point_estimate_spectra])
+        frefs = np.array([spec.fref for spec in point_estimate_spectra])
+        h0s = np.array([spec.h0 for spec in point_estimate_spectra])
+
+        if not np.all(alphas == alphas[0]):
+            raise ValueError(
+                "The spectral indices of the spectra in each Baseline don't match! Spectra may not be combined."
+            )
+        if not np.all(frefs == frefs[0]):
+            raise ValueError(
+                "The reference frequencies of the spectra in each Baseline don't match! Spectra may not be combined."
+            )
+        if not np.all(h0s == h0s[0]):
+            raise ValueError(
+                "The cosmology h0 of the spectra in each Baseline don't match! Spectra may not be combined."
+            )
+
+        pt_est_spec, sig_spec = combine_spectra_with_sigma_weights(
+            np.array(point_estimate_spectra), np.array(sigma_spectra)
         )
-        sigma_spectra = np.array([base.sigma_spectrum for base in self.baselines])
+        self.point_estimate_spectrum = OmegaSpectrum(
+            pt_est_spec,
+            alpha=alphas[0],
+            fref=frefs[0],
+            h0=h0s[0],
+            name="Y_spectrum_network",
+            frequencies=self.baselines[0].frequencies,
+        )
+        self.sigma_spectrum = OmegaSpectrum(
+            sig_spec,
+            alpha=alphas[0],
+            fref=frefs[0],
+            h0=h0s[0],
+            name="sigma_spectrum_network",
+            frequencies=self.baselines[0].frequencies,
+        )
 
-        self.point_estimate_spectrum = np.sum(
-            point_estimate_spectra / sigma_spectra ** 2
-        ) / np.sum(1 / sigma_spectra ** 2)
-        self.sigma_spectrum = 1 / np.sqrt(np.sum(1 / sigma_spectra ** 2))
-
-    def combine_point_estimate_sigma(
+    def set_point_estimate_sigma(
         self,
-        alpha=0,
-        fref=25,
+        notch_list_path="",
         flow=20,
-        fhigh=500,
-        lines_object=None,
-        apply_weighting=True,
-        badtimes=np.array([], dtype=int),
+        fhigh=1726,
     ):
         """
-        Combines the point estimate and sigma from different baselines in the Network and stores them as attributes.
+        Set point estimate sigma based the combined spectra from each Baseline. This is estimate of omega_gw in each frequency bin.
+
+        Parameters
+        ==========
+        notch_list_path: str, optional
+            Path to the notch list to use in the spectrum; if the notch_list isn't set in the baseline,
+            user can pass it directly here. If it is not set and if none is passed no notches will be applied.
+        flow: float, optional
+            Low frequency. Default is 20 Hz.
+        fhigh: float, optional
+            High frequency. Default is 1726 Hz.
         """
-        try:
-            point_estimates = np.array([base.point_estimate for base in self.baselines])
-            sigmas = np.array([base.sigma for base in self.baselines])
-        except AttributeError:
-            for base in baselines:
-                base.set_point_estimate_sigma(
-                    self,
-                    alpha=alpha,
-                    fref=fref,
-                    flow=flow,
-                    fhigh=fhigh,
-                    lines_object=lines_object,
-                    apply_weighting=apply_weighting,
-                    badtimes=badtimes,
-                )
+        if not hasattr(self, "point_estimate_spectrum"):
+            logger.info(
+                "Point estimate and sigma spectra have not been set before. Setting it now..."
+            )
+            self.combine_point_estimate_sigma_spectra()
 
-            point_estimates = np.array([base.point_estimate for base in self.baselines])
-            sigmas = np.array([base.sigma for base in self.baselines])
-        self.point_estimate = np.sum(point_estimates / sigmas ** 2) / np.sum(
-            1 / sigmas ** 2
+        self.frequencies = self.point_estimate_spectrum.frequencies.value
+        self.set_frequency_mask(notch_list_path, flow=flow, fhigh=fhigh)
+
+        Y, sigma = calc_Y_sigma_from_Yf_sigmaf(
+            self.point_estimate_spectrum,
+            self.sigma_spectrum,
+            frequency_mask=self.frequency_mask,
         )
-        self.sigma = 1 / np.sqrt(np.sum(1 / sigmas ** 2))
+
+        self.point_estimate = Y
+        self.sigma = sigma
 
 
-#    def set_interferometer_data_from_file(self, file):
-#        """
-#        Fill interferometers with data from file
-#        """
-
-
-#     These should be in the baseline class
-
-#     def set_baseline_data_from_CSD(self):
-#         """"""
-
-#     def set_baseline_post_processing(self):
-#         """"""
+# TODO: add options in the network to apply dsc, frequency notching at the network level.

@@ -11,40 +11,28 @@ class Test(unittest.TestCase):
     def setUp(self) -> None:
         H1 = bilbydet.get_empty_interferometer("H1")
         L1 = bilbydet.get_empty_interferometer("L1")
-        HL = Baseline("H1L1", H1, L1)
+        self.HL = Baseline("H1L1", H1, L1)
+        self.HL.orf_polarization = 'tensor'
         freqs = 8.0
-        HL.frequencies = freqs
+        self.HL.frequencies = freqs
         return None
 
     def tearDown(self) -> None:
-
+        del self.HL
         pass
 
     def test_power_law_model(self):
-        freqs = 8.0
-        H1 = bilbydet.get_empty_interferometer("H1")
-        L1 = bilbydet.get_empty_interferometer("L1")
-        HL = Baseline("H1L1", H1, L1)
-        HL.frequencies = freqs
-
-        kwargs = {"baselines": [HL], "model_name": "PL", "fref": 11}
+        kwargs = {"baselines": [self.HL], "model_name": "PL", "fref": 11}
         test_model = PowerLawModel(**kwargs)
         test_model.parameters = {"omega_ref": 8.9, "alpha": 3}
 
         # print(test_model.model_function(HL))
         # print(type(test_model.model_function(HL)))
 
-        self.assertEqual(test_model.model_function(HL), 3.42359128474831)
+        self.assertEqual(test_model.model_function(self.HL), 3.42359128474831)
 
     def test_broken_power_law_model(self):
-
-        freqs = 8.0
-        H1 = bilbydet.get_empty_interferometer("H1")
-        L1 = bilbydet.get_empty_interferometer("L1")
-        HL = Baseline("H1L1", H1, L1)
-        HL.frequencies = freqs
-
-        kwargs = {"baselines": [HL], "model_name": "BPL"}
+        kwargs = {"baselines": [self.HL], "model_name": "BPL"}
         test_model = BrokenPowerLawModel(**kwargs)
         test_model.parameters = {
             "omega_ref": 8.9,
@@ -56,17 +44,13 @@ class Test(unittest.TestCase):
         # print(test_model.model_function(HL))
         # print(type(test_model.model_function(HL)))
 
-        self.assertEqual(test_model.model_function(HL), 2.6370370370370364)
+        self.assertEqual(test_model.model_function(self.HL), 2.6370370370370364)
 
     def test_tripple_BPL(self):
-
         freqs = 15.0
-        H1 = bilbydet.get_empty_interferometer("H1")
-        L1 = bilbydet.get_empty_interferometer("L1")
-        HL = Baseline("H1L1", H1, L1)
-        HL.frequencies = freqs
+        self.HL.frequencies = freqs
 
-        kwargs = {"baselines": [HL], "model_name": "TBPL"}
+        kwargs = {"baselines": [self.HL], "model_name": "TBPL"}
         test_model = TripleBrokenPowerLawModel(**kwargs)
         test_model.parameters = {
             "omega_ref": 8.9,
@@ -80,17 +64,14 @@ class Test(unittest.TestCase):
         # print(test_model.model_function(HL))
         # print(type(test_model.model_function(HL)))
 
-        self.assertEqual(test_model.model_function(HL), 329.0567447272102)
+        self.assertEqual(test_model.model_function(self.HL), 329.0567447272102)
 
     def test_smooth_BPL(self):
 
         freqs = 15.0
-        H1 = bilbydet.get_empty_interferometer("H1")
-        L1 = bilbydet.get_empty_interferometer("L1")
-        HL = Baseline("H1L1", H1, L1)
-        HL.frequencies = freqs
+        self.HL.frequencies = freqs
 
-        kwargs = {"baselines": [HL], "model_name": "T_smooth_PL"}
+        kwargs = {"baselines": [self.HL], "model_name": "T_smooth_PL"}
         test_model = SmoothBrokenPowerLawModel(**kwargs)
         test_model.parameters = {
             "omega_ref": 8.9,
@@ -103,19 +84,16 @@ class Test(unittest.TestCase):
         # print("results ",test_model.model_function(HL))
         # print(type(test_model.model_function(HL)))
 
-        self.assertEqual(test_model.model_function(HL), 39.0119698805036)
+        self.assertEqual(test_model.model_function(self.HL), 39.0119698805036)
 
     ### Test model involve piecewise
 
     def test_broken_power_law_model_2(self):
 
         freqs = np.array([8.0, 15.0])
-        H1 = bilbydet.get_empty_interferometer("H1")
-        L1 = bilbydet.get_empty_interferometer("L1")
-        HL = Baseline("H1L1", H1, L1)
-        HL.frequencies = freqs
+        self.HL.frequencies = freqs
 
-        kwargs = {"baselines": [HL], "model_name": "BPL_piece_wise"}
+        kwargs = {"baselines": [self.HL], "model_name": "BPL_piece_wise"}
         test_model = BrokenPowerLawModel(**kwargs)
         test_model.parameters = {
             "omega_ref": 8.9,
@@ -128,7 +106,7 @@ class Test(unittest.TestCase):
         # print(type(test_model.model_function(HL)))
 
         np.testing.assert_allclose(
-            test_model.model_function(HL),
+            test_model.model_function(self.HL),
             np.array([2.63703704, 27.16064453]),
             rtol=1e-5,
             atol=0,
@@ -137,12 +115,9 @@ class Test(unittest.TestCase):
     def test_tripple_BPL_2(self):
 
         freqs = np.array([3.5, 8.7, 15.0])
-        H1 = bilbydet.get_empty_interferometer("H1")
-        L1 = bilbydet.get_empty_interferometer("L1")
-        HL = Baseline("H1L1", H1, L1)
-        HL.frequencies = freqs
+        self.HL.frequencies = freqs
 
-        kwargs = {"baselines": [HL], "model_name": "TBPL_piece_wise"}
+        kwargs = {"baselines": [self.HL], "model_name": "TBPL_piece_wise"}
         test_model = TripleBrokenPowerLawModel(**kwargs)
         test_model.parameters = {
             "omega_ref": 8.9,
@@ -157,7 +132,7 @@ class Test(unittest.TestCase):
         # print(type(test_model.model_function(HL)))
 
         np.testing.assert_allclose(
-            test_model.model_function(HL),
+            test_model.model_function(self.HL),
             np.array([1.389485662, 38.23133703, 329.0567447]),
             rtol=1e-5,
             atol=0,
@@ -166,12 +141,9 @@ class Test(unittest.TestCase):
     def test_PV_PL1(self):
 
         freqs = 15.0
-        H1 = bilbydet.get_empty_interferometer("H1")
-        L1 = bilbydet.get_empty_interferometer("L1")
-        HL = Baseline("H1L1", H1, L1)
-        HL.frequencies = freqs
+        self.HL.frequencies = freqs
 
-        kwargs = {"baselines": [HL], "model_name": "PV_PL1", "fref": 25}
+        kwargs = {"baselines": [self.HL], "model_name": "PV_PL1", "fref": 25}
         test_model = PVPowerLawModel(**kwargs)
         test_model.parameters = {"omega_ref": 8.9, "alpha": 4.6, "Pi": 2.8}
 
@@ -181,18 +153,15 @@ class Test(unittest.TestCase):
         # print(type(test_model.model_function(HL)))
 
         np.testing.assert_allclose(
-            test_model.model_function(HL), 0.8634145976022678, rtol=1e-5, atol=0
+            test_model.model_function(self.HL), 0.8634145976022678, rtol=1e-5, atol=0
         )
 
     def test_PV_PL2(self):
 
         freqs = 16.0
-        H1 = bilbydet.get_empty_interferometer("H1")
-        L1 = bilbydet.get_empty_interferometer("L1")
-        HL = Baseline("H1L1", H1, L1)
-        HL.frequencies = freqs
+        self.HL.frequencies = freqs
 
-        kwargs = {"baselines": [HL], "model_name": "PV_PL2", "fref": 25.0}
+        kwargs = {"baselines": [self.HL], "model_name": "PV_PL2", "fref": 25.0}
         test_model = PVPowerLawModel2(**kwargs)
         test_model.parameters = {"omega_ref": 8.9, "alpha": 4.6, "beta": 3.7}
 
@@ -202,19 +171,16 @@ class Test(unittest.TestCase):
         # print(type(test_model.model_function(HL)))
 
         np.testing.assert_allclose(
-            test_model.model_function(HL), 200.6063814276104, rtol=1e-5, atol=0
+            test_model.model_function(self.HL), 200.6063814276104, rtol=1e-5, atol=0
         )
 
     def test_TVS(self):
 
         freqs = np.array([8.0])
-        H1 = bilbydet.get_empty_interferometer("H1")
-        L1 = bilbydet.get_empty_interferometer("L1")
-        HL = Baseline("H1L1", H1, L1)
-        HL.frequencies = freqs
+        self.HL.frequencies = freqs
 
         kwargs = {
-            "baselines": [HL],
+            "baselines": [self.HL],
             "model_name": "TVS_PL",
             "fref": 24.7,
             "polarizations": ["tensor", "scalar", "vector"],
@@ -236,7 +202,7 @@ class Test(unittest.TestCase):
         # print(type(test_model.model_function(HL)))
 
         np.testing.assert_allclose(
-            test_model.model_function(HL),
+            test_model.model_function(self.HL),
             np.array([0.4226662681053238]),
             rtol=1e-5,
             atol=0,
@@ -249,6 +215,7 @@ class Test(unittest.TestCase):
         H1 = bilbydet.get_empty_interferometer("H1")
         L1 = bilbydet.get_empty_interferometer("L1")
         HL = Baseline("HL", H1, L1)
+        HL.orf_polarization = 'tensor'
         HL.frequencies = freqs
         HL.M_f = M_psd
 

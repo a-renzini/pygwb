@@ -2,7 +2,7 @@ import gwpy.spectrogram
 import numpy as np
 from scipy.signal import get_window, spectrogram
 
-from .constants import H0
+from pygwb.util import get_window_tuple
 
 
 def fftgram(
@@ -10,7 +10,7 @@ def fftgram(
     fftlength,
     overlap_factor=0,
     zeropad=False,
-    window_fftgram="boxcar",
+    window_fftgram_dict={"window_fftgram": "boxcar"},
 ):
     """Function that creates an fftgram from a timeseries
 
@@ -27,8 +27,8 @@ def fftgram(
     zeropadd: bool
         Whether to zero pad the data equal to the length of FFT or not
         (default False)
-    window_fftgram: str
-        Type of window to use for FFT (default no window)
+    window_fftgram_dict: dictionary, optional
+        Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds. Default is \"hann\".
 
     Returns
     -------
@@ -37,7 +37,8 @@ def fftgram(
     """
 
     sample_rate = int(1 / time_series_data.dt.value)
-    window_fftgram = get_window(window_fftgram, fftlength * sample_rate, fftbins=False)
+    window_tuple = get_window_tuple(window_fftgram_dict)
+    window_fftgram = get_window(window_tuple, fftlength * sample_rate, fftbins=False)
 
     if zeropad:
         f, t, Sxx = spectrogram(
@@ -343,7 +344,7 @@ def cross_spectral_density(
     frequency_resolution,
     overlap_factor=0,
     zeropad=False,
-    window_fftgram="boxcar",
+    window_fftgram_dict={"window_fftgram": "boxcar"},
 ):
     """
     Compute the cross spectral density from two time series inputs
@@ -366,8 +367,8 @@ def cross_spectral_density(
     zeropadd: bool, optional
         Whether to zero pad the data equal to the length of FFT used
         (default False)
-    window_fftgram: str, optional
-        Type of window to use for FFT (default no window)
+    window_fftgram_dict: dictionary, optional
+        Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds. Default is \"hann\".
 
     Returns
     -------
@@ -380,14 +381,14 @@ def cross_spectral_density(
         segment_duration,
         overlap_factor=overlap_factor,
         zeropad=zeropad,
-        window_fftgram=window_fftgram,
+        window_fftgram_dict=window_fftgram_dict,
     )
     fft_gram_2 = fftgram(
         time_series_data2,
         segment_duration,
         overlap_factor=overlap_factor,
         zeropad=zeropad,
-        window_fftgram=window_fftgram,
+        window_fftgram_dict=window_fftgram_dict,
     )
 
     csd_spectrogram = coarse_grain_spectrogram(
@@ -402,7 +403,7 @@ def power_spectral_density(
     segment_duration,
     frequency_resolution,
     overlap_factor=0,
-    window_fftgram="boxcar",
+    window_fftgram_dict={"window_fftgram": "boxcar"},
 ):
     """
     Compute the PSDs of every segment (defined by the segment duration)
@@ -421,8 +422,8 @@ def power_spectral_density(
         Amount of overlap between adjacent segments (range between 0 and 1)
         This factor should be same as the one used for cross_spectral_density
         (default 0, no overlap)
-    window_fftgram: str, optional
-        Type of window to use for FFT (default no window)
+    window_fftgram_dict: dictionary, optional
+        Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds. Default is \"hann\".
 
     Returns
     -------
@@ -439,7 +440,7 @@ def power_spectral_density(
         fftlength,
         overlap_factor=overlap_factor,
         zeropad=False,
-        window_fftgram=window_fftgram,
+        window_fftgram_dict=window_fftgram_dict,
     )
 
     # Use pwelch method (averaging) to get PSDs for each segment duration of data
@@ -478,5 +479,3 @@ def running_mean(data, coarsening_factor=1, axis=-1):
         np.swapaxes(cumsum[coarsening_factor:] - cumsum[:-coarsening_factor], axis, -1)
         / coarsening_factor
     )
-
-

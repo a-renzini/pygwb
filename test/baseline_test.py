@@ -110,6 +110,7 @@ class TestBaseline(unittest.TestCase):
             self.duration,
             self.frequencies,
         )
+        base.orf_polarization='tensor'
         self.assertTrue(
             np.allclose(base.overlap_reduction_function, np.ones(len(base.frequencies)))
         )
@@ -125,6 +126,7 @@ class TestBaseline(unittest.TestCase):
             self.interferometer_3,
             frequencies=freqs,
         )
+        base.orf_polarization='tensor'
         self.assertTrue(
             np.allclose(
                 base.overlap_reduction_function,

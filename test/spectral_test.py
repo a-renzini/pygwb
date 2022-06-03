@@ -40,7 +40,7 @@ class TestSpectralDensities(unittest.TestCase):
             frequency_resolution,
             overlap_factor=overlap_factor,
             zeropad=True,
-            window_fftgram="hann",
+            window_fftgram_dict={"window_fftgram":"hann"},
         )
 
         # Check that the recovered value is within 10% of the expected, usually it is much smaller
@@ -68,7 +68,7 @@ class TestSpectralDensities(unittest.TestCase):
             self.segment_duration,
             frequency_resolution,
             overlap_factor=overlap_factor,
-            window_fftgram="hann",
+            window_fftgram_dict={"window_fftgram":"hann"},
         )
         N_avg_segs = 2
         avg_psd = before_after_average(psd, self.segment_duration, N_avg_segs)

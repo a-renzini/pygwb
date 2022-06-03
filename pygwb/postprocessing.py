@@ -11,8 +11,8 @@ from .util import calc_bias, window_factors
 
 
 def postprocess_Y_sigma(Y_fs, var_fs, segment_duration, deltaF, new_sample_rate):
-    '''Run postprocessing of point estimate and sigma spectrograms, combining even and 
-    odd segments. For more details see - '''
+    """Run postprocessing of point estimate and sigma spectrograms, combining even and
+    odd segments. For more details see -"""
     size = np.size(Y_fs, axis=0)
     _, w1w2squaredbar, _, w1w2squaredovlbar = window_factors(
         segment_duration * new_sample_rate
@@ -56,7 +56,9 @@ def postprocess_Y_sigma(Y_fs, var_fs, segment_duration, deltaF, new_sample_rate)
     return Y_f_new, var_f_new
 
 
-def calc_Y_sigma_from_Yf_varf(Y_f, sigma_f, frequency_mask=None, alpha=None, fref=None):
+def calc_Y_sigma_from_Yf_sigmaf(
+    Y_f, sigma_f, frequency_mask=True, alpha=None, fref=None
+):
     """
     Calculate the omega point estimate and sigma from their respective spectra,
     or spectrograms, taking into account the desired spectral weighting.
@@ -68,6 +70,12 @@ def calc_Y_sigma_from_Yf_varf(Y_f, sigma_f, frequency_mask=None, alpha=None, fre
         Point estimate spectrum
     var_f: `pygwb.omega_spectrogram.OmegaSpectrogram`
         Sigma spectrum
+    frequency_mask: array-like, optional
+        Boolean mask to apply to frequencies for the calculation.
+    alpha: float, optional
+        Spectral index to use in case re-weighting is requested.
+    fref: float, optional
+        Reference frequency to use in case re-weighting is requested.
 
     Note
     ====
@@ -81,7 +89,7 @@ def calc_Y_sigma_from_Yf_varf(Y_f, sigma_f, frequency_mask=None, alpha=None, fre
 
     # now just strip off what we need...
     Y_f = Y_f.value
-    var_f = sigma_f.value**2
+    var_f = sigma_f.value ** 2
 
     var = 1 / np.sum(var_f[frequency_mask] ** (-1), axis=-1)
 
@@ -137,7 +145,7 @@ def calculate_point_estimate_sigma_spectrogram(
     weight_spectrogram: bool, optional
         Flag to apply spectral weighting, True by default.
     """
-    S_alpha = 3 * H0 ** 2 / (10 * np.pi ** 2) / freqs ** 3
+    S_alpha = 3 * H0.si.value ** 2 / (10 * np.pi ** 2) / freqs ** 3
     S_alpha *= (freqs / fref) ** alpha
     Y_fs = np.real(csd) / (orf * S_alpha)
     var_fs = (
@@ -194,7 +202,7 @@ def calculate_point_estimate_sigma_integrand(
     weight_spectrogram: bool, optional
         Flag to apply spectral weighting, True by default.
     """
-    S_alpha = 3 * H0 ** 2 / (10 * np.pi ** 2) / freqs ** 3
+    S_alpha = 3 * H0.si.value ** 2 / (10 * np.pi ** 2) / freqs ** 3
     S_alpha *= (freqs / fref) ** alpha
     Y_fs = csd / (orf * S_alpha)
     var_fs = (
@@ -210,6 +218,7 @@ def calculate_point_estimate_sigma_integrand(
     var_fs = var_fs * w1w2squaredbar / w1w2bar ** 2
     return Y_fs, var_fs
 
+
 def combine_spectra_with_sigma_weights(main_spectra, weights_spectra):
     """
     Combine different statistically independent spectra :math: `S_i(f)` using spectral weights :math: `w_i(f)`, as
@@ -219,7 +228,7 @@ def combine_spectra_with_sigma_weights(main_spectra, weights_spectra):
 
     Parameters
     =========
-    main_spectra: list 
+    main_spectra: list
         List of arrays or FrequencySeries or OmegaSpectrum objects to be combined.
     weights_spectra: list
         List of arrays or FrequencySeries or OmegaSpectrum objects to use as weights.
@@ -233,7 +242,7 @@ def combine_spectra_with_sigma_weights(main_spectra, weights_spectra):
     """
     res_1 = 1 / np.sum(1 / weights_spectra ** 2, axis=0)
     combined_weights_spectrum = np.sqrt(res_1)
-    combined_weighted_spectrum = np.sum(
-        main_spectra / weights_spectra ** 2
-    , axis = 0) * res_1
+    combined_weighted_spectrum = (
+        np.sum(main_spectra / weights_spectra ** 2, axis=0) * res_1
+    )
     return combined_weighted_spectrum, combined_weights_spectrum
