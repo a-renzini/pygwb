@@ -304,14 +304,14 @@ def pulsar_injections(filename, t_start, t_end, doppler=1e-4):
     t_refs, f_refs, f_dots, binary = np.loadtxt(filename, unpack=True, dtype = [('t_refs',float),('f_refs',float),('f_dots',float),('binary',str,3)])
     notches = StochNotchList([])
 
-    for t_ref, f_ref, f_dot in zip(t_refs, f_refs, f_dots):
+    for t_ref, f_ref, f_dot, my_binary in zip(t_refs, f_refs, f_dots, binary):
         f_start = f_ref + f_dot * (t_start - t_ref)
         f_end = f_ref + f_dot * (t_end - t_ref)
         f1 = f_start * (1 + doppler)
         f2 = f_end * (1 - doppler)
         f0 = (f1 + f2) / 2.0
         df = f1 - f2
-        if binary == 'yes':
+        if my_binary == 'yes':
             df = 3. * df
         notch = StochNotch(f0 - df / 2, f0 + df / 2, "Pulsar injection")
         notches.append(notch)
