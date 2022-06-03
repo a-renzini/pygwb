@@ -301,7 +301,7 @@ def pulsar_injections(filename, t_start, t_end, doppler=1e-4):
     binary:  pulsar binary system, yes or no. If yes the affected with is ~two times larger (by design). We use a conservative factor of 3. 
     """
 
-    t_refs, f_refs, f_dots, binary = np.loadtxt(filename, unpack=True)
+    t_refs, f_refs, f_dots, binary = np.loadtxt(filename, unpack=True, dtype = [('t_refs',float),('f_refs',float),('f_dots',float),('binary',str,3)])
     notches = StochNotchList([])
 
     for t_ref, f_ref, f_dot in zip(t_refs, f_refs, f_dots):
