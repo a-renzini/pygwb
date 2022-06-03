@@ -154,8 +154,8 @@ def main():
         alpha=combine_args.alpha,
         fref=combine_args.fref,
     )
-    Y_estimate /= combine_args.h0**2
-    sigma_estimate /= combine_args.h0**2
+    Y_estimate *= (Y_spectrum.h0/combine_args.h0)**2
+    sigma_estimate *= (sigma_spectrum.h0/combine_args.h0)**2
 
     logger.info(
         "Final point estimate weighted with alpha={:.2f}".format(combine_args.alpha)
