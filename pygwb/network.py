@@ -152,12 +152,10 @@ class Network(object):
 
         check_dur = all(ifo.duration == duration for ifo in self.interferometers)
         if not check_dur:
-            warnings.warn(
+            raise ValueError(
                 "The interferometer durations don't match! "
-                "The Network may not be able to handle this."
-            )
-            warnings.warn(
-                "The Network duration is set to first not None duration from interferometers. This may not be what you want."
+                "The Network may not be able to handle this. "
+                "Make sure that the interferometer durations are the same."
             )
 
             for ifo in self.interferometers:
@@ -283,6 +281,8 @@ class Network(object):
         alphas = np.array([spec.alpha for spec in point_estimate_spectra])
         frefs = np.array([spec.fref for spec in point_estimate_spectra])
         h0s = np.array([spec.h0 for spec in point_estimate_spectra])
+        dfs = np.array([spec.df.value for spec in point_estimate_spectra])
+        #add it too for f0?
 
         if not np.all(alphas == alphas[0]):
             raise ValueError(
@@ -295,6 +295,11 @@ class Network(object):
         if not np.all(h0s == h0s[0]):
             raise ValueError(
                 "The cosmology h0 of the spectra in each Baseline don't match! Spectra may not be combined."
+            )
+            
+        if not np.all(dfs == dfs[0]):
+            raise ValueError(
+                "The sampling frequency of the spectra in each Baseline don't match. Spectra may not be combined. "
             )
 
         pt_est_spec, sig_spec = combine_spectra_with_sigma_weights(
