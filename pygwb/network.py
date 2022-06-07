@@ -101,7 +101,7 @@ class Network(object):
         Initialise a network from a set of baselines. Takes care to unpack the interferometers from each baselines and sets them in the Network.
         """
         if not all(baselines[0].duration == base.duration for base in baselines[1:]):
-            raise ValueError(
+            raise AssertionError(
                 "All baselines used to initialise must have same duration set."
             )
         network = cls(
@@ -152,14 +152,13 @@ class Network(object):
 
         check_dur = all(ifo.duration == duration for ifo in self.interferometers)
         if not check_dur:
-            raise ValueError(
+            raise AssertionError(
                 "The interferometer durations don't match! "
-                "The Network may not be able to handle this. "
+                "The Network can't handle this. "
                 "Make sure that the interferometer durations are the same."
             )
-
-            for ifo in self.interferometers:
-                ifo.duration = duration
+            #for ifo in self.interferometers:
+            #    ifo.duration = duration
         self.duration = duration
 
     def set_frequency_mask(self, notch_list_path="", flow=20, fhigh=1726):

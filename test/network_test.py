@@ -41,12 +41,20 @@ class TestNetwork(unittest.TestCase):
         )
         bases = [pickled_base_1, pickled_base_2]
         self.net_load = network.Network.from_baselines("test_net", bases)
-
-#    def test_set_duration_from_ifo_1(self):
- #       self.interferometer_1.duration = self.duration
-  #      ifos = [self.interferometer_1, self.interferometer_2, self.interferometer_3]
-   #     net = network.Network("test_net", ifos)
-    #    self.assertTrue(net.duration, self.duration)
+        pickled_base_3 = baseline.Baseline.load_from_pickle(
+            "test/test_data/H1L1_1247644138-1247645038.pickle"
+        )
+        ifo_1 = bilby.gw.detector.get_empty_interferometer("H1")
+        ifo_2 = bilby.gw.detector.get_empty_interferometer("H1")
+        base_err = baseline.Baseline(
+            "H1H2",
+            ifo_1,
+            ifo_2,
+            duration=5.0,
+        )
+        bases = [pickled_base_1, base_err]
+        with self.assertRaises(AssertionError):
+            net_load_err = network.Network.from_baselines("test_net", bases)
 
     def test_set_duration_from_ifos(self):
         ifos = [self.interferometer_1, self.interferometer_2, self.interferometer_3]
@@ -54,6 +62,11 @@ class TestNetwork(unittest.TestCase):
             ifo.duration = self.duration
         net = network.Network("test_net", ifos)
         self.assertTrue(net.duration, self.duration)
+        ifo_err = bilby.gw.detector.get_empty_interferometer("H1")
+        ifo_err.duration = 5.0
+        with self.assertRaises(AssertionError):
+            ifos = [self.interferometer_1, self.interferometer_2, ifo_err]
+            net_err = network.Network("test_net", ifos)
 
     def test_set_duration_from_network(self):
         ifos = [self.interferometer_1, self.interferometer_2, self.interferometer_3]
