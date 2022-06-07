@@ -42,11 +42,11 @@ class TestNetwork(unittest.TestCase):
         bases = [pickled_base_1, pickled_base_2]
         self.net_load = network.Network.from_baselines("test_net", bases)
 
-    def test_set_duration_from_ifo_1(self):
-        self.interferometer_1.duration = self.duration
-        ifos = [self.interferometer_1, self.interferometer_2, self.interferometer_3]
-        net = network.Network("test_net", ifos)
-        self.assertTrue(net.duration, self.duration)
+#    def test_set_duration_from_ifo_1(self):
+ #       self.interferometer_1.duration = self.duration
+  #      ifos = [self.interferometer_1, self.interferometer_2, self.interferometer_3]
+   #     net = network.Network("test_net", ifos)
+    #    self.assertTrue(net.duration, self.duration)
 
     def test_set_duration_from_ifos(self):
         ifos = [self.interferometer_1, self.interferometer_2, self.interferometer_3]

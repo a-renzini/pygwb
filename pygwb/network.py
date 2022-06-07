@@ -283,6 +283,7 @@ class Network(object):
         h0s = np.array([spec.h0 for spec in point_estimate_spectra])
         dfs = np.array([spec.df.value for spec in point_estimate_spectra])
         #add it too for f0?
+        #f0s = np.array([spec.f0 for spec in point_estimate_spectra])
 
         if not np.all(alphas == alphas[0]):
             raise ValueError(
