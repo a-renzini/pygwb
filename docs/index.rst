@@ -8,6 +8,7 @@ pygwb documentation
    :maxdepth: 1
    :caption: Contents:
 
+   about
    installation
    contributing
    tutorials

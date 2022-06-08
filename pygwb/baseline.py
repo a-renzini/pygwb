@@ -875,6 +875,10 @@ class Baseline(object):
             it is applied automatically only when integrating over frequencies.
         """
         if apply_dsc == True:
+            if not hasattr(self, "badGPStimes"):
+                warnings.warn(
+                    "Delta sigma cut has not been calculated yet, hence no delta sigma cut will be applied... If this is a mistake, please run `calculate_delta_sigma_cut` first, then re-calculate point estimate/sigma spectra."
+                )
             if badtimes is None:
                 if hasattr(self, "badGPStimes"):
                     badtimes = self.badGPStimes
@@ -921,7 +925,7 @@ class Baseline(object):
 
         point_estimate, sigma = postprocess_Y_sigma(
             self.point_estimate_spectrogram.value,
-            self.sigma_spectrogram.value ** 2,
+            self.sigma_spectrogram.value**2,
             self.duration,
             deltaF,
             self.sampling_frequency,
@@ -958,6 +962,7 @@ class Baseline(object):
         notch_list_path="",
         polarization="tensor",
         apply_dsc=True,
+        apply_notches=True,
     ):
         """
         Set point estimate sigma based on a set of parameters. This is estimate of omega_gw in each frequency bin.
@@ -997,7 +1002,6 @@ class Baseline(object):
             )
             self.set_point_estimate_sigma_spectrum(
                 badtimes=badtimes,
-                # notch_list_path=notch_list_path,
                 alpha=alpha,
                 fref=fref,
                 flow=flow,
@@ -1006,17 +1010,17 @@ class Baseline(object):
                 apply_dsc=apply_dsc,
             )
 
-        if notch_list_path:
-            self.notch_list_path = notch_list_path
-
-        if self.notch_list_path:
-            logger.debug("loading notches from " + self.notch_list_path)
-            self.set_frequency_mask(self.notch_list_path)
+        if apply_notches:
+            if notch_list_path:
+                self.notch_list_path = notch_list_path
+            if self.notch_list_path:
+                logger.debug("loading notches from " + self.notch_list_path)
+                self.set_frequency_mask(self.notch_list_path)
+            else:
+                self.set_frequency_mask()
         else:
             self.set_frequency_mask()
 
-        # get Y, sigma
-        # it applies reweighting only if needed
         Y, sigma = calc_Y_sigma_from_Yf_sigmaf(
             self.point_estimate_spectrum,
             self.sigma_spectrum,
