@@ -6,6 +6,8 @@ from gwpy.frequencyseries import FrequencySeries
 from gwpy.spectrogram import Spectrogram
 from gwpy.types.io.hdf5 import register_hdf5_array_io
 
+from pygwb.constants import h0
+
 
 class OmegaSpectrogram(Spectrogram):
 
@@ -20,7 +22,7 @@ class OmegaSpectrogram(Spectrogram):
         kwargs.pop("h0", None)
         return super(OmegaSpectrogram, cls).__new__(cls, data, **kwargs)
 
-    def __init__(self, data, alpha=None, fref=None, h0=1.0, **kwargs):
+    def __init__(self, data, alpha=None, fref=None, h0=h0, **kwargs):
         if not isinstance(alpha, (float, int, np.number)):
             raise ValueError("Spectral index alpha must be a valid number.")
         if not isinstance(fref, (float, int, np.number)):
@@ -53,7 +55,7 @@ class OmegaSpectrogram(Spectrogram):
 
     @property
     def h0(self):
-        """Hubble parameter h0."""
+        """Hubble parameter h0. Default is pygwb.constants.h0 = 0.693199."""
         return self._h0
 
     @h0.setter
@@ -165,7 +167,7 @@ class OmegaSpectrum(FrequencySeries):
         kwargs.pop("h0", None)
         return super(OmegaSpectrum, cls).__new__(cls, data, **kwargs)
 
-    def __init__(self, data, alpha=None, fref=None, h0=1.0, **kwargs):
+    def __init__(self, data, alpha=None, fref=None, h0=h0, **kwargs):
         if not isinstance(alpha, (float, int, np.number)):
             raise ValueError("Spectral index alpha must be a valid number.")
         if not isinstance(fref, (float, int, np.number)):
@@ -198,7 +200,7 @@ class OmegaSpectrum(FrequencySeries):
 
     @property
     def h0(self):
-        """Hubble parameter h0."""
+        """Hubble parameter h0. Default is pygwb.constants.h0 = 0.693199."""
         return self._h0
 
     @h0.setter

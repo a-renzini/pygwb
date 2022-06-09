@@ -644,7 +644,7 @@ class Baseline(object):
         with open(filename, "rb") as f:
             return pickle.load(f)
 
-    def save_to_pickle(self, filename):
+    def save_to_pickle(self, filename, wipe=True):
         """
         Save baseline object to pickle file.
 
@@ -653,6 +653,9 @@ class Baseline(object):
         filename: str
             Filename (inclusive of path) to save the pickled baseline to.
         """
+        if wipe == True:
+            self.interferometer_1.timeseries = None
+            self.interferometer_2.timeseries = None
         with open(filename, "wb") as f:
             pickle.dump(self, f)
 
