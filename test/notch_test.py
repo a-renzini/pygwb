@@ -140,6 +140,16 @@ class TestNotch(unittest.TestCase):
         self.assertTrue(np.array_equal(notched1, anwser_1_b))
         self.assertTrue(np.array_equal(notched2, anwser_2_b))
 
+    def test_save_notch_mask(self):
+
+        epsilon = 1e-4
+        freqs = np.arange(5.0, 6.875 + epsilon, 0.125)
+
+        self.stoch_notch_list_4.save_notch_mask(freqs,"test/TestNotchMask.dat")
+
+        self.assertTrue(os.path.isfile("test/TestNotchMask.dat"))
+        print("Does the file exist?   ", os.path.isfile("test/TestNotchMask.dat"))
+
 
     def test_save_to_and_load_from_txt(self):
 

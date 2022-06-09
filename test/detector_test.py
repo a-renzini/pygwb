@@ -23,12 +23,14 @@ class TestInterferometer(unittest.TestCase):
                 "data_type",
                 "cutoff_frequency",
                 "new_sample_rate",
+                "input_sample_rate",
                 "window_downsampling",
                 "ftype",
                 "frequency_resolution",
                 "overlap_factor",
                 "N_average_segments_welch_psd",
                 "time_shift",
+                "tag",
             ]
         }
         self.kwargs["local_data_path"] = ""
@@ -43,14 +45,20 @@ class TestInterferometer(unittest.TestCase):
     def test_from_parameters(self):
         ifo = detector.Interferometer.from_parameters(self.ifo, self.parameters)
         self.assertTrue(ifo.name, self.ifo)
+        self.assertTrue(ifo.timeseries._name,"Strain")
+        self.assertTrue(ifo.timeseries._channel, f'{self.ifo}:{self.kwargs["channel"]}')
+        self.assertTrue(ifo.timeseries._x0.value, f'{self.kwargs["t0"]}')
+        self.assertTrue(ifo.timeseries._dx.value, f'{self.kwargs["tf"]}-{self.kwargs["t0"]}')
 
     def test_get_empty_interferometer(self):
         ifo = detector.Interferometer.get_empty_interferometer(self.ifo)
         self.assertTrue(ifo.name, self.ifo)
-        return ifo
+        self.assertTrue(ifo.length, 4.0)
+        self.assertTrue(ifo.latitude, 46.45514666666667)
+        self.assertTrue(ifo.longitude, -119.4076571388889)
 
     def test_set_timeseries_from_channel_name(self):
-        ifo = self.test_get_empty_interferometer()
+        ifo = detector.Interferometer.get_empty_interferometer(self.ifo)
         ifo.set_timeseries_from_channel_name(**self.kwargs)
         self.assertTrue(
             np.all(
@@ -63,7 +71,7 @@ class TestInterferometer(unittest.TestCase):
     def test_set_timeseries_from_timeseries_array(self):
         timeseries_array = self.testdata["original_timeseries"].value
         sample_rate = self.testdata["original_timeseries"].sample_rate.value
-        ifo = self.test_get_empty_interferometer()
+        ifo = detector.Interferometer.get_empty_interferometer(self.ifo)
         ifo.set_timeseries_from_timeseries_array(
             timeseries_array, sample_rate, **self.kwargs
         )
@@ -77,7 +85,7 @@ class TestInterferometer(unittest.TestCase):
 
     def test_gwpy_timeseries_spectrogram_average_psd(self):
         gwpy_timeseries = self.testdata["original_timeseries"]
-        ifo = self.test_get_empty_interferometer()
+        ifo = detector.Interferometer.get_empty_interferometer(self.ifo)
         ifo.set_timeseries_from_gwpy_timeseries(
             gwpy_timeseries=gwpy_timeseries, **self.kwargs
         )
@@ -91,7 +99,7 @@ class TestInterferometer(unittest.TestCase):
         ifo.set_psd_spectrogram(
             frequency_resolution=self.parameters.frequency_resolution,
             overlap_factor=self.parameters.overlap_factor,
-            window_fftgram=self.parameters.window_fftgram,
+            window_fftgram_dict=self.parameters.window_fft_dict,
         )
         self.assertTrue(
             np.all(
@@ -110,7 +118,7 @@ class TestInterferometer(unittest.TestCase):
 
     def test_gwpy_timeseries_gating(self):
         gwpy_timeseries = self.testdata["original_timeseries"]
-        ifo = self.test_get_empty_interferometer()
+        ifo = detector.Interferometer.get_empty_interferometer(self.ifo)
         ifo.set_timeseries_from_gwpy_timeseries(
             gwpy_timeseries=gwpy_timeseries, **self.kwargs
         )

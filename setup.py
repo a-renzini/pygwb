@@ -80,12 +80,13 @@ setup(
     install_requires=[
         "numpy",
         "matplotlib",
-        "scipy",
+        "scipy==1.8.0",
         "bilby",
         "gwpy",
         "astropy",
         "lalsuite",
         "loguru",
+        "json5",
         "jinja2==3.0.3",
     ],
     classifiers=[

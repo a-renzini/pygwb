@@ -20,6 +20,7 @@ class Test(unittest.TestCase):
         self.data_type = "public"
         self.time_shift = 0
         self.sample_rate = 4096
+        self.input_sample_rate = 16384
         self.local_data_path = './test/test_data/data_gwf_preproc_testing.gwf'
         self.cutoff_frequency = 11
 
@@ -66,6 +67,7 @@ class Test(unittest.TestCase):
             ftype="fir",
             time_shift=self.time_shift,
             local_data_path=self.local_data_path,
+            input_sample_rate=self.input_sample_rate,
         )
 
         self.assertEqual(len(timeseries_output1), 1802240)
@@ -113,8 +115,9 @@ class Test(unittest.TestCase):
         time_shifted_data = preprocessing.shift_timeseries(time_series_data = self.timeseries_data, time_shift = 1)
         self.assertEqual(
             self.timeseries_data.value[0],
-            time_shifted_data.value[1],
+            time_shifted_data.value[int(1/self.timeseries_data.dt.value)],
         )
+
         
 
 

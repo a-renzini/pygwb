@@ -107,7 +107,7 @@ class GWBModel(bilby.Likelihood):
         return ll
 
     def noise_log_likelihood(self):
-        """Function for evaluating boise log likelihood of detector network"""
+        """Function for evaluating noise log likelihood of detector network"""
         ll = 0
         for baseline in self.baselines:
             ll = ll + self.log_likelihood_IJ(baseline, noise=True)

@@ -66,12 +66,12 @@ class Interferometer(bilby.gw.detector.Interferometer):
         psd_spectrogram : gwpy spectrogram
             gwpy spectrogram of power spectral density
         gates: gwpy SegmentList
-            List of segments that have been gated, not including any additional padding. 
+            List of segments that have been gated, not including any additional padding.
         gate_pad: float
-            Duration of padding used when applying gates. 
+            Duration of padding used when applying gates.
 
         """
-        self.gates = SegmentList() 
+        self.gates = SegmentList()
         self.gate_pad = None
         super(Interferometer, self).__init__(*args, **kwargs)
 
@@ -143,7 +143,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
         """
         ifo = cls.get_empty_interferometer(name)
         channel = str(ifo.name + ":" + parameters.channel)
-        
+
         if parameters.local_data_path_dict:
             local_data_path = parameters.local_data_path_dict[name]
         else:
@@ -161,6 +161,8 @@ class Interferometer(bilby.gw.detector.Interferometer):
             window_downsampling=parameters.window_downsampling,
             ftype=parameters.ftype,
             time_shift=parameters.time_shift,
+            tag=parameters.tag,
+            input_sample_rate=parameters.input_sample_rate,
         )
         return ifo
 
@@ -182,12 +184,14 @@ class Interferometer(bilby.gw.detector.Interferometer):
         data_type = kwargs.pop("data_type")
         local_data_path = kwargs.pop("local_data_path")
         new_sample_rate = kwargs.pop("new_sample_rate")
+        input_sample_rate = kwargs.pop("input_sample_rate")
         cutoff_frequency = kwargs.pop("cutoff_frequency")
         segment_duration = kwargs.pop("segment_duration")
         number_cropped_seconds = kwargs.pop("number_cropped_seconds")
         window_downsampling = kwargs.pop("window_downsampling")
         ftype = kwargs.pop("ftype")
         time_shift = kwargs.pop("time_shift")
+        tag = kwargs.pop("tag")
         self.duration = segment_duration
         self.timeseries = preprocessing_data_channel_name(
             IFO=self.name,
@@ -203,8 +207,11 @@ class Interferometer(bilby.gw.detector.Interferometer):
             window_downsampling=window_downsampling,
             ftype=ftype,
             time_shift=time_shift,
+            tag=tag,
+            input_sample_rate=input_sample_rate,
         )
         self._check_timeseries_channel_name(channel)
+        self.sampling_frequency = new_sample_rate
 
     def set_timeseries_from_timeseries_array(
         self, timeseries_array, sample_rate, **kwargs
@@ -248,6 +255,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
         )
         self.timeseries.channel = kwargs.pop("channel")
         self._check_timeseries_sample_rate(new_sample_rate)
+        self.sampling_frequency = sample_rate
 
     def set_timeseries_from_gwpy_timeseries(self, gwpy_timeseries, **kwargs):
         """
@@ -282,13 +290,14 @@ class Interferometer(bilby.gw.detector.Interferometer):
         )
         self.timeseries.channel = kwargs.pop("channel")
         self._check_timeseries_sample_rate(new_sample_rate)
+        self.sampling_frequency = new_sample_rate
 
     def set_psd_spectrogram(
         self,
         frequency_resolution,
         overlap_factor=0.5,
         overlap_factor_welch_psd=0,
-        window_fftgram="hann",
+        window_fftgram_dict={"window_fftgram": "hann"},
     ):
         """
         Set psd_spectrogram attribute from a given spectrum-related information.
@@ -302,8 +311,8 @@ class Interferometer(bilby.gw.detector.Interferometer):
             Amount of overlap between adjacent segments (range between 0 and 1)
             This factor should be same as the one used for cross_spectral_density
             (default 0, no overlap)
-        window_fftgram: str, optional
-            Type of window to use for FFT (default no window)
+        window_fftgram_dict: dictionary, optional
+            Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds. Default is \"hann\".
 
         """
 
@@ -313,7 +322,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
             self.duration,
             frequency_resolution,
             overlap_factor=overlap_factor,
-            window_fftgram=window_fftgram,
+            window_fftgram_dict=window_fftgram_dict,
         )
         self.psd_spectrogram.channel = self.timeseries.channel
         self._check_spectrogram_channel_name(self.timeseries.channel.name)
@@ -367,7 +376,8 @@ class Interferometer(bilby.gw.detector.Interferometer):
         gate_threshold = kwargs.pop("gate_threshold")
         cluster_window = kwargs.pop("cluster_window")
         gate_whiten = kwargs.pop("gate_whiten")
-        self.timeseries, new_gates = self_gate_data(self.timeseries,
+        self.timeseries, new_gates = self_gate_data(
+            self.timeseries,
             tzero=gate_tzero,
             tpad=gate_tpad,
             gate_threshold=gate_threshold,

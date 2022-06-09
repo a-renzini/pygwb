@@ -55,6 +55,5 @@ class IsotropicJobTest(unittest.TestCase):
         self.assertAlmostEqual(newsigma[1], 1.25042364)
 
 
-
 if __name__ == "__main__":
     unittest.main()

@@ -1,6 +1,7 @@
 #!/bin/env python
 
 import argparse
+import distutils
 import json
 import os
 import sys
@@ -13,8 +14,8 @@ from loguru import logger
 
 from pygwb.baseline import Baseline
 from pygwb.detector import Interferometer
-from pygwb.parameters import Parameters
-from pygwb.parameters import ParametersHelp
+from pygwb.parameters import Parameters, ParametersHelp
+
 
 def help_arguments(parent):
     ann = getattr(Parameters, "__annotations__", {})
@@ -28,10 +29,19 @@ def main():
     params = Parameters()
     pipe_parser = argparse.ArgumentParser(add_help=False)
     pipe_parser.add_argument(
-        "--param_file", help="Parameter file", action="store", type=str, required=False
+        "--param_file", help="Parameter file to use for analysis.", action="store", type=str, required=False
     )
     pipe_parser.add_argument(
-        "--output_path", help="Location to save output to", action="store", type=str, required=False
+        "--output_path", help="Location to save output to.", action="store", type=str, required=False
+    )
+    pipe_parser.add_argument(
+        "--calc_pt_est", help="Calculate omega point estimate and sigma from data.", action="store", type=str, required=False
+    )
+    pipe_parser.add_argument(
+        "--pickle_out", help="Pickle output Baseline of the analysis.", action="store", type=str, required=False
+    )
+    pipe_parser.add_argument(
+        "--wipe_ifo", help="Wipe interferometer data to reduce size of pickled Baseline.", action="store", type=str, required=False
     )
 
     help_args = help_arguments(pipe_parser)
@@ -56,12 +66,21 @@ def main():
     params.save_paramfile(str(outfile_path))
     logger.info(f"Saved final param file at {outfile_path}.")
 
-    """
-    X TODO X make this into a param in the arg class?
-    """
-    pipe_calc_point_estimate = True  # if False, it will only compute the CSDs and PSDs, if True, it will compute until the point estimates
-    pipe_pickle_baseline = True
+    if script_args.calc_pt_est:
+        pipe_calculate_point_estimate = bool(distutils.util.strtobool(script_args.calc_pt_est))
+    else:
+        pipe_calculate_point_estimate = True
     
+    if script_args.pickle_out:
+        pipe_pickle_baseline = bool(distutils.util.strtobool(script_args.pickle_out))
+    else:
+        pipe_pickle_baseline = True
+
+    if script_args.wipe_ifo:
+        wipe_ifo = bool(distutils.util.strtobool(script_args.wipe_ifo))
+    else:
+        wipe_ifo = True
+
     ifo_1 = Interferometer.from_parameters(params.interferometer_list[0], params)
     ifo_2 = Interferometer.from_parameters(params.interferometer_list[1], params)
     logger.info(f"Loaded up interferometers with selected parameters.")
@@ -110,7 +129,7 @@ def main():
         f"times flagged by the delta sigma cut as badGPStimes:{base_12.badGPStimes}"
     )
 
-    if pipe_calc_point_estimate:
+    if pipe_calculate_point_estimate:
         logger.info(f"calculating the point estimate and sigma...")
 
         base_12.set_point_estimate_sigma(
@@ -118,7 +137,7 @@ def main():
             fref=params.fref,
             flow=params.flow,
             fhigh=params.fhigh,
-            badtimes=np.array([]),  # use this line to override the delta sigma cut
+            apply_dsc=False
         )
 
         logger.success(
@@ -145,7 +164,7 @@ def main():
         if pipe_pickle_baseline:
             logger.info("Pickling the baseline.")
             pickle_name = f"{output_path}/{base_12.name}_{int(params.t0)}-{int(params.tf)}.pickle"
-            base_12.save_to_pickle(pickle_name)
+            base_12.save_to_pickle(pickle_name, wipe=wipe_ifo)
 
     else:
         logger.info("Saving average psds and csd to file.")

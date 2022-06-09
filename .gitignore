@@ -13,3 +13,12 @@ tests/results/
 build/
 *.egg*
 docs/_build
+docs/api
+docs/tutorials
+docs/templates
+*final.ini
+*.swp
+tutorials/*_samples.dat
+test/test_data/testing_save_function_of_baseline.*
+csds_psds_*
+psds_csds_*

@@ -1,8 +1,8 @@
 import unittest
 
-import gwpy
 import gwpy.testing.utils
 import numpy as np
+from gwpy.frequencyseries import FrequencySeries
 
 from pygwb import util
 
@@ -27,8 +27,8 @@ class WindowTest(unittest.TestCase):
     def test_omega_to_power(self):
         frequencies = np.arange(1.0, 100.0)
         omega = frequencies ** 3
-        omega_check = gwpy.frequencyseries.FrequencySeries(
-            3.19242291e-37 * np.ones(len(frequencies)), frequencies=frequencies
+        omega_check = FrequencySeries(
+            1.53404298e-37 * np.ones(len(frequencies)), frequencies=frequencies
         )
         gwpy.testing.utils.assert_quantity_sub_equal(
             util.omega_to_power(omega, frequencies), omega_check, almost_equal=True

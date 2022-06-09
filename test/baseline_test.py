@@ -110,6 +110,7 @@ class TestBaseline(unittest.TestCase):
             self.duration,
             self.frequencies,
         )
+        base.orf_polarization='tensor'
         self.assertTrue(
             np.allclose(base.overlap_reduction_function, np.ones(len(base.frequencies)))
         )
@@ -125,6 +126,7 @@ class TestBaseline(unittest.TestCase):
             self.interferometer_3,
             frequencies=freqs,
         )
+        base.orf_polarization='tensor'
         self.assertTrue(
             np.allclose(
                 base.overlap_reduction_function,
@@ -229,7 +231,9 @@ class TestBaseline(unittest.TestCase):
         pickled_ifo_2 = pickled_base.interferometer_2
         CSD_test = pickled_base.average_csd
 
-        base = copy.deepcopy(pickled_base)
+        base = baseline.Baseline.load_from_pickle(
+            "test/test_data/H1L1_1247644138-1247645038.pickle"
+        )
         base.average_csd = None
         base.set_average_cross_spectral_density()
         base.crop_frequencies_average_psd_csd(50, 500)
@@ -243,7 +247,9 @@ class TestBaseline(unittest.TestCase):
         )
         badGPStimes_test = pickled_base.badGPStimes
         dsc_test = pickled_base.delta_sigmas
-        base = copy.deepcopy(pickled_base)
+        base = baseline.Baseline.load_from_pickle(
+            "test/test_data/H1L1_1247644138-1247645038.pickle"
+        )
         base.badGPStimes = None
         base.delta_sigmas = None
         notch_file = "test/test_data/Official_O3_HL_notchlist.txt"
@@ -251,12 +257,11 @@ class TestBaseline(unittest.TestCase):
             delta_sigma_cut=0.2, alphas=[-5, 0, 3], notch_list_path=notch_file
         )
         self.assertEqual(badGPStimes_test.tolist(), base.badGPStimes.tolist())
-        
+
     def test_set_point_estimate_sigma(self):
         pickled_base = baseline.Baseline.load_from_pickle(
             "test/test_data/H1L1_1247644138-1247645038.pickle"
         )
-        # save these for later...
         pickled_ifo_1 = pickled_base.interferometer_1
         pickled_ifo_2 = pickled_base.interferometer_2
         PSD_1_test = pickled_ifo_1.average_psd
@@ -271,17 +276,17 @@ class TestBaseline(unittest.TestCase):
         point_estimate_spectrogram_test = pickled_base.point_estimate_spectrogram
         sigma_spectrogram_test = pickled_base.sigma_spectrogram
 
-        # get rid of a few things...
         ifo_1 = copy.deepcopy(pickled_ifo_1)
         ifo_2 = copy.deepcopy(pickled_ifo_2)
         ifo_1.psd_spectrogram = None
         ifo_2.psd_spectrogram = None
         pickled_ifo_1.average_psd = None
         pickled_ifo_2.average_psd = None
-        base = copy.deepcopy(pickled_base)
+        base = baseline.Baseline.load_from_pickle(
+            "test/test_data/H1L1_1247644138-1247645038.pickle"
+        )
         frequency_resolution = PSD_1_test.df.value
 
-        # create new baseline from ifo's
         base = baseline.Baseline.from_interferometers([ifo_1, ifo_2])
         base.set_cross_and_power_spectral_density(frequency_resolution)
         base.set_average_cross_spectral_density()
@@ -333,43 +338,49 @@ class TestBaseline(unittest.TestCase):
         save_data_type = "npz"
         filename = "test/test_data/testing_save_function_of_baseline"
         pickled_base.save_point_estimate_spectra(save_data_type, filename)
-        Loaded_npzfile = np.load(filename + '.npz')
-        loaded_frequencies = Loaded_npzfile['frequencies']
+        Loaded_npzfile = np.load(filename + ".npz")
+        loaded_frequencies = Loaded_npzfile["frequencies"]
         test_frequencies = pickled_base.frequencies
         self.assertEqual(loaded_frequencies.tolist(), test_frequencies.tolist())
-        
-        loaded_point_estimate = Loaded_npzfile['point_estimate']
+
+        loaded_point_estimate = Loaded_npzfile["point_estimate"]
         test_point_estimate = pickled_base.point_estimate
         self.assertEqual(loaded_point_estimate, test_point_estimate)
-        
-        loaded_sigma = Loaded_npzfile['sigma']
+
+        loaded_sigma = Loaded_npzfile["sigma"]
         test_sigma = pickled_base.sigma
         self.assertEqual(loaded_sigma, test_sigma)
-        
-        loaded_point_estimate_spectrum = Loaded_npzfile['point_estimate_spectrum']
+
+        loaded_point_estimate_spectrum = Loaded_npzfile["point_estimate_spectrum"]
         test_spectrum = pickled_base.point_estimate_spectrum
-        self.assertEqual(loaded_point_estimate_spectrum.tolist(), test_spectrum.value.tolist())
-        
-        loaded_sigma_spectrum = Loaded_npzfile['sigma_spectrum']
-        test_sigma_spectrum = pickled_base.sigma_spectrum 
-        self.assertEqual(loaded_sigma_spectrum.tolist(), test_sigma_spectrum.value.tolist())
-        
-        loaded_spectrogram = Loaded_npzfile['point_estimate_spectrogram']
+        self.assertEqual(
+            loaded_point_estimate_spectrum.tolist(), test_spectrum.value.tolist()
+        )
+
+        loaded_sigma_spectrum = Loaded_npzfile["sigma_spectrum"]
+        test_sigma_spectrum = pickled_base.sigma_spectrum
+        self.assertEqual(
+            loaded_sigma_spectrum.tolist(), test_sigma_spectrum.value.tolist()
+        )
+
+        loaded_spectrogram = Loaded_npzfile["point_estimate_spectrogram"]
         test_spectrogram = pickled_base.point_estimate_spectrogram
         self.assertEqual(loaded_spectrogram.tolist(), test_spectrogram.value.tolist())
-        
-        loaded_sigma_spectrogram = Loaded_npzfile['sigma_spectrogram']
+
+        loaded_sigma_spectrogram = Loaded_npzfile["sigma_spectrogram"]
         test_sigma_spectrogram = pickled_base.sigma_spectrogram
-        self.assertEqual(loaded_sigma_spectrogram.tolist(), test_sigma_spectrogram.value.tolist())
-        
-        badGPStimes_loaded = Loaded_npzfile['badGPStimes']
+        self.assertEqual(
+            loaded_sigma_spectrogram.tolist(), test_sigma_spectrogram.value.tolist()
+        )
+
+        badGPStimes_loaded = Loaded_npzfile["badGPStimes"]
         test_badGPStimes = pickled_base.badGPStimes
         self.assertEqual(badGPStimes_loaded, test_badGPStimes)
-        
-        loaded_delta_sigmas = Loaded_npzfile['delta_sigmas']
+
+        loaded_delta_sigmas = Loaded_npzfile["delta_sigmas"]
         test_delta_sigmas = pickled_base.delta_sigmas
-        self.assertEqual(loaded_delta_sigmas, test_delta_sigmas)
-        
+        self.assertTrue(np.array_equal(loaded_delta_sigmas, test_delta_sigmas))
+
     def test_save_psds_csd_npz(self):
         pickled_base = baseline.Baseline.load_from_pickle(
             "test/test_data/H1L1_1247644138-1247645038.pickle"
@@ -377,40 +388,42 @@ class TestBaseline(unittest.TestCase):
         save_data_type = "npz"
         filename = "psds_csds_4138-5038"
         pickled_base.save_psds_csds(save_data_type, filename)
-        Loading_npzfile = np.load(f'{filename}.npz')
-             
+        Loading_npzfile = np.load(f"{filename}.npz")
+
         loaded_frequencies = Loading_npzfile["freqs"]
         test_frequencies = pickled_base.frequencies
         self.assertEqual(loaded_frequencies.tolist(), test_frequencies.tolist())
-        
+
         loaded_avg_frequencies = Loading_npzfile["avg_freqs"]
         test_avg_frequencies = pickled_base.average_csd.frequencies
-        self.assertEqual(loaded_avg_frequencies.tolist(), test_avg_frequencies.value.tolist())
-        
+        self.assertEqual(
+            loaded_avg_frequencies.tolist(), test_avg_frequencies.value.tolist()
+        )
+
         loaded_naive_psd_1 = Loading_npzfile["psd_1"]
         test_naive_psd_1 = pickled_base.interferometer_1.psd_spectrogram
         self.assertEqual(loaded_naive_psd_1.tolist(), test_naive_psd_1.value.tolist())
-        
+
         loaded_naive_psd_2 = Loading_npzfile["psd_2"]
         test_naive_psd_2 = pickled_base.interferometer_2.psd_spectrogram
         self.assertEqual(loaded_naive_psd_2.tolist(), test_naive_psd_2.value.tolist())
-        
+
         loaded_avg_psd_1 = Loading_npzfile["avg_psd_1"]
         test_avg_psd_1 = pickled_base.interferometer_1.average_psd
         self.assertEqual(loaded_avg_psd_1.tolist(), test_avg_psd_1.value.tolist())
-        
+
         loaded_avg_psd_2 = Loading_npzfile["avg_psd_2"]
         test_avg_psd_2 = pickled_base.interferometer_2.average_psd
         self.assertEqual(loaded_avg_psd_2.tolist(), test_avg_psd_2.value.tolist())
-        
+
         loaded_csd = Loading_npzfile["csd"]
         test_csd = pickled_base.csd
         self.assertEqual(loaded_csd.tolist(), test_csd.value.tolist())
-        
+
         loaded_avg_csd = Loading_npzfile["avg_csd"]
         test_avg_csd = pickled_base.average_csd
         self.assertEqual(loaded_avg_csd.tolist(), test_avg_csd.value.tolist())
-        
+
     def test_save_point_estimate_spectra_pickle(self):
         pickled_base = baseline.Baseline.load_from_pickle(
             "test/test_data/H1L1_1247644138-1247645038.pickle"
@@ -418,45 +431,54 @@ class TestBaseline(unittest.TestCase):
         save_data_type = "pickle"
         filename = "test/test_data/testing_save_function_of_baseline"
         pickled_base.save_point_estimate_spectra(save_data_type, filename)
-        with open(filename + '.p', "rb") as f:
-            Loaded_picklefile =  pickle.load(f)
-        
-        loaded_frequencies = Loaded_picklefile['frequencies']
+        with open(filename + ".p", "rb") as f:
+            Loaded_picklefile = pickle.load(f)
+
+        loaded_frequencies = Loaded_picklefile["frequencies"]
         test_frequencies = pickled_base.frequencies
         self.assertEqual(loaded_frequencies.tolist(), test_frequencies.tolist())
-        
-        loaded_point_estimate = Loaded_picklefile['point_estimate']
+
+        loaded_point_estimate = Loaded_picklefile["point_estimate"]
         test_point_estimate = pickled_base.point_estimate
         self.assertEqual(loaded_point_estimate, test_point_estimate)
-        
-        loaded_sigma = Loaded_picklefile['sigma']
+
+        loaded_sigma = Loaded_picklefile["sigma"]
         test_sigma = pickled_base.sigma
         self.assertEqual(loaded_sigma, test_sigma)
-        
-        loaded_point_estimate_spectrum = Loaded_picklefile['point_estimate_spectrum']
+
+        loaded_point_estimate_spectrum = Loaded_picklefile["point_estimate_spectrum"]
         test_spectrum = pickled_base.point_estimate_spectrum
-        self.assertEqual(loaded_point_estimate_spectrum.value.tolist(), test_spectrum.value.tolist())
-        
-        loaded_sigma_spectrum = Loaded_picklefile['sigma_spectrum']
-        test_sigma_spectrum = pickled_base.sigma_spectrum 
-        self.assertEqual(loaded_sigma_spectrum.value.tolist(), test_sigma_spectrum.value.tolist())
-        
-        loaded_spectrogram = Loaded_picklefile['point_estimate_spectrogram']
+        self.assertEqual(
+            loaded_point_estimate_spectrum.value.tolist(), test_spectrum.value.tolist()
+        )
+
+        loaded_sigma_spectrum = Loaded_picklefile["sigma_spectrum"]
+        test_sigma_spectrum = pickled_base.sigma_spectrum
+        self.assertEqual(
+            loaded_sigma_spectrum.value.tolist(), test_sigma_spectrum.value.tolist()
+        )
+
+        loaded_spectrogram = Loaded_picklefile["point_estimate_spectrogram"]
         test_spectrogram = pickled_base.point_estimate_spectrogram
-        self.assertEqual(loaded_spectrogram.value.tolist(), test_spectrogram.value.tolist())
-        
-        loaded_sigma_spectrogram = Loaded_picklefile['sigma_spectrogram']
+        self.assertEqual(
+            loaded_spectrogram.value.tolist(), test_spectrogram.value.tolist()
+        )
+
+        loaded_sigma_spectrogram = Loaded_picklefile["sigma_spectrogram"]
         test_sigma_spectrogram = pickled_base.sigma_spectrogram
-        self.assertEqual(loaded_sigma_spectrogram.value.tolist(), test_sigma_spectrogram.value.tolist())
-        
-        badGPStimes_loaded = Loaded_picklefile['badGPStimes']
+        self.assertEqual(
+            loaded_sigma_spectrogram.value.tolist(),
+            test_sigma_spectrogram.value.tolist(),
+        )
+
+        badGPStimes_loaded = Loaded_picklefile["badGPStimes"]
         test_badGPStimes = pickled_base.badGPStimes
         self.assertEqual(badGPStimes_loaded, test_badGPStimes)
-        
-        loaded_delta_sigmas = Loaded_picklefile['delta_sigmas']
+
+        loaded_delta_sigmas = Loaded_picklefile["delta_sigmas"]
         test_delta_sigmas = pickled_base.delta_sigmas
-        self.assertEqual(loaded_delta_sigmas, test_delta_sigmas)
-        
+        self.assertTrue(np.array_equal(loaded_delta_sigmas, test_delta_sigmas))
+
     def test_save_psds_csd_pickle(self):
         pickled_base = baseline.Baseline.load_from_pickle(
             "test/test_data/H1L1_1247644138-1247645038.pickle"
@@ -465,40 +487,46 @@ class TestBaseline(unittest.TestCase):
         filename = "psds_csds_4138-5038"
         pickled_base.save_psds_csds(save_data_type, filename)
         with open(f"{filename}.p", "rb") as f:
-            Loading_picklefile =  pickle.load(f)
-             
+            Loading_picklefile = pickle.load(f)
+
         loaded_frequencies = Loading_picklefile["freqs"]
         test_frequencies = pickled_base.frequencies
         self.assertEqual(loaded_frequencies.tolist(), test_frequencies.tolist())
-        
+
         loaded_avg_frequencies = Loading_picklefile["avg_freqs"]
         test_avg_frequencies = pickled_base.average_csd.frequencies
-        self.assertEqual(loaded_avg_frequencies.tolist(), test_avg_frequencies.value.tolist())
-        
+        self.assertEqual(
+            loaded_avg_frequencies.tolist(), test_avg_frequencies.value.tolist()
+        )
+
         loaded_naive_psd_1 = Loading_picklefile["psd_1"]
         test_naive_psd_1 = pickled_base.interferometer_1.psd_spectrogram
-        self.assertEqual(loaded_naive_psd_1.value.tolist(), test_naive_psd_1.value.tolist())
-        
+        self.assertEqual(
+            loaded_naive_psd_1.value.tolist(), test_naive_psd_1.value.tolist()
+        )
+
         loaded_naive_psd_2 = Loading_picklefile["psd_2"]
         test_naive_psd_2 = pickled_base.interferometer_2.psd_spectrogram
-        self.assertEqual(loaded_naive_psd_2.value.tolist(), test_naive_psd_2.value.tolist())
-        
+        self.assertEqual(
+            loaded_naive_psd_2.value.tolist(), test_naive_psd_2.value.tolist()
+        )
+
         loaded_avg_psd_1 = Loading_picklefile["avg_psd_1"]
         test_avg_psd_1 = pickled_base.interferometer_1.average_psd
         self.assertEqual(loaded_avg_psd_1.value.tolist(), test_avg_psd_1.value.tolist())
-        
+
         loaded_avg_psd_2 = Loading_picklefile["avg_psd_2"]
         test_avg_psd_2 = pickled_base.interferometer_2.average_psd
         self.assertEqual(loaded_avg_psd_2.value.tolist(), test_avg_psd_2.value.tolist())
-        
+
         loaded_csd = Loading_picklefile["csd"]
         test_csd = pickled_base.csd
         self.assertEqual(loaded_csd.value.tolist(), test_csd.value.tolist())
-        
+
         loaded_avg_csd = Loading_picklefile["avg_csd"]
         test_avg_csd = pickled_base.average_csd
         self.assertEqual(loaded_avg_csd.value.tolist(), test_avg_csd.value.tolist())
-        
+
     def test_save_point_estimate_spectra_json(self):
         pickled_base = baseline.Baseline.load_from_pickle(
             "test/test_data/H1L1_1247644138-1247645038.pickle"
@@ -506,45 +534,47 @@ class TestBaseline(unittest.TestCase):
         save_data_type = "json"
         filename = "test/test_data/testing_save_function_of_baseline"
         pickled_base.save_point_estimate_spectra(save_data_type, filename)
-        with open(filename + ".json", 'r') as j:
+        with open(filename + ".json", "r") as j:
             Loaded_jsonfile = json.loads(j.read())
-        
-        loaded_frequencies = Loaded_jsonfile['frequencies']
+
+        loaded_frequencies = Loaded_jsonfile["frequencies"]
         test_frequencies = pickled_base.frequencies
         self.assertEqual(loaded_frequencies, test_frequencies.tolist())
-        
-        loaded_point_estimate = Loaded_jsonfile['point_estimate']
+
+        loaded_point_estimate = Loaded_jsonfile["point_estimate"]
         test_point_estimate = pickled_base.point_estimate
         self.assertEqual(loaded_point_estimate, test_point_estimate)
-        
-        loaded_sigma = Loaded_jsonfile['sigma']
+
+        loaded_sigma = Loaded_jsonfile["sigma"]
         test_sigma = pickled_base.sigma
         self.assertEqual(loaded_sigma, test_sigma)
-        
-        loaded_point_estimate_spectrum = Loaded_jsonfile['point_estimate_spectrum']
+
+        loaded_point_estimate_spectrum = Loaded_jsonfile["point_estimate_spectrum"]
         test_spectrum = pickled_base.point_estimate_spectrum
         self.assertEqual(loaded_point_estimate_spectrum, test_spectrum.value.tolist())
-        
-        loaded_sigma_spectrum = Loaded_jsonfile['sigma_spectrum']
-        test_sigma_spectrum = pickled_base.sigma_spectrum 
+
+        loaded_sigma_spectrum = Loaded_jsonfile["sigma_spectrum"]
+        test_sigma_spectrum = pickled_base.sigma_spectrum
         self.assertEqual(loaded_sigma_spectrum, test_sigma_spectrum.value.tolist())
-        
-        loaded_spectrogram = Loaded_jsonfile['point_estimate_spectrogram']
+
+        loaded_spectrogram = Loaded_jsonfile["point_estimate_spectrogram"]
         test_spectrogram = pickled_base.point_estimate_spectrogram
         self.assertEqual(loaded_spectrogram, test_spectrogram.value.tolist())
-        
-        loaded_sigma_spectrogram = Loaded_jsonfile['sigma_spectrogram']
+
+        loaded_sigma_spectrogram = Loaded_jsonfile["sigma_spectrogram"]
         test_sigma_spectrogram = pickled_base.sigma_spectrogram
-        self.assertEqual(loaded_sigma_spectrogram, test_sigma_spectrogram.value.tolist())
-        
-        badGPStimes_loaded = Loaded_jsonfile['badGPStimes']
+        self.assertEqual(
+            loaded_sigma_spectrogram, test_sigma_spectrogram.value.tolist()
+        )
+
+        badGPStimes_loaded = Loaded_jsonfile["badGPStimes"]
         test_badGPStimes = pickled_base.badGPStimes
         self.assertEqual(badGPStimes_loaded, test_badGPStimes)
-        
-        loaded_delta_sigmas = Loaded_jsonfile['delta_sigmas']
+
+        loaded_delta_sigmas = Loaded_jsonfile["delta_sigmas"]
         test_delta_sigmas = pickled_base.delta_sigmas
-        self.assertEqual(loaded_delta_sigmas, test_delta_sigmas)        
-        
+        self.assertTrue(np.array_equal(loaded_delta_sigmas, test_delta_sigmas))
+
     def test_save_psds_csd_json(self):
         pickled_base = baseline.Baseline.load_from_pickle(
             "test/test_data/H1L1_1247644138-1247645038.pickle"
@@ -552,94 +582,109 @@ class TestBaseline(unittest.TestCase):
         save_data_type = "json"
         filename = "psds_csds_4138-5038"
         pickled_base.save_psds_csds(save_data_type, filename)
-        with open(f"{filename}.json", 'r') as j:
+        with open(f"{filename}.json", "r") as j:
             Loading_jsonfile = json.loads(j.read())
-             
+
         loaded_frequencies = Loading_jsonfile["frequencies"]
         test_frequencies = pickled_base.frequencies
         self.assertEqual(loaded_frequencies, test_frequencies.tolist())
-        
+
         loaded_avg_frequencies = Loading_jsonfile["avg_frequencies"]
         test_avg_frequencies = pickled_base.average_csd.frequencies
         self.assertEqual(loaded_avg_frequencies, test_avg_frequencies.value.tolist())
-        
+
         loaded_naive_psd_1 = Loading_jsonfile["psd_1"]
         test_naive_psd_1 = pickled_base.interferometer_1.psd_spectrogram
         self.assertEqual(loaded_naive_psd_1, test_naive_psd_1.value.tolist())
-        
+
         loaded_naive_psd_2 = Loading_jsonfile["psd_2"]
         test_naive_psd_2 = pickled_base.interferometer_2.psd_spectrogram
         self.assertEqual(loaded_naive_psd_2, test_naive_psd_2.value.tolist())
-        
+
         loaded_avg_psd_1 = Loading_jsonfile["avg_psd_1"]
         test_avg_psd_1 = pickled_base.interferometer_1.average_psd
         self.assertEqual(loaded_avg_psd_1, test_avg_psd_1.value.tolist())
-        
+
         loaded_avg_psd_2 = Loading_jsonfile["avg_psd_2"]
         test_avg_psd_2 = pickled_base.interferometer_2.average_psd
         self.assertEqual(loaded_avg_psd_2, test_avg_psd_2.value.tolist())
-        
+
         loaded_csd_real = Loading_jsonfile["csd_real"]
         loaded_csd_imag = Loading_jsonfile["csd_imag"]
-        loaded_csd = [complex(real, imag) for row, row_2 in zip(loaded_csd_real, loaded_csd_imag) for real,imag in zip(row,row_2)]
+        loaded_csd = [
+            complex(real, imag)
+            for row, row_2 in zip(loaded_csd_real, loaded_csd_imag)
+            for real, imag in zip(row, row_2)
+        ]
         test_csd = pickled_base.csd
-        #self.assertEqual(loaded_csd, test_csd.value.tolist())
-        
+        # self.assertEqual(loaded_csd, test_csd.value.tolist())
+
         loaded_avg_csd_real = Loading_jsonfile["avg_csd_real"]
         loaded_avg_csd_imag = Loading_jsonfile["avg_csd_imag"]
-        loaded_avg_csd = [complex(real, imag) for row, row_2 in zip(loaded_avg_csd_real, loaded_avg_csd_imag) for real, imag in zip(row, row_2)]
+        loaded_avg_csd = [
+            complex(real, imag)
+            for row, row_2 in zip(loaded_avg_csd_real, loaded_avg_csd_imag)
+            for real, imag in zip(row, row_2)
+        ]
         test_avg_csd = pickled_base.average_csd
-        #self.assertEqual(loaded_avg_csd, test_avg_csd.value.tolist())
-        
+        # self.assertEqual(loaded_avg_csd, test_avg_csd.value.tolist())
+
     def test_save_point_estimate_spectra_hdf5(self):
         pickled_base = baseline.Baseline.load_from_pickle(
             "test/test_data/H1L1_1247644138-1247645038.pickle"
         )
         save_data_type = "hdf5"
         filename = "test/test_data/testing_save_function_of_baseline"
-        pickled_base.save_point_estimate_spectra(save_data_type, filename)   
-        
+        pickled_base.save_point_estimate_spectra(save_data_type, filename)
+
         hf = h5py.File(f"{filename}.h5", "r")
         loaded_freqs = np.array(hf.get("freqs"))
         test_frequencies = pickled_base.frequencies
         self.assertEqual(loaded_freqs.tolist(), test_frequencies.tolist())
-        
+
         loaded_point_estimate = hf.get("point_estimate")
         test_point_estimate = pickled_base.point_estimate
         self.assertEqual(loaded_point_estimate, test_point_estimate)
-        
+
         loaded_sigma = hf.get("sigma")
         test_sigma = pickled_base.sigma
         self.assertEqual(loaded_sigma, test_sigma)
-        
+
         loaded_point_estimate_spectrum = list(hf.get("point_estimate_spectrum"))
         test_point_estimate_spectrum = pickled_base.point_estimate_spectrum
-        self.assertEqual(loaded_point_estimate_spectrum, test_point_estimate_spectrum.value.tolist())
-        
+        self.assertEqual(
+            loaded_point_estimate_spectrum, test_point_estimate_spectrum.value.tolist()
+        )
+
         loaded_sigma_spectrum = list(hf.get("sigma_spectrum"))
         test_sigma_spectrum = pickled_base.sigma_spectrum
         self.assertEqual(loaded_sigma_spectrum, test_sigma_spectrum.value.tolist())
-        
+
         loaded_point_estimate_spectrogram = list(hf.get("point_estimate_spectrogram"))
         test_point_estimate_spectrogram = pickled_base.point_estimate_spectrogram
-        for ele, ele_2 in zip(loaded_point_estimate_spectrogram, test_point_estimate_spectrogram.value.tolist()):
+        for ele, ele_2 in zip(
+            loaded_point_estimate_spectrogram,
+            test_point_estimate_spectrogram.value.tolist(),
+        ):
             self.assertEqual(list(ele), ele_2)
-        #self.assertListEqual(loaded_point_estimate_spectrogram, test_point_estimate_spectrogram.value.tolist())
-        
+        # self.assertListEqual(loaded_point_estimate_spectrogram, test_point_estimate_spectrogram.value.tolist())
+
         loaded_sigma_spectrogram = list(hf.get("sigma_spectrogram"))
         test_sigma_spectrogram = pickled_base.sigma_spectrogram
-        for row, row_2 in zip(loaded_sigma_spectrogram, test_sigma_spectrogram.value.tolist()):
+        for row, row_2 in zip(
+            loaded_sigma_spectrogram, test_sigma_spectrogram.value.tolist()
+        ):
             self.assertEqual(list(row), row_2)
-        #self.assertEqual(loaded_sigma_spectrogram, test_sigma_spectrogram.value.tolist())
-        
+        # self.assertEqual(loaded_sigma_spectrogram, test_sigma_spectrogram.value.tolist())
+
         loaded_badGPStimes = list(hf.get("badGPStimes"))
         test_badGPStimes = pickled_base.badGPStimes
         self.assertEqual(loaded_badGPStimes, test_badGPStimes.tolist())
-        
+
         loaded_delta_sigmas = np.float64(hf.get("delta_sigmas"))
         test_delta_sigmas = pickled_base.delta_sigmas
-        self.assertEqual(loaded_delta_sigmas, test_delta_sigmas)
-        
+        self.assertTrue(np.array_equal(loaded_delta_sigmas, test_delta_sigmas))
+
     def test_save_psds_csd_hdf5(self):
         pickled_base = baseline.Baseline.load_from_pickle(
             "test/test_data/H1L1_1247644138-1247645038.pickle"
@@ -648,87 +693,88 @@ class TestBaseline(unittest.TestCase):
         filename = "psds_csds_4138-5038"
         pickled_base.save_psds_csds(save_data_type, filename)
         hf = h5py.File(f"{filename}.h5", "r")
-             
+
         loaded_frequencies = list(hf.get("freqs"))
         test_frequencies = pickled_base.frequencies
         self.assertEqual(loaded_frequencies, test_frequencies.tolist())
-        
+
         loaded_avg_frequencies = list(hf.get("avg_freqs"))
         test_avg_frequencies = pickled_base.average_csd.frequencies
         self.assertEqual(loaded_avg_frequencies, test_avg_frequencies.value.tolist())
-        
+
         loaded_naive_psd_1_group = hf.get("psds_group/psd_1")
-        
+
         loaded_naive_psd_1 = list(loaded_naive_psd_1_group["psd_1"])
         test_naive_psd_1 = pickled_base.interferometer_1.psd_spectrogram
         list_test_naive_psd_1 = test_naive_psd_1.value.tolist()
         for row, row_2 in zip(loaded_naive_psd_1, list_test_naive_psd_1):
             self.assertEqual(list(row), row_2)
-        #self.assertEqual(loaded_naive_psd_1, list_test_naive_psd_1)
-        
+        # self.assertEqual(loaded_naive_psd_1, list_test_naive_psd_1)
+
         loaded_naive_psd_1_times = list(loaded_naive_psd_1_group["psd_1_times"])
         test_psd_1_times = pickled_base.interferometer_1.psd_spectrogram.times
         self.assertListEqual(loaded_naive_psd_1_times, test_psd_1_times.value.tolist())
-        
+
         loaded_naive_psd_2_group = hf.get("psds_group/psd_2")
-        
+
         loaded_naive_psd_2 = list(loaded_naive_psd_2_group["psd_2"])
         test_naive_psd_2 = pickled_base.interferometer_2.psd_spectrogram
         for row, row_2 in zip(loaded_naive_psd_2, test_naive_psd_2.value.tolist()):
             self.assertEqual(list(row), row_2)
-        #self.assertListEqual(loaded_naive_psd_2, test_naive_psd_2.value.tolist())
-        
+        # self.assertListEqual(loaded_naive_psd_2, test_naive_psd_2.value.tolist())
+
         loaded_naive_psd_2_times = list(loaded_naive_psd_2_group["psd_2_times"])
         test_psd_2_times = pickled_base.interferometer_2.psd_spectrogram.times
         self.assertEqual(loaded_naive_psd_2_times, test_psd_2_times.value.tolist())
-        
+
         loaded_avg_psd_1_group = hf.get("avg_psds_group/avg_psd_1")
-        
+
         loaded_avg_psd_1 = list(loaded_avg_psd_1_group["avg_psd_1"])
         test_avg_psd_1 = pickled_base.interferometer_1.average_psd
         for array, list_1 in zip(loaded_avg_psd_1, test_avg_psd_1.value.tolist()):
             self.assertEqual(list(array), list_1)
-        #self.assertEqual(loaded_avg_psd_1, test_avg_psd_1.value.tolist())
-        
+        # self.assertEqual(loaded_avg_psd_1, test_avg_psd_1.value.tolist())
+
         loaded_avg_psd_1_times = list(loaded_avg_psd_1_group["avg_psd_1_times"])
         test_psd_1_times = pickled_base.interferometer_1.average_psd.times
         self.assertEqual(loaded_avg_psd_1_times, test_psd_1_times.value.tolist())
-        
+
         loaded_avg_psd_2_group = hf.get("avg_psds_group/avg_psd_2")
-        
+
         loaded_avg_psd_2 = list(loaded_avg_psd_2_group["avg_psd_2"])
         test_avg_psd_2 = pickled_base.interferometer_2.average_psd
         for array, list_2 in zip(loaded_avg_psd_2, test_avg_psd_2.value.tolist()):
             self.assertEqual(list(array), list_2)
-        #self.assertEqual(loaded_avg_psd_2, test_avg_psd_2.value.tolist())
-        
+        # self.assertEqual(loaded_avg_psd_2, test_avg_psd_2.value.tolist())
+
         loaded_avg_psd_2_times = list(loaded_avg_psd_2_group["avg_psd_2_times"])
         test_psd_2_times = pickled_base.interferometer_2.average_psd.times
         self.assertEqual(loaded_avg_psd_2_times, test_psd_2_times.value.tolist())
-        
+
         loaded_csd_group = hf.get("csd_group")
-        
+
         loaded_csd = list(loaded_csd_group["csd"])
         test_csd = pickled_base.csd
         for ele, ele_2 in zip(loaded_csd, test_csd.value.tolist()):
             self.assertEqual(list(ele), ele_2)
-        #self.assertEqual(loaded_csd, test_csd.value.tolist())
-        
+        # self.assertEqual(loaded_csd, test_csd.value.tolist())
+
         loaded_csd_times = list(loaded_csd_group["csd_times"])
         test_csd_times = pickled_base.csd.times
-        self.assertEqual(loaded_csd_times, test_csd_times.value.tolist())        
-        
+        self.assertEqual(loaded_csd_times, test_csd_times.value.tolist())
+
         loaded_avg_csd_group = hf.get("avg_csd_group")
-        
+
         loaded_avg_csd = list(loaded_avg_csd_group["avg_csd"])
         test_avg_csd = pickled_base.average_csd
         for row, row_2 in zip(loaded_avg_csd, test_avg_csd.value.tolist()):
             self.assertEqual(list(row), row_2)
-        #self.assertEqual(loaded_avg_csd, test_avg_csd.value.tolist())
-        
+        # self.assertEqual(loaded_avg_csd, test_avg_csd.value.tolist())
+
         loaded_avg_csd_times = list(loaded_avg_csd_group["avg_csd_times"])
         test_avg_csd_times = pickled_base.average_csd.times
-        self.assertEqual(loaded_avg_csd_times, test_avg_csd_times.value.tolist()) 
+        self.assertEqual(loaded_avg_csd_times, test_avg_csd_times.value.tolist())
+
 
 if __name__ == "__main__":
     unittest.main()

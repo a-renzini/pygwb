@@ -8,6 +8,7 @@ pygwb documentation
    :maxdepth: 1
    :caption: Contents:
 
+   about
    installation
    contributing
    tutorials
@@ -31,6 +32,7 @@ API:
    preprocessing
    spectral
    postprocessing
+   omega_spectra
    pe
    statistical_checks
 
@@ -49,8 +51,6 @@ API:
    :caption: Tutorials:
 
    generate_stochastic_background_in_network
-   generate_stochastic_data_recovery_test
-   integrationTest_O3_data
    Understand_dsc
    run_pe
    statistical_checks
