@@ -122,7 +122,7 @@ class PowerLawModel(GWBModel):
     Parameters:
     -----------
     fref : float
-        reference frequency for defining the model (:math:`f_{\text{ref}`)
+        reference frequency for defining the model (:math:`f_{\text{ref}}`)
     omega_ref : float
         amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
     alpha : float
@@ -315,13 +315,13 @@ class SmoothBrokenPowerLawModel(GWBModel):
     Parameters:
     -----------
     omega_ref : float
-        amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
+        amplitude of signal (:math:`\Omega_{\text{ref}}`)
     Delta : float
         smoothing variable for the smooth broken power law (:math:`\Delta`)
     alpha_1 : float
         low-frequency spectral index of the smooth broken power law (:math:`\alpha_1`)
     alpha_2 : float
-       (alpha_2 - alpha_1)/Delta is high-frequency spectral index of the smooth broken power law (:math:`\alpha_2`)
+        high-frequency spectral index of the smooth broken power law (:math:`\alpha_2`)
     fbreak : float
         break frequency for the smooth broken power law (:math:`f_{\text{ref}}`)
     frequencies : numpy.ndarray
@@ -384,9 +384,9 @@ class SchumannModel(GWBModel):
     fref : float
         reference frequency for defining the model (:math:`f_{\text{ref}}`)
     kappa_i : float
-        amplitude of coupling function of ifo i at 10 Hz (:math:`\kappa_i`)
+        amplitude of coupling function of interferometer i at 10 Hz (:math:`\kappa_i`)
     beta_i : float
-        spectral index of coupling function of ifo i (:math:`\beta_i`)
+        spectral index of coupling function of interferometer i (:math:`\beta_i`)
     frequencies : numpy.ndarray
         array of frequencies at which to evaluate the model
     """
@@ -474,7 +474,7 @@ class TVSPowerLawModel(GWBModel):
     fref : float
         reference frequency for defining the model (:math:`f_{\text{ref}}`)
     omega_ref_pol : float
-        amplitude of signal at fref for polarization pol (:math:`\Omega_{{\text{ref}}_{\text{pol}}}
+        amplitude of signal at fref for polarization pol (:math:`\Omega_{\text{ref},\text{pol}})
     alpha_pol : float
         spectral index of the power law for polarization pol (:math:`\alpha_{\text{pol}})
     frequencies : numpy.ndarray
@@ -543,7 +543,7 @@ class PVPowerLawModel(GWBModel):
     alpha : float
         spectral index of the power law (:math:`\alpha`)
     Pi : float
-        degree of parity violation (:math:`\pi`)
+        degree of parity violation (:math:`\Pi`)
     frequencies : numpy.ndarray
         array of frequencies at which to evaluate the model
     """
