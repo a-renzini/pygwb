@@ -119,7 +119,6 @@ class PowerLawModel(GWBModel):
     
     .. math:: 
         \Omega(f) = \Omega_{\text{ref}} \left(\frac{f}{f_{\text{ref}}}\right)^{\alpha}
-    
     Parameters:
     -----------
     fref : float
@@ -173,7 +172,6 @@ class BrokenPowerLawModel(GWBModel):
             \Omega_{\text{ref}} \left( \frac{f}{f_{\text{ref}}} \right) ^ {\alpha_1}, f \leqslant f_{\text{ref}} \\
             \Omega_{\text{ref}} \left( \frac{f}{f_{\text{ref}}} \right) ^ {\alpha_2}, f > f_{\text{ref}}
         \end{cases}
-    
     Parameters:
     -----------
     omega_ref : float
@@ -314,7 +312,6 @@ class SmoothBrokenPowerLawModel(GWBModel):
     
     .. math:: 
         \Omega(f) = \Omega_{\text{ref}}\left(\frac{f}{f_{\text{ref}}}\right) ^{\alpha_1} \left[1+\left(\frac{f}{f_{\text{ref}}}\right)^{\Delta}\right]^{\frac{\alpha_2-\alpha_1}{\Delta}}
-    
     Parameters:
     -----------
     omega_ref : float
@@ -382,7 +379,6 @@ class SchumannModel(GWBModel):
     
     .. math::
          \Omega(f) = \sum_{ij} \kappa_i \kappa_j \left(\frac{f}{f_{\text{ref}}}\right)^{-\beta_i-\beta_j} M_{ij}(f) \times 10^{-46}
-    
     Parameters:
     -----------
     fref : float
@@ -472,8 +468,7 @@ class TVSPowerLawModel(GWBModel):
         
         \Omega _V = (\gamma _V/\gamma_T)~\Omega _{{\text{ref}},V} \left( \frac{f}{f_{\text{ref}}}\right)^{\alpha _V}
         
-        \Omega _S = (\gamma_S/\gamma_T)~\Omega _{{\text{ref}},S} \left( \frac{f}{f_{\text{ref}}}\right)^{\alpha _S}
-        
+        \Omega _S = (\gamma_S/\gamma_T)~\Omega _{{\text{ref}},S} \left( \frac{f}{f_{\text{ref}}}\right)^{\alpha _S}   
     Parameters:
     -----------
     fref : float
@@ -538,9 +533,7 @@ class PVPowerLawModel(GWBModel):
     The parity violation model can be defined as: 
     
     .. math:: 
-        \Omega(f) = \left(1 + \Pi \frac{\gamma _V}{\gamma _I}\right) \Omega_{\text{ref}} \left( \frac{f}{f_{\text{ref}}} \right)^{\alpha}
-
-    
+        \Omega(f) = \left(1 + \Pi \frac{\gamma _V}{\gamma _I}\right) \Omega_{\text{ref}} \left( \frac{f}{f_{\text{ref}}} \right)^{\alpha}   
     Parameters:
     -----------
     fref : float
@@ -599,7 +592,6 @@ class PVPowerLawModel2(GWBModel):
     
     .. math:: 
          \Omega(f) = \left(1 + f^{\beta} \frac{\gamma_V}{\gamma _I}\right) \Omega_{\text{ref}}\left(\frac{f}{f_{\text{ref}}} \right)^{\alpha}
-    
     Parameters:
     -----------
     fref : float
