@@ -119,11 +119,10 @@ class PowerLawModel(GWBModel):
     
     .. math:: 
         \Omega(f) = \Omega_{\text{ref}} \left(\frac{f}{f_{\text{ref}}}\right)^{\alpha}
-    
     Parameters:
     -----------
     fref : float
-        reference frequency for defining the model (:math:`f_{\text{ref}`)
+        reference frequency for defining the model (:math:`f_{\text{ref}}`)
     omega_ref : float
         amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
     alpha : float
@@ -173,7 +172,6 @@ class BrokenPowerLawModel(GWBModel):
             \Omega_{\text{ref}} \left( \frac{f}{f_{\text{ref}}} \right) ^ {\alpha_1}, f \leqslant f_{\text{ref}} \\
             \Omega_{\text{ref}} \left( \frac{f}{f_{\text{ref}}} \right) ^ {\alpha_2}, f > f_{\text{ref}}
         \end{cases}
-    
     Parameters:
     -----------
     omega_ref : float
@@ -314,17 +312,16 @@ class SmoothBrokenPowerLawModel(GWBModel):
     
     .. math:: 
         \Omega(f) = \Omega_{\text{ref}}\left(\frac{f}{f_{\text{ref}}}\right) ^{\alpha_1} \left[1+\left(\frac{f}{f_{\text{ref}}}\right)^{\Delta}\right]^{\frac{\alpha_2-\alpha_1}{\Delta}}
-    
     Parameters:
     -----------
     omega_ref : float
-        amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
+        amplitude of signal (:math:`\Omega_{\text{ref}}`)
     Delta : float
         smoothing variable for the smooth broken power law (:math:`\Delta`)
     alpha_1 : float
         low-frequency spectral index of the smooth broken power law (:math:`\alpha_1`)
     alpha_2 : float
-       (alpha_2 - alpha_1)/Delta is high-frequency spectral index of the smooth broken power law (:math:`\alpha_2`)
+        high-frequency spectral index of the smooth broken power law (:math:`\alpha_2`)
     fbreak : float
         break frequency for the smooth broken power law (:math:`f_{\text{ref}}`)
     frequencies : numpy.ndarray
@@ -382,15 +379,14 @@ class SchumannModel(GWBModel):
     
     .. math::
          \Omega(f) = \sum_{ij} \kappa_i \kappa_j \left(\frac{f}{f_{\text{ref}}}\right)^{-\beta_i-\beta_j} M_{ij}(f) \times 10^{-46}
-    
     Parameters:
     -----------
     fref : float
         reference frequency for defining the model (:math:`f_{\text{ref}}`)
     kappa_i : float
-        amplitude of coupling function of ifo i at 10 Hz (:math:`\kappa_i`)
+        amplitude of coupling function of interferometer i at 10 Hz (:math:`\kappa_i`)
     beta_i : float
-        spectral index of coupling function of ifo i (:math:`\beta_i`)
+        spectral index of coupling function of interferometer i (:math:`\beta_i`)
     frequencies : numpy.ndarray
         array of frequencies at which to evaluate the model
     """
@@ -472,16 +468,15 @@ class TVSPowerLawModel(GWBModel):
         
         \Omega _V = (\gamma _V/\gamma_T)~\Omega _{{\text{ref}},V} \left( \frac{f}{f_{\text{ref}}}\right)^{\alpha _V}
         
-        \Omega _S = (\gamma_S/\gamma_T)~\Omega _{{\text{ref}},S} \left( \frac{f}{f_{\text{ref}}}\right)^{\alpha _S}
-        
+        \Omega _S = (\gamma_S/\gamma_T)~\Omega _{{\text{ref}},S} \left( \frac{f}{f_{\text{ref}}}\right)^{\alpha _S}   
     Parameters:
     -----------
     fref : float
         reference frequency for defining the model (:math:`f_{\text{ref}}`)
     omega_ref_pol : float
-        amplitude of signal at fref for polarization pol (:math:`\Omega_{{\text{ref}}_{\text{pol}}}
+        amplitude of signal at fref for polarization pol (:math:`\Omega_{\text{ref},\text{pol}}`)
     alpha_pol : float
-        spectral index of the power law for polarization pol (:math:`\alpha_{\text{pol}})
+        spectral index of the power law for polarization pol (:math:`\alpha_{\text{pol}}`)
     frequencies : numpy.ndarray
         array of frequencies at which to evaluate the model
     """
@@ -538,9 +533,7 @@ class PVPowerLawModel(GWBModel):
     The parity violation model can be defined as: 
     
     .. math:: 
-        \Omega(f) = \left(1 + \Pi \frac{\gamma _V}{\gamma _I}\right) \Omega_{\text{ref}} \left( \frac{f}{f_{\text{ref}}} \right)^{\alpha}
-
-    
+        \Omega(f) = \left(1 + \Pi \frac{\gamma _V}{\gamma _I}\right) \Omega_{\text{ref}} \left( \frac{f}{f_{\text{ref}}} \right)^{\alpha}   
     Parameters:
     -----------
     fref : float
@@ -550,7 +543,7 @@ class PVPowerLawModel(GWBModel):
     alpha : float
         spectral index of the power law (:math:`\alpha`)
     Pi : float
-        degree of parity violation (:math:`\pi`)
+        degree of parity violation (:math:`\Pi`)
     frequencies : numpy.ndarray
         array of frequencies at which to evaluate the model
     """
@@ -599,7 +592,6 @@ class PVPowerLawModel2(GWBModel):
     
     .. math:: 
          \Omega(f) = \left(1 + f^{\beta} \frac{\gamma_V}{\gamma _I}\right) \Omega_{\text{ref}}\left(\frac{f}{f_{\text{ref}}} \right)^{\alpha}
-    
     Parameters:
     -----------
     fref : float
