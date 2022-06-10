@@ -474,9 +474,9 @@ class TVSPowerLawModel(GWBModel):
     fref : float
         reference frequency for defining the model (:math:`f_{\text{ref}}`)
     omega_ref_pol : float
-        amplitude of signal at fref for polarization pol (:math:`\Omega_{\text{ref},\text{pol}})
+        amplitude of signal at fref for polarization pol (:math:`\Omega_{\text{ref},\text{pol}}`)
     alpha_pol : float
-        spectral index of the power law for polarization pol (:math:`\alpha_{\text{pol}})
+        spectral index of the power law for polarization pol (:math:`\alpha_{\text{pol}}`)
     frequencies : numpy.ndarray
         array of frequencies at which to evaluate the model
     """
