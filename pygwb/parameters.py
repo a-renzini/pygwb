@@ -96,6 +96,10 @@ class Parameters:
         Whether to whiten when gating. Default is True.
     tag: str
         Hint for the read_data function to retrieve one specific type of data, e.g.: C00, C01
+    return_naive_and_averaged_sigmas: bool
+        option to return naive and sliding sigmas from delta sigma cut
+    window_fftgram_dict: dictionary, optional
+        Dictionary with window characteristics. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`
     """
 
     t0: float = 0
@@ -135,6 +139,7 @@ class Parameters:
     cluster_window: float = 0.5
     gate_whiten: bool = True
     tag: str = "C00"
+    return_naive_and_averaged_sigmas: bool = False
 
     def __post_init__(self):
         if self.coarse_grain:
@@ -326,6 +331,7 @@ class Parameters:
             "alphas_delta_sigma_cut"
         ]
         data_quality_dict["delta_sigma_cut"] = param_dict["delta_sigma_cut"]
+        data_quality_dict["return_naive_and_averaged_sigmas"] = param_dict["return_naive_and_averaged_sigmas"]
         param["data_quality"] = data_quality_dict
 
         output_dict = {}
@@ -386,6 +392,7 @@ class ParametersHelp(enum.Enum):
     cluster_window = "Cluster window. Default is 0.5."
     gate_whiten = "Whether to whiten when gating. Default is True."
     tag = "Hint for the read_data function to retrieve one specific type of data, e.g.: C00, C01"
+    return_naive_and_averaged_sigmas = "option to return naive and sliding sigmas from delta sigma cut. Default value: False"
 
     @property
     def help(self):

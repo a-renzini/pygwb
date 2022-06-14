@@ -9,16 +9,10 @@ from scipy import integrate, special, stats
 from scipy.optimize import curve_fit
 
 from pygwb.baseline import Baseline
-from pygwb.delta_sigma_cut import (
-    WindowFactors,
-    calc_Hf,
-    calc_sens_integrand,
-    calc_sigma_alpha,
-)
 from pygwb.parameters import Parameters
 from pygwb.postprocessing import (
     calc_Y_sigma_from_Yf_sigmaf,
-    calculate_point_estimate_sigma_integrand,
+    calculate_point_estimate_sigma_spectra,
     postprocess_Y_sigma,
 )
 from pygwb.util import StatKS, calc_bias, interpolate_frequency_series
@@ -184,14 +178,15 @@ class StatisticalChecks(object):
 
         sensitivity_integrand = 1.0 / baseline.sigma_spectrum.value ** 2
 
-        Y_fs, var_fs = calculate_point_estimate_sigma_integrand(
-            baseline.frequencies,
-            baseline.average_csd,
-            baseline.interferometer_1.average_psd,
-            baseline.interferometer_2.average_psd,
-            orf.value,
-            params.new_sample_rate,
-            params.segment_duration,
+        Y_fs, var_fs = calculate_point_estimate_sigma_spectra(
+            freqs = baseline.frequencies,
+            csd = baseline.average_csd,
+            avg_psd_1 = baseline.interferometer_1.average_psd,
+            avg_psd_2 = baseline.interferometer_2.average_psd,
+            orf = orf.value,
+            sample_rate = params.new_sample_rate,
+            segment_duration = params.segment_duration,
+            window_fftgram_dict = {"window_fftgram": "hann"},
             fref=params.fref,
             alpha=0,
             weight_spectrogram=False,
@@ -327,14 +322,15 @@ class StatisticalChecks(object):
             orf, PSD_file_data["avg_psd_1"].frequencies.value
         )
 
-        Y_fs, var_fs = calculate_point_estimate_sigma_integrand(
-            PSD_file_data["avg_psd_1"].frequencies.value,
-            PSD_file_data["avg_csd"].value,
-            PSD_file_data["avg_psd_1"].value,
-            PSD_file_data["avg_psd_2"].value,
-            orf_avg.value,
-            params.new_sample_rate,
-            params.segment_duration,
+        Y_fs, var_fs = calculate_point_estimate_sigma_spectra(
+            freqs = PSD_file_data["avg_psd_1"].frequencies.value,
+            csd = PSD_file_data["avg_csd"].value,
+            avg_psd_1 = PSD_file_data["avg_psd_1"].value,
+            avg_psd_2 = PSD_file_data["avg_psd_2"].value,
+            orf = orf_avg.value,
+            sample_rate = params.new_sample_rate,
+            segment_duration = params.segment_duration,
+            window_fftgram_dict = {"window_fftgram": "hann"},
             fref=params.fref,
             alpha=0,
             weight_spectrogram=False,
@@ -451,14 +447,15 @@ class StatisticalChecks(object):
                 [np.any(t == badGPSTimes) for t in sliding_times_all]
             )
 
-            Y_fs, var_fs = calculate_point_estimate_sigma_integrand(
-                freqs,
-                avg_csd,
-                avg_psd_1,
-                avg_psd_2,
-                orf_avg.value,
-                params.new_sample_rate,
-                params.segment_duration,
+            Y_fs, var_fs = calculate_point_estimate_sigma_spectra(
+                freqs = freqs,
+                csd = avg_csd,
+                avg_psd_1 = avg_psd_1,
+                avg_psd_2 = avg_psd_2,
+                orf = orf_avg.value,
+                sample_rate = params.new_sample_rate,
+                segment_duration = params.segment_duration,
+                window_fftgram_dict = {"window_fftgram": "hann"},
                 fref=params.fref,
                 alpha=0,
                 weight_spectrogram=False,
@@ -1415,6 +1412,8 @@ def calc_naive_sigma(
     segment_duration,
     sampling_frequency,
     alpha,
+    fref: np.int = 25,
+    window_fftgram_dict: dict = {"window_fftgram": "hann"}, 
 ):
     """
     Function to compute the naive sigma starting from the naive power spectral density (PSD) of two interferometers.
@@ -1444,18 +1443,24 @@ def calc_naive_sigma(
         Naive sigma
 
     """
-    Hf = calc_Hf(freqs, alpha)
+    Hf = (freqs / fref) ** alpha
     deltaT = 1.0 / sampling_frequency
 
     window1 = np.hanning(segment_duration * sampling_frequency)
     window2 = window1
 
-    naive_sensitivity_integrand_with_Hf = (
-        calc_sens_integrand(
-            freqs, psd1_naive, psd2_naive, window1, window2, deltaF, orf, T=deltaT
-        )
-        / Hf ** 2
+    naive_sensitivity_integrand_with_Hf = calculate_point_estimate_sigma_spectra(
+        freqs=freqs,
+        avg_psd_1=psd1_naive,
+        avg_psd_2=psd2_naive,
+        orf=orf,
+        sample_rate=sampling_frequency,
+        window_fftgram_dict=window_fftgram_dict,
+        segment_duration=segment_duration,
+        csd = None,
+        fref=1,
+        alpha=0,
     )
 
-    naive_sigma_alpha = calc_sigma_alpha(naive_sensitivity_integrand_with_Hf)
+    naive_sigma_alpha = np.sqrt(1 / np.sum(naive_sensitivity_integrand_with_Hf))
     return naive_sigma_alpha

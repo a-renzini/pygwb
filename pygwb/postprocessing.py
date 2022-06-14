@@ -10,12 +10,12 @@ from pygwb.constants import H0
 from .util import calc_bias, window_factors
 
 
-def postprocess_Y_sigma(Y_fs, var_fs, segment_duration, deltaF, new_sample_rate):
+def postprocess_Y_sigma(Y_fs, var_fs, segment_duration, deltaF, new_sample_rate, window_fftgram_dict={"window_fftgram": "hann"}):
     """Run postprocessing of point estimate and sigma spectrograms, combining even and
     odd segments. For more details see -"""
     size = np.size(Y_fs, axis=0)
     _, w1w2squaredbar, _, w1w2squaredovlbar = window_factors(
-        segment_duration * new_sample_rate
+        int(segment_duration * new_sample_rate), window_fftgram_dict
     )
     k = w1w2squaredovlbar / w1w2squaredbar
 
@@ -49,7 +49,7 @@ def postprocess_Y_sigma(Y_fs, var_fs, segment_duration, deltaF, new_sample_rate)
         - k
         * (GAMMA_odd + GAMMA_even - (1 / 2) * (1 / var_fs[0, :] + 1 / var_fs[-1, :]))
     ) / (1 - (k ** 2 / 4) * sigma2_oo * sigma2_ee * sigma2IJ ** 2)
-    bias = calc_bias(segment_duration, deltaF, 1 / new_sample_rate, N_avg_segs=2)
+    bias = calc_bias(segment_duration, deltaF, 1 / new_sample_rate, N_avg_segs=2, window_fftgram_dict=window_fftgram_dict)
     logger.debug(f"Bias factor: {bias}")
     var_f_new = (1 / inv_var_f_new) * bias ** 2
 
@@ -106,7 +106,7 @@ def calc_Y_sigma_from_Yf_sigmaf(
     return Y, sigma
 
 
-def calculate_point_estimate_sigma_spectrogram(
+def calculate_point_estimate_sigma_spectra(
     freqs,
     csd,
     avg_psd_1,
@@ -114,64 +114,9 @@ def calculate_point_estimate_sigma_spectrogram(
     orf,
     sample_rate,
     segment_duration,
-    fref=1,
-    alpha=0,
-):
-    """
-    Calculate the Omega point estimate and associated sigma spectrograms,
-    given a set of cross-spectral and power-spectral density spectrograms.
-
-    Parameters
-    ==========
-    freqs: array_like
-        Frequencies associated to the spectrograms.
-    csd: gwpy Spectrogram
-        CSD spectrogram for detectors 1 and 2.
-    avg_psd_1: gwpy Spectrogram
-        Spectrogram of averaged PSDs for detector 1.
-    avg_psd_2: gwpy Spectrogram
-        Spectrogram of averaged PSDs for detector 2.
-    orf: array_like
-        Overlap reduction function.
-    sample_rate: float
-        Sampling rate of the data.
-    segment_duration: float
-        Duration of each segment in seconds.
-    fref: float, optional
-        Reference frequency to use in the weighting calculation.
-        Final result refers to this frequency.
-    alpha: float, optional
-        Spectral index to use in the weighting.
-    weight_spectrogram: bool, optional
-        Flag to apply spectral weighting, True by default.
-    """
-    S_alpha = 3 * H0.si.value ** 2 / (10 * np.pi ** 2) / freqs ** 3
-    S_alpha *= (freqs / fref) ** alpha
-    Y_fs = np.real(csd) / (orf * S_alpha)
-    var_fs = (
-        1
-        / (2 * segment_duration * (freqs[1] - freqs[0]))
-        * avg_psd_1
-        * avg_psd_2
-        / (orf ** 2 * S_alpha ** 2)
-    )
-
-    w1w2bar, w1w2squaredbar, _, _ = window_factors(sample_rate * segment_duration)
-
-    var_fs = var_fs * w1w2squaredbar / w1w2bar ** 2
-    return Y_fs, var_fs
-
-
-def calculate_point_estimate_sigma_integrand(
-    freqs,
-    csd,
-    avg_psd_1,
-    avg_psd_2,
-    orf,
-    sample_rate,
-    segment_duration,
-    fref=1,
-    alpha=0,
+    window_fftgram_dict={"window_fftgram": "hann"},
+    fref=25.0,
+    alpha=0.0,
 ):
     """
     Calculate the Omega point estimate and associated sigma integrand,
@@ -194,6 +139,8 @@ def calculate_point_estimate_sigma_integrand(
         Sampling rate of the data.
     segment_duration: float
         Duration of each segment in seconds.
+    window_fftgram_dict: dictionary, optional
+        Dictionary with window characteristics. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`
     fref: float, optional
         Reference frequency to use in the weighting calculation.
         Final result refers to this frequency.
@@ -204,19 +151,33 @@ def calculate_point_estimate_sigma_integrand(
     """
     S_alpha = 3 * H0.si.value ** 2 / (10 * np.pi ** 2) / freqs ** 3
     S_alpha *= (freqs / fref) ** alpha
-    Y_fs = csd / (orf * S_alpha)
-    var_fs = (
-        1
-        / (2 * segment_duration * (freqs[1] - freqs[0]))
-        * avg_psd_1
-        * avg_psd_2
-        / (orf ** 2 * S_alpha ** 2)
-    )
+    if csd==None:
+        var_fs = (
+            1
+            / (2 * segment_duration * (freqs[1] - freqs[0]))
+            * avg_psd_1
+            * avg_psd_2
+            / (orf ** 2 * S_alpha ** 2)
+        )
 
-    w1w2bar, w1w2squaredbar, _, _ = window_factors(sample_rate * segment_duration)
+        w1w2bar, w1w2squaredbar, _, _ = window_factors(int(sample_rate * segment_duration), window_fftgram_dict=window_fftgram_dict)
 
-    var_fs = var_fs * w1w2squaredbar / w1w2bar ** 2
-    return Y_fs, var_fs
+        var_fs = var_fs * w1w2squaredbar / w1w2bar ** 2
+        return var_fs
+    else: 
+        Y_fs = np.real(csd) / (orf * S_alpha)
+        var_fs = (
+            1
+            / (2 * segment_duration * (freqs[1] - freqs[0]))
+            * avg_psd_1
+            * avg_psd_2
+            / (orf ** 2 * S_alpha ** 2)
+        )
+
+        w1w2bar, w1w2squaredbar, _, _ = window_factors(int(sample_rate * segment_duration), window_fftgram_dict=window_fftgram_dict)
+
+        var_fs = var_fs * w1w2squaredbar / w1w2bar ** 2
+        return Y_fs, var_fs
 
 
 def combine_spectra_with_sigma_weights(main_spectra, weights_spectra):
