@@ -119,14 +119,19 @@ def main():
         raise ValueError("Frequency resolution in PSD/CSD is different than requested.")
 
     base_12.calculate_delta_sigma_cut(
-        params.delta_sigma_cut,
-        params.alphas_delta_sigma_cut,
+        delta_sigma_cut = params.delta_sigma_cut,
+        alphas = params.alphas_delta_sigma_cut,
+        sample_rate = params.new_sample_rate,
+        fref = params.fref,
         flow=params.flow,
         fhigh=params.fhigh,
     )
 
     logger.info(
         f"times flagged by the delta sigma cut as badGPStimes:{base_12.badGPStimes}"
+    )
+    logger.info(
+        f"values of the delta sigma cut:{base_12.delta_sigmas}"
     )
 
     if pipe_calculate_point_estimate:

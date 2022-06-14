@@ -1,4 +1,5 @@
 import pickle
+import warnings
 
 import numpy as np
 from astropy.io import registry as io_registry
@@ -148,7 +149,7 @@ class OmegaSpectrogram(Spectrogram):
             New h0 to set the spectrum at.
         """
         if (new_h0 < 0.5) or (new_h0 > 1.0):
-            raise ValueError("h0 must be between 0.5 and 1.")
+            warnings.warn(f"h0 should be between 0.5 and 1. The selected value of {new_h0} does not fall within this range.")
         new_spectrum = self.value * (self.h0 / new_h0) ** 2
         self.value[:] = new_spectrum
         self._h0 = new_h0

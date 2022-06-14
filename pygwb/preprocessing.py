@@ -207,7 +207,7 @@ def resample_filter(
         Timeseries containing the filtered and high passed data
     """
     if new_sample_rate % 2 != 0:
-        raise ValueError("New sample rate is not even.")
+        raise Warning("New sample rate is not even.")
     resampled = time_series_data.resample(new_sample_rate, window_downsampling, ftype)
     sample_rate = resampled.sample_rate.value
     filtered = apply_high_pass_filter(
