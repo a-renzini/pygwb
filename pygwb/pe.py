@@ -2,6 +2,7 @@ from abc import abstractmethod
 
 import bilby
 import numpy as np
+from scipy.special import erf
 
 from .baseline import Baseline
 
@@ -39,7 +40,7 @@ class GWBModel(bilby.Likelihood):
             self.polarizations = ["tensor" for ii in range(len(baselines))]
         for bline in self.baselines:
             if self.polarizations[0].lower() == "tensor":
-                self.orfs.append(bline.overlap_reduction_function)
+                self.orfs.append(bline.tensor_overlap_reduction_function)
             elif self.polarizations[0].lower() == "vector":
                 self.orfs.append(bline.vector_overlap_reduction_function)
             elif self.polarizations[0].lower() == "scalar":
