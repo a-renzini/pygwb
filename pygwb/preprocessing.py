@@ -1,5 +1,6 @@
 import lal
 import numpy as np
+import scipy
 from gwpy import signal, timeseries
 
 
@@ -156,10 +157,8 @@ def apply_high_pass_filter(
     filtered: Timeseries
         High-pass filtered timeseries
     """
-    hp = signal.filter_design.highpass(
-        cutoff_frequency, sample_rate, fstop=6.0, gpass=0.01, gstop=60.0, type="iir"
-    )
-    filtered = timeseries.filter(hp, filtfilt=True)
+    zpk = scipy.signal.butter(16, cutoff_frequency, 'high', analog=False, output='zpk', fs=sample_rate)
+    filtered = timeseries.filter(zpk, filtfilt=True)
     filtered = filtered.crop(*filtered.span.contract(number_cropped_seconds))
     return filtered
 
