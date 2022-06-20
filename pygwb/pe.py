@@ -71,8 +71,8 @@ class GWBModel(bilby.Likelihood):
         # simple likelihood without calibration uncertainty
         if baseline.calibration_epsilon == 0:
             logL_IJ = -0.5 * (
-                np.sum((baseline.point_estimate_spectrum - Y_model_f) ** 2 / baseline.sigma_spectrum)
-                + np.sum(np.log(2 * np.pi * baseline.sigma_spectrum))
+                np.sum((baseline.point_estimate_spectrum - Y_model_f) ** 2 / baseline.sigma_spectrum ** 2)
+                + np.sum(np.log(2 * np.pi * baseline.sigma_spectrum ** 2))
             )
 
         # likelihood with calibration uncertainty marginalizatione done analytically
@@ -80,15 +80,15 @@ class GWBModel(bilby.Likelihood):
         # note \cal{N} = \Prod_j sqrt(2*pi*sigma_j^2)
         else:
             A = baseline.calibration_epsilon ** (-2) + np.sum(
-                Y_model_f ** 2 / baseline.sigma_spectrum
+                Y_model_f ** 2 / baseline.sigma_spectrum ** 2
             )
             B = baseline.calibration_epsilon ** (-2) + np.sum(
-                Y_model_f * baseline.point_estimate_spectrum / baseline.sigma_spectrum
+                Y_model_f * baseline.point_estimate_spectrum / baseline.sigma_spectrum ** 2
             )
             C = baseline.calibration_epsilon ** (-2) + np.sum(
-                baseline.point_estimate_spectrum ** 2 / baseline.sigma_spectrum
+                baseline.point_estimate_spectrum ** 2 / baseline.sigma_spectrum ** 2
             )
-            log_norm = -0.5 * np.sum(np.log(2 * np.pi * baseline.sigma_spectrum))
+            log_norm = -0.5 * np.sum(np.log(2 * np.pi * baseline.sigma_spectrum ** 2))
 
             logL_IJ = (
                 log_norm
