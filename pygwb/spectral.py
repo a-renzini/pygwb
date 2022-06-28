@@ -120,8 +120,9 @@ def pwelch_psd(
         job_duration = (psdgram.xindex.value[-1] +
                         1/psdgram.dy.value - psdgram.xindex.value[0])
         # possible number of (overlapping) segments
-        n_segments = round(((job_duration / segment_duration) - 1) / 
-                           (1-overlap_factor) + 1)
+        stride = segment_duration*(1-overlap_factor)
+        n_segments = int((job_duration - overlap_factor* segment_duration)/
+                         stride)
         
         avg_psds = []        
         segments_start_times = np.zeros(n_segments)
@@ -134,11 +135,11 @@ def pwelch_psd(
             avg_psds.append(psdgram[seg_indices].mean(axis=0))
             segments_start_times[ii] = start_time
             # move to next (overlapping) segment
-            start_time = start_time + segment_duration * (1 - overlap_factor)
+            start_time = start_time + stride
 
         avg_psdgram = Spectrogram.from_spectra(*avg_psds, 
                              epoch=segments_start_times[0], 
-                             dt=segments_start_times[1]-segments_start_times[0])
+                             dt=stride)
 
     return np.real(avg_psdgram)
 
