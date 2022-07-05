@@ -280,15 +280,13 @@ class TestBaseline(unittest.TestCase):
         ifo_2 = copy.deepcopy(pickled_ifo_2)
         ifo_1.psd_spectrogram = None
         ifo_2.psd_spectrogram = None
-        pickled_ifo_1.average_psd = None
-        pickled_ifo_2.average_psd = None
-        base = baseline.Baseline.load_from_pickle(
-            "test/test_data/H1L1_1247644138-1247645038.pickle"
-        )
+        ifo_1.average_psd = None
+        ifo_2.average_psd = None
         frequency_resolution = PSD_1_test.df.value
 
         base = baseline.Baseline.from_interferometers([ifo_1, ifo_2])
         base.set_cross_and_power_spectral_density(frequency_resolution)
+        base.set_average_power_spectral_densities()
         base.set_average_cross_spectral_density()
         base.crop_frequencies_average_psd_csd(
             pickled_base.frequencies[0], pickled_base.frequencies[-1]

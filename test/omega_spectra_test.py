@@ -8,6 +8,7 @@ import gwpy.testing.utils
 import numpy as np
 from gwpy.frequencyseries import FrequencySeries
 from gwpy.spectrogram import Spectrogram
+from numpy.testing import assert_allclose, assert_array_equal
 
 from pygwb.omega_spectra import (
     OmegaSpectrogram,
@@ -203,7 +204,12 @@ class TestOmegaSpectrogram(unittest.TestCase):
             tmp = Path(tmpdir) / "test.hdf5"
             self.omega_spectrogram.write(tmp)
             new = OmegaSpectrogram.read(tmp)
-            gwpy.testing.utils.assert_quantity_sub_equal(new, self.omega_spectrogram)
+            # Due to numerical precision the yindex comparison is failing and
+            # there seems no way to pass almost equal option for this
+            # attributes (attributes in general), so that attribute is 
+            # compared separately with almost equal option
+            gwpy.testing.utils.assert_quantity_sub_equal(new, self.omega_spectrogram, exclude=['yindex',])
+            assert_allclose(new.yindex, self.omega_spectrogram.yindex)
 
     def test_save_to_pickle(self):
         self.omega_spectrogram.save_to_pickle("omega_spectrogram_test.pickle")
