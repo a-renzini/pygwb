@@ -1,0 +1,148 @@
+#!/bin/env python
+
+import argparse
+import numpy as np
+import matplotlib.pyplot as plt
+import sys
+import json
+
+module_path_2 = '/home/max.lalleman/public_html/Code/New_Clone_pyGWB/pygwb'
+sys.path.insert(0,module_path_2)
+
+import bilby
+from scipy.io import loadmat
+#from pygwb.pe import *
+from pygwb.baseline import Baseline
+from pygwb.detector import Interferometer
+import pygwb.pe_test4 as pe_test
+import bilby.gw.detector as bilbydet
+
+
+plt.rcParams["figure.figsize"] = (12,8)
+
+def load_npz(fname_path):
+    data = np.load(fname_path)
+    ptEst_ff = np.real(data["Y_f"])
+    sigma_ff = data["sig_f"]
+    freqs = data["frequencies"]
+    goodInds = np.logical_and(np.invert(np.isnan(ptEst_ff)), ptEst_ff!=0, sigma_ff!=0)
+    freqs = freqs[goodInds]
+    Y_f = ptEst_ff[goodInds]
+    sigma_f = sigma_ff[goodInds]
+    return (freqs,Y_f,sigma_f)
+   
+    
+def main():
+    pe_parser = argparse.ArgumentParser(add_help=True)
+    pe_parser.add_argument(
+        "--path_to_file", help="Path to data file to use for analysis.", action="store", type=str, required=True
+    )
+    pe_parser.add_argument(
+        "--Model", help="Model for which to run the PE. \n Default is \"Power-law\". ", action="store", type=str, required=False, default = "Power-Law"
+    )
+    pe_parser.add_argument(
+        "--Model_Parameters_Dictionary_Priors", help="The required parameters for the model and their priors. \n Default value is power-law parameters omega_ref with LogUniform bilby prior from 1e-11 to 1e-8 and alpha with Uniform bilby prior from -4 to 4.", type=str, action="store", required=False, default = "None"
+    )
+    pe_parser.add_argument(
+        "--Non_Prior_Arguments", help="A dictionary with the parameters of the model that are not associated with a prior, such as the reference frequency for Power-Law. Default value is reference frequency at 25 Hz for the power-law model.", type=str, action="store", required=False, default="None"
+    )
+    pe_parser.add_argument(
+        "--output_dir", help="Output directory of the PE (sampler). Default: ./PE_Output.", type=str, action="store", required=False, default='./PE_Output'
+    )
+    pe_parser.add_argument(
+        "--injection_parameters", help="The injected parameters.", required= False, default="None", type=str, action="store"
+    )
+    
+    script_args = pe_parser.parse_known_args()[0]
+    
+    dictionary_Models = {"Power-Law": pe_test.PowerLawModel, 
+                         "Broken-Power-Law": pe_test.BrokenPowerLawModel,
+                         "Triple-Broken-Power-Law": pe_test.TripleBrokenPowerLawModel,
+                         "Smooth-Broken-Power-Law": pe_test.SmoothBrokenPowerLawModel,
+                         "Schumann": pe_test.SchumannModel,
+                         "Parity-Violation": pe_test.PVPowerLawModel,
+                         "Parity-Violation-2": pe_test.PVPowerLawModel2} #"TVS-Power-Law": pe_test.TVSPowerLawModel
+                         
+    dictionary_parameters = {"Power-Law": ["omega_ref","alpha", "fref"],
+                             "Broken-Power-Law": ["omega_ref", "fbreak", "alpha_1", "alpha_2"],
+                             "Triple-Broken-Power-Law": ["omega_ref", "alpha_1", "alpha_2", "alpha_3", "fbreak1", "fbreak2"],
+                             "Smooth-Broken-Power-Law": ["omega_ref", "fbreak", "alpha_1", "alpha_2", "delta"],
+                             "Schumann": ["kappa_H1", "kappa_L1", "beta_L1", "beta_H1"],
+                             "Parity-Violation": ["omega_ref", "alpha", "Pi"],
+                             "Parity-Violation-2": ["omega_ref", "alpha", "beta"]}
+    
+    if script_args.Model not in dictionary_Models.keys():
+        raise ValueError(
+            "The model you provided is not supported."
+        )
+    else:
+        class_model = dictionary_Models[script_args.Model]
+        
+    if script_args.Model_Parameters_Dictionary_Priors == 'None': 
+        dict_loaded = {"omega_ref":bilby.core.prior.LogUniform(1e-11,1e-8,"$\Omega_{ref}$"),"alpha":bilby.core.prior.Uniform(-4,4,"$\\alpha$")}
+    else:
+        dict_loaded = json.loads(script_args.Model_Parameters_Dictionary_Priors)
+        
+    if script_args.Non_Prior_Arguments == 'None':
+        extra_kwargs = {"fref": 25}
+    else:
+        extra_kwargs = script_args.Non_Prior_Arguments
+    
+    all_parameters_dict = dict_loaded.copy()
+    all_parameters_dict.update(extra_kwargs)
+    
+    for key in all_parameters_dict.keys():
+        if not key in dictionary_parameters[script_args.Model]:
+            raise AttributeError(
+                f"The parameter {key} you provided is not assiocated with the given model. \n These are the required parameters: {dictionary_parameters[script_args.Model]}."
+            )
+      
+    if not all(key in all_parameters_dict.keys() for key in dictionary_parameters[script_args.Model]):
+        raise ValueError(
+            f"Not all required parameters of the model are present in de parameters dictionary. \n These are the required parameters: {dictionary_parameters[script_args.Model]}."
+        )
+    
+    frequencies, point_estimate_spectrum, sigma_spectrum = load_npz(script_args.path_to_file)
+    
+    var_spectrum = sigma_spectrum**2
+    
+    point_estimates = [point_estimate_spectrum]
+    sigmas = [sigma_spectrum]
+    H1 = Interferometer.get_empty_interferometer('H1')
+    L1 = Interferometer.get_empty_interferometer('L1')
+    
+    HL = Baseline.from_interferometers([H1, L1])
+    
+    if not HL._orf_polarization_set:
+        HL.orf_polarization = "tensor" # script._args.polarization
+    
+    HL.frequencies = frequencies
+
+    HL.point_estimate_spectrum = point_estimate_spectrum
+    HL.sigma_spectrum = sigma_spectrum
+    
+    kwargs = {"baselines":[HL], "model_name":script_args.Model} #, "fref":script_args.fref}
+    kwargs.update(extra_kwargs)
+    model = class_model(**kwargs)
+    priors = dict_loaded
+    print(priors)
+    if script_args.injection_parameters == "None":
+        injection_parameters = dict(omega_ref=10**(-8.67985), alpha=2/3)
+    else:
+        injection_parameters = script_args.injection_parameters
+    
+    range_list = [(0,0) for i in range(len(priors))]
+    for index,key in enumerate(priors.keys()):
+        minimum_range = priors[key].minimum
+        maximum_range = priors[key].maximum
+        tuple_range = (minimum_range, maximum_range)
+        range_list[index] = tuple_range
+    
+    hlv=bilby.run_sampler(likelihood=model,priors=priors,sampler='dynesty', npoints=1000, walks=10, maxmcmc=10000, 
+    outdir=script_args.output_dir,label= 'hlv', injection_parameters = injection_parameters) #walks=10, maxmcmc = 10000, npoints= 1000
+
+    hlv.plot_corner(show_titles=True, title_fmt='.3g', use_math_text=True, quantiles=[0.05, 0.95], range=range_list)
+    
+
+if __name__ == "__main__":
+    main()
