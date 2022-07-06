@@ -2,7 +2,6 @@
 
 import argparse
 import numpy as np
-import matplotlib.pyplot as plt
 import sys
 import json
 
@@ -10,15 +9,10 @@ module_path_2 = '/home/max.lalleman/public_html/Code/New_Clone_pyGWB/pygwb'
 sys.path.insert(0,module_path_2)
 
 import bilby
-from scipy.io import loadmat
 #from pygwb.pe import *
 from pygwb.baseline import Baseline
 from pygwb.detector import Interferometer
 import pygwb.pe_test4 as pe_test
-import bilby.gw.detector as bilbydet
-
-
-plt.rcParams["figure.figsize"] = (12,8)
 
 def load_npz(fname_path):
     data = np.load(fname_path)
