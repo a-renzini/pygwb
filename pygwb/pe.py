@@ -2,6 +2,7 @@ from abc import abstractmethod
 
 import bilby
 import numpy as np
+from scipy.special import erf
 
 from .baseline import Baseline
 
@@ -39,7 +40,7 @@ class GWBModel(bilby.Likelihood):
             self.polarizations = ["tensor" for ii in range(len(baselines))]
         for bline in self.baselines:
             if self.polarizations[0].lower() == "tensor":
-                self.orfs.append(bline.overlap_reduction_function)
+                self.orfs.append(bline.tensor_overlap_reduction_function)
             elif self.polarizations[0].lower() == "vector":
                 self.orfs.append(bline.vector_overlap_reduction_function)
             elif self.polarizations[0].lower() == "scalar":
@@ -65,13 +66,13 @@ class GWBModel(bilby.Likelihood):
         if noise:
             Y_model_f = 0
         else:
-            Y_model_f = self.OmegaGW(baseline.freqs)
+            Y_model_f = self.model_function(baseline)
 
         # simple likelihood without calibration uncertainty
         if baseline.calibration_epsilon == 0:
             logL_IJ = -0.5 * (
-                np.sum((baseline.point_estimate - Y_model_f) ** 2 / baseline.sigma)
-                + np.sum(np.log(2 * np.pi * baseline.sigma))
+                np.sum((baseline.point_estimate_spectrum - Y_model_f) ** 2 / baseline.sigma_spectrum ** 2)
+                + np.sum(np.log(2 * np.pi * baseline.sigma_spectrum ** 2))
             )
 
         # likelihood with calibration uncertainty marginalizatione done analytically
@@ -79,15 +80,15 @@ class GWBModel(bilby.Likelihood):
         # note \cal{N} = \Prod_j sqrt(2*pi*sigma_j^2)
         else:
             A = baseline.calibration_epsilon ** (-2) + np.sum(
-                Y_model_f ** 2 / baseline.sigma
+                Y_model_f ** 2 / baseline.sigma_spectrum ** 2
             )
             B = baseline.calibration_epsilon ** (-2) + np.sum(
-                Y_model_f * baseline.point_estimate / baseline.sigma
+                Y_model_f * baseline.point_estimate_spectrum / baseline.sigma_spectrum ** 2
             )
             C = baseline.calibration_epsilon ** (-2) + np.sum(
-                baseline.point_estimate ** 2 / baseline.sigma
+                baseline.point_estimate_spectrum ** 2 / baseline.sigma_spectrum ** 2
             )
-            log_norm = -0.5 * np.sum(np.log(2 * np.pi * baseline.sigma))
+            log_norm = -0.5 * np.sum(np.log(2 * np.pi * baseline.sigma_spectrum ** 2))
 
             logL_IJ = (
                 log_norm
