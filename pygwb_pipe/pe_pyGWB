@@ -86,7 +86,7 @@ def main():
     if script_args.Non_Prior_Arguments == 'None':
         extra_kwargs = {"fref": 25}
     else:
-        extra_kwargs = script_args.Non_Prior_Arguments
+        extra_kwargs = json.loads(script_args.Non_Prior_Arguments)
     
     all_parameters_dict = dict_loaded.copy()
     all_parameters_dict.update(extra_kwargs)
@@ -123,13 +123,14 @@ def main():
     
     kwargs = {"baselines":[HL], "model_name":script_args.Model} #, "fref":script_args.fref}
     kwargs.update(extra_kwargs)
+    print(kwargs)
     model = class_model(**kwargs)
+    print(model.fref)
     priors = dict_loaded
-    print(priors)
     if script_args.injection_parameters == "None":
         injection_parameters = dict(omega_ref=10**(-8.67985), alpha=2/3)
     else:
-        injection_parameters = script_args.injection_parameters
+        injection_parameters = json.loads(script_args.injection_parameters)
     
     range_list = [(0,0) for i in range(len(priors))]
     for index,key in enumerate(priors.keys()):
