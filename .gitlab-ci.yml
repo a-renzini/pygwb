@@ -92,7 +92,9 @@ python-3.8:
     - coverage xml
   artifacts:
     reports:
-      cobertura: coverage.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
     paths:
       - htmlcov/
     expire_in: 30 days

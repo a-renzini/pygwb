@@ -202,5 +202,7 @@ nbsphinx_execute_arguments = [
     "--InlineBackend.rc={'figure.dpi': 96}",
 ]
 
+nbsphinx_allow_errors = True
+
 # nbsphinx options
 # nbsphinx_execute = "always"

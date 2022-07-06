@@ -1,3 +1,4 @@
+import copy
 import os
 import tempfile
 import unittest
@@ -7,6 +8,7 @@ import gwpy.testing.utils
 import numpy as np
 from gwpy.frequencyseries import FrequencySeries
 from gwpy.spectrogram import Spectrogram
+from numpy.testing import assert_allclose, assert_array_equal
 
 from pygwb.omega_spectra import (
     OmegaSpectrogram,
@@ -130,6 +132,12 @@ class TestOmegaSpectrum(unittest.TestCase):
     def test_h0_property(self):
         self.assertEqual(self.omega_spectrum.h0, self.h0)
 
+    def test_reset_h0(self):
+        new_h0 = 0.7
+        omega_spec_reset = copy.copy(self.omega_spectrum)
+        omega_spec_reset.reset_h0(new_h0=new_h0)
+        self.assertEqual(omega_spec_reset.value[0]/self.omega_spectrum.value[0], (self.h0/new_h0)**2)
+
     def test_read_write(self):
         self.omega_spectrum.name = "test_omega_spectrum"
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -183,13 +191,25 @@ class TestOmegaSpectrogram(unittest.TestCase):
     def test_h0_property(self):
         self.assertEqual(self.omega_spectrogram.h0, self.h0)
 
+    def test_reset_h0(self):
+        new_h0 = 0.7
+        omega_spec_reset = copy.copy(self.omega_spectrogram)
+        omega_spec_reset.reset_h0(new_h0=new_h0)
+        self.assertEqual(omega_spec_reset.value[0,0]/self.omega_spectrogram.value[0,0], (self.h0/new_h0)**2)
+
+
     def test_read_write(self):
         self.omega_spectrogram.name = "test_omega_spectrogram"
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir) / "test.hdf5"
             self.omega_spectrogram.write(tmp)
             new = OmegaSpectrogram.read(tmp)
-            gwpy.testing.utils.assert_quantity_sub_equal(new, self.omega_spectrogram)
+            # Due to numerical precision the yindex comparison is failing and
+            # there seems no way to pass almost equal option for this
+            # attributes (attributes in general), so that attribute is 
+            # compared separately with almost equal option
+            gwpy.testing.utils.assert_quantity_sub_equal(new, self.omega_spectrogram, exclude=['yindex',])
+            assert_allclose(new.yindex, self.omega_spectrogram.yindex)
 
     def test_save_to_pickle(self):
         self.omega_spectrogram.save_to_pickle("omega_spectrogram_test.pickle")

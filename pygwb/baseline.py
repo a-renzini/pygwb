@@ -14,7 +14,7 @@ from .notch import StochNotchList
 from .orfs import calc_orf
 from .postprocessing import (
     calc_Y_sigma_from_Yf_sigmaf,
-    calculate_point_estimate_sigma_spectrogram,
+    calculate_point_estimate_sigma_spectra,
     postprocess_Y_sigma,
 )
 from .spectral import coarse_grain_spectrogram, cross_spectral_density
@@ -644,7 +644,7 @@ class Baseline(object):
         with open(filename, "rb") as f:
             return pickle.load(f)
 
-    def save_to_pickle(self, filename):
+    def save_to_pickle(self, filename, wipe=True):
         """
         Save baseline object to pickle file.
 
@@ -653,6 +653,9 @@ class Baseline(object):
         filename: str
             Filename (inclusive of path) to save the pickled baseline to.
         """
+        if wipe == True:
+            self.interferometer_1.timeseries = None
+            self.interferometer_2.timeseries = None
         with open(filename, "wb") as f:
             pickle.dump(self, f)
 
@@ -808,14 +811,15 @@ class Baseline(object):
             self.orf_polarization = polarization
 
         # don't get rid of information unless we need to.
-        Y_fs, var_fs = calculate_point_estimate_sigma_spectrogram(
-            self.frequencies,
-            self.average_csd,
-            self.interferometer_1.average_psd,
-            self.interferometer_2.average_psd,
-            self.overlap_reduction_function,
-            self.sampling_frequency,
-            self.duration,
+        Y_fs, var_fs = calculate_point_estimate_sigma_spectra(
+            freqs = self.frequencies,
+            csd = self.average_csd,
+            avg_psd_1 = self.interferometer_1.average_psd,
+            avg_psd_2 = self.interferometer_2.average_psd,
+            orf = self.overlap_reduction_function,
+            sample_rate = self.sampling_frequency,
+            segment_duration = self.duration,
+            window_fftgram_dict = {"window_fftgram": "hann"},
             fref=fref,
             alpha=alpha,
         )
@@ -1048,10 +1052,14 @@ class Baseline(object):
         self,
         delta_sigma_cut,
         alphas,
+        sample_rate,
+        fref,
         flow=20,
         fhigh=1726,
         notch_list_path="",
         polarization="tensor",
+        window_fftgram_dict: dict = {"window_fftgram": "hann"},
+        return_naive_and_averaged_sigmas: np.bool = False,
     ):
         """
         Calculate the delta sigma cut using the naive and average psds, if set in the baseline.
@@ -1068,6 +1076,14 @@ class Baseline(object):
             high frequency. Default is 1726 Hz.
         notch_list_path: str, optional
             file path of the baseline notch list
+        sample_rate: np.int
+            sampling rate (Hz)
+        fref: int 
+            reference frequency (Hz)
+        return_naive_and_averaged_sigmas: bool
+            option to return naive and sliding sigmas
+        window_fftgram_dict: dictionary, optional
+            Dictionary with window characteristics. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`
         """
         if not notch_list_path:
             notch_list_path = self.notch_list_path
@@ -1089,19 +1105,24 @@ class Baseline(object):
         naive_psd_2_cropped = naive_psd_2.crop_frequencies(flow, fhigh + deltaF)
 
         badGPStimes, delta_sigmas = run_dsc(
-            delta_sigma_cut,
-            self.duration,
-            self.sampling_frequency,
-            naive_psd_1_cropped,
-            naive_psd_2_cropped,
-            self.interferometer_1.average_psd,
-            self.interferometer_2.average_psd,
-            alphas,
-            self.overlap_reduction_function,
+            dsc = delta_sigma_cut,
+            segment_duration = self.duration,
+            sampling_frequency = self.sampling_frequency,
+            psd1_naive = naive_psd_1_cropped,
+            psd2_naive = naive_psd_2_cropped,
+            psd1_slide = self.interferometer_1.average_psd,
+            psd2_slide = self.interferometer_2.average_psd,
+            alphas = alphas,
+            sample_rate = sample_rate,
+            orf = self.overlap_reduction_function,
+            fref = fref,
             notch_list_path=notch_list_path,
+            window_fftgram_dict = window_fftgram_dict,
+            return_naive_and_averaged_sigmas = return_naive_and_averaged_sigmas,
         )
         self.badGPStimes = badGPStimes
         self.delta_sigmas = delta_sigmas
+
 
     def save_point_estimate_spectra(
         self,
@@ -1232,7 +1253,9 @@ class Baseline(object):
             point_estimate_spectrogram=point_estimate_spectrogram,
             sigma_spectrogram=sigma_spectrogram,
             badGPStimes=badGPStimes,
-            delta_sigmas=delta_sigmas,
+            delta_sigma_alphas=delta_sigmas['alphas'],
+            delta_sigma_times=delta_sigmas['times'],
+            delta_sigma_values=delta_sigmas['values'],
         )
 
     def _pickle_save(
@@ -1257,7 +1280,7 @@ class Baseline(object):
             "point_estimate_spectrogram": point_estimate_spectrogram,
             "sigma_spectrogram": sigma_spectrogram,
             "badGPStimes": badGPStimes,
-            "delta_sigmas": delta_sigmas,
+            "delta_sigmas": list(delta_sigmas.items()),
         }
 
         with open(filename, "wb") as f:
@@ -1287,7 +1310,6 @@ class Baseline(object):
         sigma_segment_times = sigma_spectrogram.times.value.tolist()
 
         badGPStimes_list = badGPStimes.tolist()
-        delta_sigmas_list = delta_sigmas.tolist()
 
         save_dictionary = {
             "frequencies": list_freqs,
@@ -1300,7 +1322,8 @@ class Baseline(object):
             "sigma_spectrogram": list_sigma_segment,
             "sigma_spectrogram_times": sigma_segment_times,
             "badGPStimes": badGPStimes_list,
-            "delta_sigmas": delta_sigmas_list,
+            "delta_sigma_alphas": delta_sigmas['alphas'],
+            "delta_sigma_values": delta_sigmas['values'].tolist(),
         }
 
         with open(filename, "w") as outfile:
@@ -1323,53 +1346,37 @@ class Baseline(object):
         hf = h5py.File(filename, "w")
 
         if compress:
-            logger.info("Data will be compressed without loss of data")
-            hf.create_dataset("freqs", data=frequencies, compression="gzip")
-            hf.create_dataset(
-                "point_estimate_spectrum",
-                data=point_estimate_spectrum,
-                compression="gzip",
-            )
-            hf.create_dataset("sigma_spectrum", data=sigma_spectrum, compression="gzip")
-            hf.create_dataset(
-                "point_estimate", data=point_estimate, dtype="float", compression="gzip"
-            )
-            hf.create_dataset("sigma", data=sigma, dtype="float", compression="gzip")
-            hf.create_dataset(
-                "point_estimate_spectrogram",
-                data=point_estimate_spectrogram,
-                compression="gzip",
-            ),
-            hf.create_dataset(
-                "sigma_spectrogram", data=sigma_spectrogram, compression="gzip"
-            )
-            hf.create_dataset("badGPStimes", data=badGPStimes, compression="gzip")
-            if type(delta_sigmas) == float:
-                hf.create_dataset(
-                    "delta_sigmas", data=delta_sigmas, dtype="float", compression="gzip"
-                )
-            else:
-                hf.create_dataset("delta_sigmas", data=delta_sigmas, compression="gzip")
-
-            hf.close()
-
+            compression = "gzip"
         else:
-            hf.create_dataset("freqs", data=frequencies)
-            hf.create_dataset("point_estimate_spectrum", data=point_estimate_spectrum)
-            hf.create_dataset("sigma_spectrum", data=sigma_spectrum)
-            hf.create_dataset("point_estimate", data=point_estimate, dtype="float")
-            hf.create_dataset("sigma", data=sigma, dtype="float")
-            hf.create_dataset(
-                "point_estimate_spectrogram", data=point_estimate_spectrogram
-            ),
-            hf.create_dataset("sigma_spectrogram", data=sigma_spectrogram)
-            hf.create_dataset("badGPStimes", data=badGPStimes)
-            if type(delta_sigmas) == float:
-                hf.create_dataset("delta_sigmas", data=delta_sigmas, dtype="float")
-            else:
-                hf.create_dataset("delta_sigmas", data=delta_sigmas)
+            compression = None
 
-            hf.close()
+        logger.info("Data will be compressed without loss of data")
+        hf.create_dataset("freqs", data=frequencies, compression=compression)
+        hf.create_dataset(
+            "point_estimate_spectrum",
+            data=point_estimate_spectrum,
+            compression=compression,
+        )
+        hf.create_dataset("sigma_spectrum", data=sigma_spectrum, compression=compression)
+        hf.create_dataset(
+            "point_estimate", data=point_estimate, dtype="float", compression=compression
+        )
+        hf.create_dataset("sigma", data=sigma, dtype="float", compression=compression)
+        hf.create_dataset(
+            "point_estimate_spectrogram",
+            data=point_estimate_spectrogram,
+            compression=compression,
+        ),
+        hf.create_dataset(
+            "sigma_spectrogram", data=sigma_spectrogram, compression=compression
+        )
+        hf.create_dataset("badGPStimes", data=badGPStimes, compression=compression)
+        delta_sigmas_group = hf.create_group("delta_sigmas")
+        delta_sigmas_group.create_dataset("delta_sigma_alphas", data=delta_sigmas['alphas'], compression=compression)
+        delta_sigmas_group.create_dataset("delta_sigma_times", data=delta_sigmas['times'], compression=compression)
+        delta_sigmas_group.create_dataset("delta_sigma_values", data=delta_sigmas['values'], compression=compression)
+
+        hf.close()
 
     def _npz_save_csd(
         self,

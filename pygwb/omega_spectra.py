@@ -1,4 +1,5 @@
 import pickle
+import warnings
 
 import numpy as np
 from astropy.io import registry as io_registry
@@ -6,13 +7,15 @@ from gwpy.frequencyseries import FrequencySeries
 from gwpy.spectrogram import Spectrogram
 from gwpy.types.io.hdf5 import register_hdf5_array_io
 
+from pygwb.constants import h0
+
 
 class OmegaSpectrogram(Spectrogram):
 
     """Subclass of gwpy's Spectrogram class."""
 
-    _metadata_slots = FrequencySeries._metadata_slots + ("alpha", "fref", "h0")
-    _print_slots = FrequencySeries._print_slots + ["alpha", "fref", "h0"]
+    _metadata_slots = Spectrogram._metadata_slots + ("alpha", "fref", "h0")
+    #_print_slots = FrequencySeries._print_slots + ["alpha", "fref", "h0"]
 
     def __new__(cls, data, **kwargs):
         kwargs.pop("alpha", None)
@@ -20,7 +23,7 @@ class OmegaSpectrogram(Spectrogram):
         kwargs.pop("h0", None)
         return super(OmegaSpectrogram, cls).__new__(cls, data, **kwargs)
 
-    def __init__(self, data, alpha=None, fref=None, h0=1.0, **kwargs):
+    def __init__(self, data, alpha=None, fref=None, h0=h0, **kwargs):
         if not isinstance(alpha, (float, int, np.number)):
             raise ValueError("Spectral index alpha must be a valid number.")
         if not isinstance(fref, (float, int, np.number)):
@@ -53,7 +56,7 @@ class OmegaSpectrogram(Spectrogram):
 
     @property
     def h0(self):
-        """Hubble parameter h0."""
+        """Hubble parameter h0. Default is pygwb.constants.h0 = 0.693199."""
         return self._h0
 
     @h0.setter
@@ -146,7 +149,7 @@ class OmegaSpectrogram(Spectrogram):
             New h0 to set the spectrum at.
         """
         if (new_h0 < 0.5) or (new_h0 > 1.0):
-            raise ValueError("h0 must be between 0.5 and 1.")
+            warnings.warn(f"h0 should be between 0.5 and 1. The selected value of {new_h0} does not fall within this range.")
         new_spectrum = self.value * (self.h0 / new_h0) ** 2
         self.value[:] = new_spectrum
         self._h0 = new_h0
@@ -165,7 +168,7 @@ class OmegaSpectrum(FrequencySeries):
         kwargs.pop("h0", None)
         return super(OmegaSpectrum, cls).__new__(cls, data, **kwargs)
 
-    def __init__(self, data, alpha=None, fref=None, h0=1.0, **kwargs):
+    def __init__(self, data, alpha=None, fref=None, h0=h0, **kwargs):
         if not isinstance(alpha, (float, int, np.number)):
             raise ValueError("Spectral index alpha must be a valid number.")
         if not isinstance(fref, (float, int, np.number)):
@@ -198,7 +201,7 @@ class OmegaSpectrum(FrequencySeries):
 
     @property
     def h0(self):
-        """Hubble parameter h0."""
+        """Hubble parameter h0. Default is pygwb.constants.h0 = 0.693199."""
         return self._h0
 
     @h0.setter

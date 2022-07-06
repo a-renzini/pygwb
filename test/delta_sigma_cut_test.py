@@ -35,6 +35,7 @@ class Test(unittest.TestCase):
 
         flow = 50
         fhigh = 500
+        fref = 25
         segment_duration = 192  # also fftlength in pre-processing
         overlap = 0.5
         segment_duration = 192  # also fftlength in pre-processing
@@ -87,6 +88,8 @@ class Test(unittest.TestCase):
             psd1_slide=avg_psd_1,
             psd2_slide=avg_psd_2,
             alphas=alphas,
+            sample_rate = sampling_frequency,
+            fref= fref, 
             orf=np.array([1]),
             notch_list_path=notch_file,
         )
