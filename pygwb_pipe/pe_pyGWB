@@ -22,8 +22,8 @@ plt.rcParams["figure.figsize"] = (12,8)
 
 def load_npz(fname_path):
     data = np.load(fname_path)
-    ptEst_ff = np.real(data["Y_f"])
-    sigma_ff = data["sig_f"]
+    ptEst_ff = np.real(data["point_estimate_spectrum"])
+    sigma_ff = data["sigma_spectrum"]
     freqs = data["frequencies"]
     goodInds = np.logical_and(np.invert(np.isnan(ptEst_ff)), ptEst_ff!=0, sigma_ff!=0)
     freqs = freqs[goodInds]
@@ -35,7 +35,7 @@ def load_npz(fname_path):
 def main():
     pe_parser = argparse.ArgumentParser(add_help=True)
     pe_parser.add_argument(
-        "--path_to_file", help="Path to data file to use for analysis.", action="store", type=str, required=True
+        "--path_to_file", help="Path to data file (or pickled combined baseline) to use for analysis.", action="store", type=str, required=True
     )
     pe_parser.add_argument(
         "--Model", help="Model for which to run the PE. \n Default is \"Power-law\". ", action="store", type=str, required=False, default = "Power-Law"
@@ -99,33 +99,41 @@ def main():
       
     if not all(key in all_parameters_dict.keys() for key in dictionary_parameters[script_args.Model]):
         raise ValueError(
-            f"Not all required parameters of the model are present in de parameters dictionary. \n These are the required parameters: {dictionary_parameters[script_args.Model]}."
+            f"Not all required parameters of the model are present in one of the parameters dictionaries. \n These are the required parameters: {dictionary_parameters[script_args.Model]}."
         )
     
-    frequencies, point_estimate_spectrum, sigma_spectrum = load_npz(script_args.path_to_file)
+    if script_args.path_to_file.endswith(("npz")):
+        
+        frequencies, point_estimate_spectrum, sigma_spectrum = load_npz(script_args.path_to_file)
+        
+        point_estimates = [point_estimate_spectrum]
+        sigmas = [sigma_spectrum]
+        H1 = Interferometer.get_empty_interferometer('H1')
+        L1 = Interferometer.get_empty_interferometer('L1')
     
-    var_spectrum = sigma_spectrum**2
+        HL = Baseline.from_interferometers([H1, L1])
     
-    point_estimates = [point_estimate_spectrum]
-    sigmas = [sigma_spectrum]
-    H1 = Interferometer.get_empty_interferometer('H1')
-    L1 = Interferometer.get_empty_interferometer('L1')
+        if not HL._orf_polarization_set:
+            HL.orf_polarization = "tensor" # script._args.polarization
     
-    HL = Baseline.from_interferometers([H1, L1])
-    
-    if not HL._orf_polarization_set:
-        HL.orf_polarization = "tensor" # script._args.polarization
-    
-    HL.frequencies = frequencies
+        HL.frequencies = frequencies
 
-    HL.point_estimate_spectrum = point_estimate_spectrum
-    HL.sigma_spectrum = sigma_spectrum
+        HL.point_estimate_spectrum = point_estimate_spectrum
+        HL.sigma_spectrum = sigma_spectrum
+    
+    elif script_args.path_to_file.endswith((".p", ".pickle")):
+        
+        HL = Baseline.load_from_pickle(script_args.path_to_file)
+    
+    else:
+        raise TypeError(
+            "The provided file format is currently not supported, try npz or a pickled baseline instead."
+        )
+    
     
     kwargs = {"baselines":[HL], "model_name":script_args.Model} #, "fref":script_args.fref}
     kwargs.update(extra_kwargs)
-    print(kwargs)
     model = class_model(**kwargs)
-    print(model.fref)
     priors = dict_loaded
     if script_args.injection_parameters == "None":
         injection_parameters = dict(omega_ref=10**(-8.67985), alpha=2/3)
