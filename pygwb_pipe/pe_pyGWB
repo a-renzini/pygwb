@@ -9,10 +9,9 @@ module_path_2 = '/home/max.lalleman/public_html/Code/New_Clone_pyGWB/pygwb'
 sys.path.insert(0,module_path_2)
 
 import bilby
-#from pygwb.pe import *
+import pygwb.pe as pe
 from pygwb.baseline import Baseline
 from pygwb.detector import Interferometer
-import pygwb.pe_test4 as pe_test
 
 def load_npz(fname_path):
     data = np.load(fname_path)
@@ -49,13 +48,13 @@ def main():
     
     script_args = pe_parser.parse_known_args()[0]
     
-    dictionary_Models = {"Power-Law": pe_test.PowerLawModel, 
-                         "Broken-Power-Law": pe_test.BrokenPowerLawModel,
-                         "Triple-Broken-Power-Law": pe_test.TripleBrokenPowerLawModel,
-                         "Smooth-Broken-Power-Law": pe_test.SmoothBrokenPowerLawModel,
-                         "Schumann": pe_test.SchumannModel,
-                         "Parity-Violation": pe_test.PVPowerLawModel,
-                         "Parity-Violation-2": pe_test.PVPowerLawModel2} #"TVS-Power-Law": pe_test.TVSPowerLawModel
+    dictionary_Models = {"Power-Law": pe.PowerLawModel, 
+                         "Broken-Power-Law": pe.BrokenPowerLawModel,
+                         "Triple-Broken-Power-Law": pe.TripleBrokenPowerLawModel,
+                         "Smooth-Broken-Power-Law": pe.SmoothBrokenPowerLawModel,
+                         "Schumann": pe.SchumannModel,
+                         "Parity-Violation": pe.PVPowerLawModel,
+                         "Parity-Violation-2": pe.PVPowerLawModel2} #"TVS-Power-Law": pe.TVSPowerLawModel
                          
     dictionary_parameters = {"Power-Law": ["omega_ref","alpha", "fref"],
                              "Broken-Power-Law": ["omega_ref", "fbreak", "alpha_1", "alpha_2"],
@@ -121,7 +120,7 @@ def main():
     
     else:
         raise TypeError(
-            "The provided file format is currently not supported, try npz or a pickled baseline instead."
+            "The provided file format is currently not supported, try a npz file or a pickled baseline instead."
         )
     
     
