@@ -130,9 +130,6 @@ def main():
     logger.info(
         f"times flagged by the delta sigma cut as badGPStimes:{base_12.badGPStimes}"
     )
-    logger.info(
-        f"values of the delta sigma cut:{base_12.delta_sigmas}"
-    )
 
     if pipe_calculate_point_estimate:
         logger.info(f"calculating the point estimate and sigma...")
