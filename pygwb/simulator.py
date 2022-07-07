@@ -38,7 +38,10 @@ class Simulator(object):
         interferometers: list of bilby interferometer objects
         intensity_GW: gwpy.frequencyseries.FrequencySeries
             A gwpy.frequencyseries.FrequencySeries containing the desired strain power spectrum
-            which needs to be simulated
+            which needs to be simulated. Note: A range of spectral indices (from -3 to 3) was
+            tested. However, one should be careful for spectral indices outside of this range,
+            as the splicing procedure implemented in this module is known to introduce a bias for
+            some values of the spectral index (usually large negative numbers).
         N_segments: int
             Number of segments that needs to be generated for the simulation
         duration: float
@@ -84,6 +87,9 @@ class Simulator(object):
             self.baselines = get_baselines(
                 self.interferometers, frequencies=self.frequencies
             )
+            for baseline in self.baselines:
+                if not baseline._orf_polarization_set:
+                    baseline.orf_polarization = "tensor"
             self.orf = self.get_orf(polarization=orf_polarization)
 
             self.intensity_GW = interpolate_frequency_series(
@@ -255,6 +261,23 @@ class Simulator(object):
                 orf_array[ii, jj] = self.orf[index]
                 index += 1
         orf_array = orf_array + orf_array.transpose()
+
+        for ii in range(self.Nd):
+            baseline_name = f"{self.interferometers[ii].name} - {self.interferometers[ii].name}"
+            baseline_temp = Baseline(
+                baseline_name,
+                self.interferometers[ii],
+                self.interferometers[ii],
+                frequencies=self.frequencies,
+            )
+            if not baseline_temp._orf_polarization_set:
+                baseline_temp.orf_polarization = "tensor" 
+            orf_temp = baseline_temp.overlap_reduction_function
+            
+            if orf_temp.shape[0] != self.frequencies.shape[0]:
+                orf_temp = orf_temp[1:]
+            orf_array[ii,ii] = orf_temp
+            
         return orf_array
 
     def covariance_matrix(self, flag):
@@ -286,10 +309,8 @@ class Simulator(object):
         elif flag == "signal":
             for ii in range(self.Nd):
                 for jj in range(self.Nd):
-                    if ii == jj:
-                        C[ii, jj, :] = self.intensity_GW.value[:]
-                    else:
-                        C[ii, jj, :] = orf_array[ii, jj] * self.intensity_GW.value[:]
+                    C[ii, jj, :] = orf_array[ii, jj] * self.intensity_GW.value[:]
+                    
         C[C == 0.0] = 1.0e-60
 
         C = self.N_samples_per_segment / (self.deltaT * 4) * C
@@ -418,7 +439,11 @@ class Simulator(object):
         """
         This function splices together the various segments to prevent
         artifacts related to the periodicity that can arise from inverse
-        Fourier transforms.
+        Fourier transforms. Note: A range of spectral indices (from -3 to 3) was
+        tested for the GW power spectrum to inject. However, one should be careful 
+        for spectral indices outside of this range, as the splicing procedure 
+        implemented here is known to introduce a bias for some values of the spectral
+        index (usually large negative numbers).
 
         Parameters
         ==========
