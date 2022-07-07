@@ -87,6 +87,9 @@ class Simulator(object):
             self.baselines = get_baselines(
                 self.interferometers, frequencies=self.frequencies
             )
+            for baseline in self.baselines:
+                if not baseline._orf_polarization_set:
+                    baseline.orf_polarization = "tensor"
             self.orf = self.get_orf(polarization=orf_polarization)
 
             self.intensity_GW = interpolate_frequency_series(
@@ -267,6 +270,8 @@ class Simulator(object):
                 self.interferometers[ii],
                 frequencies=self.frequencies,
             )
+            if not baseline_temp._orf_polarization_set:
+                baseline_temp.orf_polarization = "tensor" 
             orf_temp = baseline_temp.overlap_reduction_function
             
             if orf_temp.shape[0] != self.frequencies.shape[0]:
