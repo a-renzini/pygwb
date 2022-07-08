@@ -28,7 +28,10 @@ def load_npz(fname_path):
 def main():
     pe_parser = argparse.ArgumentParser(add_help=True)
     pe_parser.add_argument(
-        "--path_to_file", help="Path to data file (or pickled combined baseline) to use for analysis.", action="store", type=str, required=True
+        "--path_to_file", help="Path to data file (or pickled baseline) to use for analysis.", action="store", type=str, required=True
+    )
+    pe_parser.add_argument(
+        "--ifos", help="List of names of two interferometers for which you want to run PE, default is H1 and L1. Not needed when running from a pickled baseline.", action="store", type=str, required=False, default = "None"
     )
     pe_parser.add_argument(
         "--Model", help="Model for which to run the PE. \n Default is \"Power-law\". ", action="store", type=str, required=False, default = "Power-Law"
@@ -44,6 +47,9 @@ def main():
     )
     pe_parser.add_argument(
         "--injection_parameters", help="The injected parameters.", required= False, default="None", type=str, action="store"
+    )
+    pe_parser.add_argument(
+        "--quantiles", help="The quantiles used for plotting in plot corner, default is [0.05, 0.95].", type=str, action="store", required=False, default="None"
     )
     
     script_args = pe_parser.parse_known_args()[0]
@@ -101,22 +107,28 @@ def main():
         
         point_estimates = [point_estimate_spectrum]
         sigmas = [sigma_spectrum]
-        H1 = Interferometer.get_empty_interferometer('H1')
-        L1 = Interferometer.get_empty_interferometer('L1')
+        
+        if script_args.ifos == "None":
+            ifos = ['H1', 'L1']
+        else:
+            ifos = json.loads(script_args.ifos)
+        
+        ifo_1 = Interferometer.get_empty_interferometer(ifos[0])
+        ifo_2 = Interferometer.get_empty_interferometer(ifos[1])
     
-        HL = Baseline.from_interferometers([H1, L1])
+        base_12 = Baseline.from_interferometers([ifo_1, ifo_2])
     
-        if not HL._orf_polarization_set:
-            HL.orf_polarization = "tensor" # script._args.polarization
+        if not base_12._orf_polarization_set:
+            base_12.orf_polarization = "tensor" # script._args.polarization
     
-        HL.frequencies = frequencies
+        base_12.frequencies = frequencies
 
-        HL.point_estimate_spectrum = point_estimate_spectrum
-        HL.sigma_spectrum = sigma_spectrum
+        base_12.point_estimate_spectrum = point_estimate_spectrum
+        base_12.sigma_spectrum = sigma_spectrum
     
     elif script_args.path_to_file.endswith((".p", ".pickle")):
         
-        HL = Baseline.load_from_pickle(script_args.path_to_file)
+        base_12 = Baseline.load_from_pickle(script_args.path_to_file)
     
     else:
         raise TypeError(
@@ -124,7 +136,7 @@ def main():
         )
     
     
-    kwargs = {"baselines":[HL], "model_name":script_args.Model} #, "fref":script_args.fref}
+    kwargs = {"baselines":[base_12], "model_name":script_args.Model} #, "fref":script_args.fref}
     kwargs.update(extra_kwargs)
     model = class_model(**kwargs)
     priors = dict_loaded
@@ -143,7 +155,14 @@ def main():
     hlv=bilby.run_sampler(likelihood=model,priors=priors,sampler='dynesty', npoints=1000, walks=10, maxmcmc=10000, 
     outdir=script_args.output_dir,label= 'hlv', injection_parameters = injection_parameters) #walks=10, maxmcmc = 10000, npoints= 1000
 
-    hlv.plot_corner(show_titles=True, title_fmt='.3g', use_math_text=True, quantiles=[0.05, 0.95], range=range_list)
+    if script_args.quantiles == "None":
+        quantiles = [0.05, 0.95]
+    else:
+        quantiles = json.loads(script_args.quantiles)
+        
+    print(quantiles)
+
+    hlv.plot_corner(show_titles=True, title_fmt='.3g', use_math_text=True, quantiles=quantiles, range=range_list)
     
 
 if __name__ == "__main__":
