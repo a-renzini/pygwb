@@ -1300,10 +1300,12 @@ class Baseline(object):
         delta_sigmas,
     ):
         list_freqs = frequencies.tolist()
-        list_point_estimate_spectrum = point_estimate_spectrum.value.tolist()
+        list_point_estimate_spectrum_r = np.real(point_estimate_spectrum.value).tolist()
+        list_point_estimate_spectrum_i = np.imag(point_estimate_spectrum.value).tolist()
         list_sigma_spectrum = sigma_spectrum.value.tolist()
 
-        list_point_estimate_segment = point_estimate_spectrogram.value.tolist()
+        list_point_estimate_segment_r = np.real(point_estimate_spectrogram.value).tolist()
+        list_point_estimate_segment_i = np.imag(point_estimate_spectrogram.value).tolist()
         point_estimate_segment_times = point_estimate_spectrogram.times.value.tolist()
 
         list_sigma_segment = sigma_spectrogram.value.tolist()
@@ -1313,11 +1315,13 @@ class Baseline(object):
 
         save_dictionary = {
             "frequencies": list_freqs,
-            "point_estimate_spectrum": list_point_estimate_spectrum,
+            "point_estimate_spectrum_real": list_point_estimate_spectrum_r,
+            "point_estimate_spectrum_imag": list_point_estimate_spectrum_i,
             "sigma_spectrum": list_sigma_spectrum,
             "point_estimate": point_estimate,
             "sigma": sigma,
-            "point_estimate_spectrogram": list_point_estimate_segment,
+            "point_estimate_spectrogram_real": list_point_estimate_segment_r,
+            "point_estimate_spectrogram_imag": list_point_estimate_segment_i,
             "point_estimate_spectrogram_times": point_estimate_segment_times,
             "sigma_spectrogram": list_sigma_segment,
             "sigma_spectrogram_times": sigma_segment_times,

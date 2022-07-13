@@ -549,17 +549,17 @@ class TestBaseline(unittest.TestCase):
         test_sigma = pickled_base.sigma
         self.assertEqual(loaded_sigma, test_sigma)
 
-        loaded_point_estimate_spectrum = Loaded_jsonfile["point_estimate_spectrum"]
+        loaded_point_estimate_spectrum = Loaded_jsonfile["point_estimate_spectrum_real"]
         test_spectrum = pickled_base.point_estimate_spectrum
-        self.assertEqual(loaded_point_estimate_spectrum, test_spectrum.value.tolist())
+        self.assertEqual(loaded_point_estimate_spectrum, np.real(test_spectrum.value).tolist())
 
         loaded_sigma_spectrum = Loaded_jsonfile["sigma_spectrum"]
         test_sigma_spectrum = pickled_base.sigma_spectrum
         self.assertEqual(loaded_sigma_spectrum, test_sigma_spectrum.value.tolist())
 
-        loaded_spectrogram = Loaded_jsonfile["point_estimate_spectrogram"]
+        loaded_spectrogram = Loaded_jsonfile["point_estimate_spectrogram_real"]
         test_spectrogram = pickled_base.point_estimate_spectrogram
-        self.assertEqual(loaded_spectrogram, test_spectrogram.value.tolist())
+        self.assertEqual(loaded_spectrogram, np.real(test_spectrogram.value).tolist())
 
         loaded_sigma_spectrogram = Loaded_jsonfile["sigma_spectrogram"]
         test_sigma_spectrogram = pickled_base.sigma_spectrogram
