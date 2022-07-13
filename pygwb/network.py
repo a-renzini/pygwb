@@ -101,7 +101,7 @@ class Network(object):
         Initialise a network from a set of baselines. Takes care to unpack the interferometers from each baselines and sets them in the Network.
         """
         if not all(baselines[0].duration == base.duration for base in baselines[1:]):
-            raise ValueError(
+            raise AssertionError(
                 "All baselines used to initialise must have same duration set."
             )
         network = cls(
@@ -152,16 +152,13 @@ class Network(object):
 
         check_dur = all(ifo.duration == duration for ifo in self.interferometers)
         if not check_dur:
-            warnings.warn(
+            raise AssertionError(
                 "The interferometer durations don't match! "
-                "The Network may not be able to handle this."
+                "The Network can't handle this. "
+                "Make sure that the interferometer durations are the same."
             )
-            warnings.warn(
-                "The Network duration is set to first not None duration from interferometers. This may not be what you want."
-            )
-
-            for ifo in self.interferometers:
-                ifo.duration = duration
+            #for ifo in self.interferometers:
+            #    ifo.duration = duration
         self.duration = duration
 
     def set_frequency_mask(self, notch_list_path="", flow=20, fhigh=1726):
@@ -278,25 +275,27 @@ class Network(object):
             ]
             sigma_spectra = [base.sigma_spectrum for base in self.baselines]
         except AttributeError:
-            raise AttributeError("The Baselines of the Network have not been set!")
-
+            raise AttributeError("The Baselines of the Network have not been set!") 
+            
         alphas = np.array([spec.alpha for spec in point_estimate_spectra])
         frefs = np.array([spec.fref for spec in point_estimate_spectra])
         h0s = np.array([spec.h0 for spec in point_estimate_spectra])
-
-        if not np.all(alphas == alphas[0]):
-            raise ValueError(
-                "The spectral indices of the spectra in each Baseline don't match! Spectra may not be combined."
-            )
-        if not np.all(frefs == frefs[0]):
-            raise ValueError(
-                "The reference frequencies of the spectra in each Baseline don't match! Spectra may not be combined."
-            )
-        if not np.all(h0s == h0s[0]):
-            raise ValueError(
-                "The cosmology h0 of the spectra in each Baseline don't match! Spectra may not be combined."
-            )
-
+        dfs = np.array([spec.df.value for spec in point_estimate_spectra])
+        f0s = np.array([spec.f0.value for spec in point_estimate_spectra])
+        
+        dict_attributes = {'alpha' : [alphas, 'spectral indices'],
+                           'fref': [frefs, 'reference frequencies' ], 
+                          'h0': [h0s, 'cosmology h0'],
+                           'df': [dfs, 'sampling frequency'],
+                          'f0' : [f0s, 'begin frequency']
+                          }
+        
+        for key in dict_attributes:
+            if not np.all(dict_attributes[key][0] == dict_attributes[key][0][0]):
+                raise ValueError(
+                    f"The {dict_attributes[key][1]} of the spectra in each Baseline don't match! Spectra may not be combined."
+                )
+                
         pt_est_spec, sig_spec = combine_spectra_with_sigma_weights(
             np.array(point_estimate_spectra), np.array(sigma_spectra)
         )

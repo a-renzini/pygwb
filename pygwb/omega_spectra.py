@@ -14,8 +14,8 @@ class OmegaSpectrogram(Spectrogram):
 
     """Subclass of gwpy's Spectrogram class."""
 
-    _metadata_slots = FrequencySeries._metadata_slots + ("alpha", "fref", "h0")
-    _print_slots = FrequencySeries._print_slots + ["alpha", "fref", "h0"]
+    _metadata_slots = Spectrogram._metadata_slots + ("alpha", "fref", "h0")
+    #_print_slots = FrequencySeries._print_slots + ["alpha", "fref", "h0"]
 
     def __new__(cls, data, **kwargs):
         kwargs.pop("alpha", None)

@@ -11,6 +11,7 @@ pygwb documentation
    about
    installation
    contributing
+   pipeline
    tutorials
 
 
