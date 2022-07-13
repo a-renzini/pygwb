@@ -102,12 +102,7 @@ class StatisticalChecks(object):
         self.freqs = freqs
 
         self.alpha = self.params.alpha
-        self.sliding_times_cut, self.days_cut, self.sliding_omega_cut, self.sliding_sigmas_cut, self.naive_sigma_cut, self.delta_sigmas_cut, self.sliding_deviate_cut = self.get_data_after_dsc()
-        #if len(self.badGPStimes)!=0:
-        #    self.sliding_times_cut, self.days_cut, self.sliding_omega_cut, self.sliding_sigmas_cut, self.naive_sigma_cut, self.delta_sigmas_cut, self.sliding_deviate_cut = self.get_data_after_dsc()
-        #    self.do_bad_GPS_times = True
-        #else:
-        #    self.do_bad_GPS_times = False
+        self.sliding_times_cut, self.days_cut, self.sliding_omega_cut, self.sliding_sigmas_cut, self.naive_sigma_cut, self.delta_sigmas_cut, self.sliding_deviate_cut, self.sliding_deviate_KS = self.get_data_after_dsc()
         
         self.running_pt_estimate, self.running_sigmas = self.compute_running_quantities()
 
@@ -155,6 +150,9 @@ class StatisticalChecks(object):
         sliding_deviate_cut = (
             sliding_omega_cut - np.mean(self.sliding_omega_all)
         ) / sliding_sigmas_cut
+        sliding_deviate_KS = (
+            sliding_omega_cut - np.mean(sliding_omega_cut)
+        ) / sliding_sigmas_cut
 
         return (
             sliding_times_cut,
@@ -164,6 +162,7 @@ class StatisticalChecks(object):
             naive_sigma_cut,
             delta_sigma_cut,
             sliding_deviate_cut,
+            sliding_deviate_KS
         )
 
     def compute_running_quantities(self):
@@ -341,7 +340,7 @@ class StatisticalChecks(object):
             f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-IFFT_point_estimate_integrand.png"
         )
 
-    def plot_point_estimate_integrand(self):
+    def plot_SNR_spectrum(self):
         """
         Generates and saves a plot of the point estimate integrand. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.point_estimate_integrand).
 
@@ -413,7 +412,7 @@ class StatisticalChecks(object):
             bbox_inches="tight",
         )
 
-    def plot_imaginary_SNR_spectrum(self):
+    def plot_imag_SNR_spectrum(self):
         """
         Generates and saves a plot of the imaginary part of the SNR spectrum. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.point_estimate_spectrum and self.sigma_spectrum).
 
@@ -792,7 +791,7 @@ class StatisticalChecks(object):
         dof_scale_factor = 1.0 / (1.0 + 3.0 / 35.0)
         lx = len(self.sliding_deviate_cut)
 
-        sorted_deviates = np.sort(self.sliding_deviate_cut / bias_factor)
+        sorted_deviates = np.sort(self.sliding_deviate_KS / bias_factor)
 
         count, bins_count = np.histogram(sorted_deviates, bins=500)
         pdf = count / sum(count)
@@ -934,9 +933,9 @@ class StatisticalChecks(object):
         """
         self.plot_running_point_estimate()
         self.plot_running_sigma()
-        #self.plot_IFFT_point_estimate_integrand()
-        self.plot_point_estimate_integrand()
-        self.plot_cumulative_point_estimate()
+        self.plot_IFFT_point_estimate_integrand()
+        self.plot_SNR_spectrum()
+        self.plot_cumulative_SNR_spectrum()
         self.plot_real_SNR_spectrum()
         self.plot_imag_SNR_spectrum()
         self.plot_sigma_spectrum()
