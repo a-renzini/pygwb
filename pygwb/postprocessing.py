@@ -122,7 +122,7 @@ def calc_Y_sigma_from_Yf_sigmaf(
     
 
     # now just strip off what we need...
-    Y_f = Y_f.value
+    Y_f = np.real(Y_f.value)
     var_f = sigma_f.value ** 2
 
     if isinstance(frequency_mask, np.ndarray):
@@ -196,7 +196,7 @@ def calculate_point_estimate_sigma_spectra(
     S_alpha = 3 * H0.si.value ** 2 / (10 * np.pi ** 2) / freqs ** 3
     S_alpha *= (freqs / fref) ** alpha
     if csd is not None: 
-        Y_fs = np.real(csd) / (orf * S_alpha)
+        Y_fs = (csd) / (orf * S_alpha)
         var_fs = (
             1
             / (2 * segment_duration * (freqs[1] - freqs[0]))
