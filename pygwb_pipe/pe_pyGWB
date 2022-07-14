@@ -17,13 +17,15 @@ def load_npz(fname_path):
     data = np.load(fname_path)
     ptEst_ff = np.real(data["point_estimate_spectrum"])
     sigma_ff = data["sigma_spectrum"]
-    freqs = data["frequencies"]
     goodInds = np.logical_and(np.invert(np.isnan(ptEst_ff)), ptEst_ff!=0, sigma_ff!=0)
-    freqs = freqs[goodInds]
+    if "frequencies" not in data.keys():
+        freqs = None
+    else:
+        freqs = data["frequencies"]
+        freqs = freqs[goodInds]
     Y_f = ptEst_ff[goodInds]
     sigma_f = sigma_ff[goodInds]
     return (freqs,Y_f,sigma_f)
-   
     
 def main():
     pe_parser = argparse.ArgumentParser(add_help=True)
@@ -50,6 +52,15 @@ def main():
     )
     pe_parser.add_argument(
         "--quantiles", help="The quantiles used for plotting in plot corner, default is [0.05, 0.95].", type=str, action="store", required=False, default="None"
+    )
+    pe_parser.add_argument(
+        "--f0", help="If no frequencies are saved in the loaded npz file, you can give f0, fhigh and df to the script. This is f0", type=float, action="store", default=None
+    )
+    pe_parser.add_argument(
+        "--fhigh", help="If no frequencies are saved in the loaded npz file, you can give f0, fhigh and df to the script. This is fhigh", type=float, action="store", default=None
+    )
+    pe_parser.add_argument(
+        "--df", help="If no frequencies are saved in the loaded npz file, you can give f0, fhigh and df to the script. This is df", type=float, action="store", default=None
     )
     
     script_args = pe_parser.parse_known_args()[0]
@@ -104,6 +115,9 @@ def main():
     if script_args.path_to_file.endswith(("npz")):
         
         frequencies, point_estimate_spectrum, sigma_spectrum = load_npz(script_args.path_to_file)
+        
+        if frequencies is None:
+            frequencies = np.arange(script_args.f0, script_args.fhigh + script_args.df, script_args.df)
         
         point_estimates = [point_estimate_spectrum]
         sigmas = [sigma_spectrum]
