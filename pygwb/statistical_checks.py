@@ -14,14 +14,6 @@ from pygwb.postprocessing import calc_Y_sigma_from_Yf_sigmaf, calculate_point_es
 
 from pygwb.util import StatKS, calc_bias, interpolate_frequency_series
 
-"""
-TO DO:
--Testing
--Baseline path method
--Add checks (no badGPSTimes etc...)
--Make plotting style consistent
-"""
-
 class StatisticalChecks(object):
     def __init__(
         self,
@@ -50,10 +42,10 @@ class StatisticalChecks(object):
             Array of sliding sigmas before the bad GPS times from the delta sigma cut are applied.
         naive_sigma_all: array
             Array of naive sigmas before the bad GPS times from the delta sigma cut are applied.
-        sigma_spectrum: array
-            Array containing the sigma spectrum. Each entry in this array corresponds to the sigma spectrum evaluated at the corresponding frequency in the freqs array.
         point_estimate_spectrum: array
             Array containing the point estimate spectrum. Each entry in this array corresponds to the point estimate spectrum evaluated at the corresponding frequency in the freqs array.
+        sigma_spectrum: array
+            Array containing the sigma spectrum. Each entry in this array corresponds to the sigma spectrum evaluated at the corresponding frequency in the freqs array.
         freqs: array
             Array containing the frequencies.
         badGPStimes: array
@@ -451,6 +443,7 @@ class StatisticalChecks(object):
         plt.xlabel("Frequency [Hz]", size=18)
         plt.ylabel("\u03C3(f)", size=18)
         plt.xscale("log")
+        plt.yscale("log")
         plt.xticks(fontsize=16)
         plt.yticks(fontsize=16)
         plt.savefig(
@@ -495,7 +488,7 @@ class StatisticalChecks(object):
         =======
 
         """
-        fig, axs = plt.subplots(nrows=3, ncols=1, figsize=(10, 8))
+        fig, axs = plt.subplots(nrows=3, ncols=1, figsize=(10, 14))
 
         axs[0].plot(self.days_all, self.sliding_omega_all, c="r", label="All data")
         axs[0].plot(
@@ -554,7 +547,7 @@ class StatisticalChecks(object):
         =======
 
         """
-        fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(10, 8))
+        fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(10, 10))
 
         axs[0].hist(
             self.delta_sigmas_all,
@@ -665,16 +658,19 @@ class StatisticalChecks(object):
         =======
 
         """
-        fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(10, 8))
+        fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(10, 10))
 
         maxx0 = max(self.delta_sigmas_cut)
         maxx0 += maxx0/10.
+        
+        minx0 = min(self.delta_sigmas_cut)
+        minx0 -= minx0/10.
         
         maxy0 = max(self.sliding_deviate_cut)
         maxy0 += maxy0/10.
         
         miny0 = min(self.sliding_deviate_cut)
-        miny0 += miny0/10.
+        miny0 -= miny0/10.
         axs[0].scatter(
             self.delta_sigmas_all,
             self.sliding_deviate_all,
@@ -693,7 +689,7 @@ class StatisticalChecks(object):
         )
         axs[0].set_xlabel("Abs[\u03B4\u03C3]/\u03C3", size=18)
         axs[0].set_ylabel("(\u03A9-<\u03A9>)/\u03C3", size=18)
-        axs[0].set_xlim(0,maxx0)
+        axs[0].set_xlim(minx0,maxx0)
         axs[0].set_ylim(miny0,maxy0)
         axs[0].legend(fontsize=16)
         axs[0].tick_params(axis='x', labelsize=16)
@@ -702,11 +698,14 @@ class StatisticalChecks(object):
         maxx1 = max(self.sliding_sigmas_cut)
         maxx1 += maxx1/10.
         
+        minx1 = min(self.sliding_sigmas_cut)
+        minx1 -= minx1/10.
+        
         maxy1 = max(self.sliding_deviate_cut)
         maxy1 += maxy1/10.
         
         miny1 = min(self.sliding_deviate_cut)
-        miny1 += miny1/10.
+        miny1 -= miny1/10.
         
         axs[1].scatter(
             self.sliding_sigmas_all,
@@ -727,7 +726,7 @@ class StatisticalChecks(object):
         axs[1].set_xlabel("\u03C3", size=18)
         axs[1].set_ylabel("(\u03A9-<\u03A9>)/\u03C3", size=18)
         axs[1].legend(fontsize=16)
-        axs[1].set_xlim(0,maxx1)
+        axs[1].set_xlim(minx1,maxx1)
         axs[1].set_ylim(miny1,maxy1)
         axs[1].tick_params(axis='x', labelsize=16)
         axs[1].tick_params(axis='y', labelsize=16)
@@ -865,7 +864,7 @@ class StatisticalChecks(object):
         axs.set_xlabel("\u03C3$^2$/<\u03C3$^2$>", size=18)
         axs.set_ylabel("# per bin", size=18)
         axs.set_yscale("log")
-        axs.set_xlim(0,6)
+        axs.set_xlim(0,5)
         axs.legend(fontsize=16)
         axs.tick_params(axis='x', labelsize=16)
         axs.tick_params(axis='y', labelsize=16)

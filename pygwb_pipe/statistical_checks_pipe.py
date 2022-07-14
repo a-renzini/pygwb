@@ -52,8 +52,6 @@ def run_statistical_checks_from_file(file_directory, combine_file_path, plot_dir
     sliding_times = np.array([])
 
     for idx,file in enumerate(spectrum_list):
-        if (idx%10)==0:
-            print(idx)
         if idx==20:
             break
         filename = file_directory + file
@@ -91,8 +89,6 @@ def run_statistical_checks_from_file(file_directory, combine_file_path, plot_dir
     print("Done sliding")
     
     for idx,file in enumerate(csds_psds_list):
-        if (idx%10)==0:
-            print(idx)
         if idx==20:
             break
         filename = file_directory + file
@@ -128,8 +124,6 @@ def run_statistical_checks_from_file(file_directory, combine_file_path, plot_dir
     naive_sigma_all=np.zeros(len(sliding_times))
     
     for time in range(len(sliding_times)):
-        if (time%10)==0:
-            print(time)
         naive_sigma_with_Hf = calculate_point_estimate_sigma_spectra(freqs=freqs[cut], avg_psd_1=naive_psd_1_spectrogram[time,:], avg_psd_2=naive_psd_2_spectrogram[time,:], orf=orf, sample_rate=params.new_sample_rate, window_fftgram_dict=params.window_fft_dict, segment_duration=params.segment_duration, csd = None, fref=25, alpha=0)
 
         naive_sensitivity_integrand_with_Hf = 1./naive_sigma_with_Hf
