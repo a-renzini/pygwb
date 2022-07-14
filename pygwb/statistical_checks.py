@@ -369,6 +369,7 @@ class StatisticalChecks(object):
         cum_pt_estimate = integrate.cumtrapz(
             np.abs(self.point_estimate_spectrum/self.sigma_spectrum), self.freqs
         )
+        cum_pt_estimate = cum_pt_estimate / cum_pt_estimate[-1]
         plt.figure(figsize=(10, 8))
         plt.plot(self.freqs[:-1], cum_pt_estimate, color="b")
         plt.xlabel("Frequency [Hz]", size=18)
