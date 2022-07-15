@@ -1052,7 +1052,6 @@ class Baseline(object):
         self,
         delta_sigma_cut,
         alphas,
-        sample_rate,
         fref,
         flow=20,
         fhigh=1726,
@@ -1076,8 +1075,6 @@ class Baseline(object):
             high frequency. Default is 1726 Hz.
         notch_list_path: str, optional
             file path of the baseline notch list
-        sample_rate: np.int
-            sampling rate (Hz)
         fref: int 
             reference frequency (Hz)
         return_naive_and_averaged_sigmas: bool
@@ -1085,38 +1082,44 @@ class Baseline(object):
         window_fftgram_dict: dictionary, optional
             Dictionary with window characteristics. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`
         """
-        if not notch_list_path:
-            notch_list_path = self.notch_list_path
-
         if not self._orf_polarization_set:
             self.orf_polarization = polarization
-
+        
         deltaF = self.frequencies[1] - self.frequencies[0]
         self.crop_frequencies_average_psd_csd(flow=flow, fhigh=fhigh)
         stride = self.duration * (1 - self.overlap_factor)
         csd_segment_offset = int(np.ceil(self.duration / stride))
+
         naive_psd_1 = self.interferometer_1.psd_spectrogram[
             csd_segment_offset:-csd_segment_offset
         ]
         naive_psd_2 = self.interferometer_2.psd_spectrogram[
             csd_segment_offset:-csd_segment_offset
         ]
+
         naive_psd_1_cropped = naive_psd_1.crop_frequencies(flow, fhigh + deltaF)
         naive_psd_2_cropped = naive_psd_2.crop_frequencies(flow, fhigh + deltaF)
+
+        if notch_list_path:
+            self.notch_list_path = notch_list_path
+        if self.notch_list_path:
+            logger.debug("loading notches for delta sigma cut from " + self.notch_list_path)
+            self.set_frequency_mask(self.notch_list_path)
+        else:
+            self.set_frequency_mask()
 
         badGPStimes, delta_sigmas = run_dsc(
             dsc = delta_sigma_cut,
             segment_duration = self.duration,
-            sampling_frequency = self.sampling_frequency,
             psd1_naive = naive_psd_1_cropped,
             psd2_naive = naive_psd_2_cropped,
             psd1_slide = self.interferometer_1.average_psd,
             psd2_slide = self.interferometer_2.average_psd,
             alphas = alphas,
-            sample_rate = sample_rate,
+            sample_rate = self.sampling_frequency,
             orf = self.overlap_reduction_function,
             fref = fref,
-            notch_list_path=notch_list_path,
+            frequency_mask=self.frequency_mask,
             window_fftgram_dict = window_fftgram_dict,
             return_naive_and_averaged_sigmas = return_naive_and_averaged_sigmas,
         )

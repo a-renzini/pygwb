@@ -1,7 +1,6 @@
 import numpy as np
 from loguru import logger
 
-from pygwb.constants import H0
 from pygwb.notch import StochNotch, StochNotchList
 from pygwb.postprocessing import calculate_point_estimate_sigma_spectra
 from pygwb.util import calc_bias
@@ -50,48 +49,10 @@ def dsc_cut(
     return dsigma >= dsc, dsigma
 
 
-def veto_lines(freqs: np.ndarray, lines: np.ndarray, df: float = 0):
-
-    """
-    Function that vetos noise lines
-
-    Parameters
-    ==========
-    freqs: array
-        An array of frequencies from a PSD
-
-    lines: array
-        a matrix of form [fmin,fmax] that gives the frequency range of the line
-
-    df: float
-        the frequency bin, used if you want to veto frequencies with a frequency bin of the line
-
-    Returns
-    =======
-    veto: bool
-        True: this frequency is contaminated by a noise line
-        False: this frequency is fine to use
-    """
-    nbins = len(freqs)
-    veto = np.zeros((nbins, 1), dtype="bool")
-
-    if not len(lines):
-        return veto
-
-    fmins = lines[:, 0]
-    fmaxs = lines[:, 1]
-    for fbin in range(len(freqs)):
-        freq = freqs[fbin]
-        index = np.argwhere((freq >= (fmins - df)) & (freq <= fmaxs + df))
-        if index.size != 0:
-            veto[fbin] = True
-    return veto
-
 
 def run_dsc(
     dsc: float,
     segment_duration: int,
-    sampling_frequency: int,
     psd1_naive: np.ndarray,
     psd2_naive: np.ndarray,
     psd1_slide: np.ndarray,
@@ -100,7 +61,7 @@ def run_dsc(
     sample_rate: np.int,
     orf: np.array,
     fref: np.int,
-    notch_list_path: str = "",
+    frequency_mask: np.array = True,
     window_fftgram_dict: dict = {"window_fftgram": "hann"},
     return_naive_and_averaged_sigmas: np.bool = False,
 ):
@@ -129,7 +90,7 @@ def run_dsc(
     sample_rate: np.int
         sampling rate (Hz)
 
-    notch_list_path: np.array
+    notch_list_path: str
         path to the notch list file
     
     window_fftgram_dict: dictionary, optional
@@ -150,22 +111,13 @@ def run_dsc(
     BadGPStimes: np.array
         an array of the GPS times to not be considered based on the chosen value of the delta sigma cut
     """
-    if notch_list_path:
-        lines_stochnotch = StochNotchList.load_from_file(f"{notch_list_path}")
-        lines = np.zeros((len(lines_stochnotch), 2))
-
-        for index, notch in enumerate(lines_stochnotch):
-            lines[index, 0] = lines_stochnotch[index].minimum_frequency
-            lines[index, 1] = lines_stochnotch[index].maximum_frequency
-    else:
-        lines = np.zeros((0, 2))
 
     logger.info("Running delta sigma cut")
     nalphas = len(alphas)
     times = np.array(psd1_naive.times)
     ntimes = len(times)
     df = psd1_naive.df.value
-    dt = psd1_naive.df.value ** (-1)
+    dt = 1/sample_rate #psd1_naive.df.value ** (-1)
     # Naive estimate
     bf_ns = calc_bias(
         segmentDuration=segment_duration,
@@ -186,11 +138,8 @@ def run_dsc(
     overall_cut = np.zeros((ntimes, 1), dtype="bool")
     cuts = np.zeros((nalphas, ntimes), dtype="bool")
     dsigmas = np.zeros((nalphas, ntimes))
-    veto = veto_lines(freqs=freqs, lines=lines)
-    keep = np.squeeze(~veto)
 
-    for alpha in range(nalphas):
-        Hf = (freqs / fref) ** alphas[alpha]
+    for idx, alpha in enumerate(alphas):
         cut = np.zeros((ntimes, 1), dtype="bool")
         dsigma = np.zeros((ntimes, 1), dtype="float")
         for time in range(len(times)):
@@ -208,8 +157,8 @@ def run_dsc(
                     window_fftgram_dict=window_fftgram_dict,
                     segment_duration=segment_duration,
                     csd = None,
-                    fref=1,
-                    alpha=0,
+                    fref=fref,
+                    alpha=alpha,
                 )
             
             slide_sigma_with_Hf = calculate_point_estimate_sigma_spectra(
@@ -221,15 +170,15 @@ def run_dsc(
                     window_fftgram_dict=window_fftgram_dict,
                     segment_duration=segment_duration,
                     csd = None,
-                    fref=1,
-                    alpha=0,
+                    fref=fref,
+                    alpha=alpha,
                 )
 
             naive_sensitivity_integrand_with_Hf = 1./naive_sigma_with_Hf
             slide_sensitivity_integrand_with_Hf = 1./slide_sigma_with_Hf
 
-            naive_sigma_alpha = np.sqrt(1 / np.sum(naive_sensitivity_integrand_with_Hf[keep]))
-            slide_sigma_alpha = np.sqrt(1 / np.sum(slide_sensitivity_integrand_with_Hf[keep]))
+            naive_sigma_alpha = np.sqrt(1 / np.sum(naive_sensitivity_integrand_with_Hf[frequency_mask]))
+            slide_sigma_alpha = np.sqrt(1 / np.sum(slide_sensitivity_integrand_with_Hf[frequency_mask]))
 
             cut[time], dsigma[time] = dsc_cut(
                 naive_sigma=naive_sigma_alpha,
@@ -239,25 +188,21 @@ def run_dsc(
                 bf_ns=bf_ns,
             )
 
-        cuts[alpha, :] = np.squeeze(cut)
-        dsigmas[alpha, :] = np.squeeze(dsigma)
+        cuts[idx, :] = np.squeeze(cut)
+        dsigmas[idx, :] = np.squeeze(dsigma)
 
     for time in range(len(times)):
         overall_cut[time] = any(cuts[:, time])
 
     BadGPStimes = times[np.squeeze(overall_cut)]
 
+    dsigmas_dict = {}
+    dsigmas_dict['alphas'] = alphas
+    dsigmas_dict['times'] = times
+    dsigmas_dict['values'] = dsigmas
+
     if return_naive_and_averaged_sigmas==True:
-        dsigmas_dict = {}
-        dsigmas_dict['alphas'] = alphas
-        dsigmas_dict['times'] = times
-        dsigmas_dict['values'] = dsigmas
         dsigmas_dict['slide_sigma'] = slide_sigma_alpha * bf_ss
         dsigmas_dict['naive_sigma'] = naive_sigma_alpha * bf_ns 
-    else:
-        dsigmas_dict = {}
-        dsigmas_dict['alphas'] = alphas
-        dsigmas_dict['times'] = times
-        dsigmas_dict['values'] = dsigmas
 
     return BadGPStimes, dsigmas_dict
