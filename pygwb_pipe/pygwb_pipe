@@ -121,7 +121,6 @@ def main():
     base_12.calculate_delta_sigma_cut(
         delta_sigma_cut = params.delta_sigma_cut,
         alphas = params.alphas_delta_sigma_cut,
-        sample_rate = params.new_sample_rate,
         fref = params.fref,
         flow=params.flow,
         fhigh=params.fhigh,
