@@ -124,6 +124,7 @@ def main():
         fref = params.fref,
         flow=params.flow,
         fhigh=params.fhigh,
+        return_naive_and_averaged_sigmas = True
     )
 
     logger.info(

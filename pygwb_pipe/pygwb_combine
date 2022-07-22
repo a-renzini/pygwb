@@ -80,13 +80,24 @@ def main():
     times = [int(sorting_function(files_ptest[idx])) for idx in range(len(files_ptest))]
     frequencies = np.load(files_ptest[0])["frequencies"]
 
+    # spectral objects
     Y_j = []
     sigma_j = []
     Y_spectra_j = []
     sigma_spectra_j = []
+    # DQ objects
+    naive_sigmas_j = []
+    slide_sigmas_j = []
+    delta_sigmas_j = []
+    badGPStimes_j = []
+
     pt_est_sigma_unweighted_path = os.path.join(
         combine_args.out_path,
         f"point_estimate_sigma_{times[0]}-{times[-1]}_UNWEIGHTED.npz",
+    )
+    delta_sigma_cut_output_path = os.path.join(
+        combine_args.out_path,
+        f"delta_sigma_cut_{times[0]}-{times[-1]}.npz",
     )
     pt_est_sigma_spectra_path = os.path.join(
         combine_args.out_path,
@@ -100,12 +111,25 @@ def main():
         sigma_j.append(data_file["sigma"])
         Y_spectra_j.append(data_file["point_estimate_spectrum"])
         sigma_spectra_j.append(data_file["sigma_spectrum"])
+        naive_sigmas_j.append(data_file["naive_sigma_values"])
+        slide_sigmas_j.append(data_file["slide_sigma_values"])
+        delta_sigmas_j.append(data_file["delta_sigma_values"])
+        badGPStimes_j.append(data_file["badGPStimes"])
 
     Y_j = np.array(Y_j)
     sigma_j = np.array(sigma_j)
-    np.savez(pt_est_sigma_unweighted_path, point_estimate=Y_j, sigma=sigma_j)
+    np.savez(pt_est_sigma_unweighted_path, point_estimate=y_j, sigma=sigma_j)
     logger.info(
-        f"Saved file with unweighted point estimate and sigma values for all times in run:\n {pt_est_sigma_unweighted_path}."
+        f"saved file with unweighted point estimate and sigma values for all times in run:\n {pt_est_sigma_unweighted_path}."
+    )
+
+    naive_sigmas_j = np.array(naive_sigmas_j)
+    slide_sigmas_j = np.array(slide_sigmas_j)
+    delta_sigmas_j = np.array(delta_sigmas_j)
+    badGPStimes_j = np.array(badGPStimes_j)
+    np.savez(delta_sigma_cut_output_path, naive_sigmas=naive_sigmas_j, slide_sigmas=slide_sigmas_j, delta_sigmas=delta_sigmas_j, badGPStimes=badGPStimes_j)
+    logger.info(
+        f"saved file with unweighted point estimate and sigma values for all times in run:\n {pt_est_sigma_unweighted_path}."
     )
 
     Y_spectrum_combined, sigma_spectrum_combined = combine_spectra_with_sigma_weights(

@@ -1246,6 +1246,13 @@ class Baseline(object):
         badGPStimes,
         delta_sigmas,
     ):
+        try:
+            naive_sigma_values = delta_sigmas['naive_sigmas']
+            slide_sigma_values = delta_sigmas['slide_sigmas']
+        except KeyError:
+            naive_sigma_values = None
+            slide_sigma_values = None
+
         np.savez(
             filename,
             frequencies=frequencies,
@@ -1259,6 +1266,8 @@ class Baseline(object):
             delta_sigma_alphas=delta_sigmas['alphas'],
             delta_sigma_times=delta_sigmas['times'],
             delta_sigma_values=delta_sigmas['values'],
+            naive_sigma_values=naive_sigma_values,
+            slide_sigma_values=slide_sigma_values
         )
 
     def _pickle_save(
@@ -1332,6 +1341,11 @@ class Baseline(object):
             "delta_sigma_alphas": delta_sigmas['alphas'],
             "delta_sigma_values": delta_sigmas['values'].tolist(),
         }
+        try:
+            save_dictionary["naive_sigma_values"] = delta_sigmas['naive_sigmas'].tolist()
+            save_dictionary["slide_sigma_values"] = delta_sigmas['slide_sigmas'].tolist()
+        except KeyError:
+            pass
 
         with open(filename, "w") as outfile:
             json.dump(save_dictionary, outfile)
@@ -1382,6 +1396,11 @@ class Baseline(object):
         delta_sigmas_group.create_dataset("delta_sigma_alphas", data=delta_sigmas['alphas'], compression=compression)
         delta_sigmas_group.create_dataset("delta_sigma_times", data=delta_sigmas['times'], compression=compression)
         delta_sigmas_group.create_dataset("delta_sigma_values", data=delta_sigmas['values'], compression=compression)
+        try:
+            delta_sigmas_group.create_dataset("naive_sigma_values", data=delta_sigmas['naive_sigmas'], compression=compression)
+            delta_sigmas_group.create_dataset("slide_sigma_values", data=delta_sigmas['slide_sigmas'], compression=compression)
+        except KeyError:
+            pass
 
         hf.close()
 
