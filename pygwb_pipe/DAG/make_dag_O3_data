@@ -54,10 +54,8 @@ def main():
     dag = outputdir / dag_args.dag_name
     
     # Get the local executable
-    #executable = shutil.which('pygwb_pipe')
+    executable = shutil.which('pygwb_pipe')
     
-    executable = "/home/max.lalleman/public_html/Code/New_Clone_pyGWB/pygwb/pygwb_pipe/pygwb_pipe"
-
     # Args and tests for Args
 
     Times_list = np.loadtxt(f"{dag_args.job_file_path}", dtype = 'int',  delimiter = ' ')
