@@ -253,8 +253,9 @@ class TestBaseline(unittest.TestCase):
         base.badGPStimes = None
         base.delta_sigmas = None
         notch_file = "test/test_data/Official_O3_HL_notchlist.txt"
+        print(base.frequency_mask)
         base.calculate_delta_sigma_cut(
-            delta_sigma_cut=0.2, alphas=[-5, 0, 3], sample_rate=self.sampling_frequency , fref= 25,notch_list_path=notch_file
+            delta_sigma_cut=0.2, alphas=[-5, 0, 3], fref= 25
         )
         self.assertTrue(np.array_equal(badGPStimes_test, base.badGPStimes))
 
@@ -296,9 +297,7 @@ class TestBaseline(unittest.TestCase):
         base.calculate_delta_sigma_cut(
             delta_sigma_cut=np.inf,
             alphas=[-5, 0, 3],
-            sample_rate=self.sampling_frequency,
             fref=25,
-            notch_list_path="test/test_data/Official_O3_HL_notchlist.txt",
         )
 
         # set point estimate, sigma with notch list

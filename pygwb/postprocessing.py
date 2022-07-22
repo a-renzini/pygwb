@@ -195,31 +195,20 @@ def calculate_point_estimate_sigma_spectra(
     """
     S_alpha = 3 * H0.si.value ** 2 / (10 * np.pi ** 2) / freqs ** 3
     S_alpha *= (freqs / fref) ** alpha
+    var_fs = (
+        1
+        / (2 * segment_duration * (freqs[1] - freqs[0]))
+        * avg_psd_1
+        * avg_psd_2
+        / (orf ** 2 * S_alpha ** 2)
+    )
+
+    w1w2bar, w1w2squaredbar, _, _ = window_factors(int(sample_rate * segment_duration), window_fftgram_dict=window_fftgram_dict)
+    var_fs = var_fs * w1w2squaredbar / w1w2bar ** 2
     if csd is not None: 
         Y_fs = (csd) / (orf * S_alpha)
-        var_fs = (
-            1
-            / (2 * segment_duration * (freqs[1] - freqs[0]))
-            * avg_psd_1
-            * avg_psd_2
-            / (orf ** 2 * S_alpha ** 2)
-        )
-
-        w1w2bar, w1w2squaredbar, _, _ = window_factors(int(sample_rate * segment_duration), window_fftgram_dict=window_fftgram_dict)
-        var_fs = var_fs * w1w2squaredbar / w1w2bar ** 2
         return Y_fs, var_fs
     else:
-        var_fs = (
-            1
-            / (2 * segment_duration * (freqs[1] - freqs[0]))
-            * avg_psd_1
-            * avg_psd_2
-            / (orf ** 2 * S_alpha ** 2)
-        )
-
-        w1w2bar, w1w2squaredbar, _, _ = window_factors(int(sample_rate * segment_duration), window_fftgram_dict=window_fftgram_dict)
-
-        var_fs = var_fs * w1w2squaredbar / w1w2bar ** 2
         return var_fs
 
 def combine_spectra_with_sigma_weights(main_spectra, weights_spectra):

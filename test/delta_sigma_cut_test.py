@@ -82,7 +82,6 @@ class Test(unittest.TestCase):
         badGPStimes, _ = run_dsc(
             dsc=dsc,
             segment_duration=segment_duration,
-            sampling_frequency=sampling_frequency,
             psd1_naive=naive_psd_1,
             psd2_naive=naive_psd_2,
             psd1_slide=avg_psd_1,
@@ -91,7 +90,6 @@ class Test(unittest.TestCase):
             sample_rate = sampling_frequency,
             fref= fref, 
             orf=np.array([1]),
-            notch_list_path=notch_file,
         )
 
         self.assertTrue(badGPStimes[0], 1.24764440e09)
