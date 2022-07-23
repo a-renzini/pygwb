@@ -10,7 +10,7 @@ from pygwb.constants import H0
 from .util import calc_bias, window_factors
 
 
-def postprocess_Y_sigma(Y_fs, var_fs, segment_duration, deltaF, new_sample_rate, window_fftgram_dict={"window_fftgram": "hann"}):
+def postprocess_Y_sigma(Y_fs, var_fs, segment_duration, deltaF, new_sample_rate, frequency_mask=True, window_fftgram_dict={"window_fftgram": "hann"}):
     """Run postprocessing of point estimate and sigma spectrograms, combining even and
     odd segments. For more details see -
 
@@ -49,10 +49,10 @@ def postprocess_Y_sigma(Y_fs, var_fs, segment_duration, deltaF, new_sample_rate,
     GAMMA_even = np.nansum(var_fs[evens] ** -1, axis=0)
     X_odd = np.nansum(Y_fs[odds] / var_fs[odds], axis=0)
     GAMMA_odd = np.nansum(var_fs[odds] ** -1, axis=0)
-    sigma2_oo = 1 / np.nansum(GAMMA_odd)
-    sigma2_ee = 1 / np.nansum(GAMMA_even)
-    sigma2_1 = 1 / np.nansum(var_fs[0, :] ** -1)
-    sigma2_N = 1 / np.nansum(var_fs[-1, :] ** -1)
+    sigma2_oo = 1 / np.nansum(GAMMA_odd[frequency_mask])
+    sigma2_ee = 1 / np.nansum(GAMMA_even[frequency_mask])
+    sigma2_1 = 1 / np.nansum(var_fs[0, frequency_mask] ** -1)
+    sigma2_N = 1 / np.nansum(var_fs[-1, frequency_mask] ** -1)
     sigma2IJ = 1 / sigma2_oo + 1 / sigma2_ee - (1 / 2) * (1 / sigma2_1 + 1 / sigma2_N)
 
     Y_f_new = (
