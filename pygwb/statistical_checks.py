@@ -23,7 +23,7 @@ class StatisticalChecks(object):
         sliding_times_all,
         sliding_omega_all,
         sliding_sigmas_all,
-        naive_sigma_all,
+        naive_sigmas_all,
         point_estimate_spectrum,
         sigma_spectrum,
         freqs,
@@ -43,7 +43,7 @@ class StatisticalChecks(object):
             Array of sliding omegas before the bad GPS times from the delta sigma cut are applied.
         sliding_sigmas_all: array
             Array of sliding sigmas before the bad GPS times from the delta sigma cut are applied.
-        naive_sigma_all: array
+        naive_sigmas_all: array
             Array of naive sigmas before the bad GPS times from the delta sigma cut are applied.
         point_estimate_spectrum: array
             Array containing the point estimate spectrum. Each entry in this array corresponds to the point estimate spectrum evaluated at the corresponding frequency in the freqs array.
@@ -66,15 +66,18 @@ class StatisticalChecks(object):
         =======
         Initializes an instance of the statistical checks class.
         """
+        self.params = Parameters()
+        self.params.update_from_file(param_file)
+
         self.sliding_times_all = sliding_times_all
         self.days_all = (sliding_times_all - sliding_times_all[0]) / 86400.0
         self.sliding_omega_all = sliding_omega_all
         self.sliding_sigmas_all = sliding_sigmas_all
-        self.naive_sigma_all = naive_sigma_all
+        self.naive_sigmas_all = naive_sigmas_all
         self.badGPStimes = badGPSTimes
         self.delta_sigmas_all = delta_sigmas
         self.sliding_deviate_all = (
-            self.sliding_omega_all - np.mean(self.sliding_omega_all)
+            self.sliding_omega_all - np.nanmean(self.sliding_omega_all)
         ) / self.sliding_sigmas_all
 
         self.sigma_spectrum = sigma_spectrum
@@ -82,9 +85,6 @@ class StatisticalChecks(object):
 
         self.plot_dir = plot_dir
         
-        self.params = Parameters()
-        self.params.update_from_file(param_file)
-
         self.baseline_name = baseline_name
         self.segment_duration = self.params.segment_duration
         self.deltaF = self.params.frequency_resolution
@@ -132,7 +132,7 @@ class StatisticalChecks(object):
         days_cut = self.days_all.copy()
         sliding_omega_cut = self.sliding_omega_all.copy()
         sliding_sigmas_cut = self.sliding_sigmas_all.copy()
-        naive_sigma_cut = self.naive_sigma_all.copy()
+        naive_sigma_cut = self.naive_sigmas_all.copy()
         delta_sigma_cut = self.delta_sigmas_all.copy()
         sliding_deviate_cut = self.sliding_deviate_all.copy()
 
@@ -143,10 +143,11 @@ class StatisticalChecks(object):
         naive_sigma_cut = naive_sigma_cut[bad_gps_mask]
         delta_sigma_cut = delta_sigma_cut[bad_gps_mask]
         sliding_deviate_cut = (
-            sliding_omega_cut - np.mean(self.sliding_omega_all)
+            sliding_omega_cut - np.nanmean(self.sliding_omega_all)
         ) / sliding_sigmas_cut
+
         sliding_deviate_KS = (
-            sliding_omega_cut - np.mean(sliding_omega_cut)
+            sliding_omega_cut - np.nanmean(sliding_omega_cut)
         ) / sliding_sigmas_cut
 
         return (
@@ -625,7 +626,7 @@ class StatisticalChecks(object):
 
         axs.scatter(
             self.delta_sigmas_all,
-            self.naive_sigma_all,
+            self.naive_sigmas_all,
             marker=".",
             c="r",
             label="All data",
@@ -670,11 +671,11 @@ class StatisticalChecks(object):
         minx0 = min(self.delta_sigmas_cut)
         minx0 -= minx0/10.
         
-        maxy0 = max(self.sliding_deviate_cut)
+        maxy0 = np.nanmax(self.sliding_deviate_cut)
         maxy0 += maxy0/10.
-        
-        miny0 = min(self.sliding_deviate_cut)
+        miny0 = np.nanmin(self.sliding_deviate_cut)
         miny0 -= miny0/10.
+        
         axs[0].scatter(
             self.delta_sigmas_all,
             self.sliding_deviate_all,
@@ -796,7 +797,9 @@ class StatisticalChecks(object):
 
         sorted_deviates = np.sort(self.sliding_deviate_KS / bias_factor)
 
-        count, bins_count = np.histogram(sorted_deviates, bins=500)
+        nanmask = ~np.isnan(sorted_deviates)
+        sorted_deviates_nansafe = sorted_deviates[nanmask]
+        count, bins_count = np.histogram(sorted_deviates_nansafe, bins=500)
         pdf = count / sum(count)
         cdf = np.cumsum(pdf)
 
@@ -858,7 +861,7 @@ class StatisticalChecks(object):
         """
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
         axs.hist(
-            1 / np.mean(self.sliding_sigmas_cut ** 2) * self.sliding_sigmas_cut ** 2,
+            1 / np.nanmean(self.sliding_sigmas_cut ** 2) * self.sliding_sigmas_cut ** 2,
             bins=1500,
             color="b",
             ec="k",
@@ -896,8 +899,13 @@ class StatisticalChecks(object):
         def func(x, a, b):
             return a * (x - t_obs / 2) * t_obs + b
 
+
+        nanmask = ~np.isnan(self.sliding_omega_cut)
+        sliding_omega_cut_nansafe = self.sliding_omega_cut[nanmask]
+        sliding_sigmas_cut_nansafe = self.sliding_sigmas_cut[nanmask]
+
         popt, pcov = curve_fit(
-            func, self.days_cut, self.sliding_omega_cut, sigma=self.sliding_sigmas_cut
+            func, self.days_cut[nanmask], sliding_omega_cut_nansafe, sigma=sliding_sigmas_cut_nansafe
         )
         c1, c2 = popt[0], popt[1]
         axs.plot(self.days_cut, func(self.days_cut, c1, c2), "r")
