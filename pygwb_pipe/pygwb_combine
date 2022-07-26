@@ -53,7 +53,7 @@ def main():
     )
     combine_parser.add_argument(
         "--h0",
-        help="Value of h0 to use. Default is 0.7.",
+        help="Value of h0 to use. Default is pygwb.constants.h0.",
         action="store",
         type=float,
         required=False,
@@ -63,7 +63,7 @@ def main():
     )
     combine_args = combine_parser.parse_args()
     if not combine_args.h0:
-        combine_args.h0 = 0.7
+        combine_args.h0 = pygwb_h0
     if not combine_args.out_path:
         combine_args.out_path = Path("./")
     combine_args.alpha = np.float(eval(combine_args.alpha))
@@ -106,26 +106,27 @@ def main():
     )
 
     for file in files_ptest:
-        data_file = np.load(file)
+        data_file = np.load(file, allow_pickle=True)
         Y_j.append(data_file["point_estimate"])
         sigma_j.append(data_file["sigma"])
         Y_spectra_j.append(data_file["point_estimate_spectrum"])
         sigma_spectra_j.append(data_file["sigma_spectrum"])
-        naive_sigmas_j.append(data_file["naive_sigma_values"])
-        slide_sigmas_j.append(data_file["slide_sigma_values"])
-        delta_sigmas_j.append(data_file["delta_sigma_values"])
+        naive_sigmas_j.append(data_file["naive_sigma_values"].T)
+        slide_sigmas_j.append(data_file["slide_sigma_values"].T)
+        delta_sigmas_j.append(data_file["delta_sigma_values"].T)
         badGPStimes_j.append(data_file["badGPStimes"])
 
     Y_j = np.array(Y_j)
     sigma_j = np.array(sigma_j)
-    np.savez(pt_est_sigma_unweighted_path, point_estimate=y_j, sigma=sigma_j)
+    np.savez(pt_est_sigma_unweighted_path, point_estimate=Y_j, sigma=sigma_j)
     logger.info(
         f"saved file with unweighted point estimate and sigma values for all times in run:\n {pt_est_sigma_unweighted_path}."
     )
 
-    naive_sigmas_j = np.array(naive_sigmas_j)
-    slide_sigmas_j = np.array(slide_sigmas_j)
-    delta_sigmas_j = np.array(delta_sigmas_j)
+    #print(len(naive_sigmas_j), len(naive_sigmas_j[0]), len(naive_sigmas_j[0][0]))
+    naive_sigmas_j = np.concatenate(naive_sigmas_j)
+    slide_sigmas_j = np.concatenate(slide_sigmas_j)
+    delta_sigmas_j = np.concatenate(delta_sigmas_j)
     badGPStimes_j = np.array(badGPStimes_j)
     np.savez(delta_sigma_cut_output_path, naive_sigmas=naive_sigmas_j, slide_sigmas=slide_sigmas_j, delta_sigmas=delta_sigmas_j, badGPStimes=badGPStimes_j)
     logger.info(

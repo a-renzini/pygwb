@@ -206,7 +206,7 @@ def run_dsc(
     dsigmas_dict['values'] = dsigmas
 
     if return_naive_and_averaged_sigmas==True:
-        dsigmas_dict['slide_sigma'] = slide_sigmas * bf_ss
-        dsigmas_dict['naive_sigma'] = naive_sigmas * bf_ns 
+        dsigmas_dict['slide_sigmas'] = slide_sigmas * bf_ss
+        dsigmas_dict['naive_sigmas'] = naive_sigmas * bf_ns 
 
     return BadGPStimes, dsigmas_dict
