@@ -1022,6 +1022,7 @@ class Baseline(object):
                 fhigh=fhigh,
                 polarization=polarization,
                 apply_dsc=apply_dsc,
+                notch_list_path=notch_list_path
             )
 
         self.set_frequency_mask(notch_list_path=notch_list_path, apply_notches=apply_notches)
