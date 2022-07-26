@@ -10,9 +10,12 @@ from scipy.optimize import curve_fit
 
 from pygwb.baseline import Baseline
 from pygwb.parameters import Parameters
-from pygwb.postprocessing import calc_Y_sigma_from_Yf_sigmaf, calculate_point_estimate_sigma_spectra
-
+from pygwb.postprocessing import (
+    calc_Y_sigma_from_Yf_sigmaf,
+    calculate_point_estimate_sigma_spectra,
+)
 from pygwb.util import StatKS, calc_bias, interpolate_frequency_series
+
 
 class StatisticalChecks(object):
     def __init__(
