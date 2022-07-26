@@ -1,17 +1,22 @@
 import argparse
-import numpy as np
+import sys
 from os import listdir
 from os.path import isfile, join
 
-import sys
+import numpy as np
+
 sys.path.insert(0,'..')
 
-from pygwb.statistical_checks import StatisticalChecks
 from pygwb.baseline import Baseline
-from pygwb.parameters import Parameters
-from pygwb.postprocessing import calculate_point_estimate_sigma_spectra, calc_Y_sigma_from_Yf_sigmaf
 from pygwb.detector import Interferometer
-from pygwb.omega_spectra import OmegaSpectrogram 
+from pygwb.omega_spectra import OmegaSpectrogram
+from pygwb.parameters import Parameters
+from pygwb.postprocessing import (
+    calc_Y_sigma_from_Yf_sigmaf,
+    calculate_point_estimate_sigma_spectra,
+)
+from pygwb.statistical_checks import StatisticalChecks
+
 
 def sortingFunctionCSD(item):
     return np.float64(item[10:].partition('-')[0])  
