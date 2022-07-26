@@ -85,11 +85,14 @@ def main():
     sigma_j = []
     Y_spectra_j = []
     sigma_spectra_j = []
+    Y_seg = []
+    sigma_seg = []
     # DQ objects
     naive_sigmas_j = []
     slide_sigmas_j = []
     delta_sigmas_j = []
     badGPStimes_j = []
+    times_j = []
 
     pt_est_sigma_unweighted_path = os.path.join(
         combine_args.out_path,
@@ -114,8 +117,17 @@ def main():
         naive_sigmas_j.append(data_file["naive_sigma_values"].T)
         slide_sigmas_j.append(data_file["slide_sigma_values"].T)
         delta_sigmas_j.append(data_file["delta_sigma_values"].T)
+        times_j.append(data_file["delta_sigma_times"])
         badGPStimes_j.append(data_file["badGPStimes"])
 
+        Y_s, sigma_s = calc_Y_sigma_from_Yf_sigmaf(
+            data_file["point_estimate_spectrogram"], data_file["sigma_spectrogram"]
+        )
+        Y_seg.append(Y_s)
+        sigma_seg.append(sigma_s)
+
+    Y_seg = np.concatenate(Y_seg)
+    sigma_seg = np.concatenate(sigma_seg)
     Y_j = np.array(Y_j)
     sigma_j = np.array(sigma_j)
     np.savez(pt_est_sigma_unweighted_path, point_estimate=Y_j, sigma=sigma_j)
@@ -123,12 +135,19 @@ def main():
         f"saved file with unweighted point estimate and sigma values for all times in run:\n {pt_est_sigma_unweighted_path}."
     )
 
-    #print(len(naive_sigmas_j), len(naive_sigmas_j[0]), len(naive_sigmas_j[0][0]))
     naive_sigmas_j = np.concatenate(naive_sigmas_j)
     slide_sigmas_j = np.concatenate(slide_sigmas_j)
     delta_sigmas_j = np.concatenate(delta_sigmas_j)
-    badGPStimes_j = np.array(badGPStimes_j)
-    np.savez(delta_sigma_cut_output_path, naive_sigmas=naive_sigmas_j, slide_sigmas=slide_sigmas_j, delta_sigmas=delta_sigmas_j, badGPStimes=badGPStimes_j)
+    times_j = np.concatenate(times_j)
+    badGPStimes_j = np.concatenate(badGPStimes_j)
+    np.savez(
+        delta_sigma_cut_output_path,
+        naive_sigmas=naive_sigmas_j,
+        slide_sigmas=slide_sigmas_j,
+        delta_sigmas=delta_sigmas_j,
+        badGPStimes=badGPStimes_j,
+        times=times_j,
+    )
     logger.info(
         f"saved file with unweighted point estimate and sigma values for all times in run:\n {pt_est_sigma_unweighted_path}."
     )
@@ -179,8 +198,8 @@ def main():
         alpha=combine_args.alpha,
         fref=combine_args.fref,
     )
-    Y_estimate *= (Y_spectrum.h0/combine_args.h0)**2
-    sigma_estimate *= (sigma_spectrum.h0/combine_args.h0)**2
+    Y_estimate *= (Y_spectrum.h0 / combine_args.h0) ** 2
+    sigma_estimate *= (sigma_spectrum.h0 / combine_args.h0) ** 2
 
     logger.info(
         "Final point estimate weighted with alpha={:.2f}".format(combine_args.alpha)
@@ -218,6 +237,8 @@ def main():
         sigma_estimate=sigma_estimate,
         point_estimate_spectrum=Y_reweight_spectrum.value,
         sigma_spectrum=sigma_reweight_spectrum.value,
+        point_estimates_seg_UW=Y_seg,
+        sigmas_seg_UW=sigma_seg,
     )
     logger.info(
         f"Saved file with weighted point estimate and sigma values and spectra:\n {pt_est_sigma_spectra_path}."

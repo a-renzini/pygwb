@@ -107,7 +107,7 @@ def main():
     for key in all_parameters_dict.keys():
         if not key in dictionary_parameters[script_args.Model]:
             raise AttributeError(
-                f"The parameter {key} you provided is not assiocated with the given model. \n These are the required parameters: {dictionary_parameters[script_args.Model]}."
+                f"The parameter {key} you provided is not associated with the given model. \n These are the required parameters: {dictionary_parameters[script_args.Model]}."
             )
       
     if not all(key in all_parameters_dict.keys() for key in dictionary_parameters[script_args.Model]):
