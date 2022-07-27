@@ -383,9 +383,18 @@ def coarse_grain_spectrogram(
         )
     else:
         coarse_frequencies = spectrogram.frequencies
-
-    output = Spectrogram(value, times=coarse_times, 
-                         frequencies=coarse_frequencies)
+        
+    # create gwpy spectrogram object
+    specgrams = []
+    # to avoid precision issues
+    deltaF = (coarse_frequencies[10] - coarse_frequencies[0])/10 
+    for ii in value:
+        specgrams.append(FrequencySeries(ii, f0=coarse_frequencies[0], 
+                    df = deltaF))
+        
+    output = Spectrogram.from_spectra(*specgrams, epoch=coarse_times[0].value, 
+                            dt=coarse_times[1].value-coarse_times[0].value)
+    
     return output
 
 
