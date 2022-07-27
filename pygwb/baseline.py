@@ -115,7 +115,7 @@ class Baseline(object):
 
     @property
     def overlap_reduction_function(self):
-        """Overlap reduction function associated to this baseline, calculated for the requested polarisation."""
+        """Overlap reduction function associated to this baseline, calculated for the requested polarization."""
         if self._orf_polarization == "tensor":
             return self.tensor_overlap_reduction_function
         elif self._orf_polarization == "vector":
@@ -146,7 +146,7 @@ class Baseline(object):
 
     @property
     def tensor_overlap_reduction_function(self):
-        """Overlap reduction function calculated for tensor polarisation."""
+        """Overlap reduction function calculated for tensor polarization."""
         if not self._tensor_orf_calculated:
             self._tensor_orf = self.calc_baseline_orf(
                 polarization="tensor", frequencies=self.frequencies
@@ -156,7 +156,7 @@ class Baseline(object):
 
     @property
     def vector_overlap_reduction_function(self):
-        """Overlap reduction function calculated for vector polarisation."""
+        """Overlap reduction function calculated for vector polarization."""
         if not self._vector_orf_calculated:
             self._vector_orf = self.calc_baseline_orf(polarization="vector")
             self._vector_orf_calculated = True
@@ -164,7 +164,7 @@ class Baseline(object):
 
     @property
     def scalar_overlap_reduction_function(self):
-        """Overlap reduction function calculated for scalar polarisation."""
+        """Overlap reduction function calculated for scalar polarization."""
         if not self._scalar_orf_calculated:
             self._scalar_orf = self.calc_baseline_orf(polarization="scalar")
             self._scalar_orf_calculated = True
@@ -534,9 +534,11 @@ class Baseline(object):
 
         Parameters
         ==========
-        polarisation: str
-            Polarisation of the signal to consider (scalar, vector, tensor)
-            for the orf calculation.
+        polarization: str, optional
+            Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation. 
+            Default is tensor.
+        frequencies: array_like, optional
+            Frequency array to use in the calculation of the orf. By default, self.frequencies is used.
 
         Returns:
         ========
@@ -585,9 +587,9 @@ class Baseline(object):
         interferometers: list
             List of interferometer names.
         duration: float, optional
-            segment duration
+            Segment duration.
         calibration_epsilon: float, optional
-            calibration uncertainty for this baseline
+            Calibration uncertainty for this baseline.
         """
         name = "".join([ifo.name for ifo in interferometers])
         return cls(
@@ -612,11 +614,14 @@ class Baseline(object):
         Parameters
         ==========
         interferometer_1/2: bilby Interferometer object
-            The two detectors spanning the baseline
+            The two detectors spanning this baseline.
         parameters: pygwb Parameters object
             Parameters object containing necessary parameters for
             the instantiation of the baseline, and subsequent
             analyses.
+        frequencies: array_like, optional
+            Frequency array to use in the instantiation of this baseline.
+            Default is None.
 
         Returns:
         ========
@@ -805,6 +810,9 @@ class Baseline(object):
             Lowest frequency to consider.
         fhigh: float
             Highest frequency to consider.
+        polarization: str, optional
+            Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation. 
+            Default is tensor.
         """
         # set CSD if not set
         # self.set_average_cross_spectral_density()
@@ -866,7 +874,6 @@ class Baseline(object):
     ):
         """
         Set time-integrated point estimate spectrum and variance in each frequency bin.
-        Point estimate is *unweighted* by alpha.
 
         Parameters
         ==========
@@ -883,6 +890,15 @@ class Baseline(object):
             High frequency. Default is 1726 Hz.
         notch_list_path: str, optional
             path to the notch list to use in the spectrum.
+        polarization: str, optional
+            Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation. 
+            Default is tensor.
+        apply_dsc: bool, optional
+            Apply delta sigma cut flag; if True, removes the badGPStimes from the spectra calculations. 
+            Default is True.
+        apply_notches: bool, optional
+            Apply spectral notches flag; if True, remove the notches specified in the notch_list from the spectra calculations. 
+            Default is True.
         """
         if apply_dsc == True:
             if not hasattr(self, "badGPStimes"):
@@ -968,7 +984,6 @@ class Baseline(object):
     def set_point_estimate_sigma(
         self,
         badtimes=None,
-        apply_weighting=True,
         alpha=0.0,
         fref=25,
         flow=20,
@@ -986,9 +1001,6 @@ class Baseline(object):
         badtimes: np.array, optional
             Array of times to exclude from point estimate/sigma calculation.
             If no times are passed, none will be excluded.
-        apply_weighting: bool, optional
-            Apply weighting flag; if True, the point estimate and sigma will be weighted using the alpha passed here.
-            Default is True.
         alpha: float, optional
             Spectral index to use in the re-weighting. Default is 0.
         fref: float, optional
@@ -1000,6 +1012,15 @@ class Baseline(object):
         notch_list_path: str, optional
             Path to the notch list to use in the spectrum; if the notch_list isn't set in the baseline,
             user can pass it directly here. If it is not set and if none is passed no notches will be applied.
+        polarization: str, optional
+            Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation. 
+            Default is Tensor.
+        apply_dsc: bool, optional
+            Apply delta sigma cut flag; if True, removes the badGPStimes from the spectra calculations. 
+            Default is True.
+        apply_notches: bool, optional
+            Apply spectral notches flag; if True, remove the notches specified in the notch_list from the spectra calculations. 
+            Default is True.
         """
 
         if hasattr(self, "point_estimate_spectrum"):
@@ -1081,6 +1102,9 @@ class Baseline(object):
             reference frequency (Hz)
         return_naive_and_averaged_sigmas: bool
             option to return naive and sliding sigmas
+        polarization: str, optional
+            Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation. 
+            Default is Tensor.
         window_fftgram_dict: dictionary, optional
             Dictionary with window characteristics. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`
         """
