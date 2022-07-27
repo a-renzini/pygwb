@@ -1074,10 +1074,6 @@ def run_statistical_checks_baseline_pickle(
     baseline_name = baseline_0.name
 
     bad_GPS_times = np.array([])
-    sigma_spectrograms = []
-    point_estimate_spectrograms = []
-    naive_psd_1 = []
-    naive_psd_2 = []
     delta_sigmas = []
     naive_sigmas = []
     sliding_times = []
@@ -1088,12 +1084,6 @@ def run_statistical_checks_baseline_pickle(
         base = Baseline.load_from_pickle(filename)
 
         bad_GPS_times = np.append(bad_GPS_times, base.badGPStimes)
-
-        sigma_spectrograms.append(base.sigma_spectrogram)
-        point_estimate_spectrograms.append(base.point_estimate_spectrogram)
-
-        naive_psd_1.append(base.interferometer_1.psd_spectrogram)
-        naive_psd_2.append(base.interferometer_2.psd_spectrogram)
 
         delta_sigmas.append(base.delta_sigmas["values"][1])
         naive_sigmas.append(base.delta_sigmas["values"][1])
