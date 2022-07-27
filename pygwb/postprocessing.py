@@ -119,16 +119,22 @@ def calc_Y_sigma_from_Yf_sigmaf(
     ====
     If passing in spectrograms, the point estimate and sigma will be calculated per
     spectrum, without any time-averaging applied.
+    Y_f and var_f can also be gwpy.Spectrogram objects, or numpy arrays. In these cases 
+    however the reweight functionality is not supported.
 
     """
     # Reweight in case one wants to pass it.
-    Y_f.reweight(new_alpha=alpha, new_fref=fref)
-    sigma_f.reweight(new_alpha=alpha, new_fref=fref)
+    if alpha is not None or fref is not None:
+        Y_f.reweight(new_alpha=alpha, new_fref=fref)
+        sigma_f.reweight(new_alpha=alpha, new_fref=fref)
     
-
     # now just strip off what we need...
-    Y_f = np.real(Y_f.value)
-    var_f = sigma_f.value ** 2
+    try:
+        Y_f = np.real(Y_f.value)
+        var_f = sigma_f.value ** 2
+    except AttributeError:
+        Y_f = np.real(Y_f)
+        var_f = sigma_f ** 2
 
     if isinstance(frequency_mask, np.ndarray):
         pass
@@ -240,9 +246,9 @@ def combine_spectra_with_sigma_weights(main_spectra, weights_spectra):
     combined_weights_spectrum: array_like
         Variance associated to the final spectrum obtained combining the given weights.
     """
-    res_1 = 1 / np.sum(1 / weights_spectra ** 2, axis=0)
+    res_1 = 1 / np.nansum(1 / weights_spectra ** 2, axis=0)
     combined_weights_spectrum = np.sqrt(res_1)
     combined_weighted_spectrum = (
-        np.sum(main_spectra / weights_spectra ** 2, axis=0) * res_1
+        np.nansum(main_spectra / weights_spectra ** 2, axis=0) * res_1
     )
     return combined_weighted_spectrum, combined_weights_spectrum

@@ -53,7 +53,7 @@ def main():
     )
     combine_parser.add_argument(
         "--h0",
-        help="Value of h0 to use. Default is 0.7.",
+        help="Value of h0 to use. Default is pygwb.constants.h0.",
         action="store",
         type=float,
         required=False,
@@ -63,7 +63,7 @@ def main():
     )
     combine_args = combine_parser.parse_args()
     if not combine_args.h0:
-        combine_args.h0 = 0.7
+        combine_args.h0 = pygwb_h0
     if not combine_args.out_path:
         combine_args.out_path = Path("./")
     combine_args.alpha = np.float(eval(combine_args.alpha))
@@ -80,13 +80,27 @@ def main():
     times = [int(sorting_function(files_ptest[idx])) for idx in range(len(files_ptest))]
     frequencies = np.load(files_ptest[0])["frequencies"]
 
+    # spectral objects
     Y_j = []
     sigma_j = []
     Y_spectra_j = []
     sigma_spectra_j = []
+    Y_seg = []
+    sigma_seg = []
+    # DQ objects
+    naive_sigmas_j = []
+    slide_sigmas_j = []
+    delta_sigmas_j = []
+    badGPStimes_j = []
+    times_j = []
+
     pt_est_sigma_unweighted_path = os.path.join(
         combine_args.out_path,
         f"point_estimate_sigma_{times[0]}-{times[-1]}_UNWEIGHTED.npz",
+    )
+    delta_sigma_cut_output_path = os.path.join(
+        combine_args.out_path,
+        f"delta_sigma_cut_{times[0]}-{times[-1]}.npz",
     )
     pt_est_sigma_spectra_path = os.path.join(
         combine_args.out_path,
@@ -95,17 +109,47 @@ def main():
     )
 
     for file in files_ptest:
-        data_file = np.load(file)
+        data_file = np.load(file, allow_pickle=True)
         Y_j.append(data_file["point_estimate"])
         sigma_j.append(data_file["sigma"])
         Y_spectra_j.append(data_file["point_estimate_spectrum"])
         sigma_spectra_j.append(data_file["sigma_spectrum"])
+        naive_sigmas_j.append(data_file["naive_sigma_values"].T)
+        slide_sigmas_j.append(data_file["slide_sigma_values"].T)
+        delta_sigmas_j.append(data_file["delta_sigma_values"].T)
+        times_j.append(data_file["delta_sigma_times"])
+        badGPStimes_j.append(data_file["badGPStimes"])
 
+        Y_s, sigma_s = calc_Y_sigma_from_Yf_sigmaf(
+            data_file["point_estimate_spectrogram"], data_file["sigma_spectrogram"]
+        )
+        Y_seg.append(Y_s)
+        sigma_seg.append(sigma_s)
+
+    Y_seg = np.concatenate(Y_seg)
+    sigma_seg = np.concatenate(sigma_seg)
     Y_j = np.array(Y_j)
     sigma_j = np.array(sigma_j)
     np.savez(pt_est_sigma_unweighted_path, point_estimate=Y_j, sigma=sigma_j)
     logger.info(
-        f"Saved file with unweighted point estimate and sigma values for all times in run:\n {pt_est_sigma_unweighted_path}."
+        f"saved file with unweighted point estimate and sigma values for all times in run:\n {pt_est_sigma_unweighted_path}."
+    )
+
+    naive_sigmas_j = np.concatenate(naive_sigmas_j)
+    slide_sigmas_j = np.concatenate(slide_sigmas_j)
+    delta_sigmas_j = np.concatenate(delta_sigmas_j)
+    times_j = np.concatenate(times_j)
+    badGPStimes_j = np.concatenate(badGPStimes_j)
+    np.savez(
+        delta_sigma_cut_output_path,
+        naive_sigmas=naive_sigmas_j,
+        slide_sigmas=slide_sigmas_j,
+        delta_sigmas=delta_sigmas_j,
+        badGPStimes=badGPStimes_j,
+        times=times_j,
+    )
+    logger.info(
+        f"saved file with unweighted point estimate and sigma values for all times in run:\n {pt_est_sigma_unweighted_path}."
     )
 
     Y_spectrum_combined, sigma_spectrum_combined = combine_spectra_with_sigma_weights(
@@ -154,8 +198,8 @@ def main():
         alpha=combine_args.alpha,
         fref=combine_args.fref,
     )
-    Y_estimate *= (Y_spectrum.h0/combine_args.h0)**2
-    sigma_estimate *= (sigma_spectrum.h0/combine_args.h0)**2
+    Y_estimate *= (Y_spectrum.h0 / combine_args.h0) ** 2
+    sigma_estimate *= (sigma_spectrum.h0 / combine_args.h0) ** 2
 
     logger.info(
         "Final point estimate weighted with alpha={:.2f}".format(combine_args.alpha)
@@ -193,6 +237,8 @@ def main():
         sigma_estimate=sigma_estimate,
         point_estimate_spectrum=Y_reweight_spectrum.value,
         sigma_spectrum=sigma_reweight_spectrum.value,
+        point_estimates_seg_UW=Y_seg,
+        sigmas_seg_UW=sigma_seg,
     )
     logger.info(
         f"Saved file with weighted point estimate and sigma values and spectra:\n {pt_est_sigma_spectra_path}."

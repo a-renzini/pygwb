@@ -1,3 +1,4 @@
+import copy
 import json
 import pickle
 import warnings
@@ -827,14 +828,14 @@ class Baseline(object):
 
         # don't get rid of information unless we need to.
         Y_fs, var_fs = calculate_point_estimate_sigma_spectra(
-            freqs = self.frequencies,
-            csd = self.average_csd,
-            avg_psd_1 = self.interferometer_1.average_psd,
-            avg_psd_2 = self.interferometer_2.average_psd,
-            orf = self.overlap_reduction_function,
-            sample_rate = self.sampling_frequency,
-            segment_duration = self.duration,
-            window_fftgram_dict = {"window_fftgram": "hann"},
+            freqs=self.frequencies,
+            csd=self.average_csd,
+            avg_psd_1=self.interferometer_1.average_psd,
+            avg_psd_2=self.interferometer_2.average_psd,
+            orf=self.overlap_reduction_function,
+            sample_rate=self.sampling_frequency,
+            segment_duration=self.duration,
+            window_fftgram_dict={"window_fftgram": "hann"},
             fref=fref,
             alpha=alpha,
         )
@@ -941,20 +942,30 @@ class Baseline(object):
         # start time, for metadata
         epoch = self.point_estimate_spectrogram.times[0]
 
-        self.point_estimate_spectrogram[bad_times_indexes, :] = 0
-        self.sigma_spectrogram[bad_times_indexes, :] = np.inf
-
         if self.sampling_frequency is None:
             raise ValueError(
                 "the sampling frequency is not set! Cannot proceed with spectrum calculation."
             )
 
+        if apply_dsc:
+            if len(self.delta_sigmas["times"]) == len(self.badGPStimes):
+                raise ValueError(
+                    "The delta sigma cut has flagged all times in this dataset. No point estimate/sigma values can be calculated."
+                )
+
+        point_estimate_spectrogram_postprocess = copy.deepcopy(
+            self.point_estimate_spectrogram.value
+        )
+        sigma_spectrogram_postprocess = copy.deepcopy(self.sigma_spectrogram.value)
+        point_estimate_spectrogram_postprocess[bad_times_indexes, :] = 0
+        sigma_spectrogram_postprocess[bad_times_indexes, :] = np.inf
+
         # setting the frequency mask for the before/after calculation
         self.set_frequency_mask(notch_list_path=notch_list_path, apply_notches=apply_notches)
 
         point_estimate, sigma = postprocess_Y_sigma(
-            self.point_estimate_spectrogram.value,
-            self.sigma_spectrogram.value**2,
+            point_estimate_spectrogram_postprocess,
+            sigma_spectrogram_postprocess ** 2,
             self.duration,
             deltaF,
             self.sampling_frequency,
@@ -1098,7 +1109,7 @@ class Baseline(object):
             high frequency. Default is 1726 Hz.
         notch_list_path: str, optional
             file path of the baseline notch list
-        fref: int 
+        fref: int
             reference frequency (Hz)
         return_naive_and_averaged_sigmas: bool
             option to return naive and sliding sigmas
@@ -1110,7 +1121,7 @@ class Baseline(object):
         """
         if not self._orf_polarization_set:
             self.orf_polarization = polarization
-        
+
         deltaF = self.frequencies[1] - self.frequencies[0]
         self.crop_frequencies_average_psd_csd(flow=flow, fhigh=fhigh)
         stride = self.duration * (1 - self.overlap_factor)
@@ -1129,29 +1140,30 @@ class Baseline(object):
         if notch_list_path:
             self.notch_list_path = notch_list_path
         if self.notch_list_path:
-            logger.debug("loading notches for delta sigma cut from " + self.notch_list_path)
+            logger.debug(
+                "loading notches for delta sigma cut from " + self.notch_list_path
+            )
             self.set_frequency_mask(self.notch_list_path)
         else:
             self.set_frequency_mask()
 
         badGPStimes, delta_sigmas = run_dsc(
-            dsc = delta_sigma_cut,
-            segment_duration = self.duration,
-            psd1_naive = naive_psd_1_cropped,
-            psd2_naive = naive_psd_2_cropped,
-            psd1_slide = self.interferometer_1.average_psd,
-            psd2_slide = self.interferometer_2.average_psd,
-            alphas = alphas,
-            sample_rate = self.sampling_frequency,
-            orf = self.overlap_reduction_function,
-            fref = fref,
+            dsc=delta_sigma_cut,
+            segment_duration=self.duration,
+            psd1_naive=naive_psd_1_cropped,
+            psd2_naive=naive_psd_2_cropped,
+            psd1_slide=self.interferometer_1.average_psd,
+            psd2_slide=self.interferometer_2.average_psd,
+            alphas=alphas,
+            sample_rate=self.sampling_frequency,
+            orf=self.overlap_reduction_function,
+            fref=fref,
             frequency_mask=self.frequency_mask,
-            window_fftgram_dict = window_fftgram_dict,
-            return_naive_and_averaged_sigmas = return_naive_and_averaged_sigmas,
+            window_fftgram_dict=window_fftgram_dict,
+            return_naive_and_averaged_sigmas=return_naive_and_averaged_sigmas,
         )
         self.badGPStimes = badGPStimes
         self.delta_sigmas = delta_sigmas
-
 
     def save_point_estimate_spectra(
         self,
@@ -1272,6 +1284,13 @@ class Baseline(object):
         badGPStimes,
         delta_sigmas,
     ):
+        try:
+            naive_sigma_values = delta_sigmas["naive_sigmas"]
+            slide_sigma_values = delta_sigmas["slide_sigmas"]
+        except KeyError:
+            naive_sigma_values = None
+            slide_sigma_values = None
+
         np.savez(
             filename,
             frequencies=frequencies,
@@ -1282,9 +1301,11 @@ class Baseline(object):
             point_estimate_spectrogram=point_estimate_spectrogram,
             sigma_spectrogram=sigma_spectrogram,
             badGPStimes=badGPStimes,
-            delta_sigma_alphas=delta_sigmas['alphas'],
-            delta_sigma_times=delta_sigmas['times'],
-            delta_sigma_values=delta_sigmas['values'],
+            delta_sigma_alphas=delta_sigmas["alphas"],
+            delta_sigma_times=delta_sigmas["times"],
+            delta_sigma_values=delta_sigmas["values"],
+            naive_sigma_values=naive_sigma_values,
+            slide_sigma_values=slide_sigma_values,
         )
 
     def _pickle_save(
@@ -1333,8 +1354,12 @@ class Baseline(object):
         list_point_estimate_spectrum_i = np.imag(point_estimate_spectrum.value).tolist()
         list_sigma_spectrum = sigma_spectrum.value.tolist()
 
-        list_point_estimate_segment_r = np.real(point_estimate_spectrogram.value).tolist()
-        list_point_estimate_segment_i = np.imag(point_estimate_spectrogram.value).tolist()
+        list_point_estimate_segment_r = np.real(
+            point_estimate_spectrogram.value
+        ).tolist()
+        list_point_estimate_segment_i = np.imag(
+            point_estimate_spectrogram.value
+        ).tolist()
         point_estimate_segment_times = point_estimate_spectrogram.times.value.tolist()
 
         list_sigma_segment = sigma_spectrogram.value.tolist()
@@ -1355,9 +1380,18 @@ class Baseline(object):
             "sigma_spectrogram": list_sigma_segment,
             "sigma_spectrogram_times": sigma_segment_times,
             "badGPStimes": badGPStimes_list,
-            "delta_sigma_alphas": delta_sigmas['alphas'],
-            "delta_sigma_values": delta_sigmas['values'].tolist(),
+            "delta_sigma_alphas": delta_sigmas["alphas"],
+            "delta_sigma_values": delta_sigmas["values"].tolist(),
         }
+        try:
+            save_dictionary["naive_sigma_values"] = delta_sigmas[
+                "naive_sigmas"
+            ].tolist()
+            save_dictionary["slide_sigma_values"] = delta_sigmas[
+                "slide_sigmas"
+            ].tolist()
+        except KeyError:
+            pass
 
         with open(filename, "w") as outfile:
             json.dump(save_dictionary, outfile)
@@ -1390,9 +1424,14 @@ class Baseline(object):
             data=point_estimate_spectrum,
             compression=compression,
         )
-        hf.create_dataset("sigma_spectrum", data=sigma_spectrum, compression=compression)
         hf.create_dataset(
-            "point_estimate", data=point_estimate, dtype="float", compression=compression
+            "sigma_spectrum", data=sigma_spectrum, compression=compression
+        )
+        hf.create_dataset(
+            "point_estimate",
+            data=point_estimate,
+            dtype="float",
+            compression=compression,
         )
         hf.create_dataset("sigma", data=sigma, dtype="float", compression=compression)
         hf.create_dataset(
@@ -1405,9 +1444,28 @@ class Baseline(object):
         )
         hf.create_dataset("badGPStimes", data=badGPStimes, compression=compression)
         delta_sigmas_group = hf.create_group("delta_sigmas")
-        delta_sigmas_group.create_dataset("delta_sigma_alphas", data=delta_sigmas['alphas'], compression=compression)
-        delta_sigmas_group.create_dataset("delta_sigma_times", data=delta_sigmas['times'], compression=compression)
-        delta_sigmas_group.create_dataset("delta_sigma_values", data=delta_sigmas['values'], compression=compression)
+        delta_sigmas_group.create_dataset(
+            "delta_sigma_alphas", data=delta_sigmas["alphas"], compression=compression
+        )
+        delta_sigmas_group.create_dataset(
+            "delta_sigma_times", data=delta_sigmas["times"], compression=compression
+        )
+        delta_sigmas_group.create_dataset(
+            "delta_sigma_values", data=delta_sigmas["values"], compression=compression
+        )
+        try:
+            delta_sigmas_group.create_dataset(
+                "naive_sigma_values",
+                data=delta_sigmas["naive_sigmas"],
+                compression=compression,
+            )
+            delta_sigmas_group.create_dataset(
+                "slide_sigma_values",
+                data=delta_sigmas["slide_sigmas"],
+                compression=compression,
+            )
+        except KeyError:
+            pass
 
         hf.close()
 

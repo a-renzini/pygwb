@@ -137,6 +137,8 @@ def run_dsc(
     freqs = np.array(psd1_naive.frequencies)
     overall_cut = np.zeros((ntimes, 1), dtype="bool")
     cuts = np.zeros((nalphas, ntimes), dtype="bool")
+    naive_sigmas = np.zeros((nalphas, ntimes))
+    slide_sigmas = np.zeros((nalphas, ntimes))
     dsigmas = np.zeros((nalphas, ntimes))
 
     for idx, alpha in enumerate(alphas):
@@ -179,6 +181,8 @@ def run_dsc(
 
             naive_sigma_alpha = np.sqrt(1 / np.sum(naive_sensitivity_integrand_with_Hf[frequency_mask]))
             slide_sigma_alpha = np.sqrt(1 / np.sum(slide_sensitivity_integrand_with_Hf[frequency_mask]))
+            naive_sigmas[idx, time] = naive_sigma_alpha
+            slide_sigmas[idx, time] = slide_sigma_alpha
 
             cut[time], dsigma[time] = dsc_cut(
                 naive_sigma=naive_sigma_alpha,
@@ -202,7 +206,7 @@ def run_dsc(
     dsigmas_dict['values'] = dsigmas
 
     if return_naive_and_averaged_sigmas==True:
-        dsigmas_dict['slide_sigma'] = slide_sigma_alpha * bf_ss
-        dsigmas_dict['naive_sigma'] = naive_sigma_alpha * bf_ns 
+        dsigmas_dict['slide_sigmas'] = slide_sigmas * bf_ss
+        dsigmas_dict['naive_sigmas'] = naive_sigmas * bf_ns 
 
     return BadGPStimes, dsigmas_dict
