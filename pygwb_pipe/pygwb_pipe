@@ -144,7 +144,7 @@ def main():
         logger.success(
             f"Ran stochastic search over times {int(params.t0)}-{int(params.tf)}"
         )
-        logger.success(f"\tPOINT ESIMATE: {base_12.point_estimate:e}")
+        logger.success(f"\tPOINT ESTIMATE: {base_12.point_estimate:e}")
         logger.success(f"\tSIGMA: {base_12.sigma:e}")
 
         data_file_name = f"{output_path}/point_estimate_sigma_{int(params.t0)}-{int(params.tf)}"
