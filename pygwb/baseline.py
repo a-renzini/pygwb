@@ -733,7 +733,7 @@ class Baseline(object):
         stride = self.duration * (1 - self.overlap_factor)
         csd_segment_offset = int(np.ceil(self.duration / stride))
         try:
-            self.average_csd = coarse_grain_spectrogram(self.csd)[
+            self.average_csd = self.csd[
                 csd_segment_offset : -(csd_segment_offset + 1) + 1
             ]
         except AttributeError:
@@ -787,7 +787,7 @@ class Baseline(object):
             self.sigma_spectrum = self.sigma_spectrum.crop(flow, fhigh + deltaF)
         if hasattr(self, "point_estimate"):
             self.set_point_estimate_sigma()
-
+             
     def set_point_estimate_sigma_spectrogram(
         self, alpha=0.0, fref=25, flow=20, fhigh=1726, polarization="tensor"
     ):
