@@ -124,12 +124,11 @@ class TestNetwork(unittest.TestCase):
 
     def test_set_point_estimate_sigma(self):
         self.net_load.set_point_estimate_sigma()
-        print(self.net_load.point_estimate, self.net_load.sigma)
-        self.assertEqual(self.net_load.point_estimate, -7.7614114123896e-06)
-        self.assertEqual(self.net_load.sigma, 1.7172280506416592e-06)
+        self.assertAlmostEqual(self.net_load.point_estimate, -7.763520365370773e-06)
+        self.assertAlmostEqual(self.net_load.sigma, 1.7169008374555915e-06)
         self.net_load.set_point_estimate_sigma(notch_list_path='./test/test_data/Official_O3_HL_notchlist.txt')
-        self.assertEqual(self.net_load.point_estimate, -6.1873227484780976e-06)
-        self.assertEqual(self.net_load.sigma, 1.811629574064474e-06)
+        self.assertAlmostEqual(self.net_load.point_estimate, -6.189550621936719e-06)
+        self.assertAlmostEqual(self.net_load.sigma,  1.8112843764856912e-06)
 
 if __name__ == "__main__":
     unittest.main()
