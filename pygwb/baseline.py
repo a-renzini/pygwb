@@ -171,7 +171,7 @@ class Baseline(object):
             self._scalar_orf_calculated = True
         return self._scalar_orf
 
-    def set_frequency_mask(self, notch_list_path=""):
+    def set_frequency_mask(self, notch_list_path="", apply_notches=True):
         """
         Set frequency mask to frequencies attribute.
 
@@ -183,10 +183,17 @@ class Baseline(object):
         mask = (self.frequencies >= self.minimum_frequency) & (
             self.frequencies <= self.maximum_frequency
         )
-        if notch_list_path:
-            notch_list = StochNotchList.load_from_file(notch_list_path)
-            notch_mask = notch_list.get_notch_mask(self.frequencies)
-            mask = np.logical_and(mask, notch_mask)
+        if apply_notches:
+            if notch_list_path:
+                self.notch_list_path = notch_list_path
+            if self.notch_list_path:
+                logger.debug("loading notches from " + self.notch_list_path)
+                notch_list = StochNotchList.load_from_file(self.notch_list_path)
+                notch_mask = notch_list.get_notch_mask(self.frequencies)
+                mask = np.logical_and(mask, notch_mask)
+            else:
+                logger.debug("no notching will be applied at this point.")
+
         self.frequency_mask = mask
 
     @property
@@ -853,8 +860,10 @@ class Baseline(object):
         fref=25,
         flow=20,
         fhigh=1726,
+        notch_list_path='',
         polarization="tensor",
         apply_dsc=True,
+        apply_notches=True,
     ):
         """
         Set time-integrated point estimate spectrum and variance in each frequency bin.
@@ -875,9 +884,6 @@ class Baseline(object):
             High frequency. Default is 1726 Hz.
         notch_list_path: str, optional
             path to the notch list to use in the spectrum.
-            If none is passed no notches will be applied - even if set in the baseline.
-            This is to ensure notching isn't applied automatically to spectra;
-            it is applied automatically only when integrating over frequencies.
         """
         if apply_dsc == True:
             if not hasattr(self, "badGPStimes"):
@@ -938,12 +944,16 @@ class Baseline(object):
         point_estimate_spectrogram_postprocess[bad_times_indexes, :] = 0
         sigma_spectrogram_postprocess[bad_times_indexes, :] = np.inf
 
+        # setting the frequency mask for the before/after calculation
+        self.set_frequency_mask(notch_list_path=notch_list_path, apply_notches=apply_notches)
+
         point_estimate, sigma = postprocess_Y_sigma(
             point_estimate_spectrogram_postprocess,
             sigma_spectrogram_postprocess ** 2,
             self.duration,
             deltaF,
             self.sampling_frequency,
+            frequency_mask=self.frequency_mask
         )
 
         self.point_estimate_spectrum = OmegaSpectrum(
@@ -1023,18 +1033,10 @@ class Baseline(object):
                 fhigh=fhigh,
                 polarization=polarization,
                 apply_dsc=apply_dsc,
+                notch_list_path=notch_list_path
             )
 
-        if apply_notches:
-            if notch_list_path:
-                self.notch_list_path = notch_list_path
-            if self.notch_list_path:
-                logger.debug("loading notches from " + self.notch_list_path)
-                self.set_frequency_mask(self.notch_list_path)
-            else:
-                self.set_frequency_mask()
-        else:
-            self.set_frequency_mask()
+        self.set_frequency_mask(notch_list_path=notch_list_path, apply_notches=apply_notches)
 
         Y, sigma = calc_Y_sigma_from_Yf_sigmaf(
             self.point_estimate_spectrum,
