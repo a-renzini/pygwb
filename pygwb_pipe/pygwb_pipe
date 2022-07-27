@@ -38,6 +38,9 @@ def main():
         "--calc_pt_est", help="Calculate omega point estimate and sigma from data.", action="store", type=str, required=False
     )
     pipe_parser.add_argument(
+        "--apply_dsc", help="Apply delta sigma cut when calculating final output.", action="store", type=str, required=False
+    )
+    pipe_parser.add_argument(
         "--pickle_out", help="Pickle output Baseline of the analysis.", action="store", type=str, required=False
     )
     pipe_parser.add_argument(
@@ -71,6 +74,11 @@ def main():
     else:
         pipe_calculate_point_estimate = True
     
+    if script_args.apply_dsc:
+        pipe_apply_dsc = bool(distutils.util.strtobool(script_args.apply_dsc))
+    else:
+        pipe_apply_dsc = True
+
     if script_args.pickle_out:
         pipe_pickle_baseline = bool(distutils.util.strtobool(script_args.pickle_out))
     else:
@@ -139,7 +147,7 @@ def main():
             fref=params.fref,
             flow=params.flow,
             fhigh=params.fhigh,
-            apply_dsc=False
+            apply_dsc=pipe_apply_dsc
         )
 
         logger.success(
