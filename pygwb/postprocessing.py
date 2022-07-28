@@ -99,7 +99,7 @@ def calc_Y_sigma_from_Yf_sigmaf(
     ==========
     Y_f: `pygwb.omega_spectrogram.OmegaSpectrogram`
         Point estimate spectrum
-    var_f: `pygwb.omega_spectrogram.OmegaSpectrogram`
+    sigma_f: `pygwb.omega_spectrogram.OmegaSpectrogram`
         Sigma spectrum
     frequency_mask: array-like, optional
         Boolean mask to apply to frequencies for the calculation.
