@@ -5,7 +5,7 @@ make sure you have installed the package (pip install .) and all requirements ar
 run
 
 ```
-./pygwb_pipe/pygwb_pipe --param_file ./pygwb_pipe/parameters.ini
+./pygwb_pipe/pygwb_pipe --param_file ./pygwb_pipe/parameters.ini --apply_dsc False
 ```
 if you would like to specify a start and end time, `-t0` and `t_f` are supported arguments.
 
@@ -17,4 +17,3 @@ SIGMA: 2.561543e-06
 ```
 
 If you get a different result *with the same ini file*, something meaningful has been changed in the pipe! 
-
