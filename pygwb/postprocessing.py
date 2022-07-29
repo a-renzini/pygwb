@@ -26,6 +26,8 @@ def postprocess_Y_sigma(Y_fs, var_fs, segment_duration, deltaF, new_sample_rate,
         Frequency resolution
     new_sample_rate : float
         sample rate of timeseries after resampling
+    frequency_mask: array-like, optional
+        Boolean mask to apply to frequencies for the calculation
     window_fftgram_dict : dictionary containing window information
     
     Returns:
@@ -119,7 +121,7 @@ def calc_Y_sigma_from_Yf_sigmaf(
     ====
     If passing in spectrograms, the point estimate and sigma will be calculated per
     spectrum, without any time-averaging applied.
-    Y_f and var_f can also be gwpy.Spectrogram objects, or numpy arrays. In these cases 
+    Y_f and sigma_f can also be gwpy.Spectrogram objects, or numpy arrays. In these cases 
     however the reweight functionality is not supported.
 
     """
