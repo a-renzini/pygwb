@@ -1086,7 +1086,7 @@ def run_statistical_checks_baseline_pickle(
         bad_GPS_times = np.append(bad_GPS_times, base.badGPStimes)
 
         delta_sigmas.append(base.delta_sigmas["values"][1])
-        naive_sigmas.append(base.delta_sigmas["values"][1])
+        naive_sigmas.append(base.delta_sigmas["naive_sigmas"][1])
         sliding_times.append(base.delta_sigmas["times"])
 
     delta_sigmas = np.concatenate(delta_sigmas)
