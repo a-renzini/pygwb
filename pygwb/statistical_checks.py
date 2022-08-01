@@ -104,7 +104,7 @@ class StatisticalChecks(object):
             self.sliding_times_cut,
             self.days_cut,
             self.sliding_omega_cut,
-            self.sliding_sigmas_cut,
+            self.sliding_sigma_cut,
             self.naive_sigma_cut,
             self.delta_sigmas_cut,
             self.sliding_deviate_cut,
@@ -131,7 +131,7 @@ class StatisticalChecks(object):
             Array of days after the bad GPS times were applied.
         sliding_omega_cut: array
             Array of the sliding omega values after the bad GPS times were applied.
-        sliding_sigmas_cut: array
+        sliding_sigma_cut: array
             Array of sliding sigmas after the bad GPS times were applied.
         naive_sigma_cut: array
             Array of naive sigmas after the bad GPS times were applied.
@@ -146,7 +146,7 @@ class StatisticalChecks(object):
         sliding_times_cut = self.sliding_times_all.copy()
         days_cut = self.days_all.copy()
         sliding_omega_cut = self.sliding_omega_all.copy()
-        sliding_sigmas_cut = self.sliding_sigmas_all.copy()
+        sliding_sigma_cut = self.sliding_sigmas_all.copy()
         naive_sigma_cut = self.naive_sigmas_all.copy()
         delta_sigma_cut = self.delta_sigmas_all.copy()
         sliding_deviate_cut = self.sliding_deviate_all.copy()
@@ -154,22 +154,22 @@ class StatisticalChecks(object):
         sliding_times_cut = sliding_times_cut[bad_gps_mask]
         days_cut = days_cut[bad_gps_mask]
         sliding_omega_cut = sliding_omega_cut[bad_gps_mask]
-        sliding_sigmas_cut = sliding_sigmas_cut[bad_gps_mask]
+        sliding_sigma_cut = sliding_sigma_cut[bad_gps_mask]
         naive_sigma_cut = naive_sigma_cut[bad_gps_mask]
         delta_sigma_cut = delta_sigma_cut[bad_gps_mask]
         sliding_deviate_cut = (
             sliding_omega_cut - np.nanmean(self.sliding_omega_all)
-        ) / sliding_sigmas_cut
+        ) / sliding_sigma_cut
 
         sliding_deviate_KS = (
             sliding_omega_cut - np.nanmean(sliding_omega_cut)
-        ) / sliding_sigmas_cut
+        ) / sliding_sigma_cut
 
         return (
             sliding_times_cut,
             days_cut,
             sliding_omega_cut,
-            sliding_sigmas_cut,
+            sliding_sigma_cut,
             naive_sigma_cut,
             delta_sigma_cut,
             sliding_deviate_cut,
@@ -178,7 +178,7 @@ class StatisticalChecks(object):
 
     def compute_running_quantities(self):
         """
-        Function that computes the running point estimate and running sigmas from the sliding point estimate and sliding sigmas. This is done only for the values after the delta sigma cut. This method does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_sigmas_cut).
+        Function that computes the running point estimate and running sigmas from the sliding point estimate and sliding sigmas. This is done only for the values after the delta sigma cut. This method does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_sigma_cut).
 
         Parameters
         ==========
@@ -191,16 +191,16 @@ class StatisticalChecks(object):
             Array containing the values of the running sigmas.
         """
         running_pt_estimate = self.sliding_omega_cut.copy()
-        running_sigmas = self.sliding_sigmas_cut.copy()
+        running_sigmas = self.sliding_sigma_cut.copy()
 
         ii = 0
         while ii < self.sliding_times_cut.shape[0] - 1:
             ii += 1
             numerator = running_pt_estimate[ii - 1] / (
                 running_sigmas[ii - 1] ** 2
-            ) + self.sliding_omega_cut[ii] / (self.sliding_sigmas_cut[ii] ** 2)
+            ) + self.sliding_omega_cut[ii] / (self.sliding_sigma_cut[ii] ** 2)
             denominator = 1.0 / (running_sigmas[ii - 1] ** 2) + 1 / (
-                self.sliding_sigmas_cut[ii] ** 2
+                self.sliding_sigma_cut[ii] ** 2
             )
             running_pt_estimate[ii] = numerator / denominator
             running_sigmas[ii] = np.sqrt(1.0 / denominator)
@@ -539,7 +539,7 @@ class StatisticalChecks(object):
         axs[1].plot(self.days_all, self.sliding_sigmas_all, c="r", label="All data")
         axs[1].plot(
             self.days_cut,
-            self.sliding_sigmas_cut,
+            self.sliding_sigma_cut,
             c="b",
             label="Data after Abs[\u03B4\u03C3]/\u03C3 outlier cut",
         )
@@ -605,8 +605,8 @@ class StatisticalChecks(object):
         axs[0].tick_params(axis="x", labelsize=16)
         axs[0].tick_params(axis="y", labelsize=16)
 
-        minx1 = min(self.sliding_sigmas_cut)
-        maxx1 = max(self.sliding_sigmas_cut)
+        minx1 = min(self.sliding_sigma_cut)
+        maxx1 = max(self.sliding_sigma_cut)
         nx = 50
 
         axs[1].hist(
@@ -619,7 +619,7 @@ class StatisticalChecks(object):
             range=(minx1, maxx1),
         )
         axs[1].hist(
-            self.sliding_sigmas_cut,
+            self.sliding_sigma_cut,
             bins=nx,
             color="b",
             ec="k",
@@ -727,10 +727,10 @@ class StatisticalChecks(object):
         axs[0].tick_params(axis="x", labelsize=16)
         axs[0].tick_params(axis="y", labelsize=16)
 
-        maxx1 = max(self.sliding_sigmas_cut)
+        maxx1 = max(self.sliding_sigma_cut)
         maxx1 += maxx1 / 10.0
 
-        minx1 = min(self.sliding_sigmas_cut)
+        minx1 = min(self.sliding_sigma_cut)
         minx1 -= minx1 / 10.0
 
         maxy1 = max(self.sliding_deviate_cut)
@@ -748,7 +748,7 @@ class StatisticalChecks(object):
             s=3,
         )
         axs[1].scatter(
-            self.sliding_sigmas_cut,
+            self.sliding_sigma_cut,
             self.sliding_deviate_cut,
             marker=".",
             c="b",
@@ -877,7 +877,7 @@ class StatisticalChecks(object):
 
     def plot_hist_sigma_squared(self):
         """
-        Generates and saves a histogram of \u03C3^2/<\u03C3^2>. The plot shows data after the delta-sigma (bad GPS times) cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_sigmas_cut).
+        Generates and saves a histogram of \u03C3^2/<\u03C3^2>. The plot shows data after the delta-sigma (bad GPS times) cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_sigma_cut).
 
         Parameters
         ==========
@@ -888,7 +888,7 @@ class StatisticalChecks(object):
         """
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
         axs.hist(
-            1 / np.nanmean(self.sliding_sigmas_cut ** 2) * self.sliding_sigmas_cut ** 2,
+            1 / np.nanmean(self.sliding_sigma_cut ** 2) * self.sliding_sigma_cut ** 2,
             bins=1500,
             color="b",
             ec="k",
@@ -928,24 +928,75 @@ class StatisticalChecks(object):
 
         nanmask = ~np.isnan(self.sliding_omega_cut)
         sliding_omega_cut_nansafe = self.sliding_omega_cut[nanmask]
-        sliding_sigmas_cut_nansafe = self.sliding_sigmas_cut[nanmask]
+        sliding_sigma_cut_nansafe = self.sliding_sigma_cut[nanmask]
 
         popt, pcov = curve_fit(
             func,
             self.days_cut[nanmask],
             sliding_omega_cut_nansafe,
-            sigma=sliding_sigmas_cut_nansafe,
+            sigma=sliding_sigma_cut_nansafe,
         )
         c1, c2 = popt[0], popt[1]
         axs.plot(self.days_cut, func(self.days_cut, c1, c2), "r")
         axs.plot(self.days_cut, self.sliding_omega_cut, "b.", markersize=1)
-        axs.plot(self.days_cut, 3 * self.sliding_sigmas_cut, "b", linewidth=1.5)
-        axs.plot(self.days_cut, -3 * self.sliding_sigmas_cut, "b", linewidth=1.5)
+        axs.plot(self.days_cut, 3 * self.sliding_sigma_cut, "b", linewidth=1.5)
+        axs.plot(self.days_cut, -3 * self.sliding_sigma_cut, "b", linewidth=1.5)
         axs.set_xlabel("Days since start of run", size=18)
         axs.set_ylabel("\u03A9$_i$", size=18)
         axs.set_xlim(self.days_cut[0], self.days_cut[-1])
         axs.annotate(
             "Linear trend analysis: \u03A9(t) = C$_1$*(t-T$_{obs}$/2)*T$_{obs}$ + C$_2$\nC$_1$ = "
+            + str(f"{c1:.3e}")
+            + "\nC$_2$ = "
+            + str(f"{c2:.3e}"),
+            xy=(0.05, 0.05),
+            xycoords="axes fraction",
+            fontsize=15,
+            bbox=dict(boxstyle="round", facecolor="white", alpha=1),
+        )
+        axs.tick_params(axis="x", labelsize=16)
+        axs.tick_params(axis="y", labelsize=16)
+        plt.savefig(
+            f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-omega_time_fit.png"
+        )
+
+    def plot_sigma_time_fit(self):
+        """
+        Generates and saves a plot of \u03C3 as a function of time and fits the data to perform a linear trend analysis. The plot shows data after the delta-sigma (bad GPS times) cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_sigma_cut).
+
+        Parameters
+        ==========
+
+        Returns
+        =======
+
+        """
+        fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
+
+        t_obs = self.days_cut[-1]
+        scale = np.sqrt(np.var(self.sliding_sigma_cut))
+
+        def func(x, a, b):
+            return a * (x - t_obs / 2) * t_obs + b
+
+        nanmask = ~np.isnan(self.sliding_sigma_cut)
+        sliding_sigma_cut_nansafe = self.sliding_sigma_cut[nanmask]
+        mean_sigma = np.nanmean(self.sliding_sigma_cut)
+
+        popt, pcov = curve_fit(
+            func,
+            self.days_cut[nanmask],
+            sliding_sigma_cut_nansafe,
+        )
+        c1, c2 = popt[0], popt[1]
+        axs.plot(self.days_cut, func(self.days_cut, c1, c2), "r")
+        axs.plot(self.days_cut, self.sliding_sigma_cut, "b.", markersize=1)
+        axs.set_xlabel("Days since start of run", size=18)
+        axs.set_ylabel("\u03C3$_i$", size=18)
+        axs.set_xlim(self.days_cut[0], self.days_cut[-1])
+        axs.set_ylim(mean_sigma-1.2*mean_sigma, mean_sigma+2.2*mean_sigma)
+        axs.annotate(
+            "Linear trend analysis: \u03C3(t) = C$_1$*(t-T$_{obs}$/2)*T$_{obs}$ + C$_2$\nC$_1$ = "
             + str(f"{c1:.3e}")
             + "\nC$_2$ = "
             + str(f"{c2:.3e}"),
@@ -988,6 +1039,7 @@ class StatisticalChecks(object):
         self.plot_KS_test()
         self.plot_hist_sigma_squared()
         self.plot_omega_time_fit()
+        self.plot_sigma_time_fit()
 
 
 def sortingFunction(item):
