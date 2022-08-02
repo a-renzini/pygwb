@@ -1,9 +1,10 @@
 import copy
+import os
+
 import lal
 import numpy as np
 import scipy
 from gwpy import signal, timeseries
-import os
 
 
 def set_start_time(
