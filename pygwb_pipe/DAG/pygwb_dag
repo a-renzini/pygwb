@@ -1,0 +1,115 @@
+#!/bin/env python
+
+import argparse
+import os
+import shutil
+from pathlib import Path
+
+import numpy as np
+
+
+def main():
+    dag_parser = argparse.ArgumentParser()
+    dag_parser.add_argument(
+        "--subfile", help="Submission file.", action="store", type=str
+    ) #"condor/Simulated_Data_New_Pipeline.sub"
+    dag_parser.add_argument(
+        "--job_file_path", help="Path to data files folder.", action="store", type=Path
+    ) #"PROJECTS/SMDC_2021/100_day_test_pygwb/MDC_Generation_2/output/"
+    dag_parser.add_argument(
+        "--t0", help = "Begin time of analysed data, optional argument if one does not wish to analyse the whole job file", 
+        action="store", type=int, required=False
+    )
+    dag_parser.add_argument(
+        "--tf", help = "End time of analysed data, optional argument if one does not wish to analyse the whole job file", 
+        action="store", type=int, required=False
+    )
+    dag_parser.add_argument(
+        "--parentdir", help="Starting folder.", action="store", type=Path, required=False
+    )
+    dag_parser.add_argument(
+        "--param_file", help="Path to parameters.ini file.", action="store", type=str, required=False
+    )
+    dag_parser.add_argument(
+        "--dag_name", help="Dag file name.", action="store", type=str, required=False
+    )
+    dag_args = dag_parser.parse_args() 
+    
+    if not dag_args.parentdir:
+        dag_args.parentdir = Path(os.path.abspath('./'))
+    if not dag_args.param_file:
+        dag_args.param_file = os.path.abspath('../parameters.ini')
+    if not dag_args.dag_name:
+        dag_args.dag_name = "dag_name.dag"
+        
+    # Filepaths
+    outputdir = dag_args.parentdir / "output"
+    logdir = outputdir / "condorLogs"
+    
+    # Make directories
+    logdir.mkdir(parents=True, exist_ok=True)
+    outputdir.mkdir(parents=True, exist_ok=True)
+    
+    dag = outputdir / dag_args.dag_name
+    
+    # Get the local executable
+    executable = shutil.which('pygwb_pipe')
+
+    # Use the jobfile to structure the run; the first column of the file can be ignored, the second is start times of each file, the third is end times, the fourth is length (in seconds) of the data in each file.
+    jobfile_entries = np.loadtxt(f"{dag_args.job_file_path}", dtype = 'int',  delimiter = ' ')
+    
+    if dag_args.t0 is not None and dag_args.tf is None:
+        print("t0 was provided, but tf was not. The dag file will be made until the end of the job file.")
+
+    if dag_args.tf is None:
+        dag_args.tf = jobfile_entries[:,2][-1]
+    else:
+        if dag_args.tf > jobfile_entries[:,2][-1]:
+            raise ValueError("Provided tf cannot be larger than largest tf in JOB file.")
+    
+
+    if dag_args.t0 is not None:
+        if dag_args.t0 < jobfile_entries[:,1][0]:
+            raise ValueError("Provided t0 cannot be smaller than smallest t0 in JOB file.")
+        t0_list = np.array([ele for ele in jobfile_entries[:,1] if ele > dag_args.t0 and ele < dag_args.tf])
+        t0_list = np.insert(t0_list, 0, dag_args.t0)
+        tf_list = np.array([ele for ele in jobfile_entries[:,2] if ele > t0_list[0] and ele <= dag_args.tf])
+        if tf_list[-1] < dag_args.tf:
+            tf_list = np.append(tf_list, dag_args.tf)
+        length_list = np.array([tf - t0 for tf,t0 in zip(tf_list, t0_list)])
+    else:
+        t0_list = jobfile_entries[:,1]
+        tf_list = jobfile_entries[:,2]
+        length_list = jobfile_entries[:,3]
+
+    #print(length_list) # These lines can be used if there is a problem with the script
+    #print(t0_list)
+    #print(tf_list)
+
+    t_index = [index for index,t in enumerate(length_list) if t >= 771] 
+    # At the moment, pyGWB cannot handle these very small segments. 771 seconds is a guess for cut-off based on small experiments.
+
+    #print(t_index)
+    
+    t0_actual = t0_list[t_index]
+    tf_actual = tf_list[t_index]
+    length_actual = length_list[t_index]
+
+    #print(t0_actual)
+
+    t0_try = t0_actual[0:2] #Used for testing purposes
+
+    with open(dag,"w") as dagfile:
+
+        for index,t0 in enumerate(t0_actual): #t0_try instead if you want to test the script
+            dagfile.write(f"JOB {index} {os.path.abspath(dag_args.subfile)}\n")
+            
+            dagfile.write(
+                f'VARS {index} job="{index}" executable="{executable}" ARGS="--t0 {t0} --tf {tf_actual[index]} '
+                f'--output_path {outputdir} --param_file {os.path.abspath(dag_args.param_file)}" logdir="{logdir}"\n'
+            )
+            dagfile.write("\n")
+        
+if __name__ == "__main__":
+    main()
+
