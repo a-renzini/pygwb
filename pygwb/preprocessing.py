@@ -1,7 +1,9 @@
+import copy
 import lal
 import numpy as np
 import scipy
 from gwpy import signal, timeseries
+import os
 
 
 def set_start_time(
@@ -116,8 +118,14 @@ def read_data(
         data = timeseries.TimeSeries.get(channel, start=t0, end=tf, verbose=True)
         data.channel = channel
     elif data_type == "local":
+        if os.path.isdir(local_data_path):
+            local_data = []
+            for f in os.listdir(local_data_path):
+                local_data.append(os.path.join(local_data_path, f))
+        else:
+            local_data = local_data_path
         data = timeseries.TimeSeries.read(
-            source=local_data_path, channel=channel, start=t0, end=tf
+            source=local_data, channel=channel, start=t0, end=tf
         )
         data.channel = channel
         data.name = IFO
@@ -207,7 +215,24 @@ def resample_filter(
     """
     if new_sample_rate % 2 != 0:
         raise Warning("New sample rate is not even.")
-    resampled = time_series_data.resample(new_sample_rate, window_downsampling, ftype)
+    data_to_resample = copy.deepcopy(time_series_data.value)
+    original_times = copy.deepcopy(time_series_data.times)
+    nan_mask = np.isnan(time_series_data.value)#.flatten()
+
+    print(time_series_data)
+    print(nan_mask)
+    print(np.argwhere(nan_mask))
+    if len(nan_mask) != 0:
+        data_nansafe = data_to_resample[~nan_mask]
+        times_nansafe = original_times[~nan_mask]
+        interped_data = scipy.interpolate.CubicSpline(times_nansafe, data_nansafe)
+        new = interped_data(original_times).view(time_series_data.__class__)
+        new.__metadata_finalize__(time_series_data)
+        new._unit = time_series_data.unit
+        resampled = new.resample(new_sample_rate, window_downsampling, ftype)
+    else:
+        resampled = time_series_data.resample(new_sample_rate, window_downsampling, ftype)
+
     sample_rate = resampled.sample_rate.value
     filtered = apply_high_pass_filter(
         timeseries=resampled,
