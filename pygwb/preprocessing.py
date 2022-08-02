@@ -1,5 +1,6 @@
 import copy
 import os
+import warnings
 
 import lal
 import numpy as np
@@ -166,7 +167,9 @@ def apply_high_pass_filter(
     filtered: Timeseries
         High-pass filtered timeseries
     """
-    zpk = scipy.signal.butter(16, cutoff_frequency, 'high', analog=False, output='zpk', fs=sample_rate)
+    zpk = scipy.signal.butter(
+        16, cutoff_frequency, "high", analog=False, output="zpk", fs=sample_rate
+    )
     filtered = timeseries.filter(zpk, filtfilt=True)
     filtered = filtered.crop(*filtered.span.contract(number_cropped_seconds))
     return filtered
@@ -215,13 +218,12 @@ def resample_filter(
         Timeseries containing the filtered and high passed data
     """
     if new_sample_rate % 2 != 0:
-        raise Warning("New sample rate is not even.")
+        warnings.warn("New sample rate is not even.")
     data_to_resample = copy.deepcopy(time_series_data.value)
     original_times = copy.deepcopy(time_series_data.times)
-    nan_mask = np.isnan(time_series_data.value)#.flatten()
+    nan_mask = np.isnan(time_series_data.value)  # .flatten()
 
-    if len(nan_mask) != 0:
-        raise Warning(f"There are {len(nan_mask)} NaNs in the timestream ({len(nan_mask)*100/len(time_series_data)}% of the data). These will be ignored in pre-processing.")
+    if np.sum(nan_mask) != 0:
         data_nansafe = data_to_resample[~nan_mask]
         times_nansafe = original_times[~nan_mask]
         interped_data = scipy.interpolate.CubicSpline(times_nansafe, data_nansafe)
@@ -229,8 +231,13 @@ def resample_filter(
         new.__metadata_finalize__(time_series_data)
         new._unit = time_series_data.unit
         resampled = new.resample(new_sample_rate, window_downsampling, ftype)
+        warnings.warn(
+            f"There are {np.sum(nan_mask)} NaNs in the timestream ({np.sum(nan_mask)*100/len(time_series_data)}% of the data). These will be ignored in pre-processing."
+        )
     else:
-        resampled = time_series_data.resample(new_sample_rate, window_downsampling, ftype)
+        resampled = time_series_data.resample(
+            new_sample_rate, window_downsampling, ftype
+        )
 
     sample_rate = resampled.sample_rate.value
     filtered = apply_high_pass_filter(
