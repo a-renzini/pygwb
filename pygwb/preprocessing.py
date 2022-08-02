@@ -221,6 +221,7 @@ def resample_filter(
     nan_mask = np.isnan(time_series_data.value)#.flatten()
 
     if len(nan_mask) != 0:
+        raise Warning(f"There are {len(nan_mask)} NaNs in the timestream ({len(nan_mask)*100/len(time_series_data)}% of the data). These will be ignored in pre-processing.")
         data_nansafe = data_to_resample[~nan_mask]
         times_nansafe = original_times[~nan_mask]
         interped_data = scipy.interpolate.CubicSpline(times_nansafe, data_nansafe)
