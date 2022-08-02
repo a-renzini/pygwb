@@ -76,7 +76,7 @@ setup(
     packages=["pygwb"],
     package_dir={"pygwb": "pygwb"},
     package_data={"pygwb": [".version"]},
-    scripts=['pygwb_pipe/pygwb_pipe','pygwb_pipe/pygwb_combine', 'pygwb_pipe/pygwb_stats'],
+    scripts=['pygwb_pipe/pygwb_pipe','pygwb_pipe/pygwb_combine', 'pygwb_pipe/pygwb_stats''pygwb_pipe/DAG/pygwb_dag'],
     install_requires=[
         "numpy",
         "matplotlib",
