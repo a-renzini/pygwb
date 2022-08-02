@@ -220,9 +220,6 @@ def resample_filter(
     original_times = copy.deepcopy(time_series_data.times)
     nan_mask = np.isnan(time_series_data.value)#.flatten()
 
-    print(time_series_data)
-    print(nan_mask)
-    print(np.argwhere(nan_mask))
     if len(nan_mask) != 0:
         data_nansafe = data_to_resample[~nan_mask]
         times_nansafe = original_times[~nan_mask]
