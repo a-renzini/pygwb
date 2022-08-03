@@ -205,8 +205,8 @@ def resample_filter(
     filtered: gwpy_timeseries
         Timeseries containing the filtered and high passed data
     """
-    if new_sample_rate % 2 != 0:
-        raise Warning("New sample rate is not even.")
+    if (new_sample_rate*number_cropped_seconds) < 18:
+        raise Warning(f"Number of cropped seconds requested {number_cropped_seconds}s is low compared to the sampling rate {new_sampling_rate}: cropped-seconds x sampling-rate = {number_cropped_seconds*new_sampling_rate}.")
     resampled = time_series_data.resample(new_sample_rate, window_downsampling, ftype)
     sample_rate = resampled.sample_rate.value
     filtered = apply_high_pass_filter(
