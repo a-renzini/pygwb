@@ -1,3 +1,7 @@
+import copy
+import os
+import warnings
+
 import lal
 import numpy as np
 import scipy
@@ -116,8 +120,14 @@ def read_data(
         data = timeseries.TimeSeries.get(channel, start=t0, end=tf, verbose=True)
         data.channel = channel
     elif data_type == "local":
+        if os.path.isdir(local_data_path):
+            local_data = []
+            for f in os.listdir(local_data_path):
+                local_data.append(os.path.join(local_data_path, f))
+        else:
+            local_data = local_data_path
         data = timeseries.TimeSeries.read(
-            source=local_data_path, channel=channel, start=t0, end=tf
+            source=local_data, channel=channel, start=t0, end=tf
         )
         data.channel = channel
         data.name = IFO
@@ -157,7 +167,9 @@ def apply_high_pass_filter(
     filtered: Timeseries
         High-pass filtered timeseries
     """
-    zpk = scipy.signal.butter(16, cutoff_frequency, 'high', analog=False, output='zpk', fs=sample_rate)
+    zpk = scipy.signal.butter(
+        16, cutoff_frequency, "high", analog=False, output="zpk", fs=sample_rate
+    )
     filtered = timeseries.filter(zpk, filtfilt=True)
     filtered = filtered.crop(*filtered.span.contract(number_cropped_seconds))
     return filtered
@@ -206,8 +218,27 @@ def resample_filter(
         Timeseries containing the filtered and high passed data
     """
     if (new_sample_rate*number_cropped_seconds) < 18:
-        raise Warning(f"Number of cropped seconds requested {number_cropped_seconds}s is low compared to the sampling rate {new_sampling_rate}: cropped-seconds x sampling-rate = {number_cropped_seconds*new_sampling_rate}.")
-    resampled = time_series_data.resample(new_sample_rate, window_downsampling, ftype)
+        warnings.warn(f"Number of cropped seconds requested {number_cropped_seconds}s is low compared to the sampling rate {new_sampling_rate}: cropped-seconds x sampling-rate = {number_cropped_seconds*new_sampling_rate}.")
+    data_to_resample = copy.deepcopy(time_series_data.value)
+    original_times = copy.deepcopy(time_series_data.times)
+    nan_mask = np.isnan(time_series_data.value)  # .flatten()
+
+    if np.sum(nan_mask) != 0:
+        data_nansafe = data_to_resample[~nan_mask]
+        times_nansafe = original_times[~nan_mask]
+        interped_data = scipy.interpolate.CubicSpline(times_nansafe, data_nansafe)
+        new = interped_data(original_times).view(time_series_data.__class__)
+        new.__metadata_finalize__(time_series_data)
+        new._unit = time_series_data.unit
+        resampled = new.resample(new_sample_rate, window_downsampling, ftype)
+        warnings.warn(
+            f"There are {np.sum(nan_mask)} NaNs in the timestream ({np.sum(nan_mask)*100/len(time_series_data)}% of the data). These will be ignored in pre-processing."
+        )
+    else:
+        resampled = time_series_data.resample(
+            new_sample_rate, window_downsampling, ftype
+        )
+
     sample_rate = resampled.sample_rate.value
     filtered = apply_high_pass_filter(
         timeseries=resampled,

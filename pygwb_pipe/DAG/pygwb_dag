@@ -40,7 +40,7 @@ def main():
     if not dag_args.param_file:
         dag_args.param_file = os.path.abspath('../parameters.ini')
     if not dag_args.dag_name:
-        dag_args.dag_name = "condor_O3_data.dag"
+        dag_args.dag_name = "dag_name.dag"
         
     # Filepaths
     outputdir = dag_args.parentdir / "output"
