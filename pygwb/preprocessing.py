@@ -217,8 +217,8 @@ def resample_filter(
     filtered: gwpy_timeseries
         Timeseries containing the filtered and high passed data
     """
-    if new_sample_rate % 2 != 0:
-        warnings.warn("New sample rate is not even.")
+    if (new_sample_rate*number_cropped_seconds) < 18:
+        warnings.warn(f"Number of cropped seconds requested {number_cropped_seconds}s is low compared to the sampling rate {new_sampling_rate}: cropped-seconds x sampling-rate = {number_cropped_seconds*new_sampling_rate}.")
     data_to_resample = copy.deepcopy(time_series_data.value)
     original_times = copy.deepcopy(time_series_data.times)
     nan_mask = np.isnan(time_series_data.value)  # .flatten()
