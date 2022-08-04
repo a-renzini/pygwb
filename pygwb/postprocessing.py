@@ -61,6 +61,8 @@ def postprocess_Y_sigma(Y_fs, var_fs, segment_duration, deltaF, new_sample_rate,
         sigma2_N = 1 / np.nansum(var_fs[-1, frequency_mask] ** -1)
         sigma2IJ = 1 / sigma2_oo + 1 / sigma2_ee - (1 / 2) * (1 / sigma2_1 + 1 / sigma2_N)
 
+        sigma2_oo, sigma2_ee, sigma2_1, sigma2_N = [s if s != np.inf else 0 for s in (sigma2_oo, sigma2_ee, sigma2_1, sigma2_N)]
+
         Y_f_new = (
             X_odd * (1 - (k / 2) * sigma2_oo * sigma2IJ)
             + X_even * (1 - (k / 2) * sigma2_ee * sigma2IJ)
