@@ -10,6 +10,7 @@ from pygwb.constants import H0
 
 from .util import calc_bias, window_factors
 
+
 def postprocess_Y_sigma(Y_fs, var_fs, segment_duration, deltaF, new_sample_rate, frequency_mask=True, badtimes_mask=None, window_fftgram_dict={"window_fftgram": "hann"}):
     """Run postprocessing of point estimate and sigma spectrograms, combining even and
     odd segments. For more details see -
