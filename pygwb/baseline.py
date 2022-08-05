@@ -953,23 +953,17 @@ class Baseline(object):
                     "The delta sigma cut has flagged all times in this dataset. No point estimate/sigma values can be calculated."
                 )
 
-        point_estimate_spectrogram_postprocess = copy.deepcopy(
-            self.point_estimate_spectrogram.value
-        )
-        sigma_spectrogram_postprocess = copy.deepcopy(self.sigma_spectrogram.value)
-        point_estimate_spectrogram_postprocess[bad_times_indexes, :] = 0
-        sigma_spectrogram_postprocess[bad_times_indexes, :] = np.inf
-
         # setting the frequency mask for the before/after calculation
         self.set_frequency_mask(notch_list_path=notch_list_path, apply_notches=apply_notches)
 
         point_estimate, sigma = postprocess_Y_sigma(
-            point_estimate_spectrogram_postprocess,
-            sigma_spectrogram_postprocess ** 2,
+            self.point_estimate_spectrogram.value,
+            self.sigma_spectrogram.value ** 2,
             self.duration,
             deltaF,
             self.sampling_frequency,
-            frequency_mask=self.frequency_mask
+            frequency_mask=self.frequency_mask,
+            badtimes_mask=bad_times_indexes
         )
 
         self.point_estimate_spectrum = OmegaSpectrum(

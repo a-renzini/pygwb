@@ -2,6 +2,7 @@ import pickle
 
 import h5py
 import numpy as np
+import scipy.ndimage as ndi
 from loguru import logger
 from tqdm import tqdm
 
@@ -9,8 +10,7 @@ from pygwb.constants import H0
 
 from .util import calc_bias, window_factors
 
-
-def postprocess_Y_sigma(Y_fs, var_fs, segment_duration, deltaF, new_sample_rate, frequency_mask=True, window_fftgram_dict={"window_fftgram": "hann"}):
+def postprocess_Y_sigma(Y_fs, var_fs, segment_duration, deltaF, new_sample_rate, frequency_mask=True, badtimes_mask=None, window_fftgram_dict={"window_fftgram": "hann"}):
     """Run postprocessing of point estimate and sigma spectrograms, combining even and
     odd segments. For more details see -
 
@@ -37,52 +37,83 @@ def postprocess_Y_sigma(Y_fs, var_fs, segment_duration, deltaF, new_sample_rate,
     var_f_few : array-like
         1D variance spectrum
     """
-    size = np.size(Y_fs, axis=0)
-    if size == 1:
-        Y_f_new = Y_fs[0]
-        inv_var_f_new = 1 / var_fs[0]
-    else:
-        _, w1w2squaredbar, _, w1w2squaredovlbar = window_factors(
-            int(segment_duration * new_sample_rate), window_fftgram_dict
-        )
-        k = w1w2squaredovlbar / w1w2squaredbar
+    if badtimes_mask is None:
+        badtimes_mask = np.zeros(len(Y_fs), dtype=bool)
 
-        # even/odd indices
-        evens = np.arange(0, size, 2)
-        odds = np.arange(1, size, 2)
+    goodtimes_mask = ~badtimes_mask
+    labels, n_labels = ndi.label(goodtimes_mask)
 
-        X_even = np.nansum(Y_fs[evens] / var_fs[evens], axis=0)
-        GAMMA_even = np.nansum(var_fs[evens] ** -1, axis=0)
-        X_odd = np.nansum(Y_fs[odds] / var_fs[odds], axis=0)
-        GAMMA_odd = np.nansum(var_fs[odds] ** -1, axis=0)
-        sigma2_oo = 1 / np.nansum(GAMMA_odd[frequency_mask])
-        sigma2_ee = 1 / np.nansum(GAMMA_even[frequency_mask])
-        sigma2_1 = 1 / np.nansum(var_fs[0, frequency_mask] ** -1)
-        sigma2_N = 1 / np.nansum(var_fs[-1, frequency_mask] ** -1)
-        sigma2IJ = 1 / sigma2_oo + 1 / sigma2_ee - (1 / 2) * (1 / sigma2_1 + 1 / sigma2_N)
+    Y_fs_sliced = []
+    var_fs_sliced = []
 
-        sigma2_oo, sigma2_ee, sigma2_1, sigma2_N = [s if s != np.inf else 0 for s in (sigma2_oo, sigma2_ee, sigma2_1, sigma2_N)]
+    for sli in ndi.find_objects(labels):
+        Y = Y_fs[sli]
+        var = var_fs[sli]
 
-        Y_f_new = (
-            X_odd * (1 - (k / 2) * sigma2_oo * sigma2IJ)
-            + X_even * (1 - (k / 2) * sigma2_ee * sigma2IJ)
-        ) / (
-            GAMMA_even
-            + GAMMA_odd
-            - k
-            * (GAMMA_even + GAMMA_odd - (1 / 2) * (1 / var_fs[0, :] + 1 / var_fs[-1, :]))
-        )
+        if len(Y)==1:
+            Y_fs_sliced.append(Y[0])
+            var_fs_sliced.append(var[0])
+        else: 
+            Y_red, var_red = odd_even_segment_postprocessing(Y, var, segment_duration, new_sample_rate, frequency_mask=frequency_mask, window_fftgram_dict=window_fftgram_dict)
+            Y_fs_sliced.append(Y_red)
+            var_fs_sliced.append(var_red)
 
-        inv_var_f_new = (
-            GAMMA_odd
-            + GAMMA_even
-            - k
-            * (GAMMA_odd + GAMMA_even - (1 / 2) * (1 / var_fs[0, :] + 1 / var_fs[-1, :]))
-        ) / (1 - (k ** 2 / 4) * sigma2_oo * sigma2_ee * sigma2IJ ** 2)
-        
+    Y_fs_sliced = np.array(Y_fs_sliced)
+    var_fs_sliced = np.array(var_fs_sliced)
+
+    Y_f_new, var_f_new = combine_spectra_with_sigma_weights(Y_fs_sliced, var_fs_sliced)
+
     bias = calc_bias(segment_duration, deltaF, 1 / new_sample_rate, N_avg_segs=2, window_fftgram_dict=window_fftgram_dict)
     logger.debug(f"Bias factor: {bias}")
-    var_f_new = (1 / inv_var_f_new) * bias ** 2
+    var_f_new *= bias ** 2
+
+    return Y_f_new, var_f_new
+
+
+def odd_even_segment_postprocessing(Y_fs, var_fs, segment_duration, new_sample_rate, frequency_mask=True, window_fftgram_dict={"window_fftgram": "hann"}):
+    """
+    """
+    _, w1w2squaredbar, _, w1w2squaredovlbar = window_factors(
+        int(segment_duration * new_sample_rate), window_fftgram_dict
+    )
+    k = w1w2squaredovlbar / w1w2squaredbar
+
+    size = np.size(Y_fs, axis=0)
+    # even/odd indices
+    evens = np.arange(0, size, 2)
+    odds = np.arange(1, size, 2)
+
+    X_even = np.nansum(Y_fs[evens] / var_fs[evens], axis=0)
+    GAMMA_even = np.nansum(var_fs[evens] ** -1, axis=0)
+    X_odd = np.nansum(Y_fs[odds] / var_fs[odds], axis=0)
+    GAMMA_odd = np.nansum(var_fs[odds] ** -1, axis=0)
+
+    sigma2_oo = 1 / np.nansum(GAMMA_odd[frequency_mask])
+    sigma2_ee = 1 / np.nansum(GAMMA_even[frequency_mask])
+    sigma2_1 = 1 / np.nansum(var_fs[0, frequency_mask] ** -1)
+    sigma2_N = 1 / np.nansum(var_fs[-1, frequency_mask] ** -1)
+    sigma2IJ = 1 / sigma2_oo + 1 / sigma2_ee - (1 / 2) * (1 / sigma2_1 + 1 / sigma2_N)
+
+    sigma2_oo, sigma2_ee, sigma2_1, sigma2_N = [s if s != np.inf else 0 for s in (sigma2_oo, sigma2_ee, sigma2_1, sigma2_N)]
+
+    Y_f_new = (
+        X_odd * (1 - (k / 2) * sigma2_oo * sigma2IJ)
+        + X_even * (1 - (k / 2) * sigma2_ee * sigma2IJ)
+    ) / (
+        GAMMA_even
+        + GAMMA_odd
+        - k
+        * (GAMMA_even + GAMMA_odd - (1 / 2) * (1 / var_fs[0, :] + 1 / var_fs[-1, :]))
+    )
+
+    inv_var_f_new = (
+        GAMMA_odd
+        + GAMMA_even
+        - k
+        * (GAMMA_odd + GAMMA_even - (1 / 2) * (1 / var_fs[0, :] + 1 / var_fs[-1, :]))
+    ) / (1 - (k ** 2 / 4) * sigma2_oo * sigma2_ee * sigma2IJ ** 2)
+    
+    var_f_new = (1 / inv_var_f_new) 
 
     return Y_f_new, var_f_new
 
