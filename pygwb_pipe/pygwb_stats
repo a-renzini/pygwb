@@ -17,13 +17,13 @@ from pygwb.statistical_checks import StatisticalChecks, run_statistical_checks_f
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-baseline_directory',help="Baseline directory",action="store", type=str)
-    parser.add_argument('-combine_file_path',help="Combined file containing spectra",action="store", type=str)
-    parser.add_argument('-plot_dir',help="Directory where plots should be saved",action="store", type=str)
-    parser.add_argument('-param_file',help="Parameter file used during analysis",action="store", type=str)
+    parser.add_argument('-c', '--combine_file_path',help="combined file containing spectra",action="store", type=str)
+    parser.add_argument('-dsc', '--dsc_file_path',help="delta sigma cut file containing sigmas and more",action="store", type=str)
+    parser.add_argument('-pd', '--plot_dir',help="Directory where plots should be saved",action="store", type=str)
+    parser.add_argument('-pf', '--param_file',help="Parameter file used during analysis",action="store", type=str)
     
     args = parser.parse_args()
 
-    test = run_statistical_checks_from_file(args.baseline_directory, args.combine_file_path, args.plot_dir, args.param_file)
+    test = run_statistical_checks_from_file(args.combine_file_path, args.dsc_file_path, args.plot_dir, args.param_file)
     
     test.generate_all_plots()

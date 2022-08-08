@@ -1008,7 +1008,7 @@ class StatisticalChecks(object):
         axs.tick_params(axis="x", labelsize=16)
         axs.tick_params(axis="y", labelsize=16)
         plt.savefig(
-            f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-omega_time_fit.png"
+            f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-sigma_time_fit.png"
         )
 
     def generate_all_plots(self):
