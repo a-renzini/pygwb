@@ -4,6 +4,7 @@ import sys
 
 import bilby
 import gwpy
+from gwpy.timeseries import TimeSeries
 import h5py
 import numpy as np
 from bilby.core.utils import create_frequency_series
@@ -217,15 +218,23 @@ class Simulator(object):
             pad_len = int(self.N_segments * self.N_samples_per_segment/2)
             total_dur = self.N_segments*self.duration
             early_data = self.generate_data(data_start=self.t0-total_dur/2)
-            late_data = self.generate_data(data_start=self.t0+total/dur/2)
-            for ifo in self.interferometers:
+            late_data = self.generate_data(data_start=self.t0+total_dur/2)
+            for idx, ifo in enumerate(self.interferometers):
+                ed = early_data[idx] * TimeSeries(np.sin((early_data[idx].times.value-early_data[idx].t0.value
+                                                   )/total_dur*np.pi), times=early_data[idx].times)
+                ld = late_data[idx] * TimeSeries(np.sin((late_data[idx].times.value-late_data[idx].t0.value
+                                                  )/total_dur*np.pi), times=late_data[idx].times)
+                cd = interferometer_data[ifo.name] * TimeSeries(np.sin((interferometer_data[ifo.name].times.value-interferometer_data[ifo.name].t0.value
+                                                            )/total_dur*np.pi), times=interferometer_data[ifo.name].times)
                 interferometer_data[ifo.name] = \
-                               early_data[ifo.name].pad((0, 2*pad_len)) + \
-                               interferometer_data[ifo.name].pad(pad_len) + \
-                               late_data[ifo.name].pad((2*pad_len, 0))
+                               ed.pad((0, 2*pad_len)) + \
+                               cd.pad(pad_len) + \
+                               ld.pad((2*pad_len, 0))
                 interferometer_data[ifo.name] = \
                     interferometer_data[ifo.name].crop(self.t0,
                                               self.t0+total_dur)
+                interferometer_data[ifo.name] = TimeSeries(interferometer_data[ifo.name].value, 
+                                                           t0=self.t0, sample_rate=self.sampling_frequency)
         return interferometer_data
 
     def generate_data(self, data_start=None):
@@ -254,7 +263,7 @@ class Simulator(object):
             y_signal = self.simulate("signal")
             if self.seed:
                 # seed is based on start time of segment
-                np.random.seed(int(self.seed)+data_start%1000)
+                np.random.seed(int(self.seed+(data_start%1000)))
             data_spliced = self.splice_segments(y_signal)
             for ii in range(self.Nd):
                 data_signal_temp[ii] = data_signal_temp[ii] + data_spliced[ii]
