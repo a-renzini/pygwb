@@ -41,8 +41,9 @@ class IsotropicJobTest(unittest.TestCase):
         Test that combining over frequencies
         does what we want.
         """
-        newY, newvar = postprocess_Y_sigma(Y, SIGMA, SEGDUR, DELTAF, SAMPLE_RATE)
-        newsigma = np.sqrt(newvar)
+        newY, newsigma = postprocess_Y_sigma(Y, SIGMA, SEGDUR, DELTAF, SAMPLE_RATE)
+        #newsigma = np.sqrt(newvar)
+
         # test __repr__
         # combine over frequencies
         self.assertTrue(np.size(newY) == NFREQS)

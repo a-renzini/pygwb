@@ -536,7 +536,7 @@ class Baseline(object):
         Parameters
         ==========
         polarization: str, optional
-            Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation. 
+            Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation.
             Default is tensor.
         frequencies: array_like, optional
             Frequency array to use in the calculation of the orf. By default, self.frequencies is used.
@@ -792,7 +792,7 @@ class Baseline(object):
             self.sigma_spectrum = self.sigma_spectrum.crop(flow, fhigh + deltaF)
         if hasattr(self, "point_estimate"):
             self.set_point_estimate_sigma()
-             
+
     def set_point_estimate_sigma_spectrogram(
         self, alpha=0.0, fref=25, flow=20, fhigh=1726, polarization="tensor"
     ):
@@ -812,7 +812,7 @@ class Baseline(object):
         fhigh: float
             Highest frequency to consider.
         polarization: str, optional
-            Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation. 
+            Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation.
             Default is tensor.
         """
         # set CSD if not set
@@ -868,7 +868,7 @@ class Baseline(object):
         fref=25,
         flow=20,
         fhigh=1726,
-        notch_list_path='',
+        notch_list_path="",
         polarization="tensor",
         apply_dsc=True,
         apply_notches=True,
@@ -892,13 +892,13 @@ class Baseline(object):
         notch_list_path: str, optional
             path to the notch list to use in the spectrum.
         polarization: str, optional
-            Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation. 
+            Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation.
             Default is tensor.
         apply_dsc: bool, optional
-            Apply delta sigma cut flag; if True, removes the badGPStimes from the spectra calculations. 
+            Apply delta sigma cut flag; if True, removes the badGPStimes from the spectra calculations.
             Default is True.
         apply_notches: bool, optional
-            Apply spectral notches flag; if True, remove the notches specified in the notch_list from the spectra calculations. 
+            Apply spectral notches flag; if True, remove the notches specified in the notch_list from the spectra calculations.
             Default is True.
         """
         if apply_dsc == True:
@@ -954,7 +954,9 @@ class Baseline(object):
                 )
 
         # setting the frequency mask for the before/after calculation
-        self.set_frequency_mask(notch_list_path=notch_list_path, apply_notches=apply_notches)
+        self.set_frequency_mask(
+            notch_list_path=notch_list_path, apply_notches=apply_notches
+        )
 
         point_estimate, sigma = postprocess_Y_sigma(
             self.point_estimate_spectrogram.value,
@@ -963,7 +965,7 @@ class Baseline(object):
             deltaF,
             self.sampling_frequency,
             frequency_mask=self.frequency_mask,
-            badtimes_mask=bad_times_indexes
+            badtimes_mask=bad_times_indexes,
         )
 
         self.point_estimate_spectrum = OmegaSpectrum(
@@ -976,7 +978,7 @@ class Baseline(object):
             h0=h0,
         )
         self.sigma_spectrum = OmegaSpectrum(
-            np.sqrt(sigma),
+            sigma,
             frequencies=self.frequencies,
             name=self.name + " sigma spectrum",
             epoch=epoch,
@@ -1018,13 +1020,13 @@ class Baseline(object):
             Path to the notch list to use in the spectrum; if the notch_list isn't set in the baseline,
             user can pass it directly here. If it is not set and if none is passed no notches will be applied.
         polarization: str, optional
-            Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation. 
+            Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation.
             Default is Tensor.
         apply_dsc: bool, optional
-            Apply delta sigma cut flag; if True, removes the badGPStimes from the spectra calculations. 
+            Apply delta sigma cut flag; if True, removes the badGPStimes from the spectra calculations.
             Default is True.
         apply_notches: bool, optional
-            Apply spectral notches flag; if True, remove the notches specified in the notch_list from the spectra calculations. 
+            Apply spectral notches flag; if True, remove the notches specified in the notch_list from the spectra calculations.
             Default is True.
         """
 
@@ -1048,10 +1050,12 @@ class Baseline(object):
                 fhigh=fhigh,
                 polarization=polarization,
                 apply_dsc=apply_dsc,
-                notch_list_path=notch_list_path
+                notch_list_path=notch_list_path,
             )
 
-        self.set_frequency_mask(notch_list_path=notch_list_path, apply_notches=apply_notches)
+        self.set_frequency_mask(
+            notch_list_path=notch_list_path, apply_notches=apply_notches
+        )
 
         Y, sigma = calc_Y_sigma_from_Yf_sigmaf(
             self.point_estimate_spectrum,
@@ -1108,7 +1112,7 @@ class Baseline(object):
         return_naive_and_averaged_sigmas: bool
             option to return naive and sliding sigmas
         polarization: str, optional
-            Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation. 
+            Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation.
             Default is Tensor.
         window_fftgram_dict: dictionary, optional
             Dictionary with window characteristics. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`

@@ -15,7 +15,7 @@ class OmegaSpectrogram(Spectrogram):
     """Subclass of gwpy's Spectrogram class."""
 
     _metadata_slots = Spectrogram._metadata_slots + ("alpha", "fref", "h0")
-    #_print_slots = FrequencySeries._print_slots + ["alpha", "fref", "h0"]
+    # _print_slots = FrequencySeries._print_slots + ["alpha", "fref", "h0"]
 
     def __new__(cls, data, **kwargs):
         kwargs.pop("alpha", None)
@@ -149,7 +149,9 @@ class OmegaSpectrogram(Spectrogram):
             New h0 to set the spectrum at.
         """
         if (new_h0 < 0.5) or (new_h0 > 1.0):
-            warnings.warn(f"h0 should be between 0.5 and 1. The selected value of {new_h0} does not fall within this range.")
+            warnings.warn(
+                f"h0 should be between 0.5 and 1. The selected value of {new_h0} does not fall within this range."
+            )
         new_spectrum = self.value * (self.h0 / new_h0) ** 2
         self.value[:] = new_spectrum
         self._h0 = new_h0

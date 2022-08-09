@@ -49,7 +49,6 @@ def dsc_cut(
     return dsigma >= dsc, dsigma
 
 
-
 def run_dsc(
     dsc: float,
     segment_duration: int,
@@ -92,17 +91,17 @@ def run_dsc(
 
     notch_list_path: str
         path to the notch list file
-    
+
     window_fftgram_dict: dictionary, optional
         Dictionary with window characteristics. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`
 
     orf: array
         the overlap reduction function as a function of frequency that quantifies the overlap of a detector baseline,
         which depends on the detector locations, relative orientations, etc.
-        
-    fref: int 
+
+    fref: int
         reference frequency (Hz)
-    
+
     return_naive_and_averaged_sigmas: bool
         option to return naive and sliding sigmas
 
@@ -117,7 +116,7 @@ def run_dsc(
     times = np.array(psd1_naive.times)
     ntimes = len(times)
     df = psd1_naive.df.value
-    dt = 1/sample_rate #psd1_naive.df.value ** (-1)
+    dt = 1 / sample_rate  # psd1_naive.df.value ** (-1)
     # Naive estimate
     bf_ns = calc_bias(
         segmentDuration=segment_duration,
@@ -125,7 +124,7 @@ def run_dsc(
         deltaT=dt,
         N_avg_segs=1,
         window_fftgram_dict=window_fftgram_dict,
-    )  
+    )
     # Sliding estimate
     bf_ss = calc_bias(
         segmentDuration=segment_duration,
@@ -133,7 +132,7 @@ def run_dsc(
         deltaT=dt,
         N_avg_segs=2,
         window_fftgram_dict=window_fftgram_dict,
-    )  
+    )
     freqs = np.array(psd1_naive.frequencies)
     overall_cut = np.zeros((ntimes, 1), dtype="bool")
     cuts = np.zeros((nalphas, ntimes), dtype="bool")
@@ -151,36 +150,40 @@ def run_dsc(
             psd2_slide_time = psd2_slide[time, :]
 
             naive_sigma_with_Hf = calculate_point_estimate_sigma_spectra(
-                    freqs=freqs,
-                    avg_psd_1=psd1_naive_time,
-                    avg_psd_2=psd2_naive_time,
-                    orf=orf,
-                    sample_rate=sample_rate,
-                    window_fftgram_dict=window_fftgram_dict,
-                    segment_duration=segment_duration,
-                    csd = None,
-                    fref=fref,
-                    alpha=alpha,
-                )
-            
+                freqs=freqs,
+                avg_psd_1=psd1_naive_time,
+                avg_psd_2=psd2_naive_time,
+                orf=orf,
+                sample_rate=sample_rate,
+                window_fftgram_dict=window_fftgram_dict,
+                segment_duration=segment_duration,
+                csd=None,
+                fref=fref,
+                alpha=alpha,
+            )
+
             slide_sigma_with_Hf = calculate_point_estimate_sigma_spectra(
-                    freqs=freqs,
-                    avg_psd_1=psd1_slide_time,
-                    avg_psd_2=psd2_slide_time,
-                    orf=orf,
-                    sample_rate=sample_rate,
-                    window_fftgram_dict=window_fftgram_dict,
-                    segment_duration=segment_duration,
-                    csd = None,
-                    fref=fref,
-                    alpha=alpha,
-                )
+                freqs=freqs,
+                avg_psd_1=psd1_slide_time,
+                avg_psd_2=psd2_slide_time,
+                orf=orf,
+                sample_rate=sample_rate,
+                window_fftgram_dict=window_fftgram_dict,
+                segment_duration=segment_duration,
+                csd=None,
+                fref=fref,
+                alpha=alpha,
+            )
 
-            naive_sensitivity_integrand_with_Hf = 1./naive_sigma_with_Hf
-            slide_sensitivity_integrand_with_Hf = 1./slide_sigma_with_Hf
+            naive_sensitivity_integrand_with_Hf = 1.0 / naive_sigma_with_Hf
+            slide_sensitivity_integrand_with_Hf = 1.0 / slide_sigma_with_Hf
 
-            naive_sigma_alpha = np.sqrt(1 / np.sum(naive_sensitivity_integrand_with_Hf[frequency_mask]))
-            slide_sigma_alpha = np.sqrt(1 / np.sum(slide_sensitivity_integrand_with_Hf[frequency_mask]))
+            naive_sigma_alpha = np.sqrt(
+                1 / np.sum(naive_sensitivity_integrand_with_Hf[frequency_mask])
+            )
+            slide_sigma_alpha = np.sqrt(
+                1 / np.sum(slide_sensitivity_integrand_with_Hf[frequency_mask])
+            )
             naive_sigmas[idx, time] = naive_sigma_alpha
             slide_sigmas[idx, time] = slide_sigma_alpha
 
@@ -201,12 +204,12 @@ def run_dsc(
     BadGPStimes = times[np.squeeze(overall_cut)]
 
     dsigmas_dict = {}
-    dsigmas_dict['alphas'] = alphas
-    dsigmas_dict['times'] = times
-    dsigmas_dict['values'] = dsigmas
+    dsigmas_dict["alphas"] = alphas
+    dsigmas_dict["times"] = times
+    dsigmas_dict["values"] = dsigmas
 
-    if return_naive_and_averaged_sigmas==True:
-        dsigmas_dict['slide_sigmas'] = slide_sigmas * bf_ss
-        dsigmas_dict['naive_sigmas'] = naive_sigmas * bf_ns 
+    if return_naive_and_averaged_sigmas == True:
+        dsigmas_dict["slide_sigmas"] = slide_sigmas * bf_ss
+        dsigmas_dict["naive_sigmas"] = naive_sigmas * bf_ns
 
     return BadGPStimes, dsigmas_dict

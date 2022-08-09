@@ -10,15 +10,15 @@ from .baseline import Baseline
 class GWBModel(bilby.Likelihood):
     r"""
     Generic model, contains the definition of likelihood:
-    
-    .. math:: 
-    
+
+    .. math::
+
         p(\hat{C}^{IJ}(f_k) | \mathbf{\Theta}) \propto\exp\left[  -\frac{1}{2} \sum_{IJ}^N \sum_k \left(\frac{\hat{C}^{IJ}(f_k) - \Omega_{\rm M}(f_k|\mathbf{\Theta})}{\sigma^2_{IJ}(f_k)}\right)^2  \right],
-    
+
     where :math:`\Omega_{\rm M}(f_k|\mathbf{\Theta})` is the model being fit to data, and :math:`\mathbf{\Theta}` are the model's parameters.
-    
+
     The noise likelihood is given by setting :math:`\Omega_{\rm M}(f_k|\mathbf{\Theta})=0`.
-    
+
     """
 
     def __init__(self, baselines=None, model_name=None, polarizations=None):
@@ -71,7 +71,10 @@ class GWBModel(bilby.Likelihood):
         # simple likelihood without calibration uncertainty
         if baseline.calibration_epsilon == 0:
             logL_IJ = -0.5 * (
-                np.sum((baseline.point_estimate_spectrum - Y_model_f) ** 2 / baseline.sigma_spectrum ** 2)
+                np.sum(
+                    (baseline.point_estimate_spectrum - Y_model_f) ** 2
+                    / baseline.sigma_spectrum ** 2
+                )
                 + np.sum(np.log(2 * np.pi * baseline.sigma_spectrum ** 2))
             )
 
@@ -83,7 +86,9 @@ class GWBModel(bilby.Likelihood):
                 Y_model_f ** 2 / baseline.sigma_spectrum ** 2
             )
             B = baseline.calibration_epsilon ** (-2) + np.sum(
-                Y_model_f * baseline.point_estimate_spectrum / baseline.sigma_spectrum ** 2
+                Y_model_f
+                * baseline.point_estimate_spectrum
+                / baseline.sigma_spectrum ** 2
             )
             C = baseline.calibration_epsilon ** (-2) + np.sum(
                 baseline.point_estimate_spectrum ** 2 / baseline.sigma_spectrum ** 2
@@ -114,11 +119,12 @@ class GWBModel(bilby.Likelihood):
             ll = ll + self.log_likelihood_IJ(baseline, noise=True)
         return ll
 
+
 class PowerLawModel(GWBModel):
-    r"""    
-    Power law model is defined as: 
-    
-    .. math:: 
+    r"""
+    Power law model is defined as:
+
+    .. math::
         \Omega(f) = \Omega_{\text{ref}} \left(\frac{f}{f_{\text{ref}}}\right)^{\alpha}
     Parameters:
     -----------
@@ -308,10 +314,10 @@ class TripleBrokenPowerLawModel(GWBModel):
 
 class SmoothBrokenPowerLawModel(GWBModel):
     r"""
-    
-    The smooth broken power law is defined as: 
-    
-    .. math:: 
+
+    The smooth broken power law is defined as:
+
+    .. math::
         \Omega(f) = \Omega_{\text{ref}}\left(\frac{f}{f_{\text{ref}}}\right) ^{\alpha_1} \left[1+\left(\frac{f}{f_{\text{ref}}}\right)^{\Delta}\right]^{\frac{\alpha_2-\alpha_1}{\Delta}}
     Parameters:
     -----------
@@ -326,7 +332,7 @@ class SmoothBrokenPowerLawModel(GWBModel):
     fbreak : float
         break frequency for the smooth broken power law (:math:`f_{\text{ref}}`)
     frequencies : numpy.ndarray
-        array of frequencies at which to evaluate the model 
+        array of frequencies at which to evaluate the model
     """
 
     def __init__(self, **kwargs):
@@ -374,10 +380,10 @@ class SmoothBrokenPowerLawModel(GWBModel):
 
 class SchumannModel(GWBModel):
     r"""
-    
-    The Schumann model is defined as: 
-    
-    
+
+    The Schumann model is defined as:
+
+
     .. math::
          \Omega(f) = \sum_{ij} \kappa_i \kappa_j \left(\frac{f}{f_{\text{ref}}}\right)^{-\beta_i-\beta_j} M_{ij}(f) \times 10^{-46}
     Parameters:
@@ -459,17 +465,17 @@ class SchumannModel(GWBModel):
 
 class TVSPowerLawModel(GWBModel):
     r"""
-    The Tensor-Vector-Scalar polarization (T,V,S) power-law model is defined as: 
-    
-    .. math:: 
-    
-        \Omega(f) = \Omega _T + \Omega _V + \Omega _S 
-    
+    The Tensor-Vector-Scalar polarization (T,V,S) power-law model is defined as:
+
+    .. math::
+
+        \Omega(f) = \Omega _T + \Omega _V + \Omega _S
+
         \Omega _T = \Omega _{{\text{ref}},T} \left( \frac{f}{f_{\text{ref}}}\right)^{\alpha _T}
-        
+
         \Omega _V = (\gamma _V/\gamma_T)~\Omega _{{\text{ref}},V} \left( \frac{f}{f_{\text{ref}}}\right)^{\alpha _V}
-        
-        \Omega _S = (\gamma_S/\gamma_T)~\Omega _{{\text{ref}},S} \left( \frac{f}{f_{\text{ref}}}\right)^{\alpha _S}   
+
+        \Omega _S = (\gamma_S/\gamma_T)~\Omega _{{\text{ref}},S} \left( \frac{f}{f_{\text{ref}}}\right)^{\alpha _S}
     Parameters:
     -----------
     fref : float
@@ -531,10 +537,10 @@ class TVSPowerLawModel(GWBModel):
 
 class PVPowerLawModel(GWBModel):
     r"""
-    The parity violation model can be defined as: 
-    
-    .. math:: 
-        \Omega(f) = \left(1 + \Pi \frac{\gamma _V}{\gamma _I}\right) \Omega_{\text{ref}} \left( \frac{f}{f_{\text{ref}}} \right)^{\alpha}   
+    The parity violation model can be defined as:
+
+    .. math::
+        \Omega(f) = \left(1 + \Pi \frac{\gamma _V}{\gamma _I}\right) \Omega_{\text{ref}} \left( \frac{f}{f_{\text{ref}}} \right)^{\alpha}
     Parameters:
     -----------
     fref : float
@@ -589,9 +595,9 @@ class PVPowerLawModel(GWBModel):
 
 class PVPowerLawModel2(GWBModel):
     r"""
-    The parity violation model 2 can be defined as: 
-    
-    .. math:: 
+    The parity violation model 2 can be defined as:
+
+    .. math::
          \Omega(f) = \left(1 + f^{\beta} \frac{\gamma_V}{\gamma _I}\right) \Omega_{\text{ref}}\left(\frac{f}{f_{\text{ref}}} \right)^{\alpha}
     Parameters:
     -----------
