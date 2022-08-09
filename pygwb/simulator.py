@@ -4,10 +4,10 @@ import sys
 
 import bilby
 import gwpy
-from gwpy.timeseries import TimeSeries
 import h5py
 import numpy as np
 from bilby.core.utils import create_frequency_series
+from gwpy.timeseries import TimeSeries
 from loguru import logger
 
 from pygwb.baseline import Baseline, get_baselines
