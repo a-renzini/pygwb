@@ -22,7 +22,7 @@ def postprocess_Y_sigma(
     window_fftgram_dict={"window_fftgram": "hann"},
 ):
     """Run postprocessing of point estimate and sigma spectrograms, combining even and
-    odd segments. For more details see -
+    odd segments in the case of overlapping data. For more details see -
 
     Parameters:
     -----------
@@ -44,8 +44,8 @@ def postprocess_Y_sigma(
     --------
     Y_f_new : array-like
         1D point estimate spectrum
-    var_f_few : array-like
-        1D variance spectrum
+    sigma_f_few : array-like
+        1D sigma spectrum
     """
     if badtimes_mask is None:
         badtimes_mask = np.zeros(len(Y_fs), dtype=bool)
@@ -103,7 +103,29 @@ def odd_even_segment_postprocessing(
     frequency_mask=True,
     window_fftgram_dict={"window_fftgram": "hann"},
 ):
-    """ """
+    """Perform averaging which combines even and odd segments for overlapping data. 
+
+    Parameters:
+    -----------
+    Y_fs : array-like
+        2D array of point estimates with Ntimes x Nfreqs with overlapping segments
+    var_fs : array-like
+        2D array of variances or 2D with dimensions Ntimes x Nfreqs with overlapping time segments
+    segment_duration : float
+        Duration of each time segment
+    new_sample_rate : float
+        sample rate of timeseries after resampling
+    frequency_mask: array-like, optional
+        Boolean mask to apply to frequencies for the calculation
+    window_fftgram_dict : dictionary containing window information
+
+    Returns:
+    --------
+    Y_f_new : array-like
+        1D point estimate spectrum
+    var_f_few : array-like
+        1D sigma spectrum
+    """
     _, w1w2squaredbar, _, w1w2squaredovlbar = window_factors(
         int(segment_duration * new_sample_rate), window_fftgram_dict
     )
@@ -271,8 +293,6 @@ def calculate_point_estimate_sigma_spectra(
         Final result refers to this frequency.
     alpha: float, optional
         Spectral index to use in the weighting.
-    weight_spectrogram: bool, optional
-        Flag to apply spectral weighting, True by default.
     """
     S_alpha = 3 * H0.si.value ** 2 / (10 * np.pi ** 2) / freqs ** 3
     S_alpha *= (freqs / fref) ** alpha
