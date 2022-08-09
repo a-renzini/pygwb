@@ -59,7 +59,8 @@ def main():
 
     if script_args.output_path:
         output_path = Path(script_args.output_path)
-        output_path.mkdir(parents=True)
+        if not output_path.exists():
+            output_path.mkdir(parents=True)
     else: 
         output_path = Path('')
 
