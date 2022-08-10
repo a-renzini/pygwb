@@ -317,7 +317,7 @@ def calculate_point_estimate_sigma_spectra(
 
 def combine_spectra_with_sigma_weights(main_spectra, weights_spectra):
     r"""
-    Combine different statistically independent spectra :math: `S_i(f)` using spectral weights :math: `w_i(f)`, as
+    Combine different statistically independent spectra :math:`S_i(f)` using spectral weights :math:`w_i(f)`, as
 
     .. math::
     S(f) = \frac{\sum_i \frac{S_i(f)}{w^2_i(f)}}{\sum_i \frac{1}{w^2_i(f)}}, \qquad \sigma = \sqrt{\frac{1}{\sum_i \frac{1}{w^2_i(f)}}}.
