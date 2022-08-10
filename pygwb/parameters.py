@@ -159,7 +159,7 @@ class Parameters:
         for name, dtype in ann.items():
             if name in kwargs:
                 try:
-                    kwargs[name] = dtype(kwargs[name])
+                    kwargs[name] = dtype(kwargs[name]) if kwargs[name] != 'False' else False
                 except TypeError:
                     pass
                 setattr(self, name, kwargs[name])
