@@ -319,11 +319,13 @@ def combine_spectra_with_sigma_weights(main_spectra, weights_spectra):
     r"""
     Combine different statistically independent spectra :math:`S_i(f)` using spectral weights :math:`w_i(f)`, as
 
+
     .. math::
-    S(f) = \frac{\sum_i \frac{S_i(f)}{w^2_i(f)}}{\sum_i \frac{1}{w^2_i(f)}}, \qquad \sigma = \sqrt{\frac{1}{\sum_i \frac{1}{w^2_i(f)}}}.
+    S(f) = \frac{\sum_i \frac{S_i(f)}{w^2_i(f)}}{\sum_i \frac{1}{w^2_i(f)}},\,\,\,\, \sigma = \sqrt{\frac{1}{\sum_i \frac{1}{w^2_i(f)}}}.
+
 
     If main_spectra is 2D and has dimensions N_1 x N_2, final spectrum has dimension N_2 (in contrast to `calc_Y_sigma_from_Yf_sigmaf`
-    which combines across other dimension)
+    which combines across other dimension).
 
     Parameters
     =========
