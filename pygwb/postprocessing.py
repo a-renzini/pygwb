@@ -22,7 +22,7 @@ def postprocess_Y_sigma(
     window_fftgram_dict={"window_fftgram": "hann"},
 ):
     """Run postprocessing of point estimate and sigma spectrograms, combining even and
-    odd segments in the case of overlapping data. For more details see -
+    odd segments in the case of overlapping data. For more details see - https://dcc.ligo.org/public/0027/T040089/000/T040089-00.pdf
 
     Parameters:
     -----------
