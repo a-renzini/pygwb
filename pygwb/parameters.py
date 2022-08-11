@@ -331,7 +331,9 @@ class Parameters:
             "alphas_delta_sigma_cut"
         ]
         data_quality_dict["delta_sigma_cut"] = param_dict["delta_sigma_cut"]
-        data_quality_dict["return_naive_and_averaged_sigmas"] = param_dict["return_naive_and_averaged_sigmas"]
+        data_quality_dict["return_naive_and_averaged_sigmas"] = param_dict[
+            "return_naive_and_averaged_sigmas"
+        ]
         param["data_quality"] = data_quality_dict
 
         output_dict = {}

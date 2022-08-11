@@ -994,7 +994,7 @@ class StatisticalChecks(object):
         axs.set_xlabel("Days since start of run", size=18)
         axs.set_ylabel("\u03C3$_i$", size=18)
         axs.set_xlim(self.days_cut[0], self.days_cut[-1])
-        axs.set_ylim(mean_sigma-1.2*mean_sigma, mean_sigma+2.2*mean_sigma)
+        axs.set_ylim(mean_sigma - 1.2 * mean_sigma, mean_sigma + 2.2 * mean_sigma)
         axs.annotate(
             "Linear trend analysis: \u03C3(t) = C$_1$*(t-T$_{obs}$/2)*T$_{obs}$ + C$_2$\nC$_1$ = "
             + str(f"{c1:.3e}")
