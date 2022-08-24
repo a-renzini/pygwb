@@ -261,7 +261,8 @@ class Parameters:
                 else:
                     local_data_path_dict[ifo] = dictionary[ifo]
                 dictionary.pop(ifo)
-        dictionary["local_data_path_dict"] = local_data_path_dict
+        if local_data_path_dict:
+            dictionary["local_data_path_dict"] = local_data_path_dict
         if "window_fftgram" in dictionary:
             window_fft_dict = {}
             window_fft_dict["window_fftgram"] = dictionary["window_fftgram"]

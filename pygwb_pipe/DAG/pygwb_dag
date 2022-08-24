@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import re
 import shutil
 from pathlib import Path
 
@@ -14,7 +15,7 @@ def main():
         "--subfile", help="Submission file.", action="store", type=str
     ) #"condor/Simulated_Data_New_Pipeline.sub"
     dag_parser.add_argument(
-        "--job_file_path", help="Path to data files folder.", action="store", type=Path
+        "--jobfile", help="Job file with start and end times and duration for each job.", action="store", type=Path
     ) #"PROJECTS/SMDC_2021/100_day_test_pygwb/MDC_Generation_2/output/"
     dag_parser.add_argument(
         "--t0", help = "Begin time of analysed data, optional argument if one does not wish to analyse the whole job file", 
@@ -56,7 +57,7 @@ def main():
     executable = shutil.which('pygwb_pipe')
 
     # Use the jobfile to structure the run; the first column of the file can be ignored, the second is start times of each file, the third is end times, the fourth is length (in seconds) of the data in each file.
-    jobfile_entries = np.loadtxt(f"{dag_args.job_file_path}", dtype = 'int',  delimiter = ' ')
+    jobfile_entries = np.loadtxt(f"{dag_args.jobfile}", dtype = 'int',  delimiter = ' ')
     
     if dag_args.t0 is not None and dag_args.tf is None:
         print("t0 was provided, but tf was not. The dag file will be made until the end of the job file.")
@@ -89,26 +90,20 @@ def main():
     t_index = [index for index,t in enumerate(length_list) if t >= 771] 
     # At the moment, pyGWB cannot handle these very small segments. 771 seconds is a guess for cut-off based on small experiments.
 
-    #print(t_index)
-    
     t0_actual = t0_list[t_index]
     tf_actual = tf_list[t_index]
     length_actual = length_list[t_index]
 
-    #print(t0_actual)
-
-    t0_try = t0_actual[0:2] #Used for testing purposes
-
     with open(dag,"w") as dagfile:
 
-        for index,t0 in enumerate(t0_actual): #t0_try instead if you want to test the script
+        for index,t0 in enumerate(t0_actual): 
             dagfile.write(f"JOB {index} {os.path.abspath(dag_args.subfile)}\n")
-            
+
+            args = f"--t0 {t0} --tf {tf_actual[index]} --output_path {outputdir} --param_file {os.path.abspath(dag_args.param_file)}"
             dagfile.write(
-                f'VARS {index} job="{index}" executable="{executable}" ARGS="--t0 {t0} --tf {tf_actual[index]} '
-                f'--output_path {outputdir} --param_file {os.path.abspath(dag_args.param_file)}" logdir="{logdir}"\n'
+                    f'VARS {index} job="{t0}-{tf_actual[index]}" executable="{executable}" ARGS="{args}" logdir="{logdir}"\n'
             )
-            dagfile.write("\n")
+            dagfile.write('\n')
         
 if __name__ == "__main__":
     main()
