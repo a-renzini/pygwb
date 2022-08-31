@@ -9,6 +9,7 @@ from pathlib import Path
 
 import numpy as np
 from loguru import logger
+from tqdm import tqdm
 
 from pygwb.baseline import Baseline
 from pygwb.constants import h0 as pygwb_h0
@@ -79,6 +80,7 @@ def main():
     files_ptest.sort(key=sorting_function)
     times = [int(sorting_function(files_ptest[idx])) for idx in range(len(files_ptest))]
     frequencies = np.load(files_ptest[0])["frequencies"]
+    frequency_mask = np.load(files_ptest[0])["frequency_mask"]
 
     # spectral objects
     Y_j = []
@@ -108,7 +110,8 @@ def main():
         + f"_fref_{combine_args.fref}_{times[0]}-{times[-1]}.npz",
     )
 
-    for file in files_ptest:
+    logger.info('Unpacking files...')
+    for file in tqdm(files_ptest):
         data_file = np.load(file, allow_pickle=True)
         Y_j.append(data_file["point_estimate"])
         sigma_j.append(data_file["sigma"])
@@ -121,7 +124,7 @@ def main():
         badGPStimes_j.append(data_file["badGPStimes"])
 
         Y_s, sigma_s = calc_Y_sigma_from_Yf_sigmaf(
-            data_file["point_estimate_spectrogram"], data_file["sigma_spectrogram"]
+            data_file["point_estimate_spectrogram"], data_file["sigma_spectrogram"], frequency_mask=frequency_mask
         )
         Y_seg.append(Y_s)
         sigma_seg.append(sigma_s)
@@ -185,16 +188,10 @@ def main():
         f"Saved file with combined point estimate and sigma OmegaSpectrum objects for this run.sigma_spectrum"
     )
 
-    # frequencies mask
-
-    mask = (Y_spectrum.frequencies.value >= params.flow) & (
-        Y_spectrum.frequencies.value <= params.fhigh
-    )
-
     Y_estimate, sigma_estimate = calc_Y_sigma_from_Yf_sigmaf(
         Y_spectrum,
         sigma_spectrum,
-        frequency_mask=mask,
+        frequency_mask=frequency_mask,
         alpha=combine_args.alpha,
         fref=combine_args.fref,
     )

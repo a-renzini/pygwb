@@ -127,7 +127,7 @@ def read_data(
         else:
             local_data = local_data_path
         data = timeseries.TimeSeries.read(
-            source=local_data, channel=channel, start=t0, end=tf
+            source=local_data, channel=channel, start=t0, end=tf, verbose=True
         )
         data.channel = channel
         data.name = IFO
