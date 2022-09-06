@@ -257,7 +257,7 @@ class Parameters:
             if dictionary[item] is None:
                 dictionary.pop(item)
         local_data_path_dict = {}
-        possible_ifos = ["H1", "L1", "V" "K"]
+        possible_ifos = ["H1", "L1", "V", "K"]
         for ifo in possible_ifos:
             if ifo.lower() in dictionary:
                 if dictionary[ifo.lower()].startswith("["):
