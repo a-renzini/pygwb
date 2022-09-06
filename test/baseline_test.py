@@ -13,11 +13,13 @@ import pytest
 
 from pygwb import baseline, parameters
 
+
 def sig_round(data, precision):
     data_pos = np.where(np.isfinite(data) & (data != 0), 
         np.abs(data), 10**(precision-1))
     mags = 10 ** (precision - 1 - np.floor(np.log10(data_pos)))
     return np.round(data * mags) / mags
+
 
 class TestBaseline(unittest.TestCase):
     def setUp(self):
