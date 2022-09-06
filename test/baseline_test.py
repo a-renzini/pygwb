@@ -203,6 +203,8 @@ class TestBaseline(unittest.TestCase):
             base.interferometer_1.psd_spectrogram, precision)
         base.interferometer_2.psd_spectrogram = sig_round(
             base.interferometer_2.psd_spectrogram, precision)
+        CSD_test = sig_round(CSD_test, precision)
+        base.csd = sig_round(base.csd, precision)
 
         gwpy.testing.utils.assert_quantity_sub_equal(
             PSD_1_test, base.interferometer_1.psd_spectrogram, almost_equal=True
