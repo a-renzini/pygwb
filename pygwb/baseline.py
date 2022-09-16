@@ -762,9 +762,11 @@ class Baseline(object):
                 High frequency to crop.
         """
         deltaF = self.frequencies[1] - self.frequencies[0]
-        indexes = (self.frequencies >= flow) * (self.frequencies <= fhigh)
-        # reset frequencies
-        self.frequencies = self.frequencies[indexes]
+        # reset frequencies using the same calculation as in crop_frequencies so we get
+        # consistent frequency ranges
+        idx0 = int(float(flow - self.frequencies[0]) // deltaF)
+        idx1 = int(float(fhigh + deltaF - self.frequencies[0]) // deltaF)
+        self.frequencies = self.frequencies[idx0:idx1]
 
         if hasattr(self.interferometer_1, "average_psd"):
             self.interferometer_1.average_psd = (
