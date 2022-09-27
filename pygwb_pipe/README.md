@@ -12,7 +12,7 @@ if you would like to specify a start and end time, `-t0` and `t_f` are supported
 You should be getting (for the default value of h0 = 0.6932),
 
 ```
-POINT ESIMATE: -6.189551e-06
+POINT ESTIMATE: -6.189551e-06
 SIGMA: 2.561543e-06
 ```
 
