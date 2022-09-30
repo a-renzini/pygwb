@@ -242,10 +242,14 @@ class Parameters:
         ann = getattr(self, "__annotations__", {})
         parser = argparse.ArgumentParser()
         for name, dtype in ann.items():
-            parser.add_argument(f"--{name}", type=dtype, required=False)
-        parser.add_argument("--H1", type=str, required=False)
-        parser.add_argument("--L1", type=str, required=False)
-        parser.add_argument("--V", type=str, required=False)
+            if dtype == List:
+                parser.add_argument(f"--{name}", type=str, nargs='+', required=False)
+            else:
+                parser.add_argument(f"--{name}", type=dtype, required=False)
+
+        parser.add_argument("--h1", type=str, required=False)
+        parser.add_argument("--l1", type=str, required=False)
+        parser.add_argument("--v", type=str, required=False)
         parser.add_argument("--window_fftgram", type=str, required=False)
         parsed, _ = parser.parse_known_args(args)
         dictionary = vars(parsed)
@@ -255,12 +259,12 @@ class Parameters:
         local_data_path_dict = {}
         possible_ifos = ["H1", "L1", "V", "K"]
         for ifo in possible_ifos:
-            if ifo in dictionary:
-                if dictionary[ifo].startswith("["):
-                    local_data_path_dict[ifo] = json.loads(dictionary[ifo])
+            if ifo.lower() in dictionary:
+                if dictionary[ifo.lower()].startswith("["):
+                    local_data_path_dict[ifo] = json.loads(dictionary[ifo.lower()])
                 else:
-                    local_data_path_dict[ifo] = dictionary[ifo]
-                dictionary.pop(ifo)
+                    local_data_path_dict[ifo] = dictionary[ifo.lower()]
+                dictionary.pop(ifo.lower())
         if local_data_path_dict:
             dictionary["local_data_path_dict"] = local_data_path_dict
         if "window_fftgram" in dictionary:
