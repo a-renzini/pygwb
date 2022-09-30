@@ -14,6 +14,13 @@ import pytest
 from pygwb import baseline, parameters
 
 
+def sig_round(data, precision):
+    data_pos = np.where(np.isfinite(data) & (data != 0), 
+        np.abs(data), 10**(precision-1))
+    mags = 10 ** (precision - 1 - np.floor(np.log10(data_pos)))
+    return np.round(data * mags) / mags
+
+
 class TestBaseline(unittest.TestCase):
     def setUp(self):
         self.interferometer_1 = bilby.gw.detector.get_empty_interferometer("H1")
@@ -187,6 +194,18 @@ class TestBaseline(unittest.TestCase):
         frequency_resolution = PSD_1_test.df.value
         base = baseline.Baseline.from_interferometers([ifo_1, ifo_2])
         base.set_cross_and_power_spectral_density(frequency_resolution)
+
+        # round data because we can't set the almost_equal rtol
+        precision = 5
+        PSD_1_test = sig_round(PSD_1_test, precision)
+        PSD_2_test = sig_round(PSD_2_test, precision)
+        base.interferometer_1.psd_spectrogram = sig_round(
+            base.interferometer_1.psd_spectrogram, precision)
+        base.interferometer_2.psd_spectrogram = sig_round(
+            base.interferometer_2.psd_spectrogram, precision)
+        CSD_test = sig_round(CSD_test, precision)
+        base.csd = sig_round(base.csd, precision)
+
         gwpy.testing.utils.assert_quantity_sub_equal(
             PSD_1_test, base.interferometer_1.psd_spectrogram, almost_equal=True
         )
