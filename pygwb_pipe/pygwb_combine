@@ -80,7 +80,8 @@ def main():
     files_ptest.sort(key=sorting_function)
     times = [int(sorting_function(files_ptest[idx])) for idx in range(len(files_ptest))]
     frequencies = np.load(files_ptest[0])["frequencies"]
-    frequency_mask = np.load(files_ptest[0])["frequency_mask"]
+    #frequency_mask = np.load(files_ptest[0])["frequency_mask"]
+    frequency_mask = True
 
     # spectral objects
     Y_j = []
@@ -133,7 +134,7 @@ def main():
     sigma_seg = np.concatenate(sigma_seg)
     Y_j = np.array(Y_j)
     sigma_j = np.array(sigma_j)
-    np.savez(pt_est_sigma_unweighted_path, point_estimate=Y_j, sigma=sigma_j)
+    np.savez(pt_est_sigma_unweighted_path, point_estimate=Y_j, sigma=sigma_j, point_estimate_per_seg=Y_seg, sigma_per_seg=sigma_seg)
     logger.info(
         f"saved file with unweighted point estimate and sigma values for all times in run:\n {pt_est_sigma_unweighted_path}."
     )
@@ -152,7 +153,7 @@ def main():
         times=times_j,
     )
     logger.info(
-        f"saved file with unweighted point estimate and sigma values for all times in run:\n {pt_est_sigma_unweighted_path}."
+        f"saved file with all sigma information related to the delta sigma cut for all times in run:\n {pt_est_sigma_unweighted_path}."
     )
 
     Y_spectrum_combined, sigma_spectrum_combined = combine_spectra_with_sigma_weights(
@@ -185,7 +186,7 @@ def main():
         )
     )
     logger.info(
-        f"Saved file with combined point estimate and sigma OmegaSpectrum objects for this run.sigma_spectrum"
+        f"Saved file with combined point estimate and sigma OmegaSpectrum objects for this run. These are weighted with alpha={params.alpha}"
     )
 
     Y_estimate, sigma_estimate = calc_Y_sigma_from_Yf_sigmaf(
@@ -199,7 +200,7 @@ def main():
     sigma_estimate *= (sigma_spectrum.h0 / combine_args.h0) ** 2
 
     logger.info(
-        "Final point estimate weighted with alpha={:.2f}".format(combine_args.alpha)
+        "Final point estimate re-weighted with alpha={:.2f}".format(combine_args.alpha)
         + f" at reference frequency fref={combine_args.fref} with h0={combine_args.h0}:\n [{Y_estimate} +/- {sigma_estimate}]"
     )
 
@@ -238,7 +239,7 @@ def main():
         sigmas_seg_UW=sigma_seg,
     )
     logger.info(
-        f"Saved file with weighted point estimate and sigma values and spectra:\n {pt_est_sigma_spectra_path}."
+        f"Saved file with re-weighted point estimate and sigma values and spectra:\n {pt_est_sigma_spectra_path}."
     )
     exit()
 
