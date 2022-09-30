@@ -6,6 +6,7 @@ import json
 import os
 import sys
 from pathlib import Path
+from typing import List
 
 import bilby
 import matplotlib.pyplot as plt
@@ -22,7 +23,10 @@ def help_arguments(parent):
     parser = argparse.ArgumentParser(parents=[parent])
     for name, dtype in ann.items():
         name_help = ParametersHelp[name].help
-        parser.add_argument(f"--{name}", help=name_help, type=dtype, required=False)
+        if dtype == List:
+            parser.add_argument(f"--{name}", help=name_help, type=str, nargs='+', required=False)
+        else:
+            parser.add_argument(f"--{name}", help=name_help, type=dtype, required=False)
     return parser
 
 def main():
