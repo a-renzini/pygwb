@@ -159,7 +159,7 @@ class Parameters:
         for name, dtype in ann.items():
             if name in kwargs:
                 try:
-                    kwargs[name] = dtype(kwargs[name])
+                    kwargs[name] = dtype(kwargs[name]) if kwargs[name] != 'False' else False
                 except TypeError:
                     pass
                 setattr(self, name, kwargs[name])
@@ -184,6 +184,7 @@ class Parameters:
         mega_list.extend(config.items("preprocessing"))
         mega_list.extend(config.items("density_estimation"))
         mega_list.extend(config.items("postprocessing"))
+        mega_list.extend(config.items("gating"))
         mega_list.extend(config.items("data_quality"))
         mega_list.extend(config.items("output"))
         dictionary = dict(mega_list)
@@ -306,6 +307,15 @@ class Parameters:
         preprocessing_dict["window_downsampling"] = param_dict["window_downsampling"]
         preprocessing_dict["ftype"] = param_dict["ftype"]
         param["preprocessing"] = preprocessing_dict
+        
+        gating_dict = {}
+        gating_dict["gate_data"] = param_dict["gate_data"]
+        gating_dict["gate_whiten"] = param_dict["gate_whiten"]
+        gating_dict["gate_tzero"] = param_dict["gate_tzero"]
+        gating_dict["gate_tpad"] = param_dict["gate_tpad"]
+        gating_dict["gate_threshold"] = param_dict["gate_threshold"]
+        gating_dict["cluster_window"] = param_dict["cluster_window"]
+        param["gating"] = gating_dict
 
         param["window_fft_specs"] = self.window_fft_dict
 
