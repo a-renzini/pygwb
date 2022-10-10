@@ -24,7 +24,7 @@ long_description = get_long_description()
 
 setup(
     name="pygwb",
-    description="Lighweight python stochastic GWB",
+    description="Lighweight python stochastic GWB analysis pipeline",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://git.ligo.org/pygwb/pygwb",
