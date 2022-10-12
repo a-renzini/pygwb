@@ -178,11 +178,11 @@ def main():
     )
 
     Y_spectrum.write(
-        os.path.join(combine_args.out_path, f"Y_spectrum_{times[0]}-{times[-1]}.hdf5")
+        os.path.join(combine_args.out_path, f"Y_spectrum_{times[0]}-{times[-1]}_UNWEIGHTED.hdf5")
     )
     sigma_spectrum.write(
         os.path.join(
-            combine_args.out_path, f"sigma_spectrum_{times[0]}-{times[-1]}.hdf5"
+            combine_args.out_path, f"sigma_spectrum_{times[0]}-{times[-1]}_UNWEIGHTED.hdf5"
         )
     )
     logger.info(
@@ -228,6 +228,13 @@ def main():
     )
     Y_reweight_spectrum.reset_h0(new_h0=combine_args.h0)
     sigma_reweight_spectrum.reset_h0(new_h0=combine_args.h0)
+
+    Y_reweight_spectrum.write(
+        os.path.join(combine_args.out_path, f"Y_spectrum_{times[0]}-{times[-1]}.hdf5")
+    )
+    sigma_reweight_spectrum.write(
+        os.path.join(combine_args.out_path, f"sigma_spectrum_{times[0]}-{times[-1]}.hdf5")
+    )
 
     np.savez(
         pt_est_sigma_spectra_path,
