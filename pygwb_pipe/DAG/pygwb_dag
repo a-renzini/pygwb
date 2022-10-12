@@ -13,10 +13,10 @@ def main():
     dag_parser = argparse.ArgumentParser()
     dag_parser.add_argument(
         "--subfile", help="Submission file.", action="store", type=str
-    ) #"condor/Simulated_Data_New_Pipeline.sub"
+    ) 
     dag_parser.add_argument(
         "--jobfile", help="Job file with start and end times and duration for each job.", action="store", type=Path
-    ) #"PROJECTS/SMDC_2021/100_day_test_pygwb/MDC_Generation_2/output/"
+    ) 
     dag_parser.add_argument(
         "--t0", help = "Begin time of analysed data, optional argument if one does not wish to analyse the whole job file", 
         action="store", type=int, required=False
@@ -34,6 +34,9 @@ def main():
     dag_parser.add_argument(
         "--dag_name", help="Dag file name.", action="store", type=str, required=False
     )
+    dag_parser.add_argument(
+        "--apply_dsc", help="Apply delta-sigma cut flag for pygwb_pipe.", action="store", type=str, required=False
+    )
     dag_args = dag_parser.parse_args() 
     
     if not dag_args.parentdir:
@@ -42,6 +45,8 @@ def main():
         dag_args.param_file = os.path.abspath('../parameters.ini')
     if not dag_args.dag_name:
         dag_args.dag_name = "dag_name.dag"
+    if not dag_args.apply_dsc:
+        dag_args.apply_dsc = "True"
         
     # Filepaths
     outputdir = dag_args.parentdir / "output"
@@ -83,12 +88,8 @@ def main():
         tf_list = jobfile_entries[:,2]
         length_list = jobfile_entries[:,3]
 
-    #print(length_list) # These lines can be used if there is a problem with the script
-    #print(t0_list)
-    #print(tf_list)
-
     t_index = [index for index,t in enumerate(length_list) if t >= 771] 
-    # At the moment, pyGWB cannot handle these very small segments. 771 seconds is a guess for cut-off based on small experiments.
+    # At the moment, pygwb cannot handle these very small segments. 771 seconds is a guess for cut-off based on small experiments.
 
     t0_actual = t0_list[t_index]
     tf_actual = tf_list[t_index]
@@ -99,7 +100,7 @@ def main():
         for index,t0 in enumerate(t0_actual): 
             dagfile.write(f"JOB {index} {os.path.abspath(dag_args.subfile)}\n")
 
-            args = f"--t0 {t0} --tf {tf_actual[index]} --output_path {outputdir} --param_file {os.path.abspath(dag_args.param_file)}"
+            args = f"--t0 {t0} --tf {tf_actual[index]} --output_path {outputdir} --apply_dsc {dag_args.apply_dsc} --param_file {os.path.abspath(dag_args.param_file)}"
             dagfile.write(
                     f'VARS {index} job="{t0}-{tf_actual[index]}" executable="{executable}" ARGS="{args}" logdir="{logdir}"\n'
             )
