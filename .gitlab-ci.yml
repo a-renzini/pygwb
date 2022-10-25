@@ -121,6 +121,7 @@ documentation:
   script:
     - cd docs
     - cp ../tutorials/*.ipynb ./
+    - cp ../tutorials/*.dat ./
     - rm integrationTest*.ipynb
     - make clean
     - make html
