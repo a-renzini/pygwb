@@ -122,6 +122,7 @@ documentation:
     - cd docs
     - cp ../tutorials/*.ipynb ./
     - cp ../tutorials/*.dat ./
+    - cp -r ../tutorials/Input ./
     - rm integrationTest*.ipynb
     - make clean
     - make html
