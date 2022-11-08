@@ -193,3 +193,15 @@ def StatKS(DKS):
     for jj in np.arange(1, jmax + 1):
         pvalue += 2.0 * (-1) ** (jj + 1) * np.exp(-2.0 * jj ** 2 * DKS ** 2)
     return pvalue
+
+def _check_omegaspectra(spectra):
+        for spec in spectra:
+            if spec.alpha != spectra[0].alpha:
+                print(spec.alpha, spectra[0].alpha)
+                raise ValueError('spectra in this set have been weighted with different alphas. Please correct this before continuing.')
+            if spec.fref != spectra[0].fref:
+                raise ValueError('spectra in this set have been set at different reference frequencies. Please correct this before continuing.')
+            if spec.h0 != spectra[0].h0:
+                raise ValueError('spectra in this set have been set at different h0. Please correct this before continuing.')
+            if not np.allclose(spec.frequencies.value, spectra[0].frequencies.value):
+                raise ValueError('spectra in this set have different frequencies. Please correct this before continuing.')
