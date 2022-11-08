@@ -33,7 +33,7 @@ setup(
     license="MIT",
     packages=["pygwb"],
     package_dir={"pygwb": "pygwb"},
-    scripts=['pygwb_pipe/pygwb_pipe','pygwb_pipe/pygwb_combine', 'pygwb_pipe/pygwb_stats', 'pygwb_pipe/DAG/pygwb_dag'],
+    scripts=['pygwb_pipe/pygwb_pipe','pygwb_pipe/pygwb_combine', 'pygwb_pipe/pygwb_stats', 'pygwb_pipe/pygwb_dag', 'pygwb_pipe/pygwb_pe'],
     install_requires=[
         "numpy",
         "matplotlib",

@@ -7,8 +7,9 @@ from loguru import logger
 from tqdm import tqdm
 
 from pygwb.constants import H0
+from pygwb.omega_spectra import OmegaSpectrum
 
-from .util import calc_bias, window_factors
+from .util import _check_omegaspectra, calc_bias, window_factors
 
 
 def postprocess_Y_sigma(
@@ -330,10 +331,10 @@ def combine_spectra_with_sigma_weights(main_spectra, weights_spectra):
 
     Parameters
     =========
-    main_spectra: list
-        List of arrays or FrequencySeries or OmegaSpectrum objects to be combined.
-    weights_spectra: list
-        List of arrays or FrequencySeries or OmegaSpectrum objects to use as weights.
+    main_spectra: np.array
+        Array of arrays or FrequencySeries or OmegaSpectrum objects to be combined.
+    weights_spectra: np.array
+        Array of arrays or FrequencySeries or OmegaSpectrum objects to use as weights.
 
     Returns
     =======
@@ -342,9 +343,22 @@ def combine_spectra_with_sigma_weights(main_spectra, weights_spectra):
     combined_weights_spectrum: array_like
         Variance associated to the final spectrum obtained combining the given weights.
     """
-    res_1 = 1 / np.nansum(1 / weights_spectra ** 2, axis=0)
+    if isinstance(main_spectra[0], OmegaSpectrum):
+        _check_omegaspectra(main_spectra)
+
+    if isinstance(weights_spectra[0], OmegaSpectrum):
+        _check_omegaspectra(weights_spectra)
+
+    w_spec = np.array(weights_spectra)
+    m_spec = np.array(main_spectra)
+    res_1 = 1 / np.nansum(1 / w_spec ** 2, axis=0)
     combined_weights_spectrum = np.sqrt(res_1)
     combined_weighted_spectrum = (
-        np.nansum(main_spectra / weights_spectra ** 2, axis=0) * res_1
+        np.nansum(m_spec / w_spec ** 2, axis=0) * res_1
     )
-    return combined_weighted_spectrum, combined_weights_spectrum
+    if isinstance(main_spectra[0], OmegaSpectrum):
+        combined_weighted_omegaspectrum = OmegaSpectrum(combined_weighted_spectrum, alpha=main_spectra[0].alpha, fref=main_spectra[0].fref, h0=main_spectra[0].h0, frequencies=main_spectra[0].frequencies, name='omega_spectrum')
+        combined_weights_omegaspectrum = OmegaSpectrum(combined_weights_spectrum, alpha=main_spectra[0].alpha, fref=main_spectra[0].fref, h0=main_spectra[0].h0, frequencies=main_spectra[0].frequencies, name='sigma_spectrum')
+        return combined_weighted_omegaspectrum, combined_weights_omegaspectrum
+    else:
+        return combined_weighted_spectrum, combined_weights_spectrum
