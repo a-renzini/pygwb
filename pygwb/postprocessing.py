@@ -9,7 +9,7 @@ from tqdm import tqdm
 from pygwb.constants import H0
 from pygwb.omega_spectra import OmegaSpectrum
 
-from .util import calc_bias, window_factors, _check_omegaspectra
+from .util import _check_omegaspectra, calc_bias, window_factors
 
 
 def postprocess_Y_sigma(
