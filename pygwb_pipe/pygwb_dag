@@ -49,6 +49,15 @@ def main():
     dag_parser.add_argument(
         "--apply_dsc", help="Apply delta-sigma cut flag for pygwb_pipe.", action="store", type=str, required=False
     )
+    dag_parser.add_argument(
+        "--pickle_out", help="Pickle output Baseline of the analysis.", action="store", type=str, required=False
+    )
+    dag_parser.add_argument(
+        "--wipe_ifo", help="Wipe interferometer data to reduce size of pickled Baseline.", action="store", type=str, required=False
+    )
+    dag_parser.add_argument(
+        "--calc_pt_est", help="Calculate omega point estimate and sigma from data.", action="store", type=str, required=False
+    )
     dag_args = dag_parser.parse_args() 
     
     if not dag_args.parentdir:
@@ -59,6 +68,13 @@ def main():
         dag_args.dag_name = "dag_name.dag"
     if not dag_args.apply_dsc:
         dag_args.apply_dsc = "True"
+    
+    if not dag_args.pickle_out:
+        dag_args.pickle_out = "True"
+    if not dag_args.wipe_ifo:
+        dag_args.wipe_ifo = "True"  
+    if not dag_args.calc_pt_est:
+        dag_args.calc_pt_est = "True"        
         
     # Filepaths
     outputdir = dag_args.parentdir / "output"
@@ -128,7 +144,8 @@ def main():
         for index,t0 in enumerate(t0_actual): 
             dagfile.write(f"JOB {index} {os.path.abspath(dag_args.subfile)}\n")
 
-            args = f"--t0 {t0} --tf {tf_actual[index]} --output_path {outputdir} --apply_dsc {dag_args.apply_dsc} --param_file {os.path.abspath(dag_args.param_file)}"
+            args = (f"--t0 {t0} --tf {tf_actual[index]} --output_path {outputdir} --apply_dsc {dag_args.apply_dsc} --param_file {os.path.abspath(dag_args.param_file)}" 
+                    f" --pickle_out {dag_args.pickle_out} --wipe_ifo {dag_args.wipe_ifo} --calc_pt_est {dag_args.calc_pt_est}")
             dagfile.write(
                     f'VARS {index} job="{t0}-{tf_actual[index]}" executable="{executable}" ARGS="{args}" logdir="{logdir}"\n'
             )
