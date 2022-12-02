@@ -122,11 +122,20 @@ def main():
         slide_sigmas_j.append(data_file["slide_sigma_values"].T)
         delta_sigmas_j.append(data_file["delta_sigma_values"].T)
         times_j.append(data_file["delta_sigma_times"])
-        badGPStimes_j.append(data_file["badGPStimes"])
-
+        if not data_file["badGPStimes"].size == 0:
+            if data_file["badGPStimes"].size == 1:
+                list_gps = np.array(data_file["badGPStimes"].flatten())
+                badGPStimes_j.append(list_gps)
+            else:
+                badGPStimes_j.append(data_file["badGPStimes"])
+        
         Y_s, sigma_s = calc_Y_sigma_from_Yf_sigmaf(
             data_file["point_estimate_spectrogram"], data_file["sigma_spectrogram"], frequency_mask=frequency_mask
         )
+        if not np.shape(Y_s):
+            Y_s = np.array([Y_s])
+        if not np.shape(sigma_s):
+            sigma_s = np.array([sigma_s])
         Y_seg.append(Y_s)
         sigma_seg.append(sigma_s)
 

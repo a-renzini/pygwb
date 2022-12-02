@@ -234,8 +234,10 @@ def calc_Y_sigma_from_Yf_sigmaf(
             frequency_mask = np.ones(Y_f.shape[0], dtype=bool)
         elif len(Y_f.shape) == 2:
             frequency_mask = np.ones(Y_f.shape[1], dtype=bool)
-
-    if len(Y_f.shape) == 1:
+    if len(Y_f.shape) == 1 or Y_f.shape[0] == 1:
+        if Y_f.shape[0] == 1:
+            Y_f = Y_f[0]
+            var_f = var_f[0]
         var = 1 / np.sum(var_f[frequency_mask] ** (-1), axis=-1).squeeze()
         Y = np.nansum(Y_f[frequency_mask] * (var / var_f[frequency_mask]), axis=-1)
     # need to make this nan-safe
