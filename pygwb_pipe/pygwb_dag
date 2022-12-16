@@ -1,13 +1,20 @@
 #!/bin/env python
 
 import argparse
-import os
+import os, sys
 import re
-import shutil
+import shutil, json
 from pathlib import Path
+from gwpy.segments import DataQualityFlag,DataQualityDict
 
 import numpy as np
 
+def getSegments(flags,start,stop):
+
+    # Query segment database, find intersection of all requested flags
+    segDict = DataQualityDict.query(flags,start,stop)
+    segments = segDict.intersection()        
+    return segments.active
 
 def main():
     dag_parser = argparse.ArgumentParser()
@@ -18,11 +25,14 @@ def main():
         "--jobfile", help="Job file with start and end times and duration for each job.", action="store", type=Path
     ) 
     dag_parser.add_argument(
-        "--t0", help = "Begin time of analysed data, optional argument if one does not wish to analyse the whole job file", 
+        "--flag", help="Flag that is searched for in the DQSegDB.", action="store", type=str, required=False
+    )
+    dag_parser.add_argument(
+        "--t0", help = "Begin time of analysed data, will query the DQSegDB. If used with jobfile, it is an optional argument if one does not wish to analyse the whole job file", 
         action="store", type=int, required=False
     )
     dag_parser.add_argument(
-        "--tf", help = "End time of analysed data, optional argument if one does not wish to analyse the whole job file", 
+        "--tf", help = "End time of analysed data, will query the DQSegDB. If used with jobfile, it is an optional argument if one does not wish to analyse the whole job file", 
         action="store", type=int, required=False
     )
     dag_parser.add_argument(
@@ -37,6 +47,15 @@ def main():
     dag_parser.add_argument(
         "--apply_dsc", help="Apply delta-sigma cut flag for pygwb_pipe.", action="store", type=str, required=False
     )
+    dag_parser.add_argument(
+        "--pickle_out", help="Pickle output Baseline of the analysis.", action="store", type=str, required=False
+    )
+    dag_parser.add_argument(
+        "--wipe_ifo", help="Wipe interferometer data to reduce size of pickled Baseline.", action="store", type=str, required=False
+    )
+    dag_parser.add_argument(
+        "--calc_pt_est", help="Calculate omega point estimate and sigma from data.", action="store", type=str, required=False
+    )
     dag_args = dag_parser.parse_args() 
     
     if not dag_args.parentdir:
@@ -47,6 +66,13 @@ def main():
         dag_args.dag_name = "dag_name.dag"
     if not dag_args.apply_dsc:
         dag_args.apply_dsc = "True"
+    
+    if not dag_args.pickle_out:
+        dag_args.pickle_out = "True"
+    if not dag_args.wipe_ifo:
+        dag_args.wipe_ifo = "True"  
+    if not dag_args.calc_pt_est:
+        dag_args.calc_pt_est = "True"        
         
     # Filepaths
     outputdir = dag_args.parentdir / "output"
@@ -62,34 +88,46 @@ def main():
     executable = shutil.which('pygwb_pipe')
 
     # Use the jobfile to structure the run; the first column of the file can be ignored, the second is start times of each file, the third is end times, the fourth is length (in seconds) of the data in each file.
-    jobfile_entries = np.loadtxt(f"{dag_args.jobfile}", dtype = 'int',  delimiter = ' ')
+    if dag_args.jobfile:
+        jobfile_entries = np.loadtxt(f"{dag_args.jobfile}", dtype = 'int',  delimiter = ' ')
     
-    if dag_args.t0 is not None and dag_args.tf is None:
-        print("t0 was provided, but tf was not. The dag file will be made until the end of the job file.")
+        if dag_args.t0 is not None and dag_args.tf is None:
+            print("t0 was provided, but tf was not. The dag file will be made until the end of the job file.")
 
-    if dag_args.tf is None:
-        dag_args.tf = jobfile_entries[:,2][-1]
-    else:
-        if dag_args.tf > jobfile_entries[:,2][-1]:
-            raise ValueError("Provided tf cannot be larger than largest tf in JOB file.")
+        if dag_args.tf is None:
+            dag_args.tf = jobfile_entries[:,2][-1]
+        else:
+            if dag_args.tf > jobfile_entries[:,2][-1]:
+                raise ValueError("Provided tf cannot be larger than largest tf in JOB file.")
     
 
-    if dag_args.t0 is not None:
-        if dag_args.t0 < jobfile_entries[:,1][0]:
-            raise ValueError("Provided t0 cannot be smaller than smallest t0 in JOB file.")
-        t0_list = np.array([ele for ele in jobfile_entries[:,1] if ele > dag_args.t0 and ele < dag_args.tf])
-        t0_list = np.insert(t0_list, 0, dag_args.t0)
-        tf_list = np.array([ele for ele in jobfile_entries[:,2] if ele > t0_list[0] and ele <= dag_args.tf])
-        if tf_list[-1] < dag_args.tf:
-            tf_list = np.append(tf_list, dag_args.tf)
-        length_list = np.array([tf - t0 for tf,t0 in zip(tf_list, t0_list)])
-    else:
-        t0_list = jobfile_entries[:,1]
-        tf_list = jobfile_entries[:,2]
-        length_list = jobfile_entries[:,3]
+        if dag_args.t0 is not None:
+            if dag_args.t0 < jobfile_entries[:,1][0]:
+                raise ValueError("Provided t0 cannot be smaller than smallest t0 in JOB file.")
+            t0_list = np.array([ele for ele in jobfile_entries[:,1] if ele > dag_args.t0 and ele < dag_args.tf])
+            t0_list = np.insert(t0_list, 0, dag_args.t0)
+            tf_list = np.array([ele for ele in jobfile_entries[:,2] if ele > t0_list[0] and ele <= dag_args.tf])
+            if tf_list[-1] < dag_args.tf:
+                tf_list = np.append(tf_list, dag_args.tf)
+            length_list = np.array([tf - t0 for tf,t0 in zip(tf_list, t0_list)])
+        else:
+            t0_list = jobfile_entries[:,1]
+            tf_list = jobfile_entries[:,2]
+            length_list = jobfile_entries[:,3]
 
-    t_index = [index for index,t in enumerate(length_list) if t >= 771] 
-    # At the moment, pygwb cannot handle these very small segments. 771 seconds is a guess for cut-off based on small experiments.
+    else:
+        if dag_args.t0 and dag_args.tf and dag_args.flag:
+            flag_list = json.loads(dag_args.flag)
+            active_segments = getSegments(flag_list, dag_args.t0, dag_args.tf)
+            t0_list = np.array([seg.start for seg in active_segments])
+            tf_list = np.array([seg.end for seg in active_segments])
+            length_list = np.array([seg.end - seg.start for seg in active_segments]) 
+                
+        else:
+            raise ValueError(f'The values of t0 and tf should be provided if no jobfile is used. A flag should also be provided to query the DQSegDB.')
+
+    t_index = [index for index,t in enumerate(length_list) if t >= 580] 
+    # At the moment, pygwb cannot handle these very small segments. 580 seconds is a guess for cut-off based on small experiments.
 
     t0_actual = t0_list[t_index]
     tf_actual = tf_list[t_index]
@@ -100,7 +138,8 @@ def main():
         for index,t0 in enumerate(t0_actual): 
             dagfile.write(f"JOB {index} {os.path.abspath(dag_args.subfile)}\n")
 
-            args = f"--t0 {t0} --tf {tf_actual[index]} --output_path {outputdir} --apply_dsc {dag_args.apply_dsc} --param_file {os.path.abspath(dag_args.param_file)}"
+            args = (f"--t0 {t0} --tf {tf_actual[index]} --output_path {outputdir} --apply_dsc {dag_args.apply_dsc} --param_file {os.path.abspath(dag_args.param_file)}" 
+                    f" --pickle_out {dag_args.pickle_out} --wipe_ifo {dag_args.wipe_ifo} --calc_pt_est {dag_args.calc_pt_est}")
             dagfile.write(
                     f'VARS {index} job="{t0}-{tf_actual[index]}" executable="{executable}" ARGS="{args}" logdir="{logdir}"\n'
             )
