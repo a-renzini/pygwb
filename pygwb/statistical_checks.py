@@ -1046,7 +1046,7 @@ class StatisticalChecks(object):
 
 
 def sortingFunction(item):
-    return np.float64(item[5:].partition("-")[0])
+    return float(item[5:].partition("-")[0])
 
 
 def run_statistical_checks_from_file(

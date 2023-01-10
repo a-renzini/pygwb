@@ -1092,7 +1092,7 @@ class Baseline(object):
         notch_list_path="",
         polarization="tensor",
         window_fftgram_dict: dict = {"window_fftgram": "hann"},
-        return_naive_and_averaged_sigmas: np.bool = False,
+        return_naive_and_averaged_sigmas: bool = False,
     ):
         """
         Calculate the delta sigma cut using the naive and average psds, if set in the baseline.

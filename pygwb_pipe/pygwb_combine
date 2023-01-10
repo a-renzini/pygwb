@@ -3,6 +3,7 @@
 import argparse
 import copy
 import os
+from fractions import Fraction
 from os import listdir
 from os.path import isfile, join
 from pathlib import Path
@@ -23,7 +24,7 @@ from pygwb.postprocessing import (
 
 def sorting_function(item):
     res = item.partition("point_estimate_sigma_")[-1]
-    return np.float64(res.partition("-")[0])
+    return float(res.partition("-")[0])
 
 
 """
@@ -67,7 +68,7 @@ def main():
         combine_args.h0 = pygwb_h0
     if not combine_args.out_path:
         combine_args.out_path = Path("./")
-    combine_args.alpha = np.float(eval(combine_args.alpha))
+    combine_args.alpha = float(Fraction(combine_args.alpha).replace(" ", ""))
     params = Parameters()
     params.update_from_file(combine_args.param_file)
 
