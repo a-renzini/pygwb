@@ -57,12 +57,12 @@ def run_dsc(
     psd1_slide: np.ndarray,
     psd2_slide: np.ndarray,
     alphas: np.ndarray,
-    sample_rate: np.int,
+    sample_rate: int,
     orf: np.array,
-    fref: np.int,
+    fref: int,
     frequency_mask: np.array = True,
     window_fftgram_dict: dict = {"window_fftgram": "hann"},
-    return_naive_and_averaged_sigmas: np.bool = False,
+    return_naive_and_averaged_sigmas: bool = False,
 ):
 
     """
@@ -86,7 +86,7 @@ def run_dsc(
     alphas: np.array
         the spectral indices to use; the code combines the BadGPStimes from each alpha
 
-    sample_rate: np.int
+    sample_rate: int
         sampling rate (Hz)
 
     notch_list_path: str
