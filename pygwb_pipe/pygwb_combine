@@ -68,7 +68,7 @@ def main():
         combine_args.h0 = pygwb_h0
     if not combine_args.out_path:
         combine_args.out_path = Path("./")
-    combine_args.alpha = float(Fraction(combine_args.alpha).replace(" ", ""))
+    combine_args.alpha = float(Fraction(combine_args.alpha.replace(" ", "")))
     params = Parameters()
     params.update_from_file(combine_args.param_file)
 
