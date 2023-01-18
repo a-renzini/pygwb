@@ -328,7 +328,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
         self._check_spectrogram_channel_name(self.timeseries.channel.name)
         self._check_spectrogram_frequency_resolution(frequency_resolution)
 
-    def set_average_psd(self, N_average_segments_welch_psd):
+    def set_average_psd(self, N_average_segments_welch_psd=2):
         """
         Set average_psd attribute from the existing raw psd
 
