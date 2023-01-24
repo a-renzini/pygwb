@@ -2,10 +2,10 @@
 
 import argparse
 import sys
+from pathlib import Path
 
 import numpy as np
 
-from pathlib import Path
 from pygwb.baseline import Baseline
 from pygwb.detector import Interferometer
 from pygwb.omega_spectra import OmegaSpectrogram

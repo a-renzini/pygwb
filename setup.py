@@ -45,6 +45,7 @@ setup(
         "loguru",
         "json5",
         "jinja2==3.0.3",
+        "seaborn",
     ],
     classifiers=[
         "Programming Language :: Python :: 3.8",

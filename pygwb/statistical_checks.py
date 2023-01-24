@@ -6,8 +6,8 @@ from pathlib import Path
 import gwpy
 import h5py
 import matplotlib
-
 import matplotlib.pyplot as plt
+
 matplotlib.rcParams['figure.figsize'] = (8,6)
 matplotlib.rcParams['axes.grid'] = True
 matplotlib.rcParams['grid.linestyle'] = ':'
@@ -16,10 +16,12 @@ matplotlib.rcParams['lines.linewidth'] = 2
 matplotlib.rcParams['legend.handlelength'] = 3
 
 from matplotlib import rc
+
 rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
 rc('text', usetex=True)
 
 import seaborn as sns
+
 sea = sns.color_palette("tab10")
 
 import numpy as np
