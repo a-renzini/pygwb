@@ -40,7 +40,7 @@ setup(
         "scipy==1.8.0",
         "bilby",
         "gwpy",
-        "astropy==4.3.1",
+        "astropy",
         "lalsuite==7.3",
         "loguru",
         "json5",
