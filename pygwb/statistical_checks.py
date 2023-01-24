@@ -6,8 +6,23 @@ from pathlib import Path
 import gwpy
 import h5py
 import matplotlib
+
+import matplotlib.pyplot as plt
+matplotlib.rcParams['figure.figsize'] = (8,6)
+matplotlib.rcParams['axes.grid'] = True
+matplotlib.rcParams['grid.linestyle'] = ':'
+matplotlib.rcParams['grid.color'] = 'grey'
+matplotlib.rcParams['lines.linewidth'] = 2
+matplotlib.rcParams['legend.handlelength'] = 3
+
+from matplotlib import rc
+rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
+rc('text', usetex=True)
+
+import seaborn as sns
+sea = sns.color_palette("tab10")
+
 import numpy as np
-from matplotlib import pyplot as plt
 from scipy import integrate, special, stats
 from scipy.optimize import curve_fit
 
@@ -35,6 +50,7 @@ class StatisticalChecks(object):
         plot_dir,
         baseline_name,
         param_file,
+        legend_fontsize = 16
     ):
         """
         The statistical checks class performs various tests by plotting different quantities and saving this plots. This allows the user to check for consistency with expected results. Concretely, the following tests and plots can be generated: running point estimate, running sigma, (cumulative) point estimate integrand, real and imaginary part of point estimate integrand, FFT of the point estimate integrand, (cumulative) sensitivity, evolution of omega and sigma as a function of time, omega and sigma distribution, KS test, and a linear trend analysis of omega in time. Furthermore, part of these plots compares the values of these quantities before and after the delta sigma cut. Each of these plots can be made by calling the relevant class method (e.g. self.plot_running_point_estimate()).
@@ -86,7 +102,7 @@ class StatisticalChecks(object):
         self.sigma_spectrum = sigma_spectrum
         self.point_estimate_spectrum = point_estimate_spectrum
 
-        self.plot_dir = plot_dir
+        self.plot_dir = Path(plot_dir)
 
         self.baseline_name = baseline_name
         self.segment_duration = self.params.segment_duration
@@ -115,6 +131,13 @@ class StatisticalChecks(object):
             self.running_pt_estimate,
             self.running_sigmas,
         ) = self.compute_running_quantities()
+
+        self.legend_fontsize = legend_fontsize
+        self.axes_labelsize = legend_fontsize + 2
+        #matplotlib.rcParams['legend.fontsize'] = 16
+        #matplotlib.rcParams['axes.labelsize'] = 18
+        #matplotlib.rcParams['xtick.labelsize'] = 16
+        #matplotlib.rcParams['ytick.labelsize'] = 16
 
     def get_data_after_dsc(self):
         """
@@ -281,26 +304,26 @@ class StatisticalChecks(object):
             self.days_cut,
             self.running_pt_estimate + 1.65 * self.running_sigmas,
             ".",
-            color="green",
+            color=sea[2],
             markersize=2,
         )
         plt.plot(
             self.days_cut,
             self.running_pt_estimate - 1.65 * self.running_sigmas,
             ".",
-            color="blue",
+            color=sea[0],
             markersize=2,
         )
         plt.grid(True)
         plt.xlim(self.days_cut[0], self.days_cut[-1])
         if ymin and ymax:
             plt.ylim(ymin, ymax)
-        plt.xlabel("Days since start of run", size=18)
-        plt.ylabel("Point estimate +/- 1.65\u03C3", size=18)
-        plt.xticks(fontsize=16)
-        plt.yticks(fontsize=16)
+        plt.xlabel("Days since start of run", size=self.axes_labelsize)
+        plt.ylabel(r"Point estimate $\pm 1.65 \sigma$", size=self.axes_labelsize)
+        plt.xticks(fontsize=self.legend_fontsize)
+        plt.yticks(fontsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-running_point_estimate.png"
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-running_point_estimate.png"
         )
 
     def plot_running_sigma(self):
@@ -316,16 +339,16 @@ class StatisticalChecks(object):
         """
         fig = plt.figure(figsize=(10, 8))
         plt.semilogy(
-            self.days_cut, self.running_sigmas, color="blue", label=self.baseline_name
+            self.days_cut, self.running_sigmas, color=sea[0], label=self.baseline_name
         )
         plt.grid(True)
         plt.xlim(self.days_cut[0], self.days_cut[-1])
-        plt.xlabel("Days since start of run", size=18)
-        plt.ylabel("\u03C3", size=18)
-        plt.xticks(fontsize=16)
-        plt.yticks(fontsize=16)
+        plt.xlabel("Days since start of run", size=self.axes_labelsize)
+        plt.ylabel(r"$\sigma$", size=self.axes_labelsize)
+        plt.xticks(fontsize=self.legend_fontsize)
+        plt.yticks(fontsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-running_sigma.png"
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-running_sigma.png"
         )
 
     def plot_IFFT_point_estimate_integrand(self):
@@ -342,15 +365,15 @@ class StatisticalChecks(object):
         t_array, omega_array = self.compute_ifft_integrand()
 
         fig = plt.figure(figsize=(10, 8))
-        plt.plot(t_array, omega_array, color="b", label=self.baseline_name)
+        plt.plot(t_array, omega_array, color=sea[0], label=self.baseline_name)
         plt.grid(True)
         plt.xlim(t_array[0], t_array[-1])
-        plt.xlabel("Lag (s)", size=18)
-        plt.ylabel("IFFT of Integrand of Pt Estimate", size=18)
-        plt.xticks(fontsize=16)
-        plt.yticks(fontsize=16)
+        plt.xlabel("Lag (s)", size=self.axes_labelsize)
+        plt.ylabel("IFFT of Integrand of Pt Estimate", size=self.axes_labelsize)
+        plt.xticks(fontsize=self.legend_fontsize)
+        plt.yticks(fontsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-IFFT_point_estimate_integrand.png"
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-IFFT_point_estimate_integrand.png"
         )
 
     def plot_SNR_spectrum(self):
@@ -368,15 +391,15 @@ class StatisticalChecks(object):
         plt.semilogy(
             self.freqs,
             abs(self.point_estimate_spectrum / self.sigma_spectrum),
-            color="b",
+            color=sea[0],
         )
-        plt.xlabel("Frequency [Hz]", size=18)
-        plt.ylabel("Abs(Y/\u03C3)", size=18)
-        plt.xticks(fontsize=16)
-        plt.yticks(fontsize=16)
+        plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
+        plt.ylabel(r"$|Y/\sigma|$", size=self.axes_labelsize)
+        plt.xticks(fontsize=self.legend_fontsize)
+        plt.yticks(fontsize=self.legend_fontsize)
         plt.xscale("log")
         plt.savefig(
-            f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-abs_point_estimate_integrand.png",
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-abs_point_estimate_integrand.png",
             bbox_inches="tight",
         )
 
@@ -396,14 +419,14 @@ class StatisticalChecks(object):
         )
         cum_pt_estimate = cum_pt_estimate / cum_pt_estimate[-1]
         plt.figure(figsize=(10, 8))
-        plt.plot(self.freqs[:-1], cum_pt_estimate, color="b")
-        plt.xlabel("Frequency [Hz]", size=18)
-        plt.ylabel("Cumulative Y/\u03C3", size=18)
+        plt.plot(self.freqs[:-1], cum_pt_estimate, color=sea[0])
+        plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
+        plt.ylabel(r"Cumulative $|Y/\sigma|$", size=self.axes_labelsize)
         plt.xscale("log")
-        plt.xticks(fontsize=16)
-        plt.yticks(fontsize=16)
+        plt.xticks(fontsize=self.legend_fontsize)
+        plt.yticks(fontsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-cumulative_SNR_spectrum.png",
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-cumulative_SNR_spectrum.png",
             bbox_inches="tight",
         )
 
@@ -422,15 +445,15 @@ class StatisticalChecks(object):
         plt.plot(
             self.freqs,
             np.real(self.point_estimate_spectrum / self.sigma_spectrum),
-            color="b",
+            color=sea[0],
         )
-        plt.xlabel("Frequency [Hz]", size=18)
-        plt.ylabel("Re(Y/\u03C3)", size=18)
+        plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
+        plt.ylabel(r"Re$(Y/\sigma)$", size=self.axes_labelsize)
         plt.xscale("log")
-        plt.xticks(fontsize=16)
-        plt.yticks(fontsize=16)
+        plt.xticks(fontsize=self.legend_fontsize)
+        plt.yticks(fontsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-real_SNR_spectrum.png",
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-real_SNR_spectrum.png",
             bbox_inches="tight",
         )
 
@@ -449,15 +472,15 @@ class StatisticalChecks(object):
         plt.plot(
             self.freqs,
             np.imag(self.point_estimate_spectrum / self.sigma_spectrum),
-            color="b",
+            color=sea[0],
         )
-        plt.xlabel("Frequency [Hz]", size=18)
-        plt.ylabel("Im(Y/\u03C3)", size=18)
+        plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
+        plt.ylabel(r"Im$(Y/\sigma)$", size=self.axes_labelsize)
         plt.xscale("log")
-        plt.xticks(fontsize=16)
-        plt.yticks(fontsize=16)
+        plt.xticks(fontsize=self.legend_fontsize)
+        plt.yticks(fontsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-imag_SNR_spectrum.png",
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-imag_SNR_spectrum.png",
             bbox_inches="tight",
         )
 
@@ -473,15 +496,15 @@ class StatisticalChecks(object):
 
         """
         plt.figure(figsize=(10, 8))
-        plt.plot(self.freqs, self.sigma_spectrum, color="b")
-        plt.xlabel("Frequency [Hz]", size=18)
-        plt.ylabel("\u03C3(f)", size=18)
+        plt.plot(self.freqs, self.sigma_spectrum, color=sea[0])
+        plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
+        plt.ylabel(r"$\sigma(f)$", size=self.axes_labelsize)
         plt.xscale("log")
         plt.yscale("log")
-        plt.xticks(fontsize=16)
-        plt.yticks(fontsize=16)
+        plt.xticks(fontsize=self.legend_fontsize)
+        plt.yticks(fontsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-sigma_spectrum.png",
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-sigma_spectrum.png",
             bbox_inches="tight",
         )
 
@@ -500,20 +523,20 @@ class StatisticalChecks(object):
         cumul_sens = integrate.cumtrapz((1 / self.sigma_spectrum ** 2), self.freqs)
         cumul_sens = cumul_sens / cumul_sens[-1]
         plt.figure(figsize=(10, 8))
-        plt.plot(self.freqs[:-1], cumul_sens, color="b")
-        plt.xlabel("Frequency [Hz]", size=18)
-        plt.ylabel("Cumulative sensitivity", size=18)
+        plt.plot(self.freqs[:-1], cumul_sens, color=sea[0])
+        plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
+        plt.ylabel("Cumulative sensitivity", size=self.axes_labelsize)
         plt.xscale("log")
-        plt.xticks(fontsize=16)
-        plt.yticks(fontsize=16)
+        plt.xticks(fontsize=self.legend_fontsize)
+        plt.yticks(fontsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-cumulative_sigma_spectrum.png",
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-cumulative_sigma_spectrum.png",
             bbox_inches="tight",
         )
 
     def plot_omega_sigma_in_time(self):
-        """
-        Generates and saves a panel plot with a scatter plot of \u03C3 vs (\u03A9-<\u03A9>)/\u03C3, as well as the evolution of \u03A9, \u03C3, and (\u03A9-<\u03A9>)/\u03C3 as a function of the days since the start of the run. All plots show the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_sigmas_all).
+        r"""
+        Generates and saves a panel plot with a scatter plot of :math:`\sigma` vs :math:`(\Omega-\langle\Omega\rangle)/\sigma`, as well as the evolution of :math:`\Omega`, :math:`\sigma`, and :math:`(\Omega-\langle\Omega\rangle)/\sigma` as a function of the days since the start of the run. All plots show the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_sigmas_all).
 
         Parameters
         ==========
@@ -524,55 +547,55 @@ class StatisticalChecks(object):
         """
         fig, axs = plt.subplots(nrows=3, ncols=1, figsize=(10, 14))
 
-        axs[0].plot(self.days_all, self.sliding_omega_all, c="r", label="All data")
+        axs[0].plot(self.days_all, self.sliding_omega_all, color=sea[3], label="All data")
         axs[0].plot(
             self.days_cut,
             self.sliding_omega_cut,
-            c="b",
-            label="Data after Abs[\u03B4\u03C3]/\u03C3 outlier cut",
+            color=sea[0],
+            label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
         )
-        axs[0].set_xlabel("Days since start of run", size=18)
-        axs[0].set_ylabel("\u03A9", size=18)
-        axs[0].legend(loc="upper left", fontsize=16)
+        axs[0].set_xlabel("Days since start of run", size=self.axes_labelsize)
+        axs[0].set_ylabel(r"$\Omega$", size=self.axes_labelsize)
+        axs[0].legend(loc="upper left", fontsize=self.legend_fontsize)
         axs[0].set_xlim(0, self.days_all[-1])
-        axs[0].tick_params(axis="x", labelsize=16)
-        axs[0].tick_params(axis="y", labelsize=16)
+        axs[0].tick_params(axis="x", labelsize=self.legend_fontsize)
+        axs[0].tick_params(axis="y", labelsize=self.legend_fontsize)
 
-        axs[1].plot(self.days_all, self.sliding_sigmas_all, c="r", label="All data")
+        axs[1].plot(self.days_all, self.sliding_sigmas_all, color=sea[3], label="All data")
         axs[1].plot(
             self.days_cut,
             self.sliding_sigma_cut,
-            c="b",
-            label="Data after Abs[\u03B4\u03C3]/\u03C3 outlier cut",
+            color=sea[0],
+            label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
         )
-        axs[1].set_xlabel("Days since start of run", size=18)
-        axs[1].set_ylabel("\u03C3", size=18)
-        axs[1].legend(loc="upper left", fontsize=16)
+        axs[1].set_xlabel("Days since start of run", size=self.axes_labelsize)
+        axs[1].set_ylabel(r"$\sigma$", size=self.axes_labelsize)
+        axs[1].legend(loc="upper left", fontsize=self.legend_fontsize)
         axs[1].set_xlim(0, self.days_all[-1])
-        axs[1].tick_params(axis="x", labelsize=16)
-        axs[1].tick_params(axis="y", labelsize=16)
+        axs[1].tick_params(axis="x", labelsize=self.legend_fontsize)
+        axs[1].tick_params(axis="y", labelsize=self.legend_fontsize)
 
-        axs[2].plot(self.days_all, self.sliding_deviate_all, c="r", label="All data")
+        axs[2].plot(self.days_all, self.sliding_deviate_all, color=sea[3], label="All data")
         axs[2].plot(
             self.days_cut,
             self.sliding_deviate_cut,
-            c="b",
-            label="Data after Abs[\u03B4\u03C3]/\u03C3 outlier cut",
+            color=sea[0],
+            label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
         )
-        axs[2].set_xlabel("Days since start of run", size=18)
-        axs[2].set_ylabel("(\u03A9-<\u03A9>)/\u03C3", size=18)
-        axs[2].legend(loc="upper left", fontsize=16)
+        axs[2].set_xlabel("Days since start of run", size=self.axes_labelsize)
+        axs[2].set_ylabel(r"$(\Omega-\langle\Omega\rangle)/\sigma$", size=self.axes_labelsize)
+        axs[2].legend(loc="upper left", fontsize=self.legend_fontsize)
         axs[2].set_xlim(0, self.days_all[-1])
-        axs[2].tick_params(axis="x", labelsize=16)
-        axs[2].tick_params(axis="y", labelsize=16)
+        axs[2].tick_params(axis="x", labelsize=self.legend_fontsize)
+        axs[2].tick_params(axis="y", labelsize=self.legend_fontsize)
 
         plt.savefig(
-            f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-omega_sigma_time.png"
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-omega_sigma_time.png"
         )
 
     def plot_hist_sigma_dsc(self):
-        """
-        Generates and saves a panel plot with a histogram of Abs[\u03B4\u03C3]/\u03C3, as well as a histogram of \u03C3. Both plots show the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.delta_sigmas_all).
+        r"""
+        Generates and saves a panel plot with a histogram of :math:`|\Delta\sigma|/\sigma`, as well as a histogram of :math:`\sigma`. Both plots show the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.delta_sigmas_all).
 
         Parameters
         ==========
@@ -586,7 +609,7 @@ class StatisticalChecks(object):
         axs[0].hist(
             self.delta_sigmas_all,
             bins=80,
-            color="r",
+            color=sea[3],
             ec="k",
             lw=0.5,
             label="All data",
@@ -595,17 +618,17 @@ class StatisticalChecks(object):
         axs[0].hist(
             self.delta_sigmas_cut,
             bins=80,
-            color="b",
+            color=sea[0],
             ec="k",
             lw=0.5,
-            label="Data after Abs[\u03B4\u03C3]/\u03C3 outlier cut",
+            label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
             range=(0.0001, 1),
         )
-        axs[0].set_xlabel("Abs[\u03B4\u03C3]/\u03C3", size=18)
-        axs[0].set_ylabel("# per bin", size=18)
-        axs[0].legend(fontsize=16)
-        axs[0].tick_params(axis="x", labelsize=16)
-        axs[0].tick_params(axis="y", labelsize=16)
+        axs[0].set_xlabel(r"$|\Delta\sigma|/\sigma$", size=self.axes_labelsize)
+        axs[0].set_ylabel(r"\# per bin", size=self.axes_labelsize)
+        axs[0].legend(fontsize=self.legend_fontsize)
+        axs[0].tick_params(axis="x", labelsize=self.legend_fontsize)
+        axs[0].tick_params(axis="y", labelsize=self.legend_fontsize)
 
         minx1 = min(self.sliding_sigma_cut)
         maxx1 = max(self.sliding_sigma_cut)
@@ -614,7 +637,7 @@ class StatisticalChecks(object):
         axs[1].hist(
             self.sliding_sigmas_all,
             bins=nx,
-            color="r",
+            color=sea[3],
             ec="k",
             lw=0.5,
             label="All data",
@@ -623,26 +646,26 @@ class StatisticalChecks(object):
         axs[1].hist(
             self.sliding_sigma_cut,
             bins=nx,
-            color="b",
+            color=sea[0],
             ec="k",
             lw=0.5,
-            label="Data after Abs[\u03B4\u03C3]/\u03C3 outlier cut",
+            label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
             range=(minx1, maxx1),
         )
-        axs[1].set_xlabel("\u03C3", size=18)
-        axs[1].set_ylabel("# per bin", size=18)
-        axs[1].legend(fontsize=16)
+        axs[1].set_xlabel(r"$\sigma$", size=self.axes_labelsize)
+        axs[1].set_ylabel(r"\# per bin", size=self.axes_labelsize)
+        axs[1].legend(fontsize=self.legend_fontsize)
         axs[1].set_yscale("log")
-        axs[1].tick_params(axis="x", labelsize=16)
-        axs[1].tick_params(axis="y", labelsize=16)
+        axs[1].tick_params(axis="x", labelsize=self.legend_fontsize)
+        axs[1].tick_params(axis="y", labelsize=self.legend_fontsize)
 
         plt.savefig(
-            f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-histogram_sigma_dsc.png"
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-histogram_sigma_dsc.png"
         )
 
     def plot_scatter_sigma_dsc(self):
         """
-        Generates and saves a scatter plot of Abs[\u03B4\u03C3]/\u03C3 vs \u03C3. The plot shows the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.delta_sigmas_all).
+        Generates and saves a scatter plot of :math:`|\Delta\sigma]/\sigma` vs :math:`\sigma`. The plot shows the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.delta_sigmas_all).
 
         Parameters
         ==========
@@ -657,7 +680,7 @@ class StatisticalChecks(object):
             self.delta_sigmas_all,
             self.naive_sigmas_all,
             marker=".",
-            c="r",
+            color=sea[3],
             label="All data",
             s=5,
         )
@@ -665,25 +688,26 @@ class StatisticalChecks(object):
             self.delta_sigmas_cut,
             self.naive_sigma_cut,
             marker=".",
-            c="b",
-            label="Data after Abs[\u03B4\u03C3]/\u03C3 outlier cut",
+            color=sea[0],
+            label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
+
             s=5,
         )
-        axs.set_xlabel("Abs[\u03B4\u03C3]/\u03C3", size=18)
-        axs.set_ylabel("\u03C3", size=18)
+        axs.set_xlabel(r"$|\Delta\sigma|/\sigma$", size=self.axes_labelsize)
+        axs.set_ylabel(r"$\sigma$", size=self.axes_labelsize)
         axs.set_yscale("log")
         axs.set_xscale("log")
-        axs.legend(fontsize=16)
-        axs.tick_params(axis="x", labelsize=16)
-        axs.tick_params(axis="y", labelsize=16)
+        axs.legend(fontsize=self.legend_fontsize)
+        axs.tick_params(axis="x", labelsize=self.legend_fontsize)
+        axs.tick_params(axis="y", labelsize=self.legend_fontsize)
 
         plt.savefig(
-            f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-scatter_sigma_dsc.png"
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-scatter_sigma_dsc.png"
         )
 
     def plot_scatter_omega_sigma_dsc(self):
         """
-        Generates and saves a panel plot with scatter plots of Abs[\u03B4\u03C3]/\u03C3 vs (\u03A9-<\u03A9>)/\u03C3, as well as \u03C3 vs (\u03A9-<\u03A9>)/\u03C3. All plots show the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.delta_sigmas_all).
+        Generates and saves a panel plot with scatter plots of :math:`|\Delta\sigma|/\sigma` vs :math:`(\Omega-\langle\Omega\rangle)/\sigma`, as well as :math:`\sigma` vs :math:`(\Omega-\langle\Omega\rangle)/\sigma`. All plots show the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.delta_sigmas_all).
 
         Parameters
         ==========
@@ -709,7 +733,7 @@ class StatisticalChecks(object):
             self.delta_sigmas_all,
             self.sliding_deviate_all,
             marker=".",
-            c="r",
+            color=sea[3],
             label="All data",
             s=3,
         )
@@ -717,17 +741,17 @@ class StatisticalChecks(object):
             self.delta_sigmas_cut,
             self.sliding_deviate_cut,
             marker=".",
-            c="b",
-            label="Data after Abs[\u03B4\u03C3]/\u03C3 outlier cut",
+            color=sea[0],
+            label=r"Data after $\Delta\sigma|/\sigma$ outlier cut",
             s=3,
         )
-        axs[0].set_xlabel("Abs[\u03B4\u03C3]/\u03C3", size=18)
-        axs[0].set_ylabel("(\u03A9-<\u03A9>)/\u03C3", size=18)
+        axs[0].set_xlabel(r"$\Delta\sigma|/\sigma$", size=self.axes_labelsize)
+        axs[0].set_ylabel(r"$(\Omega-\langle\Omega\rangle)/\sigma$", size=self.axes_labelsize)
         axs[0].set_xlim(minx0, maxx0)
         axs[0].set_ylim(miny0, maxy0)
-        axs[0].legend(fontsize=16)
-        axs[0].tick_params(axis="x", labelsize=16)
-        axs[0].tick_params(axis="y", labelsize=16)
+        axs[0].legend(fontsize=self.legend_fontsize)
+        axs[0].tick_params(axis="x", labelsize=self.legend_fontsize)
+        axs[0].tick_params(axis="y", labelsize=self.legend_fontsize)
 
         maxx1 = max(self.sliding_sigma_cut)
         maxx1 += maxx1 / 10.0
@@ -745,7 +769,7 @@ class StatisticalChecks(object):
             self.sliding_sigmas_all,
             self.sliding_deviate_all,
             marker=".",
-            c="r",
+            color=sea[3],
             label="All data",
             s=3,
         )
@@ -753,25 +777,25 @@ class StatisticalChecks(object):
             self.sliding_sigma_cut,
             self.sliding_deviate_cut,
             marker=".",
-            c="b",
-            label="Data after Abs[\u03B4\u03C3]/\u03C3 outlier cut",
+            color=sea[0],
+            label=r"Data after $|\Delta\sigma/\sigma|$ outlier cut",
             s=3,
         )
-        axs[1].set_xlabel("\u03C3", size=18)
-        axs[1].set_ylabel("(\u03A9-<\u03A9>)/\u03C3", size=18)
-        axs[1].legend(fontsize=16)
+        axs[1].set_xlabel(r"$\sigma$", size=self.axes_labelsize)
+        axs[1].set_ylabel(r"$(\Omega-\langle\Omega\rangle)/\sigma$", size=self.axes_labelsize)
+        axs[1].legend(fontsize=self.legend_fontsize)
         axs[1].set_xlim(minx1, maxx1)
         axs[1].set_ylim(miny1, maxy1)
-        axs[1].tick_params(axis="x", labelsize=16)
-        axs[1].tick_params(axis="y", labelsize=16)
+        axs[1].tick_params(axis="x", labelsize=self.legend_fontsize)
+        axs[1].tick_params(axis="y", labelsize=self.legend_fontsize)
 
         plt.savefig(
-            f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-scatter_omega_sigma_dsc.png"
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-scatter_omega_sigma_dsc.png"
         )
 
     def plot_hist_omega_pre_post_dsc(self):
-        """
-        Generates and saves a histogram of the (\u03A9-<\u03A9>)/\u03C3 distribution. The plot shows the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_deviate_all).
+        r"""
+        Generates and saves a histogram of the :math:`(\Omega-\langle\Omega\rangle)/\sigma` distribution. The plot shows the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_deviate_all).
 
         Parameters
         ==========
@@ -785,7 +809,7 @@ class StatisticalChecks(object):
         axs.hist(
             self.sliding_deviate_all,
             bins=101,
-            color="r",
+            color=sea[3],
             ec="k",
             lw=0.5,
             label="All data",
@@ -793,20 +817,20 @@ class StatisticalChecks(object):
         axs.hist(
             self.sliding_deviate_cut,
             bins=101,
-            color="b",
+            color=sea[0],
             ec="k",
             lw=0.5,
-            label="Data after Abs[\u03B4\u03C3]/\u03C3 outlier cut",
+            label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
         )
-        axs.set_xlabel("(\u03A9-<\u03A9>)/\u03C3", size=18)
-        axs.set_ylabel("# per bin", size=18)
-        axs.legend(fontsize=16)
+        axs.set_xlabel(r"$(\Omega - \langle\Omega\rangle)/\sigma$", size=self.axes_labelsize)
+        axs.set_ylabel(r"\# per bin", size=self.axes_labelsize)
+        axs.legend(fontsize=self.legend_fontsize)
         axs.set_yscale("log")
-        axs.tick_params(axis="x", labelsize=16)
-        axs.tick_params(axis="y", labelsize=16)
+        axs.tick_params(axis="x", labelsize=self.legend_fontsize)
+        axs.tick_params(axis="y", labelsize=self.legend_fontsize)
 
         plt.savefig(
-            f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-histogram_omega_dsc.png"
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-histogram_omega_dsc.png"
         )
 
     def plot_KS_test(self, bias_factor=None):
@@ -847,8 +871,8 @@ class StatisticalChecks(object):
         axs[0].plot(
             bins_count[1:],
             normal_cdf,
-            "r",
-            label="Erf with \u03C3=" + str(round(bias_factor, 2)),
+            color=sea[3],
+            label=r"Erf with $\sigma$=" + str(round(bias_factor, 2)),
         )
         axs[0].text(
             bins_count[1],
@@ -859,9 +883,9 @@ class StatisticalChecks(object):
             + "p-value: "
             + str(round(pval_KS, 3)),
         )
-        axs[0].legend(loc="lower right", fontsize=16)
-        axs[0].tick_params(axis="x", labelsize=16)
-        axs[0].tick_params(axis="y", labelsize=16)
+        axs[0].legend(loc="lower right", fontsize=self.legend_fontsize)
+        axs[0].tick_params(axis="x", labelsize=self.legend_fontsize)
+        axs[0].tick_params(axis="y", labelsize=self.legend_fontsize)
 
         axs[1].plot(
             bins_count[1:],
@@ -872,15 +896,15 @@ class StatisticalChecks(object):
             xy=(0.025, 0.9),
             xycoords="axes fraction",
         )
-        axs[1].tick_params(axis="x", labelsize=16)
-        axs[1].tick_params(axis="y", labelsize=16)
+        axs[1].tick_params(axis="x", labelsize=self.legend_fontsize)
+        axs[1].tick_params(axis="y", labelsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-KS_test.png"
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-KS_test.png"
         )
 
     def plot_hist_sigma_squared(self):
         """
-        Generates and saves a histogram of \u03C3^2/<\u03C3^2>. The plot shows data after the delta-sigma (bad GPS times) cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_sigma_cut).
+        Generates and saves a histogram of :math:`\sigma^2/\langle\sigma^2\rangle`. The plot shows data after the delta-sigma (bad GPS times) cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_sigma_cut).
 
         Parameters
         ==========
@@ -893,26 +917,26 @@ class StatisticalChecks(object):
         axs.hist(
             1 / np.nanmean(self.sliding_sigma_cut ** 2) * self.sliding_sigma_cut ** 2,
             bins=1500,
-            color="b",
+            color=sea[0],
             ec="k",
             lw=0.5,
-            label="Data after Abs[\u03B4\u03C3]/\u03C3 outlier cut",
+            label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
         )
-        axs.set_xlabel("\u03C3$^2$/<\u03C3$^2$>", size=18)
-        axs.set_ylabel("# per bin", size=18)
+        axs.set_xlabel(r"$\sigma^2/\langle\sigma^2\rangle$", size=self.axes_labelsize)
+        axs.set_ylabel(r"\# per bin", size=self.axes_labelsize)
         axs.set_yscale("log")
         axs.set_xlim(0, 5)
-        axs.legend(fontsize=16)
-        axs.tick_params(axis="x", labelsize=16)
-        axs.tick_params(axis="y", labelsize=16)
+        axs.legend(fontsize=self.legend_fontsize)
+        axs.tick_params(axis="x", labelsize=self.legend_fontsize)
+        axs.tick_params(axis="y", labelsize=self.legend_fontsize)
 
         plt.savefig(
-            f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-histogram_sigma_squared.png"
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-histogram_sigma_squared.png"
         )
 
     def plot_omega_time_fit(self):
         """
-        Generates and saves a plot of \u03A9 as a function of time and fits the data to perform a linear trend analysis. The plot shows data after the delta-sigma (bad GPS times) cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_omega_cut).
+        Generates and saves a plot of :math:`\Omega` as a function of time and fits the data to perform a linear trend analysis. The plot shows data after the delta-sigma (bad GPS times) cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_omega_cut).
 
         Parameters
         ==========
@@ -940,15 +964,15 @@ class StatisticalChecks(object):
             sigma=sliding_sigma_cut_nansafe,
         )
         c1, c2 = popt[0], popt[1]
-        axs.plot(self.days_cut, func(self.days_cut, c1, c2), "r")
-        axs.plot(self.days_cut, self.sliding_omega_cut, "b.", markersize=1)
-        axs.plot(self.days_cut, 3 * self.sliding_sigma_cut, "b", linewidth=1.5)
-        axs.plot(self.days_cut, -3 * self.sliding_sigma_cut, "b", linewidth=1.5)
-        axs.set_xlabel("Days since start of run", size=18)
-        axs.set_ylabel("\u03A9$_i$", size=18)
+        axs.plot(self.days_cut, func(self.days_cut, c1, c2), color=sea[3])
+        axs.plot(self.days_cut, self.sliding_omega_cut, '.', color=sea[0], markersize=1)
+        axs.plot(self.days_cut, 3 * self.sliding_sigma_cut, color=sea[0], linewidth=1.5)
+        axs.plot(self.days_cut, -3 * self.sliding_sigma_cut, color=sea[0], linewidth=1.5)
+        axs.set_xlabel("Days since start of run", size=self.axes_labelsize)
+        axs.set_ylabel(r"$\Omega_i$", size=self.axes_labelsize)
         axs.set_xlim(self.days_cut[0], self.days_cut[-1])
         axs.annotate(
-            "Linear trend analysis: \u03A9(t) = C$_1$*(t-T$_{obs}$/2)*T$_{obs}$ + C$_2$\nC$_1$ = "
+            r"Linear trend analysis: $\Omega(t) = C_1 (t-T_{\rm obs}/2) T_{\rm obs} + C_2 C_1 = $"
             + str(f"{c1:.3e}")
             + "\nC$_2$ = "
             + str(f"{c2:.3e}"),
@@ -957,15 +981,15 @@ class StatisticalChecks(object):
             fontsize=15,
             bbox=dict(boxstyle="round", facecolor="white", alpha=1),
         )
-        axs.tick_params(axis="x", labelsize=16)
-        axs.tick_params(axis="y", labelsize=16)
+        axs.tick_params(axis="x", labelsize=self.legend_fontsize)
+        axs.tick_params(axis="y", labelsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-omega_time_fit.png"
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-omega_time_fit.png"
         )
 
     def plot_sigma_time_fit(self):
         """
-        Generates and saves a plot of \u03C3 as a function of time and fits the data to perform a linear trend analysis. The plot shows data after the delta-sigma (bad GPS times) cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_sigma_cut).
+        Generates and saves a plot of :math:`\sigma` as a function of time and fits the data to perform a linear trend analysis. The plot shows data after the delta-sigma (bad GPS times) cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_sigma_cut).
 
         Parameters
         ==========
@@ -992,14 +1016,14 @@ class StatisticalChecks(object):
             sliding_sigma_cut_nansafe,
         )
         c1, c2 = popt[0], popt[1]
-        axs.plot(self.days_cut, func(self.days_cut, c1, c2), "r")
-        axs.plot(self.days_cut, self.sliding_sigma_cut, "b.", markersize=1)
-        axs.set_xlabel("Days since start of run", size=18)
-        axs.set_ylabel("\u03C3$_i$", size=18)
+        axs.plot(self.days_cut, func(self.days_cut, c1, c2), color=sea[3])
+        axs.plot(self.days_cut, self.sliding_sigma_cut, ".", color=sea[0], markersize=1)
+        axs.set_xlabel("Days since start of run", size=self.axes_labelsize)
+        axs.set_ylabel(r"$\sigma_i$", size=self.axes_labelsize)
         axs.set_xlim(self.days_cut[0], self.days_cut[-1])
         axs.set_ylim(mean_sigma - 1.2 * mean_sigma, mean_sigma + 2.2 * mean_sigma)
         axs.annotate(
-            "Linear trend analysis: \u03C3(t) = C$_1$*(t-T$_{obs}$/2)*T$_{obs}$ + C$_2$\nC$_1$ = "
+            r"Linear trend analysis: $\sigma(t) = C_1 (t-T_{\rm obs}/2) T_{\rm obs} + C_2 C_1 = $"
             + str(f"{c1:.3e}")
             + "\nC$_2$ = "
             + str(f"{c2:.3e}"),
@@ -1008,10 +1032,10 @@ class StatisticalChecks(object):
             fontsize=15,
             bbox=dict(boxstyle="round", facecolor="white", alpha=1),
         )
-        axs.tick_params(axis="x", labelsize=16)
-        axs.tick_params(axis="y", labelsize=16)
+        axs.tick_params(axis="x", labelsize=self.legend_fontsize)
+        axs.tick_params(axis="y", labelsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-sigma_time_fit.png"
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-sigma_time_fit.png"
         )
 
     def generate_all_plots(self):
@@ -1050,7 +1074,7 @@ def sortingFunction(item):
 
 
 def run_statistical_checks_from_file(
-    combine_file_path, dsc_file_path, plot_dir, param_file
+    combine_file_path, dsc_file_path, plot_dir, param_file, legend_fontsize=16
 ):
     """
     Assumes files are in npz for now. Will generalize later.
@@ -1102,6 +1126,7 @@ def run_statistical_checks_from_file(
         plot_dir,
         baseline_name,
         param_file,
+        legend_fontsize=legend_fontsize
     )
 
 
