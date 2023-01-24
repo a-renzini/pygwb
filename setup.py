@@ -35,7 +35,7 @@ setup(
     package_dir={"pygwb": "pygwb"},
     scripts=['pygwb_pipe/pygwb_pipe','pygwb_pipe/pygwb_combine', 'pygwb_pipe/pygwb_stats', 'pygwb_pipe/pygwb_dag', 'pygwb_pipe/pygwb_pe'],
     install_requires=[
-        "numpy==1.19.5",
+        "numpy",
         "matplotlib",
         "scipy==1.8.0",
         "bilby",
