@@ -257,7 +257,7 @@ class StatisticalChecks(object):
 
         return t_array, omega_t
 
-    def plot_running_point_estimate(self):
+    def plot_running_point_estimate(self, ymin=None, ymax=None):
         """
         Generates and saves a plot of the running point estimate. The plotted values are the ones after the delta sigma cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.days_cut).
 
@@ -293,6 +293,8 @@ class StatisticalChecks(object):
         )
         plt.grid(True)
         plt.xlim(self.days_cut[0], self.days_cut[-1])
+        if ymin and ymax:
+            plt.ylim(ymin, ymax)
         plt.xlabel("Days since start of run", size=18)
         plt.ylabel("Point estimate +/- 1.65\u03C3", size=18)
         plt.xticks(fontsize=16)
@@ -807,7 +809,7 @@ class StatisticalChecks(object):
             f"{self.plot_dir}{self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-histogram_omega_dsc.png"
         )
 
-    def plot_KS_test(self):
+    def plot_KS_test(self, bias_factor=None):
         """
         Generates and saves a panel plot with results of the Kolmogorov-Smirnov test for Gaussianity. The cumulative distribution of the data (after the delta-sigma (bad GPS times) cut) is compared to the one of Gaussian data, where the bias factor for the sigmas is taken into account. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_deviate_cut).
 
@@ -818,7 +820,8 @@ class StatisticalChecks(object):
         =======
 
         """
-        bias_factor = calc_bias(self.segment_duration, self.deltaF, self.deltaT)
+        if bias_factor is None:
+            bias_factor = calc_bias(self.segment_duration, self.deltaF, self.deltaT)
         dof_scale_factor = 1.0 / (1.0 + 3.0 / 35.0)
         lx = len(self.sliding_deviate_cut)
 
@@ -1043,7 +1046,7 @@ class StatisticalChecks(object):
 
 
 def sortingFunction(item):
-    return np.float64(item[5:].partition("-")[0])
+    return float(item[5:].partition("-")[0])
 
 
 def run_statistical_checks_from_file(

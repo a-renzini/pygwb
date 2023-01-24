@@ -98,15 +98,15 @@ To test the pipeline, simply run a command like
 
 .. code-block:: shell
 
-   pygwb_pipe --param_file {path_to_param_file}
+   pygwb_pipe --param_file {path_to_param_file} --apply_dsc False
 
 When running on the file ``pygwb_pipe/parameters.ini`` in the repo, one should get as final result
 
 .. code-block:: c
 
    2022-07-06 16:54:56.084 | SUCCESS  | __main__:main:148 - Ran stochastic search over times 1247644138-1247645038
-   2022-07-06 16:54:56.085 | SUCCESS  | __main__:main:151 -        POINT ESIMATE: -6.187323e-06
-   2022-07-06 16:54:56.085 | SUCCESS  | __main__:main:152 -        SIGMA: 2.562031e-06
+   2022-10-07 11:48:32.958 | SUCCESS  | __main__:main:162 - 	POINT ESTIMATE: -6.189548e-06
+   2022-10-07 11:48:32.959 | SUCCESS  | __main__:main:163 - 	SIGMA: 2.561543e-06
    2022-07-06 16:54:56.085 | INFO     | __main__:main:156 - Saving point_estimate and sigma spectrograms, spectra, and final values to file.
    2022-07-06 16:54:56.085 | INFO     | __main__:main:159 - Saving average psds and csd to file.
    2022-07-06 16:54:56.350 | INFO     | __main__:main:170 - Pickling the baseline.

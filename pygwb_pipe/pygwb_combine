@@ -3,12 +3,14 @@
 import argparse
 import copy
 import os
+from fractions import Fraction
 from os import listdir
 from os.path import isfile, join
 from pathlib import Path
 
 import numpy as np
 from loguru import logger
+from tqdm import tqdm
 
 from pygwb.baseline import Baseline
 from pygwb.constants import h0 as pygwb_h0
@@ -22,7 +24,7 @@ from pygwb.postprocessing import (
 
 def sorting_function(item):
     res = item.partition("point_estimate_sigma_")[-1]
-    return np.float64(res.partition("-")[0])
+    return float(res.partition("-")[0])
 
 
 """
@@ -66,7 +68,7 @@ def main():
         combine_args.h0 = pygwb_h0
     if not combine_args.out_path:
         combine_args.out_path = Path("./")
-    combine_args.alpha = np.float(eval(combine_args.alpha))
+    combine_args.alpha = float(Fraction(combine_args.alpha).replace(" ", ""))
     params = Parameters()
     params.update_from_file(combine_args.param_file)
 
@@ -79,6 +81,8 @@ def main():
     files_ptest.sort(key=sorting_function)
     times = [int(sorting_function(files_ptest[idx])) for idx in range(len(files_ptest))]
     frequencies = np.load(files_ptest[0])["frequencies"]
+    #frequency_mask = np.load(files_ptest[0])["frequency_mask"]
+    frequency_mask = True
 
     # spectral objects
     Y_j = []
@@ -108,7 +112,8 @@ def main():
         + f"_fref_{combine_args.fref}_{times[0]}-{times[-1]}.npz",
     )
 
-    for file in files_ptest:
+    logger.info('Unpacking files...')
+    for file in tqdm(files_ptest):
         data_file = np.load(file, allow_pickle=True)
         Y_j.append(data_file["point_estimate"])
         sigma_j.append(data_file["sigma"])
@@ -118,11 +123,20 @@ def main():
         slide_sigmas_j.append(data_file["slide_sigma_values"].T)
         delta_sigmas_j.append(data_file["delta_sigma_values"].T)
         times_j.append(data_file["delta_sigma_times"])
-        badGPStimes_j.append(data_file["badGPStimes"])
-
+        if not data_file["badGPStimes"].size == 0:
+            if data_file["badGPStimes"].size == 1:
+                list_gps = np.array(data_file["badGPStimes"].flatten())
+                badGPStimes_j.append(list_gps)
+            else:
+                badGPStimes_j.append(data_file["badGPStimes"])
+        
         Y_s, sigma_s = calc_Y_sigma_from_Yf_sigmaf(
-            data_file["point_estimate_spectrogram"], data_file["sigma_spectrogram"]
+            data_file["point_estimate_spectrogram"], data_file["sigma_spectrogram"], frequency_mask=frequency_mask
         )
+        if not np.shape(Y_s):
+            Y_s = np.array([Y_s])
+        if not np.shape(sigma_s):
+            sigma_s = np.array([sigma_s])
         Y_seg.append(Y_s)
         sigma_seg.append(sigma_s)
 
@@ -130,7 +144,7 @@ def main():
     sigma_seg = np.concatenate(sigma_seg)
     Y_j = np.array(Y_j)
     sigma_j = np.array(sigma_j)
-    np.savez(pt_est_sigma_unweighted_path, point_estimate=Y_j, sigma=sigma_j)
+    np.savez(pt_est_sigma_unweighted_path, point_estimate=Y_j, sigma=sigma_j, point_estimate_per_seg=Y_seg, sigma_per_seg=sigma_seg)
     logger.info(
         f"saved file with unweighted point estimate and sigma values for all times in run:\n {pt_est_sigma_unweighted_path}."
     )
@@ -149,7 +163,7 @@ def main():
         times=times_j,
     )
     logger.info(
-        f"saved file with unweighted point estimate and sigma values for all times in run:\n {pt_est_sigma_unweighted_path}."
+        f"saved file with all sigma information related to the delta sigma cut for all times in run:\n {pt_est_sigma_unweighted_path}."
     )
 
     Y_spectrum_combined, sigma_spectrum_combined = combine_spectra_with_sigma_weights(
@@ -174,27 +188,21 @@ def main():
     )
 
     Y_spectrum.write(
-        os.path.join(combine_args.out_path, f"Y_spectrum_{times[0]}-{times[-1]}.hdf5")
+        os.path.join(combine_args.out_path, f"Y_spectrum_{times[0]}-{times[-1]}_UNWEIGHTED.hdf5")
     )
     sigma_spectrum.write(
         os.path.join(
-            combine_args.out_path, f"sigma_spectrum_{times[0]}-{times[-1]}.hdf5"
+            combine_args.out_path, f"sigma_spectrum_{times[0]}-{times[-1]}_UNWEIGHTED.hdf5"
         )
     )
     logger.info(
-        f"Saved file with combined point estimate and sigma OmegaSpectrum objects for this run.sigma_spectrum"
-    )
-
-    # frequencies mask
-
-    mask = (Y_spectrum.frequencies.value >= params.flow) & (
-        Y_spectrum.frequencies.value <= params.fhigh
+        f"Saved file with combined point estimate and sigma OmegaSpectrum objects for this run. These are weighted with alpha={params.alpha}"
     )
 
     Y_estimate, sigma_estimate = calc_Y_sigma_from_Yf_sigmaf(
         Y_spectrum,
         sigma_spectrum,
-        frequency_mask=mask,
+        frequency_mask=frequency_mask,
         alpha=combine_args.alpha,
         fref=combine_args.fref,
     )
@@ -202,7 +210,7 @@ def main():
     sigma_estimate *= (sigma_spectrum.h0 / combine_args.h0) ** 2
 
     logger.info(
-        "Final point estimate weighted with alpha={:.2f}".format(combine_args.alpha)
+        "Final point estimate re-weighted with alpha={:.2f}".format(combine_args.alpha)
         + f" at reference frequency fref={combine_args.fref} with h0={combine_args.h0}:\n [{Y_estimate} +/- {sigma_estimate}]"
     )
 
@@ -231,6 +239,13 @@ def main():
     Y_reweight_spectrum.reset_h0(new_h0=combine_args.h0)
     sigma_reweight_spectrum.reset_h0(new_h0=combine_args.h0)
 
+    Y_reweight_spectrum.write(
+        os.path.join(combine_args.out_path, f"Y_spectrum_{times[0]}-{times[-1]}.hdf5")
+    )
+    sigma_reweight_spectrum.write(
+        os.path.join(combine_args.out_path, f"sigma_spectrum_{times[0]}-{times[-1]}.hdf5")
+    )
+
     np.savez(
         pt_est_sigma_spectra_path,
         point_estimate=Y_estimate,
@@ -241,7 +256,7 @@ def main():
         sigmas_seg_UW=sigma_seg,
     )
     logger.info(
-        f"Saved file with weighted point estimate and sigma values and spectra:\n {pt_est_sigma_spectra_path}."
+        f"Saved file with re-weighted point estimate and sigma values and spectra:\n {pt_est_sigma_spectra_path}."
     )
     exit()
 

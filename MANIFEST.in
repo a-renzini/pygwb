@@ -1,0 +1,3 @@
+recursive-exclude docs *.*
+recursive-exclude tutorials *.*
+recursive-exclude test *.*

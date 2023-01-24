@@ -762,9 +762,11 @@ class Baseline(object):
                 High frequency to crop.
         """
         deltaF = self.frequencies[1] - self.frequencies[0]
-        indexes = (self.frequencies >= flow) * (self.frequencies <= fhigh)
-        # reset frequencies
-        self.frequencies = self.frequencies[indexes]
+        # reset frequencies using the same calculation as in crop_frequencies so we get
+        # consistent frequency ranges
+        idx0 = int(float(flow - self.frequencies[0]) // deltaF)
+        idx1 = int(float(fhigh + deltaF - self.frequencies[0]) // deltaF)
+        self.frequencies = self.frequencies[idx0:idx1]
 
         if hasattr(self.interferometer_1, "average_psd"):
             self.interferometer_1.average_psd = (
@@ -1090,7 +1092,7 @@ class Baseline(object):
         notch_list_path="",
         polarization="tensor",
         window_fftgram_dict: dict = {"window_fftgram": "hann"},
-        return_naive_and_averaged_sigmas: np.bool = False,
+        return_naive_and_averaged_sigmas: bool = False,
     ):
         """
         Calculate the delta sigma cut using the naive and average psds, if set in the baseline.
@@ -1207,6 +1209,7 @@ class Baseline(object):
         save(
             f"{filename}{ext}",
             self.frequencies,
+            self.frequency_mask,
             self.point_estimate_spectrum,
             self.sigma_spectrum,
             self.point_estimate,
@@ -1273,6 +1276,7 @@ class Baseline(object):
         self,
         filename,
         frequencies,
+        frequency_mask,
         point_estimate_spectrum,
         sigma_spectrum,
         point_estimate,
@@ -1292,6 +1296,7 @@ class Baseline(object):
         np.savez(
             filename,
             frequencies=frequencies,
+            frequency_mask=frequency_mask,
             point_estimate_spectrum=point_estimate_spectrum,
             sigma_spectrum=sigma_spectrum,
             point_estimate=point_estimate,
@@ -1310,6 +1315,7 @@ class Baseline(object):
         self,
         filename,
         frequencies,
+        frequency_mask,
         point_estimate_spectrum,
         sigma_spectrum,
         point_estimate,
@@ -1321,6 +1327,7 @@ class Baseline(object):
     ):
         save_dictionary = {
             "frequencies": frequencies,
+            "frequency_mask": frequency_mask,
             "point_estimate_spectrum": point_estimate_spectrum,
             "sigma_spectrum": sigma_spectrum,
             "point_estimate": point_estimate,
@@ -1338,6 +1345,7 @@ class Baseline(object):
         self,
         filename,
         frequencies,
+        frequency_mask,
         point_estimate_spectrum,
         sigma_spectrum,
         point_estimate,
@@ -1348,6 +1356,7 @@ class Baseline(object):
         delta_sigmas,
     ):
         list_freqs = frequencies.tolist()
+        list_freqs_mask = frequency_mask.tolist()
         list_point_estimate_spectrum_r = np.real(point_estimate_spectrum.value).tolist()
         list_point_estimate_spectrum_i = np.imag(point_estimate_spectrum.value).tolist()
         list_sigma_spectrum = sigma_spectrum.value.tolist()
@@ -1367,6 +1376,7 @@ class Baseline(object):
 
         save_dictionary = {
             "frequencies": list_freqs,
+            "frequency_mask": list_freqs_mask,
             "point_estimate_spectrum_real": list_point_estimate_spectrum_r,
             "point_estimate_spectrum_imag": list_point_estimate_spectrum_i,
             "sigma_spectrum": list_sigma_spectrum,
@@ -1398,6 +1408,7 @@ class Baseline(object):
         self,
         filename,
         frequencies,
+        frequency_mask,
         point_estimate_spectrum,
         sigma_spectrum,
         point_estimate,
@@ -1412,11 +1423,12 @@ class Baseline(object):
 
         if compress:
             compression = "gzip"
+            logger.info("Data will be compressed without loss of data")
         else:
             compression = None
 
-        logger.info("Data will be compressed without loss of data")
         hf.create_dataset("freqs", data=frequencies, compression=compression)
+        hf.create_dataset("freqs_mask", data=frequency_mask, compression=compression)
         hf.create_dataset(
             "point_estimate_spectrum",
             data=point_estimate_spectrum,

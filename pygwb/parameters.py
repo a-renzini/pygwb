@@ -159,7 +159,7 @@ class Parameters:
         for name, dtype in ann.items():
             if name in kwargs:
                 try:
-                    kwargs[name] = dtype(kwargs[name])
+                    kwargs[name] = dtype(kwargs[name]) if kwargs[name] != 'False' else False
                 except TypeError:
                     pass
                 setattr(self, name, kwargs[name])
@@ -184,6 +184,7 @@ class Parameters:
         mega_list.extend(config.items("preprocessing"))
         mega_list.extend(config.items("density_estimation"))
         mega_list.extend(config.items("postprocessing"))
+        mega_list.extend(config.items("gating"))
         mega_list.extend(config.items("data_quality"))
         mega_list.extend(config.items("output"))
         dictionary = dict(mega_list)
@@ -242,10 +243,14 @@ class Parameters:
         ann = getattr(self, "__annotations__", {})
         parser = argparse.ArgumentParser()
         for name, dtype in ann.items():
-            parser.add_argument(f"--{name}", type=dtype, required=False)
-        parser.add_argument("--H1", type=str, required=False)
-        parser.add_argument("--L1", type=str, required=False)
-        parser.add_argument("--V", type=str, required=False)
+            if dtype == List:
+                parser.add_argument(f"--{name}", type=str, nargs='+', required=False)
+            else:
+                parser.add_argument(f"--{name}", type=dtype, required=False)
+
+        parser.add_argument("--h1", type=str, required=False)
+        parser.add_argument("--l1", type=str, required=False)
+        parser.add_argument("--v", type=str, required=False)
         parser.add_argument("--window_fftgram", type=str, required=False)
         parsed, _ = parser.parse_known_args(args)
         dictionary = vars(parsed)
@@ -255,12 +260,12 @@ class Parameters:
         local_data_path_dict = {}
         possible_ifos = ["H1", "L1", "V", "K"]
         for ifo in possible_ifos:
-            if ifo in dictionary:
-                if dictionary[ifo].startswith("["):
-                    local_data_path_dict[ifo] = json.loads(dictionary[ifo])
+            if ifo.lower() in dictionary:
+                if dictionary[ifo.lower()].startswith("["):
+                    local_data_path_dict[ifo] = json.loads(dictionary[ifo.lower()])
                 else:
-                    local_data_path_dict[ifo] = dictionary[ifo]
-                dictionary.pop(ifo)
+                    local_data_path_dict[ifo] = dictionary[ifo.lower()]
+                dictionary.pop(ifo.lower())
         if local_data_path_dict:
             dictionary["local_data_path_dict"] = local_data_path_dict
         if "window_fftgram" in dictionary:
@@ -302,6 +307,15 @@ class Parameters:
         preprocessing_dict["window_downsampling"] = param_dict["window_downsampling"]
         preprocessing_dict["ftype"] = param_dict["ftype"]
         param["preprocessing"] = preprocessing_dict
+        
+        gating_dict = {}
+        gating_dict["gate_data"] = param_dict["gate_data"]
+        gating_dict["gate_whiten"] = param_dict["gate_whiten"]
+        gating_dict["gate_tzero"] = param_dict["gate_tzero"]
+        gating_dict["gate_tpad"] = param_dict["gate_tpad"]
+        gating_dict["gate_threshold"] = param_dict["gate_threshold"]
+        gating_dict["cluster_window"] = param_dict["cluster_window"]
+        param["gating"] = gating_dict
 
         param["window_fft_specs"] = self.window_fft_dict
 
