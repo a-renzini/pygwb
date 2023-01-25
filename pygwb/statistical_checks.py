@@ -55,7 +55,8 @@ class StatisticalChecks(object):
         legend_fontsize = 16
     ):
         """
-        The statistical checks class performs various tests by plotting different quantities and saving this plots. This allows the user to check for consistency with expected results. Concretely, the following tests and plots can be generated: running point estimate, running sigma, (cumulative) point estimate integrand, real and imaginary part of point estimate integrand, FFT of the point estimate integrand, (cumulative) sensitivity, evolution of omega and sigma as a function of time, omega and sigma distribution, KS test, and a linear trend analysis of omega in time. Furthermore, part of these plots compares the values of these quantities before and after the delta sigma cut. Each of these plots can be made by calling the relevant class method (e.g. self.plot_running_point_estimate()).
+        The statistical checks class performs various tests by plotting different quantities and saving this plots. This allows the user to check for consistency with expected results. Concretely, the following tests and plots can be generated: running point estimate, running sigma, (cumulative) point estimate integrand, real and imaginary part of point estimate integrand, FFT of the point estimate integrand, (cumulative) sensitivity, evolution of omega and sigma as a function of time, omega and sigma distribution, KS test, and a linear trend analysis of omega in time. Furthermore, part of these plots compares the values of these quantities before and after the delta sigma cut. Each of these plots can be made by calling the relevant class method (e.g. `plot_running_point_estimate()`).
+
         Parameters
         ==========
         sliding_times_all: array
@@ -143,10 +144,7 @@ class StatisticalChecks(object):
 
     def get_data_after_dsc(self):
         """
-        Function that returns the GPS times, the sliding omegas, the sliding sigmas, the naive sigmas, the delta sigmas and the sliding deviates after the bad GPS times from the delta sigma cut were applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_times_all).
-        Parameters
-        ==========
-
+        Function that returns the GPS times, the sliding omegas, the sliding sigmas, the naive sigmas, the delta sigmas and the sliding deviates after the bad GPS times from the delta sigma cut were applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sliding_times_all`).
 
         Returns
         =======
@@ -203,10 +201,7 @@ class StatisticalChecks(object):
 
     def compute_running_quantities(self):
         """
-        Function that computes the running point estimate and running sigmas from the sliding point estimate and sliding sigmas. This is done only for the values after the delta sigma cut. This method does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_sigma_cut).
-
-        Parameters
-        ==========
+        Function that computes the running point estimate and running sigmas from the sliding point estimate and sliding sigmas. This is done only for the values after the delta sigma cut. This method does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sliding_sigma_cut`).
 
         Returns
         =======
@@ -234,11 +229,7 @@ class StatisticalChecks(object):
 
     def compute_ifft_integrand(self):
         """
-        Function that computes the inverse Fourier transform of the point estimate integrand. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.point_estimate_integrand).
-
-        Parameters
-        ==========
-
+        Function that computes the inverse Fourier transform of the point estimate integrand. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `point_estimate_integrand`).
 
         Returns
         =======
@@ -284,13 +275,14 @@ class StatisticalChecks(object):
 
     def plot_running_point_estimate(self, ymin=None, ymax=None):
         """
-        Generates and saves a plot of the running point estimate. The plotted values are the ones after the delta sigma cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.days_cut).
+        Generates and saves a plot of the running point estimate. The plotted values are the ones after the delta sigma cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `days_cut`).
 
         Parameters
         ==========
-
-        Returns
-        =======
+        ymin: float
+            Minimum value on the y-axis.
+        ymax: float
+            Maximum value on the y-axis.
 
         """
         fig = plt.figure(figsize=(10, 8))
@@ -330,13 +322,7 @@ class StatisticalChecks(object):
 
     def plot_running_sigma(self):
         """
-        Generates and saves a plot of the running sigma. The plotted values are the ones after the delta sigma cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.days_cut).
-
-        Parameters
-        ==========
-
-        Returns
-        =======
+        Generates and saves a plot of the running sigma. The plotted values are the ones after the delta sigma cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `days_cut`).
 
         """
         fig = plt.figure(figsize=(10, 8))
@@ -355,14 +341,7 @@ class StatisticalChecks(object):
 
     def plot_IFFT_point_estimate_integrand(self):
         """
-        Generates and saves a plot of the IFFT of the point estimate integrand. The IFFT of the point estimate integrand is computed using the method "compute_ifft_integrand". This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.point_estimate_integrand).
-
-        Parameters
-        ==========
-
-        Returns
-        =======
-
+        Generates and saves a plot of the IFFT of the point estimate integrand. The IFFT of the point estimate integrand is computed using the method "compute_ifft_integrand". This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `point_estimate_integrand`).
         """
         t_array, omega_array = self.compute_ifft_integrand()
 
@@ -380,13 +359,7 @@ class StatisticalChecks(object):
 
     def plot_SNR_spectrum(self):
         """
-        Generates and saves a plot of the point estimate integrand. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.point_estimate_integrand).
-
-        Parameters
-        ==========
-
-        Returns
-        =======
+        Generates and saves a plot of the point estimate integrand. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `point_estimate_integrand`).
 
         """
         plt.figure(figsize=(10, 8))
@@ -396,7 +369,7 @@ class StatisticalChecks(object):
             color=sea[0],
         )
         plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
-        plt.ylabel(r"$|Y/\sigma|$", size=self.axes_labelsize)
+        plt.ylabel(r"$|{\rm SNR}(f)|$", size=self.axes_labelsize)
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
         plt.xscale("log")
@@ -407,14 +380,7 @@ class StatisticalChecks(object):
 
     def plot_cumulative_SNR_spectrum(self):
         """
-        Generates and saves a plot of the cumulative point estimate integrand. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.point_estimate_integrand).
-
-        Parameters
-        ==========
-
-        Returns
-        =======
-
+        Generates and saves a plot of the cumulative point estimate integrand. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `point_estimate_integrand`).
         """
         cum_pt_estimate = integrate.cumtrapz(
             np.abs(self.point_estimate_spectrum / self.sigma_spectrum), self.freqs
@@ -423,7 +389,7 @@ class StatisticalChecks(object):
         plt.figure(figsize=(10, 8))
         plt.plot(self.freqs[:-1], cum_pt_estimate, color=sea[0])
         plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
-        plt.ylabel(r"Cumulative $|Y/\sigma|$", size=self.axes_labelsize)
+        plt.ylabel(r"Cumulative $|{\rm SNR}(f)|$", size=self.axes_labelsize)
         plt.xscale("log")
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
@@ -434,14 +400,7 @@ class StatisticalChecks(object):
 
     def plot_real_SNR_spectrum(self):
         """
-        Generates and saves a plot of the real part of the SNR spectrum. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.point_estimate_spectrum and self.sigma_spectrum).
-
-        Parameters
-        ==========
-
-        Returns
-        =======
-
+        Generates and saves a plot of the real part of the SNR spectrum. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `point_estimate_spectrum` and `sigma_spectrum`).
         """
         plt.figure(figsize=(10, 8))
         plt.plot(
@@ -450,7 +409,7 @@ class StatisticalChecks(object):
             color=sea[0],
         )
         plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
-        plt.ylabel(r"Re$(Y/\sigma)$", size=self.axes_labelsize)
+        plt.ylabel(r"Re$({\rm SNR}(f))$", size=self.axes_labelsize)
         plt.xscale("log")
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
@@ -461,14 +420,7 @@ class StatisticalChecks(object):
 
     def plot_imag_SNR_spectrum(self):
         """
-        Generates and saves a plot of the imaginary part of the SNR spectrum. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.point_estimate_spectrum and self.sigma_spectrum).
-
-        Parameters
-        ==========
-
-        Returns
-        =======
-
+        Generates and saves a plot of the imaginary part of the SNR spectrum. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `point_estimate_spectrum` and `sigma_spectrum`).
         """
         plt.figure(figsize=(10, 8))
         plt.plot(
@@ -477,7 +429,7 @@ class StatisticalChecks(object):
             color=sea[0],
         )
         plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
-        plt.ylabel(r"Im$(Y/\sigma)$", size=self.axes_labelsize)
+        plt.ylabel(r"Im$({\rm SNR}(f))$", size=self.axes_labelsize)
         plt.xscale("log")
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
@@ -488,14 +440,7 @@ class StatisticalChecks(object):
 
     def plot_sigma_spectrum(self):
         """
-        Generates and saves a plot of the sigma spectrum. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sigma_spectrum).
-
-        Parameters
-        ==========
-
-        Returns
-        =======
-
+        Generates and saves a plot of the sigma spectrum. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sigma_spectrum`).
         """
         plt.figure(figsize=(10, 8))
         plt.plot(self.freqs, self.sigma_spectrum, color=sea[0])
@@ -512,13 +457,7 @@ class StatisticalChecks(object):
 
     def plot_cumulative_sensitivity(self):
         """
-        Generates and saves a plot of the cumulative sensitivity. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sigma_spectrum).
-
-        Parameters
-        ==========
-
-        Returns
-        =======
+        Generates and saves a plot of the cumulative sensitivity. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sigma_spectrum`).
 
         """
 
@@ -538,14 +477,7 @@ class StatisticalChecks(object):
 
     def plot_omega_sigma_in_time(self):
         r"""
-        Generates and saves a panel plot with a scatter plot of :math:`\sigma` vs :math:`(\Omega-\langle\Omega\rangle)/\sigma`, as well as the evolution of :math:`\Omega`, :math:`\sigma`, and :math:`(\Omega-\langle\Omega\rangle)/\sigma` as a function of the days since the start of the run. All plots show the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_sigmas_all).
-
-        Parameters
-        ==========
-
-        Returns
-        =======
-
+        Generates and saves a panel plot with a scatter plot of :math:`\sigma` vs :math:`\Delta{\rm SNR}_i(f)`, as well as the evolution of :math:`\Omega`, :math:`\sigma`, and :math:`(\Omega-\langle\Omega\rangle)/\sigma` as a function of the days since the start of the run. All plots show the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sliding_sigmas_all`).
         """
         fig, axs = plt.subplots(nrows=3, ncols=1, figsize=(10, 14))
 
@@ -585,7 +517,7 @@ class StatisticalChecks(object):
             label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
         )
         axs[2].set_xlabel("Days since start of run", size=self.axes_labelsize)
-        axs[2].set_ylabel(r"$(\Omega-\langle\Omega\rangle)/\sigma$", size=self.axes_labelsize)
+        axs[2].set_ylabel(r"$\Delta{\rm SNR}_i(f)$", size=self.axes_labelsize)
         axs[2].legend(loc="upper left", fontsize=self.legend_fontsize)
         axs[2].set_xlim(0, self.days_all[-1])
         axs[2].tick_params(axis="x", labelsize=self.legend_fontsize)
@@ -597,13 +529,7 @@ class StatisticalChecks(object):
 
     def plot_hist_sigma_dsc(self):
         r"""
-        Generates and saves a panel plot with a histogram of :math:`|\Delta\sigma|/\sigma`, as well as a histogram of :math:`\sigma`. Both plots show the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.delta_sigmas_all).
-
-        Parameters
-        ==========
-
-        Returns
-        =======
+        Generates and saves a panel plot with a histogram of :math:`|\Delta\sigma|/\sigma`, as well as a histogram of :math:`\sigma`. Both plots show the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `delta_sigmas_all`).
 
         """
         fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(10, 10))
@@ -667,14 +593,7 @@ class StatisticalChecks(object):
 
     def plot_scatter_sigma_dsc(self):
         """
-        Generates and saves a scatter plot of :math:`|\Delta\sigma]/\sigma` vs :math:`\sigma`. The plot shows the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.delta_sigmas_all).
-
-        Parameters
-        ==========
-
-        Returns
-        =======
-
+        Generates and saves a scatter plot of :math:`|\Delta\sigma]/\sigma` vs :math:`\sigma`. The plot shows the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `delta_sigmas_all`).
         """
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
 
@@ -709,14 +628,7 @@ class StatisticalChecks(object):
 
     def plot_scatter_omega_sigma_dsc(self):
         """
-        Generates and saves a panel plot with scatter plots of :math:`|\Delta\sigma|/\sigma` vs :math:`(\Omega-\langle\Omega\rangle)/\sigma`, as well as :math:`\sigma` vs :math:`(\Omega-\langle\Omega\rangle)/\sigma`. All plots show the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.delta_sigmas_all).
-
-        Parameters
-        ==========
-
-        Returns
-        =======
-
+        Generates and saves a panel plot with scatter plots of :math:`|\Delta\sigma|/\sigma` vs :math:`\Delta{\rm SNR}_i(f)`, as well as :math:`\sigma` vs :math:`(\Omega-\langle\Omega\rangle)/\sigma`. All plots show the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `delta_sigmas_all`).
         """
         fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(10, 10))
 
@@ -748,7 +660,7 @@ class StatisticalChecks(object):
             s=3,
         )
         axs[0].set_xlabel(r"$\Delta\sigma|/\sigma$", size=self.axes_labelsize)
-        axs[0].set_ylabel(r"$(\Omega-\langle\Omega\rangle)/\sigma$", size=self.axes_labelsize)
+        axs[0].set_ylabel(r"$\Delta{\rm SNR}_i(f)$", size=self.axes_labelsize)
         axs[0].set_xlim(minx0, maxx0)
         axs[0].set_ylim(miny0, maxy0)
         axs[0].legend(fontsize=self.legend_fontsize)
@@ -784,7 +696,7 @@ class StatisticalChecks(object):
             s=3,
         )
         axs[1].set_xlabel(r"$\sigma$", size=self.axes_labelsize)
-        axs[1].set_ylabel(r"$(\Omega-\langle\Omega\rangle)/\sigma$", size=self.axes_labelsize)
+        axs[1].set_ylabel(r"$\Delta{\rm SNR}_i(f)$", size=self.axes_labelsize)
         axs[1].legend(fontsize=self.legend_fontsize)
         axs[1].set_xlim(minx1, maxx1)
         axs[1].set_ylim(miny1, maxy1)
@@ -797,14 +709,7 @@ class StatisticalChecks(object):
 
     def plot_hist_omega_pre_post_dsc(self):
         r"""
-        Generates and saves a histogram of the :math:`(\Omega-\langle\Omega\rangle)/\sigma` distribution. The plot shows the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_deviate_all).
-
-        Parameters
-        ==========
-
-        Returns
-        =======
-
+        Generates and saves a histogram of the :math:`\Delta{\rm SNR}_i(f)` distribution. The plot shows the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sliding_deviate_all`).
         """
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
 
@@ -837,13 +742,12 @@ class StatisticalChecks(object):
 
     def plot_KS_test(self, bias_factor=None):
         """
-        Generates and saves a panel plot with results of the Kolmogorov-Smirnov test for Gaussianity. The cumulative distribution of the data (after the delta-sigma (bad GPS times) cut) is compared to the one of Gaussian data, where the bias factor for the sigmas is taken into account. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_deviate_cut).
+        Generates and saves a panel plot with results of the Kolmogorov-Smirnov test for Gaussianity. The cumulative distribution of the data (after the delta-sigma (bad GPS times) cut) is compared to the one of Gaussian data, where the bias factor for the sigmas is taken into account. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sliding_deviate_cut`).
 
         Parameters
         ==========
-
-        Returns
-        =======
+        bias_factor: float
+            Bias factor to consider in the KS calculation.
 
         """
         if bias_factor is None:
