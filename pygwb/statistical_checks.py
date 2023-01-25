@@ -628,7 +628,7 @@ class StatisticalChecks(object):
         )
 
     def plot_scatter_omega_sigma_dsc(self):
-        """
+        r"""
         Generates and saves a panel plot with scatter plots of :math:`|\Delta\sigma|/\sigma` vs :math:`\Delta{\rm SNR}_i`, as well as :math:`\sigma` vs :math:`(\Omega-\langle\Omega\rangle)/\sigma`. All plots show the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `delta_sigmas_all`).
         """
         fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(10, 14))
@@ -898,14 +898,7 @@ class StatisticalChecks(object):
 
     def plot_sigma_time_fit(self):
         """
-        Generates and saves a plot of :math:`\sigma` as a function of time and fits the data to perform a linear trend analysis. The plot shows data after the delta-sigma (bad GPS times) cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_sigma_cut).
-
-        Parameters
-        ==========
-
-        Returns
-        =======
-
+        Generates and saves a plot of :math:`\sigma` as a function of time and fits the data to perform a linear trend analysis. The plot shows data after the delta-sigma (bad GPS times) cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sliding_sigma_cut`).
         """
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
 
@@ -950,13 +943,6 @@ class StatisticalChecks(object):
     def generate_all_plots(self):
         """
         Generates and saves all the statistical analysis plots.
-
-        Parameters
-        ==========
-
-        Returns
-        =======
-
         """
         self.plot_running_point_estimate()
         self.plot_running_sigma()
