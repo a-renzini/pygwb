@@ -137,10 +137,7 @@ class StatisticalChecks(object):
 
         self.legend_fontsize = legend_fontsize
         self.axes_labelsize = legend_fontsize + 2
-        #matplotlib.rcParams['legend.fontsize'] = 16
-        #matplotlib.rcParams['axes.labelsize'] = 18
-        #matplotlib.rcParams['xtick.labelsize'] = 16
-        #matplotlib.rcParams['ytick.labelsize'] = 16
+        self.annotate_fontsize = legend_fontsize - 4
 
     def get_data_after_dsc(self):
         """
@@ -317,7 +314,7 @@ class StatisticalChecks(object):
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-running_point_estimate.png"
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-running_point_estimate.png", bbox_inches='tight'
         )
 
     def plot_running_sigma(self):
@@ -336,7 +333,7 @@ class StatisticalChecks(object):
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-running_sigma.png"
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-running_sigma.png", bbox_inches = 'tight'
         )
 
     def plot_IFFT_point_estimate_integrand(self):
@@ -354,7 +351,7 @@ class StatisticalChecks(object):
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-IFFT_point_estimate_integrand.png"
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-IFFT_point_estimate_integrand.png", bbox_inches='tight'
         )
 
     def plot_SNR_spectrum(self):
@@ -477,9 +474,9 @@ class StatisticalChecks(object):
 
     def plot_omega_sigma_in_time(self):
         r"""
-        Generates and saves a panel plot with a scatter plot of :math:`\sigma` vs :math:`\Delta{\rm SNR}_i(f)`, as well as the evolution of :math:`\Omega`, :math:`\sigma`, and :math:`(\Omega-\langle\Omega\rangle)/\sigma` as a function of the days since the start of the run. All plots show the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sliding_sigmas_all`).
+        Generates and saves a panel plot with a scatter plot of :math:`\sigma` vs :math:`\Delta{\rm SNR}_i`, as well as the evolution of :math:`\Omega`, :math:`\sigma`, and :math:`(\Omega-\langle\Omega\rangle)/\sigma` as a function of the days since the start of the run. All plots show the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sliding_sigmas_all`).
         """
-        fig, axs = plt.subplots(nrows=3, ncols=1, figsize=(10, 14))
+        fig, axs = plt.subplots(nrows=3, ncols=1, figsize=(10, 18))
 
         axs[0].plot(self.days_all, self.sliding_omega_all, color=sea[3], label="All data")
         axs[0].plot(
@@ -494,6 +491,7 @@ class StatisticalChecks(object):
         axs[0].set_xlim(0, self.days_all[-1])
         axs[0].tick_params(axis="x", labelsize=self.legend_fontsize)
         axs[0].tick_params(axis="y", labelsize=self.legend_fontsize)
+        axs[0].yaxis.offsetText.set_fontsize(self.legend_fontsize)
 
         axs[1].plot(self.days_all, self.sliding_sigmas_all, color=sea[3], label="All data")
         axs[1].plot(
@@ -508,6 +506,7 @@ class StatisticalChecks(object):
         axs[1].set_xlim(0, self.days_all[-1])
         axs[1].tick_params(axis="x", labelsize=self.legend_fontsize)
         axs[1].tick_params(axis="y", labelsize=self.legend_fontsize)
+        axs[1].yaxis.offsetText.set_fontsize(self.legend_fontsize)
 
         axs[2].plot(self.days_all, self.sliding_deviate_all, color=sea[3], label="All data")
         axs[2].plot(
@@ -517,14 +516,14 @@ class StatisticalChecks(object):
             label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
         )
         axs[2].set_xlabel("Days since start of run", size=self.axes_labelsize)
-        axs[2].set_ylabel(r"$\Delta{\rm SNR}_i(f)$", size=self.axes_labelsize)
+        axs[2].set_ylabel(r"$\Delta{\rm SNR}_i$", size=self.axes_labelsize)
         axs[2].legend(loc="upper left", fontsize=self.legend_fontsize)
         axs[2].set_xlim(0, self.days_all[-1])
         axs[2].tick_params(axis="x", labelsize=self.legend_fontsize)
         axs[2].tick_params(axis="y", labelsize=self.legend_fontsize)
 
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-omega_sigma_time.png"
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-omega_sigma_time.png", bbox_inches='tight'
         )
 
     def plot_hist_sigma_dsc(self):
@@ -532,7 +531,7 @@ class StatisticalChecks(object):
         Generates and saves a panel plot with a histogram of :math:`|\Delta\sigma|/\sigma`, as well as a histogram of :math:`\sigma`. Both plots show the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `delta_sigmas_all`).
 
         """
-        fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(10, 10))
+        fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(10, 14))
 
         axs[0].hist(
             self.delta_sigmas_all,
@@ -557,6 +556,7 @@ class StatisticalChecks(object):
         axs[0].legend(fontsize=self.legend_fontsize)
         axs[0].tick_params(axis="x", labelsize=self.legend_fontsize)
         axs[0].tick_params(axis="y", labelsize=self.legend_fontsize)
+        axs[0].yaxis.offsetText.set_fontsize(self.legend_fontsize)
 
         minx1 = min(self.sliding_sigma_cut)
         maxx1 = max(self.sliding_sigma_cut)
@@ -586,9 +586,10 @@ class StatisticalChecks(object):
         axs[1].set_yscale("log")
         axs[1].tick_params(axis="x", labelsize=self.legend_fontsize)
         axs[1].tick_params(axis="y", labelsize=self.legend_fontsize)
+        axs[1].xaxis.offsetText.set_fontsize(self.legend_fontsize)
 
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-histogram_sigma_dsc.png"
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-histogram_sigma_dsc.png", bbox_inches='tight'
         )
 
     def plot_scatter_sigma_dsc(self):
@@ -623,14 +624,14 @@ class StatisticalChecks(object):
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
 
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-scatter_sigma_dsc.png"
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-scatter_sigma_dsc.png", bbox_inches = 'tight'
         )
 
     def plot_scatter_omega_sigma_dsc(self):
         """
-        Generates and saves a panel plot with scatter plots of :math:`|\Delta\sigma|/\sigma` vs :math:`\Delta{\rm SNR}_i(f)`, as well as :math:`\sigma` vs :math:`(\Omega-\langle\Omega\rangle)/\sigma`. All plots show the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `delta_sigmas_all`).
+        Generates and saves a panel plot with scatter plots of :math:`|\Delta\sigma|/\sigma` vs :math:`\Delta{\rm SNR}_i`, as well as :math:`\sigma` vs :math:`(\Omega-\langle\Omega\rangle)/\sigma`. All plots show the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `delta_sigmas_all`).
         """
-        fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(10, 10))
+        fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(10, 14))
 
         maxx0 = max(self.delta_sigmas_cut)
         maxx0 += maxx0 / 10.0
@@ -656,11 +657,11 @@ class StatisticalChecks(object):
             self.sliding_deviate_cut,
             marker=".",
             color=sea[0],
-            label=r"Data after $\Delta\sigma|/\sigma$ outlier cut",
+            label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
             s=3,
         )
-        axs[0].set_xlabel(r"$\Delta\sigma|/\sigma$", size=self.axes_labelsize)
-        axs[0].set_ylabel(r"$\Delta{\rm SNR}_i(f)$", size=self.axes_labelsize)
+        axs[0].set_xlabel(r"$|\Delta\sigma|/\sigma$", size=self.axes_labelsize)
+        axs[0].set_ylabel(r"$\Delta{\rm SNR}_i$", size=self.axes_labelsize)
         axs[0].set_xlim(minx0, maxx0)
         axs[0].set_ylim(miny0, maxy0)
         axs[0].legend(fontsize=self.legend_fontsize)
@@ -696,20 +697,20 @@ class StatisticalChecks(object):
             s=3,
         )
         axs[1].set_xlabel(r"$\sigma$", size=self.axes_labelsize)
-        axs[1].set_ylabel(r"$\Delta{\rm SNR}_i(f)$", size=self.axes_labelsize)
+        axs[1].set_ylabel(r"$\Delta{\rm SNR}_i$", size=self.axes_labelsize)
         axs[1].legend(fontsize=self.legend_fontsize)
         axs[1].set_xlim(minx1, maxx1)
         axs[1].set_ylim(miny1, maxy1)
         axs[1].tick_params(axis="x", labelsize=self.legend_fontsize)
         axs[1].tick_params(axis="y", labelsize=self.legend_fontsize)
+        axs[1].xaxis.offsetText.set_fontsize(self.legend_fontsize)
 
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-scatter_omega_sigma_dsc.png"
-        )
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-scatter_omega_sigma_dsc.png", bbox_inches = 'tight')
 
     def plot_hist_omega_pre_post_dsc(self):
         r"""
-        Generates and saves a histogram of the :math:`\Delta{\rm SNR}_i(f)` distribution. The plot shows the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sliding_deviate_all`).
+        Generates and saves a histogram of the :math:`\Delta{\rm SNR}_i` distribution. The plot shows the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sliding_deviate_all`).
         """
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
 
@@ -729,7 +730,7 @@ class StatisticalChecks(object):
             lw=0.5,
             label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
         )
-        axs.set_xlabel(r"$(\Omega - \langle\Omega\rangle)/\sigma$", size=self.axes_labelsize)
+        axs.set_xlabel(r"$\Delta{\rm SNR}_i$", size=self.axes_labelsize)
         axs.set_ylabel(r"\# per bin", size=self.axes_labelsize)
         axs.legend(fontsize=self.legend_fontsize)
         axs.set_yscale("log")
@@ -737,7 +738,7 @@ class StatisticalChecks(object):
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
 
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-histogram_omega_dsc.png"
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-histogram_omega_dsc.png", bbox_inches = 'tight'
         )
 
     def plot_KS_test(self, bias_factor=None):
@@ -801,11 +802,12 @@ class StatisticalChecks(object):
             "Maximum absolute difference: " + str(round(dks_x, 3)),
             xy=(0.025, 0.9),
             xycoords="axes fraction",
+            size = self.annotate_fontsize
         )
         axs[1].tick_params(axis="x", labelsize=self.legend_fontsize)
         axs[1].tick_params(axis="y", labelsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-KS_test.png"
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-KS_test.png", bbox_inches = 'tight'
         )
 
     def plot_hist_sigma_squared(self):
@@ -837,7 +839,7 @@ class StatisticalChecks(object):
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
 
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-histogram_sigma_squared.png"
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-histogram_sigma_squared.png", bbox_inches = 'tight'
         )
 
     def plot_omega_time_fit(self):
@@ -884,13 +886,14 @@ class StatisticalChecks(object):
             + str(f"{c2:.3e}"),
             xy=(0.05, 0.05),
             xycoords="axes fraction",
-            fontsize=15,
+            size = self.annotate_fontsize,
             bbox=dict(boxstyle="round", facecolor="white", alpha=1),
         )
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
+        axs.xaxis.offsetText.set_fontsize(self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-omega_time_fit.png"
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-omega_time_fit.png", bbox_inches = 'tight'
         )
 
     def plot_sigma_time_fit(self):
@@ -935,13 +938,13 @@ class StatisticalChecks(object):
             + str(f"{c2:.3e}"),
             xy=(0.05, 0.05),
             xycoords="axes fraction",
-            fontsize=15,
+            size = self.annotate_fontsize,
             bbox=dict(boxstyle="round", facecolor="white", alpha=1),
         )
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-sigma_time_fit.png"
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-sigma_time_fit.png", bbox_inches = 'tight'
         )
 
     def generate_all_plots(self):
