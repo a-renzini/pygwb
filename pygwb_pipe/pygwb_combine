@@ -163,7 +163,7 @@ def main():
         times=times_j,
     )
     logger.info(
-        f"saved file with all sigma information related to the delta sigma cut for all times in run:\n {pt_est_sigma_unweighted_path}."
+        f"saved file with all sigma information related to the delta sigma cut for all times in run:\n {delta_sigma_cut_output_path}."
     )
 
     Y_spectrum_combined, sigma_spectrum_combined = combine_spectra_with_sigma_weights(
@@ -187,14 +187,19 @@ def main():
         frequencies=frequencies,
     )
 
-    Y_spectrum.write(
+    try:
+        Y_spectrum.write(
         os.path.join(combine_args.out_path, f"Y_spectrum_{times[0]}-{times[-1]}_UNWEIGHTED.hdf5")
-    )
-    sigma_spectrum.write(
-        os.path.join(
-            combine_args.out_path, f"sigma_spectrum_{times[0]}-{times[-1]}_UNWEIGHTED.hdf5"
         )
-    )
+    except OSError:
+        pass
+    try:
+        sigma_spectrum.write(
+        os.path.join(combine_args.out_path, f"sigma_spectrum_{times[0]}-{times[-1]}_UNWEIGHTED.hdf5")
+        )
+    except OSError:
+        pass
+
     logger.info(
         f"Saved file with combined point estimate and sigma OmegaSpectrum objects for this run. These are weighted with alpha={params.alpha}"
     )
@@ -239,12 +244,18 @@ def main():
     Y_reweight_spectrum.reset_h0(new_h0=combine_args.h0)
     sigma_reweight_spectrum.reset_h0(new_h0=combine_args.h0)
 
-    Y_reweight_spectrum.write(
-        os.path.join(combine_args.out_path, f"Y_spectrum_{times[0]}-{times[-1]}.hdf5")
+    try:
+        Y_reweight_spectrum.write(
+        os.path.join(combine_args.out_path, "Y_spectrum_alpha_{:.1f}".format(combine_args.alpha) + f"_fref_{combine_args.fref}_{times[0]}-{times[-1]}.hdf5")
     )
-    sigma_reweight_spectrum.write(
-        os.path.join(combine_args.out_path, f"sigma_spectrum_{times[0]}-{times[-1]}.hdf5")
-    )
+    except OSError:
+        pass
+    try:
+        sigma_reweight_spectrum.write(
+            os.path.join(combine_args.out_path, "sigma_spectrum_alpha_{:.1f}".format(combine_args.alpha) + f"_fref_{combine_args.fref}_{times[0]}-{times[-1]}.hdf5")
+        )
+    except OSError:
+        pass
 
     np.savez(
         pt_est_sigma_spectra_path,
