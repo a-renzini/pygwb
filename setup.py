@@ -41,10 +41,11 @@ setup(
         "bilby",
         "gwpy",
         "astropy",
-        "lalsuite",
+        "lalsuite==7.3",
         "loguru",
         "json5",
         "jinja2==3.0.3",
+        "seaborn",
     ],
     classifiers=[
         "Programming Language :: Python :: 3.8",
