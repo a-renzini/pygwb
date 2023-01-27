@@ -252,6 +252,7 @@ def main():
         sigma_estimate=sigma_estimate,
         point_estimate_spectrum=Y_reweight_spectrum.value,
         sigma_spectrum=sigma_reweight_spectrum.value,
+        frequencies=frequencies,
         point_estimates_seg_UW=Y_seg,
         sigmas_seg_UW=sigma_seg,
     )
