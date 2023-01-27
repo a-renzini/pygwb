@@ -5,10 +5,6 @@ import json
 import sys
 
 import numpy as np
-
-module_path_2 = '/home/max.lalleman/public_html/Code/New_Clone_pyGWB/pygwb'
-sys.path.insert(0,module_path_2)
-
 import bilby
 
 import pygwb.pe as pe
