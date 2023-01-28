@@ -157,6 +157,8 @@ def main():
         injection_parameters = dict(omega_ref=10**(-8.67985), alpha=2/3)
     else:
         injection_parameters = json.loads(script_args.injection_parameters)
+        for par in injection_parameters:
+            injection_parameters[par] = eval(injection_parameters[par])
     
     range_list = [(0,0) for i in range(len(priors))]
     for index,key in enumerate(priors.keys()):
