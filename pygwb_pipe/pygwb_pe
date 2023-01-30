@@ -7,6 +7,8 @@ import sys
 import numpy as np
 import bilby
 
+from fractions import Fraction
+
 import pygwb.pe as pe
 from pygwb.baseline import Baseline
 from pygwb.detector import Interferometer
@@ -35,13 +37,13 @@ def main():
         "--ifos", help="List of names of two interferometers for which you want to run PE, default is H1 and L1. Not needed when running from a pickled baseline.", action="store", type=str, required=False, default = "None"
     )
     pe_parser.add_argument(
-        "--Model", help="Model for which to run the PE. \n Default is \"Power-law\". ", action="store", type=str, required=False, default = "Power-Law"
+        "--model", help="Model for which to run the PE. \n Default is \"Power-law\". ", action="store", type=str, required=False, default = "Power-Law"
     )
     pe_parser.add_argument(
-        "--Model_Parameters_Dictionary_Priors", help="The required parameters for the model and their priors. \n Default value is power-law parameters omega_ref with LogUniform bilby prior from 1e-11 to 1e-8 and alpha with Uniform bilby prior from -4 to 4.", type=str, action="store", required=False, default = "None"
+        "--model_prior_file", help="The required parameters for the model and their priors. \n Default value is power-law parameters omega_ref with LogUniform bilby prior from 1e-11 to 1e-8 and alpha with Uniform bilby prior from -4 to 4.", type=str, action="store", required=False, default = "None"
     )
     pe_parser.add_argument(
-        "--Non_Prior_Arguments", help="A dictionary with the parameters of the model that are not associated with a prior, such as the reference frequency for Power-Law. Default value is reference frequency at 25 Hz for the power-law model.", type=str, action="store", required=False, default="None"
+        "--non_prior_args", help="A dictionary with the parameters of the model that are not associated with a prior, such as the reference frequency for Power-Law. Default value is reference frequency at 25 Hz for the power-law model.", type=str, action="store", required=False, default="None"
     )
     pe_parser.add_argument(
         "--output_dir", help="Output directory of the PE (sampler). Default: ./PE_Output.", type=str, action="store", required=False, default='./PE_Output'
@@ -64,7 +66,7 @@ def main():
     
     script_args = pe_parser.parse_known_args()[0]
     
-    dictionary_Models = {"Power-Law": pe.PowerLawModel, 
+    dictionary_models = {"Power-Law": pe.PowerLawModel, 
                          "Broken-Power-Law": pe.BrokenPowerLawModel,
                          "Triple-Broken-Power-Law": pe.TripleBrokenPowerLawModel,
                          "Smooth-Broken-Power-Law": pe.SmoothBrokenPowerLawModel,
@@ -80,35 +82,35 @@ def main():
                              "Parity-Violation": ["omega_ref", "alpha", "Pi"],
                              "Parity-Violation-2": ["omega_ref", "alpha", "beta"]}
     
-    if script_args.Model not in dictionary_Models.keys():
+    if script_args.model not in dictionary_models.keys():
         raise ValueError(
             "The model you provided is not supported."
         )
     else:
-        class_model = dictionary_Models[script_args.Model]
+        class_model = dictionary_models[script_args.model]
         
-    if script_args.Model_Parameters_Dictionary_Priors == 'None': 
-        dict_loaded = {"omega_ref":bilby.core.prior.LogUniform(1e-11,1e-8,"$\Omega_{ref}$"),"alpha":bilby.core.prior.Uniform(-4,4,"$\\alpha$")}
+    if script_args.model_prior_file == 'None': 
+        dict_loaded = {"omega_ref":bilby.core.prior.LogUniform(1e-11,1e-8,"$\Omega_{ref}$"),"alpha":bilby.core.prior.Gaussian(mu = 2./3, sigma = 1.5, latex_label = '$\\alpha$')}
     else:
-        dict_loaded = json.loads(script_args.Model_Parameters_Dictionary_Priors)
+        dict_loaded = json.load(open(script_args.model_prior_file), object_hook=bilby.core.utils.decode_bilby_json)
         
-    if script_args.Non_Prior_Arguments == 'None':
+    if script_args.non_prior_args == 'None':
         extra_kwargs = {"fref": 25}
     else:
-        extra_kwargs = json.loads(script_args.Non_Prior_Arguments)
+        extra_kwargs = json.loads(script_args.non_prior_args)
     
     all_parameters_dict = dict_loaded.copy()
     all_parameters_dict.update(extra_kwargs)
     
     for key in all_parameters_dict.keys():
-        if not key in dictionary_parameters[script_args.Model]:
+        if not key in dictionary_parameters[script_args.model]:
             raise AttributeError(
-                f"The parameter {key} you provided is not associated with the given model. \n These are the required parameters: {dictionary_parameters[script_args.Model]}."
+                f"The parameter {key} you provided is not associated with the given model. \n These are the required parameters: {dictionary_parameters[script_args.model]}."
             )
       
-    if not all(key in all_parameters_dict.keys() for key in dictionary_parameters[script_args.Model]):
+    if not all(key in all_parameters_dict.keys() for key in dictionary_parameters[script_args.model]):
         raise ValueError(
-            f"Not all required parameters of the model are present in one of the parameters dictionaries. \n These are the required parameters: {dictionary_parameters[script_args.Model]}."
+            f"Not all required parameters of the model are present in one of the parameters dictionaries. \n These are the required parameters: {dictionary_parameters[script_args.model]}."
         )
     
     if script_args.path_to_file.endswith(("npz")):
@@ -149,7 +151,7 @@ def main():
         )
     
     
-    kwargs = {"baselines":[base_12], "model_name":script_args.Model} #, "fref":script_args.fref}
+    kwargs = {"baselines":[base_12], "model_name":script_args.model} #, "fref":script_args.fref}
     kwargs.update(extra_kwargs)
     model = class_model(**kwargs)
     priors = dict_loaded
@@ -158,12 +160,16 @@ def main():
     else:
         injection_parameters = json.loads(script_args.injection_parameters)
         for par in injection_parameters:
-            injection_parameters[par] = eval(injection_parameters[par])
+            injection_parameters[par] = float(Fraction(injection_parameters[par]))
     
     range_list = [(0,0) for i in range(len(priors))]
     for index,key in enumerate(priors.keys()):
         minimum_range = priors[key].minimum
+        if minimum_range==-np.inf:
+            minimum_range=-4
         maximum_range = priors[key].maximum
+        if maximum_range==np.inf:
+            maximum_range=4
         tuple_range = (minimum_range, maximum_range)
         range_list[index] = tuple_range
     

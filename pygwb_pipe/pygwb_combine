@@ -11,6 +11,7 @@ from pathlib import Path
 import numpy as np
 from loguru import logger
 from tqdm import tqdm
+from fractions import Fraction
 
 from pygwb.baseline import Baseline
 from pygwb.constants import h0 as pygwb_h0
@@ -68,7 +69,7 @@ def main():
         combine_args.h0 = pygwb_h0
     if not combine_args.out_path:
         combine_args.out_path = Path("./")
-    combine_args.alpha = float(eval(combine_args.alpha)) #float(Fraction(combine_args.alpha).replace(" ", ""))
+    combine_args.alpha = float(Fraction(combine_args.alpha)) #float(Fraction(combine_args.alpha).replace(" ", ""))
     params = Parameters()
     params.update_from_file(combine_args.param_file)
 
