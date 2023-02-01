@@ -38,10 +38,10 @@ class TestSimulator(unittest.TestCase):
 
         simulator_1 = simulator.Simulator(
             ifo_list,
-            self.intensity_GW,
             self.N_segments,
             self.duration,
             self.sampling_frequency,
+            intensity_GW = self.intensity_GW,
         )
         frequencies = simulator_1.frequencies
 
@@ -63,10 +63,10 @@ class TestSimulator(unittest.TestCase):
 
         simulator_1 = simulator.Simulator(
             ifo_list,
-            self.intensity_GW,
             self.N_segments,
             self.duration,
             self.sampling_frequency,
+            intensity_GW = self.intensity_GW,
         )
         noise_PSD_array_1 = simulator_1.noise_PSD_array
 
@@ -87,10 +87,10 @@ class TestSimulator(unittest.TestCase):
             )
         simulator_1 = simulator.Simulator(
             ifo_list,
-            self.intensity_GW,
             self.N_segments,
             self.duration,
             self.sampling_frequency,
+            intensity_GW = self.intensity_GW,
         )
         baselines = simulator_1.baselines
         Nd = len(ifo_list)
@@ -112,10 +112,10 @@ class TestSimulator(unittest.TestCase):
             )
         simulator_1 = simulator.Simulator(
             ifo_list,
-            self.intensity_GW,
             self.N_segments,
             self.duration,
             self.sampling_frequency,
+            intensity_GW = self.intensity_GW,
         )
         baselines = simulator_1.baselines
         Nb = len(baselines)
@@ -129,10 +129,10 @@ class TestSimulator(unittest.TestCase):
 
         simulator_1 = simulator.Simulator(
             [self.interferometer_1, self.interferometer_2],
-            self.intensity_GW,
             self.N_segments,
             self.duration,
             self.sampling_frequency,
+            intensity_GW = self.intensity_GW,
         )
         self.assertTrue(len(simulator_1.intensity_GW), len(simulator_1.frequencies))
 
@@ -147,10 +147,10 @@ class TestSimulator(unittest.TestCase):
             )
         simulator_1 = simulator.Simulator(
             ifo_list,
-            self.intensity_GW,
             self.N_segments,
             self.duration,
             self.sampling_frequency,
+            intensity_GW = self.intensity_GW,
         )
         data = simulator_1.generate_data()
         self.assertTrue([isinstance(dat, TimeSeries) for dat in data])

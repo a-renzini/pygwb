@@ -92,7 +92,7 @@ class TestNetwork(unittest.TestCase):
             )
         net = network.Network("test_net", ifos)
         net.set_interferometer_data_from_simulator(
-            GWB_intensity, N_segments, sampling_frequency
+            N_segments, GWB_intensity=GWB_intensity, sampling_frequency=sampling_frequency
         )
         self.assertFalse(
             np.isnan(net.interferometers[0].strain_data.time_domain_strain).any()

@@ -7,6 +7,7 @@ import gwpy
 import h5py
 import numpy as np
 from bilby.core.utils import create_frequency_series
+from gwpy.timeseries import TimeSeries
 from loguru import logger
 
 from pygwb.baseline import Baseline, get_baselines
@@ -22,13 +23,16 @@ class Simulator(object):
     def __init__(
         self,
         interferometers,
-        intensity_GW,
         N_segments,
         duration,
         sampling_frequency,
+        intensity_GW=None,
+        injection_dict=None,
         start_time=0.0,
         no_noise=False,
         orf_polarization="tensor",
+        seed=None,
+        continuous=False,
     ):
         """
         Class that simulates an isotropic stochastic background.
@@ -42,6 +46,8 @@ class Simulator(object):
             tested. However, one should be careful for spectral indices outside of this range,
             as the splicing procedure implemented in this module is known to introduce a bias for
             some values of the spectral index (usually large negative numbers).
+        injection_dict: dict
+            Dictionary containing the parameters of CBC injections.
         N_segments: int
             Number of segments that needs to be generated for the simulation
         duration: float
@@ -52,6 +58,10 @@ class Simulator(object):
             Start time of the simulation
         no_noise: boolean
             Flag that sets the noise_PSDs to 0
+        seed: int
+            Seed to use for random data generation
+        continuous: boolean
+            Flag to generate continuous segments. If True, a seed must also be provided 
 
         Returns
         =======
@@ -81,6 +91,11 @@ class Simulator(object):
 
             self.no_noise = no_noise
 
+            self.seed = seed
+            self.continuous = continuous
+            if (self.continuous == True) and not self.seed:
+                raise ValueError("Must provide a seed to generate continuous segments")
+
             if no_noise == True:
                 self.noise_PSD_array = np.zeros_like(self.noise_PSD_array)
 
@@ -92,9 +107,15 @@ class Simulator(object):
                     baseline.orf_polarization = "tensor"
             self.orf = self.get_orf(polarization=orf_polarization)
 
-            self.intensity_GW = interpolate_frequency_series(
-                intensity_GW, self.frequencies
-            )
+            self.intensity_GW = intensity_GW
+            if self.intensity_GW:
+                self.intensity_GW = interpolate_frequency_series(
+                    intensity_GW, self.frequencies
+                )
+            self.injection_dict = injection_dict
+
+            if not self.intensity_GW and not self.injection_dict:
+                raise ValueError('Must provide at least one of intensity_GW or self.injection_dict')
 
     def get_frequencies(self):
         """
@@ -189,13 +210,34 @@ class Simulator(object):
         interferometer_data: dict
             A dictionary with the simulated data for the interferometers.
         """
-        data = self.generate_data()
+        data = self.generate_data(data_start=self.t0)
         interferometer_data = {}
         for idx, ifo in enumerate(self.interferometers):
             interferometer_data[ifo.name] = data[idx]
+        if self.continuous:
+            pad_len = int(self.N_segments * self.N_samples_per_segment/2)
+            total_dur = self.N_segments*self.duration
+            early_data = self.generate_data(data_start=self.t0-total_dur/2)
+            late_data = self.generate_data(data_start=self.t0+total_dur/2)
+            for idx, ifo in enumerate(self.interferometers):
+                ed = early_data[idx] * TimeSeries(np.sin((early_data[idx].times.value-early_data[idx].t0.value
+                                                   )/total_dur*np.pi), times=early_data[idx].times)
+                ld = late_data[idx] * TimeSeries(np.sin((late_data[idx].times.value-late_data[idx].t0.value
+                                                  )/total_dur*np.pi), times=late_data[idx].times)
+                cd = interferometer_data[ifo.name] * TimeSeries(np.sin((interferometer_data[ifo.name].times.value-interferometer_data[ifo.name].t0.value
+                                                            )/total_dur*np.pi), times=interferometer_data[ifo.name].times)
+                interferometer_data[ifo.name] = \
+                               ed.pad((0, 2*pad_len)) + \
+                               cd.pad(pad_len) + \
+                               ld.pad((2*pad_len, 0))
+                interferometer_data[ifo.name] = \
+                    interferometer_data[ifo.name].crop(self.t0,
+                                              self.t0+total_dur)
+                interferometer_data[ifo.name] = TimeSeries(interferometer_data[ifo.name].value, 
+                                                           t0=self.t0, sample_rate=self.sampling_frequency)
         return interferometer_data
 
-    def generate_data(self):
+    def generate_data(self, data_start=None):
         """
         Function that simulates an isotropic stochastic background given the
         input parameters. The data is simulated and spliced together to prevent
@@ -203,6 +245,8 @@ class Simulator(object):
 
         Parameters
         ==========
+        data_start: float
+            Start time of the data that is being generated.
 
         Returns
         =======
@@ -210,8 +254,23 @@ class Simulator(object):
             An array of size Nd (number of detectors) with gwpy TimeSeries with the
             data containing the simulated isotropic stochastic background.
         """
-        y_signal = self.simulate("signal")
-        data_signal_temp = self.splice_segments(y_signal)
+        if not data_start:
+            data_start = self.t0
+        data_signal_temp = np.zeros(
+            (self.Nd, self.N_samples_per_segment * self.N_segments), dtype=np.ndarray
+        )
+        if self.intensity_GW:
+            y_signal = self.simulate("signal")
+            if self.seed:
+                # seed is based on start time of segment
+                np.random.seed(int(self.seed+(data_start%1000)))
+            data_spliced = self.splice_segments(y_signal)
+            for ii in range(self.Nd):
+                data_signal_temp[ii] = data_signal_temp[ii] + data_spliced[ii]
+        if self.injection_dict:
+            data_cbc = self.inject_CBC()
+            for ii in range(self.Nd):
+                data_signal_temp[ii] = data_signal_temp[ii] + data_cbc[ii]
         if not self.no_noise:
             y_noise = self.simulate("noise")
             data_noise_temp = self.splice_segments(y_noise)
@@ -224,7 +283,7 @@ class Simulator(object):
             )
             data[ii] = gwpy.timeseries.TimeSeries(
                 (data_signal_temp[ii] + data_noise_temp[ii]).astype("float64"),
-                t0=self.t0,
+                t0=data_start,
                 dt=self.deltaT,
                 channel=f"{self.interferometers[ii].name}:SIM-STOCH_INJ",
                 name=f"{self.interferometers[ii].name}:SIM-STOCH_INJ",
@@ -502,5 +561,51 @@ class Simulator(object):
                 ] = (
                     z0 + z1 + z2
                 )
+
+        return data
+
+    def inject_CBC(self):
+        """
+        This function uses the provided dictionary of injection parameters to 
+        simulate a background of CBC sources. 
+
+        Parameters
+        ==========
+
+        Returns
+        =======
+        data: array_like
+            Array of size Nd x (N_segments*N_samples_per_segment) containing the simulated
+            data corresponding to a background of CBC sources for each of the
+            detectors, where Nd is the number of detectors.
+        """
+
+        data = np.zeros(
+            (self.Nd, self.N_samples_per_segment * self.N_segments), dtype=np.ndarray
+        )
+        empty_ts = gwpy.timeseries.TimeSeries(np.zeros(self.N_samples_per_segment * self.N_segments),
+                                              t0=self.t0, sample_rate = self.sampling_frequency)
+        waveform_generator = bilby.gw.WaveformGenerator(
+            duration=self.N_segments*self.duration, sampling_frequency=self.sampling_frequency,
+            frequency_domain_source_model=bilby.gw.source.lal_binary_black_hole,
+            parameter_conversion=bilby.gw.conversion.convert_to_lal_binary_black_hole_parameters,
+            waveform_arguments={
+                "waveform_approximant": "IMRPhenomPv2",
+                "reference_frequency": 50,
+            },
+        )
+        for ii in range(self.Nd):
+            det = bilby.gw.detector.get_empty_interferometer(self.interferometers[ii].name) 
+            det.strain_data.set_from_gwpy_timeseries(empty_ts) 
+            det.minimum_frequency=10.
+            for n in range(len(self.injection_dict['geocent_time'])):
+                inj_params = {}
+                for k in self.injection_dict.keys():
+                    inj_params[k] = self.injection_dict[k][n]
+            
+                det.inject_signal(
+                    waveform_generator=waveform_generator, parameters=inj_params
+                )
+            data[ii] = det.strain_data.to_gwpy_timeseries().value
 
         return data
