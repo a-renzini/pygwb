@@ -5,10 +5,10 @@ from pycondor import Dagman
 import pycondor
 import logging
 from pygwb.workflow import Job, Dagman, config_override, config_write, makedir
-from pygwb.workflow import (create_stochmon_pipe_job,
-                   create_stochmon_combine_job,
-                   create_stochmon_stats_job,
-                   create_stochmon_html_job)
+from pygwb.workflow import (create_pygwb_pipe_job,
+                   create_pygwb_combine_job,
+                   create_pygwb_stats_job,
+                   create_pygwb_html_job)
 
 import numpy as np
 import os
@@ -16,11 +16,11 @@ import glob
 import argparse
 import configparser
 import pandas as pd
-from pygwb.html import stochmon_html
+from pygwb.html import pygwb_html
 
 from gwpy.segments import DataQualityDict, DataQualityFlag
 
-__process_name__ = 'stochmon_make_workflow'
+__process_name__ = 'pygwb_create_workflow'
 __version__ = '0.0.1'
 
 
@@ -36,29 +36,29 @@ def make_workflow(args=None):
     #    'ifos' : 'H1 L1',
     #    }
     #config['executables'] = {
-    #    'stochmon_pipe' : 'pygwb_pipe',
-    #    'stochmon_combine' : 'pygwb_combine',
-    #    'stochmon_stats' : 'pygwb_stats',
-    #    'stochmon_html' : 'stochmon_html',
+    #    'pygwb_pipe' : 'pygwb_pipe',
+    #    'pygwb_combine' : 'pygwb_combine',
+    #    'pygwb_stats' : 'pygwb_stats',
+    #    'pygwb_html' : 'pygwb_html',
     #    }
     #config['data_quality'] = {
-    #    'veto_definer' : '/home/derek.davis/public_html/detchar/preO4/stochmon_update/test_pygwb_workflow/package_run/O3_CBC_veto_definer.xml',
+    #    'veto_definer' : '/home/derek.davis/public_html/detchar/preO4/pygwb_update/test_pygwb_workflow/package_run/O3_CBC_veto_definer.xml',
     #    'science_segment' : 'DCS-ANALYSIS_READY_C01',
     #    }
-    #config['stochmon_pipe'] = {
+    #config['pygwb_pipe'] = {
     #    }
-    #config['stochmon_combine'] = {
+    #config['pygwb_combine'] = {
     #    'alpha': 0.,
     #    'fref': 30,
     #    'h0': 0.7,
     #    }
-    #config['stochmon_stats'] = {
+    #config['pygwb_stats'] = {
     #    }
     #config['empty'] = {
     #    }
 
     ## o2 params
-    #config['data_quality']['veto_definer'] = '/home/derek.davis/public_html/detchar/preO4/stochmon_update/test_pygwb_workflow/package_run/o2_veto_definer_no_clean.xml'
+    #config['data_quality']['veto_definer'] = '/home/derek.davis/public_html/detchar/preO4/pygwb_update/test_pygwb_workflow/package_run/o2_veto_definer_no_clean.xml'
     #config['data_quality']['science_segment'] = 'DCH-CLEAN_SCIENCE_C02'
     #config['general']['t0'] = '1164556817'
     #config['general']['tf'] = '1164956817'#'1187733618'
@@ -116,7 +116,7 @@ def make_workflow(args=None):
     # =====
 
     logging.info('Writing DAG...')
-    dagman = Dagman(name='stochmon_dagman',
+    dagman = Dagman(name='pygwb_dagman',
                     basedir=args.basedir)
     dagman.make_dir()
 
@@ -141,7 +141,7 @@ def make_workflow(args=None):
 
         last_start = start
 
-        pipe_job = create_stochmon_pipe_job(dagman, config, parents=[], 
+        pipe_job = create_pygwb_pipe_job(dagman, config, parents=[], 
             output_path=seg_dir, 
             t0=start, tf=end
             )
@@ -150,20 +150,20 @@ def make_workflow(args=None):
 
         # extra vars
         param_file = os.path.join(seg_dir, 'parameters_final.ini') 
-        combine_job = create_stochmon_combine_job(dagman, config,
+        combine_job = create_pygwb_combine_job(dagman, config,
             t0=start, tf=end, 
             parents=[pipe_job], output_path=seg_dir,
             data_path=seg_dir, param_file=param_file)
         all_jobs.append(combine_job)
         
         # extra vars
-        fref = int(config['stochmon_pipe']['fref']) 
-        alpha =  float(config['stochmon_pipe']['alpha'])
+        fref = int(config['pygwb_pipe']['fref']) 
+        alpha =  float(config['pygwb_pipe']['alpha'])
         csd_file = os.path.join(seg_dir, 
             f'point_estimate_sigma_spectra_alpha_{alpha:.1f}_fref_{int(fref)}_{start}-{start}.npz') 
         dsc_file = os.path.join(seg_dir, 
             f'delta_sigma_cut_{start}-{start}.npz')
-        stats_job = create_stochmon_stats_job(dagman, config, 
+        stats_job = create_pygwb_stats_job(dagman, config, 
                     t0=start, tf=end,
             parents=[combine_job], output_path=seg_dir,
             csd_file=csd_file, 
@@ -182,7 +182,7 @@ def make_workflow(args=None):
                 os.path.join(cumu_dir, npz))
 
     # make cumulative results
-    cumu_combine_job = create_stochmon_combine_job(dagman, config,
+    cumu_combine_job = create_pygwb_combine_job(dagman, config,
         t0=t0, tf=tf,
         parents=pipe_jobs, output_path=cumu_dir,
         data_path=cumu_dir, param_file=param_file)
@@ -193,7 +193,7 @@ def make_workflow(args=None):
     dsc_file = os.path.join(cumu_dir,
         f'delta_sigma_cut_{first_start}-{last_start}.npz')
     print(dsc_file)
-    cumu_stats_job = create_stochmon_stats_job(dagman, config,
+    cumu_stats_job = create_pygwb_stats_job(dagman, config,
         t0=t0, tf=tf,
         parents=[cumu_combine_job], output_path=cumu_dir,
         csd_file=csd_file,
@@ -201,10 +201,10 @@ def make_workflow(args=None):
         param_file=param_file)
     all_jobs.append(cumu_stats_job)
 
-    stochmon_html(dagman.base_dir, config=config_path)
+    pygwb_html(dagman.base_dir, config=config_path)
 
     # make html page
-    html_job = create_stochmon_html_job(dagman, config, 
+    html_job = create_pygwb_html_job(dagman, config, 
         t0=t0, tf=tf, parents=all_jobs, 
         output_path=dagman.base_dir, plot_path=dagman.result_dir)
 

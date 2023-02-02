@@ -17,14 +17,14 @@ import gwsumm.plot
 #from gwdetchar.io import html as htmlio
 #from MarkupPy import markup
 
-"""Create stochmon html
+"""Create pygwb html
    WORK IN PROGRESS
 """
 
 __version__ = '0.0.1'
 __process_name__ = 'dqr-largest-value'
 
-def stochmon_html(outdir='./', config=None):
+def pygwb_html(outdir='./', config=None):
 
     # =====================
     # get data
@@ -114,7 +114,7 @@ def main(args=None):
     args = parser.parse_args(args=args)
 
     # call the above function
-    stochmon_html(outdir=args.output_dir)
+    pygwb_html(outdir=args.output_dir)
 
 # allow be be run on the command line
 if __name__ == "__main__":
