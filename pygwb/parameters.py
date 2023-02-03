@@ -3,6 +3,7 @@ import enum
 import json
 import sys
 import warnings
+import re
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import List
@@ -159,7 +160,8 @@ class Parameters:
         for name, dtype in ann.items():
             if name in kwargs:
                 try:
-                    kwargs[name] = dtype(kwargs[name]) if kwargs[name] != 'False' else False
+                    if not bool(re.search("\{*\}", kwargs[name])): 
+                        kwargs[name] = dtype(kwargs[name]) if kwargs[name] != 'False' else False
                 except TypeError:
                     pass
                 setattr(self, name, kwargs[name])
@@ -359,6 +361,27 @@ class Parameters:
 
         with open(output_path, "w") as configfile:
             param.write(configfile)
+
+    def parse_ifo_parameters(self):
+        ifo_list = self.interferometer_list
+        param_dict = {}
+        for ifo in ifo_list:
+            param_dict[ifo] = Parameters()
+        current_param_dict = self.__dict__
+        for attr in current_param_dict.keys():
+            if bool(re.search("\{*\}", str(current_param_dict[attr]))) and type(current_param_dict[attr]) is not dict:
+                attr_str = str(current_param_dict[attr]).replace("{","").replace("}","")
+                attr_split = attr_str.split()
+                print(attr, attr_split)
+                attr_dict = {key: value for key, value in (pair.split(':') for pair in attr_split)} 
+                print(attr_dict)
+                for ifo in ifo_list:
+                    param_dict[ifo].update_from_dictionary({attr: attr_dict[ifo]})
+            else:
+                for ifo in ifo_list:
+                    param_dict[ifo].update_from_dictionary({attr: current_param_dict[attr]})
+
+        return param_dict
 
 
 class ParametersHelp(enum.Enum):
