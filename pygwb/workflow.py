@@ -5,12 +5,13 @@
 
 """Core workflow functions"""
 
-import os, shutil
-
+import os
+import shutil
 from collections.abc import Iterable
 from getpass import getuser
-from pycondor import Job as pyJob
+
 from pycondor import Dagman as pyDagman
+from pycondor import Job as pyJob
 
 ACCOUNTING_GROUP_USER = os.getenv(
     '_CONDOR_ACCOUNTING_USER',
