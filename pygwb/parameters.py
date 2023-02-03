@@ -372,9 +372,7 @@ class Parameters:
             if bool(re.search("\{*\}", str(current_param_dict[attr]))) and type(current_param_dict[attr]) is not dict:
                 attr_str = str(current_param_dict[attr]).replace("{","").replace("}","")
                 attr_split = attr_str.split()
-                print(attr, attr_split)
                 attr_dict = {key: value for key, value in (pair.split(':') for pair in attr_split)} 
-                print(attr_dict)
                 for ifo in ifo_list:
                     param_dict[ifo].update_from_dictionary({attr: attr_dict[ifo]})
             else:
