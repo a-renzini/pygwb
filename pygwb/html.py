@@ -1,5 +1,7 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# Copyright (C) California Institute of Technology 2023
+#
+# This file is part of pygwb.
 
 import matplotlib.pyplot as plt
 
@@ -14,15 +16,8 @@ import gwsumm
 import gwsumm.tabs
 import gwsumm.plot
 
-#from gwdetchar.io import html as htmlio
-#from MarkupPy import markup
-
 """Create pygwb html
-   WORK IN PROGRESS
 """
-
-__version__ = '0.0.1'
-__process_name__ = 'dqr-largest-value'
 
 def pygwb_html(outdir='./', config=None):
 
@@ -120,8 +115,3 @@ def main(args=None):
 if __name__ == "__main__":
     main(args=None)
 
-# and finally add 
-#    'dqr-largest-value=dqrtasks.largest.largest:main'
-# to the list of 'console scripts' in setup.py
-
-# and add a page to the documentation!

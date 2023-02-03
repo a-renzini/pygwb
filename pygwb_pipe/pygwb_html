@@ -1,4 +1,8 @@
 #!/bin/env python
+# -*- coding: utf-8 -*-
+# Copyright (C) California Institute of Technology 2023
+#
+# This file is part of pygwb.
 
 import logging, argparse
 from pygwb.html import pygwb_html
