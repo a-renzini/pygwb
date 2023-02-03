@@ -178,6 +178,20 @@ def make_workflow(args=None):
 
     pygwb_html(dagman.base_dir, config=config_path)
 
+    # write out segment list and job file
+    seg_dir = os.path.join(dagman.result_dir, 'segment_lists/')
+    makedir(seg_dir)
+    start_list = np.array(seglist_pruned).T[0]
+    end_list = np.array(seglist_pruned).T[1]
+    dur_list = end_list - start_list
+    ones_list = np.ones(len(dur_list), dtype=int)
+    df = pd.DataFrame(data={'one': ones_list,
+                            'start': start_list,
+                            'end': end_list,
+                            'dur': dur_list})
+    jobfile_loc = os.path.join(seg_dir, "jobfile.dat") 
+    df.to_csv(jobfile_loc, sep = " ", header=False, index=False)
+
     # make html page
     html_job = create_pygwb_html_job(dagman, config, 
         t0=t0, tf=tf, parents=all_jobs, 
