@@ -30,7 +30,7 @@ def config_override(config, overrides):
             ov_sec, ov_key, ov_val = \
                 split_ov[0], split_ov[1], ':'.join(split_ov[2:])
         except:
-            raise ValueError("Overrides must be in the form 'section:key:value', you used '%s'"%ov)
+            raise ValueError(f"Overrides must be in the form 'section:key:value', you used '{ov}'")
         if ov_sec not in config.sections():
             config[ov_sec] = {}    
         config[ov_sec][ov_key] = ov_val
@@ -59,8 +59,8 @@ class Job(pyJob):
 
         if accounting_group is not None:
             condorcmds = [
-                "accounting_group = {}".format(accounting_group),
-                "accounting_group_user = {}".format(ACCOUNTING_GROUP_USER),
+                f"accounting_group = {accounting_group}",
+                f"accounting_group_user = {ACCOUNTING_GROUP_USER}",
                 ]
             condorcmds.extend(extra_lines)
         else:
