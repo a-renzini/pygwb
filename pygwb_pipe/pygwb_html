@@ -4,8 +4,11 @@
 #
 # This file is part of pygwb.
 
-import logging, argparse
+import logging, argparse, os
 from pygwb.html import pygwb_html
+
+__process_name__ = 'pygwb_html'
+__version__ = '0.0.1'
 
 def main(args=None):
     logging.basicConfig()
