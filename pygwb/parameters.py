@@ -1,9 +1,9 @@
 import argparse
 import enum
 import json
+import re
 import sys
 import warnings
-import re
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import List
