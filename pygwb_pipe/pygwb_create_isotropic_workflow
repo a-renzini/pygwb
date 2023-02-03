@@ -32,8 +32,14 @@ def make_workflow(args=None):
     config = configparser.ConfigParser()
     config.read(args.configfile)
 
-    min_dur = 1200
-    max_dur = 21600
+    if config.has_option('general', 'min_job_dur'):
+        min_dur = int(config['general']['min_job_dur'])
+    else:
+        min_dur = 0
+    if config.has_option('general', 'max_job_dur'):
+        max_dur = int(config['general']['max_job_dur'])
+    else:
+        max_dur = 1000000
 
     # =====
     # set up segments
