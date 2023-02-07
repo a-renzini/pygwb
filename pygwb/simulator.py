@@ -9,6 +9,7 @@ import numpy as np
 from bilby.core.utils import create_frequency_series
 from gwpy.timeseries import TimeSeries
 from loguru import logger
+from tqdm import tqdm
 
 from pygwb.baseline import Baseline, get_baselines
 from pygwb.util import interpolate_frequency_series
@@ -598,7 +599,8 @@ class Simulator(object):
             det = bilby.gw.detector.get_empty_interferometer(self.interferometers[ii].name) 
             det.strain_data.set_from_gwpy_timeseries(empty_ts) 
             det.minimum_frequency=10.
-            for n in range(len(self.injection_dict['geocent_time'])):
+
+            for n in tqdm(range(len(self.injection_dict['geocent_time']))):
                 inj_params = {}
                 for k in self.injection_dict.keys():
                     inj_params[k] = self.injection_dict[k][n]
