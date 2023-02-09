@@ -4,7 +4,7 @@ from gwpy.spectrogram import Spectrogram
 from gwpy.timeseries import TimeSeries
 from scipy.signal import get_window, spectrogram
 
-from pygwb.util import get_window_tuple
+from pygwb.util import get_window_tuple, parse_window_dict
 
 
 def fftgram(
@@ -43,7 +43,7 @@ def fftgram(
     sample_rate = int(1 / time_series_data.dt.value)
 
     # get the window function
-    window_tuple = get_window_tuple(window_fftgram_dict)
+    window_tuple = get_window_tuple(parse_window_dict(window_fftgram_dict))
     window_fftgram = get_window(window_tuple, fftlength * sample_rate, 
                                 fftbins=False)
 
