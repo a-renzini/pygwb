@@ -109,7 +109,7 @@ class Parameters:
     channel: str = "GWOSC-16KHZ_R1_STRAIN"
     new_sample_rate: int = 4096
     input_sample_rate: int = 16384
-    cutoff_frequency: int = 11
+    cutoff_frequency: float = 11
     segment_duration: int = 192
     number_cropped_seconds: int = 2
     window_downsampling: str = "hamming"
@@ -117,9 +117,9 @@ class Parameters:
     frequency_resolution: float = 0.03125
     polarization: str = "tensor"
     alpha: float = 0
-    fref: int = 25
-    flow: int = 20
-    fhigh: int = 1726
+    fref: float = 25
+    flow: float = 20
+    fhigh: float = 1726
     coarse_grain: bool = False
     interferometer_list: List = field(default_factory=lambda: ["H1", "L1"])
     local_data_path_dict: dict = field(default_factory=lambda: {})
