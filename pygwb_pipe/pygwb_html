@@ -1,0 +1,35 @@
+#!/bin/env python
+# -*- coding: utf-8 -*-
+# Copyright (C) California Institute of Technology 2023
+#
+# This file is part of pygwb.
+
+import logging, argparse, os
+from pygwb.html import pygwb_html
+
+__process_name__ = 'pygwb_html'
+__version__ = '0.0.1'
+
+def main(args=None):
+    logging.basicConfig()
+    logger = logging.getLogger(__process_name__)
+    logger.setLevel(logging.DEBUG)
+
+    parser = argparse.ArgumentParser(description=__doc__,
+                                     prog=__process_name__)
+    parser.add_argument('-v', '--verbose', action='store_true',
+                        help='increase verbose output')
+    parser.add_argument('-V', '--version', action='version',
+                        version=__version__)
+    parser.add_argument('-o', '--output-dir', type=os.path.abspath,
+                        help='Directory for all output')
+    parser.add_argument('-p', '--plot-dir', type=os.path.abspath,
+                        help='Directory of plots to show')
+    args = parser.parse_args(args=args)
+
+    # call the above function
+    pygwb_html(outdir=args.output_dir)
+
+# allow be be run on the command line
+if __name__ == "__main__":
+    main(args=None)
