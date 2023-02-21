@@ -63,6 +63,9 @@ def main():
     pe_parser.add_argument(
         "--df", help="If no frequencies are saved in the loaded npz file, you can give f0, fhigh and df to the script. This is df", type=float, action="store", default=None
     )
+    pe_parser.add_argument(
+        "--calibration_epsilon", help="Calibration uncertainty. 0 by default.", type=float, action="store", default=None, required=False,
+    )
     
     script_args = pe_parser.parse_known_args()[0]
     
@@ -90,7 +93,7 @@ def main():
         class_model = dictionary_models[script_args.model]
         
     if script_args.model_prior_file == 'None': 
-        dict_loaded = {"omega_ref":bilby.core.prior.LogUniform(1e-11,1e-8,"$\Omega_{ref}$"),"alpha":bilby.core.prior.Gaussian(mu = 2./3, sigma = 1.5, latex_label = '$\\alpha$')}
+        dict_loaded = {"omega_ref":bilby.core.prior.LogUniform(1e-11,1e-8,"$\\Omega_{ref}$"),"alpha":bilby.core.prior.Uniform(-4, 4,'$\\alpha$')}
     else:
         dict_loaded = json.load(open(script_args.model_prior_file), object_hook=bilby.core.utils.decode_bilby_json)
         
@@ -132,6 +135,9 @@ def main():
         ifo_2 = Interferometer.get_empty_interferometer(ifos[1])
     
         base_12 = Baseline.from_interferometers([ifo_1, ifo_2])
+
+        if script_args.calibration_epsilon is not None:
+            base_12.calibration_epsilon = script_args.calibration_epsilon
     
         if not base_12._orf_polarization_set:
             base_12.orf_polarization = "tensor" # script._args.polarization
