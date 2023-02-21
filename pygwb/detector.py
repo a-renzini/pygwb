@@ -144,16 +144,12 @@ class Interferometer(bilby.gw.detector.Interferometer):
         ifo = cls.get_empty_interferometer(name)
         channel = str(ifo.name + ":" + parameters.channel)
 
-        if parameters.local_data_path_dict:
-            local_data_path = parameters.local_data_path_dict[name]
-        else:
-            local_data_path = ""
         ifo.set_timeseries_from_channel_name(
             channel,
             t0=parameters.t0,
             tf=parameters.tf,
             data_type=parameters.data_type,
-            local_data_path=local_data_path,
+            local_data_path=parameters.local_data_path,
             new_sample_rate=parameters.new_sample_rate,
             cutoff_frequency=parameters.cutoff_frequency,
             segment_duration=parameters.segment_duration,
