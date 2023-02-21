@@ -181,8 +181,9 @@ class Network(object):
 
     def set_interferometer_data_from_simulator(
         self,
-        GWB_intensity,
         N_segments,
+        GWB_intensity=None,
+        CBC_dict=None,
         sampling_frequency=None,
         start_time=None,
         inject_into_data_flag=False,
@@ -194,10 +195,12 @@ class Network(object):
         Parameters
         ==========
 
-        GWB_intensity: gwpy.frequencyseries.FrequencySeries
-            A gwpy.frequencyseries.FrequencySeries containing the desired strain power spectrum
         N_segments: int
             Number of segments to simulate
+        GWB_intensity: gwpy.frequencyseries.FrequencySeries
+            A gwpy.frequencyseries.FrequencySeries containing the desired strain power spectrum
+        CBC_dict: dict
+            Dictionary containing the parameters of CBC injections.
         sampling_frequency: float
             Sampling frequency at which the data needs to be simulated. If not specified (None), will check for interferometer's
             sampling frequency.
@@ -229,9 +232,10 @@ class Network(object):
 
         data_simulator = Simulator(
             self.interferometers,
-            GWB_intensity,
             N_segments,
             duration=self.duration,
+            intensity_GW=GWB_intensity,
+            injection_dict=CBC_dict, 
             start_time=start_time,
             sampling_frequency=sampling_frequency,
             no_noise=no_noise,

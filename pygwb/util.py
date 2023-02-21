@@ -11,6 +11,21 @@ from scipy.signal import get_window
 from pygwb.constants import H0
 
 
+def parse_window_dict(window_dict):
+    '''
+    Pasrse the window dictionary properly for scipy compatibility.
+    '''
+    bools = ['sym', 'norm']
+    floats = ['center', 'tau', 'alpha', 'beta', 'nbar', 'sll', 'std', 'p', 'sig', 'at']
+    for key in window_dict.keys():
+        if key in floats:
+            window_dict[key] = float(window_dict[key])
+        elif key in bools:
+            window_dict[key] = bool(window_dict[key])
+        else:
+            pass
+    return window_dict
+
 def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}):
     """
     Calculate window factors. By default, for a hann window.
