@@ -95,23 +95,24 @@ def main():
     else:
         wipe_ifo = True
 
-    ifo_1 = Interferometer.from_parameters(params.interferometer_list[0], params)
-    ifo_2 = Interferometer.from_parameters(params.interferometer_list[1], params)
+    param_dict = params.parse_ifo_parameters()
+    ifo_list = params.interferometer_list
+    ifo_1 = Interferometer.from_parameters(ifo_list[0], param_dict[ifo_list[0]])
+    ifo_2 = Interferometer.from_parameters(ifo_list[1], param_dict[ifo_list[1]])
     logger.info(f"Loaded up interferometers with selected parameters.")
 
     if params.gate_data:
         logger.info(f"Applying gates.")
-        gate_params = { 
-                "gate_tzero":params.gate_tzero,
-                "gate_tpad":params.gate_tpad,
-                "gate_threshold":params.gate_threshold,
-                "cluster_window":params.cluster_window,
-                "gate_whiten":params.gate_whiten,
-                }
-        ifo_1.gate_data_apply(**gate_params)
-        logger.info(f"Gates for IFO 1:{ifo_1.gates}")
-        ifo_2.gate_data_apply(**gate_params)
-        logger.info(f"Gates for IFO 2:{ifo_2.gates}")
+        for ifo, ifo_obj in zip(ifo_list, [ifo_1, ifo_1]):
+            gate_params = { 
+                    "gate_tzero":param_dict[ifo].gate_tzero,
+                    "gate_tpad":param_dict[ifo].gate_tpad,
+                    "gate_threshold":param_dict[ifo].gate_threshold,
+                    "cluster_window":param_dict[ifo].cluster_window,
+                    "gate_whiten":param_dict[ifo].gate_whiten,
+                    }
+            ifo_obj.gate_data_apply(**gate_params)
+            logger.info(f"Gates for IFO {ifo}:{ifo_obj.gates}")
 
     base_12 = Baseline.from_parameters(ifo_1, ifo_2, params)
     logger.info(
