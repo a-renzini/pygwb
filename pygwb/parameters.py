@@ -1,6 +1,7 @@
 import argparse
 import enum
 import json
+import re
 import sys
 import warnings
 from dataclasses import asdict, dataclass, field
@@ -60,8 +61,8 @@ class Parameters:
         Whether to apply coarse graining to the spectra. Default is 0.
     interferometer_list: list
         List of interferometers to run the analysis with. Default is [\"H1\", \"L1\"]
-    local_data_path_dict: dict
-        Dictionary of local data, if the local data option is chosen. Default is empty.
+    local_data_path: str
+        Path(s) to local data, if the local data option is chosen. Default is empty.
     notch_list_path: str
         Path to the notch list file. Default is empty.
     N_average_segments_welch_psd: int
@@ -108,7 +109,7 @@ class Parameters:
     channel: str = "GWOSC-16KHZ_R1_STRAIN"
     new_sample_rate: int = 4096
     input_sample_rate: int = 16384
-    cutoff_frequency: int = 11
+    cutoff_frequency: float = 11
     segment_duration: int = 192
     number_cropped_seconds: int = 2
     window_downsampling: str = "hamming"
@@ -116,12 +117,12 @@ class Parameters:
     frequency_resolution: float = 0.03125
     polarization: str = "tensor"
     alpha: float = 0
-    fref: int = 25
-    flow: int = 20
-    fhigh: int = 1726
+    fref: float = 25
+    flow: float = 20
+    fhigh: float = 1726
     coarse_grain: bool = False
     interferometer_list: List = field(default_factory=lambda: ["H1", "L1"])
-    local_data_path_dict: dict = field(default_factory=lambda: {})
+    local_data_path: str = ""
     notch_list_path: str = ""
     N_average_segments_welch_psd: int = 2
     window_fft_dict: dict = field(default_factory=lambda: {"window_fftgram": "hann"})
@@ -141,11 +142,6 @@ class Parameters:
     tag: str = "C00"
     return_naive_and_averaged_sigmas: bool = False
 
-    def __post_init__(self):
-        if self.coarse_grain:
-            self.fft_length = self.segment_duration
-        else:
-            self.fft_length = int(1 / self.frequency_resolution)
 
     def update_from_dictionary(self, kwargs):
         """Update parameters from a dictionary
@@ -159,7 +155,8 @@ class Parameters:
         for name, dtype in ann.items():
             if name in kwargs:
                 try:
-                    kwargs[name] = dtype(kwargs[name]) if kwargs[name] != 'False' else False
+                    if not bool(re.search("\{*\}", kwargs[name])): 
+                        kwargs[name] = dtype(kwargs[name]) if kwargs[name] != 'False' else False
                 except TypeError:
                     pass
                 setattr(self, name, kwargs[name])
@@ -187,6 +184,7 @@ class Parameters:
         mega_list.extend(config.items("gating"))
         mega_list.extend(config.items("data_quality"))
         mega_list.extend(config.items("output"))
+        mega_list.extend(config.items("local_data"))
         dictionary = dict(mega_list)
         if dictionary["alphas_delta_sigma_cut"]:
             dictionary["alphas_delta_sigma_cut"] = json5.loads(
@@ -197,18 +195,6 @@ class Parameters:
                 dictionary["interferometer_list"]
             )
         dictionary["window_fft_dict"] = dict(config.items("window_fft_specs"))
-        dictionary["local_data_path_dict"] = dict(config.items("local_data"))
-        possible_ifos = ["H1", "L1", "V", "K"]
-        for ifo in possible_ifos:
-            if ifo in dictionary["local_data_path_dict"]:
-                if dictionary["local_data_path_dict"][ifo].startswith("["):
-                    dictionary["local_data_path_dict"][ifo] = json.loads(
-                        dictionary["local_data_path_dict"][ifo]
-                    )
-                else:
-                    dictionary["local_data_path_dict"][ifo] = dictionary[
-                        "local_data_path_dict"
-                    ][ifo]
         for item in dictionary.copy():
             if not dictionary[item]:
                 dictionary.pop(item)
@@ -227,12 +213,6 @@ class Parameters:
         -----
         Not all possible options are available through argument updating. The two exceptions are the dictionary
         attributes which can not be parsed easily by argparse. These are
-        * local_data_path_dict: this is composed by paths passed individually using the following notation
-            --H1 : path to data relative to H1
-            --L1 : path to data relative to L1
-            --V1 : path to data relative to V1
-        These are the options currently supported for this dictionary. To add paths to different interferometers, pass
-        these as part of an .ini file, in the relevant section [local_data].
         * window_fft_dict: this is composed by the single argument
             -- window_fftgram
         This is the only option currently supported. To use windows that require extra parameters, pass these as part of an
@@ -248,26 +228,12 @@ class Parameters:
             else:
                 parser.add_argument(f"--{name}", type=dtype, required=False)
 
-        parser.add_argument("--h1", type=str, required=False)
-        parser.add_argument("--l1", type=str, required=False)
-        parser.add_argument("--v", type=str, required=False)
         parser.add_argument("--window_fftgram", type=str, required=False)
         parsed, _ = parser.parse_known_args(args)
         dictionary = vars(parsed)
         for item in dictionary.copy():
             if dictionary[item] is None:
                 dictionary.pop(item)
-        local_data_path_dict = {}
-        possible_ifos = ["H1", "L1", "V", "K"]
-        for ifo in possible_ifos:
-            if ifo.lower() in dictionary:
-                if dictionary[ifo.lower()].startswith("["):
-                    local_data_path_dict[ifo] = json.loads(dictionary[ifo.lower()])
-                else:
-                    local_data_path_dict[ifo] = dictionary[ifo.lower()]
-                dictionary.pop(ifo.lower())
-        if local_data_path_dict:
-            dictionary["local_data_path_dict"] = local_data_path_dict
         if "window_fftgram" in dictionary:
             window_fft_dict = {}
             window_fft_dict["window_fftgram"] = dictionary["window_fftgram"]
@@ -351,14 +317,35 @@ class Parameters:
         ]
         param["data_quality"] = data_quality_dict
 
+        local_data_dict = {}
+        local_data_dict["local_data_path"] = param_dict["local_data_path"]
+        param["local_data"] = local_data_dict
+
         output_dict = {}
         output_dict["save_data_type"] = param_dict["save_data_type"]
         param["output"] = output_dict
 
-        param["local_data"] = self.local_data_path_dict
-
         with open(output_path, "w") as configfile:
             param.write(configfile)
+
+    def parse_ifo_parameters(self):
+        ifo_list = self.interferometer_list
+        param_dict = {}
+        for ifo in ifo_list:
+            param_dict[ifo] = Parameters()
+        current_param_dict = self.__dict__
+        for attr in current_param_dict.keys():
+            if bool(re.search("\{*\}", str(current_param_dict[attr]))) and type(current_param_dict[attr]) is not dict:
+                attr_str = str(current_param_dict[attr]).replace("{","").replace("}","")
+                attr_split = attr_str.split()
+                attr_dict = {key: value for key, value in (pair.split(':') for pair in attr_split)} 
+                for ifo in ifo_list:
+                    param_dict[ifo].update_from_dictionary({attr: attr_dict[ifo]})
+            else:
+                for ifo in ifo_list:
+                    param_dict[ifo].update_from_dictionary({attr: current_param_dict[attr]})
+
+        return param_dict
 
 
 class ParametersHelp(enum.Enum):
@@ -389,7 +376,7 @@ class ParametersHelp(enum.Enum):
     interferometer_list = (
         'List of interferometers to run the analysis with. Default is ["H1", "L1"]'
     )
-    local_data_path_dict = "Dictionary of local data, if the local data option is chosen. Default is empty."
+    local_data_path = "Path(s) to local data, if the local data option is chosen. Default is empty."
     notch_list_path = "Path to the notch list file. Default is empty."
     N_average_segments_welch_psd = "Number of segments to average over when calculating the psd with Welch method. Default is 2."
     window_fft_dict = 'Dictionary containing name and parameters relative to which window to use when producing fftgrams for psds and csds. Default is "hann".'
