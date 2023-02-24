@@ -519,10 +519,8 @@ class TVSPowerLawModel(GWBModel):
     def model_function(self, bline):
         model = np.zeros(bline.frequencies.shape)
         for pol in self.polarizations:
-            orf_pol = eval(f"bline.{pol}_overlap_reduction_function")
-            orf_parent = eval(
-                f"bline.{self.polarizations[0]}_overlap_reduction_function"
-            )
+            orf_pol = getattr(bline, f"{pol}_overlap_reduction_function")
+            orf_parent = getattr(bline, f"{self.polarizations[0]}_overlap_reduction_function")
             model += (
                 orf_pol
                 / orf_parent
