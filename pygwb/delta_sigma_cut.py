@@ -1,7 +1,6 @@
 import numpy as np
 from loguru import logger
 
-from pygwb.notch import StochNotch, StochNotchList
 from pygwb.postprocessing import calculate_point_estimate_sigma_spectra
 from pygwb.util import calc_bias
 

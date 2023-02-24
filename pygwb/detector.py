@@ -2,8 +2,6 @@ import logging
 import os
 
 import bilby.gw.detector
-import numpy as np
-from bilby.gw.detector.psd import PowerSpectralDensity
 from gwpy.segments import SegmentList
 
 from .preprocessing import (

@@ -1,4 +1,3 @@
-import copy
 import json
 import pickle
 import warnings
@@ -18,7 +17,7 @@ from .postprocessing import (
     calculate_point_estimate_sigma_spectra,
     postprocess_Y_sigma,
 )
-from .spectral import coarse_grain_spectrogram, cross_spectral_density
+from .spectral import cross_spectral_density
 
 
 class Baseline(object):

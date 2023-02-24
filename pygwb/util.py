@@ -1,9 +1,6 @@
 import copy
-import os
-import shutil
 
 import gwpy
-import h5py
 import numpy as np
 from scipy.interpolate import interp1d
 from scipy.signal import get_window
