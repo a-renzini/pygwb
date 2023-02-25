@@ -126,8 +126,8 @@ When running on the file ``pygwb_pipe/parameters.ini`` in the repo, one should g
 .. code-block:: c
 
    2023-02-21 14:43:40.817 | SUCCESS  | __main__:main:160 - Ran stochastic search over times 1247644138-1247645038                                           
-   2023-02-21 14:43:40.817 | SUCCESS  | __main__:main:163 -        POINT ESTIMATE: -6.189551e-06
-   2023-02-21 14:43:40.817 | SUCCESS  | __main__:main:164 -        SIGMA: 2.561543e-06
+   2023-02-24 16:35:25.625 | SUCCESS  | __main__:main:163 - POINT ESTIMATE: -6.496991e-06
+   2023-02-24 16:35:25.625 | SUCCESS  | __main__:main:164 - SIGMA: 2.688777e-06
 
 Note that this automatically includes the default notching. If an error related to the notch file appears, it may be necessary to add the correct path explicitly in the ``.ini`` file used.
 

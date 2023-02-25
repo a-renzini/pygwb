@@ -2,7 +2,7 @@
 Parameter estimation using ``pygwb_pe``
 ============
 
-**1. ``pygwb_pe`` and its parameters**
+**1. Script parameters**
 =========
 
 You can see the script's run options by running
@@ -49,7 +49,7 @@ The only required parameter is ``path_to_file``, which refers to an output file 
 This produces the usual output files of a ``bilby`` parameter estimation run and is saved in the ``output_dir``, which by default is ``./PE_Output``. 
 Note that upon successful completion of the parameter estimation the ``output_dir`` should contain a ``result.json`` file and a ``bilby`` corner plot (in ``png`` format) summarising the results of the PE run.
 
-**2. Customizing a ``pygwb_pe`` run**
+**2. Customizing a run**
 =========
 
 Although the ``pygwb_pe`` can be run with the default setup as outlined above, 
