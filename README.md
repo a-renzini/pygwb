@@ -12,16 +12,18 @@ https://computing.docs.ligo.org/conda/
 
 * More precisely, current dependencies are
   * `numpy`
-  * `scipy==1.8.0`
+  * `scipy>=1.8.0`
   * `matplotlib`
   * `corner`
-  * `gwpy==3.0.1`
-  * `bilby`
-  * `astropy>=4.3.0`
-  * `lalsuite==7.3`
+  * `gwpy>=3.0.1`
+  * `bilby>=1.4`
+  * `astropy>=5.2`
+  * `lalsuite>=7.3`
+  * `gwdetchar`
+  * `gwsumm`
+  * `pycondor`
   * `loguru`
   * `json5`
-  * `jinja2==3.0.3`
   * `seaborn`
 
   ## Modules
