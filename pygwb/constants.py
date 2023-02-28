@@ -1,5 +1,5 @@
 from astropy.constants import c
-from astropy.cosmology import WMAP9 as cosmo
+from astropy.cosmology import Planck18 as cosmo
 
 H0 = cosmo.H(0)
 h0 = H0.value / 100.0
