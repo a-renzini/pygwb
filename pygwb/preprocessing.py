@@ -5,7 +5,7 @@ import warnings
 import lal
 import numpy as np
 import scipy
-from gwpy import signal, timeseries
+from gwpy import timeseries
 
 
 def set_start_time(

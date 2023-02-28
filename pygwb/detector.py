@@ -2,8 +2,7 @@ import logging
 import os
 
 import bilby.gw.detector
-import numpy as np
-from bilby.gw.detector.psd import PowerSpectralDensity
+from bilby.gw.detector import PowerSpectralDensity
 from gwpy.segments import SegmentList
 
 from .preprocessing import (
@@ -105,7 +104,11 @@ class Interferometer(bilby.gw.detector.Interferometer):
                         continue
                     split_line = line.split("=")
                     key = split_line[0].strip()
-                    value = eval("=".join(split_line[1:]))
+                    value = eval(
+                        "=".join(split_line[1:]),
+                        dict(__builtins__=dict()),
+                        dict(PowerSpectralDensity=PowerSpectralDensity),
+                    )
                     parameters[key] = value
             if "shape" not in parameters.keys():
                 logging.debug("Assuming L shape for name")
