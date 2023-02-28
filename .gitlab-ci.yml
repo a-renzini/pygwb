@@ -40,6 +40,9 @@ stages:
     - python -c "import pygwb.spectral"
     - python -c "import pygwb.statistical_checks"
     - python -c "import pygwb.util"
+    - for script in $(pip show -f pygwb | grep "bin\/" | xargs -I {} basename {}); do
+          ${script} --help;
+      done
 
 basic-3.8:
   <<: *basic-python
