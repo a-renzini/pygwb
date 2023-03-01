@@ -76,16 +76,13 @@ aas-journal: Astrophysical Journal <- The name of the AAS journal.
 
 # Introduction
 
-A gravitational-wave background (GWB) is expected from the superposition of all gravitational waves (GWs) too faint to be detected individually, or by the incoherent overlap of a large number of signals in the same band. Such a background is characterized by its spectral emission, usually parameterized by the GW fractional energy density spectrum, which forms the target for stochastic GW searches:
+A gravitational-wave background (GWB) is expected from the superposition of all gravitational waves (GWs) too faint to be detected individually, or by the incoherent overlap of a large number of signals in the same band. Such a background is characterized by its spectral emission, usually parameterized by the GW fractional energy density spectrum, which forms the target for stochastic GW searches
+
 $$
 \Omega_{\rm GW}(f) = \frac{1}{\rho_c}\frac{d\rho_{\rm GW}(f)}{d\ln f},
 $$
+
 where $d\rho_{\rm GW}$ is the energy density of gravitational waves in the frequency band $f$ to $f + df$, and $\rho_c$ is the critical energy density in the Universe.
-Using an unbiased minimum variance cross-correlation estimator 
-$$
-\hat{\Omega}_{{\rm GW}, f} = \frac{\Re[C_{IJ, f}]}{\gamma_{IJ}(f) S_0(f)},
-$$
-the GWB can be estimated correctly. Here, $C_{IJ, f}$ is the cross-correlation spectral density between two detectors $I$ and $J$, $\gamma_{IJ}$ is the overlap reduction function and $S_0(f)$ = $\frac{3H_0^2}{10\pi^2}\frac{1}{f^3}$. 
 
 # Summary
 
@@ -101,13 +98,19 @@ The source code can be found at https://github.com/a-renzini/pygwb, or it can be
 
 # Method
 
+Using an unbiased minimum variance cross-correlation estimator 
+
 $$
-\hat{\Omega}_{{GW}, f} = \frac{\mathbb{R}\[C_{IJ, f}\]}{\gamma_{IJ}(f) S_0(f)} 
+\hat{\Omega}_{{GW}, f} = \frac{\mathbb{R}\[C_{IJ, f}\]}{\gamma_{IJ}(f) S_0(f)},
 $$
+
+the GWB can be estimated correctly. Here, $C_{IJ, f}$ is the cross-correlation spectral density between two detectors $I$ and $J$, $\gamma_{IJ}$ is the overlap reduction function and $S_0(f)$ = $\frac{3H_0^2}{10\pi^2}\frac{1}{f^3}$. The variance of the estimator is given by
 
 $$
 \sigma^2_{{\rm GW,} f} = \frac{1}{2 T \Delta f} \frac{P_{I, f} P_{J, f}}{\gamma^2_{IJ}(f) S^2_0(f)},
 $$
+
+where $P_{I,f}$ is the power spectral density from the detector $I$ and $T$ is the duration of data used to produce the above spectral densities.
 
 Pygwb schema figure \autoref{fig:schema}.
 ![pygwb schema.\label{fig:schema}](../docs/pygwb_modules.png){width=80%}
