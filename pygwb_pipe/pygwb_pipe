@@ -39,6 +39,9 @@ def main():
         "--output_path", help="Location to save output to.", action="store", type=str, required=False
     )
     pipe_parser.add_argument(
+        "--calc_coh", help="Calculate coherence spectrum from data.", action="store", type=str, required=False
+    )
+    pipe_parser.add_argument(
         "--calc_pt_est", help="Calculate omega point estimate and sigma from data.", action="store", type=str, required=False
     )
     pipe_parser.add_argument(
@@ -74,6 +77,11 @@ def main():
         outfile_path = Path(f"{output_path}/parameters_final.ini")
     params.save_paramfile(str(outfile_path))
     logger.info(f"Saved final param file at {outfile_path}.")
+
+    if script_args.calc_coh:
+        pipe_calculate_coherence = bool(distutils.util.strtobool(script_args.calc_coh))
+    else:
+        pipe_calculate_coherence = True
 
     if script_args.calc_pt_est:
         pipe_calculate_point_estimate = bool(distutils.util.strtobool(script_args.calc_pt_est))
@@ -145,6 +153,11 @@ def main():
     logger.info(
         f"times flagged by the delta sigma cut as badGPStimes:{base_12.badGPStimes}"
     )
+
+    if pipe_calculate_coherence:
+        logger.info(f"calculating the coherence...")
+
+        base_12.set_coherence_spectrum(apply_dsc=pipe_apply_dsc)
 
     if pipe_calculate_point_estimate:
         logger.info(f"calculating the point estimate and sigma...")
