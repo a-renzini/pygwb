@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def calculate_coherence(psd_1_spectrogram, psd_2_spectrogram, csd_spectrogram):
     '''
     Calculate a coherence spectrum given two power spectrograms and a cross-spectrogram.

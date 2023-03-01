@@ -33,6 +33,7 @@ API:
 
    preprocessing
    spectral
+   coherence
    postprocessing
    omega_spectra
    pe
