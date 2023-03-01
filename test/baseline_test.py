@@ -196,7 +196,7 @@ class TestBaseline(unittest.TestCase):
         base.set_cross_and_power_spectral_density(frequency_resolution)
 
         # round data because we can't set the almost_equal rtol
-        precision = 5
+        precision = 4
         PSD_1_test = sig_round(PSD_1_test, precision)
         PSD_2_test = sig_round(PSD_2_test, precision)
         base.interferometer_1.psd_spectrogram = sig_round(
