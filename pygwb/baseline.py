@@ -393,6 +393,20 @@ class Baseline(object):
         self._coherence_spectrum = coh
         self._coherence_spectrum_set = True
 
+    @property
+    def coherence_dict(self):
+        """Coherence dictionary based on data in this baseline."""
+        if self._coherence_spectrum_set:
+            return self._coherence_dict
+        else:
+            raise AttributeError(
+                "Coherence spectrum not yet set. To set it, use `set_coherence_spectrum` method."
+            )
+
+    @coherence_dict.setter
+    def coherence_dict(self, cohdict):
+        self._coherence_dict = cohdict
+
     def _check_durations_match_baseline_ifos(self, duration):
         if self.interferometer_1.duration and self.interferometer_2.duration:
             self._check_ifo_durations_match()
@@ -1197,14 +1211,16 @@ class Baseline(object):
 
         self.crop_frequencies_average_psd_csd(flow=flow, fhigh=fhigh)
 
+        n_segs = len(self.interferometer_1.average_psd[~bad_times_indexes])
+
         psd_1_average = np.mean(self.interferometer_1.average_psd[~bad_times_indexes], axis=0)
         psd_2_average = np.mean(self.interferometer_2.average_psd[~bad_times_indexes], axis=0)
         csd_average = np.mean(self.average_csd[~bad_times_indexes], axis=0)
 
         coherence = calculate_coherence(
-            psd_1_spectrogram=psd_1_average,
-            psd_2_spectrogram=psd_2_average,
-            csd_spectrogram=csd_average,
+            psd_1_average,
+            psd_2_average,
+            csd_average,
         )
         
         epoch = self.average_csd.times[0]
@@ -1215,6 +1231,16 @@ class Baseline(object):
             name=self.name + " coherence spectrum",
             epoch=epoch,
         )
+
+        self.coherence_dict = {}
+        self.coherence_dict['psd_1_average'] = psd_1_average
+        self.coherence_dict['psd_2_average'] = psd_2_average
+        self.coherence_dict['csd_average']= csd_average
+        self.coherence_dict['n_segs']= n_segs
+        self.coherence_dict['coherence']= coherence
+        self.coherence_dict['frequencies']= self.frequencies
+        self.coherence_dict['epoch']= epoch
+
 
 
     def _get_bad_times_indexes(self, times, badtimes=None, apply_dsc=False):
@@ -1352,8 +1378,17 @@ class Baseline(object):
 
         try:
             coherence = self.coherence_spectrum
+            psd_1_coh = self.coherence_dict['psd_1_average']
+            psd_2_coh = self.coherence_dict['psd_2_average']
+            csd_coh = self.coherence_dict['csd_average']
+            n_segs_ch = self.coherence_dict['n_segs']
+
         except ValueError:
             coherence = None
+            psd_1_coh = None
+            psd_2_coh = None
+            csd_coh = None
+            n_segs_ch = None
 
         save_csd(
             f"{filename}{ext}",
@@ -1365,7 +1400,11 @@ class Baseline(object):
             self.interferometer_2.psd_spectrogram,
             self.interferometer_1.average_psd,
             self.interferometer_2.average_psd,
-            coherence
+            coherence,
+            psd_1_coh,
+            psd_2_coh,
+            csd_coh,
+            n_segs_ch,
         )
 
     def _npz_save(
@@ -1599,6 +1638,10 @@ class Baseline(object):
         avg_psd_1,
         avg_psd_2,
         coherence,
+        psd_1_coh,
+        psd_2_coh,
+        csd_coh,
+        n_segs_ch,
     ):
         np.savez(
             filename,
@@ -1615,6 +1658,10 @@ class Baseline(object):
             psd_times=psd_1.times.value,
             avg_psd_times=avg_psd_1.times.value,
             coherence=coherence,
+            psd_1_coh=psd_1_coh,
+            psd_2_coh=psd_2_coh,
+            csd_coh=csd_coh,
+            n_segs_ch=n_segs_ch,
         )
 
     def _pickle_save_csd(
@@ -1628,7 +1675,11 @@ class Baseline(object):
         psd_2,
         avg_psd_1,
         avg_psd_2,
-        coherence
+        coherence,
+        psd_1_coh,
+        psd_2_coh,
+        csd_coh,
+        n_segs_ch,
     ):
 
         save_dictionary = {
@@ -1641,6 +1692,10 @@ class Baseline(object):
             "avg_psd_1": avg_psd_1,
             "avg_psd_2": avg_psd_2,
             "coherence": coherence,
+            "psd_1_coh": psd_1_coh,
+            "psd_2_coh": psd_2_coh,
+            "csd_coh": csd_coh,
+            "n_segs_ch": n_segs_ch,
         }
 
         # with open(filename, "wb") as f:
@@ -1661,6 +1716,10 @@ class Baseline(object):
         avg_psd_1,
         avg_psd_2,
         coherence,
+        psd_1_coh,
+        psd_2_coh,
+        csd_coh,
+        n_segs_ch,
     ):
         """
         It seems that saving spectrograms in json does not work, hence everything is converted into a list and saved that way in the json file.
@@ -1698,6 +1757,17 @@ class Baseline(object):
         list_avg_psd_2 = avg_psd_2.value.tolist()
         avg_psd_2_times = avg_psd_2.times.value.tolist()
         list_coherence = coherence.value.tolist()
+        list_psd_1_coh = psd_1_coh.value.tolist()
+        list_psd_2_coh = psd_2_coh.value.tolist()
+        list_csd_coh = csd_coh.value.tolist()
+        real_csd_coh = np.zeros(np.shape(list_csd_coh))
+        imag_csd_coh = np.zeros(np.shape(list_csd_coh))
+        for ix, elem in enumerate(list_csd_coh):
+                real_csd_coh[ix] = elem.real
+                imag_csd_coh[ix] = elem.imag
+        real_csd_coh_list = real_csd_coh.tolist()
+        imag_csd_coh_list = imag_csd_coh.tolist()
+        list_n_segs_ch = n_segs_ch
 
         save_dictionary = {
             "frequencies": list_freqs,
@@ -1716,7 +1786,12 @@ class Baseline(object):
             "avg_psd_1_times": avg_psd_times,
             "avg_psd_2": list_avg_psd_2,
             "avg_psd_2_times": avg_psd_2_times,
-            "coherence": list_coherence
+            "coherence": list_coherence,
+            "psd_1_coh": list_psd_1_coh,
+            "psd_2_coh": list_psd_2_coh,
+            "csd_coh_real": real_csd_coh_list,
+            "csd_coh_imag": real_csd_coh_list,
+            "n_segs_ch": list_n_segs_ch,
         }
 
         with open(filename, "w") as outfile:
@@ -1734,6 +1809,10 @@ class Baseline(object):
         avg_psd_1,
         avg_psd_2,
         coherence,
+        psd_1_coh,
+        psd_2_coh,
+        csd_coh,
+        n_segs_coh,
         compress=False,
     ):
         hf = h5py.File(filename, "w")
@@ -1796,6 +1875,10 @@ class Baseline(object):
         )
 
         hf.create_dataset("coherence", data=coherence, compression=compression)
+        hf.create_dataset("psd_1_coherence", data=psd_1_coh, compression=compression)
+        hf.create_dataset("psd_2_coherence", data=psd_2_coh, compression=compression)
+        hf.create_dataset("csd_oherence", data=csd_coh, compression=compression)
+        hf.create_dataset("n_segs_coherence", data=n_segs_coh, compression=compression)
 
         hf.close()
 
