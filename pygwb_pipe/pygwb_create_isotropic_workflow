@@ -4,24 +4,30 @@
 #
 # This file is part of pygwb.
 
-from pycondor import Dagman
-import pycondor
-import logging
-from pygwb.workflow import Job, Dagman, config_override, config_write, makedir
-from pygwb.workflow import (create_pygwb_pipe_job,
-                   create_pygwb_combine_job,
-                   create_pygwb_stats_job,
-                   create_pygwb_html_job)
-
-import numpy as np
-import os
-import glob
 import argparse
 import configparser
-import pandas as pd
-from pygwb.html import pygwb_html
+import glob
+import logging
+import os
 
+import numpy as np
+import pandas as pd
+import pycondor
 from gwpy.segments import DataQualityDict, DataQualityFlag
+from pycondor import Dagman
+
+from pygwb.html import pygwb_html
+from pygwb.workflow import (
+    Dagman,
+    Job,
+    config_override,
+    config_write,
+    create_pygwb_combine_job,
+    create_pygwb_html_job,
+    create_pygwb_pipe_job,
+    create_pygwb_stats_job,
+    makedir,
+)
 
 __process_name__ = 'pygwb_create_workflow'
 __version__ = '0.0.1'

@@ -4,7 +4,10 @@
 #
 # This file is part of pygwb.
 
-import logging, argparse, os
+import argparse
+import logging
+import os
+
 from pygwb.html import pygwb_html
 
 __process_name__ = 'pygwb_html'

@@ -11,9 +11,9 @@ from pathlib import Path
 import numpy as np
 from loguru import logger
 from tqdm import tqdm
-from fractions import Fraction
 
 from pygwb.baseline import Baseline
+from pygwb.coherence import calculate_coherence
 from pygwb.constants import h0 as pygwb_h0
 from pygwb.omega_spectra import OmegaSpectrum, reweight_spectral_object
 from pygwb.parameters import Parameters
@@ -23,10 +23,13 @@ from pygwb.postprocessing import (
 )
 
 
-def sorting_function(item):
+def sort_ptest_files(item):
     res = item.partition("point_estimate_sigma_")[-1]
     return float(res.partition("-")[0])
 
+def sort_coh_files(item):
+    res = item.partition("psds_csds_")[-1]
+    return float(res.partition("-")[0])
 
 """
 SCRIPT TO COMBINE PYGWB_PIPE RUN OUTPUTS.
@@ -62,14 +65,24 @@ def main():
         required=False,
     )
     combine_parser.add_argument(
+        "--combine_coherence", help="Calculate combined coherence over all available data.", action="store", type=bool, required=False
+    )
+    combine_parser.add_argument(
+        "--apply_dsc", help="Apply delta sigma cut to final data products.", action="store", type=bool, required=False
+    )
+    combine_parser.add_argument(
         "--out_path", help="Output path.", action="store", type=Path, required=False
     )
     combine_args = combine_parser.parse_args()
     if not combine_args.h0:
         combine_args.h0 = pygwb_h0
+    if not combine_args.combine_coherence:
+        combine_args.combine_coherence = False
+    if not combine_args.apply_dsc:
+        combine_args.apply_dsc = False
     if not combine_args.out_path:
         combine_args.out_path = Path("./")
-    combine_args.alpha = float(Fraction(combine_args.alpha)) #float(Fraction(combine_args.alpha).replace(" ", ""))
+    combine_args.alpha = float(Fraction(combine_args.alpha)) 
     params = Parameters()
     params.update_from_file(combine_args.param_file)
 
@@ -79,8 +92,21 @@ def main():
         if isfile(join(combine_args.data_path, f)) and f.startswith("point")
     ]
 
-    files_ptest.sort(key=sorting_function)
-    times = [int(sorting_function(files_ptest[idx])) for idx in range(len(files_ptest))]
+    files_ptest.sort(key=sort_ptest_files)
+    times = [int(sort_ptest_files(files_ptest[idx])) for idx in range(len(files_ptest))]
+
+    
+    if combine_args.combine_coherence:
+        files_coh = [
+            os.path.join(combine_args.data_path, f)
+            for f in listdir(combine_args.data_path)
+            if isfile(join(combine_args.data_path, f)) and f.startswith("psds")
+        ]
+        files_coh.sort(key=sort_coh_files)
+    else:
+        files_coh = None
+
+
     frequencies = np.load(files_ptest[0])["frequencies"]
     #frequency_mask = np.load(files_ptest[0])["frequency_mask"]
     frequency_mask = True
@@ -90,6 +116,7 @@ def main():
     sigma_j = []
     Y_spectra_j = []
     sigma_spectra_j = []
+    coherence_j=[]
     Y_seg = []
     sigma_seg = []
     # DQ objects
@@ -140,11 +167,16 @@ def main():
             sigma_s = np.array([sigma_s])
         Y_seg.append(Y_s)
         sigma_seg.append(sigma_s)
+    try:
+        coherence_j.append(data_file["coherence"])
+    except:
+        pass
 
     Y_seg = np.concatenate(Y_seg)
     sigma_seg = np.concatenate(sigma_seg)
     Y_j = np.array(Y_j)
     sigma_j = np.array(sigma_j)
+    coherence_j = np.array(coherence_j)
     np.savez(pt_est_sigma_unweighted_path, point_estimate=Y_j, sigma=sigma_j, point_estimate_per_seg=Y_seg, sigma_per_seg=sigma_seg)
     logger.info(
         f"saved file with unweighted point estimate and sigma values for all times in run:\n {pt_est_sigma_unweighted_path}."
@@ -154,7 +186,10 @@ def main():
     slide_sigmas_j = np.concatenate(slide_sigmas_j)
     delta_sigmas_j = np.concatenate(delta_sigmas_j)
     times_j = np.concatenate(times_j)
-    badGPStimes_j = np.concatenate(badGPStimes_j)
+    try:
+        badGPStimes_j = np.concatenate(badGPStimes_j)
+    except ValueError: # when there are no badGPStimes in the whole set 
+        badGPStimes_j = badGPStimes_j
     np.savez(
         delta_sigma_cut_output_path,
         naive_sigmas=naive_sigmas_j,
@@ -267,10 +302,42 @@ def main():
         frequencies=frequencies,
         point_estimates_seg_UW=Y_seg,
         sigmas_seg_UW=sigma_seg,
+        coherence_spectra = coherence_j
     )
     logger.info(
         f"Saved file with re-weighted point estimate and sigma values and spectra:\n {pt_est_sigma_spectra_path}."
     )
+
+    if combine_args.combine_coherence:
+        coherence_path = os.path.join(
+            combine_args.out_path,
+            f"coherence_{times[0]}-{times[-1]}.npz",
+        )
+        psd_1_average = 0
+        psd_2_average = 0
+        csd_average = 0
+        coh_frequencies = np.load(files_coh[0], allow_pickle=True)['avg_freqs']
+
+        for file_coh, file_pt in tqdm(zip(files_coh,files_ptest), total=len(files_coh)):
+            data_file = np.load(file_coh, allow_pickle=True)
+            psd_1 = data_file['avg_psd_1']
+            psd_2 = data_file['avg_psd_2']
+            csd = data_file['avg_csd']
+            times_i = data_file['avg_csd_times'] 
+
+            if combine_args.apply_dsc:
+                bad_times = np.load(files_ptest[0], allow_pickle=True)['badGPStimes']
+                mask = np.isin(times_i, bad_times, invert=True)
+            else:
+                mask = True
+            
+            psd_1_average += np.mean(psd_1[mask], axis=0)
+            psd_2_average += np.mean(psd_2[mask], axis=0)
+            csd_average += np.mean(csd[mask], axis=0)
+
+        combined_coherence = calculate_coherence(psd_1_average, psd_2_average, csd_average)
+        np.savez(coherence_path, coherence=combined_coherence, frequencies=coh_frequencies, times=times_j)
+
     exit()
 
 

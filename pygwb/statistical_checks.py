@@ -37,6 +37,7 @@ class StatisticalChecks(object):
         sliding_omega_all,
         sliding_sigmas_all,
         naive_sigmas_all,
+        coherence_spectra,
         point_estimate_spectrum,
         sigma_spectrum,
         freqs,
@@ -60,6 +61,9 @@ class StatisticalChecks(object):
             Array of sliding sigmas before the bad GPS times from the delta sigma cut are applied.
         naive_sigmas_all: array
             Array of naive sigmas before the bad GPS times from the delta sigma cut are applied.
+        coherence_spectra: array
+            Array containing a set of coherence spectra. Each entry in this array corresponds to the 2-detector coherence spectrum evaluated at the corresponding frequency in the freqs array.
+
         point_estimate_spectrum: array
             Array containing the point estimate spectrum. Each entry in this array corresponds to the point estimate spectrum evaluated at the corresponding frequency in the freqs array.
         sigma_spectrum: array
@@ -94,6 +98,8 @@ class StatisticalChecks(object):
         self.sliding_deviate_all = (
             self.sliding_omega_all - np.nanmean(self.sliding_omega_all)
         ) / self.sliding_sigmas_all
+
+        self.coherence_spectra = coherence_spectra
 
         self.sigma_spectrum = sigma_spectrum
         self.point_estimate_spectrum = point_estimate_spectrum
@@ -1067,6 +1073,8 @@ def run_statistical_checks_baseline_pickle(
         spectrum_file["point_estimates_seg_UW"],
         spectrum_file["sigmas_seg_UW"],
     )
+
+    coherence_spectra = spectrum_file["coherence_spectra"]
     point_estimate_spectrum = spectrum_file["point_estimate_spectrum"]
     sigma_spectrum = spectrum_file["sigma_spectrum"]
 
@@ -1075,6 +1083,7 @@ def run_statistical_checks_baseline_pickle(
         sliding_omega_all,
         sliding_sigmas_all,
         naive_sigmas,
+        coherence_spectra,
         point_estimate_spectrum,
         sigma_spectrum,
         freqs,

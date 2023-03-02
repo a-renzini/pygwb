@@ -1195,14 +1195,16 @@ class Baseline(object):
 
         bad_times_indexes = self._get_bad_times_indexes(times=self.interferometer_1.average_psd.times.value, apply_dsc=apply_dsc)
 
-        print(bad_times_indexes)
-
         self.crop_frequencies_average_psd_csd(flow=flow, fhigh=fhigh)
 
+        psd_1_average = np.mean(self.interferometer_1.average_psd[~bad_times_indexes], axis=0)
+        psd_2_average = np.mean(self.interferometer_2.average_psd[~bad_times_indexes], axis=0)
+        csd_average = np.mean(self.average_csd[~bad_times_indexes], axis=0)
+
         coherence = calculate_coherence(
-            psd_1_spectrogram=self.interferometer_1.average_psd[~bad_times_indexes],
-            psd_2_spectrogram=self.interferometer_2.average_psd[~bad_times_indexes],
-            csd_spectrogram=self.average_csd[~bad_times_indexes],
+            psd_1_spectrogram=psd_1_average,
+            psd_2_spectrogram=psd_2_average,
+            csd_spectrogram=csd_average,
         )
         
         epoch = self.average_csd.times[0]
@@ -1288,6 +1290,11 @@ class Baseline(object):
                 "The provided data type is not supported, try using 'pickle', 'npz', 'json' or 'hdf5' instead."
             )
 
+        try:
+            coherence = self.coherence_spectrum
+        except AttributeError:
+            coherence = None
+
         save(
             f"{filename}{ext}",
             self.frequencies,
@@ -1300,6 +1307,7 @@ class Baseline(object):
             self.sigma_spectrogram,
             self.badGPStimes,
             self.delta_sigmas,
+            coherence
         )
 
     def save_psds_csds(
@@ -1373,6 +1381,7 @@ class Baseline(object):
         sigma_spectrogram,
         badGPStimes,
         delta_sigmas,
+        coherence,
     ):
         try:
             naive_sigma_values = delta_sigmas["naive_sigmas"]
@@ -1397,6 +1406,7 @@ class Baseline(object):
             delta_sigma_values=delta_sigmas["values"],
             naive_sigma_values=naive_sigma_values,
             slide_sigma_values=slide_sigma_values,
+            coherence=coherence,
         )
 
     def _pickle_save(
@@ -1412,6 +1422,7 @@ class Baseline(object):
         sigma_spectrogram,
         badGPStimes,
         delta_sigmas,
+        coherence,
     ):
         save_dictionary = {
             "frequencies": frequencies,
@@ -1424,6 +1435,7 @@ class Baseline(object):
             "sigma_spectrogram": sigma_spectrogram,
             "badGPStimes": badGPStimes,
             "delta_sigmas": list(delta_sigmas.items()),
+            "coherence": coherence,
         }
 
         with open(filename, "wb") as f:
@@ -1442,6 +1454,7 @@ class Baseline(object):
         sigma_spectrogram,
         badGPStimes,
         delta_sigmas,
+        coherence,
     ):
         list_freqs = frequencies.tolist()
         list_freqs_mask = frequency_mask.tolist()
@@ -1461,6 +1474,8 @@ class Baseline(object):
         sigma_segment_times = sigma_spectrogram.times.value.tolist()
 
         badGPStimes_list = badGPStimes.tolist()
+        
+        coherence_list = coherence.value.tolist()
 
         save_dictionary = {
             "frequencies": list_freqs,
@@ -1478,6 +1493,7 @@ class Baseline(object):
             "badGPStimes": badGPStimes_list,
             "delta_sigma_alphas": delta_sigmas["alphas"],
             "delta_sigma_values": delta_sigmas["values"].tolist(),
+            "coherence": coherence_list,
         }
         try:
             save_dictionary["naive_sigma_values"] = delta_sigmas[
@@ -1505,6 +1521,7 @@ class Baseline(object):
         sigma_spectrogram,
         badGPStimes,
         delta_sigmas,
+        coherence,
         compress=False,
     ):
         hf = h5py.File(filename, "w")
@@ -1539,6 +1556,9 @@ class Baseline(object):
         ),
         hf.create_dataset(
             "sigma_spectrogram", data=sigma_spectrogram, compression=compression
+        )
+        hf.create_dataset(
+            "coherence", data=coherence, compression=compression
         )
         hf.create_dataset("badGPStimes", data=badGPStimes, compression=compression)
         delta_sigmas_group = hf.create_group("delta_sigmas")

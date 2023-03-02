@@ -2,16 +2,16 @@
 
 import argparse
 import json
+from fractions import Fraction
 
-import numpy as np
 import bilby
 import h5py
-
-from fractions import Fraction
+import numpy as np
 
 import pygwb.pe as pe
 from pygwb.baseline import Baseline
 from pygwb.detector import Interferometer
+
 
 def load_hdf5(fname_path):
     hf = h5py.File(fname_path, "r")

@@ -81,7 +81,7 @@ def main():
     if script_args.calc_coh:
         pipe_calculate_coherence = bool(distutils.util.strtobool(script_args.calc_coh))
     else:
-        pipe_calculate_coherence = True
+        pipe_calculate_coherence = False
 
     if script_args.calc_pt_est:
         pipe_calculate_point_estimate = bool(distutils.util.strtobool(script_args.calc_pt_est))
@@ -186,7 +186,7 @@ def main():
             params.save_data_type,
             data_file_name,
         )
-        csd_file_name = f"{output_path}/csds_psds_{int(params.t0)}-{int(params.tf)}"
+        csd_file_name = f"{output_path}/psds_csds_{int(params.t0)}-{int(params.tf)}"
         base_12.save_psds_csds(
             params.save_data_type,
             csd_file_name,
