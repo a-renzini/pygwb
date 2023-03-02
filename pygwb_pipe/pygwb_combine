@@ -311,7 +311,7 @@ def main():
     if combine_args.combine_coherence:
         coherence_path = os.path.join(
             combine_args.out_path,
-            f"coherence_{times[0]}-{times[-1]}.npz",
+            f"coherence_spectrum_{times[0]}-{times[-1]}.npz",
         )
         psd_1_average = 0
         psd_2_average = 0
@@ -337,6 +337,9 @@ def main():
 
         combined_coherence = calculate_coherence(psd_1_average, psd_2_average, csd_average)
         np.savez(coherence_path, coherence=combined_coherence, frequencies=coh_frequencies, times=times_j)
+        logger.info(
+            f"Saved file with coherence spectrum:\n {coherence_path}."
+        )
 
     exit()
 
