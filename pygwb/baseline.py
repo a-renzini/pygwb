@@ -1381,14 +1381,14 @@ class Baseline(object):
             psd_1_coh = self.coherence_dict['psd_1_average']
             psd_2_coh = self.coherence_dict['psd_2_average']
             csd_coh = self.coherence_dict['csd_average']
-            n_segs_ch = self.coherence_dict['n_segs']
+            n_segs_coh = self.coherence_dict['n_segs']
 
         except ValueError:
             coherence = None
             psd_1_coh = None
             psd_2_coh = None
             csd_coh = None
-            n_segs_ch = None
+            n_segs_coh = None
 
         save_csd(
             f"{filename}{ext}",
@@ -1404,7 +1404,7 @@ class Baseline(object):
             psd_1_coh,
             psd_2_coh,
             csd_coh,
-            n_segs_ch,
+            n_segs_coh,
         )
 
     def _npz_save(
@@ -1641,7 +1641,7 @@ class Baseline(object):
         psd_1_coh,
         psd_2_coh,
         csd_coh,
-        n_segs_ch,
+        n_segs_coh,
     ):
         np.savez(
             filename,
@@ -1661,7 +1661,7 @@ class Baseline(object):
             psd_1_coh=psd_1_coh,
             psd_2_coh=psd_2_coh,
             csd_coh=csd_coh,
-            n_segs_ch=n_segs_ch,
+            n_segs_coh=n_segs_coh,
         )
 
     def _pickle_save_csd(
@@ -1679,7 +1679,7 @@ class Baseline(object):
         psd_1_coh,
         psd_2_coh,
         csd_coh,
-        n_segs_ch,
+        n_segs_coh,
     ):
 
         save_dictionary = {
@@ -1695,7 +1695,7 @@ class Baseline(object):
             "psd_1_coh": psd_1_coh,
             "psd_2_coh": psd_2_coh,
             "csd_coh": csd_coh,
-            "n_segs_ch": n_segs_ch,
+            "n_segs_coh": n_segs_coh,
         }
 
         # with open(filename, "wb") as f:
@@ -1719,7 +1719,7 @@ class Baseline(object):
         psd_1_coh,
         psd_2_coh,
         csd_coh,
-        n_segs_ch,
+        n_segs_coh,
     ):
         """
         It seems that saving spectrograms in json does not work, hence everything is converted into a list and saved that way in the json file.
@@ -1767,7 +1767,7 @@ class Baseline(object):
                 imag_csd_coh[ix] = elem.imag
         real_csd_coh_list = real_csd_coh.tolist()
         imag_csd_coh_list = imag_csd_coh.tolist()
-        list_n_segs_ch = n_segs_ch
+        list_n_segs_coh = n_segs_coh
 
         save_dictionary = {
             "frequencies": list_freqs,
@@ -1791,7 +1791,7 @@ class Baseline(object):
             "psd_2_coh": list_psd_2_coh,
             "csd_coh_real": real_csd_coh_list,
             "csd_coh_imag": real_csd_coh_list,
-            "n_segs_ch": list_n_segs_ch,
+            "n_segs_coh": list_n_segs_coh,
         }
 
         with open(filename, "w") as outfile:

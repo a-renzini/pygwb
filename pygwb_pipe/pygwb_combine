@@ -68,9 +68,6 @@ def main():
         "--combine_coherence", help="Calculate combined coherence over all available data.", action="store", type=bool, required=False
     )
     combine_parser.add_argument(
-        "--apply_dsc", help="Apply delta sigma cut to final data products.", action="store", type=bool, required=False
-    )
-    combine_parser.add_argument(
         "--out_path", help="Output path.", action="store", type=Path, required=False
     )
     combine_args = combine_parser.parse_args()
@@ -78,8 +75,6 @@ def main():
         combine_args.h0 = pygwb_h0
     if not combine_args.combine_coherence:
         combine_args.combine_coherence = False
-    if not combine_args.apply_dsc:
-        combine_args.apply_dsc = False
     if not combine_args.out_path:
         combine_args.out_path = Path("./")
     combine_args.alpha = float(Fraction(combine_args.alpha)) 
@@ -317,26 +312,23 @@ def main():
         psd_2_average = 0
         csd_average = 0
         coh_frequencies = np.load(files_coh[0], allow_pickle=True)['avg_freqs']
+        n_segs_coh_total = 0
 
         for file_coh, file_pt in tqdm(zip(files_coh,files_ptest), total=len(files_coh)):
             data_file = np.load(file_coh, allow_pickle=True)
-            psd_1 = data_file['avg_psd_1']
-            psd_2 = data_file['avg_psd_2']
-            csd = data_file['avg_csd']
-            times_i = data_file['avg_csd_times'] 
+            psd_1_coh = data_file['psd_1_coh']
+            psd_2_coh = data_file['psd_2_coh']
+            csd_coh = data_file['csd_coh']
+            n_segs_coh = data_file['n_segs_coh']
+            n_segs_coh_total = += n_segs_coh
 
-            if combine_args.apply_dsc:
-                bad_times = np.load(files_ptest[0], allow_pickle=True)['badGPStimes']
-                mask = np.isin(times_i, bad_times, invert=True)
-            else:
-                mask = True
-            
-            psd_1_average += np.mean(psd_1[mask], axis=0)
-            psd_2_average += np.mean(psd_2[mask], axis=0)
-            csd_average += np.mean(csd[mask], axis=0)
+            psd_1_average += n_segs_coh*psd_1_coh
+            psd_2_average += n_segs_coh*psd_2_coh
+            csd_average += n_segs_coh*csd_coh
 
-        combined_coherence = calculate_coherence(psd_1_average, psd_2_average, csd_average)
-        np.savez(coherence_path, coherence=combined_coherence, frequencies=coh_frequencies, times=times_j)
+        combined_coherence = calculate_coherence(psd_1_average, psd_2_average, csd_average)/n_segs_coh_total
+        np.savez(coherence_path, coherence=combined_coherence, frequencies=coh_frequencies, n_segs_coh=n_segs_coh)
+
         logger.info(
             f"Saved file with coherence spectrum:\n {coherence_path}."
         )
