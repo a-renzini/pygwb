@@ -199,7 +199,7 @@ def main():
     else:
         logger.info("Saving average psds and csd to file.")
 
-        data_file_name = f"psds_csds_{int(params.t0)}-{int(params.tf)}"
+        data_file_name = f"{output_path}/psds_csds_{int(params.t0)}-{int(params.tf)}"
 
         base_12.npz_save_psds_csds(
             data_file_name,

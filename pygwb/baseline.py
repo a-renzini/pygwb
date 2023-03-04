@@ -1383,7 +1383,7 @@ class Baseline(object):
             csd_coh = self.coherence_dict['csd_average']
             n_segs_coh = self.coherence_dict['n_segs']
 
-        except ValueError:
+        except AttributeError:
             coherence = None
             psd_1_coh = None
             psd_2_coh = None

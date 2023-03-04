@@ -4,31 +4,25 @@ import argparse
 import sys
 from pathlib import Path
 
-import numpy as np
-
-from pygwb.baseline import Baseline
-from pygwb.detector import Interferometer
-from pygwb.omega_spectra import OmegaSpectrogram
-from pygwb.parameters import Parameters
-from pygwb.postprocessing import (
-    calc_Y_sigma_from_Yf_sigmaf,
-    calculate_point_estimate_sigma_spectra,
-)
 from pygwb.statistical_checks import StatisticalChecks, run_statistical_checks_from_file
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--combine_file_path',help="combined file containing spectra",action="store", type=str)
-    parser.add_argument('-dsc', '--dsc_file_path',help="delta sigma cut file containing sigmas and more",action="store", type=str)
-    parser.add_argument('-pd', '--plot_dir',help="Directory where plots should be saved",action="store", type=Path)
-    parser.add_argument('-pf', '--param_file',help="Parameter file used during analysis",action="store", type=str)
-    parser.add_argument('-fs', '--font_size',help="Primary label font size", action="store", type=int)
+    parser.add_argument('-dsc', '--dsc_file_path', help="delta sigma cut file containing sigmas and more",action="store", type=str)
+    parser.add_argument('-pd', '--plot_dir', help="Directory where plots should be saved",action="store", type=Path)
+    parser.add_argument('-pf', '--param_file', help="Parameter file used during analysis",action="store", type=str)
+    parser.add_argument('-fs', '--font_size', help="Primary label font size", action="store", type=int, required=False)
+    parser.add_argument('-fcoh', '--coherence_file_path', help="Path to coherence file. If passed, automatically triggers the plot coherences option.", action="store", type=Path, required=False)
 
     args = parser.parse_args()
 
     if not args.font_size:
         args.font_size = 16
 
-    test = run_statistical_checks_from_file(args.combine_file_path, args.dsc_file_path, args.plot_dir, args.param_file, legend_fontsize=args.font_size)
+    if not args.coherence_file_path:
+        args.coherence_file_path = None
+
+    test = run_statistical_checks_from_file(args.combine_file_path, args.dsc_file_path, args.plot_dir, args.param_file, legend_fontsize=args.font_size, coherence_file_path = args.coherence_file_path)
     
     test.generate_all_plots()

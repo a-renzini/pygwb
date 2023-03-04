@@ -111,7 +111,6 @@ def main():
     sigma_j = []
     Y_spectra_j = []
     sigma_spectra_j = []
-    coherence_j=[]
     Y_seg = []
     sigma_seg = []
     # DQ objects
@@ -162,16 +161,11 @@ def main():
             sigma_s = np.array([sigma_s])
         Y_seg.append(Y_s)
         sigma_seg.append(sigma_s)
-    try:
-        coherence_j.append(data_file["coherence"])
-    except:
-        pass
 
     Y_seg = np.concatenate(Y_seg)
     sigma_seg = np.concatenate(sigma_seg)
     Y_j = np.array(Y_j)
     sigma_j = np.array(sigma_j)
-    coherence_j = np.array(coherence_j)
     np.savez(pt_est_sigma_unweighted_path, point_estimate=Y_j, sigma=sigma_j, point_estimate_per_seg=Y_seg, sigma_per_seg=sigma_seg)
     logger.info(
         f"saved file with unweighted point estimate and sigma values for all times in run:\n {pt_est_sigma_unweighted_path}."
@@ -297,7 +291,6 @@ def main():
         frequencies=frequencies,
         point_estimates_seg_UW=Y_seg,
         sigmas_seg_UW=sigma_seg,
-        coherence_spectra = coherence_j
     )
     logger.info(
         f"Saved file with re-weighted point estimate and sigma values and spectra:\n {pt_est_sigma_spectra_path}."
@@ -320,13 +313,16 @@ def main():
             psd_2_coh = data_file['psd_2_coh']
             csd_coh = data_file['csd_coh']
             n_segs_coh = data_file['n_segs_coh']
-            n_segs_coh_total += n_segs_coh
 
+            psd_1_average *= n_segs_coh_total
+            psd_2_average *= n_segs_coh_total
+            csd_average *= n_segs_coh_total
             psd_1_average += n_segs_coh*psd_1_coh
             psd_2_average += n_segs_coh*psd_2_coh
             csd_average += n_segs_coh*csd_coh
+            n_segs_coh_total += n_segs_coh
 
-        combined_coherence = calculate_coherence(psd_1_average, psd_2_average, csd_average)/n_segs_coh_total
+        combined_coherence = calculate_coherence(psd_1_average/n_segs_coh_total, psd_2_average/n_segs_coh_total, csd_average/n_segs_coh_total)
         np.savez(coherence_path, coherence=combined_coherence, frequencies=coh_frequencies, n_segs_coh=n_segs_coh)
 
         logger.info(
