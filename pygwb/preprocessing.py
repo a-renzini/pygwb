@@ -219,7 +219,7 @@ def resample_filter(
     """
     if (new_sample_rate * number_cropped_seconds) < 18:
         warnings.warn(
-            f"Number of cropped seconds requested {number_cropped_seconds}s is low compared to the sampling rate {new_sampling_rate}: cropped-seconds x sampling-rate = {number_cropped_seconds*new_sampling_rate}."
+            f"Number of cropped seconds requested {number_cropped_seconds}s is low compared to the sampling rate {new_sample_rate}: cropped-seconds x sampling-rate = {number_cropped_seconds*new_sample_rate}."
         )
     data_to_resample = copy.deepcopy(time_series_data.value)
     original_times = copy.deepcopy(time_series_data.times)
