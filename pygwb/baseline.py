@@ -836,10 +836,9 @@ class Baseline(object):
             orf=self.overlap_reduction_function,
             sample_rate=self.sampling_frequency,
             segment_duration=self.duration,
-            window_fftgram_dict={"window_fftgram": "hann"},
             fref=fref,
             alpha=alpha,
-        )
+        ) #missing: pwelch estimation parameters
 
         sigma_name = f"{self.name} sigma spectrogram alpha={alpha}"
         self.point_estimate_spectrogram = OmegaSpectrogram(
@@ -967,7 +966,7 @@ class Baseline(object):
             self.sampling_frequency,
             frequency_mask=self.frequency_mask,
             badtimes_mask=bad_times_indexes,
-        )
+        )#missing: pwelch estimation parameters
 
         self.point_estimate_spectrum = OmegaSpectrum(
             point_estimate,
@@ -1157,10 +1156,10 @@ class Baseline(object):
             orf=self.overlap_reduction_function,
             fref=fref,
             frequency_mask=self.frequency_mask,
-            window_fftgram_dict=self.window_fftgram_dict,
             N_average_segments_welch_psd = self.N_average_segments_welch_psd,
             return_naive_and_averaged_sigmas=return_naive_and_averaged_sigmas,
-        )
+        )#missing: pwelch estimation parameters
+
         self.badGPStimes = badGPStimes
         self.delta_sigmas = delta_sigmas
 

@@ -23,7 +23,7 @@ def parse_window_dict(window_dict):
             pass
     return window_dict
 
-def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}):
+def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_factor=0.5):
     """
     Calculate window factors. By default, for a hann window.
 
@@ -44,8 +44,8 @@ def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}):
     w1w2bar = np.mean(w ** 2)
     w1w2squaredbar = np.mean(w ** 4)
 
-    w1 = w[int(N / 2) : N]
-    w2 = w[0 : int(N / 2)]
+    w1 = w[int(N * overlap_factor) : N]
+    w2 = w[0 : int(N * overlap_factor)]
     w1w2squaredovlbar = 1 / (N / 2.0) * np.sum(w1 ** 2 * w2 ** 2)
 
     w1w2ovlbar = 1 / (N / 2.0) * np.sum(w1 * w2)
@@ -82,7 +82,7 @@ def get_window_tuple(window_fftgram_dict={"window_fftgram": "hann"}):
     return out
 
 
-def calc_rho1(N, window_fftgram_dict={"window_fftgram": "hann"}):
+def calc_rho1(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_factor=0.5):
     """
     Calculate the combined window factor rho.
 
@@ -98,7 +98,7 @@ def calc_rho1(N, window_fftgram_dict={"window_fftgram": "hann"}):
     rho1: float
         The combined window factor.
     """
-    w1w2bar, _, w1w2ovlbar, _ = window_factors(N, window_fftgram_dict)
+    w1w2bar, _, w1w2ovlbar, _ = window_factors(N, window_fftgram_dict, overlap_factor=overlap_factor)
     rho1 = (0.5 * w1w2ovlbar / w1w2bar) ** 2
     return rho1
 
@@ -109,6 +109,7 @@ def calc_bias(
     deltaT,
     N_avg_segs=2,
     window_fftgram_dict={"window_fftgram": "hann"},
+    overlap_factor=0.5
 ):
     """
     Calculate the bias factor introduced by welch averaging.
@@ -130,7 +131,7 @@ def calc_bias(
         The bias factor.
     """
     N = int(segmentDuration / deltaT)
-    rho1 = calc_rho1(N, window_fftgram_dict)
+    rho1 = calc_rho1(N, window_fftgram_dict, overlap_factor=overlap_factor)
     Nsegs = 2 * segmentDuration * deltaF - 1
     wfactor = (1 + 2 * rho1) ** (-1)
     Neff = N_avg_segs * wfactor * Nsegs
