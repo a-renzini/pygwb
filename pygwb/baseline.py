@@ -1090,7 +1090,6 @@ class Baseline(object):
         fhigh=1726,
         notch_list_path="",
         polarization="tensor",
-        window_fftgram_dict: dict = {"window_fftgram": "hann"},
         return_naive_and_averaged_sigmas: bool = False,
     ):
         """
@@ -1158,7 +1157,8 @@ class Baseline(object):
             orf=self.overlap_reduction_function,
             fref=fref,
             frequency_mask=self.frequency_mask,
-            window_fftgram_dict=window_fftgram_dict,
+            window_fftgram_dict=self.window_fftgram_dict,
+            N_average_segments_welch_psd = self.N_average_segments_welch_psd,
             return_naive_and_averaged_sigmas=return_naive_and_averaged_sigmas,
         )
         self.badGPStimes = badGPStimes
