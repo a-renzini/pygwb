@@ -685,7 +685,8 @@ class Baseline(object):
             self.interferometer_1.set_psd_spectrogram(
                 frequency_resolution,
                 overlap_factor=self.overlap_factor,
-                window_fftgram_dict=self.window_fftgram_dict,
+                window_fftgram_dict_welch_psd={"window_fftgram": "hann"},
+                overlap_factor_welch_psd=0.5,
             )
         except AttributeError:
             raise AssertionError(
@@ -695,7 +696,8 @@ class Baseline(object):
             self.interferometer_2.set_psd_spectrogram(
                 frequency_resolution,
                 overlap_factor=self.overlap_factor,
-                window_fftgram_dict=self.window_fftgram_dict,
+                window_fftgram_dict_welch_psd={"window_fftgram": "hann"},
+                overlap_factor_welch_psd=0.5,
             )
         except AttributeError:
             raise AssertionError(
