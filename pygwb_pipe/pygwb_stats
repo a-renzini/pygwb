@@ -4,7 +4,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from pygwb.statistical_checks import StatisticalChecks, run_statistical_checks_from_file
+from pygwb.statistical_checks import run_statistical_checks_from_file
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

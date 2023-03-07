@@ -1222,7 +1222,7 @@ class Baseline(object):
             psd_2_average,
             csd_average,
         )
-        
+
         epoch = self.average_csd.times[0]
 
         self.coherence_spectrum = FrequencySeries(

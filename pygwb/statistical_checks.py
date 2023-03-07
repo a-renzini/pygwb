@@ -451,16 +451,20 @@ class StatisticalChecks(object):
             bbox_inches="tight",
         )
 
-    def plot_coherence_spectrum(self):
+    def plot_coherence_spectrum(self, flow=None, fhigh=None):
         """
         Generates and saves a plot of the coherence spectrum, if present. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `coherence_spectrum`).
         """
+        flow = flow or self.flow
+        fhigh = fhigh or self.fhigh
+
         resolution = self.freqs[1] - self.freqs[0]
         fftlength = int(1.0 / resolution)
-        n_segs = len(self.sliding_omega_cut) * int(np.floor(self.params.segment_duration/(fftlength/2.))-1)
+        n_segs = len(self.sliding_omega_cut) * int(np.floor(self.params.segment_duration/(fftlength))-1) #fftlength/2.
         plt.figure(figsize=(10, 8))
         plt.plot(self.freqs, self.coherence_spectrum, color=sea[0])
         plt.axhline(y=1./n_segs,dashes=(4,3),color='black')
+        plt.xlim(flow, fhigh)
         plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
         plt.ylabel(r"coherence spectrum", size=self.axes_labelsize)
         plt.yscale("log")
