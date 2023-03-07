@@ -25,12 +25,15 @@ def parse_window_dict(window_dict):
 
 def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_factor=0.5):
     """
-    Calculate window factors. By default, for a hann window.
+    Calculate window factors. By default, for a hann window with 50% overlap.
 
     Parameters:
     ===========
     window_fftgram_dict: dictionary, optional
         Dictionary with window characteristics. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`
+    overlap_factor: float, optional
+        Defines the overlap between consecutive data chunks used in the calculation. Default is 0.5.
+        
 
     Returns:
     ========
@@ -92,6 +95,8 @@ def calc_rho1(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_factor=
         Length of the window.
     window_fftgram_dict: dictionary, optional
         Dictionary with window characteristics. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`.
+    overlap_factor: float, optional
+        Defines the overlap between consecutive data chunks used in the calculation. Default is 0.5.
 
     Returns:
     ========
@@ -124,6 +129,8 @@ def calc_bias(
         Time sampling of welched segment.
     N_avg_segs: int, optional
         Number of segments over which the average is performed.
+    overlap_factor: float, optional
+        Defines the overlap between consecutive data chunks used in the calculation. Default is 0.5.
 
     Returns:
     ========
