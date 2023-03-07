@@ -968,6 +968,7 @@ class Baseline(object):
             self.sampling_frequency,
             frequency_mask=self.frequency_mask,
             badtimes_mask=bad_times_indexes,
+            N_avg_segs=self.N_average_segments_welch_psd,
         )#missing: pwelch estimation parameters
 
         self.point_estimate_spectrum = OmegaSpectrum(

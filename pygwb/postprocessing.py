@@ -18,6 +18,7 @@ def postprocess_Y_sigma(
     badtimes_mask=None,
     window_fftgram_dict={"window_fftgram": "hann"},
     overlap_factor=0.5,
+    N_avg_segs=2,
 ):
     """Run postprocessing of point estimate and sigma spectrograms, combining even and
     odd segments in the case of overlapping data. For more details see - https://dcc.ligo.org/public/0027/T040089/000/T040089-00.pdf
@@ -72,7 +73,7 @@ def postprocess_Y_sigma(
                 new_sample_rate,
                 frequency_mask=frequency_mask,
                 window_fftgram_dict=window_fftgram_dict,
-                overlap_factor=0.5,
+                overlap_factor=overlap_factor,
             )
             Y_fs_sliced.append(Y_red)
             var_fs_sliced.append(var_red)
@@ -88,7 +89,7 @@ def postprocess_Y_sigma(
         segment_duration,
         deltaF,
         1 / new_sample_rate,
-        N_avg_segs=2,
+        N_avg_segs=N_avg_segs,
         window_fftgram_dict=window_fftgram_dict,
         overlap_factor=overlap_factor,
     )
