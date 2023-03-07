@@ -74,6 +74,7 @@ def postprocess_Y_sigma(
                 frequency_mask=frequency_mask,
                 window_fftgram_dict=window_fftgram_dict,
                 overlap_factor=overlap_factor,
+                N_avg_segs=N_avg_segs,
             )
             Y_fs_sliced.append(Y_red)
             var_fs_sliced.append(var_red)
@@ -107,6 +108,7 @@ def odd_even_segment_postprocessing(
     frequency_mask=True,
     window_fftgram_dict={"window_fftgram": "hann"},
     overlap_factor=0.5,
+    N_avg_segs=2,
 ):
     """Perform averaging which combines even and odd segments for overlapping data. 
 
