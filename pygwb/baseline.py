@@ -263,7 +263,7 @@ class Baseline(object):
             stride = self.duration * (1 - self.overlap_factor)
             return int(np.ceil(self.duration / stride)) * int(self.N_average_segments_welch_psd/2)
         else:
-            raise ValueError("Trying to calculate CSD segment offset before setting duration. Need to set duration before attemting this.")
+            raise ValueError("Trying to calculate CSD segment offset before setting duration. Need to set duration before attempting this.")
 
     @property
     def frequencies(self):
