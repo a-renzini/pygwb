@@ -909,6 +909,11 @@ class Baseline(object):
             Apply spectral notches flag; if True, remove the notches specified in the notch_list from the spectra calculations.
             Default is True.
         """
+        if self.overlap_factor>0.0:
+            do_overlap = True
+        else:
+            do_overlap = False
+
         if apply_dsc == True:
             if not hasattr(self, "badGPStimes"):
                 warnings.warn(
@@ -974,6 +979,7 @@ class Baseline(object):
             self.sampling_frequency,
             frequency_mask=self.frequency_mask,
             badtimes_mask=bad_times_indexes,
+            do_overlap=do_overlap,
             N_avg_segs=self.N_average_segments_welch_psd,
         )#missing: pwelch estimation parameters
 

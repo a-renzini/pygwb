@@ -16,6 +16,7 @@ def postprocess_Y_sigma(
     new_sample_rate,
     frequency_mask=True,
     badtimes_mask=None,
+    do_overlap=True,
     window_fftgram_dict={"window_fftgram": "hann"},
     overlap_factor=0.5,
     N_avg_segs=2,
@@ -36,7 +37,11 @@ def postprocess_Y_sigma(
     new_sample_rate : float
         sample rate of timeseries after resampling
     frequency_mask: array-like, optional
-        Boolean mask to apply to frequencies for the calculation
+        Boolean mask to apply to frequencies for the calculation. Defaults to True which includes all frequencies in the analysis.
+    badtimes_mask: array-like, optional
+        Boolean mask to apply to GPStimes in the calculation. Defaults to None such that all times are included.
+    do_overlap: bool, optional
+        Indicates whether to proceed with the odd/even postprocessing calculation which assumes a 50\% overlap between consecutive segments. Default is True.
     window_fftgram_dict: dictionary, optional
         Dictionary with window characteristics used in PSD estimation. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`
     overlap_factor: float, optional
@@ -62,7 +67,7 @@ def postprocess_Y_sigma(
         Y = Y_fs[sli]
         var = var_fs[sli]
 
-        if len(Y) == 1:
+        if len(Y) == 1 or not do_overlap:
             Y_fs_sliced.append(Y[0])
             var_fs_sliced.append(var[0])
         else:
