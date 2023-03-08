@@ -50,9 +50,8 @@ def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_fa
     w1 = w[N - int(N * overlap_factor) : N] 
     w2 = w[0 : int(N * overlap_factor)] 
 
-    # these may need to be revised when generalising to a non-0.5 overlap_factor
-    w1w2squaredovlbar = 1 / (N / 2.0) * np.sum(w1 ** 2 * w2 ** 2)
-    w1w2ovlbar = 1 / (N / 2.0) * np.sum(w1 * w2)
+    w1w2squaredovlbar = 1 / (N * overlap_factor) * np.sum(w1 ** 2 * w2 ** 2)
+    w1w2ovlbar = 1 / (N * overlap_factor) * np.sum(w1 * w2)
 
     return w1w2bar, w1w2squaredbar, w1w2ovlbar, w1w2squaredovlbar
 
@@ -105,8 +104,7 @@ def calc_rho1(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_factor=
         The combined window factor.
     """
     w1w2bar, _, w1w2ovlbar, _ = window_factors(N, window_fftgram_dict, overlap_factor=overlap_factor)
-    # this may need to be revised when generalising to a non-0.5 overlap_factor
-    rho1 = (0.5 * w1w2ovlbar / w1w2bar) ** 2
+    rho1 = (overlap_factor * w1w2ovlbar / w1w2bar) ** 2
     return rho1
 
 
