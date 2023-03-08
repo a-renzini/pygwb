@@ -47,10 +47,11 @@ def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_fa
     w1w2bar = np.mean(w ** 2)
     w1w2squaredbar = np.mean(w ** 4)
 
-    w1 = w[int(N * overlap_factor) : N]
-    w2 = w[0 : int(N * overlap_factor)]
-    w1w2squaredovlbar = 1 / (N / 2.0) * np.sum(w1 ** 2 * w2 ** 2)
+    w1 = w[N - int(N * overlap_factor) : N] 
+    w2 = w[0 : int(N * overlap_factor)] 
 
+    # these may need to be revised when generalising to a non-0.5 overlap_factor
+    w1w2squaredovlbar = 1 / (N / 2.0) * np.sum(w1 ** 2 * w2 ** 2)
     w1w2ovlbar = 1 / (N / 2.0) * np.sum(w1 * w2)
 
     return w1w2bar, w1w2squaredbar, w1w2ovlbar, w1w2squaredovlbar
@@ -104,6 +105,7 @@ def calc_rho1(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_factor=
         The combined window factor.
     """
     w1w2bar, _, w1w2ovlbar, _ = window_factors(N, window_fftgram_dict, overlap_factor=overlap_factor)
+    # this may need to be revised when generalising to a non-0.5 overlap_factor
     rho1 = (0.5 * w1w2ovlbar / w1w2bar) ** 2
     return rho1
 
@@ -138,10 +140,11 @@ def calc_bias(
         The bias factor.
     """
     N = int(segmentDuration / deltaT)
+    Nsegs = int((1./overlap_factor) * (segmentDuration * deltaF - 1 )) + 1
+    K = N_avg_segs * Nsegs
     rho1 = calc_rho1(N, window_fftgram_dict, overlap_factor=overlap_factor)
-    Nsegs = 2 * segmentDuration * deltaF - 1
-    wfactor = (1 + 2 * rho1) ** (-1)
-    Neff = N_avg_segs * wfactor * Nsegs
+    wfactor = (1 + 2 * (K-1)/K * rho1) ** (-1)
+    Neff = wfactor * K
     bias = Neff / (Neff - 1)
     return bias
 

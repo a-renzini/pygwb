@@ -22,7 +22,7 @@ class WindowTest(unittest.TestCase):
         self.assertEqual(util.calc_rho1(100000), 0.027775555605193483)
 
     def test_calc_bias(self):
-        self.assertEqual(util.calc_bias(192, 1 / 32, 32), 1.0480235570801641)
+        self.assertEqual(util.calc_bias(192, 1 / 32, 32), 1.0480051635097452)
 
     def test_omega_to_power(self):
         frequencies = np.arange(1.0, 100.0)
