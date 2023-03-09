@@ -21,6 +21,22 @@ class WindowTest(unittest.TestCase):
     def test_calc_rho1(self):
         self.assertEqual(util.calc_rho1(100000), 0.027775555605193483)
 
+    def test_calc_rho(self):
+        # Simple case, boxcar window of length 4, since it's easy to calculate exact values of rho
+        self.assertEqual(util.calc_rho(4, 1, window_tuple="boxcar", overlap_factor=0.0), 0)
+        self.assertEqual(util.calc_rho(4, 1, window_tuple="boxcar", overlap_factor=1/4), (1/4)**2)
+        self.assertEqual(util.calc_rho(4, 1, window_tuple="boxcar", overlap_factor=1/2), (2/4)**2)
+        self.assertEqual(util.calc_rho(4, 1, window_tuple="boxcar", overlap_factor=3/4), (3/4)**2)
+        self.assertEqual(util.calc_rho(4, 1, window_tuple="boxcar", overlap_factor=1.0), 1)
+
+    def test_effective_welch_averages(self):
+        # Simple case, 8 samples, boxcar window of length 4
+        self.assertEqual(util.effective_welch_averages(8, 4, window_tuple="boxcar", overlap_factor=0.0), 2)
+        self.assertEqual(util.effective_welch_averages(8, 4, window_tuple="boxcar", overlap_factor=0.5), 2.25)
+
+        # Effective Welch averages for 60s segments, 4s FFTs @ 4096 Hz
+        self.assertAlmostEqual(util.effective_welch_averages(60*4096, 4*4096, window_tuple="hann", overlap_factor=0.5), 27.52432046866242)
+        
     def test_calc_bias(self):
         self.assertEqual(util.calc_bias(192, 1 / 32, 32), 1.0480051635097452)
 

@@ -108,7 +108,7 @@ def calc_rho1(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_factor=
     return rho1
 
 
-def calc_rho(N, j, window_fftgram_dict={"window_fftgram": "hann"}, overlap_factor=0.5):
+def calc_rho(N, j, window_tuple="hann", overlap_factor=0.5):
     """
     Calculate the normalised correlation of a window with itself shifted j times. This is identical
     to the rho(j) from Welch (1967).
@@ -119,8 +119,8 @@ def calc_rho(N, j, window_fftgram_dict={"window_fftgram": "hann"}, overlap_facto
         Length of the window.
     j: int
         Number of "shifts" to apply to the window when correlating with itself.
-    window_fftgram_dict: dictionary, optional
-        Dictionary with window characteristics. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`.
+    window_tuple: string or tuple, optional
+        Window name or tuple as used in get_window(). Default is `window_tuple="hann"`.
     overlap_factor: float, optional
         Defines the overlap between consecutive segments used in the calculation. Default is 0.5.
 
@@ -130,7 +130,7 @@ def calc_rho(N, j, window_fftgram_dict={"window_fftgram": "hann"}, overlap_facto
         The normalised window correlation rho(j).
     """
     # The base window for which we want to calculate the correlation
-    w = signal.get_window(window_tuple, N, fftbins=False)
+    w = get_window(window_tuple, N, fftbins=False)
     
     # S is the shift, that is, the number of samples by which the window is shifted from the base window
     S = N - int(overlap_factor*N)
@@ -142,6 +142,44 @@ def calc_rho(N, j, window_fftgram_dict={"window_fftgram": "hann"}, overlap_facto
         rho = 0
 
     return rho
+
+
+def effective_welch_averages(nSamples, N, window_tuple="hann", overlap_factor=0.5):
+    """
+    Calculate the "effective" number of averages used in Welch's PSD estimate after taking into account windowing
+    and overlap.
+
+    Parameters:
+    ===========
+    nSamples: int
+        Number of samples to be used to estimate the PSD.
+    N: int
+        Length of the window.
+    window_tuple: string or tuple, optional
+        Window name or tuple as used in get_window(). Default is `window_tuple="hann"`.
+    overlap_factor: float, optional
+        Defines the overlap between consecutive segments used in the calculation. Default is 0.5.
+
+    Returns:
+    ========
+    Neff: float
+        The effective number of averages.
+    """
+    # S is the shift, that is, the number of samples by which the window is shifted from the base window
+    S = N - int(overlap_factor*N)
+    
+    # K is the number of segments that will be averaged in the corresponding Welch estimate
+    K = 1 + int((nSamples - N)/S)
+
+    # Form the weighted sum of the window correlations for shifts j = 1 to K-1
+    rho_sum = 0
+    for j in range(1, K):
+        rho_sum = rho_sum + (K - j)/K*calc_rho(N, j, window_tuple=window_tuple, overlap_factor=overlap_factor)
+    
+    Neff = K/(1 + 2 * rho_sum)
+
+    return Neff
+
 
 def calc_bias(
     segmentDuration,
