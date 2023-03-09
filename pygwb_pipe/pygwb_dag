@@ -78,8 +78,8 @@ def main():
         dag_args.calc_pt_est = "True"        
         
     # Filepaths
-    outputdir = dag_args.parentdir / "output"
-    logdir = outputdir / "condorLogs"
+    outputdir = (dag_args.parentdir / "output")
+    logdir = (outputdir / "condorLogs")
     
     # Make directories
     logdir.mkdir(parents=True, exist_ok=True)
@@ -141,10 +141,10 @@ def main():
         for index,t0 in enumerate(t0_actual): 
             dagfile.write(f"JOB {index} {os.path.abspath(dag_args.subfile)}\n")
 
-            args = (f"--t0 {t0} --tf {tf_actual[index]} --output_path {outputdir} --apply_dsc {dag_args.apply_dsc} --param_file {os.path.abspath(dag_args.param_file)}" 
+            args = (f"--t0 {t0} --tf {tf_actual[index]} --output_path {os.path.abspath(outputdir)} --apply_dsc {dag_args.apply_dsc} --param_file {os.path.abspath(dag_args.param_file)}" 
                     f" --pickle_out {dag_args.pickle_out} --wipe_ifo {dag_args.wipe_ifo} --calc_pt_est {dag_args.calc_pt_est}")
             dagfile.write(
-                    f'VARS {index} job="{t0}-{tf_actual[index]}" executable="{executable}" ARGS="{args}" logdir="{logdir}"\n'
+                    f'VARS {index} job="{t0}-{tf_actual[index]}" executable="{executable}" ARGS="{args}" logdir="{os.path.abspath(logdir)}"\n'
             )
             dagfile.write('\n')
         
