@@ -212,10 +212,10 @@ def calc_bias(
     """
     N = int(segmentDuration / deltaT)
     Nsegs = int((1./overlap_factor) * (segmentDuration * deltaF - 1 )) + 1
-    K = N_avg_segs * Nsegs
+    K = Nsegs
     rho1 = calc_rho1(N, window_fftgram_dict, overlap_factor=overlap_factor)
     wfactor = (1 + 2 * (K-1)/K * rho1) ** (-1)
-    Neff = wfactor * K
+    Neff = wfactor * K * N_avg_segs
     bias = Neff / (Neff - 1)
     return bias
 
