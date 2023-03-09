@@ -108,6 +108,41 @@ def calc_rho1(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_factor=
     return rho1
 
 
+def calc_rho(N, j, window_fftgram_dict={"window_fftgram": "hann"}, overlap_factor=0.5):
+    """
+    Calculate the normalised correlation of a window with itself shifted j times. This is identical
+    to the rho(j) from Welch (1967).
+
+    Parameters:
+    ===========
+    N: int
+        Length of the window.
+    j: int
+        Number of "shifts" to apply to the window when correlating with itself.
+    window_fftgram_dict: dictionary, optional
+        Dictionary with window characteristics. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`.
+    overlap_factor: float, optional
+        Defines the overlap between consecutive segments used in the calculation. Default is 0.5.
+
+    Returns:
+    ========
+    rho: float
+        The normalised window correlation rho(j).
+    """
+    # The base window for which we want to calculate the correlation
+    w = signal.get_window(window_tuple, N, fftbins=False)
+    
+    # S is the shift, that is, the number of samples by which the window is shifted from the base window
+    S = N - int(overlap_factor*N)
+    
+    if (j*S < N):
+        rho = (np.sum(w[0:N-j*S]*w[j*S:N])/sum(w*w))**2
+    else:
+        # j*S >= N so no overlap
+        rho = 0
+
+    return rho
+
 def calc_bias(
     segmentDuration,
     deltaF,
