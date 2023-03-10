@@ -1341,11 +1341,6 @@ class Baseline(object):
                 "The provided data type is not supported, try using 'pickle', 'npz', 'json' or 'hdf5' instead."
             )
 
-        try:
-            coherence = self.coherence_spectrum
-        except AttributeError:
-            coherence = None
-
         save(
             f"{filename}{ext}",
             self.frequencies,
@@ -1358,7 +1353,6 @@ class Baseline(object):
             self.sigma_spectrogram,
             self.badGPStimes,
             self.delta_sigmas,
-            coherence
         )
 
     def save_psds_csds(
@@ -1445,7 +1439,6 @@ class Baseline(object):
         sigma_spectrogram,
         badGPStimes,
         delta_sigmas,
-        coherence,
     ):
         try:
             naive_sigma_values = delta_sigmas["naive_sigmas"]
@@ -1470,7 +1463,6 @@ class Baseline(object):
             delta_sigma_values=delta_sigmas["values"],
             naive_sigma_values=naive_sigma_values,
             slide_sigma_values=slide_sigma_values,
-            coherence=coherence,
         )
 
     def _pickle_save(
@@ -1486,7 +1478,6 @@ class Baseline(object):
         sigma_spectrogram,
         badGPStimes,
         delta_sigmas,
-        coherence,
     ):
         save_dictionary = {
             "frequencies": frequencies,
@@ -1499,7 +1490,6 @@ class Baseline(object):
             "sigma_spectrogram": sigma_spectrogram,
             "badGPStimes": badGPStimes,
             "delta_sigmas": list(delta_sigmas.items()),
-            "coherence": coherence,
         }
 
         with open(filename, "wb") as f:
@@ -1518,7 +1508,6 @@ class Baseline(object):
         sigma_spectrogram,
         badGPStimes,
         delta_sigmas,
-        coherence,
     ):
         list_freqs = frequencies.tolist()
         list_freqs_mask = frequency_mask.tolist()
@@ -1539,7 +1528,6 @@ class Baseline(object):
 
         badGPStimes_list = badGPStimes.tolist()
         
-        coherence_list = coherence.value.tolist()
 
         save_dictionary = {
             "frequencies": list_freqs,
@@ -1557,7 +1545,6 @@ class Baseline(object):
             "badGPStimes": badGPStimes_list,
             "delta_sigma_alphas": delta_sigmas["alphas"],
             "delta_sigma_values": delta_sigmas["values"].tolist(),
-            "coherence": coherence_list,
         }
         try:
             save_dictionary["naive_sigma_values"] = delta_sigmas[
@@ -1585,7 +1572,6 @@ class Baseline(object):
         sigma_spectrogram,
         badGPStimes,
         delta_sigmas,
-        coherence,
         compress=False,
     ):
         hf = h5py.File(filename, "w")
@@ -1620,9 +1606,6 @@ class Baseline(object):
         ),
         hf.create_dataset(
             "sigma_spectrogram", data=sigma_spectrogram, compression=compression
-        )
-        hf.create_dataset(
-            "coherence", data=coherence, compression=compression
         )
         hf.create_dataset("badGPStimes", data=badGPStimes, compression=compression)
         delta_sigmas_group = hf.create_group("delta_sigmas")
@@ -1781,18 +1764,27 @@ class Baseline(object):
         avg_psd_times = avg_psd_1.times.value.tolist()
         list_avg_psd_2 = avg_psd_2.value.tolist()
         avg_psd_2_times = avg_psd_2.times.value.tolist()
-        list_coherence = coherence.value.tolist()
-        list_psd_1_coh = psd_1_coh.value.tolist()
-        list_psd_2_coh = psd_2_coh.value.tolist()
-        list_csd_coh = csd_coh.value.tolist()
-        real_csd_coh = np.zeros(np.shape(list_csd_coh))
-        imag_csd_coh = np.zeros(np.shape(list_csd_coh))
-        for ix, elem in enumerate(list_csd_coh):
-                real_csd_coh[ix] = elem.real
-                imag_csd_coh[ix] = elem.imag
-        real_csd_coh_list = real_csd_coh.tolist()
-        imag_csd_coh_list = imag_csd_coh.tolist()
-        list_n_segs_coh = n_segs_coh
+        if coherence:
+            list_coherence = coherence.value.tolist()
+            list_psd_1_coh = psd_1_coh.value.tolist()
+            list_psd_2_coh = psd_2_coh.value.tolist()
+            list_csd_coh = csd_coh.value.tolist()
+            real_csd_coh = np.zeros(np.shape(list_csd_coh))
+            imag_csd_coh = np.zeros(np.shape(list_csd_coh))
+            for ix, elem in enumerate(list_csd_coh):
+                    real_csd_coh[ix] = elem.real
+                    imag_csd_coh[ix] = elem.imag
+            real_csd_coh_list = real_csd_coh.tolist()
+            imag_csd_coh_list = imag_csd_coh.tolist()
+            list_n_segs_coh = n_segs_coh
+        else:
+            list_coherence = None
+            list_psd_1_coh = None
+            list_psd_2_coh = None
+            list_csd_coh = None
+            real_csd_coh_list = None
+            imag_csd_coh_list = None
+            list_n_segs_coh = None
 
         save_dictionary = {
             "frequencies": list_freqs,
@@ -1899,11 +1891,12 @@ class Baseline(object):
             "avg_psd_2_times", data=avg_psd_2_times, compression=compression
         )
 
-        hf.create_dataset("coherence", data=coherence, compression=compression)
-        hf.create_dataset("psd_1_coherence", data=psd_1_coh, compression=compression)
-        hf.create_dataset("psd_2_coherence", data=psd_2_coh, compression=compression)
-        hf.create_dataset("csd_oherence", data=csd_coh, compression=compression)
-        hf.create_dataset("n_segs_coherence", data=n_segs_coh, compression=compression)
+        if coherence:
+            hf.create_dataset("coherence", data=coherence, compression=compression)
+            hf.create_dataset("psd_1_coherence", data=psd_1_coh, compression=compression)
+            hf.create_dataset("psd_2_coherence", data=psd_2_coh, compression=compression)
+            hf.create_dataset("csd_coherence", data=csd_coh, compression=compression)
+            hf.create_dataset("n_segs_coherence", data=n_segs_coh, compression=compression)
 
         hf.close()
 
