@@ -210,12 +210,19 @@ def calc_bias(
     bias: float
         The bias factor.
     """
-    N = int(segmentDuration / deltaT)
-    Nsegs = int((1./overlap_factor) * (segmentDuration * deltaF - 1 )) + 1
-    K = Nsegs
-    rho1 = calc_rho1(N, window_fftgram_dict, overlap_factor=overlap_factor)
-    wfactor = (1 + 2 * (K-1)/K * rho1) ** (-1)
-    Neff = wfactor * K * N_avg_segs
+    # Number of samples in a data chunk
+    nSamples = int(segmentDuration / deltaT)
+
+    # Number of samples in the window used for Welch's estimate
+    N = int(1 / (deltaT * deltaF))
+
+    # Effective number of segments that are averaged for this windowing scheme
+    window_tuple = get_window_tuple(window_fftgram_dict)
+    Neff = effective_welch_averages(nSamples, N, window_tuple, overlap_factor=overlap_factor)
+
+    # Correction for number of PSDs that will be averaged 
+    Neff = N_avg_segs * Neff
+    
     bias = Neff / (Neff - 1)
     return bias
 

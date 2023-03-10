@@ -38,7 +38,8 @@ class WindowTest(unittest.TestCase):
         self.assertAlmostEqual(util.effective_welch_averages(60*4096, 4*4096, window_tuple="hann", overlap_factor=0.5), 27.52432046866242)
         
     def test_calc_bias(self):
-        self.assertEqual(util.calc_bias(192, 1./32, 1./4096), 1.0501446222695439)
+        self.assertAlmostEqual(util.calc_bias(60, 1./4, 1./4096), 1.018501852824747)
+        self.assertAlmostEqual(util.calc_bias(192, 1./32, 1./4096), 1.050144493503758)
 
     def test_omega_to_power(self):
         frequencies = np.arange(1.0, 100.0)
