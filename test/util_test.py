@@ -36,7 +36,10 @@ class WindowTest(unittest.TestCase):
 
         # Effective Welch averages for 60s segments, 4s FFTs @ 4096 Hz
         self.assertAlmostEqual(util.effective_welch_averages(60*4096, 4*4096, window_tuple="hann", overlap_factor=0.5), 27.52432046866242)
-        
+
+        # Effective Welch averages for 192s segments, 32s FFTs @ 4096 Hz
+        self.assertAlmostEqual(util.effective_welch_averages(192*4096, 32*4096, window_tuple="hann", overlap_factor=0.5), 10.47118457209110)
+
     def test_calc_bias(self):
         self.assertAlmostEqual(util.calc_bias(60, 1./4, 1./4096), 1.018501852824747)
         self.assertAlmostEqual(util.calc_bias(192, 1./32, 1./4096), 1.050144493503758)
