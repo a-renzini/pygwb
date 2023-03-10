@@ -61,6 +61,7 @@ def run_dsc(
     fref: int,
     frequency_mask: np.array = True,
     window_fftgram_dict: dict = {"window_fftgram": "hann"},
+    N_average_segments_welch_psd = 2,
     return_naive_and_averaged_sigmas: bool = False,
 ):
 
@@ -115,7 +116,7 @@ def run_dsc(
     times = np.array(psd1_naive.times)
     ntimes = len(times)
     df = psd1_naive.df.value
-    dt = 1 / sample_rate  # psd1_naive.df.value ** (-1)
+    dt = 1 / sample_rate  
     # Naive estimate
     bf_ns = calc_bias(
         segmentDuration=segment_duration,
@@ -129,7 +130,7 @@ def run_dsc(
         segmentDuration=segment_duration,
         deltaF=df,
         deltaT=dt,
-        N_avg_segs=2,
+        N_avg_segs=N_average_segments_welch_psd,
         window_fftgram_dict=window_fftgram_dict,
     )
     freqs = np.array(psd1_naive.frequencies)
