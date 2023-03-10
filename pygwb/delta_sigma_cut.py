@@ -61,6 +61,7 @@ def run_dsc(
     fref: int,
     frequency_mask: np.array = True,
     window_fftgram_dict: dict = {"window_fftgram": "hann"},
+    overlap_factor: float=0.5,
     N_average_segments_welch_psd = 2,
     return_naive_and_averaged_sigmas: bool = False,
 ):
@@ -124,6 +125,7 @@ def run_dsc(
         deltaT=dt,
         N_avg_segs=1,
         window_fftgram_dict=window_fftgram_dict,
+        overlap_factor=overlap_factor
     )
     # Sliding estimate
     bf_ss = calc_bias(
@@ -132,6 +134,7 @@ def run_dsc(
         deltaT=dt,
         N_avg_segs=N_average_segments_welch_psd,
         window_fftgram_dict=window_fftgram_dict,
+        overlap_factor=overlap_factor
     )
     freqs = np.array(psd1_naive.frequencies)
     overall_cut = np.zeros((ntimes, 1), dtype="bool")
@@ -156,6 +159,7 @@ def run_dsc(
                 orf=orf,
                 sample_rate=sample_rate,
                 window_fftgram_dict=window_fftgram_dict,
+                overlap_factor=overlap_factor,
                 segment_duration=segment_duration,
                 csd=None,
                 fref=fref,
@@ -169,6 +173,7 @@ def run_dsc(
                 orf=orf,
                 sample_rate=sample_rate,
                 window_fftgram_dict=window_fftgram_dict,
+                overlap_factor=overlap_factor,
                 segment_duration=segment_duration,
                 csd=None,
                 fref=fref,
