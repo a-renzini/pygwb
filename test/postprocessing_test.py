@@ -52,8 +52,8 @@ class IsotropicJobTest(unittest.TestCase):
         # combine over just time
         # check that combined sigmas are correct based on the way its
         # constructed
-        self.assertAlmostEqual(newsigma[0], 1.59438329)
-        self.assertAlmostEqual(newsigma[1], 1.25042364)
+        self.assertAlmostEqual(newsigma[0], 1.51124571)
+        self.assertAlmostEqual(newsigma[1], 1.18522150)
 
 
 if __name__ == "__main__":

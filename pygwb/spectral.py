@@ -481,7 +481,8 @@ def power_spectral_density(
     segment_duration:  TimeSeries,
     frequency_resolution: float,
     overlap_factor: float = 0.5,
-    window_fftgram_dict: dict = {"window_fftgram": "hann"},
+    window_fftgram_dict_welch_psd: dict = {"window_fftgram": "hann"},
+    overlap_factor_welch_psd: float = 0.5,
 ):
     """
     Compute the PSDs of every segment (defined by the segment duration)
@@ -519,9 +520,9 @@ def power_spectral_density(
     fft_gram_data = fftgram(
         time_series_data,
         fftlength,
-        overlap_factor=overlap_factor,
+        overlap_factor=overlap_factor_welch_psd,
         zeropad=False,
-        window_fftgram_dict=window_fftgram_dict,
+        window_fftgram_dict=window_fftgram_dict_welch_psd,
     )
 
     # Use pwelch method (averaging) to get PSDs for each segment duration 

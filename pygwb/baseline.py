@@ -131,7 +131,7 @@ class Baseline(object):
 
     @property
     def orf_polarization(self):
-        """"""
+        """Overlap reduction function polarization"""
         if self._orf_polarization_set:
             return self._orf_polarization
         else:
@@ -256,6 +256,14 @@ class Baseline(object):
             warnings.warn("Neither baseline nor interferometer duration is set.")
             self._duration = dur
             self._duration_set = True
+
+    @property
+    def csd_segment_offset(self):
+        if self._duration_set:
+            stride = self.duration * (1 - self.overlap_factor)
+            return int(np.ceil(self.duration / stride)) * int(self.N_average_segments_welch_psd/2)
+        else:
+            raise ValueError("Trying to calculate CSD segment offset before setting duration. Need to set duration before attempting this.")
 
     @property
     def frequencies(self):
@@ -685,7 +693,8 @@ class Baseline(object):
             self.interferometer_1.set_psd_spectrogram(
                 frequency_resolution,
                 overlap_factor=self.overlap_factor,
-                window_fftgram_dict=self.window_fftgram_dict,
+                window_fftgram_dict_welch_psd={"window_fftgram": "hann"},
+                overlap_factor_welch_psd=0.5,
             )
         except AttributeError:
             raise AssertionError(
@@ -695,7 +704,8 @@ class Baseline(object):
             self.interferometer_2.set_psd_spectrogram(
                 frequency_resolution,
                 overlap_factor=self.overlap_factor,
-                window_fftgram_dict=self.window_fftgram_dict,
+                window_fftgram_dict_welch_psd={"window_fftgram": "hann"},
+                overlap_factor_welch_psd=0.5,
             )
         except AttributeError:
             raise AssertionError(
@@ -734,11 +744,9 @@ class Baseline(object):
 
     def set_average_cross_spectral_density(self):
         """If csd has been calculated, sets the average csd for the baseline"""
-        stride = self.duration * (1 - self.overlap_factor)
-        csd_segment_offset = int(np.ceil(self.duration / stride))
         try:
             self.average_csd = self.csd[
-                csd_segment_offset : -(csd_segment_offset + 1) + 1
+                self.csd_segment_offset : -(self.csd_segment_offset + 1) + 1
             ]
         except AttributeError:
             print(
@@ -836,10 +844,9 @@ class Baseline(object):
             orf=self.overlap_reduction_function,
             sample_rate=self.sampling_frequency,
             segment_duration=self.duration,
-            window_fftgram_dict={"window_fftgram": "hann"},
             fref=fref,
             alpha=alpha,
-        )
+        ) #missing: pwelch estimation parameters
 
         sigma_name = f"{self.name} sigma spectrogram alpha={alpha}"
         self.point_estimate_spectrogram = OmegaSpectrogram(
@@ -902,6 +909,11 @@ class Baseline(object):
             Apply spectral notches flag; if True, remove the notches specified in the notch_list from the spectra calculations.
             Default is True.
         """
+        if self.overlap_factor>0.0:
+            do_overlap = True
+        else:
+            do_overlap = False
+
         if apply_dsc == True:
             if not hasattr(self, "badGPStimes"):
                 warnings.warn(
@@ -967,7 +979,9 @@ class Baseline(object):
             self.sampling_frequency,
             frequency_mask=self.frequency_mask,
             badtimes_mask=bad_times_indexes,
-        )
+            do_overlap=do_overlap,
+            N_avg_segs=self.N_average_segments_welch_psd,
+        )#missing: pwelch estimation parameters
 
         self.point_estimate_spectrum = OmegaSpectrum(
             point_estimate,
@@ -1122,19 +1136,17 @@ class Baseline(object):
 
         deltaF = self.frequencies[1] - self.frequencies[0]
         self.crop_frequencies_average_psd_csd(flow=flow, fhigh=fhigh)
-        stride = self.duration * (1 - self.overlap_factor)
-        csd_segment_offset = int(np.ceil(self.duration / stride))
 
         naive_psd_1 = self.interferometer_1.psd_spectrogram[
-            csd_segment_offset:-csd_segment_offset
+            self.csd_segment_offset:-self.csd_segment_offset
         ]
         naive_psd_2 = self.interferometer_2.psd_spectrogram[
-            csd_segment_offset:-csd_segment_offset
+            self.csd_segment_offset:-self.csd_segment_offset
         ]
 
         naive_psd_1_cropped = naive_psd_1.crop_frequencies(flow, fhigh + deltaF)
         naive_psd_2_cropped = naive_psd_2.crop_frequencies(flow, fhigh + deltaF)
-
+        
         if notch_list_path:
             self.notch_list_path = notch_list_path
         if self.notch_list_path:
@@ -1157,10 +1169,10 @@ class Baseline(object):
             orf=self.overlap_reduction_function,
             fref=fref,
             frequency_mask=self.frequency_mask,
-            window_fftgram_dict=self.window_fftgram_dict,
             N_average_segments_welch_psd = self.N_average_segments_welch_psd,
             return_naive_and_averaged_sigmas=return_naive_and_averaged_sigmas,
-        )
+        )#missing: pwelch estimation parameters
+
         self.badGPStimes = badGPStimes
         self.delta_sigmas = delta_sigmas
 
