@@ -120,6 +120,12 @@ $$
 
 where $P_{I,f}$ is the power spectral density from the detector $I$ and $T$ is the duration of data used to produce the above spectral densities. Details on how the estimation is carried out, as well as the implementation of the estimator on large datasets and with many potentially overlapping datasegments can be found in our companion methods paper [@].
 
+In addition, the {\tt pygwb} package offers the possibility to perform parameter estimation on predefined and user-defined models. Concretely, the above cross-correlation estimator is used in a Gaussian likelihood to perform Bayesian inference:
+$$
+p\qty(\hat{\Omega}^{IJ}_{{\rm GW}, f} | \mathbf{\Theta}) \propto\exp\left[  -\frac{1}{2} \sum_{IJ}^B \sum_f \left(\frac{\hat{\Omega}^{IJ}_{{\rm GW}, f}  - \Omega_{\rm M}(f|\mathbf{\Theta})}{\hat{\sigma}^{IJ}_{{\rm GW}, f}}\right)^2  \right],
+$$
+where $\Omega_{\rm M}(f|\mathbf{\Theta})$ is the GWB model and $\mathbf{\Theta}$ are its parameters. More information about the parameter estimation and the implemented models can be found in our companion methods paper [@].
+
 
 # Acknowledgements
 
