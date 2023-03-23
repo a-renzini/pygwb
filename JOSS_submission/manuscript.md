@@ -76,15 +76,15 @@ aas-journal: Astrophysical Journal <- The name of the AAS journal.
 
 # Introduction
 
-A gravitational-wave background (GWB) is expected from the superposition of all gravitational waves (GWs) too faint to be detected individually, or by the incoherent overlap of a large number of signals in the same band. A GWB is primarily characterized by its spectral emission, usually parameterized by the GW fractional energy density spectrum $\Omega_{\rm GW}(f)$, which is the target for stochastic GW searches,
+A gravitational-wave background (GWB) is expected from the superposition of all gravitational waves (GWs) too faint to be detected individually, or by the incoherent overlap of a large number of signals in the same band [@AIReview]. A GWB is primarily characterized by its spectral emission, usually parameterized by the GW fractional energy density spectrum $\Omega_{\rm GW}(f)$, which is the target for stochastic GW searches [@AllenRomano],
 
 $$
 \Omega_{\rm GW}(f) = \frac{1}{\rho_c}\frac{d\rho_{\rm GW}(f)}{d\ln f},
 $$
 
-where $d\rho_{\rm GW}$ is the energy density of GWs in the frequency band $f$ to $f + df$, and $\rho_c$ is the critical energy density in the Universe. The detection of a GWB will provide invaluable information about the evolution of the Universe and the population of GW sources within it.
+where $d\rho_{\rm GW}$ is the energy density of GWs in the frequency band $f$ to $f + df$, and $\rho_c$ is the critical energy density of the Universe. Different categories of GW sources may be identified by the unique spectral shape of their background emission; hence, the detection of a GWB will provide invaluable information about the evolution of the Universe and the population of GW sources within it.
 
-The detection and characterization of a GWB requires a community effort, justifying the need for an accessible and user-friendly open-source code.
+Due to the considerable amount of data to analyze, and the vast panorama of GWB models to test, the detection and characterization of a GWB requires a community effort, justifying the need for an accessible and user-friendly open-source code. 
 
 
 # Summary
@@ -99,7 +99,7 @@ The package is compatible with GW frame files in a variety of formats, relying o
 A parameter estimation script, {\tt pygwb_pe}, is also included and allows to test for a subset of default models with user-defined parameters. {\tt pygwb_pe} is based on the {\tt pygwb} parameter estimation module, {\tt pe}, which allows the user to test both predefined and user-defined models and obtain posterior distributions on the parameters of interest. Users are encouraged to develop and test their own models within the {\tt pe} module.
  The {\tt pygwb} package also contains built-in support for running on {\tt HTCondor}-supported servers using {\tt dag} files to parallelise the analysis of long stretches of data. Using the dedicated {\tt pygwb_combine} script, the output can be combined into an overall estimation of the GWB for the whole data set.
 
-The source code can be found at https://github.com/a-renzini/pygwb, or it can be installed from {\tt PyPi} via {\tt pip install pygwb}. The online documentation, tutorials and examples are hosted at https://pygwb.docs.ligo.org/pygwb/index.html. {\tt pygwb} is released under a OSI Approved :: MIT License.
+The source code can be found at https://github.com/a-renzini/pygwb, and can be installed from {\tt PyPi} via {\tt pip install pygwb}. The online documentation, tutorials and examples are hosted at https://pygwb.docs.ligo.org/pygwb/index.html. {\tt pygwb} is released under a OSI Approved :: MIT License.
 
 ![pygwb schema.\label{fig:schema}](../docs/pygwb_modules.png){width=80%}
 
@@ -112,28 +112,28 @@ $$
 \hat{\Omega}_{{GW}, f} = \frac{\mathbb{R}\[C_{IJ, f}\]}{\gamma_{IJ}(f) S_0(f)}.
 $$
 
-Here, $C_{IJ, f}$ is the cross-correlation spectral density between two detectors $I$ and $J$, $\gamma_{IJ}$ is the overlap reduction function, and $S_0(f)$ = $\frac{3H_0^2}{10\pi^2}\frac{1}{f^3}$, where $H_0$ is the Hubble constant today [@Planck2018]. The variance of the estimator is given by
+Here, $C_{IJ, f}$ is the cross-correlation spectral density between two detectors $I$ and $J$, $\gamma_{IJ}$ is the overlap reduction function [@AllenRomano], and $S_0(f)$ = $\frac{3H_0^2}{10\pi^2}\frac{1}{f^3}$, where $H_0$ is the Hubble constant today [@Planck2018]. The variance of the estimator is given by
 
 $$
 \sigma^2_{{\rm GW,} f} = \frac{1}{2 T \Delta f} \frac{P_{I, f} P_{J, f}}{\gamma^2_{IJ}(f) S^2_0(f)},
 $$
 
-where $P_{I,f}$ is the power spectral density from the detector $I$ and $T$ is the duration of data used to produce the above spectral densities. Details on how the estimation is carried out, as well as the implementation of the estimator on large datasets and with many potentially overlapping datasegments can be found in our companion methods paper [@].
+where $P_{I,f}$ is the power spectral density from detector $I$ and $T$ is the duration of data used to produce the above spectral densities. This estimator is optimal and unbiased under the assumption that the signal is Gaussian, isotropic, and continuous. Details on how the estimation is carried out, as well as the implementation of the estimator on large datasets and with many potentially overlapping datasegments can be found in our companion methods paper [@pygwb_paper].
 
-In addition, the {\tt pygwb} package offers the possibility to perform parameter estimation on predefined and user-defined models. Concretely, the above cross-correlation estimator is used in a Gaussian likelihood to perform Bayesian inference:
+Model testing in {\tt pygwb} is performed through Bayesian inference on a select set of parameters, given a parametric GWB model and a likelihood $p$ of observing the data given the model. Concretely, the above cross-correlation estimator is input data to a Gaussian residual likelihood,
 
 $$
 p\left(\hat{\Omega}^{IJ}_{{\rm GW}, f} | \mathbf{\Theta}\right) \propto\exp\left[  -\frac{1}{2} \sum_{IJ}^B \sum_f \left(\frac{\hat{\Omega}^{IJ}_{{\rm GW}, f}  - \Omega_{\rm M}(f|\mathbf{\Theta})}{\hat{\sigma}^{IJ}_{{\rm GW}, f}}\right)^2  \right],
 $$
 
-where $\Omega_{\rm M}(f|\mathbf{\Theta})$ is the GWB model and $\mathbf{\Theta}$ are its parameters. More information about the parameter estimation and the implemented models can be found in our companion methods paper [@].
+where $\Omega_{\rm M}(f|\mathbf{\Theta})$ is the GWB model and $\mathbf{\Theta}$ are its parameters. {\tt pygwb} currently admits a variety of GWB models, compatible with the Gaussian likelihood above. More information about the parameter estimation and the implemented models can be found in our companion methods paper [@pygwb_paper].
 
 
 # Acknowledgements
 
 We would like to thank the LVK stochastic group for its continued support. AIR is supported by the NSF award 1912594. ARR is supported in part by the Strategic Research Program “High-Energy Physics” of the Research Council of the Vrije Universiteit Brussel and by the iBOF “Unlocking the Dark Universe with Gravitational Wave Observations: from Quantum Optics to Quantum Gravity” of the Vlaamse Interuniversitaire Raad and by the FWO IRI grant I002123N “Essential Technologies for the Einstein Telescope”. KT is supported by FWO-Vlaanderen through grant number 1179522N. PMM is supported by the NANOGrav Physics Frontiers Center, National Science Foundation (NSF), award number 2020265. LT is supported by the National Science Foundation through OAC-2103662 and PHY-2011865. KJ is supported by FWO-Vlaanderen via grant number 11C5720N. DD is supported by the NSF as a part of the LIGO Laboratory. AM is supported by the European Union’s Horizon 2020 research and innovation programme under the Marie Sklodowska-Curie grant agreement No. 754510.
 
-This material is based upon work supported by NSF’s LIGO Laboratory which is a major facility fully funded by the National Science Foundation. LIGO was constructed by the California Institute of Technology and Massachusetts Institute of Technology with funding from the National Science Foundation, and operates under cooperative agreement PHY-1764464. Advanced LIGO was built under award PHY-0823459. The authors are grateful for computational resources provided by the LIGO Laboratory and supported by NSF Grants PHY-0757058 and PHY-0823459. This work carries LIGO document number ... .
+This material is based upon work supported by NSF’s LIGO Laboratory which is a major facility fully funded by the National Science Foundation. LIGO was constructed by the California Institute of Technology and Massachusetts Institute of Technology with funding from the National Science Foundation, and operates under cooperative agreement PHY-1764464. Advanced LIGO was built under award PHY-0823459. The authors are grateful for computational resources provided by the LIGO Laboratory and supported by NSF Grants PHY-0757058 and PHY-0823459. 
 
 
 # References
