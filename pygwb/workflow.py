@@ -86,6 +86,10 @@ class Job(pyJob):
                 
         arguments = ' '.join(list([arguments])+list(output_args))
 
+        # release if requested memory is too small
+        condorcmds.extend(["request_memory = ifthenelse(isUndefined(MemoryUsage),2000,3*MemoryUsage)",
+                           "periodic_release = (HoldReason == 26) && (JobStatus == 5)"])
+
         if retry == None:
             retry = 3
             
@@ -182,7 +186,7 @@ def create_pygwb_combine_job(dagman, config, t0=None, tf=None, parents=[], outpu
     return job
 
 def create_pygwb_stats_job(dagman, config, t0=None, tf=None, parents=[], output_path=None,
-    csd_file=None, dsc_file=None, param_file=None):
+    csd_file=None, dsc_file=None, coh_file=None, param_file=None):
     dur = int(tf-t0)
     name = f'pygwb_stats_{int(t0)}_{dur}'
     args = collect_job_arguments(config, 'pygwb_stats')
@@ -190,7 +194,8 @@ def create_pygwb_stats_job(dagman, config, t0=None, tf=None, parents=[], output_
         '-pf', param_file,
         '-pd', output_path,
         '-c', csd_file,
-        '-dsc', dsc_file
+        '-dsc', dsc_file,
+        '-fcoh', coh_file
         ]
     job = Job(name=name,
               executable=config['executables']['pygwb_stats'],

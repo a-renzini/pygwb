@@ -144,17 +144,20 @@ def make_workflow(args=None):
             f'point_estimate_sigma_spectra_alpha_{alpha:.1f}_fref_{int(fref)}_{start}-{start}.npz') 
         dsc_file = os.path.join(seg_dir, 
             f'delta_sigma_cut_{start}-{start}.npz')
+        coh_file = os.path.join(seg_dir,
+            f'coherence_spectrum_{start}-{start}.npz')
         stats_job = create_pygwb_stats_job(dagman, config, 
                     t0=start, tf=end,
             parents=[combine_job], output_path=seg_dir,
             csd_file=csd_file, 
             dsc_file=dsc_file, 
+            coh_file=coh_file,
             param_file=param_file)
         all_jobs.append(stats_job)
 
         # set up symlinks for pipe results
         npz_files = [
-            f'csds_psds_{start}-{end}.npz',
+            f'psds_csds_{start}-{end}.npz',
             f'point_estimate_sigma_{start}-{end}.npz',
             ] 
         for npz in npz_files:
@@ -174,11 +177,14 @@ def make_workflow(args=None):
     dsc_file = os.path.join(cumu_dir,
         f'delta_sigma_cut_{first_start}-{last_start}.npz')
     print(dsc_file)
+    coh_file = os.path.join(cumu_dir,
+        f'coherence_spectrum_{first_start}-{last_start}.npz')
     cumu_stats_job = create_pygwb_stats_job(dagman, config,
         t0=t0, tf=tf,
         parents=[cumu_combine_job], output_path=cumu_dir,
         csd_file=csd_file,
         dsc_file=dsc_file,
+        coh_file=coh_file,
         param_file=param_file)
     all_jobs.append(cumu_stats_job)
 
