@@ -5,7 +5,7 @@ import copy
 import os
 from fractions import Fraction
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile, isdir, join
 from pathlib import Path
 
 import numpy as np
@@ -40,7 +40,7 @@ currently only works with npz - this will be updated for compatibility with othe
 def main():
     combine_parser = argparse.ArgumentParser()
     combine_parser.add_argument(
-        "--data_path", help="Path to data files folder.", action="store", type=Path
+        "--data_path", help="Path to data files or folder.", action="store", type=Path, nargs='+'
     )
     combine_parser.add_argument(
         "--alpha",
@@ -68,6 +68,9 @@ def main():
         "--combine_coherence", help="Calculate combined coherence over all available data.", action="store", type=bool, required=False
     )
     combine_parser.add_argument(
+        "--coherence_path", help="Path to coherence data files, if individual files are passed.", action="store", type=Path, nargs='+', required=False
+    )
+    combine_parser.add_argument(
         "--out_path", help="Output path.", action="store", type=Path, required=False
     )
     combine_args = combine_parser.parse_args()
@@ -75,32 +78,40 @@ def main():
         combine_args.h0 = pygwb_h0
     if not combine_args.combine_coherence:
         combine_args.combine_coherence = False
+    if not combine_args.coherence_path:
+        combine_args.coherence_path = None
     if not combine_args.out_path:
         combine_args.out_path = Path("./")
     combine_args.alpha = float(Fraction(combine_args.alpha)) 
     params = Parameters()
     params.update_from_file(combine_args.param_file)
 
-    files_ptest = [
-        os.path.join(combine_args.data_path, f)
-        for f in listdir(combine_args.data_path)
-        if isfile(join(combine_args.data_path, f)) and f.startswith("point")
-    ]
-
-    files_ptest.sort(key=sort_ptest_files)
-    times = [int(sort_ptest_files(files_ptest[idx])) for idx in range(len(files_ptest))]
-
-    
-    if combine_args.combine_coherence:
-        files_coh = [
+    if isfile(combine_args.data_path[0]):
+        files_ptest = [str(pt_file) for pt_file in combine_args.data_path]
+        if combine_args.combine_coherence:
+                    files_coh = [str(coh_file) for coh_file in combine_args.coherence_path]
+    elif isdir(combine_args.data_path):
+        files_ptest = [
             os.path.join(combine_args.data_path, f)
             for f in listdir(combine_args.data_path)
-            if isfile(join(combine_args.data_path, f)) and f.startswith("psds")
+            if isfile(join(combine_args.data_path, f)) and f.startswith("point")
         ]
+        if combine_args.combine_coherence:
+            files_coh = [
+                join(combine_args.data_path, f)
+                for f in listdir(combine_args.data_path)
+                if isfile(join(combine_args.data_path, f)) and f.startswith("psds")
+            ]
+    else:
+        raise ValueError("Data path provided is neither a file nor a folder.")
+
+    files_ptest.sort(key=sort_ptest_files)
+    if combine_args.combine_coherence:
         files_coh.sort(key=sort_coh_files)
     else:
         files_coh = None
 
+    times = [int(sort_ptest_files(files_ptest[idx])) for idx in range(len(files_ptest))]
 
     frequencies = np.load(files_ptest[0])["frequencies"]
     #frequency_mask = np.load(files_ptest[0])["frequency_mask"]
@@ -307,6 +318,9 @@ def main():
         coh_frequencies = np.load(files_coh[0], allow_pickle=True)['avg_freqs']
         n_segs_coh_total = 0
 
+        logger.info(
+                f"Combining coherences over all files..."
+        )
         for file_coh, file_pt in tqdm(zip(files_coh,files_ptest), total=len(files_coh)):
             data_file = np.load(file_coh, allow_pickle=True)
             psd_1_coh = data_file['psd_1_coh']
