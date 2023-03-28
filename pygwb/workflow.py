@@ -9,9 +9,11 @@ import os
 import shutil
 from collections.abc import Iterable
 from getpass import getuser
+import numpy as np
 
 from pycondor import Dagman as pyDagman
 from pycondor import Job as pyJob
+from pycondor.job import JobArg
 
 ACCOUNTING_GROUP_USER = os.getenv(
     '_CONDOR_ACCOUNTING_USER',
@@ -117,28 +119,28 @@ class Job(pyJob):
                                  request_memory=request_memory, 
                                  **kwargs)
 
-    def check_required(job):
-        if not job.output_exits:
-            job.required_job = True
-            for p in job.parents:
+    def check_required(self):
+        if not self.output_exits:
+            self.required_job = True
+            for p in self.parents:
                 if not p.required_job:
-                    check_required(p)
+                    p.check_required()
 
-    def replace_input(job, cache):
-        args = job.args[0].arg.split(' ')
+    def replace_input(self, cache):
+        args = self.args[0].arg.split(' ')
         for file_pair in cache:
-            if file_pair[0] in job.input_file:
+            if file_pair[0] in self.input_file:
                 # replace this in arguments
                 for i, arg in enumerate(args):
                     if file_pair[0] in arg:
                         args[i] = file_pair[1]
-        job.args = [JobArg(arg=' '.join(args),
-                           name=job.args[0].name,
-                           retry=job.args[0].retry)]
+        self.args = [JobArg(arg=' '.join(args),
+                            name=self.args[0].name,
+                            retry=self.args[0].retry)]
 
-    def replace_input_children(job, cache):
-        for c in job.children:
-            replace_input(c, cache)
+    def replace_input_children(self, cache):
+        for c in self.children:
+            c.replace_input(cache)
 
 class Dagman(pyDagman):
     """
@@ -163,68 +165,65 @@ class Dagman(pyDagman):
        makedir(self.output_dir)
        makedir(self.result_dir)
 
-    def remove_node(dagman, job):
-        dagman.nodes.remove(job)
-    def remove_parent(child_job, parent_job):
+    def remove_node(self, job):
+        self.nodes.remove(job)
+
+    def remove_parent(self, child_job, parent_job):
         child_job.parents.remove(parent_job)
     
-    def in_cache(output_files, cache_list):
+    def in_cache(self, output_files, cache_list):
         return all(os.path.basename(out) in cache_list.T[0]
                    for out in output_files)
     
-    def replace_input_children(job, cache):
-        for c in job.children:
-            replace_input(c, cache)
-    
-    def add_to_dagman_inputs(dagman, file_names, cache):
+    def add_to_dagman_inputs(self, file_names, cache):
         for file_name in file_names:
             f_name = os.path.basename(file_name)
             f_num = np.argwhere(cache.T[0] == f_name)
-            dagman.input_cache_files.append(cache[f_num].flatten())
+            self.input_cache_files.append(cache[f_num].flatten())
     
-    def cache_filter(dagman, cache):
+    def cache_filter(self, cache):
         # first figure out what jobs already have their outputs
         premade_jobs = []
         # try starting with "final result" jobs
-        for job in dagman.nodes:
+        for job in self.nodes:
             #if all(out in cache for out in job.output_file):
-            if in_cache(job.output_file, cache):
+            if self.in_cache(job.output_file, cache):
                 #premade_jobs.append(job)
                 job.output_exits = True
-                replace_input_children(job, cache)
-                add_to_dagman_inputs(dagman, job.output_file, cache)
+                job.replace_input_children(cache)
+                self.add_to_dagman_inputs(job.output_file, cache)
         # then sort through nodes
-        for job in dagman.nodes:
+        for job in self.nodes:
             if job.final_result:
-                check_required(job)
+                job.check_required()
     
-    def remove_completed_jobs(dagman):
-        node_list = dagman.nodes.copy()
+    def remove_completed_jobs(self):
+        node_list = self.nodes.copy()
         for j in node_list:
             if not j.required_job:
                 # first remove children
                 for c in j.children:
-                    remove_parent(c, j)
+                    self.remove_parent(c, j)
                 # then remove the node
-                remove_node(dagman, j)
+                self.remove_node(j)
     
-    def filter_and_remove_from_cache(dagman, cache):
-        cache_filter(dagman, cache)
-        remove_completed_jobs(dagman)
+    def filter_and_remove_from_cache(self, cache):
+        self.cache_filter(cache)
+        self.remove_completed_jobs()
     
-    def load_cache(cache_file):
+    def load_cache(self, cache_file):
         cache = np.loadtxt(cache_file, dtype=str)
         return cache
     
-    def save_output_loc(dagman, output_loc='pygwb_cache.txt'):
+    def save_output_loc(self, output_loc='pygwb_cache.txt'):
         file_names = []
         file_paths = []
-        for job in dagman.nodes:
+        for job in self.nodes:
             if job.output_file:
                 file_names += [os.path.basename(out) for out in job.output_file]
                 file_paths += job.output_file
         cache_output = np.array([file_names, file_paths]).T
-        cache_output = np.concatenate((cache_output, dagman.input_cache_files))
+        cache_output = np.concatenate((cache_output, self.input_cache_files))
         np.savetxt(output_loc,
                    cache_output,
                    delimiter=" ", fmt="%s")
