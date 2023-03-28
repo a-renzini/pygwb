@@ -50,6 +50,7 @@ class Job(pyJob):
     def __init__(self, name, executable, output_arg=None, 
                  output_file=None, accounting_group=None, 
                  extra_lines=[], arguments=None,retry=None,
+                 final_result=False, input_file=None,
                  request_disk='2048MB', request_memory='512MB',
                  **kwargs):
 
@@ -68,21 +69,38 @@ class Job(pyJob):
             raise TypeError('accounting group must be supplied')
 
         output_args = []
+        self.output_file = None
+        # attrs for cache system
+        self.output_exits = False
+        self.required_job = False
             
+        # output args
         if output_file is not None:
-            if isinstance(output_arg, str):
-                output_args.append(output_arg)
-                if isinstance(output_file, str):
-                    self.output_file = [output_file]
-                    output_args.append(output_file)
-                elif isinstance(output_file, Iterable):
-                    self.output_file = output_file
-                    for arg in output_file:
-                        output_args.append(arg) 
+            if output_arg:
+                if isinstance(output_arg, str):
+                    output_args.append(output_arg)
                 else:
-                    raise TypeError('output_files must be a string or an iterable')
+                    raise TypeError('output_arg must be a string')
+            if isinstance(output_file, str):
+                self.output_file = [output_file]
+                output_args.append(output_file)
+            elif isinstance(output_file, Iterable):
+                self.output_file = output_file
+                for arg in output_file:
+                    output_args.append(arg) 
             else:
-                raise TypeError('output_arg must be a string')
+                raise TypeError('output_files must be a string or an iterable')
+
+        #input_args
+        self.input_file = None
+        if input_file is not None:
+            if isinstance(input_file, str):
+                self.input_file = [input_file]
+            elif isinstance(input_file, Iterable):
+                self.input_file = input_file
+
+        # final result? 
+        self.final_result = final_result
                 
         arguments = ' '.join(list([arguments])+list(output_args))
 
@@ -99,6 +117,29 @@ class Job(pyJob):
                                  request_memory=request_memory, 
                                  **kwargs)
 
+    def check_required(job):
+        if not job.output_exits:
+            job.required_job = True
+            for p in job.parents:
+                if not p.required_job:
+                    check_required(p)
+
+    def replace_input(job, cache):
+        args = job.args[0].arg.split(' ')
+        for file_pair in cache:
+            if file_pair[0] in job.input_file:
+                # replace this in arguments
+                for i, arg in enumerate(args):
+                    if file_pair[0] in arg:
+                        args[i] = file_pair[1]
+        job.args = [JobArg(arg=' '.join(args),
+                           name=job.args[0].name,
+                           retry=job.args[0].retry)]
+
+    def replace_input_children(job, cache):
+        for c in job.children:
+            replace_input(c, cache)
+
 class Dagman(pyDagman):
     """
     Wrapper class of pycondor.Dagman
@@ -110,6 +151,8 @@ class Dagman(pyDagman):
         self.log_dir = os.path.join(self.base_dir, 'condor')
         self.output_dir = os.path.join(self.base_dir, 'condor')
         self.result_dir = os.path.join(self.base_dir, 'output')
+        # used for caching
+        self.input_cache_files = []
         super(Dagman,self).__init__(name, submit=self.submit_dir, **kwargs)
 
     def make_dir(self):
@@ -119,6 +162,72 @@ class Dagman(pyDagman):
        makedir(self.log_dir)
        makedir(self.output_dir)
        makedir(self.result_dir)
+
+    def remove_node(dagman, job):
+        dagman.nodes.remove(job)
+    def remove_parent(child_job, parent_job):
+        child_job.parents.remove(parent_job)
+    
+    def in_cache(output_files, cache_list):
+        return all(os.path.basename(out) in cache_list.T[0]
+                   for out in output_files)
+    
+    def replace_input_children(job, cache):
+        for c in job.children:
+            replace_input(c, cache)
+    
+    def add_to_dagman_inputs(dagman, file_names, cache):
+        for file_name in file_names:
+            f_name = os.path.basename(file_name)
+            f_num = np.argwhere(cache.T[0] == f_name)
+            dagman.input_cache_files.append(cache[f_num].flatten())
+    
+    def cache_filter(dagman, cache):
+        # first figure out what jobs already have their outputs
+        premade_jobs = []
+        # try starting with "final result" jobs
+        for job in dagman.nodes:
+            #if all(out in cache for out in job.output_file):
+            if in_cache(job.output_file, cache):
+                #premade_jobs.append(job)
+                job.output_exits = True
+                replace_input_children(job, cache)
+                add_to_dagman_inputs(dagman, job.output_file, cache)
+        # then sort through nodes
+        for job in dagman.nodes:
+            if job.final_result:
+                check_required(job)
+    
+    def remove_completed_jobs(dagman):
+        node_list = dagman.nodes.copy()
+        for j in node_list:
+            if not j.required_job:
+                # first remove children
+                for c in j.children:
+                    remove_parent(c, j)
+                # then remove the node
+                remove_node(dagman, j)
+    
+    def filter_and_remove_from_cache(dagman, cache):
+        cache_filter(dagman, cache)
+        remove_completed_jobs(dagman)
+    
+    def load_cache(cache_file):
+        cache = np.loadtxt(cache_file, dtype=str)
+        return cache
+    
+    def save_output_loc(dagman, output_loc='pygwb_cache.txt'):
+        file_names = []
+        file_paths = []
+        for job in dagman.nodes:
+            if job.output_file:
+                file_names += [os.path.basename(out) for out in job.output_file]
+                file_paths += job.output_file
+        cache_output = np.array([file_names, file_paths]).T
+        cache_output = np.concatenate((cache_output, dagman.input_cache_files))
+        np.savetxt(output_loc,
+                   cache_output,
+                   delimiter=" ", fmt="%s")
 
 def collect_job_arguments(config, job_type):
     config_sec = config[job_type]
