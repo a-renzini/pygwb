@@ -115,7 +115,7 @@ Due to the considerable amount of data to analyze, and the vast panorama of GWB 
 The GWB spectrum estimation implemented in {\tt pygwb} is based on the unbiased minimum variance cross-correlation estimator [@RomanoRev],
 
 $$
-\hat{\Omega}_{{GW}, f} = \frac{\mathbb{R}\[C_{IJ, f}\]}{\gamma_{IJ}(f) S_0(f)}.
+\hat{\Omega}_{{\rm GW}, f} = \frac{{\rm Re}[C_{IJ, f}]}{\gamma_{IJ}(f) S_0(f)}.
 $$
 
 Here, $C_{IJ, f}$ is the cross-correlation spectral density between two detectors $I$ and $J$, $\gamma_{IJ}$ is the overlap reduction function [@AllenRomano], and $S_0(f)$ = $\frac{3H_0^2}{10\pi^2}\frac{1}{f^3}$, where $H_0$ is the Hubble constant today [@Planck2018]. The variance of the estimator is given by
@@ -129,10 +129,10 @@ where $P_{I,f}$ is the power spectral density from detector $I$ and $T$ is the d
 Model testing in {\tt pygwb} is performed through Bayesian inference on a select set of parameters, given a parametric GWB model and a likelihood $p$ of observing the data given the model. Concretely, the above cross-correlation estimator is input data to a Gaussian residual likelihood,
 
 $$
-p\left(\hat{\Omega}^{IJ}_{{\rm GW}, f} | \mathbf{\Theta}\right) \propto\exp\left[  -\frac{1}{2} \sum_{IJ}^B \sum_f \left(\frac{\hat{\Omega}^{IJ}_{{\rm GW}, f}  - \Omega_{\rm M}(f|\mathbf{\Theta})}{\hat{\sigma}^{IJ}_{{\rm GW}, f}}\right)^2  \right],
+p\left(\hat{\Omega}^{IJ}_{{\rm GW}, f} | \lambda\right) \propto\exp\left[  -\frac{1}{2} \sum_{IJ}^B \sum_f \left(\frac{\hat{\Omega}^{IJ}_{{\rm GW}, f}  - \Omega_{\rm M}(f|\lambda)}{\hat{\sigma}^{IJ}_{{\rm GW}, f}}\right)^2  \right],
 $$
 
-where $\Omega_{\rm M}(f|\mathbf{\Theta})$ is the GWB model and $\mathbf{\Theta}$ are its parameters. {\tt pygwb} currently admits a variety of GWB models, compatible with the Gaussian likelihood above. More information about the parameter estimation and the implemented models can be found in our companion methods paper [@pygwb_paper].
+where $\Omega_{\rm M}(f|\lambda)$ is the GWB model and $\lambda$ are its parameters. {\tt pygwb} currently admits a variety of GWB models, compatible with the Gaussian likelihood above. More information about the parameter estimation and the implemented models can be found in our companion methods paper [@pygwb_paper].
 
 # {\tt pygwb}
 
@@ -143,9 +143,9 @@ The {\tt pygwb} package is class-based and modular to facilitate the evolution o
 The package is compatible with GW frame files in a variety of formats, relying on the I/O functionality of {\tt gwpy} [@gwpy]. {\tt NumPy} [@harris2020array] is heavily used within the {\tt pygwb} code, as well as {\tt matplotlib} [@Hunter:2007] for plotting purposes. Some of the frequency-related computations rely on functionalities of the {\tt scipy} [@2020SciPy-NMeth] package. The {\tt astropy} [@astropy] package is employed for cosmology-related computations. The parameter estimation module included in {\tt pygwb} is based on {\tt Bilby} [@Ashton_2019] and the {\tt dynesty} [@Speagle_2020] sampler package.
 
 A customizable pipeline script, {\tt pygwb\_pipe}, is provided with the package and can be run in default mode, which reproduces the methodology of the LIGO-Virgo-KAGRA Collaboration (LVK) isotropic analysis implemented on the most recent observation run [@Abbott_2021]. On the other hand, the modularity of the package allows users to develop custom {\tt pygwb} pipelines to fit their needs. 
-A set of simple statistical checks can be performed on the data after a {\tt pygwb} run by using the {\tt statistical checks} module.
-In addition, a parameter estimation script, {\tt pygwb_pe}, is also included and allows to test a subset of default models with user-defined parameters. {\tt pygwb_pe} is based on the {\tt pygwb} parameter estimation module, {\tt pe}, which allows the user to test both predefined and user-defined models and obtain posterior distributions on the parameters of interest. Users are encouraged to develop and test their own models within the {\tt pe} module.
-The {\tt pygwb} package also contains built-in support for running on {\tt HTCondor}-supported servers using {\tt dag} files to parallelize the analysis of long stretches of data. Using the dedicated {\tt pygwb_combine} script, the output can be combined into an overall estimation of the GWB for the whole data set.
+A set of simple statistical checks can be performed on the data after a {\tt pygwb} run by using the {\tt statistical\_checks} module.
+In addition, a parameter estimation script, {\tt pygwb\_pe}, is also included and allows to test a subset of default models with user-defined parameters. {\tt pygwb\_pe} is based on the {\tt pygwb} parameter estimation module, {\tt pe}, which allows the user to test both predefined and user-defined models and obtain posterior distributions on the parameters of interest. Users are encouraged to develop and test their own models within the {\tt pe} module.
+The {\tt pygwb} package also contains built-in support for running on {\tt HTCondor}-supported servers using {\tt dag} files to parallelize the analysis of long stretches of data. Using the dedicated {\tt pygwb\_combine} script, the output can be combined into an overall estimation of the GWB for the whole data set.
 
 The source code can be found at https://github.com/a-renzini/pygwb, and can be installed from {\tt PyPi} via {\tt pip install pygwb}. The online documentation, tutorials and examples are hosted at https://pygwb.docs.ligo.org/pygwb/index.html. The package includes a unit test suite which currently covers 80% of the modules. {\tt pygwb} is released under a OSI Approved :: MIT License.
 
