@@ -957,14 +957,6 @@ class Baseline(object):
                 warnings.warn(
                     "Delta sigma cut has not been calculated yet, hence no delta sigma cut will be applied... If this is a mistake, please run `calculate_delta_sigma_cut` first, then re-calculate point estimate/sigma spectra."
                 )
-            if badtimes is None:
-                if hasattr(self, "badGPStimes"):
-                    badtimes = self.badGPStimes
-            else:
-                badtimes = np.append(badtimes, self.badGPStimes)
-                self.badGPStimes = badtimes
-        else:
-            badtimes = np.array([])
 
         if self._point_estimate_spectrogram_set:
             # reweight based on alpha that has been supplied
@@ -998,10 +990,13 @@ class Baseline(object):
 
         if apply_dsc:
             if len(self.delta_sigmas["times"]) == len(self.badGPStimes):
-                raise ValueError(
+                warnings.warn(
                     "The delta sigma cut has flagged all times in this dataset. No point estimate/sigma values can be calculated."
                 )
-
+                self.point_estimate_spectrum =  np.zeros(len(self.frequencies))
+                self.sigma_spectrum = np.inf * np.ones(len(self.frequencies))
+                return 
+            
         # setting the frequency mask for the before/after calculation
         self.set_frequency_mask(
             notch_list_path=notch_list_path, apply_notches=apply_notches
@@ -1107,6 +1102,11 @@ class Baseline(object):
         self.set_frequency_mask(
             notch_list_path=notch_list_path, apply_notches=apply_notches
         )
+
+        if self.sigma_spectrum[0] == np.infty:
+                self.sigma = np.inf
+                self.point_estimate = 0
+                return 
 
         Y, sigma = calc_Y_sigma_from_Yf_sigmaf(
             self.point_estimate_spectrum,
@@ -1286,12 +1286,12 @@ class Baseline(object):
                 warnings.warn(
                     "Delta sigma cut has not been calculated yet, hence no delta sigma cut will be applied... If this is a mistake, please run `calculate_delta_sigma_cut` first, then re-calculate point estimate/sigma spectra."
                 )
-            if badtimes is None:
+            if badtimes is not None:
                 if hasattr(self, "badGPStimes"):
-                    badtimes = self.badGPStimes
-            else:
-                badtimes = np.append(badtimes, self.badGPStimes)
+                    badtimes = np.append(badtimes, self.badGPStimes)
                 self.badGPStimes = badtimes
+            else:
+                badtimes = self.badGPStimes
         else:
             badtimes = np.array([])
 
