@@ -133,16 +133,19 @@ def main():
 
     pt_est_sigma_unweighted_path = os.path.join(
         combine_args.out_path,
-        f"point_estimate_sigma_{times[0]}-{times[-1]}_UNWEIGHTED.npz",
+        # FIXME - changed to get workflow running
+        f"point_estimate_sigma_{times[0]}-{times[0]}_UNWEIGHTED.npz",
     )
     delta_sigma_cut_output_path = os.path.join(
         combine_args.out_path,
-        f"delta_sigma_cut_{times[0]}-{times[-1]}.npz",
+        # FIXME - changed to get workflow running
+        f"delta_sigma_cut_{times[0]}-{times[0]}.npz",
     )
     pt_est_sigma_spectra_path = os.path.join(
         combine_args.out_path,
         "point_estimate_sigma_spectra_alpha_{:.1f}".format(combine_args.alpha)
-        + f"_fref_{combine_args.fref}_{times[0]}-{times[-1]}.npz",
+        # FIXME - changed to get workflow running
+        + f"_fref_{combine_args.fref}_{times[0]}-{times[0]}.npz",
     )
 
     logger.info('Unpacking files...')
@@ -225,13 +228,15 @@ def main():
 
     try:
         Y_spectrum.write(
-        os.path.join(combine_args.out_path, f"Y_spectrum_{times[0]}-{times[-1]}_UNWEIGHTED.hdf5")
+        # FIXME - changed to get workflow running
+        os.path.join(combine_args.out_path, f"Y_spectrum_{times[0]}-{times[0]}_UNWEIGHTED.hdf5")
         )
     except OSError:
         pass
     try:
         sigma_spectrum.write(
-        os.path.join(combine_args.out_path, f"sigma_spectrum_{times[0]}-{times[-1]}_UNWEIGHTED.hdf5")
+        # FIXME - changed to get workflow running
+        os.path.join(combine_args.out_path, f"sigma_spectrum_{times[0]}-{times[0]}_UNWEIGHTED.hdf5")
         )
     except OSError:
         pass
@@ -282,13 +287,15 @@ def main():
 
     try:
         Y_reweight_spectrum.write(
-        os.path.join(combine_args.out_path, "Y_spectrum_alpha_{:.1f}".format(combine_args.alpha) + f"_fref_{combine_args.fref}_{times[0]}-{times[-1]}.hdf5")
+        # FIXME - changed to get workflow running
+        os.path.join(combine_args.out_path, "Y_spectrum_alpha_{:.1f}".format(combine_args.alpha) + f"_fref_{combine_args.fref}_{times[0]}-{times[0]}.hdf5")
     )
     except OSError:
         pass
     try:
         sigma_reweight_spectrum.write(
-            os.path.join(combine_args.out_path, "sigma_spectrum_alpha_{:.1f}".format(combine_args.alpha) + f"_fref_{combine_args.fref}_{times[0]}-{times[-1]}.hdf5")
+            # FIXME - changed to get workflow running
+            os.path.join(combine_args.out_path, "sigma_spectrum_alpha_{:.1f}".format(combine_args.alpha) + f"_fref_{combine_args.fref}_{times[0]}-{times[0]}.hdf5")
         )
     except OSError:
         pass
@@ -310,7 +317,8 @@ def main():
     if combine_args.combine_coherence:
         coherence_path = os.path.join(
             combine_args.out_path,
-            f"coherence_spectrum_{times[0]}-{times[-1]}.npz",
+            # FIXME - changed to get workflow running
+            f"coherence_spectrum_{times[0]}-{times[0]}.npz",
         )
         psd_1_average = 0
         psd_2_average = 0
