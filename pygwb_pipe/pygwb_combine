@@ -73,6 +73,9 @@ def main():
     combine_parser.add_argument(
         "--out_path", help="Output path.", action="store", type=Path, required=False
     )
+    combine_parser.add_argument(
+        "--file_tag", help="File naming tag. By default, reads in first and last time in dataset.", action="store", type=str, required=False
+    )
     combine_args = combine_parser.parse_args()
     if not combine_args.h0:
         combine_args.h0 = pygwb_h0
@@ -113,6 +116,9 @@ def main():
 
     times = [int(sort_ptest_files(files_ptest[idx])) for idx in range(len(files_ptest))]
 
+    if not combine_args.file_tag:
+        combine_args.file_tag = f"{times[0]}-{times[-1]}"
+
     frequencies = np.load(files_ptest[0])["frequencies"]
     #frequency_mask = np.load(files_ptest[0])["frequency_mask"]
     frequency_mask = True
@@ -133,16 +139,16 @@ def main():
 
     pt_est_sigma_unweighted_path = os.path.join(
         combine_args.out_path,
-        f"point_estimate_sigma_{times[0]}-{times[-1]}_UNWEIGHTED.npz",
+        f"point_estimate_sigma_{combine_args.file_tag}_UNWEIGHTED.npz",
     )
     delta_sigma_cut_output_path = os.path.join(
         combine_args.out_path,
-        f"delta_sigma_cut_{times[0]}-{times[-1]}.npz",
+        f"delta_sigma_cut_{combine_args.file_tag}.npz",
     )
     pt_est_sigma_spectra_path = os.path.join(
         combine_args.out_path,
         "point_estimate_sigma_spectra_alpha_{:.1f}".format(combine_args.alpha)
-        + f"_fref_{combine_args.fref}_{times[0]}-{times[-1]}.npz",
+        + f"_fref_{combine_args.fref}_{combine_args.file_tag}.npz",
     )
 
     logger.info('Unpacking files...')
@@ -225,13 +231,13 @@ def main():
 
     try:
         Y_spectrum.write(
-        os.path.join(combine_args.out_path, f"Y_spectrum_{times[0]}-{times[-1]}_UNWEIGHTED.hdf5")
+        os.path.join(combine_args.out_path, f"Y_spectrum_{combine_args.file_tag}_UNWEIGHTED.hdf5")
         )
     except OSError:
         pass
     try:
         sigma_spectrum.write(
-        os.path.join(combine_args.out_path, f"sigma_spectrum_{times[0]}-{times[-1]}_UNWEIGHTED.hdf5")
+        os.path.join(combine_args.out_path, f"sigma_spectrum_{combine_args.file_tag}_UNWEIGHTED.hdf5")
         )
     except OSError:
         pass
@@ -282,13 +288,13 @@ def main():
 
     try:
         Y_reweight_spectrum.write(
-        os.path.join(combine_args.out_path, "Y_spectrum_alpha_{:.1f}".format(combine_args.alpha) + f"_fref_{combine_args.fref}_{times[0]}-{times[-1]}.hdf5")
+        os.path.join(combine_args.out_path, "Y_spectrum_alpha_{:.1f}".format(combine_args.alpha) + f"_fref_{combine_args.fref}_{combine_args.file_tag}.hdf5")
     )
     except OSError:
         pass
     try:
         sigma_reweight_spectrum.write(
-            os.path.join(combine_args.out_path, "sigma_spectrum_alpha_{:.1f}".format(combine_args.alpha) + f"_fref_{combine_args.fref}_{times[0]}-{times[-1]}.hdf5")
+            os.path.join(combine_args.out_path, "sigma_spectrum_alpha_{:.1f}".format(combine_args.alpha) + f"_fref_{combine_args.fref}_{combine_args.file_tag}.hdf5")
         )
     except OSError:
         pass
@@ -310,7 +316,7 @@ def main():
     if combine_args.combine_coherence:
         coherence_path = os.path.join(
             combine_args.out_path,
-            f"coherence_spectrum_{times[0]}-{times[-1]}.npz",
+            f"coherence_spectrum_{combine_args.file_tag}.npz",
         )
         psd_1_average = 0
         psd_2_average = 0

@@ -53,6 +53,9 @@ def main():
     pipe_parser.add_argument(
         "--wipe_ifo", help="Wipe interferometer data to reduce size of pickled Baseline.", action="store", type=str, required=False
     )
+    pipe_parser.add_argument(
+        "--file_tag", help="File naming tag. By default, reads in first and last time in dataset.", action="store", type=str, required=False
+    )
 
     help_args = help_arguments(pipe_parser)
     help_args.parse_known_args()  # for help
@@ -70,13 +73,6 @@ def main():
             output_path.mkdir(parents=True)
     else: 
         output_path = Path('')
-
-    if script_args.param_file:
-        outfile_path = f"{output_path}/{Path(script_args.param_file).stem}_final{Path(script_args.param_file).suffix}"
-    else:
-        outfile_path = Path(f"{output_path}/parameters_final.ini")
-    params.save_paramfile(str(outfile_path))
-    logger.info(f"Saved final param file at {outfile_path}.")
 
     if script_args.calc_coh:
         pipe_calculate_coherence = script_args.calc_coh
@@ -102,6 +98,16 @@ def main():
         wipe_ifo = bool(distutils.util.strtobool(script_args.wipe_ifo))
     else:
         wipe_ifo = True
+
+    if not script_args.file_tag:
+        script_args.file_tag = f"{int(params.t0)}-{int(params.tf)}"
+
+    if script_args.param_file:
+        outfile_path = f"{output_path}/{Path(script_args.param_file).stem}_{script_args.file_tag}_final{Path(script_args.param_file).suffix}"
+    else:
+        outfile_path = Path(f"{output_path}/parameters_{script_args.file_tag}_final.ini")
+    params.save_paramfile(str(outfile_path))
+    logger.info(f"Saved final param file at {outfile_path}.")
 
     param_dict = params.parse_ifo_parameters()
     ifo_list = params.interferometer_list
@@ -171,12 +177,12 @@ def main():
         )
 
         logger.success(
-            f"Ran stochastic search over times {int(params.t0)}-{int(params.tf)}"
+            f"Ran stochastic search over times {script_args.file_tag}"
         )
         logger.success(f"\tPOINT ESTIMATE: {base_12.point_estimate:e}")
         logger.success(f"\tSIGMA: {base_12.sigma:e}")
 
-        data_file_name = f"{output_path}/point_estimate_sigma_{int(params.t0)}-{int(params.tf)}"
+        data_file_name = f"{output_path}/point_estimate_sigma_{script_args.file_tag}"
 
         logger.info(
             "Saving point_estimate and sigma spectrograms, spectra, and final values to file."
@@ -186,20 +192,20 @@ def main():
             params.save_data_type,
             data_file_name,
         )
-        csd_file_name = f"{output_path}/psds_csds_{int(params.t0)}-{int(params.tf)}"
+        csd_file_name = f"{output_path}/psds_csds_{script_args.file_tag}"
         base_12.save_psds_csds(
             params.save_data_type,
             csd_file_name,
         )
         if pipe_pickle_baseline:
             logger.info("Pickling the baseline.")
-            pickle_name = f"{output_path}/{base_12.name}_{int(params.t0)}-{int(params.tf)}.pickle"
+            pickle_name = f"{output_path}/{base_12.name}_{script_args.file_tag}.pickle"
             base_12.save_to_pickle(pickle_name, wipe=wipe_ifo)
 
     else:
         logger.info("Saving average psds and csd to file.")
 
-        data_file_name = f"{output_path}/psds_csds_{int(params.t0)}-{int(params.tf)}"
+        data_file_name = f"{output_path}/psds_csds_{script_args.file_tag}"
 
         base_12.npz_save_psds_csds(
             data_file_name,
