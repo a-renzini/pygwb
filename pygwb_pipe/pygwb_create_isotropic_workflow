@@ -150,7 +150,8 @@ def make_workflow(args=None):
         combine_job, combine_output = create_pygwb_combine_job(dagman, config,
             t0=start, tf=end, 
             parents=[pipe_job], output_path=seg_dir,
-            data_path=data_file, coherence_path=coh_file, param_file=param_file)
+            data_path=data_file, coherence_path=coh_file, param_file=param_file,
+            alpha=alpha, fref=fref)
         all_jobs.append(combine_job)
         
         # extra vars
@@ -179,7 +180,8 @@ def make_workflow(args=None):
     cumu_combine_job, cumu_combine_output = create_pygwb_combine_job(dagman, config,
         t0=t0, tf=tf,
         parents=pipe_jobs, output_path=cumu_dir,
-        data_path=all_data_files, coherence_path=all_coh_files, param_file=all_param_files[-1])
+        data_path=all_data_files, coherence_path=all_coh_files, param_file=all_param_files[-1],
+        alpha=alpha, fref=fref)
     all_jobs.append(cumu_combine_job)
 
     csd_file, coh_file, dsc_file = cumu_combine_output
