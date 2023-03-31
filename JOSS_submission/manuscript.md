@@ -13,49 +13,49 @@ authors:
     affiliation: "1, 2" # (Multiple affiliations must be quoted)
   - name: Alba Romero-Rodriguez
     orcid: 0000-0000-0000-0000
-    affiliation:
+    affiliation: "3"
   - name: Colm Talbot
     orcid: 0000-0000-0000-0000
-    affiliation:
+    affiliation: "4"
   - name: Max Lalleman
     orcid: 0000-0000-0000-0000
     affiliation: "5"
   - name: Shivaraj Kandhasamy
     orcid: 0000-0000-0000-0000
-    affiliation:    
+    affiliation: "6"
   - name: Kevin Turbang
     orcid: 0000-0000-0000-0000
     affiliation: "3, 5"
   - name: Sylvia Biscoveanu
     orcid: 0000-0000-0000-0000
-    affiliation:
+    affiliation: "4, 7"
   - name: Katarina Martinovic
     orcid: 0000-0000-0000-0000
-    affiliation:
+    affiliation: "8"
   - name: Patrick Meyers
     orcid: 0000-0000-0000-0000
-    affiliation:
+    affiliation: "9"
   - name: Leo Tsukada
     orcid: 0000-0000-0000-0000
-    affiliation:
+    affiliation: "10, 11"
   - name: Kamiel Janssens 
     orcid: 0000-0000-0000-0000
-    affiliation: "5"
+    affiliation: "5, 12"
   - name: Derek Davis
     orcid: 0000-0000-0000-0000
-    affiliation:
+    affiliation: "1, 2"
   - name: Andrew Matas 
     orcid: 0000-0000-0000-0000
-    affiliation:   
+    affiliation: "13"
   - name: Philip Charlton
     orcid: 0000-0000-0000-0000
-    affiliation: 
+    affiliation: "14"
   - name: Guo-chin Liu
     orcid: 0000-0000-0000-0000
-    affiliation:
+    affiliation: "15"
   - name: Irina Dvorkin
     orcid: 0000-0000-0000-0000
-    affiliation:
+    affiliation: "16"
     
 affiliations:
  - name: LIGO Laboratory,  California  Institute  of  Technology,  Pasadena,  California  91125,  USA
@@ -64,9 +64,33 @@ affiliations:
    index: 2
  - name: Theoretische Natuurkunde, Vrije Universiteit Brussel, Pleinlaan 2, B-1050 Brussels, Belgium
    index: 3
+ - name: Kavli Institute for Astrophysics and Space Research, Massachusetts Institute of Technology, 77 Massachusetts Ave, Cambridge, MA 02139, USA
+   index: 4
  - name: Universiteit Antwerpen, Prinsstraat 13, 2000 Antwerpen, België
    index: 5
-
+ - name: Inter-University Centre for Astronomy and Astrophysics, Pune 411007, India
+   index: 6
+ - name: LIGO Laboratory, Massachusetts Institute of Technology, 185 Albany St, Cambridge, MA 02139, USA
+   index: 7
+ - name: Theoretical Particle Physics and Cosmology Group, Physics Department, King’s College London, University of London, Strand, London WC2R 2LS, United Kingdom
+   index: 8
+ - name: Theoretical Astrophysics Group, California Institute of Technology, Pasadena, CA 91125, USA
+   index: 9
+ - name: Department of Physics, The Pennsylvania State University, University Park, Pennsylvania 16802, USA
+   index: 10
+ - name: Institute for Gravitation and the Cosmos, The Pennsylvania State University, University Park, Pennsylvania 16802, USA
+   index: 11
+ - name: Université Côte d’Azur, Observatoire Côte d’Azur, ARTEMIS, Nice, France
+   index: 12
+ - name: Max Planck Institute for Gravitational Physics (Albert Einstein Institute), D-14476 Potsdam, Germany
+   index: 13
+ - name: OzGrav, Charles Sturt University, Wagga Wagga, New South Wales 2678, Australia
+   index: 14
+ - name: Department of Physics, Tamkang University, Danshui Dist., New Taipei City 25137, Taiwan
+   index: 15
+ - name: Institut d’Astrophysique de Paris, Sorbonne Université & CNRS, UMR 7095, 98 bis bd Arago, F-75014 Paris, France
+   index: 16
+   
 date: 
 bibliography: paper.bib
 
@@ -85,24 +109,6 @@ $$
 where $d\rho_{\rm GW}$ is the energy density of GWs in the frequency band $f$ to $f + df$, and $\rho_c$ is the critical energy density of the Universe. Different categories of GW sources may be identified by the unique spectral shape of their background emission; hence, the detection of a GWB will provide invaluable information about the evolution of the Universe and the population of GW sources within it.
 
 Due to the considerable amount of data to analyze, and the vast panorama of GWB models to test, the detection and characterization of a GWB requires a community effort, justifying the need for an accessible and user-friendly open-source code. 
-
-
-# Summary
-
-{\tt pygwb} is a Python-based, open-source stochastic GW analysis package specifically tailored to searches for isotropic GWBs with current ground-based interferometers, namely the Laser Interferometer Gravitational-wave Observatory (LIGO), the Virgo observatory, and the KAGRA detector.  
-
-The {\tt pygwb} package is class-based and modular to facilitate the evolution of the code and to increase flexibility of the analysis pipeline. The advantage of the Python language lies in rapid code execution, while maintaining a certain level of user-friendliness, which results in a shallow learning curve and will encourage future contributions to the code from the whole GW community. A summary of all {\tt pygwb} modules and its main external dependencies can be found in the {\tt pygwb} schema \autoref{fig:schema}.
-
-The package is compatible with GW frame files in a variety of formats, relying on the I/O functionality of {\tt gwpy} [@gwpy]. {\tt NumPy} [@harris2020array] is heavily used within the {\tt pygwb} code, as well as {\tt matplotlib} [@Hunter:2007] for plotting purposes. Some of the frequency-related computations rely on functionalities of the {\tt scipy} [@2020SciPy-NMeth] package. The {\tt astropy} [@astropy] package is employed for cosmology-related computations. The parameter estimation module included in {\tt pygwb} is based on {\tt Bilby} [@Ashton_2019] and the {\tt dynesty} [@Speagle_2020] sampler package.
-
- A customizable pipeline script, {\tt pygwb\_pipe}, is provided with the package and can be run in default mode, which reproduces the methodology of the LVK isotropic analysis implemented on the most recent observation run [@Abbott_2021]. On the other hand, the modularity of the package allows users to develop custom {\tt pygwb} pipelines to fit their needs. 
-A parameter estimation script, {\tt pygwb_pe}, is also included and allows to test for a subset of default models with user-defined parameters. {\tt pygwb_pe} is based on the {\tt pygwb} parameter estimation module, {\tt pe}, which allows the user to test both predefined and user-defined models and obtain posterior distributions on the parameters of interest. Users are encouraged to develop and test their own models within the {\tt pe} module.
- The {\tt pygwb} package also contains built-in support for running on {\tt HTCondor}-supported servers using {\tt dag} files to parallelise the analysis of long stretches of data. Using the dedicated {\tt pygwb_combine} script, the output can be combined into an overall estimation of the GWB for the whole data set.
-
-The source code can be found at https://github.com/a-renzini/pygwb, and can be installed from {\tt PyPi} via {\tt pip install pygwb}. The online documentation, tutorials and examples are hosted at https://pygwb.docs.ligo.org/pygwb/index.html. {\tt pygwb} is released under a OSI Approved :: MIT License.
-
-![pygwb schema.\label{fig:schema}](../docs/pygwb_modules.png){width=80%}
-
 
 # Method
 
@@ -127,6 +133,25 @@ p\left(\hat{\Omega}^{IJ}_{{\rm GW}, f} | \mathbf{\Theta}\right) \propto\exp\left
 $$
 
 where $\Omega_{\rm M}(f|\mathbf{\Theta})$ is the GWB model and $\mathbf{\Theta}$ are its parameters. {\tt pygwb} currently admits a variety of GWB models, compatible with the Gaussian likelihood above. More information about the parameter estimation and the implemented models can be found in our companion methods paper [@pygwb_paper].
+
+# pygwb
+
+{\tt pygwb} is a Python-based, open-source stochastic GW analysis package specifically tailored to searches for isotropic GWBs with current ground-based interferometers, namely the Laser Interferometer Gravitational-wave Observatory (LIGO), the Virgo observatory, and the KAGRA detector.  
+
+The {\tt pygwb} package is class-based and modular to facilitate the evolution of the code and to increase flexibility of the analysis pipeline. The advantage of the Python language lies in rapid code execution, while maintaining a certain level of user-friendliness, which results in a shallow learning curve and will encourage future contributions to the code from the whole GW community. A summary of all {\tt pygwb} modules and its main external dependencies can be found in the {\tt pygwb} schema \autoref{fig:schema}.
+
+The package is compatible with GW frame files in a variety of formats, relying on the I/O functionality of {\tt gwpy} [@gwpy]. {\tt NumPy} [@harris2020array] is heavily used within the {\tt pygwb} code, as well as {\tt matplotlib} [@Hunter:2007] for plotting purposes. Some of the frequency-related computations rely on functionalities of the {\tt scipy} [@2020SciPy-NMeth] package. The {\tt astropy} [@astropy] package is employed for cosmology-related computations. The parameter estimation module included in {\tt pygwb} is based on {\tt Bilby} [@Ashton_2019] and the {\tt dynesty} [@Speagle_2020] sampler package.
+
+A customizable pipeline script, {\tt pygwb\_pipe}, is provided with the package and can be run in default mode, which reproduces the methodology of the LIGO-Virgo-KAGRA Collaboration (LVK) isotropic analysis implemented on the most recent observation run [@Abbott_2021]. On the other hand, the modularity of the package allows users to develop custom {\tt pygwb} pipelines to fit their needs. 
+A set of simple statistical checks can be performed on the data after a {\tt pygwb} run by using the {\tt statistical checks} module.
+In addition, a parameter estimation script, {\tt pygwb_pe}, is also included and allows to test a subset of default models with user-defined parameters. {\tt pygwb_pe} is based on the {\tt pygwb} parameter estimation module, {\tt pe}, which allows the user to test both predefined and user-defined models and obtain posterior distributions on the parameters of interest. Users are encouraged to develop and test their own models within the {\tt pe} module.
+The {\tt pygwb} package also contains built-in support for running on {\tt HTCondor}-supported servers using {\tt dag} files to parallelize the analysis of long stretches of data. Using the dedicated {\tt pygwb_combine} script, the output can be combined into an overall estimation of the GWB for the whole data set.
+
+The {\tt pygwb} package comes with a series of unit tests for each of the modules, currently covering 80% of the package.
+
+The source code can be found at https://github.com/a-renzini/pygwb, and can be installed from {\tt PyPi} via {\tt pip install pygwb}. The online documentation, tutorials and examples are hosted at https://pygwb.docs.ligo.org/pygwb/index.html. {\tt pygwb} is released under a OSI Approved :: MIT License.
+
+![pygwb schema.\label{fig:schema}](../docs/pygwb_modules.png){width=80%}
 
 
 # Acknowledgements
