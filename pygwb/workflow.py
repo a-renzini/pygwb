@@ -9,8 +9,8 @@ import os
 import shutil
 from collections.abc import Iterable
 from getpass import getuser
-import numpy as np
 
+import numpy as np
 from pycondor import Dagman as pyDagman
 from pycondor import Job as pyJob
 from pycondor.job import JobArg
