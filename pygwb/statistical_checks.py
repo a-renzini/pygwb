@@ -15,7 +15,8 @@ matplotlib.rcParams['legend.handlelength'] = 3
 from matplotlib import rc
 
 rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
-rc('text', usetex=True)
+# FIXME - changed to get workflow running
+rc('text', usetex=False)
 
 import seaborn as sns
 
