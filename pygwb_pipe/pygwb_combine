@@ -90,7 +90,7 @@ def main():
         files_ptest = [str(pt_file) for pt_file in combine_args.data_path]
         if combine_args.combine_coherence:
                     files_coh = [str(coh_file) for coh_file in combine_args.coherence_path]
-    elif isdir(combine_args.data_path):
+    elif isdir(combine_args.data_path[0]):
         files_ptest = [
             os.path.join(combine_args.data_path, f)
             for f in listdir(combine_args.data_path)

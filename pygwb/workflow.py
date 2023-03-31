@@ -54,6 +54,7 @@ class Job(pyJob):
                  extra_lines=[], arguments=None,retry=None,
                  final_result=False, input_file=None,
                  request_disk='2048MB', request_memory='512MB',
+                 required_job=False,
                  **kwargs):
 
         exec_path = shutil.which(executable)
@@ -108,7 +109,7 @@ class Job(pyJob):
 
         # release if requested memory is too small
         condorcmds.extend(["request_memory = ifthenelse(isUndefined(MemoryUsage),2000,3*MemoryUsage)",
-                           "periodic_release = (HoldReason == 26) && (JobStatus == 5)"])
+                           "periodic_release = (HoldReasonCode == 26) && (JobStatus == 5)"])
 
         if retry == None:
             retry = 3
@@ -128,8 +129,11 @@ class Job(pyJob):
 
     def replace_input(self, cache):
         args = self.args[0].arg.split(' ')
+        input_base = []
+        if self.input_file:
+            input_base = [os.path.basename(i_file) for i_file in self.input_file]
         for file_pair in cache:
-            if file_pair[0] in self.input_file:
+            if file_pair[0] in input_base:
                 # replace this in arguments
                 for i, arg in enumerate(args):
                     if file_pair[0] in arg:
@@ -172,8 +176,11 @@ class Dagman(pyDagman):
         child_job.parents.remove(parent_job)
     
     def in_cache(self, output_files, cache_list):
-        return all(os.path.basename(out) in cache_list.T[0]
-                   for out in output_files)
+        if output_files:
+            return all(os.path.basename(out) in cache_list.T[0]
+                       for out in output_files)
+        else:
+            return False
     
     def add_to_dagman_inputs(self, file_names, cache):
         for file_name in file_names:
@@ -213,7 +220,7 @@ class Dagman(pyDagman):
     
     def load_cache(self, cache_file):
         cache = np.loadtxt(cache_file, dtype=str)
-        return cache
+        return cache[list(map(os.path.isfile,cache.T[1]))]
     
     def save_output_loc(self, output_loc='pygwb_cache.txt'):
         file_names = []
@@ -223,7 +230,8 @@ class Dagman(pyDagman):
                 file_names += [os.path.basename(out) for out in job.output_file]
                 file_paths += job.output_file
         cache_output = np.array([file_names, file_paths]).T
-        cache_output = np.concatenate((cache_output, self.input_cache_files))
+        if len(self.input_cache_files):
+            cache_output = np.concatenate((cache_output, self.input_cache_files))
         np.savetxt(output_loc,
                    cache_output,
                    delimiter=" ", fmt="%s")
@@ -251,6 +259,9 @@ def create_pygwb_pipe_job(dagman, config, t0=None, tf=None, parents=[], output_p
         '--t0', str(t0),
         '--tf', str(tf)
         ]
+    output_file = [os.path.join(output_path, 'parameters_final.ini'),
+                   os.path.join(output_path, f'psds_csds_{t0}-{tf}.npz'),
+                   os.path.join(output_path, f'point_estimate_sigma_{t0}-{tf}.npz')]
     job = Job(name=name,
               executable=config['executables']['pygwb_pipe'],
               accounting_group = config['general']['accounting_group'],
@@ -261,23 +272,39 @@ def create_pygwb_pipe_job(dagman, config, t0=None, tf=None, parents=[], output_p
               arguments=' '.join(args),
               request_disk='128MB',
               request_memory='2048MB',
+              output_file=output_file,
               dag=dagman)
     for parent in parents:
         job.add_parent(parent)
-    return job
+    return job, output_file
 
-def create_pygwb_combine_job(dagman, config, t0=None, tf=None, parents=[], output_path=None,
-    data_path=None, param_file=None,
+# FIX THE JOB LIST
+def create_pygwb_combine_job(dagman, config, t0=None, tf=None, parents=[], input_file=None, output_path=None,
+    data_path=None, coherence_path=None, param_file=None,
     alpha=0., fref=30, h0=0.7):
 #pygwb_combine --data_path output/ --param_file output/parameters_final.ini --alpha 0 --fref 30 --h0 0.7 --out_path ./output/
     dur = int(tf-t0)
     name = f'pygwb_combine_{int(t0)}_{dur}'
     args = collect_job_arguments(config, 'pygwb_combine')
+    if isinstance(data_path, str):
+        data_path = [data_path]
+    if isinstance(coherence_path, str):
+        coherence_path = [coherence_path]
+
+    input_file = data_path + coherence_path
+
+    data_path = ' '.join(data_path)
+    coherence_path = ' '.join(coherence_path)
+
     args = args + [
         '--param_file', param_file,
         '--out_path', output_path,
         '--data_path', data_path,
+        '--coherence_path', coherence_path,
         ]
+    output_file = [os.path.join(output_path, f'point_estimate_sigma_spectra_alpha_{alpha:.1f}_fref_{int(fref)}_{t0}-{t0}.npz'),
+                   os.path.join(output_path, f'coherence_spectrum_{t0}-{t0}.npz'),
+                   os.path.join(output_path, f'delta_sigma_cut_{t0}-{t0}.npz')]
     job = Job(name=name,
               executable=config['executables']['pygwb_combine'],
               accounting_group = config['general']['accounting_group'],
@@ -288,10 +315,13 @@ def create_pygwb_combine_job(dagman, config, t0=None, tf=None, parents=[], outpu
               arguments=' '.join(args),
               request_disk='128MB',
               request_memory='1024MB',
+              final_result=True,
+              input_file=input_file,
+              output_file=output_file,
               dag=dagman)
     for parent in parents:
         job.add_parent(parent)
-    return job
+    return job, output_file
 
 def create_pygwb_stats_job(dagman, config, t0=None, tf=None, parents=[], output_path=None,
     csd_file=None, dsc_file=None, coh_file=None, param_file=None):
@@ -305,6 +335,9 @@ def create_pygwb_stats_job(dagman, config, t0=None, tf=None, parents=[], output_
         '-dsc', dsc_file,
         '-fcoh', coh_file
         ]
+    input_file = [param_file, csd_file, dsc_file, coh_file]
+    # FIXME - figure out all the plots this job makes
+    output_file = None
     job = Job(name=name,
               executable=config['executables']['pygwb_stats'],
               accounting_group = config['general']['accounting_group'],
@@ -315,6 +348,10 @@ def create_pygwb_stats_job(dagman, config, t0=None, tf=None, parents=[], output_
               arguments=' '.join(args),
               request_disk='128MB',
               request_memory='512MB',
+              final_result=True,
+              input_file=input_file,
+              output_file=output_file,
+              required_job=True,
               dag=dagman)
     for parent in parents:
         job.add_parent(parent)
@@ -337,6 +374,8 @@ def create_pygwb_html_job(dagman, config, t0=None, tf=None, parents=[], output_p
               arguments=' '.join(args),
               request_disk='128MB',
               request_memory='1024MB',
+              final_result=True,
+              required_job=True,
               dag=dagman)
     for parent in parents:
         job.add_parent(parent)

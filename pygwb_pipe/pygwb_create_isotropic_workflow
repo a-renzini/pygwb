@@ -37,6 +37,7 @@ def make_workflow(args=None):
 
     config = configparser.ConfigParser()
     config.read(args.configfile)
+    config = config_override(config, args.config_overrides)
 
     if config.has_option('general', 'min_job_dur'):
         min_dur = int(config['general']['min_job_dur'])
@@ -46,6 +47,12 @@ def make_workflow(args=None):
         max_dur = int(config['general']['max_job_dur'])
     else:
         max_dur = 1000000
+
+    # get cache file
+    if config.has_option('general', 'cache_file'):
+        cache_file_path = os.path.abspath(config['general']['cache_file'])
+    else:
+        cache_file_path = None
 
     # =====
     # set up segments
@@ -101,7 +108,6 @@ def make_workflow(args=None):
                     basedir=args.basedir)
     dagman.make_dir()
 
-    config = config_override(config, args.config_overrides)
     config_path = os.path.join(dagman.base_dir, 'config.ini')
     config_write(config, config_path)
 
@@ -113,6 +119,13 @@ def make_workflow(args=None):
 
     first_start = int(seglist_pruned[0][0])
     last_start = 0
+
+    fref = int(config['pygwb_pipe']['fref'])
+    alpha =  float(config['pygwb_pipe']['alpha'])
+
+    all_coh_files = []
+    all_data_files = []
+    all_param_files = []
     for seg in seglist_pruned:
         start = int(seg[0])
         end = int(seg[1])
@@ -122,32 +135,28 @@ def make_workflow(args=None):
 
         last_start = start
 
-        pipe_job = create_pygwb_pipe_job(dagman, config, parents=[], 
+        pipe_job, pipe_output = create_pygwb_pipe_job(dagman, config, parents=[], 
             output_path=seg_dir, 
             t0=start, tf=end
             )
         all_jobs.append(pipe_job)
         pipe_jobs.append(pipe_job)
+        param_file, coh_file, data_file = pipe_output
+        all_param_files.append(param_file)
+        all_coh_files.append(coh_file)
+        all_data_files.append(data_file)
 
         # extra vars
-        param_file = os.path.join(seg_dir, 'parameters_final.ini') 
-        combine_job = create_pygwb_combine_job(dagman, config,
+        combine_job, combine_output = create_pygwb_combine_job(dagman, config,
             t0=start, tf=end, 
             parents=[pipe_job], output_path=seg_dir,
-            data_path=seg_dir, param_file=param_file)
+            data_path=data_file, coherence_path=coh_file, param_file=param_file)
         all_jobs.append(combine_job)
         
         # extra vars
-        fref = int(config['pygwb_pipe']['fref']) 
-        alpha =  float(config['pygwb_pipe']['alpha'])
-        csd_file = os.path.join(seg_dir, 
-            f'point_estimate_sigma_spectra_alpha_{alpha:.1f}_fref_{int(fref)}_{start}-{start}.npz') 
-        dsc_file = os.path.join(seg_dir, 
-            f'delta_sigma_cut_{start}-{start}.npz')
-        coh_file = os.path.join(seg_dir,
-            f'coherence_spectrum_{start}-{start}.npz')
+        csd_file, coh_file, dsc_file = combine_output 
         stats_job = create_pygwb_stats_job(dagman, config, 
-                    t0=start, tf=end,
+            t0=start, tf=end,
             parents=[combine_job], output_path=seg_dir,
             csd_file=csd_file, 
             dsc_file=dsc_file, 
@@ -156,36 +165,31 @@ def make_workflow(args=None):
         all_jobs.append(stats_job)
 
         # set up symlinks for pipe results
-        npz_files = [
-            f'psds_csds_{start}-{end}.npz',
-            f'point_estimate_sigma_{start}-{end}.npz',
-            ] 
-        for npz in npz_files:
-            os.symlink(
-                os.path.join(seg_dir, npz), 
-                os.path.join(cumu_dir, npz))
+        #npz_files = [
+        #    f'psds_csds_{start}-{end}.npz',
+        #    f'point_estimate_sigma_{start}-{end}.npz',
+        #    ] 
+        #for npz in npz_files:
+        #    os.symlink(
+        #        os.path.join(seg_dir, npz), 
+        #        os.path.join(cumu_dir, npz))
 
     # make cumulative results
-    cumu_combine_job = create_pygwb_combine_job(dagman, config,
+    # FIX ME - how the param file is passed
+    cumu_combine_job, cumu_combine_output = create_pygwb_combine_job(dagman, config,
         t0=t0, tf=tf,
         parents=pipe_jobs, output_path=cumu_dir,
-        data_path=cumu_dir, param_file=param_file)
+        data_path=all_data_files, coherence_path=all_coh_files, param_file=all_param_files[-1])
     all_jobs.append(cumu_combine_job)
 
-    csd_file = os.path.join(cumu_dir,
-        f'point_estimate_sigma_spectra_alpha_{alpha:.1f}_fref_{int(fref)}_{first_start}-{last_start}.npz')
-    dsc_file = os.path.join(cumu_dir,
-        f'delta_sigma_cut_{first_start}-{last_start}.npz')
-    print(dsc_file)
-    coh_file = os.path.join(cumu_dir,
-        f'coherence_spectrum_{first_start}-{last_start}.npz')
+    csd_file, coh_file, dsc_file = cumu_combine_output
     cumu_stats_job = create_pygwb_stats_job(dagman, config,
         t0=t0, tf=tf,
         parents=[cumu_combine_job], output_path=cumu_dir,
         csd_file=csd_file,
         dsc_file=dsc_file,
         coh_file=coh_file,
-        param_file=param_file)
+        param_file=all_param_files[-1]) # Also FIX ME (param_file)
     all_jobs.append(cumu_stats_job)
 
     pygwb_html(dagman.base_dir, config=config_path)
@@ -209,11 +213,28 @@ def make_workflow(args=None):
         t0=t0, tf=tf, parents=all_jobs, 
         output_path=dagman.base_dir, plot_path=dagman.result_dir)
 
+    # parse the cache file and filter workflow
+    if cache_file_path:
+        logging.info('Parsing cache file...')
+        cache = dagman.load_cache(cache_file_path)
+        if len(cache):
+            logging.info('Filtering out pre-computed jobs from workflow...')
+            dagman.filter_and_remove_from_cache(cache)
+        else:
+            logging.info('No files were found in cache file, skipping...')
+
+    new_cache_path = os.path.join(dagman.base_dir, 'pygwb_cache.txt')
+    logging.info(f'Writing out new cache file at {new_cache_path}')
+    dagman.save_output_loc(output_loc=new_cache_path)
+
     dagman.build(fancyname=False)
 
     if args.submit:
         logging.info('Submitting to condor...')
         dagman.submit_dag()
+    else:
+        logging.info('PyGWB Isotropic Workflow can be submitted to condor by running the following:'
+                      f'\n\n\t  condor_submit_dag {dagman.submit_file}\n')
 
     logging.info('Done')
 
