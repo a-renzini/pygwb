@@ -7,7 +7,7 @@ tags:
   - gravitational waves
 authors:
   - name: Arianna I. Renzini
-    orcid: 0000-0000-0000-0000
+    orcid: 0000-0002-4589-3987
     corresponding: true
     email: arenzini@caltech.edu
     affiliation: "1, 2" # (Multiple affiliations must be quoted)
