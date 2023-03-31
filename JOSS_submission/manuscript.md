@@ -129,10 +129,10 @@ where $P_{I,f}$ is the power spectral density from detector $I$ and $T$ is the d
 Model testing in {\tt pygwb} is performed through Bayesian inference on a select set of parameters, given a parametric GWB model and a likelihood $p$ of observing the data given the model. Concretely, the above cross-correlation estimator is input data to a Gaussian residual likelihood,
 
 $$
-p\left(\hat{\Omega}^{IJ}_{{\rm GW}, f} | \mathbf{\lambda}\right) \propto\exp\left[  -\frac{1}{2} \sum_{IJ}^B \sum_f \left(\frac{\hat{\Omega}^{IJ}_{{\rm GW}, f}  - \Omega_{\rm M}(f|\mathbf{\lambda})}{\hat{\sigma}^{IJ}_{{\rm GW}, f}}\right)^2  \right],
+p\left(\hat{\Omega}^{IJ}_{{\rm GW}, f} | \lambda\right) \propto\exp\left[  -\frac{1}{2} \sum_{IJ}^B \sum_f \left(\frac{\hat{\Omega}^{IJ}_{{\rm GW}, f}  - \Omega_{\rm M}(f|\lambda)}{\hat{\sigma}^{IJ}_{{\rm GW}, f}}\right)^2  \right],
 $$
 
-where $\Omega_{\rm M}(f|\mathbf{\lambda})$ is the GWB model and $\mathbf{\lambda}$ are its parameters. {\tt pygwb} currently admits a variety of GWB models, compatible with the Gaussian likelihood above. More information about the parameter estimation and the implemented models can be found in our companion methods paper [@pygwb_paper].
+where $\Omega_{\rm M}(f|\lambda)$ is the GWB model and $\lambda$ are its parameters. {\tt pygwb} currently admits a variety of GWB models, compatible with the Gaussian likelihood above. More information about the parameter estimation and the implemented models can be found in our companion methods paper [@pygwb_paper].
 
 # {\tt pygwb}
 
