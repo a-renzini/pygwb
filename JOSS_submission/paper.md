@@ -142,14 +142,14 @@ The `pygwb` package is class-based and modular to facilitate the evolution of th
 
 The package is compatible with GW frame files in a variety of formats, relying on the I/O functionality of `gwpy` [@gwpy]. `NumPy` [@harris2020array] is heavily used within the `pygwb` code, as well as `matplotlib` [@Hunter:2007] for plotting purposes. Some of the frequency-related computations rely on functionalities of the `scipy` [@2020SciPy-NMeth] package. The `astropy` [@astropy] package is employed for cosmology-related computations. The parameter estimation module included in `pygwb` is based on `Bilby` [@Ashton_2019] and the  `dynesty` [@Speagle_2020] sampler package.
 
-A customizable pipeline script, `pygwb\_pipe`, is provided with the package and can be run in default mode, which reproduces the methodology of the LIGO-Virgo-KAGRA Collaboration (LVK) isotropic analysis implemented on the most recent observation run [@Abbott_2021]. On the other hand, the modularity of the package allows users to develop custom `pygwb` pipelines to fit their needs. 
-A set of simple statistical checks can be performed on the data after a `pygwb` run by using the `statistical\_checks` module.
-In addition, a parameter estimation script, `pygwb\_pe`, is also included and allows to test a subset of default models with user-defined parameters. `pygwb\_pe` is based on the `pygwb` parameter estimation module, `pe`, which allows the user to test both predefined and user-defined models and obtain posterior distributions on the parameters of interest. Users are encouraged to develop and test their own models within the `pe` module.
-The `pygwb` package also contains built-in support for running on `HTCondor`-supported servers using `dag` files to parallelize the analysis of long stretches of data. Using the dedicated `pygwb\_combine` script, the output can be combined into an overall estimation of the GWB for the whole data set.
+A customizable pipeline script, `pygwb_pipe`, is provided with the package and can be run in default mode, which reproduces the methodology of the LIGO-Virgo-KAGRA Collaboration (LVK) isotropic analysis implemented on the most recent observation run [@Abbott_2021]. On the other hand, the modularity of the package allows users to develop custom `pygwb` pipelines to fit their needs. 
+A set of simple statistical checks can be performed on the data after a `pygwb` run by using the `statistical_checks` module.
+In addition, a parameter estimation script, `pygwb_pe`, is also included and allows to test a subset of default models with user-defined parameters. `pygwb_pe` is based on the `pygwb` parameter estimation module, `pe`, which allows the user to test both predefined and user-defined models and obtain posterior distributions on the parameters of interest. Users are encouraged to develop and test their own models within the `pe` module.
+The `pygwb` package also contains built-in support for running on `HTCondor`-supported servers using `dag` files to parallelize the analysis of long stretches of data. Using the dedicated `pygwb_combine` script, the output can be combined into an overall estimation of the GWB for the whole data set.
 
 The source code can be found at https://github.com/a-renzini/pygwb, and can be installed from `PyPi` via `pip install pygwb`. The online documentation, tutorials and examples are hosted at https://pygwb.docs.ligo.org/pygwb/index.html. The package includes a unit test suite which currently covers 80% of the modules. `pygwb` is released under a OSI Approved :: MIT License.
 
-![pygwb schema.\label{fig:schema}](../docs/pygwb_modules.png){width=80%}
+![`pygwb` schema.\label{fig:schema}](../docs/pygwb_modules.png){width=80%}
 
 
 # Acknowledgements
