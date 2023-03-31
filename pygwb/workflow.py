@@ -86,11 +86,13 @@ class Job(pyJob):
                     raise TypeError('output_arg must be a string')
             if isinstance(output_file, str):
                 self.output_file = [output_file]
-                output_args.append(output_file)
+                if output_arg:
+                    output_args.append(output_file)
             elif isinstance(output_file, Iterable):
                 self.output_file = output_file
-                for arg in output_file:
-                    output_args.append(arg) 
+                if output_arg:
+                    for arg in output_file:
+                        output_args.append(arg) 
             else:
                 raise TypeError('output_files must be a string or an iterable')
 
