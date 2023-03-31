@@ -293,7 +293,7 @@ def create_pygwb_combine_job(dagman, config, t0=None, tf=None, parents=[], input
     if isinstance(coherence_path, str):
         coherence_path = [coherence_path]
 
-    input_file = data_path + coherence_path
+    input_file = data_path + coherence_path + [param_file]
 
     data_path = ' '.join(data_path)
     coherence_path = ' '.join(coherence_path)
