@@ -115,7 +115,7 @@ Due to the considerable amount of data to analyze, and the vast panorama of GWB 
 The GWB spectrum estimation implemented in {\tt pygwb} is based on the unbiased minimum variance cross-correlation estimator [@RomanoRev],
 
 $$
-\hat{\Omega}_{{GW}, f} = \frac{\mathbb{R}\[C_{IJ, f}\]}{\gamma_{IJ}(f) S_0(f)}.
+\hat{\Omega}_{{\rm GW}, f} = \frac{{\rm Re}[C_{IJ, f}]}{\gamma_{IJ}(f) S_0(f)}.
 $$
 
 Here, $C_{IJ, f}$ is the cross-correlation spectral density between two detectors $I$ and $J$, $\gamma_{IJ}$ is the overlap reduction function [@AllenRomano], and $S_0(f)$ = $\frac{3H_0^2}{10\pi^2}\frac{1}{f^3}$, where $H_0$ is the Hubble constant today [@Planck2018]. The variance of the estimator is given by
