@@ -254,16 +254,18 @@ def collect_job_arguments(config, job_type):
 def create_pygwb_pipe_job(dagman, config, t0=None, tf=None, parents=[], output_path=None):
 #pygwb_pipe --param_file parameters.ini --output_path output/ --t0 ${START} --tf ${END}
     dur = int(tf-t0)
+    file_tag = f'{int(t0)}-{dur}'
     name = f'pygwb_pipe_{int(t0)}_{dur}'
     args = collect_job_arguments(config, 'pygwb_pipe')
     args = args + [
         '--output_path', output_path,
         '--t0', str(t0),
-        '--tf', str(tf)
+        '--tf', str(tf),
+        '--file_tag', file_tag
         ]
-    output_file = [os.path.join(output_path, 'parameters_final.ini'),
-                   os.path.join(output_path, f'psds_csds_{t0}-{tf}.npz'),
-                   os.path.join(output_path, f'point_estimate_sigma_{t0}-{tf}.npz')]
+    output_file = [os.path.join(output_path, f'parameters_{file_tag}_final.ini'),
+                   os.path.join(output_path, f'psds_csds_{file_tag}.npz'),
+                   os.path.join(output_path, f'point_estimate_sigma_{file_tag}.npz')]
     job = Job(name=name,
               executable=config['executables']['pygwb_pipe'],
               accounting_group = config['general']['accounting_group'],
@@ -286,6 +288,7 @@ def create_pygwb_combine_job(dagman, config, t0=None, tf=None, parents=[], input
     alpha=0., fref=30, h0=0.7):
 #pygwb_combine --data_path output/ --param_file output/parameters_final.ini --alpha 0 --fref 30 --h0 0.7 --out_path ./output/
     dur = int(tf-t0)
+    file_tag = f'{int(t0)}-{dur}'
     name = f'pygwb_combine_{int(t0)}_{dur}'
     args = collect_job_arguments(config, 'pygwb_combine')
     if isinstance(data_path, str):
@@ -303,10 +306,11 @@ def create_pygwb_combine_job(dagman, config, t0=None, tf=None, parents=[], input
         '--out_path', output_path,
         '--data_path', data_path,
         '--coherence_path', coherence_path,
+        '--file_tag', file_tag
         ]
-    output_file = [os.path.join(output_path, f'point_estimate_sigma_spectra_alpha_{alpha:.1f}_fref_{int(fref)}_{t0}-{t0}.npz'),
-                   os.path.join(output_path, f'coherence_spectrum_{t0}-{t0}.npz'),
-                   os.path.join(output_path, f'delta_sigma_cut_{t0}-{t0}.npz')]
+    output_file = [os.path.join(output_path, f'point_estimate_sigma_spectra_alpha_{alpha:.1f}_fref_{int(fref)}_{file_tag}.npz'),
+                   os.path.join(output_path, f'coherence_spectrum_{file_tag}.npz'),
+                   os.path.join(output_path, f'delta_sigma_cut_{file_tag}.npz')]
     job = Job(name=name,
               executable=config['executables']['pygwb_combine'],
               accounting_group = config['general']['accounting_group'],
@@ -359,13 +363,15 @@ def create_pygwb_stats_job(dagman, config, t0=None, tf=None, parents=[], output_
         job.add_parent(parent)
     return job
 
-def create_pygwb_html_job(dagman, config, t0=None, tf=None, parents=[], output_path=None, plot_path=None):
+def create_pygwb_html_job(dagman, config, t0=None, tf=None, segment_results=False, parents=[], output_path=None, plot_path=None):
     name = f'pygwb_html'
     args = collect_job_arguments(config, 'pygwb_html')
     args = args + [
         '-p', plot_path,
         '-o', output_path,
         ]
+    if segment_results:
+        args = args + ['--plot-segment-results']
     job = Job(name=name,
               executable=config['executables']['pygwb_html'],
               accounting_group = config['general']['accounting_group'],

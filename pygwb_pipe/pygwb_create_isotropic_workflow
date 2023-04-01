@@ -48,6 +48,12 @@ def make_workflow(args=None):
     else:
         max_dur = 1000000
 
+    # check if we want segment-level results
+    if config.has_option('general', 'plot_segment_results'):
+        segment_results = bool(config['general']['plot_segment_results'])
+    else:
+        segment_results = False
+
     # get cache file
     if config.has_option('general', 'cache_file'):
         cache_file_path = os.path.abspath(config['general']['cache_file'])
@@ -97,9 +103,6 @@ def make_workflow(args=None):
                 seglist_pruned.append([int(edges[i]),int(edges[i+1])])
         else:
             seglist_pruned.append([start, end])
-            
-            
-        
 
     # =====
 
@@ -146,34 +149,25 @@ def make_workflow(args=None):
         all_coh_files.append(coh_file)
         all_data_files.append(data_file)
 
-        # extra vars
-        combine_job, combine_output = create_pygwb_combine_job(dagman, config,
-            t0=start, tf=end, 
-            parents=[pipe_job], output_path=seg_dir,
-            data_path=data_file, coherence_path=coh_file, param_file=param_file,
-            alpha=alpha, fref=fref)
-        all_jobs.append(combine_job)
-        
-        # extra vars
-        csd_file, coh_file, dsc_file = combine_output 
-        stats_job = create_pygwb_stats_job(dagman, config, 
-            t0=start, tf=end,
-            parents=[combine_job], output_path=seg_dir,
-            csd_file=csd_file, 
-            dsc_file=dsc_file, 
-            coh_file=coh_file,
-            param_file=param_file)
-        all_jobs.append(stats_job)
+        if segment_results:
+            # extra vars
+            combine_job, combine_output = create_pygwb_combine_job(dagman, config,
+                t0=start, tf=end,
+                parents=[pipe_job], output_path=seg_dir,
+                data_path=data_file, coherence_path=coh_file, param_file=param_file,
+                alpha=alpha, fref=fref)
+            all_jobs.append(combine_job)
 
-        # set up symlinks for pipe results
-        #npz_files = [
-        #    f'psds_csds_{start}-{end}.npz',
-        #    f'point_estimate_sigma_{start}-{end}.npz',
-        #    ] 
-        #for npz in npz_files:
-        #    os.symlink(
-        #        os.path.join(seg_dir, npz), 
-        #        os.path.join(cumu_dir, npz))
+            # extra vars
+            csd_file, coh_file, dsc_file = combine_output
+            stats_job = create_pygwb_stats_job(dagman, config,
+                t0=start, tf=end,
+                parents=[combine_job], output_path=seg_dir,
+                csd_file=csd_file,
+                dsc_file=dsc_file,
+                coh_file=coh_file,
+                param_file=param_file)
+            all_jobs.append(stats_job)
 
     # make cumulative results
     # FIX ME - how the param file is passed
@@ -194,7 +188,7 @@ def make_workflow(args=None):
         param_file=all_param_files[-1]) # Also FIX ME (param_file)
     all_jobs.append(cumu_stats_job)
 
-    pygwb_html(dagman.base_dir, config=config_path)
+    pygwb_html(dagman.base_dir, config=config_path, segment_results=segment_results)
 
     # write out segment list and job file
     seg_dir = os.path.join(dagman.result_dir, 'segment_lists/')
@@ -212,7 +206,7 @@ def make_workflow(args=None):
 
     # make html page
     html_job = create_pygwb_html_job(dagman, config, 
-        t0=t0, tf=tf, parents=all_jobs, 
+        t0=t0, tf=tf, parents=all_jobs, segment_results=segment_results,
         output_path=dagman.base_dir, plot_path=dagman.result_dir)
 
     # parse the cache file and filter workflow
