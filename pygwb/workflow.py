@@ -7,6 +7,8 @@
 
 import os
 import shutil
+import logging
+import configparser
 from collections.abc import Iterable
 from getpass import getuser
 
@@ -14,6 +16,7 @@ import numpy as np
 from pycondor import Dagman as pyDagman
 from pycondor import Job as pyJob
 from pycondor.job import JobArg
+from gwpy.segments import DataQualityDict, DataQualityFlag
 
 ACCOUNTING_GROUP_USER = os.getenv(
     '_CONDOR_ACCOUNTING_USER',
@@ -23,26 +26,6 @@ ACCOUNTING_GROUP_USER = os.getenv(
 def makedir(dir_path):
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
-
-def config_override(config, overrides):
-    if not overrides:
-        return config 
-    for ov in overrides:
-        split_ov = ov.split(':')
-        try:
-            ov_sec, ov_key, ov_val = \
-                split_ov[0], split_ov[1], ':'.join(split_ov[2:])
-        except:
-            raise ValueError(f"Overrides must be in the form 'section:key:value', you used '{ov}'")
-        if ov_sec not in config.sections():
-            config[ov_sec] = {}    
-        config[ov_sec][ov_key] = ov_val
-    return config
-
-def config_write(config, output_loc):
-    with open(output_loc, 'w') as configfile:
-        config.write(configfile)
-
 
 class Job(pyJob):
     """
@@ -110,8 +93,8 @@ class Job(pyJob):
         arguments = ' '.join(list([arguments])+list(output_args))
 
         # release if requested memory is too small
-        condorcmds.extend(["request_memory = ifthenelse(isUndefined(MemoryUsage),2000,3*MemoryUsage)",
-                           "periodic_release = (HoldReasonCode == 26) && (JobStatus == 5)"])
+        request_memory = "ifthenelse(isUndefined(MemoryUsage),{request_memory},3*MemoryUsage)"
+        condorcmds.extend(["periodic_release = (HoldReasonCode == 26) && (JobStatus == 5)"])
 
         if retry == None:
             retry = 3
@@ -238,7 +221,7 @@ class Dagman(pyDagman):
                    cache_output,
                    delimiter=" ", fmt="%s")
 
-def collect_job_arguments(config, job_type):
+def _collect_job_arguments(config, job_type):
     config_sec = config[job_type]
     args_list = list()
     for key in config_sec.keys():
@@ -251,140 +234,244 @@ def collect_job_arguments(config, job_type):
         args_list.append(val)
     return args_list
 
-def create_pygwb_pipe_job(dagman, config, t0=None, tf=None, parents=[], output_path=None):
-#pygwb_pipe --param_file parameters.ini --output_path output/ --t0 ${START} --tf ${END}
-    dur = int(tf-t0)
-    file_tag = f'{int(t0)}-{dur}'
-    name = f'pygwb_pipe_{int(t0)}_{dur}'
-    args = collect_job_arguments(config, 'pygwb_pipe')
-    args = args + [
-        '--output_path', output_path,
-        '--t0', str(t0),
-        '--tf', str(tf),
-        '--file_tag', file_tag
-        ]
-    output_file = [os.path.join(output_path, f'parameters_{file_tag}_final.ini'),
-                   os.path.join(output_path, f'psds_csds_{file_tag}.npz'),
-                   os.path.join(output_path, f'point_estimate_sigma_{file_tag}.npz')]
-    job = Job(name=name,
-              executable=config['executables']['pygwb_pipe'],
-              accounting_group = config['general']['accounting_group'],
-              submit=dagman.submit_dir,
-              error=dagman.error_dir,
-              output=dagman.output_dir,
-              log=dagman.log_dir,
-              arguments=' '.join(args),
-              request_disk='128MB',
-              request_memory='2048MB',
-              output_file=output_file,
-              dag=dagman)
-    for parent in parents:
-        job.add_parent(parent)
-    return job, output_file
+class Workflow():
+    def __init__(self, name, config_file, basedir='./workflow', 
+                 config_overrides=[]):
+        self.t0 = None
+        self.tf = None
 
-# FIX THE JOB LIST
-def create_pygwb_combine_job(dagman, config, t0=None, tf=None, parents=[], input_file=None, output_path=None,
-    data_path=None, coherence_path=None, param_file=None,
-    alpha=0., fref=30, h0=0.7):
-#pygwb_combine --data_path output/ --param_file output/parameters_final.ini --alpha 0 --fref 30 --h0 0.7 --out_path ./output/
-    dur = int(tf-t0)
-    file_tag = f'{int(t0)}-{dur}'
-    name = f'pygwb_combine_{int(t0)}_{dur}'
-    args = collect_job_arguments(config, 'pygwb_combine')
-    if isinstance(data_path, str):
-        data_path = [data_path]
-    if isinstance(coherence_path, str):
-        coherence_path = [coherence_path]
+        self.config = configparser.ConfigParser()
+        self.config.read(config_file)
+        self.config_override(config_overrides)
 
-    input_file = data_path + coherence_path + [param_file]
+        self.cache_file_path = None
+        if self.config.has_option('general', 'cache_file'):
+            self.cache_file_path = os.path.abspath(self.config['general']['cache_file'])
 
-    data_path = ' '.join(data_path)
-    coherence_path = ' '.join(coherence_path)
+        self.setup_dagman(name, basedir=basedir) 
 
-    args = args + [
-        '--param_file', param_file,
-        '--out_path', output_path,
-        '--data_path', data_path,
-        '--coherence_path', coherence_path,
-        '--file_tag', file_tag
-        ]
-    output_file = [os.path.join(output_path, f'point_estimate_sigma_spectra_alpha_{alpha:.1f}_fref_{int(fref)}_{file_tag}.npz'),
-                   os.path.join(output_path, f'coherence_spectrum_{file_tag}.npz'),
-                   os.path.join(output_path, f'delta_sigma_cut_{file_tag}.npz')]
-    job = Job(name=name,
-              executable=config['executables']['pygwb_combine'],
-              accounting_group = config['general']['accounting_group'],
-              submit=dagman.submit_dir,
-              error=dagman.error_dir,
-              output=dagman.output_dir,
-              log=dagman.log_dir,
-              arguments=' '.join(args),
-              request_disk='128MB',
-              request_memory='1024MB',
-              final_result=True,
-              input_file=input_file,
-              output_file=output_file,
-              dag=dagman)
-    for parent in parents:
-        job.add_parent(parent)
-    return job, output_file
+    def config_override(self, overrides):
+        for ov in overrides:
+            split_ov = ov.split(':')
+            try:
+                ov_sec, ov_key, ov_val = \
+                    split_ov[0], split_ov[1], ':'.join(split_ov[2:])
+            except:
+                raise ValueError(f"Overrides must be in the form 'section:key:value', you used '{ov}'")
+            if ov_sec not in self.config.sections():
+                self.config[ov_sec] = {}
+            self.config[ov_sec][ov_key] = ov_val
 
-def create_pygwb_stats_job(dagman, config, t0=None, tf=None, parents=[], output_path=None,
-    csd_file=None, dsc_file=None, coh_file=None, param_file=None):
-    dur = int(tf-t0)
-    name = f'pygwb_stats_{int(t0)}_{dur}'
-    args = collect_job_arguments(config, 'pygwb_stats')
-    args = args + [
-        '-pf', param_file,
-        '-pd', output_path,
-        '-c', csd_file,
-        '-dsc', dsc_file,
-        '-fcoh', coh_file
-        ]
-    input_file = [param_file, csd_file, dsc_file, coh_file]
-    # FIXME - figure out all the plots this job makes
-    output_file = None
-    job = Job(name=name,
-              executable=config['executables']['pygwb_stats'],
-              accounting_group = config['general']['accounting_group'],
-              submit=dagman.submit_dir,
-              error=dagman.error_dir,
-              output=dagman.output_dir,
-              log=dagman.log_dir,
-              arguments=' '.join(args),
-              request_disk='128MB',
-              request_memory='512MB',
-              final_result=True,
-              input_file=input_file,
-              output_file=output_file,
-              required_job=True,
-              dag=dagman)
-    for parent in parents:
-        job.add_parent(parent)
-    return job
+    def config_write(self, output_loc):
+        with open(output_loc, 'w') as configfile:
+            self.config.write(configfile)
 
-def create_pygwb_html_job(dagman, config, t0=None, tf=None, segment_results=False, parents=[], output_path=None, plot_path=None):
-    name = f'pygwb_html'
-    args = collect_job_arguments(config, 'pygwb_html')
-    args = args + [
-        '-p', plot_path,
-        '-o', output_path,
-        ]
-    if segment_results:
-        args = args + ['--plot-segment-results']
-    job = Job(name=name,
-              executable=config['executables']['pygwb_html'],
-              accounting_group = config['general']['accounting_group'],
-              submit=dagman.submit_dir,
-              error=dagman.error_dir,
-              output=dagman.output_dir,
-              log=dagman.log_dir,
-              arguments=' '.join(args),
-              request_disk='128MB',
-              request_memory='1024MB',
-              final_result=True,
-              required_job=True,
-              dag=dagman)
-    for parent in parents:
-        job.add_parent(parent)
-    return job
+    def setup_segments(self):
+        self.t0 = int(self.config['general']['t0'])
+        self.tf = int(self.config['general']['tf'])
+        dur = int(self.tf-self.t0)
+
+        if self.config.has_option('general', 'min_job_dur'):
+            self.min_dur = int(self.config['general']['min_job_dur'])
+        else:
+            self.min_dur = 0
+        if self.config.has_option('general', 'max_job_dur'):
+            self.max_dur = int(self.config['general']['max_job_dur'])
+        else:
+            self.max_dur = 1000000
+
+        ifos = self.config['general']['ifos'].split(' ')
+
+        logging.info('Downloading science flags...')
+        sci_flag = DataQualityDict.query_dqsegdb(
+            [i+':'+self.config['data_quality']['science_segment'] for i in ifos],
+            self.t0, self.tf
+            ).intersection().active
+
+        if self.config.has_option('data_quality', 'veto_definer'):
+            logging.info('Downloading vetoes...')
+            vetoes = DataQualityDict.from_veto_definer_file(
+                config['data_quality']['veto_definer']
+                )
+            cat1_vetoes = DataQualityDict({v: vetoes[v] for v in vetoes if (vetoes[v].category ==1) and (v[:2] in ifos)})
+            cat1_vetoes.populate()
+
+            cat1_vetoes = cat1_vetoes.intersection().active
+
+            seglist = sci_flag - cat1_vetoes
+        else:
+            seglist = sci_flag
+
+        seglist_pruned = []
+        for seg in seglist:
+            start = int(seg[0])
+            end = int(seg[1])
+            dur = int(end-start)
+            if dur < self.min_dur:
+                continue
+            elif dur > self.max_dur:
+                n_edges = int(dur/self.max_dur+2)
+                edges = np.linspace(start, end, n_edges, endpoint=True)
+                for i in range(n_edges-1):
+                    seglist_pruned.append([int(edges[i]),int(edges[i+1])])
+            else:
+                seglist_pruned.append([start, end])
+        return seglist_pruned
+
+
+    def setup_dagman(self, name, basedir=None):
+        logging.info('Writing DAG...')
+        self.dagman = Dagman(name=name,
+                        basedir=basedir)
+        self.dagman.make_dir()
+
+        self.config_path = os.path.join(self.dagman.base_dir, 'config.ini')
+        self.config_write(self.config_path)
+
+class IsotropicWorkflow(Workflow):
+    def __init__(self, name, config_file, basedir='./workflow',
+                 config_overrides=[]):
+        super(IsotropicWorkflow, self).__init__(name, 
+                                                config_file, basedir=basedir,
+                                                config_overrides=config_overrides)
+        self.fref = int(self.config['pygwb_pipe']['fref'])
+        self.alpha =  float(self.config['pygwb_pipe']['alpha'])
+
+    def create_pygwb_pipe_job(self, t0=None, tf=None, parents=[], output_path=None):
+    #pygwb_pipe --param_file parameters.ini --output_path output/ --t0 ${START} --tf ${END}
+        dur = int(tf-t0)
+        file_tag = f'{int(t0)}-{dur}'
+        name = f'pygwb_pipe_{int(t0)}_{dur}'
+        args = _collect_job_arguments(self.config, 'pygwb_pipe')
+        args = args + [
+            '--output_path', output_path,
+            '--t0', str(t0),
+            '--tf', str(tf),
+            '--file_tag', file_tag
+            ]
+        output_file = [os.path.join(output_path, f'parameters_{file_tag}_final.ini'),
+                       os.path.join(output_path, f'psds_csds_{file_tag}.npz'),
+                       os.path.join(output_path, f'point_estimate_sigma_{file_tag}.npz')]
+        job = Job(name=name,
+                  executable=self.config['executables']['pygwb_pipe'],
+                  accounting_group = self.config['general']['accounting_group'],
+                  submit=self.dagman.submit_dir,
+                  error=self.dagman.error_dir,
+                  output=self.dagman.output_dir,
+                  log=self.dagman.log_dir,
+                  arguments=' '.join(args),
+                  request_disk='128MB',
+                  request_memory='2048MB',
+                  output_file=output_file,
+                  dag=self.dagman)
+        for parent in parents:
+            job.add_parent(parent)
+        return job, output_file
+    
+    # FIX THE JOB LIST
+    def create_pygwb_combine_job(self, t0=None, tf=None, parents=[], input_file=None, output_path=None,
+        data_path=None, coherence_path=None, param_file=None,
+        alpha=0., fref=30, h0=0.7):
+    #pygwb_combine --data_path output/ --param_file output/parameters_final.ini --alpha 0 --fref 30 --h0 0.7 --out_path ./output/
+        dur = int(tf-t0)
+        file_tag = f'{int(t0)}-{dur}'
+        name = f'pygwb_combine_{int(t0)}_{dur}'
+        args = _collect_job_arguments(self.config, 'pygwb_combine')
+        if isinstance(data_path, str):
+            data_path = [data_path]
+        if isinstance(coherence_path, str):
+            coherence_path = [coherence_path]
+    
+        input_file = data_path + coherence_path + [param_file]
+    
+        data_path = ' '.join(data_path)
+        coherence_path = ' '.join(coherence_path)
+    
+        args = args + [
+            '--param_file', param_file,
+            '--out_path', output_path,
+            '--data_path', data_path,
+            '--coherence_path', coherence_path,
+            '--file_tag', file_tag
+            ]
+        output_file = [os.path.join(output_path, f'point_estimate_sigma_spectra_alpha_{alpha:.1f}_fref_{int(fref)}_{file_tag}.npz'),
+                       os.path.join(output_path, f'coherence_spectrum_{file_tag}.npz'),
+                       os.path.join(output_path, f'delta_sigma_cut_{file_tag}.npz')]
+        job = Job(name=name,
+                  executable=self.config['executables']['pygwb_combine'],
+                  accounting_group = self.config['general']['accounting_group'],
+                  submit=self.dagman.submit_dir,
+                  error=self.dagman.error_dir,
+                  output=self.dagman.output_dir,
+                  log=self.dagman.log_dir,
+                  arguments=' '.join(args),
+                  request_disk='128MB',
+                  request_memory='1024MB',
+                  final_result=True,
+                  input_file=input_file,
+                  output_file=output_file,
+                  dag=self.dagman)
+        for parent in parents:
+            job.add_parent(parent)
+        return job, output_file
+    
+    def create_pygwb_stats_job(self, t0=None, tf=None, parents=[], output_path=None,
+        csd_file=None, dsc_file=None, coh_file=None, param_file=None):
+        dur = int(tf-t0)
+        name = f'pygwb_stats_{int(t0)}_{dur}'
+        args = _collect_job_arguments(self.config, 'pygwb_stats')
+        args = args + [
+            '-pf', param_file,
+            '-pd', output_path,
+            '-c', csd_file,
+            '-dsc', dsc_file,
+            '-fcoh', coh_file
+            ]
+        input_file = [param_file, csd_file, dsc_file, coh_file]
+        # FIXME - figure out all the plots this job makes
+        output_file = None
+        job = Job(name=name,
+                  executable=self.config['executables']['pygwb_stats'],
+                  accounting_group = self.config['general']['accounting_group'],
+                  submit=self.dagman.submit_dir,
+                  error=self.dagman.error_dir,
+                  output=self.dagman.output_dir,
+                  log=self.dagman.log_dir,
+                  arguments=' '.join(args),
+                  request_disk='128MB',
+                  request_memory='512MB',
+                  final_result=True,
+                  input_file=input_file,
+                  output_file=output_file,
+                  required_job=True,
+                  dag=self.dagman)
+        for parent in parents:
+            job.add_parent(parent)
+        return job
+    
+    def create_pygwb_html_job(self, t0=None, tf=None, segment_results=False, parents=[], output_path=None, plot_path=None):
+        name = f'pygwb_html'
+        args = _collect_job_arguments(self.config, 'pygwb_html')
+        args = args + [
+            '-p', plot_path,
+            '-o', output_path,
+            ]
+        if segment_results:
+            args = args + ['--plot-segment-results']
+        job = Job(name=name,
+                  executable=self.config['executables']['pygwb_html'],
+                  accounting_group = self.config['general']['accounting_group'],
+                  submit=self.dagman.submit_dir,
+                  error=self.dagman.error_dir,
+                  output=self.dagman.output_dir,
+                  log=self.dagman.log_dir,
+                  arguments=' '.join(args),
+                  request_disk='128MB',
+                  request_memory='1024MB',
+                  final_result=True,
+                  required_job=True,
+                  dag=self.dagman)
+        for parent in parents:
+            job.add_parent(parent)
+        return job
+    
