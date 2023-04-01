@@ -221,6 +221,42 @@ class Dagman(pyDagman):
                    cache_output,
                    delimiter=" ", fmt="%s")
 
+    def run_jobs_serially(self):
+        import subprocess
+        # run everything locally and serially
+        remaining_nodes = self.nodes.copy()
+        node_order = []
+        node_step = 0
+
+        # first add jobs with no parents
+        for node in remaining_nodes:
+            if not len(node.parents):
+                node_order.append([node.name, node.executable, node.args[0].arg])
+                remaining_nodes.remove(node)
+
+        # now check the other nodes
+        while len(remaining_nodes):
+            for node in remaining_nodes:
+                if all([node.parents not in remaining_nodes]):
+                    node_order.append([node.name, node.executable, node.args[0].arg])
+                    remaining_nodes.remove(node)
+            node_step += 1
+            #double check that we aren't in an inf loop
+            if node_step > 100:
+                raise RuntimeError('Too many steps when trying '
+                                   'to run serially!')
+
+        logging.info('Beginning to run all jobs serially...')
+        node_num = 1
+        node_len = len(node_order)
+        for node in node_order:
+            path_and_args = node[1] + ' ' + node[2]
+            logging.info(f'Starting node #{node_num}/{node_len}: {node[0]}')
+            logging.info(f'The full path and arguments are: {path_and_args}')
+            subprocess.run(path_and_args, check=True, shell=True)
+            node_num += 1
+        logging.info('Workflow completed!')
+
 def _collect_job_arguments(config, job_type):
     config_sec = config[job_type]
     args_list = list()
