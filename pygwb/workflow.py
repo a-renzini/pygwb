@@ -92,6 +92,9 @@ class Job(pyJob):
                 
         arguments = ' '.join(list([arguments])+list(output_args))
 
+        # surround dicts with ""
+        arguments = arguments.replace("{", "'{").replace("}", "}'")
+
         # release if requested memory is too small
         request_memory = "ifthenelse(isUndefined(MemoryUsage),{request_memory},3*MemoryUsage)"
         condorcmds.extend(["periodic_release = (HoldReasonCode == 26) && (JobStatus == 5)"])
@@ -237,7 +240,7 @@ class Dagman(pyDagman):
         # now check the other nodes
         while len(remaining_nodes):
             for node in remaining_nodes:
-                if all([node.parents not in remaining_nodes]):
+                if all([n not in remaining_nodes for n in node.parents]):
                     node_order.append([node.name, node.executable, node.args[0].arg])
                     remaining_nodes.remove(node)
             node_step += 1
