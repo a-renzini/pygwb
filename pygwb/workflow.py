@@ -5,18 +5,18 @@
 
 """Core workflow functions"""
 
+import configparser
+import logging
 import os
 import shutil
-import logging
-import configparser
 from collections.abc import Iterable
 from getpass import getuser
 
 import numpy as np
+from gwpy.segments import DataQualityDict, DataQualityFlag
 from pycondor import Dagman as pyDagman
 from pycondor import Job as pyJob
 from pycondor.job import JobArg
-from gwpy.segments import DataQualityDict, DataQualityFlag
 
 ACCOUNTING_GROUP_USER = os.getenv(
     '_CONDOR_ACCOUNTING_USER',
@@ -226,6 +226,7 @@ class Dagman(pyDagman):
 
     def run_jobs_serially(self):
         import subprocess
+
         # run everything locally and serially
         remaining_nodes = self.nodes.copy()
         node_order = []

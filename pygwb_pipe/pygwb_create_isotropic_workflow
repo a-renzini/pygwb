@@ -16,12 +16,7 @@ import pycondor
 from pycondor import Dagman
 
 from pygwb.html import pygwb_html
-from pygwb.workflow import (
-    Dagman,
-    Job,
-    IsotropicWorkflow,
-    makedir,
-)
+from pygwb.workflow import Dagman, IsotropicWorkflow, Job, makedir
 
 __process_name__ = 'pygwb_create_workflow'
 __version__ = '0.0.1'
