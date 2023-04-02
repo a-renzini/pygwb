@@ -24,6 +24,8 @@ class Parameters:
         Type of data to access/download; options are private, public, local. Default is public.
     channel: str
         Channel name; needs to match an existing channel. Default is \"GWOSC-16KHZ_R1_STRAIN\"
+    frametype: str
+        Frame type; Optional, desired channel needs to be found in listed frametype. Only used when data_type=private. Default is empty.
     new_sample_rate: int
         Sample rate to use when downsampling the data (Hz). Default is 4096 Hz.
     input_sample_rate: int
@@ -100,6 +102,7 @@ class Parameters:
     tf: float = 100
     data_type: str = "public"
     channel: str = "GWOSC-16KHZ_R1_STRAIN"
+    frametype: str = ""
     new_sample_rate: int = 4096
     input_sample_rate: int = 16384
     cutoff_frequency: float = 11
@@ -253,6 +256,7 @@ class Parameters:
         data_specs_dict["tf"] = param_dict["tf"]
         data_specs_dict["data_type"] = param_dict["data_type"]
         data_specs_dict["channel"] = param_dict["channel"]
+        data_specs_dict["frametype"] = param_dict["frametype"]
         data_specs_dict["time_shift"] = param_dict["time_shift"]
         param["data_specs"] = data_specs_dict
 
@@ -348,6 +352,7 @@ class ParametersHelp(enum.Enum):
     tf = "Final time."
     data_type = "Type of data to access/download; options are private, public, local. Default is public."
     channel = 'Channel name; needs to match an existing channel. Default is "GWOSC-16KHZ_R1_STRAIN" '
+    frametype = 'Frame type; Optional, desired channel needs to be found in listed frametype. Only used when data_type=private. Default is empty. '
     new_sample_rate = (
         "Sample rate to use when downsampling the data (Hz). Default is 4096 Hz."
     )

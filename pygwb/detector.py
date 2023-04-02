@@ -152,6 +152,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
             t0=parameters.t0,
             tf=parameters.tf,
             data_type=parameters.data_type,
+            frametype=parameters.frametype,
             local_data_path=parameters.local_data_path,
             new_sample_rate=parameters.new_sample_rate,
             cutoff_frequency=parameters.cutoff_frequency,
@@ -181,6 +182,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
         t0 = kwargs.pop("t0")
         tf = kwargs.pop("tf")
         data_type = kwargs.pop("data_type")
+        frametype = kwargs.pop("frametype")
         local_data_path = kwargs.pop("local_data_path")
         new_sample_rate = kwargs.pop("new_sample_rate")
         input_sample_rate = kwargs.pop("input_sample_rate")
@@ -198,6 +200,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
             t0=t0,
             tf=tf,
             data_type=data_type,
+            frametype=frametype,
             local_data_path=local_data_path,
             new_sample_rate=new_sample_rate,
             cutoff_frequency=cutoff_frequency,

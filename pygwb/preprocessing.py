@@ -6,6 +6,7 @@ import lal
 import numpy as np
 import scipy
 from gwpy import timeseries
+from gwsumm.data.timeseries import get_timeseries
 
 
 def set_start_time(
@@ -69,6 +70,7 @@ def read_data(
     t0: int,
     tf: int,
     local_data_path: str = "",
+    frametype: str = "",
     tag: str = "C00",
     input_sample_rate: int = 16384,
 ):
@@ -97,6 +99,9 @@ def read_data(
     tf: int
         GPS time of the end of the data taking
 
+    frametype: string
+        Frame type that contains the channel, only used if data_type=private (e.g.: "L1_HOFT_C00")
+
     local_data_path: str, optional
         path where local gwf is stored
 
@@ -117,7 +122,9 @@ def read_data(
         )
         data.channel = channel
     elif data_type == "private":
-        data = timeseries.TimeSeries.get(channel, start=t0, end=tf, verbose=True)
+        if frametype=="":
+            frametype=None
+        data = get_timeseries(channel, segments=[[t0, tf]], frametype=frametype)[0]
         data.channel = channel
     elif data_type == "local":
         if os.path.isdir(local_data_path):
@@ -437,6 +444,7 @@ def preprocessing_data_channel_name(
     ftype: str = "fir",
     time_shift: int = 0,
     local_data_path: str = "",
+    frametype: str = "",
     tag: str = "C00",
     input_sample_rate: int = 16384,
 ):
@@ -461,6 +469,9 @@ def preprocessing_data_channel_name(
 
     channel: string
         Name of the channel (e.g.: "L1:GWOSC-4KHZ_R1_STRAIN")
+
+    frametype: string
+       Frame type that contains the channel, only used if data_type=private (e.g.: "L1_HOFT_C00") 
 
     new_sample_rate:int
         Sampling rate of the downsampled-timeseries
@@ -507,6 +518,7 @@ def preprocessing_data_channel_name(
         IFO=IFO,
         data_type=data_type,
         channel=channel,
+        frametype=frametype,
         t0=data_start_time - number_cropped_seconds,
         tf=tf,
         local_data_path=local_data_path,
