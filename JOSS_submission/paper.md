@@ -12,49 +12,34 @@ authors:
     email: arenzini@caltech.edu
     affiliation: "1, 2" # (Multiple affiliations must be quoted)
   - name: Alba Romero-Rodriguez
-    orcid: 0000-0000-0000-0000
     affiliation: "3"
   - name: Colm Talbot
-    orcid: 0000-0000-0000-0000
     affiliation: "4"
   - name: Max Lalleman
-    orcid: 0000-0000-0000-0000
     affiliation: "5"
   - name: Shivaraj Kandhasamy
-    orcid: 0000-0000-0000-0000
     affiliation: "6"
   - name: Kevin Turbang
-    orcid: 0000-0000-0000-0000
     affiliation: "3, 5"
   - name: Sylvia Biscoveanu
-    orcid: 0000-0000-0000-0000
     affiliation: "4, 7"
   - name: Katarina Martinovic
-    orcid: 0000-0000-0000-0000
     affiliation: "8"
   - name: Patrick Meyers
-    orcid: 0000-0000-0000-0000
     affiliation: "9"
   - name: Leo Tsukada
-    orcid: 0000-0000-0000-0000
     affiliation: "10, 11"
   - name: Kamiel Janssens 
-    orcid: 0000-0000-0000-0000
     affiliation: "5, 12"
   - name: Derek Davis
-    orcid: 0000-0000-0000-0000
     affiliation: "1, 2"
   - name: Andrew Matas 
-    orcid: 0000-0000-0000-0000
     affiliation: "13"
   - name: Philip Charlton
-    orcid: 0000-0000-0000-0000
     affiliation: "14"
   - name: Guo-chin Liu
-    orcid: 0000-0000-0000-0000
     affiliation: "15"
   - name: Irina Dvorkin
-    orcid: 0000-0000-0000-0000
     affiliation: "16"
     
 affiliations:
