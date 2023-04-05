@@ -96,7 +96,7 @@ class Job(pyJob):
         arguments = arguments.replace("{", "'{").replace("}", "}'")
 
         # release if requested memory is too small
-        request_memory = "ifthenelse(isUndefined(MemoryUsage),{request_memory},3*MemoryUsage)"
+        request_memory = f"ifthenelse(isUndefined(MemoryUsage),'{request_memory}',3*MemoryUsage)"
         condorcmds.extend(["periodic_release = (HoldReasonCode == 26) && (JobStatus == 5)"])
 
         if retry == None:
