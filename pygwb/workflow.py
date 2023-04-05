@@ -8,8 +8,8 @@
 import configparser
 import logging
 import os
-import shutil
 import re
+import shutil
 from collections.abc import Iterable
 from getpass import getuser
 
