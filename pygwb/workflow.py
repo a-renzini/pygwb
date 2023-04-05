@@ -9,6 +9,7 @@ import configparser
 import logging
 import os
 import shutil
+import re
 from collections.abc import Iterable
 from getpass import getuser
 
@@ -95,8 +96,20 @@ class Job(pyJob):
         # surround dicts with ""
         arguments = arguments.replace("{", "'{").replace("}", "}'")
 
+        # convert memory into integer
+        try:
+            request_memory = int(request_memory)
+        except:
+            # check if it is MB, GB, or KB
+            if 'M' in request_memory:
+                request_memory = int(re.findall('\d+', request_memory)[0])
+            elif 'G' in request_memory:
+                request_memory = int(re.findall('\d+', request_memory)[0]) * 1024
+            else:
+                raise TypeError('request_memory must be an integer or in format of e.g. 1024MB or 1GB')
+
         # release if requested memory is too small
-        request_memory = f"ifthenelse(isUndefined(MemoryUsage),'{request_memory}',3*MemoryUsage)"
+        request_memory = f"ifthenelse(isUndefined(MemoryUsage),{request_memory},3*MemoryUsage)"
         condorcmds.extend(["periodic_release = (HoldReasonCode == 26) && (JobStatus == 5)"])
 
         if retry == None:
