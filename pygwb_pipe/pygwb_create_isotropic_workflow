@@ -173,7 +173,7 @@ def main(args=None):
             help='Build directory for condor logging')
     parser.add_argument('--configfile', type=str, required=True,
             help='config file with workflow parameters')
-    parser.add_argument('--config-overrides', type=str, nargs='+',
+    parser.add_argument('--config-overrides', type=str, nargs='+', default=[],
             help='config overrides listed in the form SECTION:KEY:VALUE')
     parser.add_argument('--submit', action='store_true',
             help='Submit workflow automatically')
