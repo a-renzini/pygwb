@@ -65,10 +65,10 @@ def main():
         required=False,
     )
     combine_parser.add_argument(
-        "--combine_coherence", help="Calculate combined coherence over all available data.", action="store", type=bool, required=False
+        "--combine_coherence", help="Calculate combined coherence over all available data.", action="store", type=bool, required=False, default=False
     )
     combine_parser.add_argument(
-        "--coherence_path", help="Path to coherence data files, if individual files are passed.", action="store", type=Path, nargs='+', required=False
+        "--coherence_path", help="Path to coherence data files, if individual files are passed.", action="store", type=Path, nargs='+', required=False, default=None
     )
     combine_parser.add_argument(
         "--out_path", help="Output path.", action="store", type=Path, required=False
@@ -79,12 +79,10 @@ def main():
     combine_args = combine_parser.parse_args()
     if not combine_args.h0:
         combine_args.h0 = pygwb_h0
-    if not combine_args.combine_coherence:
-        combine_args.combine_coherence = False
-    if not combine_args.coherence_path:
-        combine_args.coherence_path = None
     if not combine_args.out_path:
         combine_args.out_path = Path("./")
+    if combine_args.coherence_path:
+        combine_args.combine_coherence=True
     combine_args.alpha = float(Fraction(combine_args.alpha)) 
     params = Parameters()
     params.update_from_file(combine_args.param_file)
