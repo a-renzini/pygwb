@@ -15,7 +15,8 @@ matplotlib.rcParams['legend.handlelength'] = 3
 from matplotlib import rc
 
 rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
-rc('text', usetex=True)
+# FIXME - changed to get workflow running
+rc('text', usetex=False)
 
 import seaborn as sns
 
@@ -37,6 +38,7 @@ class StatisticalChecks(object):
         sliding_omega_all,
         sliding_sigmas_all,
         naive_sigmas_all,
+        coherence_spectrum,
         point_estimate_spectrum,
         sigma_spectrum,
         freqs,
@@ -60,6 +62,9 @@ class StatisticalChecks(object):
             Array of sliding sigmas before the bad GPS times from the delta sigma cut are applied.
         naive_sigmas_all: array
             Array of naive sigmas before the bad GPS times from the delta sigma cut are applied.
+        coherence_spectrum: array
+            Array containing a coherence spectrum. Each entry in this array corresponds to the 2-detector coherence spectrum evaluated at the corresponding frequency in the freqs array.
+
         point_estimate_spectrum: array
             Array containing the point estimate spectrum. Each entry in this array corresponds to the point estimate spectrum evaluated at the corresponding frequency in the freqs array.
         sigma_spectrum: array
@@ -94,6 +99,8 @@ class StatisticalChecks(object):
         self.sliding_deviate_all = (
             self.sliding_omega_all - np.nanmean(self.sliding_omega_all)
         ) / self.sliding_sigmas_all
+
+        self.coherence_spectrum = coherence_spectrum
 
         self.sigma_spectrum = sigma_spectrum
         self.point_estimate_spectrum = point_estimate_spectrum
@@ -442,6 +449,30 @@ class StatisticalChecks(object):
         plt.yticks(fontsize=self.legend_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-sigma_spectrum.png",
+            bbox_inches="tight",
+        )
+
+    def plot_coherence_spectrum(self, flow=None, fhigh=None):
+        """
+        Generates and saves a plot of the coherence spectrum, if present. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `coherence_spectrum`).
+        """
+        flow = flow or self.flow
+        fhigh = fhigh or self.fhigh
+
+        resolution = self.freqs[1] - self.freqs[0]
+        fftlength = int(1.0 / resolution)
+        n_segs = len(self.sliding_omega_cut) * int(np.floor(self.params.segment_duration/(fftlength))-1) #fftlength/2.
+        plt.figure(figsize=(10, 8))
+        plt.plot(self.freqs, self.coherence_spectrum, color=sea[0])
+        plt.axhline(y=1./n_segs,dashes=(4,3),color='black')
+        plt.xlim(flow, fhigh)
+        plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
+        plt.ylabel(r"coherence spectrum", size=self.axes_labelsize)
+        plt.yscale("log")
+        plt.xticks(fontsize=self.legend_fontsize)
+        plt.yticks(fontsize=self.legend_fontsize)
+        plt.savefig(
+            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-coherence_spectrum_{resolution}_Hz.png",
             bbox_inches="tight",
         )
 
@@ -955,6 +986,8 @@ class StatisticalChecks(object):
         self.plot_hist_sigma_squared()
         self.plot_omega_time_fit()
         self.plot_sigma_time_fit()
+        if self.coherence_spectrum is not None:
+            self.plot_coherence_spectrum()
 
 
 def sortingFunction(item):
@@ -962,7 +995,7 @@ def sortingFunction(item):
 
 
 def run_statistical_checks_from_file(
-    combine_file_path, dsc_file_path, plot_dir, param_file, legend_fontsize=16
+    combine_file_path, dsc_file_path, plot_dir, param_file, legend_fontsize=16, coherence_file_path = None
 ):
     """
     Assumes files are in npz for now. Will generalize later.
@@ -1001,11 +1034,17 @@ def run_statistical_checks_from_file(
     delta_sigmas_sel = delta_sigmas.T[1]
     naive_sigmas_sel = naive_sigma_all.T[1]
 
+    if coherence_file_path is not None:
+        coherence_spectrum = np.load(coherence_file_path)['coherence']
+    else:
+        coherence_spectrum = None
+
     return StatisticalChecks(
         sliding_times,
         sliding_omega_all,
         sliding_sigmas_all,
         naive_sigmas_sel,
+        coherence_spectrum,
         point_estimate_spectrum,
         sigma_spectrum,
         freqs[cut],
@@ -1019,7 +1058,7 @@ def run_statistical_checks_from_file(
 
 
 def run_statistical_checks_baseline_pickle(
-    baseline_directory, combine_file_path, plot_dir, param_file
+    baseline_directory, combine_file_path, plot_dir, param_file, coherence_file_path = None
 ):
     params = Parameters()
     params.update_from_file(param_file)
@@ -1061,12 +1100,17 @@ def run_statistical_checks_baseline_pickle(
     naive_sigmas = np.concatenate(naive_sigmas)
     sliding_times = np.concatenate(sliding_times)
 
-    spectrum_file = np.load(combine_file_path, mmap_mode="r")
+    if coherence_file_path is not None:
+        spectrum_file = np.load(coherence_file_path, mmap_mode="r")
+        coherence_spectrum = spectrum_file["coherence_spectrum"]
+    else:
+        coherence_spectrum = None
 
     sliding_omega_all, sliding_sigmas_all = (
         spectrum_file["point_estimates_seg_UW"],
         spectrum_file["sigmas_seg_UW"],
     )
+
     point_estimate_spectrum = spectrum_file["point_estimate_spectrum"]
     sigma_spectrum = spectrum_file["sigma_spectrum"]
 
@@ -1075,6 +1119,7 @@ def run_statistical_checks_baseline_pickle(
         sliding_omega_all,
         sliding_sigmas_all,
         naive_sigmas,
+        coherence_spectrum,
         point_estimate_spectrum,
         sigma_spectrum,
         freqs,

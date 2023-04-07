@@ -21,6 +21,7 @@ class TestInterferometer(unittest.TestCase):
                 "segment_duration",
                 "number_cropped_seconds",
                 "data_type",
+                "frametype",
                 "cutoff_frequency",
                 "new_sample_rate",
                 "input_sample_rate",

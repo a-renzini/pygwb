@@ -27,7 +27,7 @@ def fftgram(
         to 1). Users should provide proper combination of overlap_factor and
         window_fftgram_dict. For \"hann\" window use 0.5 overlap_factor and 
         for \"boxcar"\ window use 0 overlap_factor. Default 0.5 (50% overlap).
-    zeropadd: bool, optional
+    zeropad: bool, optional
         Before doing FFT whether to zero pad the data equal to the length of 
         FFT or not. Default is False.
     window_fftgram_dict: dictionary, optional
@@ -520,9 +520,9 @@ def power_spectral_density(
     fft_gram_data = fftgram(
         time_series_data,
         fftlength,
-        overlap_factor=overlap_factor_welch_psd,
+        overlap_factor=0.5 , 
         zeropad=False,
-        window_fftgram_dict=window_fftgram_dict_welch_psd,
+        window_fftgram_dict= {'window_fftgram': 'hann'} , #window_fftgram_dict,
     )
 
     # Use pwelch method (averaging) to get PSDs for each segment duration 

@@ -4,13 +4,14 @@ import warnings
 
 import h5py
 import numpy as np
+from gwpy.frequencyseries import FrequencySeries
 from loguru import logger
 
-from pygwb.delta_sigma_cut import run_dsc
-from pygwb.omega_spectra import OmegaSpectrogram, OmegaSpectrum
-
+from .coherence import calculate_coherence
 from .constants import h0
+from .delta_sigma_cut import run_dsc
 from .notch import StochNotchList
+from .omega_spectra import OmegaSpectrogram, OmegaSpectrum
 from .orfs import calc_orf
 from .postprocessing import (
     calc_Y_sigma_from_Yf_sigmaf,
@@ -84,7 +85,13 @@ class Baseline(object):
         self._scalar_orf_calculated = False
         self._gamma_v_calculated = False
         self._orf_polarization_set = False
-        self.duration = duration
+        self._point_estimate_spectrogram_set = False
+        self._point_estimate_spectrum_set = False
+        self._point_estimate_set = False
+        self._sigma_spectrogram_set = False
+        self._sigma_spectrum_set = False
+        self._sigma_set = False
+        self._coherence_spectrum_set = False
         self.sampling_frequency = sampling_frequency
         self.duration = duration
         self.frequencies = frequencies
@@ -125,7 +132,7 @@ class Baseline(object):
         elif self._orf_polarization == "right_left":
             return self.gamma_v
         else:
-            raise ValueError(
+            raise AttributeError(
                 "Overlap reduction function to be used has not yet been set. To set it, set the orf_polarization property."
             )
 
@@ -135,7 +142,7 @@ class Baseline(object):
         if self._orf_polarization_set:
             return self._orf_polarization
         else:
-            raise ValueError(
+            raise AttributeError(
                 "Overlap reduction function polarization han not yet been set."
             )
 
@@ -210,7 +217,7 @@ class Baseline(object):
         if self._duration_set:
             return self._duration
         else:
-            raise ValueError("Duration not yet set.")
+            raise AttributeError("Duration not yet set.")
 
     @duration.setter
     def duration(self, dur):
@@ -271,7 +278,7 @@ class Baseline(object):
         if self._frequencies_set:
             return self._frequencies
         else:
-            raise ValueError("frequencies have not yet been set.")
+            raise AttributeError("frequencies have not yet been set.")
 
     @frequencies.setter
     def frequencies(self, freqs):
@@ -295,7 +302,7 @@ class Baseline(object):
         if self._point_estimate_spectrogram_set:
             return self._point_estimate_spectrogram
         else:
-            raise ValueError(
+            raise AttributeError(
                 "Omega point estimate spectrogram not yet set. To set it, use `set_point_estimate_sigma_spectrogram` method."
             )
 
@@ -310,7 +317,7 @@ class Baseline(object):
         if self._sigma_spectrogram_set:
             return self._sigma_spectrogram
         else:
-            raise ValueError(
+            raise AttributeError(
                 "Omega sigma spectrogram not yet set. To set it, use `set_point_estimate_sigma_spectrogram` method."
             )
 
@@ -325,7 +332,7 @@ class Baseline(object):
         if self._point_estimate_spectrum_set:
             return self._point_estimate_spectrum
         else:
-            raise ValueError(
+            raise AttributeError(
                 "Omega point estimate spectrum not yet set. To set it, use `set_point_estimate_sigma_spectrum` method."
             )
 
@@ -340,7 +347,7 @@ class Baseline(object):
         if self._sigma_spectrum_set:
             return self._sigma_spectrum
         else:
-            raise ValueError(
+            raise AttributeError(
                 "Omega sigma spectrum not yet set. To set it, use `set_point_estimate_sigma_spectrum` method."
             )
 
@@ -355,7 +362,7 @@ class Baseline(object):
         if self._point_estimate_set:
             return self._point_estimate
         else:
-            raise ValueError(
+            raise AttributeError(
                 "Omega point estimate not yet set. To set it, use `set_point_estimate_sigma` method."
             )
 
@@ -370,7 +377,7 @@ class Baseline(object):
         if self._sigma_set:
             return self._sigma
         else:
-            raise ValueError(
+            raise AttributeError(
                 "Omega sigma not yet set. To set it, use `set_point_estimate_sigma` method."
             )
 
@@ -378,6 +385,35 @@ class Baseline(object):
     def sigma(self, sig):
         self._sigma = sig
         self._sigma_set = True
+
+    @property
+    def coherence_spectrum(self):
+        """Coherence spectrum calculated using data in this baseline."""
+        if self._coherence_spectrum_set:
+            return self._coherence_spectrum
+        else:
+            raise AttributeError(
+                "Coherence spectrum not yet set. To set it, use `set_coherence_spectrum` method."
+            )
+
+    @coherence_spectrum.setter
+    def coherence_spectrum(self, coh):
+        self._coherence_spectrum = coh
+        self._coherence_spectrum_set = True
+
+    @property
+    def coherence_dict(self):
+        """Coherence dictionary based on data in this baseline."""
+        if self._coherence_spectrum_set:
+            return self._coherence_dict
+        else:
+            raise AttributeError(
+                "Coherence spectrum not yet set. To set it, use `set_coherence_spectrum` method."
+            )
+
+    @coherence_dict.setter
+    def coherence_dict(self, cohdict):
+        self._coherence_dict = cohdict
 
     def _check_durations_match_baseline_ifos(self, duration):
         if self.interferometer_1.duration and self.interferometer_2.duration:
@@ -408,7 +444,7 @@ class Baseline(object):
         if hasattr(self, "_sampling_frequency"):
             return self._sampling_frequency
         else:
-            raise ValueError("sampling frequency not set.")
+            raise AttributeError("sampling frequency not set.")
 
     @sampling_frequency.setter
     def sampling_frequency(self, sampling_frequency):
@@ -470,7 +506,7 @@ class Baseline(object):
         if hasattr(self, "_badGPStimes"):
             return self._badGPStimes
         else:
-            raise ValueError(
+            raise AttributeError(
                 "bad GPS times are not set - need to run delta_sigma_cut first."
             )
 
@@ -484,7 +520,7 @@ class Baseline(object):
         if hasattr(self, "_delta_sigmas"):
             return self._delta_sigmas
         else:
-            raise ValueError(
+            raise AttributeError(
                 "delta_sigmas are not set - need to run delta_sigma_cut first."
             )
 
@@ -785,22 +821,24 @@ class Baseline(object):
             )
         if hasattr(self, "average_csd"):
             self.average_csd = self.average_csd.crop_frequencies(flow, fhigh + deltaF)
-        if hasattr(self, "point_estimate_spectrogram"):
+        if self._point_estimate_spectrogram_set:
             self.point_estimate_spectrogram = (
                 self.point_estimate_spectrogram.crop_frequencies(flow, fhigh + deltaF)
             )
-        if hasattr(self, "sigma_spectrogram"):
+        if self._sigma_spectrogram_set:
             self.sigma_spectrogram = self.sigma_spectrogram.crop_frequencies(
                 flow, fhigh + deltaF
             )
-        if hasattr(self, "point_estimate_spectrum"):
+        if self._point_estimate_spectrum_set:
             self.point_estimate_spectrum = self.point_estimate_spectrum.crop(
                 flow, fhigh + deltaF
             )
-        if hasattr(self, "sigma_spectrum"):
+        if self._sigma_spectrum_set:
             self.sigma_spectrum = self.sigma_spectrum.crop(flow, fhigh + deltaF)
-        if hasattr(self, "point_estimate"):
+        if self._point_estimate_set:
             self.set_point_estimate_sigma()
+        if self._coherence_spectrum_set:
+            self.coherence_spectrum = self.coherence_spectrum.crop(flow, fhigh + deltaF)
 
     def set_point_estimate_sigma_spectrogram(
         self, alpha=0.0, fref=25, flow=20, fhigh=1726, polarization="tensor"
@@ -919,16 +957,8 @@ class Baseline(object):
                 warnings.warn(
                     "Delta sigma cut has not been calculated yet, hence no delta sigma cut will be applied... If this is a mistake, please run `calculate_delta_sigma_cut` first, then re-calculate point estimate/sigma spectra."
                 )
-            if badtimes is None:
-                if hasattr(self, "badGPStimes"):
-                    badtimes = self.badGPStimes
-            else:
-                badtimes = np.append(badtimes, self.badGPStimes)
-                self.badGPStimes = badtimes
-        else:
-            badtimes = np.array([])
 
-        if hasattr(self, "point_estimate_spectrogram"):
+        if self._point_estimate_spectrogram_set:
             # reweight based on alpha that has been supplied
             self.point_estimate_spectrogram.reweight(new_alpha=alpha, new_fref=fref)
             self.sigma_spectrogram.reweight(new_alpha=alpha, new_fref=fref)
@@ -946,9 +976,7 @@ class Baseline(object):
         deltaF = self.frequencies[1] - self.frequencies[0]
 
         # should be True for each bad time
-        bad_times_indexes = np.array(
-            [np.any(t == badtimes) for t in self.point_estimate_spectrogram.times.value]
-        )
+        bad_times_indexes = self._get_bad_times_indexes(times=self.point_estimate_spectrogram.times.value, badtimes=badtimes, apply_dsc=apply_dsc)
 
         logger.info(f"{np.sum(bad_times_indexes)} bad segments removed.")
 
@@ -956,16 +984,19 @@ class Baseline(object):
         epoch = self.point_estimate_spectrogram.times[0]
 
         if self.sampling_frequency is None:
-            raise ValueError(
+            raise AttributeError(
                 "the sampling frequency is not set! Cannot proceed with spectrum calculation."
             )
 
         if apply_dsc:
             if len(self.delta_sigmas["times"]) == len(self.badGPStimes):
-                raise ValueError(
+                warnings.warn(
                     "The delta sigma cut has flagged all times in this dataset. No point estimate/sigma values can be calculated."
                 )
-
+                self.point_estimate_spectrum =  np.zeros(len(self.frequencies))
+                self.sigma_spectrum = np.inf * np.ones(len(self.frequencies))
+                return 
+            
         # setting the frequency mask for the before/after calculation
         self.set_frequency_mask(
             notch_list_path=notch_list_path, apply_notches=apply_notches
@@ -1022,7 +1053,7 @@ class Baseline(object):
         ==========
         badtimes: np.array, optional
             Array of times to exclude from point estimate/sigma calculation.
-            If no times are passed, none will be excluded.
+            Default is None.
         alpha: float, optional
             Spectral index to use in the re-weighting. Default is 0.
         fref: float, optional
@@ -1045,7 +1076,7 @@ class Baseline(object):
             Default is True.
         """
 
-        if hasattr(self, "point_estimate_spectrum"):
+        if self._point_estimate_spectrum_set:
             self.point_estimate_spectrum.reweight(new_alpha=alpha, new_fref=fref)
             self.sigma_spectrum.reweight(new_alpha=alpha, new_fref=fref)
             self.point_estimate_spectrogram.reweight(new_alpha=alpha, new_fref=fref)
@@ -1071,6 +1102,11 @@ class Baseline(object):
         self.set_frequency_mask(
             notch_list_path=notch_list_path, apply_notches=apply_notches
         )
+
+        if self.sigma_spectrum[0] == np.infty:
+                self.sigma = np.inf
+                self.point_estimate = 0
+                return 
 
         Y, sigma = calc_Y_sigma_from_Yf_sigmaf(
             self.point_estimate_spectrum,
@@ -1176,6 +1212,94 @@ class Baseline(object):
         self.badGPStimes = badGPStimes
         self.delta_sigmas = delta_sigmas
 
+    def set_coherence_spectrum(self, flow=20, fhigh=1726, badtimes=None, apply_dsc=True):
+        """
+        Set the coherence spectrum between detectors, averaged over all data in the baseline.
+
+        Parameters
+        ==========
+        flow: float, optional
+            Low frequency. Default is 20 Hz.
+        fhigh: float, optional
+            High frequency. Default is 1726 Hz.
+        badtimes: np.array, optional
+            Array of times to exclude from the coherence calculation.
+            Default is None.
+        apply_dsc: bool, optional
+            Apply delta sigma cut flag; if True, removes the badGPStimes from the spectra calculations.
+            Default is True.
+
+        Note: Average PSDs are currently being used here!
+        """
+
+        bad_times_indexes = self._get_bad_times_indexes(times=self.interferometer_1.average_psd.times.value, apply_dsc=apply_dsc)
+
+        self.crop_frequencies_average_psd_csd(flow=flow, fhigh=fhigh)
+
+        n_segs = len(self.interferometer_1.average_psd[~bad_times_indexes])
+
+        psd_1_average = np.mean(self.interferometer_1.average_psd[~bad_times_indexes], axis=0)
+        psd_2_average = np.mean(self.interferometer_2.average_psd[~bad_times_indexes], axis=0)
+        csd_average = np.mean(self.average_csd[~bad_times_indexes], axis=0)
+
+        coherence = calculate_coherence(
+            psd_1_average,
+            psd_2_average,
+            csd_average,
+        )
+
+        epoch = self.average_csd.times[0]
+
+        self.coherence_spectrum = FrequencySeries(
+            coherence,
+            frequencies=self.frequencies,
+            name=self.name + " coherence spectrum",
+            epoch=epoch,
+        )
+
+        self.coherence_dict = {}
+        self.coherence_dict['psd_1_average'] = psd_1_average
+        self.coherence_dict['psd_2_average'] = psd_2_average
+        self.coherence_dict['csd_average']= csd_average
+        self.coherence_dict['n_segs']= n_segs
+        self.coherence_dict['coherence']= coherence
+        self.coherence_dict['frequencies']= self.frequencies
+        self.coherence_dict['epoch']= epoch
+
+
+
+    def _get_bad_times_indexes(self, times, badtimes=None, apply_dsc=False):
+        """
+        Get indexes for segments with bad GPS times, to be removed from analysis.
+
+        Parameters
+        ==========
+        badtimes: np.array, optional
+            Array of times to exclude from further calculation.
+            Default is None.
+        apply_dsc: bool
+            If True, calculates the indexes of the segments with a bad GPS time, according to the delta sigma cut. If False, returns None.
+        """
+
+        if apply_dsc == True:
+            if not hasattr(self, "badGPStimes"):
+                warnings.warn(
+                    "Delta sigma cut has not been calculated yet, hence no delta sigma cut will be applied... If this is a mistake, please run `calculate_delta_sigma_cut` first, then re-calculate point estimate/sigma spectra."
+                )
+            if badtimes is not None:
+                if hasattr(self, "badGPStimes"):
+                    badtimes = np.append(badtimes, self.badGPStimes)
+                self.badGPStimes = badtimes
+            else:
+                badtimes = self.badGPStimes
+        else:
+            badtimes = np.array([])
+
+        bad_times_indexes = np.array(
+            [np.any(t == badtimes) for t in times]
+        )
+        return bad_times_indexes
+
     def save_point_estimate_spectra(
         self,
         save_data_type,
@@ -1271,6 +1395,20 @@ class Baseline(object):
                 "The provided data type is not supported, try using 'pickle', 'npz', 'json' or 'hdf5' instead."
             )
 
+        try:
+            coherence = self.coherence_spectrum
+            psd_1_coh = self.coherence_dict['psd_1_average']
+            psd_2_coh = self.coherence_dict['psd_2_average']
+            csd_coh = self.coherence_dict['csd_average']
+            n_segs_coh = self.coherence_dict['n_segs']
+
+        except AttributeError:
+            coherence = None
+            psd_1_coh = None
+            psd_2_coh = None
+            csd_coh = None
+            n_segs_coh = None
+
         save_csd(
             f"{filename}{ext}",
             self.frequencies,
@@ -1281,6 +1419,11 @@ class Baseline(object):
             self.interferometer_2.psd_spectrogram,
             self.interferometer_1.average_psd,
             self.interferometer_2.average_psd,
+            coherence,
+            psd_1_coh,
+            psd_2_coh,
+            csd_coh,
+            n_segs_coh,
         )
 
     def _npz_save(
@@ -1384,6 +1527,7 @@ class Baseline(object):
         sigma_segment_times = sigma_spectrogram.times.value.tolist()
 
         badGPStimes_list = badGPStimes.tolist()
+        
 
         save_dictionary = {
             "frequencies": list_freqs,
@@ -1501,6 +1645,11 @@ class Baseline(object):
         psd_2,
         avg_psd_1,
         avg_psd_2,
+        coherence,
+        psd_1_coh,
+        psd_2_coh,
+        csd_coh,
+        n_segs_coh,
     ):
         np.savez(
             filename,
@@ -1516,6 +1665,11 @@ class Baseline(object):
             avg_csd_times=avg_csd.times.value,
             psd_times=psd_1.times.value,
             avg_psd_times=avg_psd_1.times.value,
+            coherence=coherence,
+            psd_1_coh=psd_1_coh,
+            psd_2_coh=psd_2_coh,
+            csd_coh=csd_coh,
+            n_segs_coh=n_segs_coh,
         )
 
     def _pickle_save_csd(
@@ -1529,6 +1683,11 @@ class Baseline(object):
         psd_2,
         avg_psd_1,
         avg_psd_2,
+        coherence,
+        psd_1_coh,
+        psd_2_coh,
+        csd_coh,
+        n_segs_coh,
     ):
 
         save_dictionary = {
@@ -1540,6 +1699,11 @@ class Baseline(object):
             "psd_2": psd_2,
             "avg_psd_1": avg_psd_1,
             "avg_psd_2": avg_psd_2,
+            "coherence": coherence,
+            "psd_1_coh": psd_1_coh,
+            "psd_2_coh": psd_2_coh,
+            "csd_coh": csd_coh,
+            "n_segs_coh": n_segs_coh,
         }
 
         # with open(filename, "wb") as f:
@@ -1559,6 +1723,11 @@ class Baseline(object):
         psd_2,
         avg_psd_1,
         avg_psd_2,
+        coherence,
+        psd_1_coh,
+        psd_2_coh,
+        csd_coh,
+        n_segs_coh,
     ):
         """
         It seems that saving spectrograms in json does not work, hence everything is converted into a list and saved that way in the json file.
@@ -1595,6 +1764,27 @@ class Baseline(object):
         avg_psd_times = avg_psd_1.times.value.tolist()
         list_avg_psd_2 = avg_psd_2.value.tolist()
         avg_psd_2_times = avg_psd_2.times.value.tolist()
+        if coherence:
+            list_coherence = coherence.value.tolist()
+            list_psd_1_coh = psd_1_coh.value.tolist()
+            list_psd_2_coh = psd_2_coh.value.tolist()
+            list_csd_coh = csd_coh.value.tolist()
+            real_csd_coh = np.zeros(np.shape(list_csd_coh))
+            imag_csd_coh = np.zeros(np.shape(list_csd_coh))
+            for ix, elem in enumerate(list_csd_coh):
+                    real_csd_coh[ix] = elem.real
+                    imag_csd_coh[ix] = elem.imag
+            real_csd_coh_list = real_csd_coh.tolist()
+            imag_csd_coh_list = imag_csd_coh.tolist()
+            list_n_segs_coh = n_segs_coh
+        else:
+            list_coherence = None
+            list_psd_1_coh = None
+            list_psd_2_coh = None
+            list_csd_coh = None
+            real_csd_coh_list = None
+            imag_csd_coh_list = None
+            list_n_segs_coh = None
 
         save_dictionary = {
             "frequencies": list_freqs,
@@ -1613,6 +1803,12 @@ class Baseline(object):
             "avg_psd_1_times": avg_psd_times,
             "avg_psd_2": list_avg_psd_2,
             "avg_psd_2_times": avg_psd_2_times,
+            "coherence": list_coherence,
+            "psd_1_coh": list_psd_1_coh,
+            "psd_2_coh": list_psd_2_coh,
+            "csd_coh_real": real_csd_coh_list,
+            "csd_coh_imag": real_csd_coh_list,
+            "n_segs_coh": list_n_segs_coh,
         }
 
         with open(filename, "w") as outfile:
@@ -1629,6 +1825,11 @@ class Baseline(object):
         psd_2,
         avg_psd_1,
         avg_psd_2,
+        coherence,
+        psd_1_coh,
+        psd_2_coh,
+        csd_coh,
+        n_segs_coh,
         compress=False,
     ):
         hf = h5py.File(filename, "w")
@@ -1689,6 +1890,13 @@ class Baseline(object):
         avg_psd_2_group.create_dataset(
             "avg_psd_2_times", data=avg_psd_2_times, compression=compression
         )
+
+        if coherence:
+            hf.create_dataset("coherence", data=coherence, compression=compression)
+            hf.create_dataset("psd_1_coherence", data=psd_1_coh, compression=compression)
+            hf.create_dataset("psd_2_coherence", data=psd_2_coh, compression=compression)
+            hf.create_dataset("csd_coherence", data=csd_coh, compression=compression)
+            hf.create_dataset("n_segs_coherence", data=n_segs_coh, compression=compression)
 
         hf.close()
 
