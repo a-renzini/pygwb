@@ -24,7 +24,7 @@ authors:
     orcid: 0000-0002-4825-6764
     affiliation: "6"
   - name: Kevin Turbang
-    orcid 0000-0002-9296-8603
+    orcid: 0000-0002-9296-8603
     affiliation: "3, 5"
   - name: Sylvia Biscoveanu
     orcid: 0000-0001-7616-7366
