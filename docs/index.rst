@@ -1,5 +1,7 @@
 pygwb documentation
 ==============================================
+.. image:: pygwb_logo_plasma.png
+   :width: 80
 
 .. automodule:: pygwb
     :members:
