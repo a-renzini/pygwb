@@ -105,7 +105,9 @@ $$
 
 where $d\rho_{\rm GW}$ is the energy density of GWs in the frequency band $f$ to $f + df$, and $\rho_c$ is the critical energy density of the Universe. Different categories of GW sources may be identified by the unique spectral shape of their background emission; hence, the detection of a GWB will provide invaluable information about the evolution of the Universe and the population of GW sources within it.
 
-Due to the considerable amount of data to analyze, and the vast panorama of GWB models to test, the detection and characterization of a GWB requires a community effort, justifying the need for an accessible and user-friendly open-source code. 
+# Statement of need
+
+Due to the considerable amount of data to analyze, and the vast panorama of GWB models to test, the detection and characterization of a GWB requires a community effort. Furthermore, data handling and model building entail a number of different choices, depending on specific analysis purposes. This exemplifies the need for an accessible, flexible, and user-friendly open-source codebase: `pygwb`. To fully cater to user needs, `pygwb` is modular and extensively customizable, and is accompanied by exhaustive documentation.
 
 # Method
 
