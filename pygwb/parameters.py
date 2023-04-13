@@ -135,7 +135,7 @@ class Parameters:
     gate_threshold: float = 50.0
     cluster_window: float = 0.5
     gate_whiten: bool = True
-    tag: str = "C00"
+    tag: str = ""
     return_naive_and_averaged_sigmas: bool = False
 
 
