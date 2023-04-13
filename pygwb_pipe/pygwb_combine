@@ -24,12 +24,18 @@ from pygwb.postprocessing import (
 
 
 def sort_ptest_files(item):
-    res = item.partition("point_estimate_sigma_")[-1]
-    return float(res.partition("-")[0])
+    res = item.split("point_estimate_sigma_")[-1]
+    # double check if the tag is longer than expected
+    res = res.split('_')[-1]
+    return float(res.split("-")[0])
+
 
 def sort_coh_files(item):
-    res = item.partition("psds_csds_")[-1]
-    return float(res.partition("-")[0])
+    res = item.split("psds_csds_")[-1]
+    # double check if the tag is longer than expected
+    res = res.split('_')[-1]
+    return float(res.split("-")[0])
+
 
 """
 SCRIPT TO COMBINE PYGWB_PIPE RUN OUTPUTS.
@@ -106,9 +112,17 @@ def main():
     else:
         raise ValueError("Data path provided is neither a file nor a folder.")
 
-    files_ptest.sort(key=sort_ptest_files)
+    try:
+        files_ptest.sort(key=sort_ptest_files)
+    except:
+        logger.warning('Unable to sort point estimate files! '
+                        'This may have unintended effects.')
     if combine_args.combine_coherence:
-        files_coh.sort(key=sort_coh_files)
+        try:
+            files_coh.sort(key=sort_coh_files)
+        except:
+            logger.warning('Unable to sort coherence files! '
+                            'This may have unintended effects.')
     else:
         files_coh = None
 
