@@ -1,3 +1,5 @@
 # .coveragerc to control coverage setup
 [run]
 omit = pygwb/statistical_checks.py
+omit = pygwb/workflow.py
+omit = pygwb/html.py
