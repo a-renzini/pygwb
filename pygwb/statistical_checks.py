@@ -323,10 +323,11 @@ class StatisticalChecks(object):
 
         """
         fig = plt.figure(figsize=(10, 8))
-        plt.semilogy(
-            self.days_cut, self.running_sigmas, color=sea[0], label=self.baseline_name
+        plt.plot(
+            self.days_cut, self.running_sigmas, '.', markersize=2, color=sea[0], label=self.baseline_name
         )
         plt.grid(True)
+        plt.yscale("log")
         plt.xlim(self.days_cut[0], self.days_cut[-1])
         plt.xlabel("Days since start of run", size=self.axes_labelsize)
         plt.ylabel(r"$\sigma$", size=self.axes_labelsize)
@@ -570,13 +571,14 @@ class StatisticalChecks(object):
             self.delta_sigmas_cut,
             bins=80,
             color=sea[0],
+            alpha = 0.6,
             ec="k",
             lw=0.5,
             label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
             range=(0.0001, 1),
         )
         axs[0].set_xlabel(r"$|\Delta\sigma|/\sigma$", size=self.axes_labelsize)
-        axs[0].set_ylabel(r"\# per bin", size=self.axes_labelsize)
+        axs[0].set_ylabel(r"# per bin", size=self.axes_labelsize)
         axs[0].legend(fontsize=self.legend_fontsize)
         axs[0].tick_params(axis="x", labelsize=self.legend_fontsize)
         axs[0].tick_params(axis="y", labelsize=self.legend_fontsize)
@@ -599,13 +601,14 @@ class StatisticalChecks(object):
             self.sliding_sigma_cut,
             bins=nx,
             color=sea[0],
+            alpha = 0.6,
             ec="k",
             lw=0.5,
             label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
             range=(minx1, maxx1),
         )
         axs[1].set_xlabel(r"$\sigma$", size=self.axes_labelsize)
-        axs[1].set_ylabel(r"\# per bin", size=self.axes_labelsize)
+        axs[1].set_ylabel(r"# per bin", size=self.axes_labelsize)
         axs[1].legend(fontsize=self.legend_fontsize)
         axs[1].set_yscale("log")
         axs[1].tick_params(axis="x", labelsize=self.legend_fontsize)
@@ -738,9 +741,11 @@ class StatisticalChecks(object):
         """
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
 
+        bins=np.histogram(np.hstack((self.sliding_deviate_all,self.sliding_deviate_cut)), bins=202)[1]
+        
         axs.hist(
             self.sliding_deviate_all,
-            bins=101,
+            bins,
             color=sea[3],
             ec="k",
             lw=0.5,
@@ -748,14 +753,16 @@ class StatisticalChecks(object):
         )
         axs.hist(
             self.sliding_deviate_cut,
-            bins=101,
+            bins,
             color=sea[0],
+            alpha = 0.6,
             ec="k",
             lw=0.5,
             label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
         )
+        
         axs.set_xlabel(r"$\Delta{\rm SNR}_i$", size=self.axes_labelsize)
-        axs.set_ylabel(r"\# per bin", size=self.axes_labelsize)
+        axs.set_ylabel(r"# per bin", size=self.axes_labelsize)
         axs.legend(fontsize=self.legend_fontsize)
         axs.set_yscale("log")
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
@@ -848,14 +855,14 @@ class StatisticalChecks(object):
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
         axs.hist(
             1 / np.nanmean(self.sliding_sigma_cut ** 2) * self.sliding_sigma_cut ** 2,
-            bins=1500,
+            bins=101,
             color=sea[0],
             ec="k",
             lw=0.5,
             label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
         )
         axs.set_xlabel(r"$\sigma^2/\langle\sigma^2\rangle$", size=self.axes_labelsize)
-        axs.set_ylabel(r"\# per bin", size=self.axes_labelsize)
+        axs.set_ylabel(r"# per bin", size=self.axes_labelsize)
         axs.set_yscale("log")
         axs.set_xlim(0, 5)
         axs.legend(fontsize=self.legend_fontsize)
