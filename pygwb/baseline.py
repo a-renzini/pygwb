@@ -1670,8 +1670,6 @@ class Baseline(object):
         gates_group.create_dataset(
             "ifo_2_gates", data=ifo_2_gates, compression=compression
         )
-        gates_group.create_dataset("ifo_1_gate_pad", data=ifo_1_gate_pad, compression=compression)
-        gates_group.create_dataset("ifo_2_gate_pad", data=ifo_2_gate_pad, compression=compression)
         
         hf.close()
 
