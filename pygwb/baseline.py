@@ -1353,6 +1353,10 @@ class Baseline(object):
             self.sigma_spectrogram,
             self.badGPStimes,
             self.delta_sigmas,
+            self.interferometer_1.gates,
+            self.interferometer_1.gate_pad,
+            self.interferometer_2.gates,
+            self.interferometer_2.gate_pad,
         )
 
     def save_psds_csds(
@@ -1439,6 +1443,10 @@ class Baseline(object):
         sigma_spectrogram,
         badGPStimes,
         delta_sigmas,
+        ifo_1_gates,
+        ifo_1_gate_pad,
+        ifo_2_gates,
+        ifo_2_gate_pad,
     ):
         try:
             naive_sigma_values = delta_sigmas["naive_sigmas"]
@@ -1463,6 +1471,10 @@ class Baseline(object):
             delta_sigma_values=delta_sigmas["values"],
             naive_sigma_values=naive_sigma_values,
             slide_sigma_values=slide_sigma_values,
+            ifo_1_gates=ifo_1_gates,
+            ifo_1_gate_pad=ifo_1_gate_pad,
+            ifo_2_gates=ifo_2_gates,
+            ifo_2_gate_pad=ifo_2_gate_pad,
         )
 
     def _pickle_save(
@@ -1478,6 +1490,10 @@ class Baseline(object):
         sigma_spectrogram,
         badGPStimes,
         delta_sigmas,
+        ifo_1_gates,
+        ifo_1_gate_pad,
+        ifo_2_gates,
+        ifo_2_gate_pad,
     ):
         save_dictionary = {
             "frequencies": frequencies,
@@ -1490,6 +1506,10 @@ class Baseline(object):
             "sigma_spectrogram": sigma_spectrogram,
             "badGPStimes": badGPStimes,
             "delta_sigmas": list(delta_sigmas.items()),
+            "ifo_1_gates": ifo_1_gates,
+            "ifo_1_gate_pad": ifo_1_gate_pad,
+            "ifo_2_gates": ifo_2_gates,
+            "ifo_2_gate_pad": ifo_2_gate_pad,
         }
 
         with open(filename, "wb") as f:
@@ -1508,6 +1528,10 @@ class Baseline(object):
         sigma_spectrogram,
         badGPStimes,
         delta_sigmas,
+        ifo_1_gates,
+        ifo_1_gate_pad,
+        ifo_2_gates,
+        ifo_2_gate_pad,
     ):
         list_freqs = frequencies.tolist()
         list_freqs_mask = frequency_mask.tolist()
@@ -1528,6 +1552,10 @@ class Baseline(object):
 
         badGPStimes_list = badGPStimes.tolist()
         
+        ifo_1_gates_list = ifo_1_gates.tolist()
+        ifo_1_gate_pad_list = ifo_1_gate_pad.tolist()
+        ifo_2_gates_list = ifo_2_gates.tolist()
+        ifo_2_gate_pad_list = ifo_2_gate_pad.tolist()
 
         save_dictionary = {
             "frequencies": list_freqs,
@@ -1545,6 +1573,10 @@ class Baseline(object):
             "badGPStimes": badGPStimes_list,
             "delta_sigma_alphas": delta_sigmas["alphas"],
             "delta_sigma_values": delta_sigmas["values"].tolist(),
+            "ifo_1_gates": ifo_1_gates_list,
+            "ifo_1_gate_pad": ifo_1_gate_pad_list,
+            "ifo_2_gates": ifo_2_gates_list,
+            "ifo_2_gate_pad": ifo_2_gate_pad_list,
         }
         try:
             save_dictionary["naive_sigma_values"] = delta_sigmas[
@@ -1572,6 +1604,10 @@ class Baseline(object):
         sigma_spectrogram,
         badGPStimes,
         delta_sigmas,
+        ifo_1_gates,
+        ifo_1_gate_pad,
+        ifo_2_gates,
+        ifo_2_gate_pad,
         compress=False,
     ):
         hf = h5py.File(filename, "w")
@@ -1631,7 +1667,28 @@ class Baseline(object):
             )
         except KeyError:
             pass
-
+        gates_group = hf.create_group("Gated_Times")
+        gates_group.create_dataset(
+            "ifo_1_gates",
+            ifo_1_gates,
+            compression=compression,
+        )
+        gates_group.create_dataset(
+            "ifo_2_gates",
+            ifo_2_gates,
+            compression=compression,
+        )
+        gates_group.create_dataset(
+            "ifo_1_gate_pad",
+            ifo_1_gate_pad,
+            compression=compression,
+        )
+        gates_group.create_dataset(
+            "ifo_2_gate_pad",
+            ifo_2_gate_pad,
+            compression=compression,
+        )
+        
         hf.close()
 
     def _npz_save_csd(
