@@ -503,12 +503,18 @@ class StatisticalChecks(object):
         """
         fig, axs = plt.subplots(nrows=3, ncols=1, figsize=(10, 18))
 
-        axs[0].plot(self.days_all, self.sliding_omega_all, color=sea[3], label="All data")
+        axs[0].plot(self.days_all, self.sliding_omega_all, color=sea[3], linewidth=1, alpha=0.5, label="All data")
         axs[0].plot(
             self.days_cut,
             self.sliding_omega_cut,
-            color=sea[0],
+            color=sea[0], linewidth=1, alpha=0.5,
             label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
+        )
+        axs[0].plot(self.days_all, self.sliding_omega_all, '.', color=sea[3])
+        axs[0].plot(
+            self.days_cut,
+            self.sliding_omega_cut, '.',
+            color=sea[0],
         )
         axs[0].set_xlabel("Days since start of run", size=self.axes_labelsize)
         axs[0].set_ylabel(r"$\Omega$", size=self.axes_labelsize)
@@ -518,32 +524,48 @@ class StatisticalChecks(object):
         axs[0].tick_params(axis="y", labelsize=self.legend_fontsize)
         axs[0].yaxis.offsetText.set_fontsize(self.legend_fontsize)
 
-        axs[1].plot(self.days_all, self.sliding_sigmas_all, color=sea[3], label="All data")
+        axs[1].plot(self.days_all, self.sliding_sigmas_all, color=sea[3], linewidth=1, alpha=0.5, label="All data")
         axs[1].plot(
             self.days_cut,
             self.sliding_sigma_cut,
             color=sea[0],
+            linewidth=1,
+            alpha=0.5,
             label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
+        )
+        axs[1].plot(self.days_all, self.sliding_sigmas_all,'.', color=sea[3])
+        axs[1].plot(
+            self.days_cut,
+            self.sliding_sigma_cut,'.',
+            color=sea[0]
         )
         axs[1].set_xlabel("Days since start of run", size=self.axes_labelsize)
         axs[1].set_ylabel(r"$\sigma$", size=self.axes_labelsize)
         axs[1].legend(loc="upper left", fontsize=self.legend_fontsize)
         axs[1].set_xlim(0, self.days_all[-1])
+        axs[1].set_yscale('log')
         axs[1].tick_params(axis="x", labelsize=self.legend_fontsize)
         axs[1].tick_params(axis="y", labelsize=self.legend_fontsize)
         axs[1].yaxis.offsetText.set_fontsize(self.legend_fontsize)
 
-        axs[2].plot(self.days_all, self.sliding_deviate_all, color=sea[3], label="All data")
+        axs[2].plot(self.days_all, self.sliding_deviate_all, color=sea[3], linewidth=1, alpha=0.5, label="All data")
         axs[2].plot(
             self.days_cut,
             self.sliding_deviate_cut,
-            color=sea[0],
+            color=sea[0], linewidth=1, alpha=0.5,
             label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
+        )
+        axs[2].plot(self.days_all, self.sliding_deviate_all, '.', color=sea[3])
+        axs[2].plot(
+            self.days_cut,
+            self.sliding_deviate_cut, '.',
+            color=sea[0],
         )
         axs[2].set_xlabel("Days since start of run", size=self.axes_labelsize)
         axs[2].set_ylabel(r"$\Delta{\rm SNR}_i$", size=self.axes_labelsize)
         axs[2].legend(loc="upper left", fontsize=self.legend_fontsize)
         axs[2].set_xlim(0, self.days_all[-1])
+        axs[2].set_yscale("symlog")
         axs[2].tick_params(axis="x", labelsize=self.legend_fontsize)
         axs[2].tick_params(axis="y", labelsize=self.legend_fontsize)
 
