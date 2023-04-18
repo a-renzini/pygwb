@@ -1552,11 +1552,6 @@ class Baseline(object):
 
         badGPStimes_list = badGPStimes.tolist()
         
-        ifo_1_gates_list = ifo_1_gates.tolist()
-        ifo_1_gate_pad_list = ifo_1_gate_pad.tolist()
-        ifo_2_gates_list = ifo_2_gates.tolist()
-        ifo_2_gate_pad_list = ifo_2_gate_pad.tolist()
-
         save_dictionary = {
             "frequencies": list_freqs,
             "frequency_mask": list_freqs_mask,
@@ -1573,10 +1568,10 @@ class Baseline(object):
             "badGPStimes": badGPStimes_list,
             "delta_sigma_alphas": delta_sigmas["alphas"],
             "delta_sigma_values": delta_sigmas["values"].tolist(),
-            "ifo_1_gates": ifo_1_gates_list,
-            "ifo_1_gate_pad": ifo_1_gate_pad_list,
-            "ifo_2_gates": ifo_2_gates_list,
-            "ifo_2_gate_pad": ifo_2_gate_pad_list,
+            "ifo_1_gates": ifo_1_gates,
+            "ifo_1_gate_pad": ifo_1_gate_pad,
+            "ifo_2_gates": ifo_2_gates,
+            "ifo_2_gate_pad": ifo_2_gate_pad,
         }
         try:
             save_dictionary["naive_sigma_values"] = delta_sigmas[
