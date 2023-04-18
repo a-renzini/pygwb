@@ -1662,6 +1662,7 @@ class Baseline(object):
             )
         except KeyError:
             pass
+        
         gates_group = hf.create_group("Gated_Times")
         gates_group.create_dataset(
             "ifo_1_gates",
