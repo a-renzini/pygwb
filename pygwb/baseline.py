@@ -1665,22 +1665,22 @@ class Baseline(object):
         gates_group = hf.create_group("Gated_Times")
         gates_group.create_dataset(
             "ifo_1_gates",
-            ifo_1_gates,
+            data=ifo_1_gates,
             compression=compression,
         )
         gates_group.create_dataset(
             "ifo_2_gates",
-            ifo_2_gates,
+            data=ifo_2_gates,
             compression=compression,
         )
         gates_group.create_dataset(
             "ifo_1_gate_pad",
-            ifo_1_gate_pad,
+            data=ifo_1_gate_pad,
             compression=compression,
         )
         gates_group.create_dataset(
             "ifo_2_gate_pad",
-            ifo_2_gate_pad,
+            data=ifo_2_gate_pad,
             compression=compression,
         )
         
