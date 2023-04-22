@@ -47,6 +47,7 @@ class StatisticalChecks(object):
         plot_dir,
         baseline_name,
         param_file,
+        file_tag = None,
         legend_fontsize = 16
     ):
         """
@@ -134,6 +135,11 @@ class StatisticalChecks(object):
             self.running_pt_estimate,
             self.running_sigmas,
         ) = self.compute_running_quantities()
+
+        if file_tag:
+            self.file_tag = file_tag
+        else:
+            self.file_tag = {self.sliding_times_all[0]}-{self.sliding_times_all[-1]}
 
         self.legend_fontsize = legend_fontsize
         self.axes_labelsize = legend_fontsize + 2
@@ -314,7 +320,7 @@ class StatisticalChecks(object):
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-running_point_estimate.png", bbox_inches='tight'
+            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-running_point_estimate.png", bbox_inches='tight'
         )
 
     def plot_running_sigma(self):
@@ -1058,7 +1064,7 @@ def run_statistical_checks_from_file(
 
 
 def run_statistical_checks_baseline_pickle(
-    baseline_directory, combine_file_path, plot_dir, param_file, coherence_file_path = None
+    baseline_directory, combine_file_path, plot_dir, param_file, coherence_file_path = None, file_tag = None
 ):
     params = Parameters()
     params.update_from_file(param_file)
@@ -1128,4 +1134,5 @@ def run_statistical_checks_baseline_pickle(
         plot_dir,
         baseline_name,
         param_file,
+        file_tag=file_tag,
     )
