@@ -340,7 +340,7 @@ class StatisticalChecks(object):
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-running_sigma.png", bbox_inches = 'tight'
+            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-running_sigma.png", bbox_inches = 'tight'
         )
 
     def plot_IFFT_point_estimate_integrand(self):
@@ -358,7 +358,7 @@ class StatisticalChecks(object):
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-IFFT_point_estimate_integrand.png", bbox_inches='tight'
+            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-IFFT_point_estimate_integrand.png", bbox_inches='tight'
         )
 
     def plot_SNR_spectrum(self):
@@ -378,7 +378,7 @@ class StatisticalChecks(object):
         plt.yticks(fontsize=self.legend_fontsize)
         plt.xscale("log")
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-abs_point_estimate_integrand.png",
+            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-abs_point_estimate_integrand.png",
             bbox_inches="tight",
         )
 
@@ -398,7 +398,7 @@ class StatisticalChecks(object):
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-cumulative_SNR_spectrum.png",
+            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-cumulative_SNR_spectrum.png",
             bbox_inches="tight",
         )
 
@@ -418,7 +418,7 @@ class StatisticalChecks(object):
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-real_SNR_spectrum.png",
+            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-real_SNR_spectrum.png",
             bbox_inches="tight",
         )
 
@@ -438,7 +438,7 @@ class StatisticalChecks(object):
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-imag_SNR_spectrum.png",
+            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-imag_SNR_spectrum.png",
             bbox_inches="tight",
         )
 
@@ -455,7 +455,7 @@ class StatisticalChecks(object):
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-sigma_spectrum.png",
+            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-sigma_spectrum.png",
             bbox_inches="tight",
         )
 
@@ -479,7 +479,7 @@ class StatisticalChecks(object):
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-coherence_spectrum_{resolution}_Hz.png",
+            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-coherence_spectrum_{resolution}_Hz.png",
             bbox_inches="tight",
         )
 
@@ -499,7 +499,7 @@ class StatisticalChecks(object):
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-cumulative_sigma_spectrum.png",
+            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-cumulative_sigma_spectrum.png",
             bbox_inches="tight",
         )
 
@@ -576,7 +576,7 @@ class StatisticalChecks(object):
         axs[2].tick_params(axis="y", labelsize=self.legend_fontsize)
 
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-omega_sigma_time.png", bbox_inches='tight'
+            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-omega_sigma_time.png", bbox_inches='tight'
         )
 
     def plot_hist_sigma_dsc(self):
@@ -644,7 +644,7 @@ class StatisticalChecks(object):
         axs[1].xaxis.offsetText.set_fontsize(self.legend_fontsize)
 
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-histogram_sigma_dsc.png", bbox_inches='tight'
+            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_sigma_dsc.png", bbox_inches='tight'
         )
 
     def plot_scatter_sigma_dsc(self):
@@ -679,7 +679,7 @@ class StatisticalChecks(object):
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
 
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-scatter_sigma_dsc.png", bbox_inches = 'tight'
+            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-scatter_sigma_dsc.png", bbox_inches = 'tight'
         )
 
     def plot_scatter_omega_sigma_dsc(self):
@@ -761,7 +761,7 @@ class StatisticalChecks(object):
         axs[1].xaxis.offsetText.set_fontsize(self.legend_fontsize)
 
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-scatter_omega_sigma_dsc.png", bbox_inches = 'tight')
+            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-scatter_omega_sigma_dsc.png", bbox_inches = 'tight')
 
     def plot_hist_omega_pre_post_dsc(self):
         r"""
@@ -797,7 +797,7 @@ class StatisticalChecks(object):
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
 
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-histogram_omega_dsc.png", bbox_inches = 'tight'
+            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_omega_dsc.png", bbox_inches = 'tight'
         )
 
     def plot_KS_test(self, bias_factor=None):
@@ -866,7 +866,7 @@ class StatisticalChecks(object):
         axs[1].tick_params(axis="x", labelsize=self.legend_fontsize)
         axs[1].tick_params(axis="y", labelsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-KS_test.png", bbox_inches = 'tight'
+            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-KS_test.png", bbox_inches = 'tight'
         )
 
     def plot_hist_sigma_squared(self):
@@ -898,7 +898,7 @@ class StatisticalChecks(object):
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
 
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-histogram_sigma_squared.png", bbox_inches = 'tight'
+            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_sigma_squared.png", bbox_inches = 'tight'
         )
 
     def plot_omega_time_fit(self):
@@ -952,7 +952,7 @@ class StatisticalChecks(object):
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
         axs.xaxis.offsetText.set_fontsize(self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-omega_time_fit.png", bbox_inches = 'tight'
+            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-omega_time_fit.png", bbox_inches = 'tight'
         )
 
     def plot_sigma_time_fit(self):
@@ -996,7 +996,7 @@ class StatisticalChecks(object):
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}-sigma_time_fit.png", bbox_inches = 'tight'
+            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-sigma_time_fit.png", bbox_inches = 'tight'
         )
 
     def generate_all_plots(self):
