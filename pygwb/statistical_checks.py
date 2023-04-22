@@ -1030,7 +1030,7 @@ def sortingFunction(item):
 
 
 def run_statistical_checks_from_file(
-    combine_file_path, dsc_file_path, plot_dir, param_file, legend_fontsize=16, coherence_file_path = None
+    combine_file_path, dsc_file_path, plot_dir, param_file, legend_fontsize=16, coherence_file_path = None, file_tag = None,
 ):
     """
     Assumes files are in npz for now. Will generalize later.
@@ -1088,6 +1088,7 @@ def run_statistical_checks_from_file(
         plot_dir,
         baseline_name,
         param_file,
+        file_tag=file_tag,
         legend_fontsize=legend_fontsize
     )
 
