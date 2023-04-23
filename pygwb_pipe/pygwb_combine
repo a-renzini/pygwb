@@ -346,9 +346,6 @@ def main():
             csd_coh = data_file['csd_coh']
             n_segs_coh = data_file['n_segs_coh']
 
-            psd_1_average *= n_segs_coh_total
-            psd_2_average *= n_segs_coh_total
-            csd_average *= n_segs_coh_total
             psd_1_average += n_segs_coh*psd_1_coh
             psd_2_average += n_segs_coh*psd_2_coh
             csd_average += n_segs_coh*csd_coh
