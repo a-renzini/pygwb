@@ -1,4 +1,5 @@
 import copy
+
 import numpy as np
 from gwpy.frequencyseries import FrequencySeries
 from gwpy.spectrogram import Spectrogram
