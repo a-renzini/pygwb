@@ -118,7 +118,7 @@ def read_data(
     """
     if data_type == "public":
         data = timeseries.TimeSeries.fetch_open_data(
-            IFO, t0, tf, sample_rate=input_sample_rate, tag=tag
+            IFO, t0, tf, sample_rate=input_sample_rate
         )
         data.channel = channel
     elif data_type == "private":

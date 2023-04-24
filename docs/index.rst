@@ -1,8 +1,8 @@
 pygwb documentation
 ==============================================
+.. image:: pygwb_logo_plasma.png
+   :width: 100
 
-.. automodule:: pygwb
-    :members:
 
 .. toctree::
    :maxdepth: 1
