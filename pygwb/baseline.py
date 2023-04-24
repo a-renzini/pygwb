@@ -1332,7 +1332,7 @@ class Baseline(object):
             save = self._json_save
             ext = ".json"
 
-        elif save_data_type == "hdf5":
+        elif save_data_type == "hdf5" or save_data_type == "h5":
             save = self._hdf5_save
             ext = ".h5"
 
@@ -1386,7 +1386,7 @@ class Baseline(object):
             save_csd = self._json_save_csd
             ext = ".json"
 
-        elif save_data_type == "hdf5":
+        elif save_data_type == "hdf5" or save_data_type == "h5":
             save_csd = self._hdf5_save_csd
             ext = ".h5"
 
@@ -1419,6 +1419,10 @@ class Baseline(object):
             self.interferometer_2.psd_spectrogram,
             self.interferometer_1.average_psd,
             self.interferometer_2.average_psd,
+            self.interferometer_1.gates,
+            self.interferometer_1.gate_pad,
+            self.interferometer_2.gates,
+            self.interferometer_2.gate_pad,
             coherence,
             psd_1_coh,
             psd_2_coh,
@@ -1528,7 +1532,6 @@ class Baseline(object):
 
         badGPStimes_list = badGPStimes.tolist()
         
-
         save_dictionary = {
             "frequencies": list_freqs,
             "frequency_mask": list_freqs_mask,
@@ -1645,6 +1648,10 @@ class Baseline(object):
         psd_2,
         avg_psd_1,
         avg_psd_2,
+        ifo_1_gates,
+        ifo_1_gate_pad,
+        ifo_2_gates,
+        ifo_2_gate_pad,
         coherence,
         psd_1_coh,
         psd_2_coh,
@@ -1665,6 +1672,10 @@ class Baseline(object):
             avg_csd_times=avg_csd.times.value,
             psd_times=psd_1.times.value,
             avg_psd_times=avg_psd_1.times.value,
+            ifo_1_gates=ifo_1_gates,
+            ifo_1_gate_pad=ifo_1_gate_pad,
+            ifo_2_gates=ifo_2_gates,
+            ifo_2_gate_pad=ifo_2_gate_pad,
             coherence=coherence,
             psd_1_coh=psd_1_coh,
             psd_2_coh=psd_2_coh,
@@ -1683,6 +1694,10 @@ class Baseline(object):
         psd_2,
         avg_psd_1,
         avg_psd_2,
+        ifo_1_gates,
+        ifo_1_gate_pad,
+        ifo_2_gates,
+        ifo_2_gate_pad,
         coherence,
         psd_1_coh,
         psd_2_coh,
@@ -1699,6 +1714,10 @@ class Baseline(object):
             "psd_2": psd_2,
             "avg_psd_1": avg_psd_1,
             "avg_psd_2": avg_psd_2,
+            "ifo_1_gates": ifo_1_gates,
+            "ifo_1_gate_pad": ifo_1_gate_pad,
+            "ifo_2_gates": ifo_2_gates,
+            "ifo_2_gate_pad": ifo_2_gate_pad,
             "coherence": coherence,
             "psd_1_coh": psd_1_coh,
             "psd_2_coh": psd_2_coh,
@@ -1723,6 +1742,10 @@ class Baseline(object):
         psd_2,
         avg_psd_1,
         avg_psd_2,
+        ifo_1_gates,
+        ifo_1_gate_pad,
+        ifo_2_gates,
+        ifo_2_gate_pad,
         coherence,
         psd_1_coh,
         psd_2_coh,
@@ -1803,6 +1826,10 @@ class Baseline(object):
             "avg_psd_1_times": avg_psd_times,
             "avg_psd_2": list_avg_psd_2,
             "avg_psd_2_times": avg_psd_2_times,
+            "ifo_1_gates": ifo_1_gates,
+            "ifo_1_gate_pad": ifo_1_gate_pad,
+            "ifo_2_gates": ifo_2_gates,
+            "ifo_2_gate_pad": ifo_2_gate_pad,
             "coherence": list_coherence,
             "psd_1_coh": list_psd_1_coh,
             "psd_2_coh": list_psd_2_coh,
@@ -1825,6 +1852,10 @@ class Baseline(object):
         psd_2,
         avg_psd_1,
         avg_psd_2,
+        ifo_1_gates,
+        ifo_1_gate_pad,
+        ifo_2_gates,
+        ifo_2_gate_pad,
         coherence,
         psd_1_coh,
         psd_2_coh,
@@ -1889,6 +1920,14 @@ class Baseline(object):
         )
         avg_psd_2_group.create_dataset(
             "avg_psd_2_times", data=avg_psd_2_times, compression=compression
+        )
+
+        gates_group = hf.create_group("Gated_Times")
+        gates_group.create_dataset(
+            "ifo_1_gates", data=ifo_1_gates, compression=compression
+        )
+        gates_group.create_dataset(
+            "ifo_2_gates", data=ifo_2_gates, compression=compression
         )
 
         if coherence:

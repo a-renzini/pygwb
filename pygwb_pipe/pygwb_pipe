@@ -117,7 +117,7 @@ def main():
 
     if params.gate_data:
         logger.info(f"Applying gates.")
-        for ifo, ifo_obj in zip(ifo_list, [ifo_1, ifo_1]):
+        for ifo, ifo_obj in zip(ifo_list, [ifo_1, ifo_2]):
             gate_params = { 
                     "gate_tzero":param_dict[ifo].gate_tzero,
                     "gate_tpad":param_dict[ifo].gate_tpad,
