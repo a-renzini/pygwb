@@ -5,7 +5,7 @@ import numpy as np
 from scipy.special import erf
 
 from .baseline import Baseline
-
+from .orfs import *
 
 class GWBModel(bilby.Likelihood):
     r"""
@@ -647,3 +647,129 @@ class PVPowerLawModel2(GWBModel):
             * self.parameters["omega_ref"]
             * (bline.frequencies / self.fref) ** (self.parameters["alpha"])
         )
+    
+class Geodesy(GWBModel):
+    r"""
+    The Geodesy model can be used as an extra consistency check. Rather than fixing the overlap 
+    reduction function (ORF) to its actual value, the parameters describing the ORF are 
+    inferred simultaneously with the GWB spectrum parameters. 
+    Parameters:
+    -----------
+    fref : float
+        reference frequency for defining the model (:math:`f_{\text{ref}}`)
+    omega_ref : float
+        amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
+    alpha : float
+        spectral index of the power law (:math:`\alpha`)
+    frequencies : numpy.ndarray
+        array of frequencies at which to evaluate the model
+    beta : float
+
+    omega_det1 : float
+        
+    omega_det2 : float
+        
+    """
+
+    def __init__(self, **kwargs):
+        try:
+            fref = kwargs.pop("fref")
+        except KeyError:
+            raise KeyError("fref must be supplied")
+        super(Geodesy, self).__init__(**kwargs)
+        self.fref = fref
+
+    @property
+    def parameters(self):
+        if self._parameters is None:
+            return {"omega_ref": None, "alpha": None, "beta":None, "omega_det1": None, "omega_det2": None}
+        elif isinstance(self._parameters, dict):
+            return self._parameters
+
+    @parameters.setter
+    def parameters(self, parameters):
+        if parameters is None:
+            self._parameters = parameters
+        elif isinstance(parameters, dict):
+            self._parameters = parameters
+        else:
+            raise ValueError(f"unexpected type for parameters {type(parameters)}")
+
+    def model_function(self, bline):
+        new_orf = calc_orf_new(bline.frequencies, self.parameters["beta"], self.parameters["omega_det1"], self.parameters["omega_det2"] ) 
+        old_orf = getattr(bline, "tensor_overlap_reduction_function")
+        return new_orf/old_orf * self.parameters["omega_ref"] * (bline.frequencies / self.fref) ** self.parameters["alpha"]
+
+def calc_orf_new(
+    frequencies,
+    beta,
+    omega_det1,
+    omega_det2,
+    polarization="tensor",
+):
+    """
+    Calculates the tensor, scalar, and vector overlap reduction functions
+    Following Section IVb of https://arxiv.org/abs/0903.0528
+    See Appendix A of https://arxiv.org/abs/1704.08373 for a
+    discussion of the normalization of the scalar ORF and
+    https://arxiv.org/pdf/0707.0535.pdf for the gamma_V function
+
+    Inputs:
+    frequencies: frequencies at which to evaluate the ORFs
+    det1_vertex: Coordinates of the vertex of detector 1
+    det2_vertex: Coordinates of the vertex of detector 2
+    det1_xarm: Coordinates of the x arm of detector 1
+    det2_xarm: Coordinates of the x arm of detector 2
+    det1_yarm: Coordinates of the y arm of detector 1
+    det2_yarm: Coordinates of the y arm of detector 2
+    Coordinates are always Earth-fixed cartesian
+
+    Description of the intermediate parameters:
+    beta: angle between detectors from center of earth
+    tan_detX: tangent vector at detX along great circle between detectors
+    bisector_detX: detX arm bisector vector
+    perp_detX: outward radial vector perpendicular to the detector plane
+    omega_detX: angle between bisector and tangent vector at detX
+    perp: vector at theta=90 along great circle with det1_vertex theta=0
+
+    Outputs:
+    overlap_reduction_function: overlap reduction function at given frequencies
+        for specified polarization
+    """
+    earth_radius = 6371*10**3 # m
+    
+    delta_x = 2*earth_radius*np.sin(beta/2.)
+    
+    alpha = 2 * np.pi * frequencies * delta_x / speed_of_light
+
+    #Assume detectors cannot be co-located for now
+    if np.linalg.norm(delta_x) != 0:
+        omega_plus = (omega_det1 + omega_det2) / 2
+        omega_minus = (omega_det1 - omega_det2) / 2
+    else:
+        pass
+
+    if polarization.lower() == "tensor":
+        overlap_reduction_function = Tplus(alpha, beta) * np.cos(
+            4 * omega_plus
+        ) + Tminus(alpha, beta) * np.cos(4 * omega_minus)
+    elif polarization.lower() == "vector":
+        overlap_reduction_function = Vplus(alpha, beta) * np.cos(
+            4 * omega_plus
+        ) + Vminus(alpha, beta) * np.cos(4 * omega_minus)
+    elif polarization.lower() == "scalar":
+        overlap_reduction_function = (
+            1.0
+            / 3
+            * (
+                Splus(alpha, beta) * np.cos(4 * omega_plus)
+                + Sminus(alpha, beta) * np.cos(4 * omega_minus)
+            )
+        )
+    elif polarization.lower() == "right_left":
+        overlap_reduction_function = T_right_left(alpha, beta) * np.sin(4 * omega_plus)
+    else:
+        raise ValueError(
+            "Unrecognized polarization! Must be either tensor, vector, scalar, or right_left"
+        )
+    return overlap_reduction_function
