@@ -136,15 +136,16 @@ class StatisticalChecks(object):
             self.running_sigmas,
         ) = self.compute_running_quantities()
 
-        self.time_tag = "{self.params.t0}-{self.params.tf}"
+        self.time_tag = f"{int(self.params.t0)}"+"$-$"+f"{int(self.params.tf)}"
 
         if file_tag:
             self.file_tag = file_tag
         else:
-            self.file_tag = self.time_tag
+            self.file_tag = f"{self.params.t0}-{self.params.tf}"
 
         self.legend_fontsize = legend_fontsize
         self.axes_labelsize = legend_fontsize + 2
+        self.title_fontsize = legend_fontsize + 4
         self.annotate_fontsize = legend_fontsize - 4
 
     def get_data_after_dsc(self):
@@ -321,7 +322,7 @@ class StatisticalChecks(object):
         plt.ylabel(r"Point estimate $\pm 1.65 \sigma$", size=self.axes_labelsize)
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
-        plt.title(f'Running point estimate in {self.time_tag}')
+        plt.title(f'Running point estimate in {self.time_tag}', fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-running_point_estimate.png", bbox_inches='tight'
         )
@@ -342,7 +343,7 @@ class StatisticalChecks(object):
         plt.ylabel(r"$\sigma$", size=self.axes_labelsize)
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
-        plt.title(r'Running $\sigma$' + f'in {self.time_tag}')
+        plt.title(r'Running $\sigma$ ' + f'in {self.time_tag}', fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-running_sigma.png", bbox_inches = 'tight'
         )
@@ -361,7 +362,7 @@ class StatisticalChecks(object):
         plt.ylabel(r"$\Omega$ integrand IFFT", size=self.axes_labelsize)
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
-        plt.title(f"IFFT of the point estimate integrand in {self.time_tag}")
+        plt.title(r"$\Omega$ integrand IFFT" + f" in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-IFFT_point_estimate_integrand.png", bbox_inches='tight'
         )
@@ -382,7 +383,7 @@ class StatisticalChecks(object):
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
         plt.xscale("log")
-        plt.title(f"Absolute SNR in {self.time_tag}")
+        plt.title(f"Absolute SNR in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-abs_point_estimate_integrand.png",
             bbox_inches="tight",
@@ -403,7 +404,7 @@ class StatisticalChecks(object):
         plt.xscale("log")
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
-        plt.title(f"Cumulative SNR in {self.time_tag}")
+        plt.title(f"Cumulative SNR in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-cumulative_SNR_spectrum.png",
             bbox_inches="tight",
@@ -424,7 +425,7 @@ class StatisticalChecks(object):
         plt.xscale("log")
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
-        plt.title(f"Real SNR in {self.time_tag}")
+        plt.title(f"Real SNR in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-real_SNR_spectrum.png",
             bbox_inches="tight",
@@ -445,7 +446,7 @@ class StatisticalChecks(object):
         plt.xscale("log")
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
-        plt.title(f"Imaginary SNR in {self.time_tag}")
+        plt.title(f"Imaginary SNR in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-imag_SNR_spectrum.png",
             bbox_inches="tight",
@@ -463,7 +464,7 @@ class StatisticalChecks(object):
         plt.yscale("log")
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
-        plt.title(r"Total $\sigma$ spectrum" + f" in {self.time_tag}")
+        plt.title(r"Total $\sigma$ spectrum" + f" in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-sigma_spectrum.png",
             bbox_inches="tight",
@@ -488,7 +489,7 @@ class StatisticalChecks(object):
         plt.yscale("log")
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
-        plt.title(r"Total coherence spectrum at $\Delta f$ = " + "{resolution} Hz in {self.time_tag}")
+        plt.title(r"Total coherence spectrum at $\Delta f$ = " + "{resolution} Hz in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-coherence_spectrum.png",
             bbox_inches="tight",
@@ -509,7 +510,7 @@ class StatisticalChecks(object):
         plt.xscale("log")
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
-        plt.title(r"Cumulative sensitivity $1/\sigma^2$" + f"in {self.time_tag}")
+        plt.title(r"Cumulative sensitivity $1/\sigma^2$ " + f"in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-cumulative_sigma_spectrum.png",
             bbox_inches="tight",
@@ -519,7 +520,8 @@ class StatisticalChecks(object):
         r"""
         Generates and saves a panel plot with a scatter plot of :math:`\sigma` vs :math:`\Delta{\rm SNR}_i`, as well as the evolution of :math:`\Omega`, :math:`\sigma`, and :math:`(\Omega-\langle\Omega\rangle)/\sigma` as a function of the days since the start of the run. All plots show the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sliding_sigmas_all`).
         """
-        fig, axs = plt.subplots(nrows=3, ncols=1, figsize=(10, 18))
+        fig, axs = plt.subplots(nrows=3, ncols=1, figsize=(10, 15), constrained_layout=True)
+        fig.suptitle(r"$\Omega$, $\sigma$, and" + f" SNR variations in {self.time_tag} with/out " + r"$\Delta\sigma$ cut", fontsize=self.title_fontsize)
 
         axs[0].plot(self.days_all, self.sliding_omega_all, color=sea[3], linewidth=1, alpha=0.5, label="All data")
         axs[0].plot(
@@ -587,7 +589,6 @@ class StatisticalChecks(object):
         axs[2].tick_params(axis="x", labelsize=self.legend_fontsize)
         axs[2].tick_params(axis="y", labelsize=self.legend_fontsize)
 
-        plt.title(r"$\Omega$, $\sigma$, and" + f" SNR variations in {self.time_tag} with/without " + r"$\Delta\sigma$ cut")
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-omega_sigma_time.png", bbox_inches='tight'
         )
@@ -597,7 +598,8 @@ class StatisticalChecks(object):
         Generates and saves a panel plot with a histogram of :math:`|\Delta\sigma|/\sigma`, as well as a histogram of :math:`\sigma`. Both plots show the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `delta_sigmas_all`).
 
         """
-        fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(10, 14))
+        fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(10, 14), constrained_layout=True)
+        fig.suptitle(r"$\Delta\sigma$ and $\sigma$ distributions in" f" {self.time_tag} with/out " + r"$\Delta\sigma$ cut", fontsize=self.title_fontsize)
 
         axs[0].hist(
             self.delta_sigmas_all,
@@ -656,7 +658,6 @@ class StatisticalChecks(object):
         axs[1].tick_params(axis="y", labelsize=self.legend_fontsize)
         axs[1].xaxis.offsetText.set_fontsize(self.legend_fontsize)
 
-        plt.title(r"$\sigma$ distribution in" f" {self.time_tag} with/without " + r"$\Delta\sigma$ cut")
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_sigma_dsc.png", bbox_inches='tight'
         )
@@ -692,7 +693,7 @@ class StatisticalChecks(object):
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
 
-        plt.title(r"$|Delta\sigma$ distribution in" f" {self.time_tag} with/without " + r"$\Delta\sigma$ cut")
+        plt.title(r"$\Delta\sigma$ distribution in" f" {self.time_tag} with/out " + r"$\Delta\sigma$ cut", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-scatter_sigma_dsc.png", bbox_inches = 'tight'
         )
@@ -701,7 +702,8 @@ class StatisticalChecks(object):
         r"""
         Generates and saves a panel plot with scatter plots of :math:`|\Delta\sigma|/\sigma` vs :math:`\Delta{\rm SNR}_i`, as well as :math:`\sigma` vs :math:`(\Omega-\langle\Omega\rangle)/\sigma`. All plots show the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `delta_sigmas_all`).
         """
-        fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(10, 14))
+        fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(10, 13), constrained_layout=True)
+        fig.suptitle(r"$\Delta$SNR spread" + f" in {self.time_tag} with/out " + r"$\Delta\sigma$ cut", fontsize=self.title_fontsize)
 
         maxx0 = max(self.delta_sigmas_cut)
         maxx0 += maxx0 / 10.0
@@ -775,7 +777,6 @@ class StatisticalChecks(object):
         axs[1].tick_params(axis="y", labelsize=self.legend_fontsize)
         axs[1].xaxis.offsetText.set_fontsize(self.legend_fontsize)
 
-        plt.title(r"$\Delta$SNR spread" + f" in {self.time_tag} with/without " + r"$\Delta\sigma$ cut")
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-scatter_omega_sigma_dsc.png", bbox_inches = 'tight')
 
@@ -812,7 +813,7 @@ class StatisticalChecks(object):
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
 
-        plt.title(r"$|Delta$SNR distribution in" f" {self.time_tag} with/without " + r"$\Delta\sigma$ cut")
+        plt.title(r"$\Delta$SNR distribution in" f" {self.time_tag} with/out " + r"$\Delta\sigma$ cut", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_omega_dsc.png", bbox_inches = 'tight'
         )
@@ -849,7 +850,9 @@ class StatisticalChecks(object):
         lam = (np.sqrt(lx_eff) + 0.12 + 0.11 / np.sqrt(lx_eff)) * dks_x
         pval_KS = StatKS(lam)
 
-        fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(10, 8))
+        fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(10, 8), constrained_layout=True)
+        fig.suptitle(f"Kolmogorov-Smirnov test in {self.time_tag}", fontsize=self.title_fontsize)
+
         axs[0].plot(bins_count[1:], cdf, "k", label="Data")
         axs[0].plot(
             bins_count[1:],
@@ -882,7 +885,6 @@ class StatisticalChecks(object):
         )
         axs[1].tick_params(axis="x", labelsize=self.legend_fontsize)
         axs[1].tick_params(axis="y", labelsize=self.legend_fontsize)
-        plt.title(f"Kolmogorov-Smirnov test in {self.time_tag}")
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-KS_test.png", bbox_inches = 'tight'
         )
@@ -915,7 +917,7 @@ class StatisticalChecks(object):
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
 
-        plt.title(f"Relative variance in {self.time_tag}")
+        plt.title(f"Relative variance in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_sigma_squared.png", bbox_inches = 'tight'
         )
@@ -970,7 +972,7 @@ class StatisticalChecks(object):
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
         axs.xaxis.offsetText.set_fontsize(self.legend_fontsize)
-        plt.title(r"Time evolution of $\Omega$ " + f"in {self.time_tag}")
+        plt.title(r"Time evolution of $\Omega$ " + f"in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-omega_time_fit.png", bbox_inches = 'tight'
         )
@@ -1015,7 +1017,7 @@ class StatisticalChecks(object):
         )
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
-        plt.title(r"Time evolution of $\sigma$ " + f"in {self.time_tag}")
+        plt.title(r"Time evolution of $\sigma$ " + f"in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-sigma_time_fit.png", bbox_inches = 'tight'
         )
