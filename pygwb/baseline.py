@@ -35,10 +35,12 @@ class Baseline(object):
         frequencies=None,
         calibration_epsilon=0,
         notch_list_path="",
+        coarse_grain_psd=False,
+        coarse_grain_csd=True,
         overlap_factor=0.5,
         zeropad_csd=True,
         window_fftgram_dict={"window_fftgram": "hann"},
-        N_average_segments_welch_psd=2,
+        N_average_segments_psd=2,
         sampling_frequency=None,
     ):
         """
@@ -60,6 +62,10 @@ class Baseline(object):
             Calibration uncertainty for this baseline
         notch_list_path: str, optional
             File path of the baseline notch list
+        coarse_grain_psd: bool
+            Whether to apply coarse graining to obtain PSD spectra. Default is False.
+        coarse_grain_csd: bool
+            Whether to apply coarse graining to obtain CSD spectra. Default is True.
         overlap_factor: float, optional
             Factor by which to overlap the segments in the psd and csd estimation.
             Default is 1/2, if set to 0 no overlap is performed.
@@ -67,7 +73,7 @@ class Baseline(object):
             If True, applies zeropadding in the csd estimation. True by default.
         window_fftgram_dict: dictionary, optional
             Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds. Default is \"hann\".
-        N_average_segments_welch_psd: int, optional
+        N_average_segments_psd: int, optional
             Number of segments used for PSD averaging (from both sides of the segment of interest)
             N_avg_segs should be even and >= 2.
         """
@@ -76,10 +82,12 @@ class Baseline(object):
         self.interferometer_2 = interferometer_2
         self.calibration_epsilon = calibration_epsilon
         self.notch_list_path = notch_list_path
+        self.coarse_grain_psd = coarse_grain_psd
+        self.coarse_grain_csd = coarse_grain_csd
         self.overlap_factor = overlap_factor
         self.zeropad_csd = zeropad_csd
         self.window_fftgram_dict = window_fftgram_dict
-        self.N_average_segments_welch_psd = N_average_segments_welch_psd
+        self.N_average_segments_psd = N_average_segments_psd
         self._tensor_orf_calculated = False
         self._vector_orf_calculated = False
         self._scalar_orf_calculated = False
@@ -268,7 +276,7 @@ class Baseline(object):
     def csd_segment_offset(self):
         if self._duration_set:
             stride = self.duration * (1 - self.overlap_factor)
-            return int(np.ceil(self.duration / stride)) * int(self.N_average_segments_welch_psd/2)
+            return int(np.ceil(self.duration / stride)) * int(self.N_average_segments_psd/2)
         else:
             raise ValueError("Trying to calculate CSD segment offset before setting duration. Need to set duration before attempting this.")
 
@@ -680,10 +688,12 @@ class Baseline(object):
             calibration_epsilon=parameters.calibration_epsilon,
             frequencies=frequencies,
             notch_list_path=parameters.notch_list_path,
+            coarse_grain_psd=parameters.coarse_grain_psd,
+            coarse_grain_csd=parameters.coarse_grain_csd,
             overlap_factor=parameters.overlap_factor,
             zeropad_csd=parameters.zeropad_csd,
             window_fftgram_dict=parameters.window_fft_dict,
-            N_average_segments_welch_psd=parameters.N_average_segments_welch_psd,
+            N_average_segments_psd=parameters.N_average_segments_psd,
             sampling_frequency=parameters.new_sample_rate,
         )
 
@@ -728,6 +738,7 @@ class Baseline(object):
         try:
             self.interferometer_1.set_psd_spectrogram(
                 frequency_resolution,
+                coarse_grain=self.coarse_grain_psd,
                 overlap_factor=self.overlap_factor,
                 window_fftgram_dict_welch_psd={"window_fftgram": "hann"},
                 overlap_factor_welch_psd=0.5,
@@ -739,6 +750,7 @@ class Baseline(object):
         try:
             self.interferometer_2.set_psd_spectrogram(
                 frequency_resolution,
+                coarse_grain=self.coarse_grain_psd,
                 overlap_factor=self.overlap_factor,
                 window_fftgram_dict_welch_psd={"window_fftgram": "hann"},
                 overlap_factor_welch_psd=0.5,
@@ -752,6 +764,7 @@ class Baseline(object):
             self.interferometer_2.timeseries,
             self.duration,
             frequency_resolution,
+            coarse_grain=self.coarse_grain_csd,
             overlap_factor=self.overlap_factor,
             zeropad=self.zeropad_csd,
             window_fftgram_dict=self.window_fftgram_dict,
@@ -766,8 +779,8 @@ class Baseline(object):
     def set_average_power_spectral_densities(self):
         """If psds have been calculated, sets the average psd in each ifo"""
         try:
-            self.interferometer_1.set_average_psd(self.N_average_segments_welch_psd)
-            self.interferometer_2.set_average_psd(self.N_average_segments_welch_psd)
+            self.interferometer_1.set_average_psd(self.N_average_segments_psd)
+            self.interferometer_2.set_average_psd(self.N_average_segments_psd)
         except AttributeError:
             print(
                 "PSDs have not been calculated yet! Need to set_cross_and_power_spectral_density first."
@@ -1011,7 +1024,7 @@ class Baseline(object):
             frequency_mask=self.frequency_mask,
             badtimes_mask=bad_times_indexes,
             do_overlap=do_overlap,
-            N_avg_segs=self.N_average_segments_welch_psd,
+            N_avg_segs=self.N_average_segments_psd,
         )#missing: pwelch estimation parameters
 
         self.point_estimate_spectrum = OmegaSpectrum(
@@ -1205,7 +1218,7 @@ class Baseline(object):
             orf=self.overlap_reduction_function,
             fref=fref,
             frequency_mask=self.frequency_mask,
-            N_average_segments_welch_psd = self.N_average_segments_welch_psd,
+            N_average_segments_psd = self.N_average_segments_psd,
             return_naive_and_averaged_sigmas=return_naive_and_averaged_sigmas,
         )#missing: pwelch estimation parameters
 

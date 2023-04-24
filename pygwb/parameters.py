@@ -52,15 +52,17 @@ class Parameters:
         Lower frequency to include in the analysis (Hz). Default is 20 Hz.
     fhigh: int
         Higher frequency to include in the analysis (Hz). Default is 1726 Hz.
-    coarse_grain: bool
-        Whether to apply coarse graining to the spectra. Default is 0.
+    coarse_grain_psd: bool
+        Whether to apply coarse graining to obtain PSD spectra. Default is False.
+    coarse_grain_csd: bool
+        Whether to apply coarse graining to obtain CSD spectra. Default is True.
     interferometer_list: list
         List of interferometers to run the analysis with. Default is [\"H1\", \"L1\"]
     local_data_path: str
         Path(s) to local data, if the local data option is chosen. Default is empty.
     notch_list_path: str
         Path to the notch list file. Default is empty.
-    N_average_segments_welch_psd: int
+    N_average_segments_psd: int
         Number of segments to average over when calculating the psd with Welch method. Default is 2.
     window_fft_dict: dict
         Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds. Default is \"hann\".
@@ -116,11 +118,12 @@ class Parameters:
     fref: float = 25
     flow: float = 20
     fhigh: float = 1726
-    coarse_grain: bool = False
+    coarse_grain_psd: bool = False
+    coarse_grain_csd: bool = True
     interferometer_list: List = field(default_factory=lambda: ["H1", "L1"])
     local_data_path: str = ""
     notch_list_path: str = ""
-    N_average_segments_welch_psd: int = 2
+    N_average_segments_psd: int = 2
     window_fft_dict: dict = field(default_factory=lambda: {"window_fftgram": "hann"})
     calibration_epsilon: float = 0
     overlap_factor: float = 0.5
@@ -286,10 +289,11 @@ class Parameters:
         density_estimation_dict["frequency_resolution"] = param_dict[
             "frequency_resolution"
         ]
-        density_estimation_dict["N_average_segments_welch_psd"] = param_dict[
-            "N_average_segments_welch_psd"
+        density_estimation_dict["N_average_segments_psd"] = param_dict[
+            "N_average_segments_psd"
         ]
-        density_estimation_dict["coarse_grain"] = param_dict["coarse_grain"]
+        density_estimation_dict["coarse_grain_psd"] = param_dict["coarse_grain_psd"]
+        density_estimation_dict["coarse_grain_csd"] = param_dict["coarse_grain_csd"]
         density_estimation_dict["overlap_factor"] = param_dict["overlap_factor"]
         density_estimation_dict["zeropad_csd"] = param_dict["zeropad_csd"]
         param["density_estimation"] = density_estimation_dict
@@ -370,13 +374,14 @@ class ParametersHelp(enum.Enum):
     fref = "Reference frequency to filter the data at (Hz). Default is 25 Hz."
     flow = "Lower frequency to include in the analysis (Hz). Default is 20 Hz."
     fhigh = "Higher frequency to include in the analysis (Hz). Default is 1726 Hz."
-    coarse_grain = "Whether to apply coarse graining to the spectra. Default is 0."
+    coarse_grain_psd = "Whether to apply coarse graining to obtain PSD spectra. Default is False."
+    coarse_grain_csd = "Whether to apply coarse graining to obtain CSD spectra. Default is True."
     interferometer_list = (
         'List of interferometers to run the analysis with. Default is ["H1", "L1"]'
     )
     local_data_path = "Path(s) to local data, if the local data option is chosen. Default is empty."
     notch_list_path = "Path to the notch list file. Default is empty."
-    N_average_segments_welch_psd = "Number of segments to average over when calculating the psd with Welch method. Default is 2."
+    N_average_segments_psd = "Number of segments to average over when calculating the psd with Welch method. Default is 2."
     window_fft_dict = 'Dictionary containing name and parameters relative to which window to use when producing fftgrams for psds and csds. Default is "hann".'
     calibration_epsilon = "Calibation coefficient. Default is 0."
     overlap_factor = "Factor by which to overlap consecutive segments for analysis. Default is 0.5 (50%% overlap)"

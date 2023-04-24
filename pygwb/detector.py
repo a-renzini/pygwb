@@ -297,6 +297,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
     def set_psd_spectrogram(
         self,
         frequency_resolution,
+        coarse_grain=False,
         overlap_factor=0.5,
         window_fftgram_dict_welch_psd={"window_fftgram": "hann"},
         overlap_factor_welch_psd=0.5,
@@ -309,6 +310,9 @@ class Interferometer(bilby.gw.detector.Interferometer):
         frequency_resolution: float
             Frequency resolution of the final PSDs; This sets the time duration
             over which FFTs are calculated in the pwelch method
+        coarse_grain: bool
+            Coarse-graining flag; if True, PSD will be estimated via coarse-graining
+            as opposed to Welch-averaging. Default is False.
         overlap_factor: float, optional
             Amount of overlap between adjacent segments (range between 0 and 1)
             This factor should be same as the one used for cross_spectral_density
@@ -331,20 +335,20 @@ class Interferometer(bilby.gw.detector.Interferometer):
         self._check_spectrogram_channel_name(self.timeseries.channel.name)
         self._check_spectrogram_frequency_resolution(frequency_resolution)
 
-    def set_average_psd(self, N_average_segments_welch_psd=2):
+    def set_average_psd(self, N_average_segments=2):
         """
         Set average_psd attribute from the existing raw psd
 
         Parameters
         ==========
-        N_average_segments_welch_psd : int
+        N_average_segments: int
             Number of segments used for PSD averaging (from both sides of the segment of interest)
             N_avg_segs should be even and >= 2
 
         """
         try:
             self.average_psd = before_after_average(
-                self.psd_spectrogram, self.duration, N_average_segments_welch_psd
+                self.psd_spectrogram, self.duration, N_average_segments
             )
         except AttributeError:
             print(

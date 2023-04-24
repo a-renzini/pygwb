@@ -315,6 +315,7 @@ def calculate_point_estimate_sigma_spectra(
     """
     S_alpha = 3 * H0.si.value ** 2 / (10 * np.pi ** 2) / freqs ** 3
     S_alpha *= (freqs / fref) ** float(alpha)
+
     var_fs = (
         1
         / (2 * segment_duration * (freqs[1] - freqs[0]))
