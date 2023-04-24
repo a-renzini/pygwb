@@ -124,7 +124,12 @@ def read_data(
     elif data_type == "private":
         if frametype=="":
             frametype=None
-        data = get_timeseries(channel, segments=[[t0, tf]], frametype=frametype)[0]
+        data = get_timeseries(channel, segments=[[t0, tf]], frametype=frametype)
+        if len(data) > 1:
+            raise ValueError("Something went wrong while getting the data!"
+                             "There was more than one data stretch returned.")
+        else:
+            data = data[0]
         data.channel = channel
     elif data_type == "local":
         if os.path.isdir(local_data_path):

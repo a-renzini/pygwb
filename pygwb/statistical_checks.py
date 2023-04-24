@@ -479,7 +479,7 @@ class StatisticalChecks(object):
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
         plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-coherence_spectrum_{resolution}_Hz.png",
+            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-coherence_spectrum.png",
             bbox_inches="tight",
         )
 
