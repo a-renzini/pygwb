@@ -26,7 +26,7 @@ def help_arguments(parent):
         if dtype == List:
             parser.add_argument(f"--{name}", help=name_help, type=str, nargs='+', required=False)
         else:
-            parser.add_argument(f"--{name}", help=name_help, type=dtype, required=False)
+            parser.add_argument(f"--{name}", help=name_help, type=str, required=False)
     return parser
 
 def main():

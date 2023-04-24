@@ -222,7 +222,7 @@ class Parameters:
             if dtype == List:
                 parser.add_argument(f"--{name}", type=str, nargs='+', required=False)
             else:
-                parser.add_argument(f"--{name}", type=dtype, required=False)
+                parser.add_argument(f"--{name}", type=str, required=False)
 
         parser.add_argument("--window_fftgram", type=str, required=False)
         parsed, _ = parser.parse_known_args(args)
