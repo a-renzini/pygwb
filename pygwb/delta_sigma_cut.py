@@ -62,7 +62,7 @@ def run_dsc(
     frequency_mask: np.array = True,
     window_fftgram_dict: dict = {"window_fftgram": "hann"},
     overlap_factor: float=0.5,
-    N_average_segments_welch_psd = 2,
+    N_average_segments_psd = 2,
     return_naive_and_averaged_sigmas: bool = False,
 ):
 
@@ -132,7 +132,7 @@ def run_dsc(
         segmentDuration=segment_duration,
         deltaF=df,
         deltaT=dt,
-        N_avg_segs=N_average_segments_welch_psd,
+        N_avg_segs=N_average_segments_psd,
         window_fftgram_dict=window_fftgram_dict,
         overlap_factor=overlap_factor
     )

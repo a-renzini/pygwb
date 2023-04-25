@@ -34,7 +34,7 @@ class Network(object):
         overlap_factor=0.5,
         zeropad_csd=True,
         window_fftgram_dict={"window_fftgram": "hann"},
-        N_average_segments_welch_psd=2,
+        N_average_segments_psd=2,
     ):
         """
         Instantiate a Network object.
@@ -59,7 +59,7 @@ class Network(object):
             if True, applies zeropadding in the csd estimation. True by default.
         window_fftgram_dict: dictionary, optional
             Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds. Default is \"hann\".
-        N_average_segments_welch_psd: int, optional
+        N_average_segments_psd: int, optional
             Number of segments used for PSD averaging (from both sides of the segment of interest)
             N_avg_segs should be even and >= 2
         """
@@ -90,7 +90,7 @@ class Network(object):
                     overlap_factor=overlap_factor,
                     zeropad_csd=zeropad_csd,
                     window_fftgram_dict=window_fftgram_dict,
-                    N_average_segments_welch_psd=N_average_segments_welch_psd,
+                    N_average_segments_psd=N_average_segments_psd,
                 )
             )
 
