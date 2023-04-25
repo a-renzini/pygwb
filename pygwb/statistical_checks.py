@@ -136,12 +136,12 @@ class StatisticalChecks(object):
             self.running_sigmas,
         ) = self.compute_running_quantities()
 
-        self.time_tag = f"{int(self.params.t0)}"+"$-$"+f"{int(self.params.tf)}"
+        self.time_tag = f"{int(self.sliding_times_all[0])}"+"$-$"+f"{int(self.params.tf)}"
 
         if file_tag:
             self.file_tag = file_tag
         else:
-            self.file_tag = f"{self.params.t0}-{self.params.tf}"
+            self.file_tag = f"{self.sliding_times_all[0]}-{self.params.tf}"
 
         self.legend_fontsize = legend_fontsize
         self.axes_labelsize = legend_fontsize + 2
