@@ -1,3 +1,4 @@
+import json
 from os import listdir
 from os.path import isfile, join
 from pathlib import Path
@@ -130,6 +131,8 @@ class StatisticalChecks(object):
             self.sliding_deviate_cut,
             self.sliding_deviate_KS,
         ) = self.get_data_after_dsc()
+        self.dsc_percent = (len(self.sliding_times_all) - len(self.sliding_times_cut))/len(self.sliding_times_all) * 100
+        self.dsc_statement = r"The $\Delta\sigma$ cut removed" + f"{float(f'{self.dsc_percent:.2g}'):g}% of the data."
 
         (
             self.running_pt_estimate,
@@ -693,6 +696,13 @@ class StatisticalChecks(object):
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
 
+        axs.annotate(
+            r"Data cut by $\Delta\sigma$ cut"+f": {float(f'{self.dsc_percent:.2g}'):g}%",
+            xy=(0.05, 0.8),
+            xycoords="axes fraction",
+            size = self.annotate_fontsize,
+            bbox=dict(boxstyle="round", facecolor="white", alpha=1),
+        )
         plt.title(r"$\Delta\sigma$ distribution in" f" {self.time_tag} with/out " + r"$\Delta\sigma$ cut", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-scatter_sigma_dsc.png", bbox_inches = 'tight'
@@ -1022,6 +1032,15 @@ class StatisticalChecks(object):
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-sigma_time_fit.png", bbox_inches = 'tight'
         )
 
+    def save_all_statements(self):
+        """
+        Saves all useful statements gathered throughout the checks to a json file.
+        """
+        statements = {}
+        statements['dsc'] = self.dsc_statement
+        with open("stats_statements.json", "w") as outfile:
+                json.dump(statements, outfile)
+
     def generate_all_plots(self):
         """
         Generates and saves all the statistical analysis plots.
@@ -1046,6 +1065,7 @@ class StatisticalChecks(object):
         self.plot_sigma_time_fit()
         if self.coherence_spectrum is not None:
             self.plot_coherence_spectrum()
+        self.save_all_statements()
 
 
 def sortingFunction(item):
