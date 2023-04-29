@@ -114,6 +114,10 @@ class Baseline(object):
         self.maximum_frequency = min(
             interferometer_1.maximum_frequency, interferometer_2.maximum_frequency
         )
+        if self.coarse_grain_psd:
+            self.overlap_factor_psd = 0.0
+        else:
+            self.overlap_factor_psd = self.overlap_factor_welch
 
     def __eq__(self, other):
         if not type(self) == type(other):
@@ -1030,8 +1034,9 @@ class Baseline(object):
             frequency_mask=self.frequency_mask,
             badtimes_mask=bad_times_indexes,
             do_overlap=do_overlap,
+            overlap_factor=self.overlap_factor_psd,
             N_avg_segs=self.N_average_segments_psd,
-        )#missing: pwelch estimation parameters
+        )
 
         self.point_estimate_spectrum = OmegaSpectrum(
             point_estimate,
@@ -1212,6 +1217,7 @@ class Baseline(object):
         else:
             self.set_frequency_mask()
 
+
         badGPStimes, delta_sigmas = run_dsc(
             dsc=delta_sigma_cut,
             segment_duration=self.duration,
@@ -1224,9 +1230,10 @@ class Baseline(object):
             orf=self.overlap_reduction_function,
             fref=fref,
             frequency_mask=self.frequency_mask,
+            overlap_factor=self.overlap_factor_psd, 
             N_average_segments_psd = self.N_average_segments_psd,
             return_naive_and_averaged_sigmas=return_naive_and_averaged_sigmas,
-        )#missing: pwelch estimation parameters
+        )
 
         self.badGPStimes = badGPStimes
         self.delta_sigmas = delta_sigmas
