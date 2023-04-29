@@ -69,7 +69,7 @@ class TestSpectralDensities(unittest.TestCase):
             frequency_resolution,
             overlap_factor=overlap_factor,
             window_fftgram_dict_welch_psd={"window_fftgram":"hann"},
-            overlap_factor_welch_psd = 0.5,
+            overlap_factor_welch= 0.5,
         )
         N_avg_segs = 2
         avg_psd = before_after_average(psd, self.segment_duration, N_avg_segs)

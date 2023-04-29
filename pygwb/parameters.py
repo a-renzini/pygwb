@@ -20,6 +20,8 @@ class Parameters:
         Initial time.
     tf: float
         Final time.
+    interferometer_list: list
+        List of interferometers to run the analysis with. Default is [\"H1\", \"L1\"]
     data_type: str
         Type of data to access/download; options are private, public, local. Default is public.
     channel: str
@@ -52,16 +54,17 @@ class Parameters:
         Lower frequency to include in the analysis (Hz). Default is 20 Hz.
     fhigh: int
         Higher frequency to include in the analysis (Hz). Default is 1726 Hz.
-    coarse_grain_psd: bool
-        Whether to apply coarse graining to obtain PSD spectra. Default is False.
-    coarse_grain_csd: bool
-        Whether to apply coarse graining to obtain CSD spectra. Default is True.
-    interferometer_list: list
-        List of interferometers to run the analysis with. Default is [\"H1\", \"L1\"]
     local_data_path: str
         Path(s) to local data, if the local data option is chosen. Default is empty.
     notch_list_path: str
         Path to the notch list file. Default is empty.
+    coarse_grain_psd: bool
+        Whether to apply coarse graining to obtain PSD spectra. Default is False.
+    coarse_grain_csd: bool
+        Whether to apply coarse graining to obtain CSD spectra. Default is True.
+    overlap_factor_welch: float
+        Overlap factor to use when if using Welch's method to estimate spectra (NOT coarsegraining). For \"hann\" window use 0.5 overlap_factor and for \"boxcar\" window use 0 overlap_factor. Default is 0.5 (50% overlap), which is optimal when using Welch's method with a \"hann\" window.
+        Whether to apply coarse graining to obtain CSD spectra. Default is True.
     N_average_segments_psd: int
         Number of segments to average over when calculating the psd with Welch method. Default is 2.
     window_fft_dict: dict
@@ -102,6 +105,7 @@ class Parameters:
 
     t0: float = 0
     tf: float = 100
+    interferometer_list: List = field(default_factory=lambda: ["H1", "L1"])
     data_type: str = "public"
     channel: str = "GWOSC-16KHZ_R1_STRAIN"
     frametype: str = ""
@@ -118,11 +122,11 @@ class Parameters:
     fref: float = 25
     flow: float = 20
     fhigh: float = 1726
-    coarse_grain_psd: bool = False
-    coarse_grain_csd: bool = True
-    interferometer_list: List = field(default_factory=lambda: ["H1", "L1"])
     local_data_path: str = ""
     notch_list_path: str = ""
+    coarse_grain_psd: bool = False
+    coarse_grain_csd: bool = True
+    overlap_factor_welch: float = 0.5
     N_average_segments_psd: int = 2
     window_fft_dict: dict = field(default_factory=lambda: {"window_fftgram": "hann"})
     calibration_epsilon: float = 0
@@ -254,9 +258,9 @@ class Parameters:
         # for key, value in param_dict.items():
         #    param_dict[key] = str(value)
         data_specs_dict = {}
-        data_specs_dict["interferometer_list"] = param_dict["interferometer_list"]
         data_specs_dict["t0"] = param_dict["t0"]
         data_specs_dict["tf"] = param_dict["tf"]
+        data_specs_dict["interferometer_list"] = param_dict["interferometer_list"]
         data_specs_dict["data_type"] = param_dict["data_type"]
         data_specs_dict["channel"] = param_dict["channel"]
         data_specs_dict["frametype"] = param_dict["frametype"]
@@ -294,6 +298,7 @@ class Parameters:
         ]
         density_estimation_dict["coarse_grain_psd"] = param_dict["coarse_grain_psd"]
         density_estimation_dict["coarse_grain_csd"] = param_dict["coarse_grain_csd"]
+        density_estimation_dict["overlap_factor_welch"] = param_dict["overlap_factor_welch"]
         density_estimation_dict["overlap_factor"] = param_dict["overlap_factor"]
         density_estimation_dict["zeropad_csd"] = param_dict["zeropad_csd"]
         param["density_estimation"] = density_estimation_dict
@@ -354,6 +359,9 @@ class ParametersHelp(enum.Enum):
 
     t0 = "Initial time."
     tf = "Final time."
+    interferometer_list = (
+        'List of interferometers to run the analysis with. Default is ["H1", "L1"]'
+    )
     data_type = "Type of data to access/download; options are private, public, local. Default is public."
     channel = 'Channel name; needs to match an existing channel. Default is "GWOSC-16KHZ_R1_STRAIN" '
     frametype = 'Frame type; Optional, desired channel needs to be found in listed frametype. Only used when data_type=private. Default is empty. '
@@ -374,14 +382,12 @@ class ParametersHelp(enum.Enum):
     fref = "Reference frequency to filter the data at (Hz). Default is 25 Hz."
     flow = "Lower frequency to include in the analysis (Hz). Default is 20 Hz."
     fhigh = "Higher frequency to include in the analysis (Hz). Default is 1726 Hz."
-    coarse_grain_psd = "Whether to apply coarse graining to obtain PSD spectra. Default is False."
-    coarse_grain_csd = "Whether to apply coarse graining to obtain CSD spectra. Default is True."
-    interferometer_list = (
-        'List of interferometers to run the analysis with. Default is ["H1", "L1"]'
-    )
     local_data_path = "Path(s) to local data, if the local data option is chosen. Default is empty."
     notch_list_path = "Path to the notch list file. Default is empty."
-    N_average_segments_psd = "Number of segments to average over when calculating the psd with Welch method. Default is 2."
+    coarse_grain_psd = "Whether to apply coarse graining to obtain PSD spectra. Default is False."
+    coarse_grain_csd = "Whether to apply coarse graining to obtain CSD spectra. Default is True."
+    overlap_factor_welch = "Overlap factor to use when if using Welch's method to estimate spectra (NOT coarsegraining). For \"hann\" window use 0.5 overlap_factor and for \"boxcar\" window use 0 overlap_factor. Default is 0.5 (50%% overlap), which is optimal when using Welch's method with a \"hann\" window."
+    N_average_segments_psd = "Number of segments to average over when calculating the psd with Welch's method. Default is 2."
     window_fft_dict = 'Dictionary containing name and parameters relative to which window to use when producing fftgrams for psds and csds. Default is "hann".'
     calibration_epsilon = "Calibation coefficient. Default is 0."
     overlap_factor = "Factor by which to overlap consecutive segments for analysis. Default is 0.5 (50%% overlap)"

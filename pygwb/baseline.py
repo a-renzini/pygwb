@@ -37,6 +37,7 @@ class Baseline(object):
         notch_list_path="",
         coarse_grain_psd=False,
         coarse_grain_csd=True,
+        overlap_factor_welch=0.5,
         overlap_factor=0.5,
         zeropad_csd=True,
         window_fftgram_dict={"window_fftgram": "hann"},
@@ -66,6 +67,9 @@ class Baseline(object):
             Whether to apply coarse graining to obtain PSD spectra. Default is False.
         coarse_grain_csd: bool
             Whether to apply coarse graining to obtain CSD spectra. Default is True.
+        overlap_factor_welch: float, optional
+            Overlap factor to use when if using Welch's method to estimate spectra (NOT coarsegraining). For \"hann\" window use 0.5 overlap_factor and for \"boxcar"\ window use 0 overlap_factor. Default is 0.5 (50% overlap), which is optimal when using Welch's method with a \"hann\" window.
+ 
         overlap_factor: float, optional
             Factor by which to overlap the segments in the psd and csd estimation.
             Default is 1/2, if set to 0 no overlap is performed.
@@ -84,6 +88,7 @@ class Baseline(object):
         self.notch_list_path = notch_list_path
         self.coarse_grain_psd = coarse_grain_psd
         self.coarse_grain_csd = coarse_grain_csd
+        self.overlap_factor_welch = overlap_factor_welch
         self.overlap_factor = overlap_factor
         self.zeropad_csd = zeropad_csd
         self.window_fftgram_dict = window_fftgram_dict
@@ -690,6 +695,7 @@ class Baseline(object):
             notch_list_path=parameters.notch_list_path,
             coarse_grain_psd=parameters.coarse_grain_psd,
             coarse_grain_csd=parameters.coarse_grain_csd,
+            overlap_factor_welch=parameters.overlap_factor_welch,
             overlap_factor=parameters.overlap_factor,
             zeropad_csd=parameters.zeropad_csd,
             window_fftgram_dict=parameters.window_fft_dict,
@@ -741,7 +747,7 @@ class Baseline(object):
                 coarse_grain=self.coarse_grain_psd,
                 overlap_factor=self.overlap_factor,
                 window_fftgram_dict_welch_psd={"window_fftgram": "hann"},
-                overlap_factor_welch_psd=0.5,
+                overlap_factor_welch=self.overlap_factor_welch,
             )
         except AttributeError:
             raise AssertionError(
@@ -753,7 +759,7 @@ class Baseline(object):
                 coarse_grain=self.coarse_grain_psd,
                 overlap_factor=self.overlap_factor,
                 window_fftgram_dict_welch_psd={"window_fftgram": "hann"},
-                overlap_factor_welch_psd=0.5,
+                overlap_factor_welch=self.overlap_factor_welch,
             )
         except AttributeError:
             raise AssertionError(
