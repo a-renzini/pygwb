@@ -69,12 +69,12 @@ class Parameters:
         Number of segments to average over when calculating the psd with Welch method. Default is 2.
     window_fft_dict: dict
         Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds. Default is \"hann\".
+    window_fft_dict_welch: dict 
+        Dictionary containing name and parameters relative to which window to use when producing fftgrams for pwelch calculation. Default is "hann".
     calibration_epsilon: float
         Calibation coefficient. Default is 0.
     overlap_factor: float
         Factor by which to overlap consecutive segments for analysis. Default is 0.5 (50%% overlap)
-    zeropad_csd: bool
-        Whether to zeropad the csd or not. Default is True.
     delta_sigma_cut: float
         Cutoff value for the delta sigma cut. Default is 0.2.
     alphas_delta_sigma_cut: list
@@ -129,9 +129,9 @@ class Parameters:
     overlap_factor_welch: float = 0.5
     N_average_segments_psd: int = 2
     window_fft_dict: dict = field(default_factory=lambda: {"window_fftgram": "hann"})
+    window_fft_dict_welch: dict = field(default_factory=lambda: {"window_fftgram": "hann"})
     calibration_epsilon: float = 0
     overlap_factor: float = 0.5
-    zeropad_csd: bool = True
     delta_sigma_cut: float = 0.2
     alphas_delta_sigma_cut: List = field(default_factory=lambda: [-5, 0, 3])
     save_data_type: str = "npz"
@@ -198,6 +198,7 @@ class Parameters:
                 dictionary["interferometer_list"]
             )
         dictionary["window_fft_dict"] = dict(config.items("window_fft_specs"))
+        dictionary["window_fft_dict_welch"] = dict(config.items("window_fft_welch_specs"))
         for item in dictionary.copy():
             if not dictionary[item]:
                 dictionary.pop(item)
@@ -220,6 +221,8 @@ class Parameters:
             -- window_fftgram
         This is the only option currently supported. To use windows that require extra parameters, pass these as part of an
         .ini file, in the relevant section [window_fft_specs].
+        * window_fft_dict_welch: this is composed by the single argument
+            -- window_fftgram_welch
         """
         if not args:
             return
@@ -232,6 +235,7 @@ class Parameters:
                 parser.add_argument(f"--{name}", type=str, required=False)
 
         parser.add_argument("--window_fftgram", type=str, required=False)
+        parser.add_argument("--window_fftgram_welch", type=str, required=False)
         parsed, _ = parser.parse_known_args(args)
         dictionary = vars(parsed)
         for item in dictionary.copy():
@@ -242,6 +246,11 @@ class Parameters:
             window_fft_dict["window_fftgram"] = dictionary["window_fftgram"]
             dictionary.pop("window_fftgram")
             dictionary["window_fft_dict"] = window_fft_dict
+        if "window_fftgram_welch" in dictionary:
+            window_fft_dict_welch = {}
+            window_fft_dict_welch["window_fftgram"] = dictionary["window_fftgram_welch"]
+            dictionary.pop("window_fftgram_welch")
+            dictionary["window_fft_dict_welch"] = window_fft_dict_welch
         self.update_from_dictionary(dictionary)
 
     def save_paramfile(self, output_path):
@@ -288,6 +297,7 @@ class Parameters:
         param["gating"] = gating_dict
 
         param["window_fft_specs"] = self.window_fft_dict
+        param["window_fft_specs_welch"] = self.window_fft_dict_welch
 
         density_estimation_dict = {}
         density_estimation_dict["frequency_resolution"] = param_dict[
@@ -300,7 +310,6 @@ class Parameters:
         density_estimation_dict["coarse_grain_csd"] = param_dict["coarse_grain_csd"]
         density_estimation_dict["overlap_factor_welch"] = param_dict["overlap_factor_welch"]
         density_estimation_dict["overlap_factor"] = param_dict["overlap_factor"]
-        density_estimation_dict["zeropad_csd"] = param_dict["zeropad_csd"]
         param["density_estimation"] = density_estimation_dict
 
         postprocessing_dict = {}
@@ -389,9 +398,9 @@ class ParametersHelp(enum.Enum):
     overlap_factor_welch = "Overlap factor to use when if using Welch's method to estimate spectra (NOT coarsegraining). For \"hann\" window use 0.5 overlap_factor and for \"boxcar\" window use 0 overlap_factor. Default is 0.5 (50%% overlap), which is optimal when using Welch's method with a \"hann\" window."
     N_average_segments_psd = "Number of segments to average over when calculating the psd with Welch's method. Default is 2."
     window_fft_dict = 'Dictionary containing name and parameters relative to which window to use when producing fftgrams for psds and csds. Default is "hann".'
+    window_fft_dict_welch = 'Dictionary containing name and parameters relative to which window to use when producing fftgrams for pwelch calculation. Default is "hann".'
     calibration_epsilon = "Calibation coefficient. Default is 0."
     overlap_factor = "Factor by which to overlap consecutive segments for analysis. Default is 0.5 (50%% overlap)"
-    zeropad_csd = "Whether to zeropad the csd or not. Default is True."
     delta_sigma_cut = "Cutoff value for the delta sigma cut. Default is 0.2."
     alphas_delta_sigma_cut = "List of spectral indexes to use in delta sigma cut calculation. Default is [-5, 0, 3]."
     save_data_type = "Suffix for the output data file. Options are hdf5, npz, json, pickle. Default is json."

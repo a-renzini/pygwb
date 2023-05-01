@@ -50,27 +50,20 @@ def fftgram(
 
     # calculate the spectrogram using scipy.signal.spectrogram
     if zeropad:
-        f, t, Sxx = spectrogram(
-            time_series_data.data,
-            fs=sample_rate,
-            window=window_fftgram,
-            nperseg=fftlength * sample_rate,
-            noverlap=overlap_factor * fftlength * sample_rate,
-            nfft=2 * fftlength * sample_rate,
-            mode="complex",
-            detrend=False,
-        )
+        nfft = 2 * fftlength * sample_rate
     else:
-        f, t, Sxx = spectrogram(
-            time_series_data.data,
-            fs=sample_rate,
-            window=window_fftgram,
-            nperseg=fftlength * sample_rate,
-            noverlap=overlap_factor * fftlength * sample_rate,
-            nfft=fftlength * sample_rate,
-            mode="complex",
-            detrend=False,
-        )
+        nfft = fftlength * sample_rate
+
+    f, t, Sxx = spectrogram(
+        time_series_data.data,
+        fs=sample_rate,
+        window=window_fftgram,
+        nperseg=fftlength * sample_rate,
+        noverlap=overlap_factor * fftlength * sample_rate,
+        nfft=nfft,
+        mode="complex",
+        detrend=False,
+    )
 
     # convert the above spectrogram into gwpy spectrogram object
     ffts = []
@@ -502,7 +495,10 @@ def cross_spectral_density(
         csd_spectrogram[ii].value[0] = csd_spectrogram[ii].value[0] / 2
         csd_spectrogram[ii].value[-1] = csd_spectrogram[ii].value[-1] / 2
 
-    return csd_spectrogram
+    if is_psd:
+        return np.real(csd_spectrogram)
+    else:
+        return csd_spectrogram
 
 
 def power_spectral_density(
@@ -510,8 +506,9 @@ def power_spectral_density(
     segment_duration: int,
     frequency_resolution: float,
     coarse_grain: bool = False,
+    zeropad: bool = False,
     overlap_factor: float = 0.5,
-    window_fftgram_dict_welch_psd: dict = {"window_fftgram": "hann"},
+    window_fftgram_dict: dict = {"window_fftgram": "hann"},
     overlap_factor_welch: float = 0.5,
 ):
     """
@@ -530,6 +527,9 @@ def power_spectral_density(
     coarse_grain: bool
         Coarse-graining flag; if True, PSD will be estimated via coarse-graining
         as opposed to Welch-averaging. Default is False.
+    zeropad: bool, optional
+        Before doing FFT whether to zero pad the data equal to the length of
+        FFT or not. Default is False.
     overlap_factor: float, optional
         Amount of overlap between adjacent segments (range between 0 and 1).
         This factor should be same as the one used for cross_spectral_density.
@@ -545,7 +545,6 @@ def power_spectral_density(
         PSD spectrogram with each PSD duration equal to segment duration
     """
 
-    # No zero-pad is used in the PSD estimation
     psd_spectrogram = cross_spectral_density(
         time_series_data1=time_series_data,
         time_series_data2=None,
@@ -554,8 +553,8 @@ def power_spectral_density(
         coarse_grain=coarse_grain,
         overlap_factor=overlap_factor,
         overlap_factor_welch=overlap_factor_welch,
-        zeropad=False,
-        window_fftgram_dict={"window_fftgram": "hann"},
+        zeropad=zeropad,
+        window_fftgram_dict=window_fftgram_dict,
         is_psd=True,
     )
     return psd_spectrogram

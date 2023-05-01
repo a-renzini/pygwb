@@ -210,21 +210,25 @@ def calc_bias(
     bias: float
         The bias factor.
     """
-    # Number of samples in a data chunk
-    nSamples = int(segmentDuration / deltaT)
+    # check: if overlap_factor is 1.0, assumes no Welching has been done.
+    if overlap_factor==1.0:
+        return 1.0
+    else:
+        # Number of samples in a data chunk
+        nSamples = int(segmentDuration / deltaT)
 
-    # Number of samples in the window used for Welch's estimate
-    N = int(1 / (deltaT * deltaF))
+        # Number of samples in the window used for Welch's estimate
+        N = int(1 / (deltaT * deltaF))
 
-    # Effective number of segments that are averaged for this windowing scheme
-    window_tuple = get_window_tuple(window_fftgram_dict)
-    Neff = effective_welch_averages(nSamples, N, window_tuple, overlap_factor=overlap_factor)
+        # Effective number of segments that are averaged for this windowing scheme
+        window_tuple = get_window_tuple(window_fftgram_dict)
+        Neff = effective_welch_averages(nSamples, N, window_tuple, overlap_factor=overlap_factor)
 
-    # Correction for number of PSDs that will be averaged 
-    Neff = N_avg_segs * Neff
-    
-    bias = Neff / (Neff - 1)
-    return bias
+        # Correction for number of PSDs that will be averaged 
+        Neff = N_avg_segs * Neff
+        
+        bias = Neff / (Neff - 1)
+        return bias
 
 
 def omega_to_power(omega_GWB, frequencies):
