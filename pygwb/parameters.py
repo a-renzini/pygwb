@@ -297,7 +297,7 @@ class Parameters:
         param["gating"] = gating_dict
 
         param["window_fft_specs"] = self.window_fft_dict
-        param["window_fft_specs_welch"] = self.window_fft_dict_welch
+        param["window_fft_welch_specs"] = self.window_fft_dict_welch
 
         density_estimation_dict = {}
         density_estimation_dict["frequency_resolution"] = param_dict[

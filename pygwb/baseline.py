@@ -39,8 +39,8 @@ class Baseline(object):
         coarse_grain_csd=True,
         overlap_factor_welch=0.5,
         overlap_factor=0.5,
-        zeropad_csd=True,
         window_fftgram_dict={"window_fftgram": "hann"},
+        window_fftgram_dict_welch={"window_fftgram": "hann"},
         N_average_segments_psd=2,
         sampling_frequency=None,
     ):
@@ -73,10 +73,10 @@ class Baseline(object):
         overlap_factor: float, optional
             Factor by which to overlap the segments in the psd and csd estimation.
             Default is 1/2, if set to 0 no overlap is performed.
-        zeropad_csd: bool, optional
-            If True, applies zeropadding in the csd estimation. True by default.
         window_fftgram_dict: dictionary, optional
-            Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds. Default is \"hann\".
+            Dictionary containing name and parameters describing which window to use when producing fftgrams for csds (and psds if these are coarse-grained). Default is \"hann\".
+        window_fftgram_dict_welch: dictionary, optional
+            Dictionary containing name and parameters describing which window to use when producing fftgrams with Welch's method. Default is \"hann\".
         N_average_segments_psd: int, optional
             Number of segments used for PSD averaging (from both sides of the segment of interest)
             N_avg_segs should be even and >= 2.
@@ -90,8 +90,8 @@ class Baseline(object):
         self.coarse_grain_csd = coarse_grain_csd
         self.overlap_factor_welch = overlap_factor_welch
         self.overlap_factor = overlap_factor
-        self.zeropad_csd = zeropad_csd
         self.window_fftgram_dict = window_fftgram_dict
+        self.window_fftgram_dict_welch = window_fftgram_dict_welch
         self.N_average_segments_psd = N_average_segments_psd
         self._tensor_orf_calculated = False
         self._vector_orf_calculated = False
@@ -114,10 +114,22 @@ class Baseline(object):
         self.maximum_frequency = min(
             interferometer_1.maximum_frequency, interferometer_2.maximum_frequency
         )
+        # if CSD is estimated by coarse-graining, it must be zeropaded. 
+        self.zeropad_csd = self.coarse_grain_csd
+        # if PSD is estimated by coarse-graining, no overlap is used between PSD estimates. This is required for the bias factor calculation.
         if self.coarse_grain_psd:
-            self.overlap_factor_psd = 0.0
+            self.overlap_factor_psd = 1.0
+            self.window_fftgram_dict_psd = self.window_fftgram_dict
         else:
-            self.overlap_factor_psd = self.overlap_factor_welch
+            if self.overlap_factor_welch == 0.0:
+                self.overlap_factor_psd = 1.0
+            else:
+                self.overlap_factor_psd = self.overlap_factor_welch
+            self.window_fftgram_dict_psd = self.window_fftgram_dict_welch
+        if self.coarse_grain_csd:
+            self.window_fftgram_dict_csd = self.window_fftgram_dict
+        else:
+            self.window_fftgram_dict_csd = self.window_fftgram_dict_welch
 
     def __eq__(self, other):
         if not type(self) == type(other):
@@ -701,8 +713,8 @@ class Baseline(object):
             coarse_grain_csd=parameters.coarse_grain_csd,
             overlap_factor_welch=parameters.overlap_factor_welch,
             overlap_factor=parameters.overlap_factor,
-            zeropad_csd=parameters.zeropad_csd,
             window_fftgram_dict=parameters.window_fft_dict,
+            window_fftgram_dict_welch=parameters.window_fft_dict_welch,
             N_average_segments_psd=parameters.N_average_segments_psd,
             sampling_frequency=parameters.new_sample_rate,
         )
@@ -750,7 +762,7 @@ class Baseline(object):
                 frequency_resolution,
                 coarse_grain=self.coarse_grain_psd,
                 overlap_factor=self.overlap_factor,
-                window_fftgram_dict_welch_psd={"window_fftgram": "hann"},
+                window_fftgram_dict=self.window_fftgram_dict_psd,
                 overlap_factor_welch=self.overlap_factor_welch,
             )
         except AttributeError:
@@ -762,7 +774,7 @@ class Baseline(object):
                 frequency_resolution,
                 coarse_grain=self.coarse_grain_psd,
                 overlap_factor=self.overlap_factor,
-                window_fftgram_dict_welch_psd={"window_fftgram": "hann"},
+                window_fftgram_dict=self.window_fftgram_dict_psd,
                 overlap_factor_welch=self.overlap_factor_welch,
             )
         except AttributeError:
@@ -777,7 +789,8 @@ class Baseline(object):
             coarse_grain=self.coarse_grain_csd,
             overlap_factor=self.overlap_factor,
             zeropad=self.zeropad_csd,
-            window_fftgram_dict=self.window_fftgram_dict,
+            window_fftgram_dict=self.window_fftgram_dict_csd,
+            overlap_factor_welch=self.overlap_factor_welch,
         )
 
         # TODO: make this less fragile.
@@ -1032,6 +1045,7 @@ class Baseline(object):
             deltaF,
             self.sampling_frequency,
             frequency_mask=self.frequency_mask,
+            window_fftgram_dict=self.window_fftgram_dict_welch,
             badtimes_mask=bad_times_indexes,
             do_overlap=do_overlap,
             overlap_factor=self.overlap_factor_psd,
@@ -1230,6 +1244,7 @@ class Baseline(object):
             orf=self.overlap_reduction_function,
             fref=fref,
             frequency_mask=self.frequency_mask,
+            window_fftgram_dict=self.window_fftgram_dict_welch,
             overlap_factor=self.overlap_factor_psd, 
             N_average_segments_psd = self.N_average_segments_psd,
             return_naive_and_averaged_sigmas=return_naive_and_averaged_sigmas,
