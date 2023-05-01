@@ -120,12 +120,14 @@ class Baseline(object):
         if self.coarse_grain_psd:
             self.overlap_factor_psd = 1.0
             self.window_fftgram_dict_psd = self.window_fftgram_dict
+            self.window_fftgram_dict_for_window_factors = {"window_fftgram": "boxcar"}
         else:
             if self.overlap_factor_welch == 0.0:
                 self.overlap_factor_psd = 1.0
             else:
                 self.overlap_factor_psd = self.overlap_factor_welch
             self.window_fftgram_dict_psd = self.window_fftgram_dict_welch
+            self.window_fftgram_dict_for_window_factors = self.window_fftgram_dict_psd
         if self.coarse_grain_csd:
             self.window_fftgram_dict_csd = self.window_fftgram_dict
         else:
@@ -1045,7 +1047,7 @@ class Baseline(object):
             deltaF,
             self.sampling_frequency,
             frequency_mask=self.frequency_mask,
-            window_fftgram_dict=self.window_fftgram_dict_welch,
+            window_fftgram_dict=self.window_fftgram_dict_for_window_factors,
             badtimes_mask=bad_times_indexes,
             do_overlap=do_overlap,
             overlap_factor=self.overlap_factor_psd,
@@ -1244,7 +1246,7 @@ class Baseline(object):
             orf=self.overlap_reduction_function,
             fref=fref,
             frequency_mask=self.frequency_mask,
-            window_fftgram_dict=self.window_fftgram_dict_welch,
+            window_fftgram_dict=self.window_fftgram_dict_for_window_factors,
             overlap_factor=self.overlap_factor_psd, 
             N_average_segments_psd = self.N_average_segments_psd,
             return_naive_and_averaged_sigmas=return_naive_and_averaged_sigmas,
