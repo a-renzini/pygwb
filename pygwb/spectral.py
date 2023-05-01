@@ -434,7 +434,6 @@ def cross_spectral_density(
         frequency domain.
     overlap_factor: float, optional
         Amount of overlap between adjacent segments (range between 0 and 1)
-        This factor should be same as the one used for power_spectral_density.
     overlap_factor_welch: float
         Overlap factor to use when using Welch's method (NOT coarsegraining). Users should provide proper combination of overlap_factor and window_fftgram_dict. For \"hann\" window use 0.5 overlap_factor and for \"boxcar"\ window use 0 overlap_factor. Default is 0.5 (50% overlap), which is optimal when using Welch's method with a \"hann\" window.
     zeropad: bool, optional
@@ -490,7 +489,7 @@ def cross_spectral_density(
         csd_spectrogram = pwelch_psd(
             2 * np.conj(fft_gram_1) * fft_gram_2,
             segment_duration,
-            overlap_factor=overlap_factor_welch,
+            overlap_factor=overlap_factor,
         )
     else:
         csd_spectrogram = coarse_grain_spectrogram(
