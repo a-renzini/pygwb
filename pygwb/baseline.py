@@ -118,14 +118,11 @@ class Baseline(object):
         self.zeropad_csd = self.coarse_grain_csd
         # if PSD is estimated by coarse-graining, no overlap is used between PSD estimates. This is required for the bias factor calculation.
         if self.coarse_grain_psd:
-            self.overlap_factor_psd = 1.0
+            self.overlap_factor_psd = 0.0
             self.window_fftgram_dict_psd = self.window_fftgram_dict
             self.window_fftgram_dict_for_window_factors = {"window_fftgram": "boxcar"}
         else:
-            if self.overlap_factor_welch == 0.0:
-                self.overlap_factor_psd = 1.0
-            else:
-                self.overlap_factor_psd = self.overlap_factor_welch
+            self.overlap_factor_psd = self.overlap_factor_welch
             self.window_fftgram_dict_psd = self.window_fftgram_dict_welch
             self.window_fftgram_dict_for_window_factors = self.window_fftgram_dict_psd
         if self.coarse_grain_csd:

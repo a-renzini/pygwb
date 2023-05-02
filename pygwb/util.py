@@ -42,16 +42,21 @@ def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_fa
     w1w2ovlbar: float
     w1w2squaredovlbar: float
     """
-    window_tuple = get_window_tuple(window_fftgram_dict)
-    w = get_window(window_tuple, N, fftbins=False)
-    w1w2bar = np.mean(w ** 2)
-    w1w2squaredbar = np.mean(w ** 4)
+    #if no overlap, all window factors are trivial.
+    if overlap_factor == 0.0:
+        w1w2bar, w1w2squaredbar, w1w2ovlbar, w1w2squaredovlbar = 1.0, 1.0, 1.0, 1.0
 
-    w1 = w[N - int(N * overlap_factor) : N] 
-    w2 = w[0 : int(N * overlap_factor)] 
+    else:
+        window_tuple = get_window_tuple(window_fftgram_dict)
+        w = get_window(window_tuple, N, fftbins=False)
+        w1w2bar = np.mean(w ** 2)
+        w1w2squaredbar = np.mean(w ** 4)
 
-    w1w2squaredovlbar = 1 / (N * overlap_factor) * np.sum(w1 ** 2 * w2 ** 2)
-    w1w2ovlbar = 1 / (N * overlap_factor) * np.sum(w1 * w2)
+        w1 = w[N - int(N * overlap_factor) : N] 
+        w2 = w[0 : int(N * overlap_factor)] 
+
+        w1w2squaredovlbar = 1 / (N * overlap_factor) * np.sum(w1 ** 2 * w2 ** 2)
+        w1w2ovlbar = 1 / (N * overlap_factor) * np.sum(w1 * w2)
 
     return w1w2bar, w1w2squaredbar, w1w2ovlbar, w1w2squaredovlbar
 
@@ -210,25 +215,26 @@ def calc_bias(
     bias: float
         The bias factor.
     """
-    # check: if overlap_factor is 1.0, assumes no Welching has been done.
-    if overlap_factor==1.0:
-        return 1.0
+    # Number of samples in a data chunk
+    nSamples = int(segmentDuration / deltaT)
+
+    # Number of samples in the window used for Welch's estimate
+    N = int(1 / (deltaT * deltaF))
+
+    # Effective number of segments that are averaged for this windowing scheme
+    window_tuple = get_window_tuple(window_fftgram_dict)
+    Neff = effective_welch_averages(nSamples, N, window_tuple, overlap_factor=overlap_factor)
+
+    # if Neff is the same as the true number of segments, no bias.
+    if Neff == (nSamples/N):
+        bias = 1.0
+
     else:
-        # Number of samples in a data chunk
-        nSamples = int(segmentDuration / deltaT)
-
-        # Number of samples in the window used for Welch's estimate
-        N = int(1 / (deltaT * deltaF))
-
-        # Effective number of segments that are averaged for this windowing scheme
-        window_tuple = get_window_tuple(window_fftgram_dict)
-        Neff = effective_welch_averages(nSamples, N, window_tuple, overlap_factor=overlap_factor)
-
         # Correction for number of PSDs that will be averaged 
         Neff = N_avg_segs * Neff
-        
         bias = Neff / (Neff - 1)
-        return bias
+
+    return bias
 
 
 def omega_to_power(omega_GWB, frequencies):
