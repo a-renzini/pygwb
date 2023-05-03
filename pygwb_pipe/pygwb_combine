@@ -94,6 +94,7 @@ def main():
     combine_args.alpha = float(Fraction(combine_args.alpha)) 
     params = Parameters()
     params.update_from_file(combine_args.param_file)
+
     if isfile(combine_args.data_path[0]):
         files_ptest = [str(pt_file) for pt_file in combine_args.data_path]
         if combine_args.combine_coherence:
