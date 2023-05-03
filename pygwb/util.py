@@ -42,21 +42,18 @@ def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_fa
     w1w2ovlbar: float
     w1w2squaredovlbar: float
     """
-    #if no overlap, all window factors are trivial.
-    if overlap_factor == 0.0:
-        w1w2bar, w1w2squaredbar, w1w2ovlbar, w1w2squaredovlbar = 1.0, 1.0, 1.0, 1.0
+    window_tuple = get_window_tuple(window_fftgram_dict)
+    w = get_window(window_tuple, N, fftbins=False)
+    w1w2bar = np.mean(w ** 2)
+    w1w2squaredbar = np.mean(w ** 4)
 
-    else:
-        window_tuple = get_window_tuple(window_fftgram_dict)
-        w = get_window(window_tuple, N, fftbins=False)
-        w1w2bar = np.mean(w ** 2)
-        w1w2squaredbar = np.mean(w ** 4)
+    #w1 = w[N - int(N * overlap_factor) : N] 
+    #w2 = w[0 : int(N * overlap_factor)] 
 
-        w1 = w[N - int(N * overlap_factor) : N] 
-        w2 = w[0 : int(N * overlap_factor)] 
-
-        w1w2squaredovlbar = 1 / (N * overlap_factor) * np.sum(w1 ** 2 * w2 ** 2)
-        w1w2ovlbar = 1 / (N * overlap_factor) * np.sum(w1 * w2)
+    S = N - int(overlap_factor*N)
+    
+    w1w2squaredovlbar = 1 / (N * (1.0 - overlap_factor)) * np.sum(w[0:N-S]**2*w[S:N]**2)
+    w1w2ovlbar = 1 / (N * (1.0 - overlap_factor)) * np.sum(w[0:N-S]*w[S:N])
 
     return w1w2bar, w1w2squaredbar, w1w2ovlbar, w1w2squaredovlbar
 
@@ -179,7 +176,7 @@ def effective_welch_averages(nSamples, N, window_tuple="hann", overlap_factor=0.
     # Form the weighted sum of the window correlations for shifts j = 1 to K-1
     rho_sum = 0
     for j in range(1, K):
-        rho_sum = rho_sum + (K - j)/K*calc_rho(N, j, window_tuple=window_tuple, overlap_factor=overlap_factor)
+        rho_sum += (K - j)/K*calc_rho(N, j, window_tuple=window_tuple, overlap_factor=overlap_factor)
     
     Neff = K/(1 + 2 * rho_sum)
 

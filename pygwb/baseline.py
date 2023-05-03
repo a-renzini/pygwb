@@ -120,11 +120,11 @@ class Baseline(object):
         if self.coarse_grain_psd:
             self.overlap_factor_psd = 0.0
             self.window_fftgram_dict_psd = self.window_fftgram_dict
-            self.window_fftgram_dict_for_window_factors = {"window_fftgram": "boxcar"}
+            self.window_fftgram_dict_for_bias_factors = {"window_fftgram": "boxcar"}
         else:
             self.overlap_factor_psd = self.overlap_factor_welch
             self.window_fftgram_dict_psd = self.window_fftgram_dict_welch
-            self.window_fftgram_dict_for_window_factors = self.window_fftgram_dict_psd
+            self.window_fftgram_dict_for_bias_factors = self.window_fftgram_dict_psd
         if self.coarse_grain_csd:
             self.window_fftgram_dict_csd = self.window_fftgram_dict
         else:
@@ -919,7 +919,9 @@ class Baseline(object):
             segment_duration=self.duration,
             fref=fref,
             alpha=alpha,
-        ) #missing: pwelch estimation parameters
+            overlap_factor=self.overlap_factor_psd,
+            window_fftgram_dict=self.window_fftgram_dict_for_bias_factors
+        ) 
 
         sigma_name = f"{self.name} sigma spectrogram alpha={alpha}"
         self.point_estimate_spectrogram = OmegaSpectrogram(
@@ -1044,10 +1046,12 @@ class Baseline(object):
             deltaF,
             self.sampling_frequency,
             frequency_mask=self.frequency_mask,
-            window_fftgram_dict=self.window_fftgram_dict_for_window_factors,
+            window_fftgram_dict=self.window_fftgram_dict,
+            window_fftgram_dict_welch=self.window_fftgram_dict_for_bias_factors,
             badtimes_mask=bad_times_indexes,
             do_overlap=do_overlap,
-            overlap_factor=self.overlap_factor_psd,
+            overlap_factor=self.overlap_factor,
+            overlap_factor_welch=self.overlap_factor_psd,
             N_avg_segs=self.N_average_segments_psd,
         )
 
@@ -1243,7 +1247,7 @@ class Baseline(object):
             orf=self.overlap_reduction_function,
             fref=fref,
             frequency_mask=self.frequency_mask,
-            window_fftgram_dict=self.window_fftgram_dict_for_window_factors,
+            window_fftgram_dict=self.window_fftgram_dict_for_bias_factors,
             overlap_factor=self.overlap_factor_psd, 
             N_average_segments_psd = self.N_average_segments_psd,
             return_naive_and_averaged_sigmas=return_naive_and_averaged_sigmas,
