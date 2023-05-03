@@ -394,10 +394,11 @@ def coarse_grain_spectrogram(
 
     # create gwpy spectrogram object
     specgrams = []
-    # to avoid precision issues
-    deltaF = (coarse_frequencies[10] - coarse_frequencies[0]) / 10
+    # To avoid precision issues rounding the frequency values at ~1% level; ideally we expect the ratio coarse_frequencies[0]/spectrogram.dy.value/factor to be an integer
+    f0 = np.round(coarse_frequencies[0]/spectrogram.dy.value/factor, 2) * spectrogram.dy.value * factor
+    deltaF = f0
     for ii in value:
-        specgrams.append(FrequencySeries(ii, f0=coarse_frequencies[0], df=deltaF))
+        specgrams.append(FrequencySeries(ii, f0=f0, df=deltaF))
 
     output = Spectrogram.from_spectra(
         *specgrams,
