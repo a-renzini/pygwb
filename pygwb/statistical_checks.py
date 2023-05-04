@@ -624,8 +624,8 @@ class StatisticalChecks(object):
         with open(file_name, 'w') as f:
             f.write('Frequencies  \tCoherence\n')
             for tup in outlier_coherence:
-                f.write('{0}\t{1}\n'.format(tup[0], tup[1]))
-
+                f.write(f'{tup[0]}\t{tup[1]}\n')
+                
     def plot_cumulative_sensitivity(self):
         """
         Generates and saves a plot of the cumulative sensitivity. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sigma_spectrum`).
