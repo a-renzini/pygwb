@@ -623,8 +623,8 @@ class StatisticalChecks(object):
         file_name = f"{self.plot_dir / self.baseline_name}-{self.file_tag}-list_coherence_outlier.txt"
         with open(file_name, 'w') as f:
             f.write('Frequencies  \tCoherence\n')
-                for tup in outlier_coherence:
-                    f.write('{0}\t{1}\n'.format(tup[0], tup[1]))
+            for tup in outlier_coherence:
+                f.write('{0}\t{1}\n'.format(tup[0], tup[1]))
 
     def plot_cumulative_sensitivity(self):
         """
