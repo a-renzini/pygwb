@@ -489,6 +489,7 @@ class StatisticalChecks(object):
         plt.xlim(flow, fhigh)
         plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
         plt.ylabel(r"coherence spectrum", size=self.axes_labelsize)
+        plt.xscale("log")
         plt.yscale("log")
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
@@ -497,6 +498,22 @@ class StatisticalChecks(object):
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-coherence_spectrum.png",
             bbox_inches="tight",
         )
+
+        plt.figure(figsize=(10, 8))
+        plt.plot(self.freqs, self.coherence_spectrum, color=sea[0])
+        plt.axhline(y=1./n_segs,dashes=(4,3),color='black')
+        plt.xlim(flow, 200)
+        plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
+        plt.ylabel(r"coherence spectrum", size=self.axes_labelsize)
+        plt.yscale("log")
+        plt.xticks(fontsize=self.legend_fontsize)
+        plt.yticks(fontsize=self.legend_fontsize)
+        plt.title(r"Total coherence spectrum at $\Delta f$ = " + f"{resolution} Hz in {self.time_tag}", fontsize=self.title_fontsize)
+        plt.savefig(
+            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-coherence_spectrum_zoom.png",
+            bbox_inches="tight",
+        )
+
 
     def plot_cumulative_sensitivity(self):
         """
