@@ -522,14 +522,14 @@ class StatisticalChecks(object):
         """
 
 
-        coherence = self.coherence_dict['coherence']
-        frequencies = self.coherence_dict['frequencies']
+        coherence = self.coherence_spectrum
+        frequencies = self.freqs
         total_bins = 1000
         bins =  np.linspace(0, max(coherence), total_bins)
         alpha = 1
         n_frequencies = len(frequencies)
         delta_coherence = bins[1]-bins[0]
-        n_segs = self.coherence_dict['n_segs']
+        n_segs = len(self.sliding_omega_cut) * int(np.floor(self.params.segment_duration/(fftlength))-1)
         n_inverse = round(1/n_segs)
         predicted = alpha * n_frequencies * delta_coherence * n_inverse * np.exp(-alpha * n_inverse * coherence)
         threshold = np.log(alpha * n_inverse * n_frequencies * delta_coherence) / (n_inverse * alpha)
