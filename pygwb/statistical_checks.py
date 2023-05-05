@@ -615,8 +615,6 @@ class StatisticalChecks(object):
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_coherence_zoom.png", bbox_inches = 'tight'
         )
 
-        # should we somewhere also mention freq resolution etc in filenames as well?
-
 
         outlier_coherence = [(frequencies[i], coherence[i]) for i in range(len(coherence)) if coherence[i] > np.abs(threshold)]
         n_outlier = len(outlier_coherence)
@@ -1193,6 +1191,7 @@ class StatisticalChecks(object):
         self.plot_sigma_time_fit()
         if self.coherence_spectrum is not None:
             self.plot_coherence_spectrum()
+            self.plot_hist_coherence()
         self.save_all_statements()
 
 
