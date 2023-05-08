@@ -529,12 +529,12 @@ class StatisticalChecks(object):
         alpha = 1
         n_frequencies = len(frequencies)
         delta_coherence = bins[1]-bins[0]
-        n_segs = len(self.sliding_omega_cut) * int(np.floor(self.params.segment_duration/(fftlength))-1)
-        n_inverse = round(1/n_segs)
-        predicted = alpha * n_frequencies * delta_coherence * n_inverse * np.exp(-alpha * n_inverse * coherence)
-        threshold = np.log(alpha * n_inverse * n_frequencies * delta_coherence) / (n_inverse * alpha)
         resolution = frequencies[1] - frequencies[0]
-
+        fftlength = int(1.0 / resolution)
+        n_segs = len(self.sliding_omega_cut) * int(np.floor(self.params.segment_duration/(fftlength))-1)
+        predicted = alpha * n_frequencies * delta_coherence * n_segs * np.exp(-alpha * n_segs * coherence)
+        threshold = np.log(alpha * n_segs * n_frequencies * delta_coherence) / (n_segs * alpha)
+        print(predicted,threshold)
 
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
    
@@ -1268,19 +1268,19 @@ def run_statistical_checks_baseline_pickle(
 ):
     params = Parameters()
     params.update_from_file(param_file)
-    baseline_directory = Path(baseline_directory)
+    #baseline_directory = Path(baseline_directory)
 
-    baseline_list = [
-        f
-        for f in listdir(baseline_directory)
-        if isfile(join(baseline_directory, f))
-        if f.startswith("H1")
-    ]
-    baseline_list.sort(key=sortingFunction)
+    #baseline_list = [
+    #    f
+    #    for f in listdir(baseline_directory)
+    #    if isfile(join(baseline_directory, f))
+    #    if f.startswith("H1")
+    #]
+    #baseline_list.sort(key=sortingFunction)
 
-    baseline_list = np.array(baseline_list)
+    #baseline_list = np.array(baseline_list)
 
-    file_0 = join(baseline_directory, baseline_list[0])
+    file_0 = baseline_directory#join(baseline_directory, baseline_list[0])
     baseline_0 = Baseline.load_from_pickle(file_0)
 
     freqs = baseline_0.frequencies
@@ -1291,34 +1291,34 @@ def run_statistical_checks_baseline_pickle(
     naive_sigmas = []
     sliding_times = []
 
-    for baseline in baseline_list:
-        print(f"loading baseline file {baseline}...")
-        filename = join(baseline_directory, baseline)
-        base = Baseline.load_from_pickle(filename)
+    #for baseline in baseline_list:
+    #    print(f"loading baseline file {baseline}...")
+    filename = file_0 #join(baseline_directory, baseline)
+    base = Baseline.load_from_pickle(filename)
 
-        bad_GPS_times = np.append(bad_GPS_times, base.badGPStimes)
+    bad_GPS_times = np.append(bad_GPS_times, base.badGPStimes)
 
-        delta_sigmas.append(base.delta_sigmas["values"][1])
-        naive_sigmas.append(base.delta_sigmas["naive_sigmas"][1])
-        sliding_times.append(base.delta_sigmas["times"])
+    delta_sigmas.append(base.delta_sigmas["values"][1])
+    naive_sigmas.append(base.delta_sigmas["naive_sigmas"][1])
+    sliding_times.append(base.delta_sigmas["times"])
 
     delta_sigmas = np.concatenate(delta_sigmas)
     naive_sigmas = np.concatenate(naive_sigmas)
     sliding_times = np.concatenate(sliding_times)
 
-    if coherence_file_path is not None:
-        spectrum_file = np.load(coherence_file_path, mmap_mode="r")
-        coherence_spectrum = spectrum_file["coherence_spectrum"]
-    else:
-        coherence_spectrum = None
+    #if coherence_file_path is not None:
+    #    spectrum_file = np.load(coherence_file_path, mmap_mode="r")
+    coherence_spectrum = base.coherence_dict['coherence'] #spectrum_file["coherence_spectrum"]
+    #else:
+    #    coherence_spectrum = None
 
-    sliding_omega_all, sliding_sigmas_all = (
-        spectrum_file["point_estimates_seg_UW"],
-        spectrum_file["sigmas_seg_UW"],
-    )
+    #sliding_omega_all, sliding_sigmas_all = (
+    #    spectrum_file["point_estimates_seg_UW"],
+    #    spectrum_file["sigmas_seg_UW"],
+    #)
 
-    point_estimate_spectrum = spectrum_file["point_estimate_spectrum"]
-    sigma_spectrum = spectrum_file["sigma_spectrum"]
+    #point_estimate_spectrum = spectrum_file["point_estimate_spectrum"]
+    #sigma_spectrum = spectrum_file["sigma_spectrum"]
 
     return StatisticalChecks(
         sliding_times,
