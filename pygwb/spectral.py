@@ -1,4 +1,5 @@
 import copy
+import warnings
 
 import numpy as np
 from gwpy.frequencyseries import FrequencySeries
@@ -452,6 +453,13 @@ def cross_spectral_density(
     csd_spectrogram: gwpy spectrogram
        Cross spectral density of the two timeseries
     """
+
+    if (segment_duration * frequency_resolution) % 1 != 0:
+        warnings.warn(
+            "Multiplying the parameters segment_duration and frequency_resolution gives a non-integer. "
+            "This could lead to possible issues while computing CSDs and PSDs. \n It will also lead to data loss when computing the PSD. "
+            "To avoid this, make sure this multiplication is an integer."
+        )
 
     if coarse_grain:
         fftlength = segment_duration

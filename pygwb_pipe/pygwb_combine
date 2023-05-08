@@ -87,6 +87,8 @@ def main():
         combine_args.h0 = pygwb_h0
     if not combine_args.out_path:
         combine_args.out_path = Path("./")
+    if not isdir(combine_args.out_path):
+        os.mkdir(combine_args.out_path)
     if combine_args.coherence_path:
         combine_args.combine_coherence=True
     combine_args.alpha = float(Fraction(combine_args.alpha)) 
@@ -99,15 +101,15 @@ def main():
                     files_coh = [str(coh_file) for coh_file in combine_args.coherence_path]
     elif isdir(combine_args.data_path[0]):
         files_ptest = [
-            os.path.join(combine_args.data_path, f)
-            for f in listdir(combine_args.data_path)
-            if isfile(join(combine_args.data_path, f)) and f.startswith("point")
+            os.path.join(combine_args.data_path[0], f)
+            for f in listdir(combine_args.data_path[0])
+            if isfile(join(combine_args.data_path[0], f)) and f.startswith("point")
         ]
         if combine_args.combine_coherence:
             files_coh = [
-                join(combine_args.data_path, f)
-                for f in listdir(combine_args.data_path)
-                if isfile(join(combine_args.data_path, f)) and f.startswith("psds")
+                join(combine_args.data_path[0], f)
+                for f in listdir(combine_args.data_path[0])
+                if isfile(join(combine_args.data_path[0], f)) and f.startswith("psds")
             ]
     else:
         raise ValueError("Data path provided is neither a file nor a folder.")
