@@ -489,6 +489,7 @@ class StatisticalChecks(object):
         plt.xlim(flow, fhigh)
         plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
         plt.ylabel(r"coherence spectrum", size=self.axes_labelsize)
+        plt.xscale("log")
         plt.yscale("log")
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
@@ -498,6 +499,131 @@ class StatisticalChecks(object):
             bbox_inches="tight",
         )
 
+        plt.figure(figsize=(10, 8))
+        plt.plot(self.freqs, self.coherence_spectrum, color=sea[0])
+        plt.axhline(y=1./n_segs,dashes=(4,3),color='black')
+        plt.xlim(flow, 200)
+        plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
+        plt.ylabel(r"coherence spectrum", size=self.axes_labelsize)
+        plt.yscale("log")
+        plt.xticks(fontsize=self.legend_fontsize)
+        plt.yticks(fontsize=self.legend_fontsize)
+        plt.title(r"Total coherence spectrum at $\Delta f$ = " + f"{resolution} Hz in {self.time_tag}", fontsize=self.title_fontsize)
+        plt.savefig(
+            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-coherence_spectrum_zoom.png",
+            bbox_inches="tight",
+        )
+
+
+    def plot_hist_coherence(self):
+        r"""
+        Generates and saves a histogram of the coherence distribution. The plot shows the data after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class.
+        Furthermore, it also saves a text file which contains the frequencies at which outliers of the coherence distribution were identified, i.e. spectral artefacts.
+        """
+
+
+        coherence = self.coherence_spectrum
+        frequencies = self.freqs
+        total_bins = 1000
+        bins =  np.linspace(0, max(coherence), total_bins)
+        alpha = 1
+        n_frequencies = len(frequencies)
+        delta_coherence = bins[1]-bins[0]
+        resolution = frequencies[1] - frequencies[0]
+        fftlength = int(1.0 / resolution)
+        n_segs = len(self.sliding_omega_cut) * int(np.floor(self.params.segment_duration/(fftlength))-1)
+        predicted = alpha * n_frequencies * delta_coherence * n_segs * np.exp(-alpha * n_segs * coherence)
+        threshold = np.log(alpha * n_segs * n_frequencies * delta_coherence) / (n_segs * alpha)
+        print(predicted,threshold)
+
+        fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
+   
+        axs.hist(
+            coherence,
+            bins,
+            color=sea[3],
+            ec="k",
+            lw = 0.1,
+            zorder=1,
+        )
+        axs.plot(
+            coherence, 
+            predicted,
+            color=sea[0],
+            zorder=2,
+            alpha = 0.8,
+            label="Predicted",
+        )
+        axs.axvline(
+            np.abs(threshold),
+            zorder=3,
+            color=sea[1],
+            linestyle='dashed',
+            label="Threshold",
+        )
+
+        axs.set_xlabel(r"Coherence", size=self.axes_labelsize)
+        axs.set_ylabel(r"Number of bins", size=self.axes_labelsize)
+        axs.legend(fontsize=self.legend_fontsize)
+        axs.set_yscale("log")
+        axs.set_xlim(left= 0)
+        axs.set_ylim(0.5,10*predicted[0])
+        axs.tick_params(axis="x", labelsize=self.legend_fontsize)
+        axs.tick_params(axis="y", labelsize=self.legend_fontsize)
+        plt.title(r"Coherence distribution at $\Delta f$ = " + f"{resolution:.5f} Hz in" f" {self.time_tag}", fontsize=self.title_fontsize)
+        plt.savefig(
+            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_coherence.png", bbox_inches = 'tight'
+        )
+
+        fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))      
+
+        axs.hist(
+            coherence,
+            bins,
+            color=sea[3],
+            ec="k",
+            lw = 0.1,
+            zorder=1,
+        )
+        axs.plot(
+            coherence, 
+            predicted,
+            color=sea[0],
+            zorder=2,
+            alpha = 0.8,
+            label="Predicted",
+        )
+        axs.axvline(
+            np.abs(threshold),
+            zorder=3,
+            color=sea[1],
+            linestyle='dashed',
+            label="Threshold",
+        )
+
+        axs.set_xlabel(r"Coherence", size=self.axes_labelsize)
+        axs.set_ylabel(r"Number of bins", size=self.axes_labelsize)
+        axs.legend(fontsize=self.legend_fontsize)
+        axs.set_yscale("log")
+        axs.set_xlim(0,4*np.abs(threshold))
+        axs.set_ylim(0.5,10*predicted[0])
+        axs.tick_params(axis="x", labelsize=self.legend_fontsize)
+        axs.tick_params(axis="y", labelsize=self.legend_fontsize)
+
+        plt.title(r"Coherence distribution (zoomed) at $\Delta f$ = " + f"{resolution:.5f} Hz in" f" {self.time_tag}", fontsize=self.title_fontsize)
+        plt.savefig(
+            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_coherence_zoom.png", bbox_inches = 'tight'
+        )
+
+
+        outlier_coherence = [(frequencies[i], coherence[i]) for i in range(len(coherence)) if coherence[i] > np.abs(threshold)]
+        n_outlier = len(outlier_coherence)
+        file_name = f"{self.plot_dir / self.baseline_name}-{self.file_tag}-list_coherence_outlier.txt"
+        with open(file_name, 'w') as f:
+            f.write('Frequencies  \tCoherence\n')
+            for tup in outlier_coherence:
+                f.write(f'{tup[0]}\t{tup[1]}\n')
+                
     def plot_cumulative_sensitivity(self):
         """
         Generates and saves a plot of the cumulative sensitivity. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sigma_spectrum`).
@@ -1065,6 +1191,7 @@ class StatisticalChecks(object):
         self.plot_sigma_time_fit()
         if self.coherence_spectrum is not None:
             self.plot_coherence_spectrum()
+            self.plot_hist_coherence()
         self.save_all_statements()
 
 
