@@ -456,8 +456,8 @@ def cross_spectral_density(
     if (segment_duration * frequency_resolution) % 1 != 0:
         warnings.warn(
             "Multiplying the parameters segment_duration and frequency_resolution gives a non-integer. "
-            "That could lead to possible issues while computing CSDs and PSDs. \n It will also cut away some of the data when computing the PSD. "
-            "To counteract this phenomenon, make sure this multiplication is an integer."
+            "This could lead to possible issues while computing CSDs and PSDs. \n It will also lead to data loss when computing the PSD. "
+            "To avoid this, make sure this multiplication is an integer."
         )
 
     if coarse_grain:
