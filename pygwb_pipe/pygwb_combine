@@ -39,7 +39,7 @@ def sort_coh_files(item):
 
 """
 SCRIPT TO COMBINE PYGWB_PIPE RUN OUTPUTS.
-currently only works with npz - this will be updated for compatibility with other formats as wego along.
+currently only works with npz - this will be updated for compatibility with other formats as we go along.
 """
 
 
@@ -346,12 +346,16 @@ def main():
             psd_1_coh = data_file['psd_1_coh']
             psd_2_coh = data_file['psd_2_coh']
             csd_coh = data_file['csd_coh']
-            n_segs_coh = data_file['n_segs_coh']
 
-            psd_1_average += n_segs_coh*psd_1_coh
-            psd_2_average += n_segs_coh*psd_2_coh
-            csd_average += n_segs_coh*csd_coh
-            n_segs_coh_total += n_segs_coh
+            if not (np.isnan(psd_1_coh).all() or np.isnan(psd_2_coh).all() or np.isnan(csd_coh).all()):
+                n_segs_coh = data_file['n_segs_coh']
+
+                psd_1_average += n_segs_coh*psd_1_coh
+                psd_2_average += n_segs_coh*psd_2_coh
+                csd_average += n_segs_coh*csd_coh
+                n_segs_coh_total += n_segs_coh
+            else:
+                logger.info(f"Removed a coherence set from the data as results were all NaN.")
 
         combined_coherence = calculate_coherence(psd_1_average/n_segs_coh_total, psd_2_average/n_segs_coh_total, csd_average/n_segs_coh_total)
         np.savez(coherence_path, coherence=combined_coherence, frequencies=coh_frequencies, n_segs_coh=n_segs_coh)
