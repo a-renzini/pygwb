@@ -47,13 +47,10 @@ def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_fa
     w1w2bar = np.mean(w ** 2)
     w1w2squaredbar = np.mean(w ** 4)
 
-    #w1 = w[N - int(N * overlap_factor) : N] 
-    #w2 = w[0 : int(N * overlap_factor)] 
-
     S = N - int(overlap_factor*N)
     
-    w1w2squaredovlbar = 1 / (N * (1.0 - overlap_factor)) * np.sum(w[0:N-S]**2*w[S:N]**2)
-    w1w2ovlbar = 1 / (N * (1.0 - overlap_factor)) * np.sum(w[0:N-S]*w[S:N])
+    w1w2squaredovlbar = 1 / (N/2) * np.sum(w[0:N-S]**2*w[S:N]**2)
+    w1w2ovlbar = 1 / (N/2) * np.sum(w[0:N-S]*w[S:N])
 
     return w1w2bar, w1w2squaredbar, w1w2ovlbar, w1w2squaredovlbar
 
