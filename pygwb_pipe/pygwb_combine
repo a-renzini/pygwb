@@ -216,8 +216,8 @@ def main():
     times_j = np.concatenate(times_j)
     gates_ifo1_j = np.concatenate(gates_ifo1_j)
     gates_ifo2_j = np.concatenate(gates_ifo2_j)
-    gates_ifo1_pad_j = np.concatenate(gates_ifo1_pad_j)
-    gates_ifo2_pad_j = np.concatenate(gates_ifo2_pad_j)
+    gates_ifo1_pad_j = np.array(gates_ifo1_pad_j)
+    gates_ifo2_pad_j = np.array(gates_ifo2_pad_j)
     try:
         badGPStimes_j = np.concatenate(badGPStimes_j)
     except ValueError: # when there are no badGPStimes in the whole set 
