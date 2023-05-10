@@ -5,6 +5,7 @@ from pathlib import Path
 
 import matplotlib
 import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle 
 
 matplotlib.rcParams['figure.figsize'] = (8,6)
 matplotlib.rcParams['axes.grid'] = True
@@ -48,6 +49,8 @@ class StatisticalChecks(object):
         plot_dir,
         baseline_name,
         param_file,
+        gates_ifo1 = None,
+        gates_ifo2 = None,
         file_tag = None,
         legend_fontsize = 16
     ):
@@ -101,6 +104,8 @@ class StatisticalChecks(object):
         self.sliding_deviate_all = (
             self.sliding_omega_all - np.nanmean(self.sliding_omega_all)
         ) / self.sliding_sigmas_all
+        self.gates_ifo1 = gates_ifo1
+        self.gates_ifo2 = gates_ifo2
 
         self.coherence_spectrum = coherence_spectrum
 
@@ -520,8 +525,6 @@ class StatisticalChecks(object):
         Generates and saves a histogram of the coherence distribution. The plot shows the data after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class.
         Furthermore, it also saves a text file which contains the frequencies at which outliers of the coherence distribution were identified, i.e. spectral artefacts.
         """
-
-
         coherence = self.coherence_spectrum
         frequencies = self.freqs
         total_bins = 1000
@@ -534,7 +537,6 @@ class StatisticalChecks(object):
         n_segs = len(self.sliding_omega_cut) * int(np.floor(self.params.segment_duration/(fftlength))-1)
         predicted = alpha * n_frequencies * delta_coherence * n_segs * np.exp(-alpha * n_segs * coherence)
         threshold = np.log(alpha * n_segs * n_frequencies * delta_coherence) / (n_segs * alpha)
-        print(predicted,threshold)
 
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
    
@@ -629,7 +631,6 @@ class StatisticalChecks(object):
         Generates and saves a plot of the cumulative sensitivity. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sigma_spectrum`).
 
         """
-
         cumul_sens = integrate.cumtrapz((1 / self.sigma_spectrum ** 2), self.freqs)
         cumul_sens = cumul_sens / cumul_sens[-1]
         plt.figure(figsize=(10, 8))
@@ -1158,12 +1159,46 @@ class StatisticalChecks(object):
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-sigma_time_fit.png", bbox_inches = 'tight'
         )
 
+    def plot_gates_in_time(self):
+        if self.gates_ifo1 is None and self.gates_ifo2 is None:
+            return
+        
+        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
+        if self.gates_ifo1 is not None:
+            self.total_gated_time_ifo1 = np.sum(self.gates_ifo1[:,1]-self.gates_ifo1[:,0])
+            self.total_gated_percent_ifo1 = self.total_gated_time_ifo1/(int(self.params.tf)- int(self.sliding_times_all[0]))*100
+            gate_times_in_days_ifo1 = (np.array(self.gates_ifo1[:,0]) - self.sliding_times_all[0]) / 86400.0
+            self.gates_ifo1_statement= f"Data gated out: {self.total_gated_time_ifo1} s\n" f"Percentage: {float(f'{self.total_gated_percent_ifo1:.2g}'):g}%"
+            gatefig1 = ax.plot(gate_times_in_days_ifo1, self.gates_ifo1[:,1]-self.gates_ifo1[:,0], 's', color=sea[0], label="IFO1:\n" f"{self.gates_ifo1_statement}")
+            first_legend = ax.legend(handles=gatefig1, loc=(0.05,0.75), fontsize = self.axes_labelsize)
+            ax.add_artist(first_legend)
+        if self.gates_ifo2 is not None:
+            self.total_gated_time_ifo2 = np.sum(self.gates_ifo2[:,1]-self.gates_ifo2[:,0])
+            self.total_gated_percent_ifo2 = self.total_gated_time_ifo2/(int(self.params.tf)- int(self.sliding_times_all[0]))*100
+            gate_times_in_days_ifo2 = (np.array(self.gates_ifo2[:,0]) - self.sliding_times_all[0]) / 86400.0
+            self.gates_ifo2_statement= f"Data gated out: {self.total_gated_time_ifo2} s\n" f"Percentage: {float(f'{self.total_gated_percent_ifo2:.2g}'):g}%"
+            gatefig2 = ax.plot(gate_times_in_days_ifo2, self.gates_ifo2[:,1]-self.gates_ifo2[:,0], 's', color=sea[3], label="IFO2:\n" f"{self.gates_ifo2_statement}")
+            ax.legend(handles=gatefig2, loc=(0.05, 0.1), fontsize = self.axes_labelsize)
+        ax.set_xlabel("Days since start of run", size=self.axes_labelsize)
+        ax.set_ylabel("Gate length (s)", size=self.axes_labelsize)
+        plt.xticks(fontsize=self.legend_fontsize)
+        plt.yticks(fontsize=self.legend_fontsize)
+        plt.title(f"Gates applied to {self.baseline_name} in {self.time_tag}", fontsize=self.title_fontsize)
+        plt.savefig(
+            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-gates_time.png",
+            bbox_inches="tight",
+        )
+            
+
+
     def save_all_statements(self):
         """
         Saves all useful statements gathered throughout the checks to a json file.
         """
         statements = {}
         statements['dsc'] = self.dsc_statement
+        statements['gates_ifo1'] = self.gates_ifo1_statement
+        statements['gates_ifo2'] = self.gates_ifo2_statement
         with open("stats_statements.json", "w") as outfile:
                 json.dump(statements, outfile)
 
@@ -1189,6 +1224,7 @@ class StatisticalChecks(object):
         self.plot_hist_sigma_squared()
         self.plot_omega_time_fit()
         self.plot_sigma_time_fit()
+        self.plot_gates_in_time()
         if self.coherence_spectrum is not None:
             self.plot_coherence_spectrum()
             self.plot_hist_coherence()
@@ -1215,6 +1251,12 @@ def run_statistical_checks_from_file(
     delta_sigmas = dsc_file["delta_sigmas"]
     sliding_times = dsc_file["times"]
     naive_sigma_all = dsc_file["naive_sigmas"]
+    gates_ifo1 = dsc_file["gates_ifo1"]
+    gates_ifo2 = dsc_file["gates_ifo2"]
+    if gates_ifo1.size==0:
+        gates_ifo1=None
+    if gates_ifo2.size==0:
+        gates_ifo2=None
 
     sliding_omega_all, sliding_sigmas_all = (
         spectra_file["point_estimates_seg_UW"],
@@ -1258,81 +1300,9 @@ def run_statistical_checks_from_file(
         plot_dir,
         baseline_name,
         param_file,
+        gates_ifo1,
+        gates_ifo2,
         file_tag=file_tag,
         legend_fontsize=legend_fontsize
     )
 
-
-def run_statistical_checks_baseline_pickle(
-    baseline_directory, combine_file_path, plot_dir, param_file, coherence_file_path = None, file_tag = None
-):
-    params = Parameters()
-    params.update_from_file(param_file)
-    baseline_directory = Path(baseline_directory)
-
-    baseline_list = [
-        f
-        for f in listdir(baseline_directory)
-        if isfile(join(baseline_directory, f))
-        if f.startswith("H1")
-    ]
-    baseline_list.sort(key=sortingFunction)
-
-    baseline_list = np.array(baseline_list)
-
-    file_0 = join(baseline_directory, baseline_list[0])
-    baseline_0 = Baseline.load_from_pickle(file_0)
-
-    freqs = baseline_0.frequencies
-    baseline_name = baseline_0.name
-
-    bad_GPS_times = np.array([])
-    delta_sigmas = []
-    naive_sigmas = []
-    sliding_times = []
-
-    for baseline in baseline_list:
-        print(f"loading baseline file {baseline}...")
-        filename = join(baseline_directory, baseline)
-        base = Baseline.load_from_pickle(filename)
-
-        bad_GPS_times = np.append(bad_GPS_times, base.badGPStimes)
-
-        delta_sigmas.append(base.delta_sigmas["values"][1])
-        naive_sigmas.append(base.delta_sigmas["naive_sigmas"][1])
-        sliding_times.append(base.delta_sigmas["times"])
-
-    delta_sigmas = np.concatenate(delta_sigmas)
-    naive_sigmas = np.concatenate(naive_sigmas)
-    sliding_times = np.concatenate(sliding_times)
-
-    if coherence_file_path is not None:
-        spectrum_file = np.load(coherence_file_path, mmap_mode="r")
-        coherence_spectrum = spectrum_file["coherence_spectrum"]
-    else:
-        coherence_spectrum = None
-
-    sliding_omega_all, sliding_sigmas_all = (
-        spectrum_file["point_estimates_seg_UW"],
-        spectrum_file["sigmas_seg_UW"],
-    )
-
-    point_estimate_spectrum = spectrum_file["point_estimate_spectrum"]
-    sigma_spectrum = spectrum_file["sigma_spectrum"]
-
-    return StatisticalChecks(
-        sliding_times,
-        sliding_omega_all,
-        sliding_sigmas_all,
-        naive_sigmas,
-        coherence_spectrum,
-        point_estimate_spectrum,
-        sigma_spectrum,
-        freqs,
-        bad_GPS_times,
-        delta_sigmas,
-        plot_dir,
-        baseline_name,
-        param_file,
-        file_tag=file_tag,
-    )
