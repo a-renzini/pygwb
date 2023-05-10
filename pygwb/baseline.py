@@ -1402,6 +1402,10 @@ class Baseline(object):
             self.sigma_spectrogram,
             self.badGPStimes,
             self.delta_sigmas,
+            self.interferometer_1.gates,
+            self.interferometer_1.gate_pad,
+            self.interferometer_2.gates,
+            self.interferometer_2.gate_pad,
         )
 
     def save_psds_csds(
@@ -1468,10 +1472,6 @@ class Baseline(object):
             self.interferometer_2.psd_spectrogram,
             self.interferometer_1.average_psd,
             self.interferometer_2.average_psd,
-            self.interferometer_1.gates,
-            self.interferometer_1.gate_pad,
-            self.interferometer_2.gates,
-            self.interferometer_2.gate_pad,
             coherence,
             psd_1_coh,
             psd_2_coh,
@@ -1492,6 +1492,10 @@ class Baseline(object):
         sigma_spectrogram,
         badGPStimes,
         delta_sigmas,
+        ifo_1_gates,
+        ifo_1_gate_pad,
+        ifo_2_gates,
+        ifo_2_gate_pad,
     ):
         try:
             naive_sigma_values = delta_sigmas["naive_sigmas"]
@@ -1516,6 +1520,10 @@ class Baseline(object):
             delta_sigma_values=delta_sigmas["values"],
             naive_sigma_values=naive_sigma_values,
             slide_sigma_values=slide_sigma_values,
+            ifo_1_gates=ifo_1_gates,
+            ifo_1_gate_pad=ifo_1_gate_pad,
+            ifo_2_gates=ifo_2_gates,
+            ifo_2_gate_pad=ifo_2_gate_pad,
         )
 
     def _pickle_save(
@@ -1531,6 +1539,10 @@ class Baseline(object):
         sigma_spectrogram,
         badGPStimes,
         delta_sigmas,
+        ifo_1_gates,
+        ifo_1_gate_pad,
+        ifo_2_gates,
+        ifo_2_gate_pad,
     ):
         save_dictionary = {
             "frequencies": frequencies,
@@ -1543,6 +1555,10 @@ class Baseline(object):
             "sigma_spectrogram": sigma_spectrogram,
             "badGPStimes": badGPStimes,
             "delta_sigmas": list(delta_sigmas.items()),
+            "ifo_1_gates": ifo_1_gates,
+            "ifo_1_gate_pad": ifo_1_gate_pad,
+            "ifo_2_gates": ifo_2_gates,
+            "ifo_2_gate_pad": ifo_2_gate_pad,
         }
 
         with open(filename, "wb") as f:
@@ -1561,6 +1577,10 @@ class Baseline(object):
         sigma_spectrogram,
         badGPStimes,
         delta_sigmas,
+        ifo_1_gates,
+        ifo_1_gate_pad,
+        ifo_2_gates,
+        ifo_2_gate_pad,
     ):
         list_freqs = frequencies.tolist()
         list_freqs_mask = frequency_mask.tolist()
@@ -1597,6 +1617,10 @@ class Baseline(object):
             "badGPStimes": badGPStimes_list,
             "delta_sigma_alphas": delta_sigmas["alphas"],
             "delta_sigma_values": delta_sigmas["values"].tolist(),
+            "ifo_1_gates": ifo_1_gates,
+            "ifo_1_gate_pad": ifo_1_gate_pad,
+            "ifo_2_gates": ifo_2_gates,
+            "ifo_2_gate_pad": ifo_2_gate_pad,
         }
         try:
             save_dictionary["naive_sigma_values"] = delta_sigmas[
@@ -1624,6 +1648,10 @@ class Baseline(object):
         sigma_spectrogram,
         badGPStimes,
         delta_sigmas,
+        ifo_1_gates,
+        ifo_1_gate_pad,
+        ifo_2_gates,
+        ifo_2_gate_pad,
         compress=False,
     ):
         hf = h5py.File(filename, "w")
@@ -1684,6 +1712,14 @@ class Baseline(object):
         except KeyError:
             pass
 
+        gates_group = hf.create_group("Gated_Times")
+        gates_group.create_dataset(
+            "ifo_1_gates", data=ifo_1_gates, compression=compression
+        )
+        gates_group.create_dataset(
+            "ifo_2_gates", data=ifo_2_gates, compression=compression
+        )
+
         hf.close()
 
     def _npz_save_csd(
@@ -1697,10 +1733,6 @@ class Baseline(object):
         psd_2,
         avg_psd_1,
         avg_psd_2,
-        ifo_1_gates,
-        ifo_1_gate_pad,
-        ifo_2_gates,
-        ifo_2_gate_pad,
         coherence,
         psd_1_coh,
         psd_2_coh,
@@ -1721,10 +1753,6 @@ class Baseline(object):
             avg_csd_times=avg_csd.times.value,
             psd_times=psd_1.times.value,
             avg_psd_times=avg_psd_1.times.value,
-            ifo_1_gates=ifo_1_gates,
-            ifo_1_gate_pad=ifo_1_gate_pad,
-            ifo_2_gates=ifo_2_gates,
-            ifo_2_gate_pad=ifo_2_gate_pad,
             coherence=coherence,
             psd_1_coh=psd_1_coh,
             psd_2_coh=psd_2_coh,
@@ -1743,10 +1771,6 @@ class Baseline(object):
         psd_2,
         avg_psd_1,
         avg_psd_2,
-        ifo_1_gates,
-        ifo_1_gate_pad,
-        ifo_2_gates,
-        ifo_2_gate_pad,
         coherence,
         psd_1_coh,
         psd_2_coh,
@@ -1763,10 +1787,6 @@ class Baseline(object):
             "psd_2": psd_2,
             "avg_psd_1": avg_psd_1,
             "avg_psd_2": avg_psd_2,
-            "ifo_1_gates": ifo_1_gates,
-            "ifo_1_gate_pad": ifo_1_gate_pad,
-            "ifo_2_gates": ifo_2_gates,
-            "ifo_2_gate_pad": ifo_2_gate_pad,
             "coherence": coherence,
             "psd_1_coh": psd_1_coh,
             "psd_2_coh": psd_2_coh,
@@ -1791,10 +1811,6 @@ class Baseline(object):
         psd_2,
         avg_psd_1,
         avg_psd_2,
-        ifo_1_gates,
-        ifo_1_gate_pad,
-        ifo_2_gates,
-        ifo_2_gate_pad,
         coherence,
         psd_1_coh,
         psd_2_coh,
@@ -1875,10 +1891,6 @@ class Baseline(object):
             "avg_psd_1_times": avg_psd_times,
             "avg_psd_2": list_avg_psd_2,
             "avg_psd_2_times": avg_psd_2_times,
-            "ifo_1_gates": ifo_1_gates,
-            "ifo_1_gate_pad": ifo_1_gate_pad,
-            "ifo_2_gates": ifo_2_gates,
-            "ifo_2_gate_pad": ifo_2_gate_pad,
             "coherence": list_coherence,
             "psd_1_coh": list_psd_1_coh,
             "psd_2_coh": list_psd_2_coh,
@@ -1901,10 +1913,6 @@ class Baseline(object):
         psd_2,
         avg_psd_1,
         avg_psd_2,
-        ifo_1_gates,
-        ifo_1_gate_pad,
-        ifo_2_gates,
-        ifo_2_gate_pad,
         coherence,
         psd_1_coh,
         psd_2_coh,
@@ -1969,14 +1977,6 @@ class Baseline(object):
         )
         avg_psd_2_group.create_dataset(
             "avg_psd_2_times", data=avg_psd_2_times, compression=compression
-        )
-
-        gates_group = hf.create_group("Gated_Times")
-        gates_group.create_dataset(
-            "ifo_1_gates", data=ifo_1_gates, compression=compression
-        )
-        gates_group.create_dataset(
-            "ifo_2_gates", data=ifo_2_gates, compression=compression
         )
 
         if coherence:

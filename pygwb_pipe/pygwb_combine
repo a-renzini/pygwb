@@ -150,6 +150,10 @@ def main():
     delta_sigmas_j = []
     badGPStimes_j = []
     times_j = []
+    gates_ifo1_j = []
+    gates_ifo2_j = []
+    gates_ifo1_pad_j = []
+    gates_ifo2_pad_j = []
 
     pt_est_sigma_unweighted_path = os.path.join(
         combine_args.out_path,
@@ -176,6 +180,10 @@ def main():
         slide_sigmas_j.append(data_file["slide_sigma_values"].T)
         delta_sigmas_j.append(data_file["delta_sigma_values"].T)
         times_j.append(data_file["delta_sigma_times"])
+        gates_ifo1_j.append(data_file["ifo_1_gates"])
+        gates_ifo2_j.append(data_file["ifo_2_gates"])
+        gates_ifo1_pad_j.append(data_file["ifo_1_gate_pad"])
+        gates_ifo2_pad_j.append(data_file["ifo_2_gate_pad"])
         if not data_file["badGPStimes"].size == 0:
             if data_file["badGPStimes"].size == 1:
                 list_gps = np.array(data_file["badGPStimes"].flatten())
@@ -206,6 +214,10 @@ def main():
     slide_sigmas_j = np.concatenate(slide_sigmas_j)
     delta_sigmas_j = np.concatenate(delta_sigmas_j)
     times_j = np.concatenate(times_j)
+    gates_ifo1_j = np.concatenate(gates_ifo1_j)
+    gates_ifo2_j = np.concatenate(gates_ifo2_j)
+    gates_ifo1_pad_j = np.array(gates_ifo1_pad_j)
+    gates_ifo2_pad_j = np.array(gates_ifo2_pad_j)
     try:
         badGPStimes_j = np.concatenate(badGPStimes_j)
     except ValueError: # when there are no badGPStimes in the whole set 
@@ -217,6 +229,10 @@ def main():
         delta_sigmas=delta_sigmas_j,
         badGPStimes=badGPStimes_j,
         times=times_j,
+        gates_ifo1=gates_ifo1_j,
+        gates_ifo2=gates_ifo2_j,
+        gates_ifo1_pad=gates_ifo1_pad_j,
+        gates_ifo2_pad=gates_ifo2_pad_j,
     )
     logger.info(
         f"saved file with all sigma information related to the delta sigma cut for all times in run:\n {delta_sigma_cut_output_path}."
