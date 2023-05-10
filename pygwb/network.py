@@ -30,10 +30,13 @@ class Network(object):
         duration=None,
         frequencies=None,
         calibration_epsilon=0,
-        notch_list_path=None,
+        notch_list_path="",
+        coarse_grain_psd=False,
+        coarse_grain_csd=True,
+        overlap_factor_welch=0.5,
         overlap_factor=0.5,
-        zeropad_csd=True,
         window_fftgram_dict={"window_fftgram": "hann"},
+        window_fftgram_dict_welch={"window_fftgram": "hann"},
         N_average_segments_psd=2,
     ):
         """
@@ -53,12 +56,19 @@ class Network(object):
             calibration uncertainty for this baseline -- currently only supports a single notch list for all baselines
         notch_list_path: str, optional
             file path of the baseline notch list -- currently only supports a single notch list for all baselines
+        coarse_grain_psd: bool
+            Whether to apply coarse graining to obtain PSD spectra. Default is False.
+        coarse_grain_csd: bool
+            Whether to apply coarse graining to obtain CSD spectra. Default is True.
+        overlap_factor_welch: float, optional
+            Overlap factor to use when if using Welch's method to estimate spectra (NOT coarsegraining). For \"hann\" window use 0.5 overlap_factor and for \"boxcar"\ window use 0 overlap_factor. Default is 0.5 (50% overlap), which is optimal when using Welch's method with a \"hann\" window.
         overlap_factor: float, optional
-            factor by which to overlap the segments in the psd and csd estimation. Default is 1/2, if set to 0 no overlap is performed.
-        zeropad_csd: bool, optional
-            if True, applies zeropadding in the csd estimation. True by default.
+            Factor by which to overlap the segments in the psd and csd estimation.
+            Default is 1/2, if set to 0 no overlap is performed.
         window_fftgram_dict: dictionary, optional
-            Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds. Default is \"hann\".
+            Dictionary containing name and parameters describing which window to use when producing fftgrams for csds (and psds if these are coarse-grained). Default is \"hann\".
+        window_fftgram_dict_welch: dictionary, optional
+            Dictionary containing name and parameters describing which window to use when producing fftgrams with Welch's method. Default is \"hann\".
         N_average_segments_psd: int, optional
             Number of segments used for PSD averaging (from both sides of the segment of interest)
             N_avg_segs should be even and >= 2
@@ -87,9 +97,12 @@ class Network(object):
                     frequencies=frequencies,
                     calibration_epsilon=calibration_epsilon,
                     notch_list_path=notch_list_path,
+                    coarse_grain_psd=coarse_grain_psd,
+                    coarse_grain_csd=coarse_grain_csd,
+                    overlap_factor_welch=overlap_factor_welch,
                     overlap_factor=overlap_factor,
-                    zeropad_csd=zeropad_csd,
                     window_fftgram_dict=window_fftgram_dict,
+                    window_fftgram_dict_welch=window_fftgram_dict_welch,
                     N_average_segments_psd=N_average_segments_psd,
                 )
             )
@@ -234,7 +247,7 @@ class Network(object):
             N_segments,
             duration=self.duration,
             intensity_GW=GWB_intensity,
-            injection_dict=CBC_dict, 
+            injection_dict=CBC_dict,
             start_time=start_time,
             sampling_frequency=sampling_frequency,
             no_noise=no_noise,

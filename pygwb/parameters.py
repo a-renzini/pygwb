@@ -20,6 +20,8 @@ class Parameters:
         Initial time.
     tf: float
         Final time.
+    interferometer_list: list
+        List of interferometers to run the analysis with. Default is [\"H1\", \"L1\"]
     data_type: str
         Type of data to access/download; options are private, public, local. Default is public.
     channel: str
@@ -52,26 +54,27 @@ class Parameters:
         Lower frequency to include in the analysis (Hz). Default is 20 Hz.
     fhigh: int
         Higher frequency to include in the analysis (Hz). Default is 1726 Hz.
-    coarse_grain_psd: bool
-        Whether to apply coarse graining to obtain PSD spectra. Default is False.
-    coarse_grain_csd: bool
-        Whether to apply coarse graining to obtain CSD spectra. Default is True.
-    interferometer_list: list
-        List of interferometers to run the analysis with. Default is [\"H1\", \"L1\"]
     local_data_path: str
         Path(s) to local data, if the local data option is chosen. Default is empty.
     notch_list_path: str
         Path to the notch list file. Default is empty.
+    coarse_grain_psd: bool
+        Whether to apply coarse graining to obtain PSD spectra. Default is False.
+    coarse_grain_csd: bool
+        Whether to apply coarse graining to obtain CSD spectra. Default is True.
+    overlap_factor_welch: float
+        Overlap factor to use when if using Welch's method to estimate spectra (NOT coarsegraining). For \"hann\" window use 0.5 overlap_factor and for \"boxcar\" window use 0 overlap_factor. Default is 0.5 (50% overlap), which is optimal when using Welch's method with a \"hann\" window.
+        Whether to apply coarse graining to obtain CSD spectra. Default is True.
     N_average_segments_psd: int
         Number of segments to average over when calculating the psd with Welch method. Default is 2.
     window_fft_dict: dict
         Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds. Default is \"hann\".
+    window_fft_dict_welch: dict 
+        Dictionary containing name and parameters relative to which window to use when producing fftgrams for pwelch calculation. Default is "hann".
     calibration_epsilon: float
         Calibation coefficient. Default is 0.
     overlap_factor: float
         Factor by which to overlap consecutive segments for analysis. Default is 0.5 (50%% overlap)
-    zeropad_csd: bool
-        Whether to zeropad the csd or not. Default is True.
     delta_sigma_cut: float
         Cutoff value for the delta sigma cut. Default is 0.2.
     alphas_delta_sigma_cut: list
@@ -102,6 +105,7 @@ class Parameters:
 
     t0: float = 0
     tf: float = 100
+    interferometer_list: List = field(default_factory=lambda: ["H1", "L1"])
     data_type: str = "public"
     channel: str = "GWOSC-16KHZ_R1_STRAIN"
     frametype: str = ""
@@ -118,16 +122,16 @@ class Parameters:
     fref: float = 25
     flow: float = 20
     fhigh: float = 1726
-    coarse_grain_psd: bool = False
-    coarse_grain_csd: bool = True
-    interferometer_list: List = field(default_factory=lambda: ["H1", "L1"])
     local_data_path: str = ""
     notch_list_path: str = ""
+    coarse_grain_psd: bool = False
+    coarse_grain_csd: bool = True
+    overlap_factor_welch: float = 0.5
     N_average_segments_psd: int = 2
     window_fft_dict: dict = field(default_factory=lambda: {"window_fftgram": "hann"})
+    window_fft_dict_welch: dict = field(default_factory=lambda: {"window_fftgram": "hann"})
     calibration_epsilon: float = 0
     overlap_factor: float = 0.5
-    zeropad_csd: bool = True
     delta_sigma_cut: float = 0.2
     alphas_delta_sigma_cut: List = field(default_factory=lambda: [-5, 0, 3])
     save_data_type: str = "npz"
@@ -194,6 +198,7 @@ class Parameters:
                 dictionary["interferometer_list"]
             )
         dictionary["window_fft_dict"] = dict(config.items("window_fft_specs"))
+        dictionary["window_fft_dict_welch"] = dict(config.items("window_fft_welch_specs"))
         for item in dictionary.copy():
             if not dictionary[item]:
                 dictionary.pop(item)
@@ -216,6 +221,8 @@ class Parameters:
             -- window_fftgram
         This is the only option currently supported. To use windows that require extra parameters, pass these as part of an
         .ini file, in the relevant section [window_fft_specs].
+        * window_fft_dict_welch: this is composed by the single argument
+            -- window_fftgram_welch
         """
         if not args:
             return
@@ -228,6 +235,7 @@ class Parameters:
                 parser.add_argument(f"--{name}", type=str, required=False)
 
         parser.add_argument("--window_fftgram", type=str, required=False)
+        parser.add_argument("--window_fftgram_welch", type=str, required=False)
         parsed, _ = parser.parse_known_args(args)
         dictionary = vars(parsed)
         for item in dictionary.copy():
@@ -238,6 +246,11 @@ class Parameters:
             window_fft_dict["window_fftgram"] = dictionary["window_fftgram"]
             dictionary.pop("window_fftgram")
             dictionary["window_fft_dict"] = window_fft_dict
+        if "window_fftgram_welch" in dictionary:
+            window_fft_dict_welch = {}
+            window_fft_dict_welch["window_fftgram"] = dictionary["window_fftgram_welch"]
+            dictionary.pop("window_fftgram_welch")
+            dictionary["window_fft_dict_welch"] = window_fft_dict_welch
         self.update_from_dictionary(dictionary)
 
     def save_paramfile(self, output_path):
@@ -254,9 +267,9 @@ class Parameters:
         # for key, value in param_dict.items():
         #    param_dict[key] = str(value)
         data_specs_dict = {}
-        data_specs_dict["interferometer_list"] = param_dict["interferometer_list"]
         data_specs_dict["t0"] = param_dict["t0"]
         data_specs_dict["tf"] = param_dict["tf"]
+        data_specs_dict["interferometer_list"] = param_dict["interferometer_list"]
         data_specs_dict["data_type"] = param_dict["data_type"]
         data_specs_dict["channel"] = param_dict["channel"]
         data_specs_dict["frametype"] = param_dict["frametype"]
@@ -284,6 +297,7 @@ class Parameters:
         param["gating"] = gating_dict
 
         param["window_fft_specs"] = self.window_fft_dict
+        param["window_fft_welch_specs"] = self.window_fft_dict_welch
 
         density_estimation_dict = {}
         density_estimation_dict["frequency_resolution"] = param_dict[
@@ -294,8 +308,8 @@ class Parameters:
         ]
         density_estimation_dict["coarse_grain_psd"] = param_dict["coarse_grain_psd"]
         density_estimation_dict["coarse_grain_csd"] = param_dict["coarse_grain_csd"]
+        density_estimation_dict["overlap_factor_welch"] = param_dict["overlap_factor_welch"]
         density_estimation_dict["overlap_factor"] = param_dict["overlap_factor"]
-        density_estimation_dict["zeropad_csd"] = param_dict["zeropad_csd"]
         param["density_estimation"] = density_estimation_dict
 
         postprocessing_dict = {}
@@ -354,6 +368,9 @@ class ParametersHelp(enum.Enum):
 
     t0 = "Initial time."
     tf = "Final time."
+    interferometer_list = (
+        'List of interferometers to run the analysis with. Default is ["H1", "L1"]'
+    )
     data_type = "Type of data to access/download; options are private, public, local. Default is public."
     channel = 'Channel name; needs to match an existing channel. Default is "GWOSC-16KHZ_R1_STRAIN" '
     frametype = 'Frame type; Optional, desired channel needs to be found in listed frametype. Only used when data_type=private. Default is empty. '
@@ -374,18 +391,16 @@ class ParametersHelp(enum.Enum):
     fref = "Reference frequency to filter the data at (Hz). Default is 25 Hz."
     flow = "Lower frequency to include in the analysis (Hz). Default is 20 Hz."
     fhigh = "Higher frequency to include in the analysis (Hz). Default is 1726 Hz."
-    coarse_grain_psd = "Whether to apply coarse graining to obtain PSD spectra. Default is False."
-    coarse_grain_csd = "Whether to apply coarse graining to obtain CSD spectra. Default is True."
-    interferometer_list = (
-        'List of interferometers to run the analysis with. Default is ["H1", "L1"]'
-    )
     local_data_path = "Path(s) to local data, if the local data option is chosen. Default is empty."
     notch_list_path = "Path to the notch list file. Default is empty."
-    N_average_segments_psd = "Number of segments to average over when calculating the psd with Welch method. Default is 2."
+    coarse_grain_psd = "Whether to apply coarse graining to obtain PSD spectra. Default is False."
+    coarse_grain_csd = "Whether to apply coarse graining to obtain CSD spectra. Default is True."
+    overlap_factor_welch = "Overlap factor to use when if using Welch's method to estimate spectra (NOT coarsegraining). For \"hann\" window use 0.5 overlap_factor and for \"boxcar\" window use 0 overlap_factor. Default is 0.5 (50%% overlap), which is optimal when using Welch's method with a \"hann\" window."
+    N_average_segments_psd = "Number of segments to average over when calculating the psd with Welch's method. Default is 2."
     window_fft_dict = 'Dictionary containing name and parameters relative to which window to use when producing fftgrams for psds and csds. Default is "hann".'
+    window_fft_dict_welch = 'Dictionary containing name and parameters relative to which window to use when producing fftgrams for pwelch calculation. Default is "hann".'
     calibration_epsilon = "Calibation coefficient. Default is 0."
     overlap_factor = "Factor by which to overlap consecutive segments for analysis. Default is 0.5 (50%% overlap)"
-    zeropad_csd = "Whether to zeropad the csd or not. Default is True."
     delta_sigma_cut = "Cutoff value for the delta sigma cut. Default is 0.2."
     alphas_delta_sigma_cut = "List of spectral indexes to use in delta sigma cut calculation. Default is [-5, 0, 3]."
     save_data_type = "Suffix for the output data file. Options are hdf5, npz, json, pickle. Default is json."
