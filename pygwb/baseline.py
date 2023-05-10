@@ -131,9 +131,9 @@ class Baseline(object):
             self.window_fftgram_dict_csd = self.window_fftgram_dict_welch
         # throw a warning if overlap factors are unsupported
         if self.overlap_factor>0.5:
-            warnings.warn("Overlap factor not fully supported. Overlap factor should be overlap_factor < 0.5.")
+            warnings.warn("Overlap factor not fully supported. Overlap factor should be overlap_factor =< 0.5.")
         if self.overlap_factor_welch>0.5:
-            warnings.warn("Overlap factor for spectral estimation using Welch's method not fully supported. Overlap factor should be overlap_factor_welch < 0.5.")
+            warnings.warn("Overlap factor for spectral estimation using Welch's method not fully supported. Overlap factor should be overlap_factor_welch =< 0.5.")
 
     def __eq__(self, other):
         if not type(self) == type(other):
