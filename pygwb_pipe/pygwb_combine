@@ -348,9 +348,9 @@ def main():
             combine_args.out_path,
             f"coherence_spectrum_{combine_args.file_tag}.npz",
         )
-        psd_1_average = 0
-        psd_2_average = 0
-        csd_average = 0
+        psd_1_average = None
+        psd_2_average = None
+        csd_average = None
         coh_frequencies = np.load(files_coh[0], allow_pickle=True)['avg_freqs']
         n_segs_coh_total = 0
 
@@ -365,15 +365,26 @@ def main():
 
             if not (np.isnan(psd_1_coh).all() or np.isnan(psd_2_coh).all() or np.isnan(csd_coh).all()):
                 n_segs_coh = data_file['n_segs_coh']
-
-                psd_1_average += n_segs_coh*psd_1_coh
-                psd_2_average += n_segs_coh*psd_2_coh
-                csd_average += n_segs_coh*csd_coh
                 n_segs_coh_total += n_segs_coh
+
+                if psd_1_average is None:
+                    psd_1_average = n_segs_coh*psd_1_coh
+                    psd_2_average = n_segs_coh*psd_2_coh
+                    csd_average = n_segs_coh*csd_coh
+
+                else:
+                    psd_1_average += n_segs_coh*psd_1_coh
+                    psd_2_average += n_segs_coh*psd_2_coh
+                    csd_average += n_segs_coh*csd_coh
             else:
                 logger.info(f"Removed a coherence set from the data as results were all NaN.")
 
-        combined_coherence = calculate_coherence(psd_1_average/n_segs_coh_total, psd_2_average/n_segs_coh_total, csd_average/n_segs_coh_total)
+        if psd_1_average is not None and psd_2_average is not None:
+            combined_coherence = calculate_coherence(psd_1_average/n_segs_coh_total, psd_2_average/n_segs_coh_total, csd_average/n_segs_coh_total)
+        else:
+            logger.info(f"Removed all the coherences due to bad data.")
+            combined_coherence = None
+            n_segs_coh = 0
         np.savez(coherence_path, coherence=combined_coherence, frequencies=coh_frequencies, n_segs_coh=n_segs_coh)
 
         logger.info(
