@@ -300,6 +300,8 @@ class StatisticalChecks(object):
             Maximum value on the y-axis.
 
         """
+        if not self.days_cut:
+            return
         fig = plt.figure(figsize=(10, 8))
         plt.plot(
             self.days_cut,
@@ -341,6 +343,8 @@ class StatisticalChecks(object):
         Generates and saves a plot of the running sigma. The plotted values are the ones after the delta sigma cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `days_cut`).
 
         """
+        if not self.days_cut:
+            return
         fig = plt.figure(figsize=(10, 8))
         plt.plot(
             self.days_cut, self.running_sigmas, '.', markersize=2, color=sea[0], label=self.baseline_name
@@ -384,6 +388,8 @@ class StatisticalChecks(object):
         Generates and saves a plot of the point estimate integrand. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `point_estimate_integrand`).
 
         """
+        if np.isnan(self.point_estimate_spectrum).all():
+            return
         plt.figure(figsize=(10, 8))
         plt.semilogy(
             self.freqs,
@@ -468,6 +474,9 @@ class StatisticalChecks(object):
         """
         Generates and saves a plot of the sigma spectrum. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sigma_spectrum`).
         """
+        if np.isinf(self.sigma_spectrum).all():
+            return
+
         plt.figure(figsize=(10, 8))
         plt.plot(self.freqs, self.sigma_spectrum, color=sea[0])
         plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
@@ -486,6 +495,9 @@ class StatisticalChecks(object):
         """
         Generates and saves a plot of the coherence spectrum, if present. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `coherence_spectrum`).
         """
+        if not self.coherence_spectrum:
+            return
+
         flow = flow or self.flow
         fhigh = fhigh or self.fhigh
 
@@ -529,6 +541,8 @@ class StatisticalChecks(object):
         Generates and saves a histogram of the coherence distribution. The plot shows the data after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class.
         Furthermore, it also saves a text file which contains the frequencies at which outliers of the coherence distribution were identified, i.e. spectral artefacts.
         """
+        if not self.coherence_spectrum:
+            return
         coherence = self.coherence_spectrum
         frequencies = self.freqs
         total_bins = 1000
@@ -761,8 +775,12 @@ class StatisticalChecks(object):
         axs[0].tick_params(axis="y", labelsize=self.legend_fontsize)
         axs[0].yaxis.offsetText.set_fontsize(self.legend_fontsize)
 
-        minx1 = min(self.sliding_sigma_cut)
-        maxx1 = max(self.sliding_sigma_cut)
+        if not self.sliding_sigma_cut:
+            minx1 = min(self.sliding_sigmas_all)
+            maxx1 = max(self.sliding_sigmas_all)
+        else:
+            minx1 = min(self.sliding_sigma_cut)
+            maxx1 = max(self.sliding_sigma_cut)
         nx = 50
 
         axs[1].hist(
@@ -846,16 +864,43 @@ class StatisticalChecks(object):
         fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(10, 13), constrained_layout=True)
         fig.suptitle(r"$\Delta$SNR spread" + f" in {self.time_tag} with/out " + r"$\Delta\sigma$ cut", fontsize=self.title_fontsize)
 
-        maxx0 = max(self.delta_sigmas_cut)
-        maxx0 += maxx0 / 10.0
+        if not self.delta_sigmas_cut:
+            maxx0 = max(self.delta_sigmas_all)
+            maxx0 += maxx0 / 10.0
+            minx0 = min(self.delta_sigmas_all)
+            minx0 -= minx0 / 10.0
+            maxy0 = np.nanmax(self.sliding_deviate_all)
+            maxy0 += maxy0 / 10.0
+            miny0 = np.nanmin(self.sliding_deviate_all)
+            miny0 -= miny0 / 10.0
 
-        minx0 = min(self.delta_sigmas_cut)
-        minx0 -= minx0 / 10.0
+            maxx1 = max(self.sliding_sigmas_all)
+            maxx1 += maxx1 / 10.0
+            minx1 = min(self.sliding_sigmas_all)
+            minx1 -= minx1 / 10.0
+            maxy1 = max(self.sliding_deviate_all)
+            maxy1 += maxy1 / 10.0
+            miny1 = min(self.sliding_deviate_all)
+            miny1 -= miny1 / 10.0
 
-        maxy0 = np.nanmax(self.sliding_deviate_cut)
-        maxy0 += maxy0 / 10.0
-        miny0 = np.nanmin(self.sliding_deviate_cut)
-        miny0 -= miny0 / 10.0
+        else:
+            maxx0 = max(self.delta_sigmas_cut)
+            maxx0 += maxx0 / 10.0
+            minx0 = min(self.delta_sigmas_cut)
+            minx0 -= minx0 / 10.0
+            maxy0 = np.nanmax(self.sliding_deviate_cut)
+            maxy0 += maxy0 / 10.0
+            miny0 = np.nanmin(self.sliding_deviate_cut)
+            miny0 -= miny0 / 10.0
+
+            maxx1 = max(self.sliding_sigma_cut)
+            maxx1 += maxx1 / 10.0
+            minx1 = min(self.sliding_sigma_cut)
+            minx1 -= minx1 / 10.0
+            maxy1 = max(self.sliding_deviate_cut)
+            maxy1 += maxy1 / 10.0
+            miny1 = min(self.sliding_deviate_cut)
+            miny1 -= miny1 / 10.0
 
         axs[0].scatter(
             self.delta_sigmas_all,
@@ -881,17 +926,6 @@ class StatisticalChecks(object):
         axs[0].tick_params(axis="x", labelsize=self.legend_fontsize)
         axs[0].tick_params(axis="y", labelsize=self.legend_fontsize)
 
-        maxx1 = max(self.sliding_sigma_cut)
-        maxx1 += maxx1 / 10.0
-
-        minx1 = min(self.sliding_sigma_cut)
-        minx1 -= minx1 / 10.0
-
-        maxy1 = max(self.sliding_deviate_cut)
-        maxy1 += maxy1 / 10.0
-
-        miny1 = min(self.sliding_deviate_cut)
-        miny1 -= miny1 / 10.0
 
         axs[1].scatter(
             self.sliding_sigmas_all,
@@ -1074,6 +1108,8 @@ class StatisticalChecks(object):
         =======
 
         """
+        if not self.days_cut:
+            return
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
 
         t_obs = self.days_cut[-1]
@@ -1122,6 +1158,9 @@ class StatisticalChecks(object):
         """
         Generates and saves a plot of :math:`\sigma` as a function of time and fits the data to perform a linear trend analysis. The plot shows data after the delta-sigma (bad GPS times) cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sliding_sigma_cut`).
         """
+        if not self.days_cut:
+            return
+
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
 
         t_obs = self.days_cut[-1]
@@ -1290,7 +1329,7 @@ def run_statistical_checks_from_file(
     naive_sigmas_sel = naive_sigma_all.T[1]
 
     if coherence_file_path is not None:
-        coherence_spectrum = np.load(coherence_file_path)['coherence']
+        coherence_spectrum = np.load(coherence_file_path, allow_pickle=True)['coherence']
     else:
         coherence_spectrum = None
 
