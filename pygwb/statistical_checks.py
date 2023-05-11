@@ -300,7 +300,7 @@ class StatisticalChecks(object):
             Maximum value on the y-axis.
 
         """
-        if not self.days_cut:
+        if self.days_cut.size==0:
             return
         fig = plt.figure(figsize=(10, 8))
         plt.plot(
@@ -343,7 +343,7 @@ class StatisticalChecks(object):
         Generates and saves a plot of the running sigma. The plotted values are the ones after the delta sigma cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `days_cut`).
 
         """
-        if not self.days_cut:
+        if self.days_cut.size==0:
             return
         fig = plt.figure(figsize=(10, 8))
         plt.plot(
@@ -495,7 +495,7 @@ class StatisticalChecks(object):
         """
         Generates and saves a plot of the coherence spectrum, if present. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `coherence_spectrum`).
         """
-        if not self.coherence_spectrum:
+        if self.coherence_spectrum is None:
             return
 
         flow = flow or self.flow
@@ -541,7 +541,7 @@ class StatisticalChecks(object):
         Generates and saves a histogram of the coherence distribution. The plot shows the data after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class.
         Furthermore, it also saves a text file which contains the frequencies at which outliers of the coherence distribution were identified, i.e. spectral artefacts.
         """
-        if not self.coherence_spectrum:
+        if self.coherence_spectrum is None:
             return
         coherence = self.coherence_spectrum
         frequencies = self.freqs
@@ -775,7 +775,7 @@ class StatisticalChecks(object):
         axs[0].tick_params(axis="y", labelsize=self.legend_fontsize)
         axs[0].yaxis.offsetText.set_fontsize(self.legend_fontsize)
 
-        if not self.sliding_sigma_cut:
+        if self.sliding_sigma_cut.size==0:
             minx1 = min(self.sliding_sigmas_all)
             maxx1 = max(self.sliding_sigmas_all)
         else:
@@ -864,7 +864,7 @@ class StatisticalChecks(object):
         fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(10, 13), constrained_layout=True)
         fig.suptitle(r"$\Delta$SNR spread" + f" in {self.time_tag} with/out " + r"$\Delta\sigma$ cut", fontsize=self.title_fontsize)
 
-        if not self.delta_sigmas_cut:
+        if self.delta_sigmas_cut.size==0:
             maxx0 = max(self.delta_sigmas_all)
             maxx0 += maxx0 / 10.0
             minx0 = min(self.delta_sigmas_all)
@@ -1108,7 +1108,7 @@ class StatisticalChecks(object):
         =======
 
         """
-        if not self.days_cut:
+        if self.days_cut.size==0:
             return
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
 
@@ -1158,7 +1158,7 @@ class StatisticalChecks(object):
         """
         Generates and saves a plot of :math:`\sigma` as a function of time and fits the data to perform a linear trend analysis. The plot shows data after the delta-sigma (bad GPS times) cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sliding_sigma_cut`).
         """
-        if not self.days_cut:
+        if self.days_cut.size==0:
             return
 
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
