@@ -1,4 +1,5 @@
 import json
+import warnings
 from os import listdir
 from os.path import isfile, join
 from pathlib import Path
@@ -361,6 +362,9 @@ class StatisticalChecks(object):
         Generates and saves a plot of the IFFT of the point estimate integrand. The IFFT of the point estimate integrand is computed using the method "compute_ifft_integrand". This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `point_estimate_integrand`).
         """
         t_array, omega_array = self.compute_ifft_integrand()
+        if len(t_array) != len(omega_array):
+            warnings.warn("Times and Omega arrays don't match in the IFFT. No plot could be generated. Investigation is highly recommended.")
+            return
 
         fig = plt.figure(figsize=(10, 8))
         plt.plot(t_array, omega_array, color=sea[0], label=self.baseline_name)
@@ -1164,7 +1168,9 @@ class StatisticalChecks(object):
             return
         
         fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
-        if self.gates_ifo1 is not None:
+        if self.gates_ifo1 is None:
+            self.gates_ifo1_statement=None
+        else:
             self.total_gated_time_ifo1 = np.sum(self.gates_ifo1[:,1]-self.gates_ifo1[:,0])
             self.total_gated_percent_ifo1 = self.total_gated_time_ifo1/(int(self.params.tf)- int(self.sliding_times_all[0]))*100
             gate_times_in_days_ifo1 = (np.array(self.gates_ifo1[:,0]) - self.sliding_times_all[0]) / 86400.0
@@ -1172,7 +1178,9 @@ class StatisticalChecks(object):
             gatefig1 = ax.plot(gate_times_in_days_ifo1, self.gates_ifo1[:,1]-self.gates_ifo1[:,0], 's', color=sea[0], label="IFO1:\n" f"{self.gates_ifo1_statement}")
             first_legend = ax.legend(handles=gatefig1, loc=(0.05,0.75), fontsize = self.axes_labelsize)
             ax.add_artist(first_legend)
-        if self.gates_ifo2 is not None:
+        if self.gates_ifo2 is None:
+            self.gates_ifo2_statement=None
+        else:
             self.total_gated_time_ifo2 = np.sum(self.gates_ifo2[:,1]-self.gates_ifo2[:,0])
             self.total_gated_percent_ifo2 = self.total_gated_time_ifo2/(int(self.params.tf)- int(self.sliding_times_all[0]))*100
             gate_times_in_days_ifo2 = (np.array(self.gates_ifo2[:,0]) - self.sliding_times_all[0]) / 86400.0
