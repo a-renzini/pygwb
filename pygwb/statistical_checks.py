@@ -495,7 +495,7 @@ class StatisticalChecks(object):
         """
         Generates and saves a plot of the coherence spectrum, if present. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `coherence_spectrum`).
         """
-        if self.coherence_spectrum is None:
+        if self.coherence_spectrum is None or self.coherence_spectrum.size==1:
             return
 
         flow = flow or self.flow
@@ -541,8 +541,9 @@ class StatisticalChecks(object):
         Generates and saves a histogram of the coherence distribution. The plot shows the data after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class.
         Furthermore, it also saves a text file which contains the frequencies at which outliers of the coherence distribution were identified, i.e. spectral artefacts.
         """
-        if self.coherence_spectrum is None:
+        if self.coherence_spectrum is None or self.coherence_spectrum.size==1:
             return
+
         coherence = self.coherence_spectrum
         frequencies = self.freqs
         total_bins = 1000
@@ -649,6 +650,9 @@ class StatisticalChecks(object):
         Generates and saves a plot of the cumulative sensitivity. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sigma_spectrum`).
 
         """
+        if np.isinf(self.sigma_spectrum).all():
+            return
+
         cumul_sens = integrate.cumtrapz((1 / self.sigma_spectrum ** 2), self.freqs)
         cumul_sens = cumul_sens / cumul_sens[-1]
         plt.figure(figsize=(10, 8))
@@ -1003,6 +1007,9 @@ class StatisticalChecks(object):
             Bias factor to consider in the KS calculation.
 
         """
+        if self.delta_sigmas_cut.size==0:
+            return
+
         if bias_factor is None:
             bias_factor = calc_bias(self.segment_duration, self.deltaF, self.deltaT)
         dof_scale_factor = 1.0 / (1.0 + 3.0 / 35.0)
@@ -1075,6 +1082,9 @@ class StatisticalChecks(object):
         =======
 
         """
+        if self.delta_sigmas_cut.size==0:
+            return
+
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
         axs.hist(
             1 / np.nanmean(self.sliding_sigma_cut ** 2) * self.sliding_sigma_cut ** 2,
