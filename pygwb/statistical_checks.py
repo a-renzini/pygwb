@@ -337,6 +337,7 @@ class StatisticalChecks(object):
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-running_point_estimate.png", bbox_inches='tight'
         )
+        plt.close()
 
     def plot_running_sigma(self):
         """
@@ -360,6 +361,7 @@ class StatisticalChecks(object):
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-running_sigma.png", bbox_inches = 'tight'
         )
+        plt.close()
 
     def plot_IFFT_point_estimate_integrand(self):
         """
@@ -382,6 +384,7 @@ class StatisticalChecks(object):
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-IFFT_point_estimate_integrand.png", bbox_inches='tight'
         )
+        plt.close()
 
     def plot_SNR_spectrum(self):
         """
@@ -406,6 +409,7 @@ class StatisticalChecks(object):
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-abs_point_estimate_integrand.png",
             bbox_inches="tight",
         )
+        plt.close()
 
     def plot_cumulative_SNR_spectrum(self):
         """
@@ -427,6 +431,7 @@ class StatisticalChecks(object):
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-cumulative_SNR_spectrum.png",
             bbox_inches="tight",
         )
+        plt.close()
 
     def plot_real_SNR_spectrum(self):
         """
@@ -448,6 +453,7 @@ class StatisticalChecks(object):
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-real_SNR_spectrum.png",
             bbox_inches="tight",
         )
+        plt.close()
 
     def plot_imag_SNR_spectrum(self):
         """
@@ -469,6 +475,7 @@ class StatisticalChecks(object):
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-imag_SNR_spectrum.png",
             bbox_inches="tight",
         )
+        plt.close()
 
     def plot_sigma_spectrum(self):
         """
@@ -490,6 +497,7 @@ class StatisticalChecks(object):
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-sigma_spectrum.png",
             bbox_inches="tight",
         )
+        plt.close()
 
     def plot_coherence_spectrum(self, flow=None, fhigh=None):
         """
@@ -519,6 +527,7 @@ class StatisticalChecks(object):
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-coherence_spectrum.png",
             bbox_inches="tight",
         )
+        plt.close()
 
         plt.figure(figsize=(10, 8))
         plt.plot(self.freqs, self.coherence_spectrum, color=sea[0])
@@ -534,6 +543,7 @@ class StatisticalChecks(object):
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-coherence_spectrum_zoom.png",
             bbox_inches="tight",
         )
+        plt.close()
 
 
     def plot_hist_coherence(self):
@@ -595,6 +605,7 @@ class StatisticalChecks(object):
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_coherence.png", bbox_inches = 'tight'
         )
+        plt.close()
 
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))      
 
@@ -635,6 +646,7 @@ class StatisticalChecks(object):
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_coherence_zoom.png", bbox_inches = 'tight'
         )
+        plt.close()
 
 
         outlier_coherence = [(frequencies[i], coherence[i]) for i in range(len(coherence)) if coherence[i] > np.abs(threshold)]
@@ -667,6 +679,7 @@ class StatisticalChecks(object):
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-cumulative_sigma_spectrum.png",
             bbox_inches="tight",
         )
+        plt.close()
 
     def plot_omega_sigma_in_time(self):
         r"""
@@ -744,6 +757,7 @@ class StatisticalChecks(object):
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-omega_sigma_time.png", bbox_inches='tight'
         )
+        plt.close()
 
     def plot_hist_sigma_dsc(self):
         r"""
@@ -817,6 +831,7 @@ class StatisticalChecks(object):
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_sigma_dsc.png", bbox_inches='tight'
         )
+        plt.close()
 
     def plot_scatter_sigma_dsc(self):
         """
@@ -860,6 +875,7 @@ class StatisticalChecks(object):
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-scatter_sigma_dsc.png", bbox_inches = 'tight'
         )
+        plt.close()
 
     def plot_scatter_omega_sigma_dsc(self):
         r"""
@@ -958,6 +974,7 @@ class StatisticalChecks(object):
 
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-scatter_omega_sigma_dsc.png", bbox_inches = 'tight')
+        plt.close()
 
     def plot_hist_omega_pre_post_dsc(self):
         r"""
@@ -996,6 +1013,7 @@ class StatisticalChecks(object):
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_omega_dsc.png", bbox_inches = 'tight'
         )
+        plt.close()
 
     def plot_KS_test(self, bias_factor=None):
         """
@@ -1070,6 +1088,7 @@ class StatisticalChecks(object):
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-KS_test.png", bbox_inches = 'tight'
         )
+        plt.close()
 
     def plot_hist_sigma_squared(self):
         """
@@ -1106,6 +1125,7 @@ class StatisticalChecks(object):
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_sigma_squared.png", bbox_inches = 'tight'
         )
+        plt.close()
 
     def plot_omega_time_fit(self):
         """
@@ -1163,6 +1183,7 @@ class StatisticalChecks(object):
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-omega_time_fit.png", bbox_inches = 'tight'
         )
+        plt.close()
 
     def plot_sigma_time_fit(self):
         """
@@ -1211,6 +1232,7 @@ class StatisticalChecks(object):
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-sigma_time_fit.png", bbox_inches = 'tight'
         )
+        plt.close()
 
     def plot_gates_in_time(self):
         if self.gates_ifo1 is None and self.gates_ifo2 is None:
@@ -1245,6 +1267,7 @@ class StatisticalChecks(object):
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-gates_time.png",
             bbox_inches="tight",
         )
+        plt.close()
             
 
 
