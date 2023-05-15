@@ -391,7 +391,7 @@ class StatisticalChecks(object):
         Generates and saves a plot of the point estimate integrand. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `point_estimate_integrand`).
 
         """
-        if np.isnan(self.point_estimate_spectrum).all():
+        if np.isnan(self.point_estimate_spectrum).all() or not np.real(self.point_estimate_spectrum).any():
             return
         plt.figure(figsize=(10, 8))
         plt.semilogy(
@@ -481,7 +481,7 @@ class StatisticalChecks(object):
         """
         Generates and saves a plot of the sigma spectrum. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sigma_spectrum`).
         """
-        if np.isinf(self.sigma_spectrum).all():
+        if np.isinf(self.sigma_spectrum).all() or not np.real(self.point_estimate_spectrum).any():
             return
 
         plt.figure(figsize=(10, 8))
@@ -662,7 +662,7 @@ class StatisticalChecks(object):
         Generates and saves a plot of the cumulative sensitivity. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sigma_spectrum`).
 
         """
-        if np.isinf(self.sigma_spectrum).all():
+        if np.isinf(self.sigma_spectrum).all() or not np.real(self.point_estimate_spectrum).any():
             return
 
         cumul_sens = integrate.cumtrapz((1 / self.sigma_spectrum ** 2), self.freqs)
@@ -982,7 +982,8 @@ class StatisticalChecks(object):
         """
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
 
-        bins=np.histogram(np.hstack((self.sliding_deviate_all,self.sliding_deviate_cut)), bins=202)[1]
+        # nan-safing the histograms for good measure...
+        bins=np.histogram(np.hstack((self.sliding_deviate_all[~np.isnan(self.sliding_deviate_all)], self.sliding_deviate_cut[~np.isnan(self.sliding_deviate_cut)])), bins=202)[1]
         
         axs.hist(
             self.sliding_deviate_all,
