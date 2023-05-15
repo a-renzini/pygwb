@@ -1236,6 +1236,8 @@ class StatisticalChecks(object):
 
     def plot_gates_in_time(self):
         if self.gates_ifo1 is None and self.gates_ifo2 is None:
+            self.gates_ifo1_statement=None
+            self.gates_ifo2_statement=None
             return
         
         fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
