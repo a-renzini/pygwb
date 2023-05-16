@@ -215,11 +215,9 @@ def main():
     delta_sigmas_j = np.concatenate(delta_sigmas_j)
     times_j = np.concatenate(times_j)
     # concatenate gate info - filtering for empty sets of gates
-    gates_ifo1_j = np.array(gates_ifo1_j)
-    gates_ifo2_j = np.array(gates_ifo2_j)
-    if gates_ifo1_j.size>1:
+    if sum([1 for g in gates_ifo1_j if g.size>1])>0: 
         gates_ifo1_j = np.concatenate(list(filter(lambda x: x.size>1, gates_ifo1_j)))
-    if gates_ifo2_j.size>1:
+    if sum([1 for g in gates_ifo2_j if g.size>1])>0: 
         gates_ifo2_j = np.concatenate(list(filter(lambda x: x.size>1, gates_ifo2_j)))
     gates_ifo1_pad_j = np.array(gates_ifo1_pad_j)
     gates_ifo2_pad_j = np.array(gates_ifo2_pad_j)
