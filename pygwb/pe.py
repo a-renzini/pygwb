@@ -661,13 +661,12 @@ class Geodesy(GWBModel):
         amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
     alpha : float
         spectral index of the power law (:math:`\alpha`)
-    frequencies : numpy.ndarray
-        array of frequencies at which to evaluate the model
     beta : float
-
+        Angle between detectors from center of Earth
     omega_det1 : float
-        
+        Angle between bisector and tangent vector at detector 1
     omega_det2 : float
+        Angle between bisector and tangent vector at detector 2
         
     """
 
@@ -716,21 +715,9 @@ def calc_orf_new(
 
     Inputs:
     frequencies: frequencies at which to evaluate the ORFs
-    det1_vertex: Coordinates of the vertex of detector 1
-    det2_vertex: Coordinates of the vertex of detector 2
-    det1_xarm: Coordinates of the x arm of detector 1
-    det2_xarm: Coordinates of the x arm of detector 2
-    det1_yarm: Coordinates of the y arm of detector 1
-    det2_yarm: Coordinates of the y arm of detector 2
-    Coordinates are always Earth-fixed cartesian
-
-    Description of the intermediate parameters:
     beta: angle between detectors from center of earth
-    tan_detX: tangent vector at detX along great circle between detectors
-    bisector_detX: detX arm bisector vector
-    perp_detX: outward radial vector perpendicular to the detector plane
-    omega_detX: angle between bisector and tangent vector at detX
-    perp: vector at theta=90 along great circle with det1_vertex theta=0
+    omega_det1: angle between bisector and tangent vector at det1
+    omega_det2: angle between bisector and tangent vector at det2
 
     Outputs:
     overlap_reduction_function: overlap reduction function at given frequencies
