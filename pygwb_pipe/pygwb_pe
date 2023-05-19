@@ -28,7 +28,7 @@ def load_npz(fname_path):
 
 def load_hdf5(fname_path):
     hf = h5py.File(fname_path, "r")
-    point_estimate_spectrum = np.array(hf.get("point_estimate_spectrum"))
+    point_estimate_spectrum = np.real(np.array(hf.get("point_estimate_spectrum")))
     sigma_spectrum = np.array(hf.get("sigma_spectrum"))
     if "freqs" not in hf.keys():
         freqs = None
@@ -178,6 +178,7 @@ def main():
     elif script_args.path_to_file.endswith((".p", ".pickle")):
         
         base_12 = Baseline.load_from_pickle(script_args.path_to_file)
+        base_12.point_estimate_spectrum = np.real(base_12.point_estimate_spectrum)
     
     else:
         raise TypeError(
