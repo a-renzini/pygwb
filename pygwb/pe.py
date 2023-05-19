@@ -7,6 +7,7 @@ from scipy.special import erf
 from .baseline import Baseline
 from .orfs import *
 
+
 class GWBModel(bilby.Likelihood):
     r"""
     Generic model, contains the definition of likelihood:

@@ -12,6 +12,7 @@ import pygwb.pe as pe
 from pygwb.baseline import Baseline
 from pygwb.detector import Interferometer
 
+
 def load_npz(fname_path):
     data = np.load(fname_path)
     ptEst_ff = np.real(data["point_estimate_spectrum"])
@@ -98,7 +99,8 @@ def main():
                          "Smooth-Broken-Power-Law": pe.SmoothBrokenPowerLawModel,
                          "Schumann": pe.SchumannModel,
                          "Parity-Violation": pe.PVPowerLawModel,
-                         "Parity-Violation-2": pe.PVPowerLawModel2} #"TVS-Power-Law": pe.TVSPowerLawModel
+                         "Parity-Violation-2": pe.PVPowerLawModel2,
+                         "Geodesy": pe.Geodesy} #"TVS-Power-Law": pe.TVSPowerLawModel
                          
     dictionary_parameters = {"Power-Law": ["omega_ref","alpha", "fref"],
                              "Broken-Power-Law": ["omega_ref", "fbreak", "alpha_1", "alpha_2"],
@@ -106,7 +108,8 @@ def main():
                              "Smooth-Broken-Power-Law": ["omega_ref", "fbreak", "alpha_1", "alpha_2", "delta"],
                              "Schumann": ["kappa_H1", "kappa_L1", "beta_L1", "beta_H1"],
                              "Parity-Violation": ["omega_ref", "alpha", "Pi"],
-                             "Parity-Violation-2": ["omega_ref", "alpha", "beta"]}
+                             "Parity-Violation-2": ["omega_ref", "alpha", "beta"],
+                             "Geodesy": ["omega_ref", "alpha", "beta", "omega_det1", "omega_det2"]}
     
     if script_args.model not in dictionary_models.keys():
         raise ValueError(
