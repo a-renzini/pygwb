@@ -29,7 +29,7 @@ class TestInterferometer(unittest.TestCase):
                 "ftype",
                 "frequency_resolution",
                 "overlap_factor",
-                "N_average_segments_welch_psd",
+                "N_average_segments_psd",
                 "time_shift",
                 "tag",
             ]
@@ -108,7 +108,7 @@ class TestInterferometer(unittest.TestCase):
             ),
             True,
         )
-        ifo.set_average_psd(self.parameters.N_average_segments_welch_psd)
+        ifo.set_average_psd(self.parameters.N_average_segments_psd)
         self.assertTrue(
             np.all(
                 abs(ifo.average_psd.value - self.testdata["average_psd"].value) < 1e-10

@@ -26,7 +26,7 @@ def help_arguments(parent):
         if dtype == List:
             parser.add_argument(f"--{name}", help=name_help, type=str, nargs='+', required=False)
         else:
-            parser.add_argument(f"--{name}", help=name_help, type=dtype, required=False)
+            parser.add_argument(f"--{name}", help=name_help, type=str, required=False)
     return parser
 
 def main():
@@ -117,7 +117,7 @@ def main():
 
     if params.gate_data:
         logger.info(f"Applying gates.")
-        for ifo, ifo_obj in zip(ifo_list, [ifo_1, ifo_1]):
+        for ifo, ifo_obj in zip(ifo_list, [ifo_1, ifo_2]):
             gate_params = { 
                     "gate_tzero":param_dict[ifo].gate_tzero,
                     "gate_tpad":param_dict[ifo].gate_tpad,

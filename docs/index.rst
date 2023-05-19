@@ -1,7 +1,7 @@
 pygwb documentation
 ==============================================
 .. image:: pygwb_logo_plasma.png
-   :width: 100
+   :width: 200
 
 
 .. toctree::
