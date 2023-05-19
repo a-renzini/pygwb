@@ -913,7 +913,6 @@ class Baseline(object):
         if not self._orf_polarization_set:
             self.orf_polarization = polarization
 
-        # don't get rid of information unless we need to.
         Y_fs, var_fs = calculate_point_estimate_sigma_spectra(
             freqs=self.frequencies,
             csd=self.average_csd,
@@ -924,8 +923,8 @@ class Baseline(object):
             segment_duration=self.duration,
             fref=fref,
             alpha=alpha,
-            overlap_factor=self.overlap_factor_psd,
-            window_fftgram_dict=self.window_fftgram_dict_for_bias_factors
+            overlap_factor=self.overlap_factor,
+            window_fftgram_dict=self.window_fftgram_dict_csd
         ) 
 
         sigma_name = f"{self.name} sigma spectrogram alpha={alpha}"
