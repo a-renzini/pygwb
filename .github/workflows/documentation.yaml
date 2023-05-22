@@ -31,6 +31,8 @@ jobs:
           make clean
           make html
           cd -
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
@@ -38,5 +40,5 @@ jobs:
           publish_branch: joss_submission
           keep_files: true
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: _build/
+          publish_dir: docs/_build/
           force_orphan: true
