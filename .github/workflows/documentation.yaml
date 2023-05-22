@@ -33,6 +33,9 @@ jobs:
           cd -
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
+        with:
+          name: github-pages
+          path: _build/
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
