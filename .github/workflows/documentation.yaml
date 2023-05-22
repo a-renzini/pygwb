@@ -19,10 +19,11 @@ jobs:
       - name: Setup tutorials
         run: |
           ls
-          cp ../tutorials/*.ipynb ./
-          cp ../tutorials/*.dat ./
-          cp -r ../tutorials/input ./
-          rm integrationTest*.ipynb
+          cp tutorials/*.ipynb ./docs
+          cp tutorials/*.dat ./docs
+          cp -r tutorials/input ./docs
+          rm docs/integrationTest*.ipynb
+          ls docs
       - name: Sphinx build
         run: |
           sphinx-build docs docs/_build
