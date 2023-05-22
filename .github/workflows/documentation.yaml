@@ -1,0 +1,47 @@
+name: Docs
+on: [push, pull_request, workflow_dispatch]
+permissions:
+    contents: write
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+        with:
+          python-version: 3.8
+      - name: Install dependencies
+        run: |
+          sudo apt-get -yqq install pandoc
+          pip install --upgrade pip setuptools
+          pip install ipykernel ipython==8.12.0 jupyter
+          pip install sphinx numpydoc nbsphinx sphinx_rtd_theme sphinx-tabs autodoc ipython-genutils
+          pip install .
+      - name: Setup tutorials
+        run: |
+          ls
+          cp tutorials/*.ipynb ./docs
+          cp tutorials/*.dat ./docs
+          cp -r tutorials/input ./docs
+          rm docs/integrationTest*.ipynb
+          ls docs
+      - name: Sphinx build
+        run: |
+          cd docs
+          make clean
+          make html
+          cd -
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          name: github-pages
+          path: _build/
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        with:
+          publish_branch: joss_submission
+          keep_files: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/_build/
+          force_orphan: true
