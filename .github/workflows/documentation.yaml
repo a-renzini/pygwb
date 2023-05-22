@@ -18,7 +18,6 @@ jobs:
           pip install .
       - name: Sphinx build
         run: |
-          cd docs
           cp ../tutorials/*.ipynb ./
           cp ../tutorials/*.dat ./
           cp -r ../tutorials/input ./
