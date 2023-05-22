@@ -18,6 +18,11 @@ jobs:
           pip install .
       - name: Sphinx build
         run: |
+    	  cd docs
+    	  cp ../tutorials/*.ipynb ./
+    	  cp ../tutorials/*.dat ./
+    	  cp -r ../tutorials/input ./
+    	  rm integrationTest*.ipynb
           sphinx-build docs docs/_build
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
