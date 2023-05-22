@@ -12,8 +12,9 @@ jobs:
           python-version: 3.8
       - name: Install dependencies
         run: |
+          sudo apt-get -yqq udpdate
+          sudo apt-get -yqq install pandoc
           pip install --upgrade pip setuptools
-          pip install pandoc
           pip install ipykernel ipython==8.12.0 jupyter
           pip install sphinx numpydoc nbsphinx sphinx_rtd_theme sphinx-tabs autodoc ipython-genutils
           pip install .
