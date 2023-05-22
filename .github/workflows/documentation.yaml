@@ -20,10 +20,9 @@ jobs:
       - name: Setup tutorials
         run: |
           ls
-          cp tutorials/*.ipynb ./docs
+          cp tutorials/make_notchlist.ipynb ./docs
           cp tutorials/*.dat ./docs
           cp -r tutorials/input ./docs
-          rm docs/integrationTest*.ipynb
           ls docs
       - name: Sphinx build
         run: |
@@ -35,7 +34,7 @@ jobs:
         uses: actions/upload-pages-artifact@v1
         with:
           name: github-pages
-          path: _build/
+          path: docs/_build/
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
