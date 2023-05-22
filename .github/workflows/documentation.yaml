@@ -12,6 +12,7 @@ jobs:
         run: |
           pip install ipykernel ipython==8.12.0 jupyter
           pip install sphinx numpydoc nbsphinx sphinx_rtd_theme sphinx-tabs autodoc ipython-genutils
+          pip install .
       - name: Sphinx build
         run: |
           sphinx-build docs _build
