@@ -20,9 +20,10 @@ jobs:
       - name: Setup tutorials
         run: |
           ls
-          cp tutorials/make_notchlist.ipynb ./docs
+          cp tutorials/*.ipynb ./docs
           cp tutorials/*.dat ./docs
           cp -r tutorials/input ./docs
+          rm docs/integrationTest*.ipynb
           ls docs
       - name: Sphinx build
         run: |
@@ -39,8 +40,8 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ github.event_name == 'push' }}
         with:
-          publish_branch: joss_submission
+          publish_branch: gh-pages
           keep_files: true
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/_build/
+          publish_dir: docs/_build/html/
           force_orphan: true
