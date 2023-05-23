@@ -341,7 +341,7 @@ def self_gate_data(
         ).coalesce()
     else:
         deadtime = SegmentList([Segment(k[0], k[1]) for k in gates]).coalesce()
-        #deadtime = gates.coalesce()
+
     # return the self-gated timeseries
     gated = time_series_data.mask(deadtime=deadtime, const=0, tpad=tpad)
     return gated, deadtime
