@@ -399,6 +399,31 @@ class Interferometer(bilby.gw.detector.Interferometer):
         )
         self.gates = self.gates | new_gates
         self.gate_pad = gate_tpad
+        
+    def load_gates(self, loaded_object, index, **kwargs):
+        """
+        Load gates from a pygwb output file and apply them to the Interferometer object. 
+        The gated times are stored as a property of the object.
+        
+        Parameters
+        ==========
+        loaded_object : 
+            Object that represents the data in the output file, e.g. a loaded npzobject.
+        index ; int
+            Integer representing the correct ifo object in the baseline
+        """
+        
+        gates = loaded_object[f"ifo_{index}_gates"]
+        gate_tpad = kwargs.pop("gate_tpad")
+        
+        self.timeseries, new_gates = self_gate_data(
+            self.timeseries,
+            tpad=gate_tpad,
+            gates=gates,
+        )
+        
+        self.gates = self.gates | new_gates
+        self.gate_pad = None
 
     def _check_ifo_name(self, name):
         if not self.name == name:

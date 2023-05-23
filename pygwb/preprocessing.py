@@ -6,6 +6,7 @@ import lal
 import numpy as np
 import scipy
 from gwpy import timeseries
+from gwpy.segments import Segment, SegmentList
 from gwsumm.data.timeseries import get_timeseries
 
 
@@ -271,6 +272,7 @@ def self_gate_data(
     gate_threshold: float = 50.0,
     cluster_window: float = 0.5,
     whiten: bool = True,
+    gates: SegmentList = None
 ):
     """
     Function to self-gate
@@ -317,26 +319,29 @@ def self_gate_data(
     for additional details.
     """
 
-    from gwpy.segments import Segment, SegmentList
     from scipy.signal import find_peaks
 
     # Find points to gate based on a threshold
     sample = time_series_data.sample_rate.to("Hz").value
-    data = time_series_data.whiten() if whiten else time_series_data
-    window_samples = cluster_window * sample
-    gates = find_peaks(abs(data.value), height=gate_threshold, distance=window_samples)[
-        0
-    ]
-    # represent gates as time segments
-    deadtime = SegmentList(
-        [
-            Segment(
-                time_series_data.t0.value + (k / sample) - tzero,
-                time_series_data.t0.value + (k / sample) + tzero,
-            )
-            for k in gates
+    if gates is None:
+        data = time_series_data.whiten() if whiten else time_series_data
+        window_samples = cluster_window * sample
+        gates = find_peaks(abs(data.value), height=gate_threshold, distance=window_samples)[
+            0
         ]
-    ).coalesce()
+    # represent gates as time segments
+        deadtime = SegmentList(
+            [
+                Segment(
+                    time_series_data.t0.value + (k / sample) - tzero,
+                    time_series_data.t0.value + (k / sample) + tzero,
+                )
+                for k in gates
+            ]
+        ).coalesce()
+    else:
+        deadtime = SegmentList([Segment(k[0], k[1]) for k in gates]).coalesce()
+        #deadtime = gates.coalesce()
     # return the self-gated timeseries
     gated = time_series_data.mask(deadtime=deadtime, const=0, tpad=tpad)
     return gated, deadtime
