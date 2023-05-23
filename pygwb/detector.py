@@ -160,7 +160,6 @@ class Interferometer(bilby.gw.detector.Interferometer):
             window_downsampling=parameters.window_downsampling,
             ftype=parameters.ftype,
             time_shift=parameters.time_shift,
-            tag=parameters.tag,
             input_sample_rate=parameters.input_sample_rate,
         )
         return ifo
@@ -190,7 +189,6 @@ class Interferometer(bilby.gw.detector.Interferometer):
         window_downsampling = kwargs.pop("window_downsampling")
         ftype = kwargs.pop("ftype")
         time_shift = kwargs.pop("time_shift")
-        tag = kwargs.pop("tag")
         self.duration = segment_duration
         self.timeseries = preprocessing_data_channel_name(
             IFO=self.name,
@@ -206,7 +204,6 @@ class Interferometer(bilby.gw.detector.Interferometer):
             window_downsampling=window_downsampling,
             ftype=ftype,
             time_shift=time_shift,
-            tag=tag,
             input_sample_rate=input_sample_rate,
         )
         self._check_timeseries_channel_name(channel)

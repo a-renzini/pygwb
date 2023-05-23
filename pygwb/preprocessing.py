@@ -69,7 +69,6 @@ def read_data(
     t0: int,
     tf: int,
     local_data_path: str = "",
-    tag: str = "C00",
     input_sample_rate: int = 16384,
 ):
     """
@@ -100,9 +99,6 @@ def read_data(
     local_data_path: str, optional
         path where local gwf is stored
 
-    tag: str, optional
-        tag identifying type of data, e.g.: 'C00', 'C01'
-
     input_sample_rate: int
         Sampling rate of the timeseries to be read
 
@@ -113,7 +109,7 @@ def read_data(
     """
     if data_type == "public":
         data = timeseries.TimeSeries.fetch_open_data(
-            IFO, t0, tf, sample_rate=input_sample_rate, tag=tag
+            IFO, t0, tf, sample_rate=input_sample_rate
         )
         data.channel = channel
     elif data_type == "private":
@@ -437,7 +433,6 @@ def preprocessing_data_channel_name(
     ftype: str = "fir",
     time_shift: int = 0,
     local_data_path: str = "",
-    tag: str = "C00",
     input_sample_rate: int = 16384,
 ):
     """
@@ -485,9 +480,6 @@ def preprocessing_data_channel_name(
     time_shift: int
         value of the time shift (in seconds)
 
-    tag: str, optional
-        tag identifying type of data, e.g.: 'C00', 'C01'
-
     input_sample_rate: int
         Sampling rate of the timeseries to be read
 
@@ -510,7 +502,6 @@ def preprocessing_data_channel_name(
         t0=data_start_time - number_cropped_seconds,
         tf=tf,
         local_data_path=local_data_path,
-        tag=tag,
         input_sample_rate=input_sample_rate,
     )
 
