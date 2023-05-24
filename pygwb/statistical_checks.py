@@ -110,6 +110,8 @@ class StatisticalChecks(object):
         self.gates_ifo1 = gates_ifo1
         self.gates_ifo2 = gates_ifo2
 
+        self.freqs = freqs
+
         self.coherence_spectrum = coherence_spectrum
         fftlength = int(1.0 / (self.freqs[1] - self.freqs[0]))
         self.n_segs = coherence_n_segs * int(np.floor(self.params.segment_duration/(fftlength*(1.-self.params.overlap_factor_welch)))-1) #fftlength/2.
@@ -127,8 +129,6 @@ class StatisticalChecks(object):
         self.fref = self.params.fref
         self.flow = self.params.flow
         self.fhigh = self.params.fhigh
-
-        self.freqs = freqs
 
         self.alpha = self.params.alpha
         (
