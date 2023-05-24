@@ -241,6 +241,9 @@ def main():
         f"saved file with all sigma information related to the delta sigma cut for all times in run:\n {delta_sigma_cut_output_path}."
     )
 
+    # make combination robust against weird zero-sigma segments...
+    for spec in sigma_spectra_j:
+        spec[np.where(spec==0.0)] = np.inf
     Y_spectrum_combined, sigma_spectrum_combined = combine_spectra_with_sigma_weights(
         np.array(Y_spectra_j), np.array(sigma_spectra_j)
     )

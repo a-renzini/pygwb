@@ -179,8 +179,9 @@ class StatisticalChecks(object):
             Array of the deviates after the bad GPS times were applied.
         """
         bad_gps_times = self.badGPStimes
-        bad_gps_mask = [(t not in bad_gps_times) for t in self.sliding_times_all]
+        bad_gps_mask = np.array([(t not in bad_gps_times) for t in self.sliding_times_all])
 
+        bad_gps_mask[~np.isfinite(self.sliding_omega_all)] = False
         sliding_times_cut = self.sliding_times_all.copy()
         days_cut = self.days_all.copy()
         sliding_omega_cut = self.sliding_omega_all.copy()
@@ -190,6 +191,7 @@ class StatisticalChecks(object):
         sliding_deviate_cut = self.sliding_deviate_all.copy()
 
         sliding_times_cut = sliding_times_cut[bad_gps_mask]
+
         days_cut = days_cut[bad_gps_mask]
         sliding_omega_cut = sliding_omega_cut[bad_gps_mask]
         sliding_sigma_cut = sliding_sigma_cut[bad_gps_mask]
@@ -231,12 +233,12 @@ class StatisticalChecks(object):
         ii = 0
         while ii < self.sliding_times_cut.shape[0] - 1:
             ii += 1
-            numerator = running_pt_estimate[ii - 1] / (
+            numerator = np.nansum([running_pt_estimate[ii - 1] / (
                 running_sigmas[ii - 1] ** 2
-            ) + self.sliding_omega_cut[ii] / (self.sliding_sigma_cut[ii] ** 2)
-            denominator = 1.0 / (running_sigmas[ii - 1] ** 2) + 1 / (
+            ) , self.sliding_omega_cut[ii] / (self.sliding_sigma_cut[ii] ** 2)])
+            denominator = np.nansum([1.0 / (running_sigmas[ii - 1] ** 2) , 1 / (
                 self.sliding_sigma_cut[ii] ** 2
-            )
+            )])
             running_pt_estimate[ii] = numerator / denominator
             running_sigmas[ii] = np.sqrt(1.0 / denominator)
 

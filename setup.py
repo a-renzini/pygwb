@@ -40,7 +40,7 @@ setup(
         "scipy>=1.8.0",
         "bilby>=1.4",
         "gwpy>=3.0.4",
-        "astropy>=5.2",
+        "astropy==5.2",
         "gwdetchar",
         "gwsumm",
         "pycondor",
