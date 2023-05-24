@@ -412,7 +412,6 @@ class Interferometer(bilby.gw.detector.Interferometer):
         index ; int
             Integer representing the correct ifo object in the baseline
         """
-
         gates = loaded_object[f"ifo_{index}_gates"]
         gate_tpad = kwargs.pop("gate_tpad")
 

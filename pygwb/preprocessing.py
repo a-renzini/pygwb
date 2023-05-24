@@ -318,7 +318,6 @@ def self_gate_data(
     https://gwpy.github.io/docs/latest/api/gwpy.timeseries.TimeSeries/?highlight=timeseries#gwpy.timeseries.TimeSeries.gate
     for additional details.
     """
-
     from scipy.signal import find_peaks
 
     # Find points to gate based on a threshold
