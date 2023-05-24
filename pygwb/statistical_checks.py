@@ -42,6 +42,7 @@ class StatisticalChecks(object):
         sliding_sigmas_all,
         naive_sigmas_all,
         coherence_spectrum,
+        coherence_n_segs,
         point_estimate_spectrum,
         sigma_spectrum,
         freqs,
@@ -70,7 +71,8 @@ class StatisticalChecks(object):
             Array of naive sigmas before the bad GPS times from the delta sigma cut are applied.
         coherence_spectrum: array
             Array containing a coherence spectrum. Each entry in this array corresponds to the 2-detector coherence spectrum evaluated at the corresponding frequency in the freqs array.
-
+        coherence_n_segs: int
+            Number of segments used for coherence calculation.
         point_estimate_spectrum: array
             Array containing the point estimate spectrum. Each entry in this array corresponds to the point estimate spectrum evaluated at the corresponding frequency in the freqs array.
         sigma_spectrum: array
@@ -109,6 +111,8 @@ class StatisticalChecks(object):
         self.gates_ifo2 = gates_ifo2
 
         self.coherence_spectrum = coherence_spectrum
+        fftlength = int(1.0 / (self.freqs[1] - self.freqs[0]))
+        self.n_segs = coherence_n_segs * int(np.floor(self.params.segment_duration/(fftlength*(1.-self.params.overlap_factor_welch)))-1) #fftlength/2.
 
         self.sigma_spectrum = sigma_spectrum
         self.point_estimate_spectrum = point_estimate_spectrum
@@ -511,12 +515,9 @@ class StatisticalChecks(object):
         flow = flow or self.flow
         fhigh = fhigh or self.fhigh
 
-        resolution = self.freqs[1] - self.freqs[0]
-        fftlength = int(1.0 / resolution)
-        n_segs = len(self.sliding_omega_cut) * int(np.floor(self.params.segment_duration/(fftlength))-1) #fftlength/2.
         plt.figure(figsize=(10, 8))
         plt.plot(self.freqs, self.coherence_spectrum, color=sea[0])
-        plt.axhline(y=1./n_segs,dashes=(4,3),color='black')
+        plt.axhline(y=1./self.n_segs,dashes=(4,3),color='black')
         plt.xlim(flow, fhigh)
         plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
         plt.ylabel(r"coherence spectrum", size=self.axes_labelsize)
@@ -533,7 +534,7 @@ class StatisticalChecks(object):
 
         plt.figure(figsize=(10, 8))
         plt.plot(self.freqs, self.coherence_spectrum, color=sea[0])
-        plt.axhline(y=1./n_segs,dashes=(4,3),color='black')
+        plt.axhline(y=1./self.n_segs,dashes=(4,3),color='black')
         plt.xlim(flow, 200)
         plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
         plt.ylabel(r"coherence spectrum", size=self.axes_labelsize)
@@ -565,9 +566,8 @@ class StatisticalChecks(object):
         delta_coherence = bins[1]-bins[0]
         resolution = frequencies[1] - frequencies[0]
         fftlength = int(1.0 / resolution)
-        n_segs = len(self.sliding_omega_cut) * int(np.floor(self.params.segment_duration/(fftlength))-1)
-        predicted = alpha * n_frequencies * delta_coherence * n_segs * np.exp(-alpha * n_segs * coherence)
-        threshold = np.log(alpha * n_segs * n_frequencies * delta_coherence) / (n_segs * alpha)
+        predicted = alpha * n_frequencies * delta_coherence * self.n_segs * np.exp(-alpha * self.n_segs * coherence)
+        threshold = np.log(alpha * self.n_segs * n_frequencies * delta_coherence) / (self.n_segs * alpha)
 
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
    
@@ -1367,9 +1367,12 @@ def run_statistical_checks_from_file(
     naive_sigmas_sel = naive_sigma_all.T[1]
 
     if coherence_file_path is not None:
-        coherence_spectrum = np.load(coherence_file_path, allow_pickle=True)['coherence']
+        coh_data = np.load(coherence_file_path, allow_pickle=True)
+        coherence_spectrum = coh_data['coherence']
+        coherence_n_segs = coh_data['n_segs_coh']
     else:
         coherence_spectrum = None
+        coherence_n_segs = None
 
     return StatisticalChecks(
         sliding_times,
@@ -1377,6 +1380,7 @@ def run_statistical_checks_from_file(
         sliding_sigmas_all,
         naive_sigmas_sel,
         coherence_spectrum,
+        coherence_n_segs,
         point_estimate_spectrum,
         sigma_spectrum,
         freqs[cut],

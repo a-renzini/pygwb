@@ -390,8 +390,8 @@ def main():
         else:
             logger.info(f"Removed all the coherences due to bad data.")
             combined_coherence = None
-            n_segs_coh = 0
-        np.savez(coherence_path, coherence=combined_coherence, frequencies=coh_frequencies, n_segs_coh=n_segs_coh)
+            n_segs_coh_total = 0
+        np.savez(coherence_path, coherence=combined_coherence, frequencies=coh_frequencies, n_segs_coh=n_segs_coh_total)
 
         logger.info(
             f"Saved file with coherence spectrum:\n {coherence_path}."
