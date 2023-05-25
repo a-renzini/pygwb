@@ -42,6 +42,7 @@ class StatisticalChecks(object):
         sliding_sigmas_all,
         naive_sigmas_all,
         coherence_spectrum,
+        coherence_n_segs,
         point_estimate_spectrum,
         sigma_spectrum,
         freqs,
@@ -70,7 +71,8 @@ class StatisticalChecks(object):
             Array of naive sigmas before the bad GPS times from the delta sigma cut are applied.
         coherence_spectrum: array
             Array containing a coherence spectrum. Each entry in this array corresponds to the 2-detector coherence spectrum evaluated at the corresponding frequency in the freqs array.
-
+        coherence_n_segs: int
+            Number of segments used for coherence calculation.
         point_estimate_spectrum: array
             Array containing the point estimate spectrum. Each entry in this array corresponds to the point estimate spectrum evaluated at the corresponding frequency in the freqs array.
         sigma_spectrum: array
@@ -108,7 +110,11 @@ class StatisticalChecks(object):
         self.gates_ifo1 = gates_ifo1
         self.gates_ifo2 = gates_ifo2
 
+        self.freqs = freqs
+
         self.coherence_spectrum = coherence_spectrum
+        fftlength = int(1.0 / (self.freqs[1] - self.freqs[0]))
+        self.n_segs = coherence_n_segs * int(np.floor(self.params.segment_duration/(fftlength*(1.-self.params.overlap_factor_welch)))-1) #fftlength/2.
 
         self.sigma_spectrum = sigma_spectrum
         self.point_estimate_spectrum = point_estimate_spectrum
@@ -124,8 +130,6 @@ class StatisticalChecks(object):
         self.flow = self.params.flow
         self.fhigh = self.params.fhigh
 
-        self.freqs = freqs
-
         self.alpha = self.params.alpha
         (
             self.sliding_times_cut,
@@ -139,6 +143,9 @@ class StatisticalChecks(object):
         ) = self.get_data_after_dsc()
         self.dsc_percent = (len(self.sliding_times_all) - len(self.sliding_times_cut))/len(self.sliding_times_all) * 100
         self.dsc_statement = r"The $\Delta\sigma$ cut removed" + f"{float(f'{self.dsc_percent:.2g}'):g}% of the data."
+
+        tot_tot_segs = ((sliding_times_all - sliding_times_all[0])[-1])/(self.params.segment_duration*(1-self.params.overlap_factor))
+        self.percent_obs_segs = len(self.naive_sigmas_all)/tot_tot_segs * 100
 
         (
             self.running_pt_estimate,
@@ -179,8 +186,9 @@ class StatisticalChecks(object):
             Array of the deviates after the bad GPS times were applied.
         """
         bad_gps_times = self.badGPStimes
-        bad_gps_mask = [(t not in bad_gps_times) for t in self.sliding_times_all]
+        bad_gps_mask = np.array([(t not in bad_gps_times) for t in self.sliding_times_all])
 
+        bad_gps_mask[~np.isfinite(self.sliding_omega_all)] = False
         sliding_times_cut = self.sliding_times_all.copy()
         days_cut = self.days_all.copy()
         sliding_omega_cut = self.sliding_omega_all.copy()
@@ -190,6 +198,7 @@ class StatisticalChecks(object):
         sliding_deviate_cut = self.sliding_deviate_all.copy()
 
         sliding_times_cut = sliding_times_cut[bad_gps_mask]
+
         days_cut = days_cut[bad_gps_mask]
         sliding_omega_cut = sliding_omega_cut[bad_gps_mask]
         sliding_sigma_cut = sliding_sigma_cut[bad_gps_mask]
@@ -231,12 +240,12 @@ class StatisticalChecks(object):
         ii = 0
         while ii < self.sliding_times_cut.shape[0] - 1:
             ii += 1
-            numerator = running_pt_estimate[ii - 1] / (
+            numerator = np.nansum([running_pt_estimate[ii - 1] / (
                 running_sigmas[ii - 1] ** 2
-            ) + self.sliding_omega_cut[ii] / (self.sliding_sigma_cut[ii] ** 2)
-            denominator = 1.0 / (running_sigmas[ii - 1] ** 2) + 1 / (
+            ) , self.sliding_omega_cut[ii] / (self.sliding_sigma_cut[ii] ** 2)])
+            denominator = np.nansum([1.0 / (running_sigmas[ii - 1] ** 2) , 1 / (
                 self.sliding_sigma_cut[ii] ** 2
-            )
+            )])
             running_pt_estimate[ii] = numerator / denominator
             running_sigmas[ii] = np.sqrt(1.0 / denominator)
 
@@ -333,6 +342,13 @@ class StatisticalChecks(object):
         plt.ylabel(r"Point estimate $\pm 1.65 \sigma$", size=self.axes_labelsize)
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
+        plt.annotate(
+            f"baseline time: {float(f'{self.percent_obs_segs:.2g}'):g}%",
+            xy=(0.5, 0.9),
+            xycoords="axes fraction",
+            size = self.annotate_fontsize,
+            bbox=dict(boxstyle="round", facecolor="white", alpha=1),
+        )
         plt.title(f'Running point estimate in {self.time_tag}', fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-running_point_estimate.png", bbox_inches='tight'
@@ -509,12 +525,9 @@ class StatisticalChecks(object):
         flow = flow or self.flow
         fhigh = fhigh or self.fhigh
 
-        resolution = self.freqs[1] - self.freqs[0]
-        fftlength = int(1.0 / resolution)
-        n_segs = len(self.sliding_omega_cut) * int(np.floor(self.params.segment_duration/(fftlength))-1) #fftlength/2.
         plt.figure(figsize=(10, 8))
         plt.plot(self.freqs, self.coherence_spectrum, color=sea[0])
-        plt.axhline(y=1./n_segs,dashes=(4,3),color='black')
+        plt.axhline(y=1./self.n_segs,dashes=(4,3),color='black')
         plt.xlim(flow, fhigh)
         plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
         plt.ylabel(r"coherence spectrum", size=self.axes_labelsize)
@@ -522,7 +535,14 @@ class StatisticalChecks(object):
         plt.yscale("log")
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
-        plt.title(r"Total coherence spectrum at $\Delta f$ = " + f"{resolution} Hz in {self.time_tag}", fontsize=self.title_fontsize)
+        plt.annotate(
+            f"{self.params.channel}",
+            xy=(0.01, 0.03),
+            xycoords="axes fraction",
+            size = self.annotate_fontsize,
+            bbox=dict(boxstyle="round", facecolor="white", alpha=1),
+        )
+        plt.title(r"Total coherence spectrum at $\Delta f$ = " + f"{float(f'{self.deltaF:.4g}'):g} Hz in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-coherence_spectrum.png",
             bbox_inches="tight",
@@ -531,14 +551,14 @@ class StatisticalChecks(object):
 
         plt.figure(figsize=(10, 8))
         plt.plot(self.freqs, self.coherence_spectrum, color=sea[0])
-        plt.axhline(y=1./n_segs,dashes=(4,3),color='black')
+        plt.axhline(y=1./self.n_segs,dashes=(4,3),color='black')
         plt.xlim(flow, 200)
         plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
         plt.ylabel(r"coherence spectrum", size=self.axes_labelsize)
         plt.yscale("log")
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
-        plt.title(r"Total coherence spectrum at $\Delta f$ = " + f"{resolution} Hz in {self.time_tag}", fontsize=self.title_fontsize)
+        plt.title(r"Total coherence spectrum at $\Delta f$ = " + f"{float(f'{self.deltaF:.4g}'):g} Hz in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-coherence_spectrum_zoom.png",
             bbox_inches="tight",
@@ -563,9 +583,8 @@ class StatisticalChecks(object):
         delta_coherence = bins[1]-bins[0]
         resolution = frequencies[1] - frequencies[0]
         fftlength = int(1.0 / resolution)
-        n_segs = len(self.sliding_omega_cut) * int(np.floor(self.params.segment_duration/(fftlength))-1)
-        predicted = alpha * n_frequencies * delta_coherence * n_segs * np.exp(-alpha * n_segs * coherence)
-        threshold = np.log(alpha * n_segs * n_frequencies * delta_coherence) / (n_segs * alpha)
+        predicted = alpha * n_frequencies * delta_coherence * self.n_segs * np.exp(-alpha * self.n_segs * coherence)
+        threshold = np.log(alpha * self.n_segs * n_frequencies * delta_coherence) / (self.n_segs * alpha)
 
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
    
@@ -601,7 +620,7 @@ class StatisticalChecks(object):
         axs.set_ylim(0.5,10*predicted[0])
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
-        plt.title(r"Coherence distribution at $\Delta f$ = " + f"{resolution:.5f} Hz in" f" {self.time_tag}", fontsize=self.title_fontsize)
+        plt.title(r"Coherence distribution at $\Delta f$ = " + f"{resolution:.3f} Hz in" f" {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_coherence.png", bbox_inches = 'tight'
         )
@@ -642,7 +661,7 @@ class StatisticalChecks(object):
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
 
-        plt.title(r"Coherence distribution (zoomed) at $\Delta f$ = " + f"{resolution:.5f} Hz in" f" {self.time_tag}", fontsize=self.title_fontsize)
+        plt.title(r"Coherence distribution (zoomed) at $\Delta f$ = " + f"{resolution:.3f} Hz in" f" {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_coherence_zoom.png", bbox_inches = 'tight'
         )
@@ -1365,9 +1384,12 @@ def run_statistical_checks_from_file(
     naive_sigmas_sel = naive_sigma_all.T[1]
 
     if coherence_file_path is not None:
-        coherence_spectrum = np.load(coherence_file_path, allow_pickle=True)['coherence']
+        coh_data = np.load(coherence_file_path, allow_pickle=True)
+        coherence_spectrum = coh_data['coherence']
+        coherence_n_segs = coh_data['n_segs_coh']
     else:
         coherence_spectrum = None
+        coherence_n_segs = None
 
     return StatisticalChecks(
         sliding_times,
@@ -1375,6 +1397,7 @@ def run_statistical_checks_from_file(
         sliding_sigmas_all,
         naive_sigmas_sel,
         coherence_spectrum,
+        coherence_n_segs,
         point_estimate_spectrum,
         sigma_spectrum,
         freqs[cut],

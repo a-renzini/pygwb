@@ -241,6 +241,9 @@ def main():
         f"saved file with all sigma information related to the delta sigma cut for all times in run:\n {delta_sigma_cut_output_path}."
     )
 
+    # make combination robust against weird zero-sigma segments...
+    for spec in sigma_spectra_j:
+        spec[np.where(spec==0.0)] = np.inf
     Y_spectrum_combined, sigma_spectrum_combined = combine_spectra_with_sigma_weights(
         np.array(Y_spectra_j), np.array(sigma_spectra_j)
     )
@@ -387,8 +390,8 @@ def main():
         else:
             logger.info(f"Removed all the coherences due to bad data.")
             combined_coherence = None
-            n_segs_coh = 0
-        np.savez(coherence_path, coherence=combined_coherence, frequencies=coh_frequencies, n_segs_coh=n_segs_coh)
+            n_segs_coh_total = 0
+        np.savez(coherence_path, coherence=combined_coherence, frequencies=coh_frequencies, n_segs_coh=n_segs_coh_total)
 
         logger.info(
             f"Saved file with coherence spectrum:\n {coherence_path}."

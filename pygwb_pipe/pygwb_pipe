@@ -39,7 +39,7 @@ def main():
         "--output_path", help="Location to save output to.", action="store", type=str, required=False
     )
     pipe_parser.add_argument(
-        "--calc_coh", help="Calculate coherence spectrum from data.", action="store", type=bool, required=False
+        "--calc_coh", help="Calculate coherence spectrum from data.", action="store", type=str, required=False
     )
     pipe_parser.add_argument(
         "--calc_pt_est", help="Calculate omega point estimate and sigma from data.", action="store", type=str, required=False
@@ -75,7 +75,7 @@ def main():
         output_path = Path('')
 
     if script_args.calc_coh:
-        pipe_calculate_coherence = script_args.calc_coh
+        pipe_calculate_coherence = bool(distutils.util.strtobool(script_args.calc_coh))
     else:
         pipe_calculate_coherence = False
 
