@@ -344,18 +344,23 @@ class Parameters:
             param.write(configfile)
 
     def parse_ifo_parameters(self):
+        ifo_parameters = ['channel', 'frametype', 'input_sample_rate', 'local_data_path']
         ifo_list = self.interferometer_list
         param_dict = {}
         for ifo in ifo_list:
             param_dict[ifo] = Parameters()
         current_param_dict = self.__dict__
         for attr in current_param_dict.keys():
-            if bool(re.search("\{*\}", str(current_param_dict[attr]))) and type(current_param_dict[attr]) is not dict:
-                attr_str = str(current_param_dict[attr]).replace("{","").replace("}","")
-                attr_split = attr_str.split(';')
-                attr_dict = {key: value for key, value in (pair.split(':') for pair in attr_split)} 
-                for ifo in ifo_list:
-                    param_dict[ifo].update_from_dictionary({attr: attr_dict[ifo]})
+            if attr in ifo_parameters:
+                attr_str = str(current_param_dict[attr])
+                attr_split = attr_str.split(',')
+                if len(attr_split)>1:
+                    attr_dict = {key: value for key, value in (pair.split(':') for pair in attr_split)} 
+                    for ifo in ifo_list:
+                        param_dict[ifo].update_from_dictionary({attr: attr_dict[ifo]})
+                else:
+                    for ifo in ifo_list:
+                        param_dict[ifo].update_from_dictionary({attr: current_param_dict[attr]})
             else:
                 for ifo in ifo_list:
                     param_dict[ifo].update_from_dictionary({attr: current_param_dict[attr]})
