@@ -6,6 +6,7 @@
 
 import argparse
 import configparser
+import distutils
 import glob
 import logging
 import os
@@ -33,10 +34,9 @@ def make_workflow(args=None):
 
     # check if we want segment-level results
     if pygwb_wf.config.has_option('general', 'plot_segment_results'):
-        segment_results = bool(pygwb_wf.config['general']['plot_segment_results'])
+        segment_results = bool(distutils.util.strtobool(pygwb_wf.config['general']['plot_segment_results']))
     else:
         segment_results = False
-
 
     all_jobs = []
     pipe_jobs = []
