@@ -110,6 +110,8 @@ class StatisticalChecks(object):
         self.gates_ifo1 = gates_ifo1
         self.gates_ifo2 = gates_ifo2
 
+        self.freqs = freqs
+
         self.coherence_spectrum = coherence_spectrum
         fftlength = int(1.0 / (self.freqs[1] - self.freqs[0]))
         self.n_segs = coherence_n_segs * int(np.floor(self.params.segment_duration/(fftlength*(1.-self.params.overlap_factor_welch)))-1) #fftlength/2.
@@ -128,8 +130,6 @@ class StatisticalChecks(object):
         self.flow = self.params.flow
         self.fhigh = self.params.fhigh
 
-        self.freqs = freqs
-
         self.alpha = self.params.alpha
         (
             self.sliding_times_cut,
@@ -143,6 +143,9 @@ class StatisticalChecks(object):
         ) = self.get_data_after_dsc()
         self.dsc_percent = (len(self.sliding_times_all) - len(self.sliding_times_cut))/len(self.sliding_times_all) * 100
         self.dsc_statement = r"The $\Delta\sigma$ cut removed" + f"{float(f'{self.dsc_percent:.2g}'):g}% of the data."
+
+        tot_tot_segs = ((sliding_times_all - sliding_times_all[0])[-1])/(self.params.segment_duration*(1-self.params.overlap_factor))
+        self.percent_obs_segs = len(self.naive_sigmas_all)/tot_tot_segs * 100
 
         (
             self.running_pt_estimate,
@@ -339,6 +342,13 @@ class StatisticalChecks(object):
         plt.ylabel(r"Point estimate $\pm 1.65 \sigma$", size=self.axes_labelsize)
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
+        plt.annotate(
+            f"baseline time: {float(f'{self.percent_obs_segs:.2g}'):g}%",
+            xy=(0.5, 0.9),
+            xycoords="axes fraction",
+            size = self.annotate_fontsize,
+            bbox=dict(boxstyle="round", facecolor="white", alpha=1),
+        )
         plt.title(f'Running point estimate in {self.time_tag}', fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-running_point_estimate.png", bbox_inches='tight'
@@ -525,7 +535,14 @@ class StatisticalChecks(object):
         plt.yscale("log")
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
-        plt.title(r"Total coherence spectrum at $\Delta f$ = " + f"{resolution} Hz in {self.time_tag}", fontsize=self.title_fontsize)
+        plt.annotate(
+            f"{self.params.channel}",
+            xy=(0.01, 0.03),
+            xycoords="axes fraction",
+            size = self.annotate_fontsize,
+            bbox=dict(boxstyle="round", facecolor="white", alpha=1),
+        )
+        plt.title(r"Total coherence spectrum at $\Delta f$ = " + f"{float(f'{self.deltaF:.4g}'):g} Hz in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-coherence_spectrum.png",
             bbox_inches="tight",
@@ -541,7 +558,7 @@ class StatisticalChecks(object):
         plt.yscale("log")
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
-        plt.title(r"Total coherence spectrum at $\Delta f$ = " + f"{resolution} Hz in {self.time_tag}", fontsize=self.title_fontsize)
+        plt.title(r"Total coherence spectrum at $\Delta f$ = " + f"{float(f'{self.deltaF:.4g}'):g} Hz in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-coherence_spectrum_zoom.png",
             bbox_inches="tight",
@@ -603,7 +620,7 @@ class StatisticalChecks(object):
         axs.set_ylim(0.5,10*predicted[0])
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
-        plt.title(r"Coherence distribution at $\Delta f$ = " + f"{resolution:.5f} Hz in" f" {self.time_tag}", fontsize=self.title_fontsize)
+        plt.title(r"Coherence distribution at $\Delta f$ = " + f"{resolution:.3f} Hz in" f" {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_coherence.png", bbox_inches = 'tight'
         )
@@ -644,7 +661,7 @@ class StatisticalChecks(object):
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
 
-        plt.title(r"Coherence distribution (zoomed) at $\Delta f$ = " + f"{resolution:.5f} Hz in" f" {self.time_tag}", fontsize=self.title_fontsize)
+        plt.title(r"Coherence distribution (zoomed) at $\Delta f$ = " + f"{resolution:.3f} Hz in" f" {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_coherence_zoom.png", bbox_inches = 'tight'
         )
