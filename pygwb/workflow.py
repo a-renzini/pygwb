@@ -50,6 +50,7 @@ class Job(pyJob):
             condorcmds = [
                 f"accounting_group = {accounting_group}",
                 f"accounting_group_user = {ACCOUNTING_GROUP_USER}",
+                f"getenv = True",
                 ]
             condorcmds.extend(extra_lines)
         else:
