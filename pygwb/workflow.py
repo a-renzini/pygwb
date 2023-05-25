@@ -95,7 +95,8 @@ class Job(pyJob):
         arguments = ' '.join(list([arguments])+list(output_args))
 
         # surround dicts with ""
-        arguments = arguments.replace("{", "'{").replace("}", "}'")
+        # THIS HAS BEEN SOMEHOW DEPRECATED: CONDOR ADDS THEM AUTOMATICALLY
+        #arguments = arguments.replace("{", "'{").replace("}", "}'")
 
         # convert memory into integer
         try:
