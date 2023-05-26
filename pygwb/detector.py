@@ -425,7 +425,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
         )
 
         self.gates = self.gates | new_gates
-        self.gate_pad = None
+        self.gate_pad = gate_tpad
 
     def _check_ifo_name(self, name):
         if not self.name == name:
