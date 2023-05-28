@@ -14,7 +14,9 @@ from collections.abc import Iterable
 from getpass import getuser
 
 import numpy as np
-from gwpy.segments import DataQualityDict, DataQualityFlag
+from gwpy.io.cache import cache_segments
+from gwpy.segments import DataQualityDict, DataQualityFlag, Segment, SegmentList 
+from gwsumm.data.timeseries import find_best_frames
 from pycondor import Dagman as pyDagman
 from pycondor import Job as pyJob
 from pycondor.job import JobArg
@@ -336,6 +338,14 @@ class Workflow():
             self.max_dur = 1000000
 
         ifos = self.config['general']['ifos'].split(' ')
+        strfr = self.config["pygwb_pipe"]["frametype"].replace(":", ",").split(",")
+        strain_frametypes = {strfr[2*i]: strfr[(2*i+1)] for i in range(len(strfr)//2)}
+
+        seglist = SegmentList([[self.t0, self.tf]])
+        for ifo in ifos:
+            frametype = strain_frametypes[ifo]
+            cached_frames, _ = find_best_frames(ifo, frametype, start=self.t0, end=self.tf)
+            seglist &= cache_segments(cached_frames)
 
         logging.info('Downloading science flags...')
         sci_flag = DataQualityDict.query_dqsegdb(
@@ -353,24 +363,30 @@ class Workflow():
 
             cat1_vetoes = cat1_vetoes.intersection().active
 
-            seglist = sci_flag - cat1_vetoes
+            seglist_flags = sci_flag - cat1_vetoes
         else:
-            seglist = sci_flag
+            seglist_flags = sci_flag
+
+        start_times = np.arange(self.t0, self.tf, self.max_dur)
+        if len(start_times) > 1:
+            start_times = start_times[:-1]
+
+        block_segs = SegmentList(
+            [
+                Segment(t, t + self.max_dur)
+                for t in start_times
+            ]
+        )
+        block_segs &= seglist
 
         seglist_pruned = []
-        for seg in seglist:
-            start = int(seg[0])
-            end = int(seg[1])
-            dur = int(end-start)
-            if dur < self.min_dur:
-                continue
-            elif dur > self.max_dur:
-                n_edges = int(dur/self.max_dur+2)
-                edges = np.linspace(start, end, n_edges, endpoint=True)
-                for i in range(n_edges-1):
-                    seglist_pruned.append([int(edges[i]),int(edges[i+1])])
-            else:
-                seglist_pruned.append([start, end])
+        for seg in block_segs:
+            if seglist_flags.intersects_segment(seg):
+                new_seg_list = (SegmentList([seg]) & seglist_flags)
+                for new_seg in new_seg_list:
+                    if abs(new_seg) > self.min_dur:
+                        seglist_pruned.append([int(new_seg[0]), int(new_seg[1])])
+
         return seglist_pruned
 
 
