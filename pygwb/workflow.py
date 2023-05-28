@@ -15,7 +15,7 @@ from getpass import getuser
 
 import numpy as np
 from gwpy.io.cache import cache_segments
-from gwpy.segments import DataQualityDict, DataQualityFlag, Segment, SegmentList 
+from gwpy.segments import DataQualityDict, DataQualityFlag, Segment, SegmentList
 from gwsumm.data.timeseries import find_best_frames
 from pycondor import Dagman as pyDagman
 from pycondor import Job as pyJob
