@@ -155,14 +155,20 @@ class TestInterferometer(unittest.TestCase):
             gate_whiten = gate_whiten,
         )
         gates_from_function = ifo.gates
-
+        print(gates_from_function)
         npzobject = np.load("./test/test_data/point_estimate_sigma_1247644138-1247645038.npz")
-        ifo.apply_gates_from_file(
+        ifo_for_loading = detector.Interferometer.get_empty_interferometer(self.ifo)
+        ifo_for_loading.set_timeseries_from_gwpy_timeseries(
+            gwpy_timeseries=gwpy_timeseries, **self.kwargs
+        )
+        
+        ifo_for_loading.apply_gates_from_file(
             npzobject,
             1,
             gate_tpad = gate_tpad
         )
-        gates_applied_from_file = ifo.gates
+        gates_applied_from_file = ifo_for_loading.gates
+        print(gates_applied_from_file)
         for index, gates in enumerate(gates_applied_from_file):
             self.assertEqual(gates, gates_from_function[index])
         
