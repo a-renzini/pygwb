@@ -156,7 +156,7 @@ class TestInterferometer(unittest.TestCase):
         )
         gates_from_function = ifo.gates
 
-        npzobject = np.load("./test_data/point_estimate_sigma_1247644138-1247645038.npz")
+        npzobject = np.load("./test/test_data/point_estimate_sigma_1247644138-1247645038.npz")
         ifo.apply_gates_from_file(
             npzobject,
             1,
