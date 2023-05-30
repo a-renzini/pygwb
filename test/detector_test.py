@@ -163,8 +163,8 @@ class TestInterferometer(unittest.TestCase):
             gate_tpad = gate_tpad
         )
         gates_applied_from_file = ifo.gates
-        
-        self.assertEqual(gates_applied_from_file, gates_from_function)
+        for index, gates in gates_applied_from_file:
+            self.assertEqual(gates, gates_from_function[index])
         
 
 if __name__ == "__main__":
