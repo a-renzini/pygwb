@@ -1,5 +1,4 @@
 import json
-from loguru import logger
 import warnings
 from os import listdir
 from os.path import isfile, join
@@ -8,6 +7,7 @@ from pathlib import Path
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mt
+from loguru import logger
 
 matplotlib.rcParams['figure.figsize'] = (8,6)
 matplotlib.rcParams['axes.grid'] = True
