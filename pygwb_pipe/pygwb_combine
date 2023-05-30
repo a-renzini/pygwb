@@ -134,8 +134,7 @@ def main():
         combine_args.file_tag = f"{times[0]}-{times[-1]}"
 
     frequencies = np.load(files_ptest[0])["frequencies"]
-    #frequency_mask = np.load(files_ptest[0])["frequency_mask"]
-    frequency_mask = True
+    frequency_mask = np.load(files_ptest[0])["frequency_mask"]
 
     # spectral objects
     Y_j = []
@@ -342,6 +341,7 @@ def main():
         point_estimate_spectrum=Y_reweight_spectrum.value,
         sigma_spectrum=sigma_reweight_spectrum.value,
         frequencies=frequencies,
+        frequency_mask=frequency_mask,
         point_estimates_seg_UW=Y_seg,
         sigmas_seg_UW=sigma_seg,
     )
