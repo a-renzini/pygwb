@@ -154,8 +154,16 @@ class TestInterferometer(unittest.TestCase):
             gate_threshold = gate_threshold, cluster_window = cluster_window,
             gate_whiten = gate_whiten,
         )
+        gates_from_function = ifo.gates
+
+        ifo.apply_gates_from_file(
+            "./test_data/point_estimate_sigma_1247644138-1247645038.npz",
+            1,
+            gate_tpad = gate_tpad
+        )
+        gates_applied_from_file = ifo.gates
         
-        
+        self.assertEqual(gates_applied_from_file, gates_from_function)
         
 
 if __name__ == "__main__":
