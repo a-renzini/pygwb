@@ -140,12 +140,13 @@ class TestInterferometer(unittest.TestCase):
         self.assertTrue(ifo.gate_pad, gate_tpad)
         
     def test_gated_times_from_file(self):
+        gwpy_timeseries = self.testdata["original_timeseries"]
         npzobject = np.load("./test/test_data/point_estimate_sigma_1247644138-1247645038.npz")
         ifo_for_loading = detector.Interferometer.get_empty_interferometer(self.ifo)
         ifo_for_loading.set_timeseries_from_gwpy_timeseries(
             gwpy_timeseries=gwpy_timeseries, **self.kwargs
         )
-        
+
         ifo_for_loading.apply_gates_from_file(
             npzobject,
             1,
@@ -155,7 +156,7 @@ class TestInterferometer(unittest.TestCase):
         gates_we_know = SegmentList(Segment(1247644445.8190918, 1247644447.8190918))
         for index, gates in enumerate(gates_applied_from_file):
             self.assertEqual(gates, gates_we_know[index])
-        
+
 
 if __name__ == "__main__":
     unittest.main()
