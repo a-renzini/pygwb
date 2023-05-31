@@ -142,6 +142,7 @@ class TestInterferometer(unittest.TestCase):
     def test_gated_times_from_file(self):
         gwpy_timeseries = self.testdata["original_timeseries"]
         npzobject = np.load("./test/test_data/point_estimate_sigma_1247644138-1247645038.npz")
+        gate_tpad = 0.5
         ifo_for_loading = detector.Interferometer.get_empty_interferometer(self.ifo)
         ifo_for_loading.set_timeseries_from_gwpy_timeseries(
             gwpy_timeseries=gwpy_timeseries, **self.kwargs
