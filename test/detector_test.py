@@ -2,7 +2,7 @@ import pickle
 import unittest
 
 import numpy as np
-from gwpy.segments import SegmentList, Segment
+from gwpy.segments import Segment, SegmentList
 
 from pygwb import detector, parameters
 
