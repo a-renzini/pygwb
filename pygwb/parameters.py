@@ -84,7 +84,8 @@ class Parameters:
     time_shift: int
         Seconds to timeshift the data by in preprocessing. Default is 0.
     path_gate_data: str
-        Path to the map with pygwb output containing information about gates. Default is empty.
+        Path to the map with pygwb output containing information about gates. If loading a single file, it has to be an .npzfile 
+        with the same structure as a pygwb output file. Default is an empty string.
     gate_data: bool
         Whether to apply self-gating to the data in preprocessing. Default is False.
     gate_tzero: float
@@ -409,7 +410,10 @@ class ParametersHelp(enum.Enum):
     alphas_delta_sigma_cut = "List of spectral indexes to use in delta sigma cut calculation. Default is [-5, 0, 3]."
     save_data_type = "Suffix for the output data file. Options are hdf5, npz, json, pickle. Default is json."
     time_shift = "Seconds to timeshift the data by in preprocessing. Default is 0."
-    path_gate_data = "Path to the pygwb output containing information about gates. Default is empty."
+    path_gate_data = (
+        "Path to the pygwb output containing information about gates. If loading a single file, it has to be an .npzfile "
+        "with the same structure as a pygwb output file. Default is an empty string."
+    )
     gate_data = (
         "Whether to apply self-gating to the data in preprocessing. Default is False."
     )
