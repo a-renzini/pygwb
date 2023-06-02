@@ -148,7 +148,7 @@ class PowerLawModel(GWBModel):
     >>> impot numpy as np
     
     The model requires a list of baselines on which to run the parameter estimation. For the sake of the example,
-    we consider the Hanford-Livingston baseline, and create a baseline object:
+    we consider the LIGO Hanford-Livingston baseline, and create a baseline object:
     
     >>> H1 = bilbydet.get_empty_interferometer('H1')
     >>> L1 = bilbydet.get_empty_interferometer('L1')
@@ -209,6 +209,7 @@ class BrokenPowerLawModel(GWBModel):
             \Omega_{\text{ref}} \left( \frac{f}{f_{\text{ref}}} \right) ^ {\alpha_1}, f \leqslant f_{\text{ref}} \\
             \Omega_{\text{ref}} \left( \frac{f}{f_{\text{ref}}} \right) ^ {\alpha_2}, f > f_{\text{ref}}
         \end{cases}
+        
     Parameters:
     ===========
     omega_ref : float
@@ -221,6 +222,36 @@ class BrokenPowerLawModel(GWBModel):
         Break frequency for the broken power law (:math:`f_{\text{ref}}`)
     frequencies : numpy.ndarray
         Array of frequencies at which to evaluate the model
+        
+    Example
+    -------
+    
+    To illustrate how to construct a likelihood with this model, we start by importing the relevant packages:
+    
+    >>> from pygwb.pe import BrokenPowerLawModel
+    >>> from pygwb.baseline import Baseline
+    >>> import bilby.gw.detector as bilbydet
+    >>> impot numpy as np
+    
+    The model requires a list of baselines on which to run the parameter estimation. For the sake of the example,
+    we consider the LIGO Hanford-Livingston baseline, and create a baseline object:
+    
+    >>> H1 = bilbydet.get_empty_interferometer('H1')
+    >>> L1 = bilbydet.get_empty_interferometer('L1')
+    >>> HL = Baseline('H1L1', H1, L1)
+    
+    The frequencies, point estimate spectrum and sigma spectrum of the baseline need to be set as well. For this
+    example and for simplicity, we populate them with random numbers
+    
+    >>> HL.frequencies = np.linspace(0,100,1000)
+    >>> HL.point_estimate_spectrum = np.random.rand(1000)
+    >>> HL.sigma_spectrum = np.random.rand(1000)
+    
+    The baseline is then added to the other kwargs needed for the model to be instantiated:
+    
+    >>> kwargs_bpl = {"baselines":[HL], "model_name":'BPL'}
+    >>> model_bpl = BrokenPowerLawModel(**kwargs_bpl)
+    
     """
 
     def __init__(self, **kwargs):
@@ -288,6 +319,36 @@ class TripleBrokenPowerLawModel(GWBModel):
         Second break frequency for the triple broken power law (:math:`f_2`)
     frequencies : numpy.ndarray
         Array of frequencies at which to evaluate the model
+        
+    Example
+    -------
+    
+    To illustrate how to construct a likelihood with this model, we start by importing the relevant packages:
+    
+    >>> from pygwb.pe import TripleBrokenPowerLawModel
+    >>> from pygwb.baseline import Baseline
+    >>> import bilby.gw.detector as bilbydet
+    >>> impot numpy as np
+    
+    The model requires a list of baselines on which to run the parameter estimation. For the sake of the example,
+    we consider the LIGO Hanford-Livingston baseline, and create a baseline object:
+    
+    >>> H1 = bilbydet.get_empty_interferometer('H1')
+    >>> L1 = bilbydet.get_empty_interferometer('L1')
+    >>> HL = Baseline('H1L1', H1, L1)
+    
+    The frequencies, point estimate spectrum and sigma spectrum of the baseline need to be set as well. For this
+    example and for simplicity, we populate them with random numbers
+    
+    >>> HL.frequencies = np.linspace(0,100,1000)
+    >>> HL.point_estimate_spectrum = np.random.rand(1000)
+    >>> HL.sigma_spectrum = np.random.rand(1000)
+    
+    The baseline is then added to the other kwargs needed for the model to be instantiated:
+    
+    >>> kwargs_tbpl = {"baselines":[HL], "model_name":'TBPL'}
+    >>> model_tbpl = TripleBrokenPowerLawModel(**kwargs_tbpl)
+    
     """
 
     def __init__(self, **kwargs):
@@ -363,6 +424,36 @@ class SmoothBrokenPowerLawModel(GWBModel):
         Break frequency for the smooth broken power law (:math:`f_{\text{ref}}`)
     frequencies : numpy.ndarray
         Array of frequencies at which to evaluate the model
+      
+    Example
+    -------
+    
+    To illustrate how to construct a likelihood with this model, we start by importing the relevant packages:
+    
+    >>> from pygwb.pe import SmoothBrokenPowerLawModel
+    >>> from pygwb.baseline import Baseline
+    >>> import bilby.gw.detector as bilbydet
+    >>> impot numpy as np
+    
+    The model requires a list of baselines on which to run the parameter estimation. For the sake of the example,
+    we consider the LIGO Hanford-Livingston baseline, and create a baseline object:
+    
+    >>> H1 = bilbydet.get_empty_interferometer('H1')
+    >>> L1 = bilbydet.get_empty_interferometer('L1')
+    >>> HL = Baseline('H1L1', H1, L1)
+    
+    The frequencies, point estimate spectrum and sigma spectrum of the baseline need to be set as well. For this
+    example and for simplicity, we populate them with random numbers
+    
+    >>> HL.frequencies = np.linspace(0,100,1000)
+    >>> HL.point_estimate_spectrum = np.random.rand(1000)
+    >>> HL.sigma_spectrum = np.random.rand(1000)
+    
+    The baseline is then added to the other kwargs needed for the model to be instantiated:
+    
+    >>> kwargs_sbpl = {"baselines":[HL], "model_name":'SBPL'}
+    >>> model_sbpl = SmoothBrokenPowerLawModel(**kwargs_sbpl)
+    
     """
 
     def __init__(self, **kwargs):
@@ -516,6 +607,35 @@ class TVSPowerLawModel(GWBModel):
         Spectral index of the power law for polarization pol (:math:`\alpha_{\text{pol}}`)
     frequencies : numpy.ndarray
         Array of frequencies at which to evaluate the model
+        
+    Example
+    -------
+    
+    To illustrate how to construct a likelihood with this model, we start by importing the relevant packages:
+    
+    >>> from pygwb.pe import TVSPowerLawModel
+    >>> from pygwb.baseline import Baseline
+    >>> import bilby.gw.detector as bilbydet
+    >>> impot numpy as np
+    
+    The model requires a list of baselines on which to run the parameter estimation. For the sake of the example,
+    we consider the LIGO Hanford-Livingston baseline, and create a baseline object:
+    
+    >>> H1 = bilbydet.get_empty_interferometer('H1')
+    >>> L1 = bilbydet.get_empty_interferometer('L1')
+    >>> HL = Baseline('H1L1', H1, L1)
+    
+    The frequencies, point estimate spectrum and sigma spectrum of the baseline need to be set as well. For this
+    example and for simplicity, we populate them with random numbers
+    
+    >>> HL.frequencies = np.linspace(0,100,1000)
+    >>> HL.point_estimate_spectrum = np.random.rand(1000)
+    >>> HL.sigma_spectrum = np.random.rand(1000)
+    
+    The baseline is then added to the other kwargs needed for the model to be instantiated:
+    
+    >>> kwargs_pl_sv = {"baselines":[HL], "model_name":'PL_SV', "polarizations":['scalar', 'vector']}
+    >>> model_pl_sv = TVSPowerLawModel(**kwargs_pl_sv)
     """
 
     def __init__(self, **kwargs):
@@ -581,6 +701,36 @@ class PVPowerLawModel(GWBModel):
         Degree of parity violation (:math:`\Pi`)
     frequencies : numpy.ndarray
         Array of frequencies at which to evaluate the model
+        
+    Example
+    -------
+    
+    To illustrate how to construct a likelihood with this model, we start by importing the relevant packages:
+    
+    >>> from pygwb.pe import PVPowerLawModel
+    >>> from pygwb.baseline import Baseline
+    >>> import bilby.gw.detector as bilbydet
+    >>> impot numpy as np
+    
+    The model requires a list of baselines on which to run the parameter estimation. For the sake of the example,
+    we consider the LIGO Hanford-Livingston baseline, and create a baseline object:
+    
+    >>> H1 = bilbydet.get_empty_interferometer('H1')
+    >>> L1 = bilbydet.get_empty_interferometer('L1')
+    >>> HL = Baseline('H1L1', H1, L1)
+    
+    The frequencies, point estimate spectrum and sigma spectrum of the baseline need to be set as well. For this
+    example and for simplicity, we populate them with random numbers
+    
+    >>> HL.frequencies = np.linspace(0,100,1000)
+    >>> HL.point_estimate_spectrum = np.random.rand(1000)
+    >>> HL.sigma_spectrum = np.random.rand(1000)
+    
+    The baseline is then added to the other kwargs needed for the model to be instantiated:
+    
+    >>> kwargs_pl_pv = {"baselines":[HL], "model_name":'PL_PV', 'fref': 25}
+    >>> model_pl_pv = PVPowerLawModel(**kwargs_pl_pv)
+    
     """
 
     def __init__(self, **kwargs):
@@ -639,6 +789,36 @@ class PVPowerLawModel2(GWBModel):
         Spectral index of the degree of parity violation (:math:`\beta`)
     frequencies : numpy.ndarray
         Array of frequencies at which to evaluate the model
+        
+    Example
+    -------
+    
+    To illustrate how to construct a likelihood with this model, we start by importing the relevant packages:
+    
+    >>> from pygwb.pe import PVPowerLawModel2
+    >>> from pygwb.baseline import Baseline
+    >>> import bilby.gw.detector as bilbydet
+    >>> impot numpy as np
+    
+    The model requires a list of baselines on which to run the parameter estimation. For the sake of the example,
+    we consider the LIGO Hanford-Livingston baseline, and create a baseline object:
+    
+    >>> H1 = bilbydet.get_empty_interferometer('H1')
+    >>> L1 = bilbydet.get_empty_interferometer('L1')
+    >>> HL = Baseline('H1L1', H1, L1)
+    
+    The frequencies, point estimate spectrum and sigma spectrum of the baseline need to be set as well. For this
+    example and for simplicity, we populate them with random numbers
+    
+    >>> HL.frequencies = np.linspace(0,100,1000)
+    >>> HL.point_estimate_spectrum = np.random.rand(1000)
+    >>> HL.sigma_spectrum = np.random.rand(1000)
+    
+    The baseline is then added to the other kwargs needed for the model to be instantiated:
+    
+    >>> kwargs_pl_pv_2 = {"baselines":[HL], "model_name":'PL_PV_2', 'fref': 25}
+    >>> model_pl_pv_2 = PVPowerLawModel2(**kwargs_pl_pv_2)
+    
     """
 
     def __init__(self, **kwargs):
