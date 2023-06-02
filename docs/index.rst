@@ -61,7 +61,6 @@ API:
    generate_stochastic_background_in_network
    inject_simulated_data_in_network
    simulate_CBC_GWB
-   Understand_dsc
    make_notchlist
    run_statistical_checks
    run_pe
