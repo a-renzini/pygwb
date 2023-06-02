@@ -7,11 +7,20 @@ from scipy.signal import get_window
 
 from pygwb.constants import H0
 
+"""
+The util module collects all useful functions of pygwb that are used in multiple other modules or do not belong contextually in one of the other modules.
+These functions mainly performs computations that are relatively easy and at multiple steps of the pipeline analysis.
+"""
 
 def parse_window_dict(window_dict):
-    '''
-    Pasrse the window dictionary properly for scipy compatibility.
-    '''
+    """
+    Parse the window dictionary properly for scipy compatibility.
+    
+    Parameters
+    ==========
+    window_dict: `dictionary`
+        Dictionary containing the window characteristics.
+    """
     bools = ['sym', 'norm']
     floats = ['center', 'tau', 'alpha', 'beta', 'nbar', 'sll', 'std', 'p', 'sig', 'at']
     for key in window_dict.keys():
@@ -27,20 +36,21 @@ def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_fa
     """
     Calculate window factors. By default, for a hann window with 50% overlap.
 
-    Parameters:
+    Parameters
     ===========
-    window_fftgram_dict: dictionary, optional
+    window_fftgram_dict: ``dictionary``, optional
         Dictionary with window characteristics. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`
-    overlap_factor: float, optional
+    overlap_factor: ``float``, optional
         Defines the overlap between consecutive data chunks used in the calculation. Default is 0.5.
         
 
     Returns:
     ========
-    w1w2bar: float
-    w1w2squaredbar: float
-    w1w2ovlbar: float
-    w1w2squaredovlbar: float
+    This functions returns the four window factors which correct the analysis for the effect of the window factor.
+    w1w2bar: ``float``
+    w1w2squaredbar: ``float``
+    w1w2ovlbar: ``float``
+    w1w2squaredovlbar: ``float``
     """
     window_tuple = get_window_tuple(window_fftgram_dict)
     w = get_window(window_tuple, N, fftbins=False)
@@ -58,16 +68,16 @@ def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_fa
 
 def get_window_tuple(window_fftgram_dict={"window_fftgram": "hann"}):
     """
-    Unpack the `window_fft_dict` dictionary into a `tuple` that may be read by scipy.get_window.
+    Unpack the `window_fft_dict` dictionary into a `tuple` that may be read by ``scipy.get_window``.
 
     Parameters:
     ===========
-    window_fftgram_dict: dictionary, optional
+    window_fftgram_dict: ``dictionary``, optional
         Dictionary with window characteristics. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`.
 
     Returns:
     ========
-    window_tuple: tuple
+    window_tuple: ``tuple``
         A tuple containing the window_fft name as the first entry, followed by optional entries of the window_fft_dict.
 
     Notes:
@@ -91,16 +101,16 @@ def calc_rho1(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_factor=
 
     Parameters:
     ===========
-    N: int
+    N: ``int``
         Length of the window.
-    window_fftgram_dict: dictionary, optional
+    window_fftgram_dict: ``dictionary``, optional
         Dictionary with window characteristics. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`.
-    overlap_factor: float, optional
+    overlap_factor: ``float``, optional
         Defines the overlap between consecutive data chunks used in the calculation. Default is 0.5.
 
     Returns:
     ========
-    rho1: float
+    rho1: ``float``
         The combined window factor.
     """
     w1w2bar, _, w1w2ovlbar, _ = window_factors(N, window_fftgram_dict, overlap_factor=overlap_factor)
@@ -110,23 +120,23 @@ def calc_rho1(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_factor=
 
 def calc_rho(N, j, window_tuple="hann", overlap_factor=0.5):
     """
-    Calculate the normalised correlation of a window with itself shifted j times. This is identical
-    to the rho(j) from Welch (1967).
+    Calculate the normalised correlation of a window with itself shifted `j` times. This is identical
+    to the `rho(j)` from Welch (1967).
 
     Parameters:
     ===========
-    N: int
+    N: ``int``
         Length of the window.
-    j: int
+    j: ``int``
         Number of "shifts" to apply to the window when correlating with itself.
-    window_tuple: string or tuple, optional
-        Window name or tuple as used in get_window(). Default is `window_tuple="hann"`.
-    overlap_factor: float, optional
+    window_tuple: ``str`` or ``tuple``, optional
+        Window name or tuple as used in ``scipy.signal.get_window()``. Default is `window_tuple="hann"`.
+    overlap_factor: ``float``, optional
         Defines the overlap between consecutive segments used in the calculation. Default is 0.5.
 
     Returns:
     ========
-    rho: float
+    rho: ``float``
         The normalised window correlation rho(j).
     """
     # The base window for which we want to calculate the correlation
@@ -151,18 +161,18 @@ def effective_welch_averages(nSamples, N, window_tuple="hann", overlap_factor=0.
 
     Parameters:
     ===========
-    nSamples: int
+    nSamples: ``int``
         Number of samples to be used to estimate the PSD.
-    N: int
+    N: ``int``
         Length of the window.
-    window_tuple: string or tuple, optional
-        Window name or tuple as used in get_window(). Default is `window_tuple="hann"`.
-    overlap_factor: float, optional
+    window_tuple: ``str`` or ``tuple``, optional
+        Window name or tuple as used in ``scipy.signal.get_window()``. Default is `window_tuple="hann"`.
+    overlap_factor: ``float``, optional
         Defines the overlap between consecutive segments used in the calculation. Default is 0.5.
 
     Returns:
     ========
-    Neff: float
+    Neff: ``float``
         The effective number of averages.
     """
     # S is the shift, that is, the number of samples by which the window is shifted from the base window
@@ -190,24 +200,24 @@ def calc_bias(
     overlap_factor=0.5
 ):
     """
-    Calculate the bias factor introduced by welch averaging.
+    Calculate the bias factor introduced by Welch averaging.
 
     Parameters:
     ===========
-    segmentDuration: float
-        Duration in seconds of welched segment.
-    deltaF: float
-        Frequency resolution of welched segment.
-    deltaT: float
-        Time sampling of welched segment.
-    N_avg_segs: int, optional
+    segmentDuration: ``float``
+        Duration in seconds of Welch-averaged segment.
+    deltaF: ``float``
+        Frequency resolution of Welch-averaged segment.
+    deltaT: ``float``
+        Time sampling of Welch-averaged segment.
+    N_avg_segs: ``int``, optional
         Number of segments over which the average is performed.
-    overlap_factor: float, optional
+    overlap_factor: ``float``, optional
         Defines the overlap between consecutive data chunks used in the calculation. Default is 0.5.
 
     Returns:
     ========
-    bias: float
+    bias: ``float``
         The bias factor.
     """
     # Number of samples in a data chunk
@@ -229,7 +239,7 @@ def calc_bias(
 
 def omega_to_power(omega_GWB, frequencies):
     """
-    Compute the GW power spectrum starting from the omega_GWB
+    Compute the GW power spectrum starting from the :math:`\omega`\ :sub:`GWB`\ 
     spectrum.
 
     Parameters:
@@ -241,7 +251,7 @@ def omega_to_power(omega_GWB, frequencies):
 
     Returns:
     ========
-    power: gwpy.frequencyseries.FrequencySeries
+    power: ``gwpy.frequencyseries.FrequencySeries``
         A gwpy FrequencySeries containing the GW power spectrum
 
     Notes:
@@ -262,14 +272,14 @@ def interpolate_frequency_series(fSeries, new_frequencies):
 
     Parameters:
     ===========
-    fSeries: gwpy.frequencyseries.FrequencySeries
+    fSeries: ``gwpy.frequencyseries.FrequencySeries``
         The fFrequencySeries to interpolate.
     new_frequencies: array_like
         The new set of frequencies to interpolate to.
 
     Returns:
     ========
-    fSeries_new: gwpy.frequencyseries.FrequencySeries
+    fSeries_new: ``gwpy.frequencyseries.FrequencySeries``
         The interpolated FrequencySeries.
 
     """
@@ -287,7 +297,17 @@ def interpolate_frequency_series(fSeries, new_frequencies):
 
 def StatKS(DKS):
     """
-    Compute the KS test.
+    Compute the Kolgomorov-Smirnov test.
+    
+    Parameters:
+    ==========
+    DKS: ``float``
+        
+    
+    Returns:
+    =======
+    pvalue: ``float``
+        The p-value for the KS test.
     """
     jmax = 500
     pvalue = 0.0

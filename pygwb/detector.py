@@ -28,7 +28,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
 
     To load in some data, first make an empty detector object.
     
-    >>> ifo_1 : Interferometer.get_empty_interferometer("H1")
+    >>> ifo_1 = Interferometer.get_empty_interferometer("H1")
     
     Then, load in data using one of the provided `set` functions.
     
@@ -86,6 +86,10 @@ class Interferometer(bilby.gw.detector.Interferometer):
             List of segments that have been gated, not including any additional padding.
         gate_pad: `float`
             Duration of padding used when applying gates.
+
+        See also
+        --------
+        bilby.gw.detector.Interferometer : The parent class used for the implementation.
 
         """
         self.gates = SegmentList()
