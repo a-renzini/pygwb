@@ -37,7 +37,7 @@ def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_fa
     Calculate window factors. By default, for a hann window with 50% overlap.
 
     Parameters
-    ===========
+    ==========
     window_fftgram_dict: ``dictionary``, optional
         Dictionary with window characteristics. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`
     overlap_factor: ``float``, optional
@@ -68,10 +68,10 @@ def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_fa
 
 def get_window_tuple(window_fftgram_dict={"window_fftgram": "hann"}):
     """
-    Unpack the `window_fft_dict` dictionary into a `tuple` that may be read by ``scipy.get_window``.
+    Unpack the `window_fft_dict` dictionary into a `tuple` that may be read by ``scipy.signal.get_window``.
 
-    Parameters:
-    ===========
+    Parameters
+    ==========
     window_fftgram_dict: ``dictionary``, optional
         Dictionary with window characteristics. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`.
 
@@ -99,8 +99,8 @@ def calc_rho1(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_factor=
     """
     Calculate the combined window factor rho.
 
-    Parameters:
-    ===========
+    Parameters
+    ==========
     N: ``int``
         Length of the window.
     window_fftgram_dict: ``dictionary``, optional
@@ -123,8 +123,8 @@ def calc_rho(N, j, window_tuple="hann", overlap_factor=0.5):
     Calculate the normalised correlation of a window with itself shifted `j` times. This is identical
     to the `rho(j)` from Welch (1967).
 
-    Parameters:
-    ===========
+    Parameters
+    ==========
     N: ``int``
         Length of the window.
     j: ``int``
@@ -159,8 +159,8 @@ def effective_welch_averages(nSamples, N, window_tuple="hann", overlap_factor=0.
     Calculate the "effective" number of averages used in Welch's PSD estimate after taking into account windowing
     and overlap.
 
-    Parameters:
-    ===========
+    Parameters
+    ==========
     nSamples: ``int``
         Number of samples to be used to estimate the PSD.
     N: ``int``
@@ -202,8 +202,8 @@ def calc_bias(
     """
     Calculate the bias factor introduced by Welch averaging.
 
-    Parameters:
-    ===========
+    Parameters
+    ==========
     segmentDuration: ``float``
         Duration in seconds of Welch-averaged segment.
     deltaF: ``float``
@@ -242,8 +242,8 @@ def omega_to_power(omega_GWB, frequencies):
     Compute the GW power spectrum starting from the :math:`\omega`\ :sub:`GWB`\ 
     spectrum.
 
-    Parameters:
-    ===========
+    Parameters
+    ==========
     omega_GWB: array_like
         The omega spectrum to turn into strain power.
     frequencies: array_like
@@ -270,14 +270,14 @@ def interpolate_frequency_series(fSeries, new_frequencies):
     """
     Interpolate a frequency series, given a new set of frequencies.
 
-    Parameters:
-    ===========
+    Parameters
+    ==========
     fSeries: ``gwpy.frequencyseries.FrequencySeries``
         The fFrequencySeries to interpolate.
     new_frequencies: array_like
         The new set of frequencies to interpolate to.
 
-    Returns:
+    Returns
     ========
     fSeries_new: ``gwpy.frequencyseries.FrequencySeries``
         The interpolated FrequencySeries.
@@ -299,12 +299,12 @@ def StatKS(DKS):
     """
     Compute the Kolgomorov-Smirnov test.
     
-    Parameters:
+    Parameters
     ==========
     DKS: ``float``
         
     
-    Returns:
+    Returns
     =======
     pvalue: ``float``
         The p-value for the KS test.
