@@ -1,7 +1,6 @@
 import os
 import warnings
 
-import bilby
 import gwpy
 import numpy as np
 from loguru import logger

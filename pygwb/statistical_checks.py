@@ -1,10 +1,7 @@
-import pickle
 from os import listdir
 from os.path import isfile, join
 from pathlib import Path
 
-import gwpy
-import h5py
 import matplotlib
 import matplotlib.pyplot as plt
 
@@ -25,16 +22,12 @@ import seaborn as sns
 sea = sns.color_palette("tab10")
 
 import numpy as np
-from scipy import integrate, special, stats
+from scipy import integrate, stats
 from scipy.optimize import curve_fit
 
 from pygwb.baseline import Baseline
 from pygwb.parameters import Parameters
-from pygwb.postprocessing import (
-    calc_Y_sigma_from_Yf_sigmaf,
-    calculate_point_estimate_sigma_spectra,
-)
-from pygwb.util import StatKS, calc_bias, interpolate_frequency_series
+from pygwb.util import StatKS, calc_bias
 
 
 class StatisticalChecks(object):

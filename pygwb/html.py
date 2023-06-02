@@ -5,19 +5,13 @@
 
 import argparse
 import glob
-import json
 import logging
 import os
-import sys
-import time
 
 import gwsumm
 import gwsumm.plot
 import gwsumm.tabs
-import matplotlib.pyplot as plt
-import numpy
 from gwpy.time import from_gps
-from gwpy.timeseries import TimeSeries
 
 """Create pygwb html
 """

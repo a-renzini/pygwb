@@ -2,8 +2,7 @@ import logging
 import os
 
 import bilby.gw.detector
-import numpy as np
-from bilby.gw.detector.psd import PowerSpectralDensity
+from bilby.gw.detector import PowerSpectralDensity
 from gwpy.segments import SegmentList
 
 from .preprocessing import (
@@ -124,7 +123,11 @@ class Interferometer(bilby.gw.detector.Interferometer):
                         continue
                     split_line = line.split("=")
                     key = split_line[0].strip()
-                    value = eval("=".join(split_line[1:]))
+                    value = eval(
+                        "=".join(split_line[1:]),
+                        dict(__builtins__=dict()),
+                        dict(PowerSpectralDensity=PowerSpectralDensity),
+                    )
                     parameters[key] = value
             if "shape" not in parameters.keys():
                 logging.debug("Assuming L shape for name")
@@ -176,7 +179,6 @@ class Interferometer(bilby.gw.detector.Interferometer):
             window_downsampling=parameters.window_downsampling,
             ftype=parameters.ftype,
             time_shift=parameters.time_shift,
-            tag=parameters.tag,
             input_sample_rate=parameters.input_sample_rate,
         )
         return ifo
@@ -206,7 +208,6 @@ class Interferometer(bilby.gw.detector.Interferometer):
         window_downsampling = kwargs.pop("window_downsampling")
         ftype = kwargs.pop("ftype")
         time_shift = kwargs.pop("time_shift")
-        tag = kwargs.pop("tag")
         self.duration = segment_duration
         self.timeseries = preprocessing_data_channel_name(
             IFO=self.name,
@@ -222,7 +223,6 @@ class Interferometer(bilby.gw.detector.Interferometer):
             window_downsampling=window_downsampling,
             ftype=ftype,
             time_shift=time_shift,
-            tag=tag,
             input_sample_rate=input_sample_rate,
         )
         self._check_timeseries_channel_name(channel)
@@ -311,8 +311,8 @@ class Interferometer(bilby.gw.detector.Interferometer):
         self,
         frequency_resolution,
         overlap_factor=0.5,
-        overlap_factor_welch_psd=0,
-        window_fftgram_dict={"window_fftgram": "hann"},
+        window_fftgram_dict_welch_psd={"window_fftgram": "hann"},
+        overlap_factor_welch_psd=0.5,
     ):
         """
         Set psd_spectrogram attribute from given spectrum-related information.
@@ -337,7 +337,8 @@ class Interferometer(bilby.gw.detector.Interferometer):
             self.duration,
             frequency_resolution,
             overlap_factor=overlap_factor,
-            window_fftgram_dict=window_fftgram_dict,
+            window_fftgram_dict_welch_psd=window_fftgram_dict_welch_psd,
+            overlap_factor_welch_psd=overlap_factor_welch_psd,
         )
         self.psd_spectrogram.channel = self.timeseries.channel
         self._check_spectrogram_channel_name(self.timeseries.channel.name)

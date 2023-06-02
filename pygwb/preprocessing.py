@@ -5,7 +5,7 @@ import warnings
 import lal
 import numpy as np
 import scipy
-from gwpy import signal, timeseries
+from gwpy import timeseries
 
 
 def set_start_time(
@@ -69,7 +69,6 @@ def read_data(
     t0: int,
     tf: int,
     local_data_path: str = "",
-    tag: str = "C00",
     input_sample_rate: int = 16384,
 ):
     """
@@ -100,9 +99,6 @@ def read_data(
     local_data_path: str, optional
         path where local gwf is stored
 
-    tag: str, optional
-        tag identifying type of data, e.g.: 'C00', 'C01'
-
     input_sample_rate: int
         Sampling rate of the timeseries to be read
 
@@ -113,7 +109,7 @@ def read_data(
     """
     if data_type == "public":
         data = timeseries.TimeSeries.fetch_open_data(
-            IFO, t0, tf, sample_rate=input_sample_rate, tag=tag
+            IFO, t0, tf, sample_rate=input_sample_rate
         )
         data.channel = channel
     elif data_type == "private":
@@ -219,7 +215,7 @@ def resample_filter(
     """
     if (new_sample_rate * number_cropped_seconds) < 18:
         warnings.warn(
-            f"Number of cropped seconds requested {number_cropped_seconds}s is low compared to the sampling rate {new_sampling_rate}: cropped-seconds x sampling-rate = {number_cropped_seconds*new_sampling_rate}."
+            f"Number of cropped seconds requested {number_cropped_seconds}s is low compared to the sampling rate {new_sample_rate}: cropped-seconds x sampling-rate = {number_cropped_seconds*new_sample_rate}."
         )
     data_to_resample = copy.deepcopy(time_series_data.value)
     original_times = copy.deepcopy(time_series_data.times)
@@ -437,7 +433,6 @@ def preprocessing_data_channel_name(
     ftype: str = "fir",
     time_shift: int = 0,
     local_data_path: str = "",
-    tag: str = "C00",
     input_sample_rate: int = 16384,
 ):
     """
@@ -485,9 +480,6 @@ def preprocessing_data_channel_name(
     time_shift: int
         value of the time shift (in seconds)
 
-    tag: str, optional
-        tag identifying type of data, e.g.: 'C00', 'C01'
-
     input_sample_rate: int
         Sampling rate of the timeseries to be read
 
@@ -510,7 +502,6 @@ def preprocessing_data_channel_name(
         t0=data_start_time - number_cropped_seconds,
         tf=tf,
         local_data_path=local_data_path,
-        tag=tag,
         input_sample_rate=input_sample_rate,
     )
 
@@ -519,7 +510,7 @@ def preprocessing_data_channel_name(
         gwpy_timeseries=time_series_data,
         new_sample_rate=new_sample_rate,
         cutoff_frequency=cutoff_frequency,
-        number_cropped_seconds=2,
+        number_cropped_seconds=number_cropped_seconds,
         window_downsampling=window_downsampling,
         ftype=ftype,
         time_shift=time_shift,
@@ -603,7 +594,7 @@ def preprocessing_data_timeseries_array(
         gwpy_timeseries=time_series_data,
         new_sample_rate=new_sample_rate,
         cutoff_frequency=cutoff_frequency,
-        number_cropped_seconds=2,
+        number_cropped_seconds=number_cropped_seconds,
         window_downsampling=window_downsampling,
         ftype=ftype,
         time_shift=time_shift,

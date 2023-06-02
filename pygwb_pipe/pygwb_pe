@@ -2,10 +2,10 @@
 
 import argparse
 import json
-import sys
 
 import numpy as np
 import bilby
+import h5py
 
 from fractions import Fraction
 
@@ -13,6 +13,16 @@ import pygwb.pe as pe
 from pygwb.baseline import Baseline
 from pygwb.detector import Interferometer
 
+def load_hdf5(fname_path):
+    hf = h5py.File(fname_path, "r")
+    point_estimate_spectrum = np.array(hf.get("point_estimate_spectrum"))
+    sigma_spectrum = np.array(hf.get("sigma_spectrum"))
+    if "freqs" not in hf.keys():
+        freqs = None
+    else:
+        freqs = np.array(hf.get("freqs"))
+        
+    return (freqs, point_estimate_spectrum, sigma_spectrum)
 
 def main():
     pe_parser = argparse.ArgumentParser(add_help=True)
@@ -41,13 +51,13 @@ def main():
         "--quantiles", help="The quantiles used for plotting in plot corner, default is [0.05, 0.95].", type=str, action="store", required=False, default="None"
     )
     pe_parser.add_argument(
-        "--f0", help="If no frequencies are saved in the loaded npz file, you can give f0, fhigh and df to the script. This is f0", type=float, action="store", default=None
+        "--f0", help="If no frequencies are saved in the loaded npz file, you can give f0, fhigh and df to the script. This is f0, the begin frequency.", type=float, action="store", default=None
     )
     pe_parser.add_argument(
-        "--fhigh", help="If no frequencies are saved in the loaded npz file, you can give f0, fhigh and df to the script. This is fhigh", type=float, action="store", default=None
+        "--fhigh", help="If no frequencies are saved in the loaded npz file, you can give f0, fhigh and df to the script. This is fhigh, the end frequency.", type=float, action="store", default=None
     )
     pe_parser.add_argument(
-        "--df", help="If no frequencies are saved in the loaded npz file, you can give f0, fhigh and df to the script. This is df", type=float, action="store", default=None
+        "--df", help="If no frequencies are saved in the loaded npz file, you can give f0, fhigh and df to the script. This is df, the frequency spacing.", type=float, action="store", default=None
     )
     pe_parser.add_argument(
         "--calibration_epsilon", help="Calibration uncertainty. 0 by default.", type=float, action="store", default=None, required=False,
@@ -73,7 +83,7 @@ def main():
     
     if script_args.model not in dictionary_models.keys():
         raise ValueError(
-            "The model you provided is not supported."
+            "The model {script_args.model} you provided is not supported."
         )
     else:
         class_model = dictionary_models[script_args.model]
@@ -102,9 +112,14 @@ def main():
             f"Not all required parameters of the model are present in one of the parameters dictionaries. \n These are the required parameters: {dictionary_parameters[script_args.model]}."
         )
     
-    if script_args.path_to_file.endswith(("npz")):
-        
-        frequencies, point_estimate_spectrum, sigma_spectrum = load_npz(script_args.path_to_file)
+
+    if script_args.path_to_file.endswith(("npz")) or script_args.path_to_file.endswith((".h5")):
+    
+        if script_args.path_to_file.endswith(("npz")):
+            frequencies, point_estimate_spectrum, sigma_spectrum = load_npz(script_args.path_to_file)
+        else:
+            frequencies, point_estimate_spectrum, sigma_spectrum = load_hdf5(script_args.path_to_file)
+
         
         if frequencies is None:
             frequencies = np.arange(script_args.f0, script_args.fhigh + script_args.df, script_args.df)
@@ -139,7 +154,7 @@ def main():
     
     else:
         raise TypeError(
-            "The provided file format is currently not supported, try a npz file or a pickled baseline instead."
+            "The provided file format is currently not supported, try an npz, hdf5 file or a pickled baseline instead."
         )
     
     
@@ -173,7 +188,7 @@ def main():
     else:
         quantiles = json.loads(script_args.quantiles)
         
-    print(quantiles)
+    #print(quantiles)
 
     hlv.plot_corner(show_titles=True, title_fmt='.3g', use_math_text=True, quantiles=quantiles, range=range_list)
     
