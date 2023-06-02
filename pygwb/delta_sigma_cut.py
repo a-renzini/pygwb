@@ -24,7 +24,9 @@ def dsc_cut(
     Function that performs the delta sigma cut, a veto that marks certain GPS times as unusable if the estimation of
     the PSD in the naive (estimating sigma in bin J) and sliding (estimating sigma in bins J \pm 1) differ by more than
     a certain threshold:
-    .. math:: 
+    
+    .. math::
+    
         \frac{|\bar{\sigma}_{t, \alpha} b_{\rm avg} - \sigma_{t, \alpha} b_{\rm nav} |} {\bar{\sigma}_{t, \alpha} b_{\rm avg}}>{\rm threshold}
 
     Parameters
