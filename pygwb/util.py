@@ -161,13 +161,13 @@ def effective_welch_averages(nSamples, N, window_tuple="hann", overlap_factor=0.
 
     Parameters
     ==========
-    nSamples: ``int``
+    nSamples: `int`
         Number of samples to be used to estimate the PSD.
-    N: ``int``
+    N: `int`
         Length of the window.
-    window_tuple: ``str`` or ``tuple``, optional
+    window_tuple: `str` or ``tuple``, optional
         Window name or tuple as used in ``scipy.signal.get_window()``. Default is `window_tuple="hann"`.
-    overlap_factor: ``float``, optional
+    overlap_factor: `float`, optional
         Defines the overlap between consecutive segments used in the calculation. Default is 0.5.
 
     Returns:
@@ -302,7 +302,7 @@ def StatKS(DKS):
     Parameters
     ==========
     DKS: ``float``
-        
+        DKS input value.
     
     Returns
     =======
