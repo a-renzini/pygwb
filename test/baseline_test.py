@@ -509,7 +509,7 @@ class TestBaseline(unittest.TestCase):
             Loading_picklefile = pickle.load(f)
 
         loaded_frequencies = Loading_picklefile["freqs"]
-        test_frequencies = pickled_base.frequencies
+        test_frequencies = pickled_base.csd.frequencies.value
         self.assertEqual(loaded_frequencies.tolist(), test_frequencies.tolist())
 
         loaded_avg_frequencies = Loading_picklefile["avg_freqs"]
