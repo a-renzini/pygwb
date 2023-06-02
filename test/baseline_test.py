@@ -410,7 +410,7 @@ class TestBaseline(unittest.TestCase):
         Loading_npzfile = np.load(f"{filename}.npz")
 
         loaded_frequencies = Loading_npzfile["freqs"]
-        test_frequencies = pickled_base.frequencies
+        test_frequencies = pickled_base.csd.frequencies.value
         self.assertEqual(loaded_frequencies.tolist(), test_frequencies.tolist())
 
         loaded_avg_frequencies = Loading_npzfile["avg_freqs"]
