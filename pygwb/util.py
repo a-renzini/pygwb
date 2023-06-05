@@ -1,3 +1,9 @@
+"""Util module provides miscellaneous functions for the pygwb user used during the analysis.
+
+The util module collects all useful functions of pygwb that are called upon in multiple other modules or do not belong contextually in one of the other modules.
+These functions mainly performs computations that are relatively easy and are needed at multiple steps of the pipeline analysis.
+"""
+
 import copy
 
 import gwpy
@@ -6,11 +12,6 @@ from scipy.interpolate import interp1d
 from scipy.signal import get_window
 
 from pygwb.constants import H0
-
-"""
-The util module collects all useful functions of pygwb that are used in multiple other modules or do not belong contextually in one of the other modules.
-These functions mainly performs computations that are relatively easy and at multiple steps of the pipeline analysis.
-"""
 
 def parse_window_dict(window_dict):
     """
@@ -41,10 +42,9 @@ def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_fa
     window_fftgram_dict: ``dictionary``, optional
         Dictionary with window characteristics. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`
     overlap_factor: ``float``, optional
-        Defines the overlap between consecutive data chunks used in the calculation. Default is 0.5.
-        
+        Defines the overlap between consecutive data chunks used in the calculation. Default is 0.5.        
 
-    Returns:
+    Returns
     ========
     This functions returns the four window factors which correct the analysis for the effect of the window factor.
     w1w2bar: ``float``
@@ -271,7 +271,7 @@ def interpolate_frequency_series(fSeries, new_frequencies):
     Interpolate a frequency series, given a new set of frequencies.
 
     Parameters
-    ==========
+    ========
     fSeries: ``gwpy.frequencyseries.FrequencySeries``
         The fFrequencySeries to interpolate.
     new_frequencies: array_like
