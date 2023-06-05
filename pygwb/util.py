@@ -18,7 +18,7 @@ def parse_window_dict(window_dict):
     Parse the window dictionary properly for scipy compatibility.
     
     Parameters
-    ==========
+    ========
     window_dict: `dictionary`
         Dictionary containing the window characteristics.
     """
@@ -38,7 +38,7 @@ def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_fa
     Calculate window factors. By default, for a hann window with 50% overlap.
 
     Parameters
-    ==========
+    ========
     window_fftgram_dict: ``dictionary``, optional
         Dictionary with window characteristics. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`
     overlap_factor: ``float``, optional
@@ -71,7 +71,7 @@ def get_window_tuple(window_fftgram_dict={"window_fftgram": "hann"}):
     Unpack the `window_fft_dict` dictionary into a `tuple` that may be read by ``scipy.signal.get_window``.
 
     Parameters
-    ==========
+    ========
     window_fftgram_dict: ``dictionary``, optional
         Dictionary with window characteristics. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`.
 
@@ -100,7 +100,7 @@ def calc_rho1(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_factor=
     Calculate the combined window factor rho.
 
     Parameters
-    ==========
+    ========
     N: ``int``
         Length of the window.
     window_fftgram_dict: ``dictionary``, optional
@@ -124,7 +124,7 @@ def calc_rho(N, j, window_tuple="hann", overlap_factor=0.5):
     to the `rho(j)` from Welch (1967).
 
     Parameters
-    ==========
+    ========
     N: ``int``
         Length of the window.
     j: ``int``
@@ -272,8 +272,8 @@ def interpolate_frequency_series(fSeries, new_frequencies):
 
     Parameters
     ========
-    fSeries: ``gwpy.frequencyseries.FrequencySeries``
-        The fFrequencySeries to interpolate.
+    fSeries: `gwpy.frequencyseries.FrequencySeries`
+        The FrequencySeries to interpolate.
     new_frequencies: array_like
         The new set of frequencies to interpolate to.
 

@@ -74,7 +74,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
             Calibration model, this applies the calibration correction to the
             template, the default model applies no correction.
 
-        See `docs of bilby <https://lscsoft.docs.ligo.org/bilby/api/bilby.gw.detector.interferometer.Interferometer.html#bilby.gw.detector.interferometer.Interferometer>`_
+        See `docs of bilby <https://lscsoft.docs.ligo.org/bilby/api/bilby.gw.detector.interferometer.Interferometer.html#bilby.gw.detector.interferometer.Interferometer>`__
         for the detailed docs of the parent class.
 
         Additional attributes
