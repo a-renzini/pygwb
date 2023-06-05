@@ -1,3 +1,10 @@
+"""The postprocessing modules groups all functions which are useful in the end stages of the analysis. In particular when combining spectrograms into spectra and spectra into one overall point estimate for the gravitational-wave background.
+
+When computing an estimator for the gravitational-wave background in the isotropic search as it is ran by pygwb, we go through different steps of the analysis. Postprocessing is the last stage of the analysis and the functions utilised in that step are collected in this module. This step happens after the computation of the PSDs and CSDs. It contains functions such as :code:`postprocess_Y_sigma` which combines even and odd segments from point estimate and sigma spectrograms using a ingenious method where odd and even segments are treated differently if the data is overlapping. To achieve that, it uses another function of the postprocessing module, :code:`odd_even_segment_postprocessing`.
+These spectrograms have to be computed from the CSDs and PSDs. The postprocessing module also contains the function responsible for this calculation, :code:`calculate_point_estimate_sigma_spectra`. Starting from a set of CSD and PSD spectrograms, one can compute the point estimate and sigma spectrograms, objects that contain both frequency and segment data information. 
+Then the spectrograms are combined into spectra with the functions mentioned above. These spectra then have to be combined into one single point estimate and its variance. To achieve that goal another function, :code:`calc_Y_sigma_from_Yf_sigmaf`, is utilised.
+"""
+
 import numpy as np
 import scipy.ndimage as ndi
 from loguru import logger
@@ -24,35 +31,38 @@ def postprocess_Y_sigma(
     """Run postprocessing of point estimate and sigma spectrograms, combining even and
     odd segments in the case of overlapping data. For more details see - https://dcc.ligo.org/public/0027/T040089/000/T040089-00.pdf
 
-    Parameters:
-    -----------
-    Y_fs : array-like
-        2D array of point estimates with Ntimes x Nfreqs with overlapping segments
-    var_fs : array-like
-        2D array of variances or 2D with dimensions Ntimes x Nfreqs with overlapping time segments
-    segment_duration : float
-        Duration of each time segment
-    deltaF : float
-        Frequency resolution
-    new_sample_rate : float
-        sample rate of timeseries after resampling
+    Parameters
+    --------
+    Y_fs: array-like
+        2D array of point estimates with Ntimes x Nfreqs with overlapping segments.
+    var_fs: array-like
+        2D array of variances or 2D with dimensions Ntimes x Nfreqs with overlapping time segments.
+    segment_duration: `float`
+        Duration of each time segment.
+    deltaF: `float`
+        Frequency resolution.
+    new_sample_rate: `float`
+        Sample rate of timeseries after resampling.
     frequency_mask: array-like, optional
         Boolean mask to apply to frequencies for the calculation. Defaults to True which includes all frequencies in the analysis.
     badtimes_mask: array-like, optional
         Boolean mask to apply to GPStimes in the calculation. Defaults to None such that all times are included.
-    do_overlap: bool, optional
+    do_overlap: `bool`, optional
         Indicates whether to proceed with the odd/even postprocessing calculation which assumes a 50\% overlap between consecutive segments. Default is True.
-    window_fftgram_dict: dictionary, optional
+    window_fftgram_dict: `dictionary`, optional
         Dictionary with window characteristics used in PSD estimation. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`
-    overlap_factor: float, optional
+    overlap_factor: `float`, optional
         Overlap factor used in PSD estimation. Default is 0.5.
+    N_avg_segs: `int`, optional
+        Number of segments over which the average is performed. 
+        This is useful for computing the bias, nothing more. Default is 2.
 
     Returns:
     --------
     Y_f_new : array-like
-        1D point estimate spectrum
+        1D point estimate spectrum.
     sigma_f_few : array-like
-        1D sigma spectrum
+        1D sigma spectrum.
     """
     if badtimes_mask is None:
         badtimes_mask = np.zeros(len(Y_fs), dtype=bool)
@@ -113,32 +123,32 @@ def odd_even_segment_postprocessing(
     frequency_mask=True,
     window_fftgram_dict={"window_fftgram": "hann"},
     overlap_factor=0.5,
-    N_avg_segs=2,
 ):
     """Perform averaging which combines even and odd segments for overlapping data. 
 
-    Parameters:
-    -----------
-    Y_fs : array-like
-        2D array of point estimates with Ntimes x Nfreqs with overlapping segments
-    var_fs : array-like
-        2D array of variances or 2D with dimensions Ntimes x Nfreqs with overlapping time segments
-    segment_duration : float
-        Duration of each time segment
-    new_sample_rate : float
-        sample rate of timeseries after resampling
+    Parameters
+    ---------
+    Y_fs: array-like
+        2D array of point estimates with Ntimes x Nfreqs with overlapping segments.
+    var_fs: array-like
+        2D array of variances or 2D with dimensions Ntimes x Nfreqs with overlapping time segments.
+    segment_duration: `float`
+        Duration of each time segment.
+    new_sample_rate: `float`
+        Sample rate of timeseries after resampling.
     frequency_mask: array-like, optional
-        Boolean mask to apply to frequencies for the calculation
-    window_fftgram_dict: dictionary, optional
-        Dictionary with window characteristics used in PSD estimation. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`
-    overlap_factor: float, optional
-
+        Boolean mask to apply to frequencies for the calculation.
+    window_fftgram_dict: `dictionary`, optional
+        Dictionary with window characteristics used in PSD estimation. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`.
+    overlap_factor: `float`, optional
+        Defines the overlap between consecutive data chunks used in the calculation. Default is 0.5.
+    
     Returns:
     --------
     Y_f_new : array-like
-        1D point estimate spectrum
+        1D point estimate spectrum.
     var_f_few : array-like
-        1D sigma spectrum
+        1D sigma spectrum.
     """
     _, w1w2squaredbar, _, w1w2squaredovlbar = window_factors(
         int(segment_duration * new_sample_rate), window_fftgram_dict, overlap_factor=overlap_factor
@@ -200,25 +210,25 @@ def calc_Y_sigma_from_Yf_sigmaf(
     spectra are Ntimes long.
 
     Parameters
-    ==========
+    ========
     Y_f: `pygwb.omega_spectrogram.OmegaSpectrogram`
-        Point estimate spectrum
+        Point estimate spectrum.
     sigma_f: `pygwb.omega_spectrogram.OmegaSpectrogram`
-        Sigma spectrum
+        Sigma spectrum.
     frequency_mask: array-like, optional
         Boolean mask to apply to frequencies for the calculation.
-    alpha: float, optional
+    alpha: `float`, optional
         Spectral index to use in case re-weighting is requested.
-    fref: float, optional
+    fref: `float`, optional
         Reference frequency to use in case re-weighting is requested.
 
     Returns:
     --------
     Y : array-like or float
-        Point estimate or Point estimate spectrum
+        Point estimate or Point estimate spectrum.
     sigma : array-like or float
-        point estimate standard deviation (theoretical) or spectrum of point estimate
-        standard deviations
+        Point estimate standard deviation (theoretical) or spectrum of point estimate
+        standard deviations.
     Note
     ====
     If passing in spectrograms, the point estimate and sigma will be calculated per
@@ -291,26 +301,26 @@ def calculate_point_estimate_sigma_spectra(
     ==========
     freqs: array_like
         Frequencies associated to the spectrograms.
-    csd: gwpy Spectrogram
+    csd: `gwpy.spectrogram.Spectrogram`
         CSD spectrogram for detectors 1 and 2.
-    avg_psd_1: gwpy Spectrogram
+    avg_psd_1: `gwpy.spectrogram.Spectrogram`
         Spectrogram of averaged PSDs for detector 1.
-    avg_psd_2: gwpy Spectrogram
+    avg_psd_2: `gwpy.spectrogram.Spectrogram`
         Spectrogram of averaged PSDs for detector 2.
     orf: array_like
         Overlap reduction function.
-    sample_rate: float
+    sample_rate: `float`
         Sampling rate of the data.
-    segment_duration: float
+    segment_duration: `float`
         Duration of each segment in seconds.
-    window_fftgram_dict: dictionary, optional
-        Dictionary with window characteristics used in PSD estimation. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`
-    overlap_factor: float, optional
+    window_fftgram_dict: `dictionary`, optional
+        Dictionary with window characteristics used in PSD estimation. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`.
+    overlap_factor: `float`, optional
         Overlap factor used in PSD estimation. Default is 0.5.
-    fref: float, optional
+    fref: `float`, optional
         Reference frequency to use in the weighting calculation.
         Final result refers to this frequency.
-    alpha: float, optional
+    alpha: `float`, optional
         Spectral index to use in the weighting.
     """
     S_alpha = 3 * H0.si.value ** 2 / (10 * np.pi ** 2) / freqs ** 3
@@ -348,10 +358,10 @@ def combine_spectra_with_sigma_weights(main_spectra, weights_spectra):
     which combines across other dimension).
 
     Parameters
-    =========
-    main_spectra: np.array
+    ========
+    main_spectra: `np.ndarray`
         Array of arrays or FrequencySeries or OmegaSpectrum objects to be combined.
-    weights_spectra: np.array
+    weights_spectra: `np.ndarray`
         Array of arrays or FrequencySeries or OmegaSpectrum objects to use as weights.
 
     Returns

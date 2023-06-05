@@ -39,9 +39,9 @@ def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_fa
 
     Parameters
     ========
-    window_fftgram_dict: ``dictionary``, optional
+    window_fftgram_dict: `dictionary`, optional
         Dictionary with window characteristics. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`
-    overlap_factor: ``float``, optional
+    overlap_factor: `float`, optional
         Defines the overlap between consecutive data chunks used in the calculation. Default is 0.5.        
 
     Returns
@@ -165,14 +165,14 @@ def effective_welch_averages(nSamples, N, window_tuple="hann", overlap_factor=0.
         Number of samples to be used to estimate the PSD.
     N: `int`
         Length of the window.
-    window_tuple: `str` or ``tuple``, optional
+    window_tuple: `str` or `tuple`, optional
         Window name or tuple as used in ``scipy.signal.get_window()``. Default is `window_tuple="hann"`.
     overlap_factor: `float`, optional
         Defines the overlap between consecutive segments used in the calculation. Default is 0.5.
 
-    Returns:
+    Returns
     ========
-    Neff: ``float``
+    Neff: `float`
         The effective number of averages.
     """
     # S is the shift, that is, the number of samples by which the window is shifted from the base window
@@ -204,15 +204,15 @@ def calc_bias(
 
     Parameters
     ==========
-    segmentDuration: ``float``
+    segmentDuration: `float`
         Duration in seconds of Welch-averaged segment.
-    deltaF: ``float``
+    deltaF: `float`
         Frequency resolution of Welch-averaged segment.
-    deltaT: ``float``
+    deltaT: `float`
         Time sampling of Welch-averaged segment.
-    N_avg_segs: ``int``, optional
+    N_avg_segs: `int`, optional
         Number of segments over which the average is performed.
-    overlap_factor: ``float``, optional
+    overlap_factor: `float`, optional
         Defines the overlap between consecutive data chunks used in the calculation. Default is 0.5.
 
     Returns:

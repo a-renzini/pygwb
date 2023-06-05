@@ -389,7 +389,11 @@ class Interferometer(bilby.gw.detector.Interferometer):
         gate_whiten : `bool`
             if True, data will be whitened before gating points are discovered,
             use of this option is highly recommended
-
+            
+        See also
+        --------
+        gwpy.timeseries.TimeSeries.gate : the function used for the gating of the data itself.
+        
         """
         gate_tzero = kwargs.pop("gate_tzero")
         gate_tpad = kwargs.pop("gate_tpad")

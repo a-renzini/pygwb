@@ -1,3 +1,13 @@
+"""The notch module handles all things considering notches. It bookkeeps and can calculate them with the provided classes and functions.
+
+This module has two main classes and a couple of functions all dealing with the createn of a notchlist used in the analysis to get rid of bad behaving frequencies.
+First of all there is the class StochNotch, based on the Notch class from ``bilby.gw.detector.strain_data``. This class stores a single Notch object containing a small description of the notch and the corresponding minimum and maximum frequency. 
+Next, StochNotchList is the combination of multiple StochNotch objects. It will contain information about multiple notches, every notch represented as a StochNotch and the information inside.
+
+Three independent functions are also defined in this module. Those created StochNotchList objects for three of the most prevalent types of notches. 
+The first function is ``comb`` which creates a StochNotchList for a certain set of lines in a comb structure. Secondly, we have ``power_lines`` which makes a StochNotchList object for the notches coming with the power line harmonics, e.g. 60 Hz harmonics in USA and 50 Hz in Italy. The third and final function, ``pulsat_injection``, generates a StochNotchList object which are contaminated by pulsar injections.
+"""
+
 import numpy as np
 from bilby.gw.detector.strain_data import Notch
 
@@ -12,7 +22,11 @@ class StochNotch(Notch):
             The minimum and maximum frequency of the notch
         description: str
             A description of the origin/reason of the notch
-
+            
+        See also
+        --------
+        bilby.gw.detector.strain_data.Notch : The parent class used for this implementation.
+        
         """
         super().__init__(minimum_frequency, maximum_frequency)
         self.description = description
