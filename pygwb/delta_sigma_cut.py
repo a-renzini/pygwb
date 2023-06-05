@@ -4,15 +4,6 @@ from loguru import logger
 from pygwb.postprocessing import calculate_point_estimate_sigma_spectra
 from pygwb.util import calc_bias
 
-
-"""
-In general, the noise level in ground-based detectors changes slowly on time-scales of tens of minutes to hours. The
-variance associated to each segment is an indicator of that level of noise, which typically changes
-at roughly the percent level from one data segment to the next. However, there are occasional very loud disturbances
-to the detectors, such as glitches, which violate the Gaussianity of the noise. To avoid biases due to these noise events, 
-the delta-sigma cut module is implemented in `pygwb` which flags specific segments to be cut from the analyzed set.
-"""
-
 def dsc_cut(
     naive_sigma: np.ndarray,
     slide_sigma: np.ndarray,
@@ -26,7 +17,6 @@ def dsc_cut(
     a certain threshold:
     
     .. math::
-    
         \frac{|\bar{\sigma}_{t, \alpha} b_{\rm avg} - \sigma_{t, \alpha} b_{\rm nav} |} {\bar{\sigma}_{t, \alpha} b_{\rm avg}}>{\rm threshold}
 
     Parameters
