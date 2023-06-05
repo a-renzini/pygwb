@@ -243,13 +243,25 @@ class Parameters:
                 dictionary.pop(item)
         if "window_fftgram" in dictionary:
             window_fft_dict = {}
-            window_fft_dict["window_fftgram"] = dictionary["window_fftgram"]
-            dictionary.pop("window_fftgram")
+            wfgram_name, *wfgram = dictionary.pop("window_fftgram").split(',')
+            window_fft_dict["window_fftgram"] = wfgram_name
+            if wfgram_name.lower()=='tukey':
+                window_fft_dict["alpha"] = wfgram[0]
+            elif wfgram_name.lower()=='hann':
+                pass
+            else: 
+                raise ValueError(f"Window {wfgram_name} not supported from command line! Please try submitting through a full parameter ini file.")
             dictionary["window_fft_dict"] = window_fft_dict
         if "window_fftgram_welch" in dictionary:
             window_fft_dict_welch = {}
-            window_fft_dict_welch["window_fftgram"] = dictionary["window_fftgram_welch"]
-            dictionary.pop("window_fftgram_welch")
+            wfgram_name_welch, *wfgram_welch = dictionary.pop("window_fftgram_welch").split(',')
+            window_fft_dict_welch["window_fftgram"] = wfgram_name_welch
+            if wfgram_name_welch.lower()=='tukey':
+                window_fft_dict_welch["alpha"] = wfgram[0]
+            elif wfgram_name_welch.lower()=='hann':
+                pass
+            else: 
+                raise ValueError(f"Window {wfgram_name_welch} not supported from command line! Please try submitting through a full parameter ini file.")
             dictionary["window_fft_dict_welch"] = window_fft_dict_welch
         self.update_from_dictionary(dictionary)
 
