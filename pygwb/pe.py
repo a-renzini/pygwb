@@ -18,6 +18,10 @@ class GWBModel(bilby.Likelihood):
     where :math:`\Omega_{\rm M}(f_k|\mathbf{\Theta})` is the model being fit to data, and :math:`\mathbf{\Theta}` are the model's parameters.
 
     The noise likelihood is given by setting :math:`\Omega_{\rm M}(f_k|\mathbf{\Theta})=0`.
+    
+    See also
+    --------
+    bilby.Likelihood : The parent class used for the implementation.
 
     """
 
@@ -62,7 +66,25 @@ class GWBModel(bilby.Likelihood):
         pass
 
     def log_likelihood_IJ(self, baseline, noise=False):
-        """Function for evaluating log likelihood of IJ baseline pair"""
+        """
+        Function for evaluating log likelihood of IJ baseline pair
+        
+        Parameters
+        ==========
+        
+        baseline: pygwb.Baseline
+            Baseline for which to run parameter estimation on.
+        
+        noise: bool, optional
+            Parameter to indicate whether the likelihood should be evaluated assuming
+            the signal model, or assuming only noise is present in the data.
+        
+        Returns
+        =======
+        
+        logL_IJ: float
+            Log likelihood value for the IJ baseline pair
+        """
         if noise:
             Y_model_f = 0
         else:
@@ -106,14 +128,18 @@ class GWBModel(bilby.Likelihood):
         return logL_IJ
 
     def log_likelihood(self):
-        """Function for evaluating log likelihood of detector network"""
+        """
+        Function for evaluating log likelihood of detector network
+        """
         ll = 0
         for baseline in self.baselines:
             ll = ll + self.log_likelihood_IJ(baseline, noise=False)
         return ll
 
     def noise_log_likelihood(self):
-        """Function for evaluating noise log likelihood of detector network"""
+        """
+        Function for evaluating noise log likelihood of detector network
+        """
         ll = 0
         for baseline in self.baselines:
             ll = ll + self.log_likelihood_IJ(baseline, noise=True)
@@ -167,6 +193,10 @@ class PowerLawModel(GWBModel):
         Spectral index of the power law (:math:`\alpha`)
     frequencies : numpy.ndarray
         Array of frequencies at which to evaluate the model
+        
+    See also
+    --------
+    pygwb.GWBModel : The parent class used for the implementation.
     
     """
 
@@ -253,6 +283,10 @@ class BrokenPowerLawModel(GWBModel):
         Break frequency for the broken power law (:math:`f_{\text{ref}}`)
     frequencies : numpy.ndarray
         Array of frequencies at which to evaluate the model
+        
+    See also
+    --------
+    pygwb.GWBModel : The parent class used for the implementation.
     
     """
 
@@ -351,6 +385,10 @@ class TripleBrokenPowerLawModel(GWBModel):
         Second break frequency for the triple broken power law (:math:`f_2`)
     frequencies : numpy.ndarray
         Array of frequencies at which to evaluate the model
+    
+    See also
+    --------
+    pygwb.GWBModel : The parent class used for the implementation.
     
     """
 
@@ -457,6 +495,10 @@ class SmoothBrokenPowerLawModel(GWBModel):
         Break frequency for the smooth broken power law (:math:`f_{\text{ref}}`)
     frequencies : numpy.ndarray
         Array of frequencies at which to evaluate the model
+        
+    See also
+    --------
+    pygwb.GWBModel : The parent class used for the implementation.
     
     """
 
@@ -521,6 +563,10 @@ class SchumannModel(GWBModel):
         Spectral index of coupling function of interferometer i (:math:`\beta_i`)
     frequencies : numpy.ndarray
         Array of frequencies at which to evaluate the model
+        
+    See also
+    --------
+    pygwb.GWBModel : The parent class used for the implementation.
     """
 
     def __init__(self, **kwargs):
@@ -642,6 +688,10 @@ class TVSPowerLawModel(GWBModel):
     frequencies : numpy.ndarray
         Array of frequencies at which to evaluate the model
 
+    See also
+    --------
+    pygwb.GWBModel : The parent class used for the implementation.
+    
     """
 
     def __init__(self, **kwargs):
@@ -737,6 +787,10 @@ class PVPowerLawModel(GWBModel):
         Degree of parity violation (:math:`\Pi`)
     frequencies : numpy.ndarray
         Array of frequencies at which to evaluate the model
+        
+    See also
+    --------
+    pygwb.GWBModel : The parent class used for the implementation.
     
     """
 
@@ -826,6 +880,10 @@ class PVPowerLawModel2(GWBModel):
         Spectral index of the degree of parity violation (:math:`\beta`)
     frequencies : numpy.ndarray
         Array of frequencies at which to evaluate the model
+        
+    See also
+    --------
+    pygwb.GWBModel : The parent class used for the implementation.
     
     """
 
