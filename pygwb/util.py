@@ -160,7 +160,7 @@ def effective_welch_averages(nSamples, N, window_tuple="hann", overlap_factor=0.
     and overlap.
 
     Parameters
-    ==========
+    ========
     nSamples: `int`
         Number of samples to be used to estimate the PSD.
     N: `int`
