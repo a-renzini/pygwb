@@ -422,32 +422,32 @@ def cross_spectral_density(
 
     Parameters
     ----------
-    time_series_data1: gwpy timeseries
+    time_series_data1: :code:`gwpy.timeseries.TimeSeries`
         Timeseries data of detector1.
-    time_series_data2: gwpy timeseries
+    time_series_data2: `gwpy.timeseries.TimeSeries`
         Timeseries data of detector2.
-    segment duration: int
-        data duration over which CSDs need to be calculated.
-    frequency_resolution: float
+    segment duration: `int`
+        Data duration over which CSDs need to be calculated.
+    frequency_resolution: `float`
         Frequency resolution of the final CSDs. This is achieved by averaing in
         frequency domain.
-    overlap_factor: float, optional
+    overlap_factor: `float`, optional
         Amount of overlap between adjacent segments (range between 0 and 1)
         This factor should be same as the one used for power_spectral_density.
         Users should provide proper combination of overlap_factor and
         window_fftgram_dict. For \"hann\" window use 0.5 overlap_factor and for \"boxcar"\ 
         window use 0 overlap_factor. Default id 0.5 (50% overlap).
-    zeropadd: bool, optional
+    zeropad: `bool`, optional
         Before doing FFT whether to zero pad the data equal to the length of 
         FFT or not. Default is False.
-    window_fftgram_dict: dictionary, optional
+    window_fftgram_dict: `dictionary`, optional
         Dictionary containing name and parameters describing which window to 
         use for producing FFTs. Default is \"hann\".
 
     Returns
     -------
-    csd_spectrogram: gwpy spectrogram
-       Cross spectral density of the two timeseries
+    csd_spectrogram: `gwpy.spectrogram.Spectrogram`
+       Cross spectral density of the two timeseries.
     """
 
     # Check if the lengths of two time-series are equal
@@ -500,27 +500,31 @@ def power_spectral_density(
 
     Parameters
     ----------
-    time_series_data: gwpy timeseries
+    time_series_data: `gwpy.timeseries.TimeSeries`
         Timeseries from which to compute PSDs.
-    segment duration: int
+    segment duration: `int`
         Data duration over which each PSDs need to be calculated.
-    frequency_resolution: float
+    frequency_resolution: `float`
         Frequency resolution of the final PSDs. This sets the time duration
         over which FFTs are calculated in the pwelch method.
-    overlap_factor: float, optional
+    overlap_factor: `float`, optional
         Amount of overlap between adjacent segments (range between 0 and 1).
         This factor should be same as the one used for cross_spectral_density.
         Users should provide proper combination of overlap_factor and
         window_fftgram_dict. For \"hann\" window use 0.5 overlap_factor and 
         for \"boxcar"\ window use 0 overlap_factor. Default is 0.5 (50% overlap)
-    window_fftgram_dict: dictionary, optional
+    window_fftgram_dict: `dictionary`, optional
         Dictionary containing name and parameters describing which window to 
         use for producing FFTs. Default is \"hann\".
+    overlap_factor_welch_psd: `float`, optional
+        Amount of overlap between adjacent segments when Welch averaging 
+        in computing the fftgram from both timeseries. 
+        Default is 0.5 (50% overlap).
      
     Returns
     -------
-    psd_spectrogram: gwpy PSD spectrogram
-        PSD spectrogram with each PSD duration equal to segment duration
+    psd_spectrogram: `gwpy.spectrogram.Spectrogram` PSD
+        PSD spectrogram with each PSD duration equal to segment duration.
     """
     
     # Length of data blocks to be used in pwelch
@@ -560,15 +564,16 @@ def running_mean(data, coarsening_factor=1, axis=-1):
     Parameters
     ----------
     data: array-like
-        Array of size M to be average
-    coarsening_factor: int
-        Number of segments to average, default=1
-    axis:
-        Axis to apply the mean over, default=-1
+        Array of size M to be averaged.
+    coarsening_factor: `int`, optional
+        Number of segments to average, default=1.
+    axis: `int`, optional
+        Axis to apply the mean over, default=-1.
 
     Returns
     -------
-    array-like: the averaged array of size M - coarsening factor
+    running_mean_array: array-like
+        The averaged array of size M - coarsening factor.
     """
     coarsening_factor = int(coarsening_factor)
     if axis != -1:
