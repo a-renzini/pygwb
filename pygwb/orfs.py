@@ -12,17 +12,18 @@ def Tplus(alpha, beta):
     Parameters
     ==========
     
-    alpha:
+    alpha: array_like
+        Given below Eq. (32) of https://arxiv.org/pdf/0903.0528.pdf. 
+        Has same shape as frequencies used to compute the ORF.
     
-    beta:
-    
-    
-    
+    beta: float
+        Angle between detectors from center of the Earth
+        
     Returns
     =======
     
-    Tplus: 
-    
+    Tplus: array_like
+        Tplus parameter, as defined in Eq. (34) of https://arxiv.org/pdf/0903.0528.pdf.
     
     """
     return (
@@ -54,14 +55,18 @@ def Tminus(alpha, beta):
     Parameters
     ==========
     
-    alpha:
+    alpha: array_like
+        Given below Eq. (32) of https://arxiv.org/pdf/0903.0528.pdf. 
+        Has same shape as frequencies used to compute the ORF.
     
-    beta:
-    
-    
+    beta: float
+        Angle between detectors from center of the Earth
     
     Returns
     =======
+    
+    Tminus: array_like
+        Tminus parameter, as defined in Eq. (35) of https://arxiv.org/pdf/0903.0528.pdf.
     
     """
     return (
@@ -79,15 +84,19 @@ def Vplus(alpha, beta):
     Parameters
     ==========
     
-    alpha:
+    alpha: array_like
+        Given below Eq. (32) of https://arxiv.org/pdf/0903.0528.pdf. 
+        Has same shape as frequencies used to compute the ORF.
     
-    beta:
-    
-    
+    beta: float
+        Angle between detectors from center of the Earth
     
     Returns
     =======
     
+    Vplus: array_like
+        Vplus parameter, as defined in Eq. (37) of https://arxiv.org/pdf/0903.0528.pdf.
+        
     """
     return (
         -(
@@ -118,14 +127,18 @@ def Vminus(alpha, beta):
     Parameters
     ==========
     
-    alpha:
+    alpha: array_like
+        Given below Eq. (32) of https://arxiv.org/pdf/0903.0528.pdf. 
+        Has same shape as frequencies used to compute the ORF.
     
-    beta:
-    
-    
+    beta: float
+        Angle between detectors from center of the Earth.
     
     Returns
     =======
+    
+    Vminus: array_like
+        Vminus parameter, as defined in Eq. (38) of https://arxiv.org/pdf/0903.0528.pdf.
     
     """
     return (
@@ -143,14 +156,18 @@ def Splus(alpha, beta):
     Parameters
     ==========
     
-    alpha:
+    alpha: array_like
+        Given below Eq. (32) of https://arxiv.org/pdf/0903.0528.pdf. 
+        Has same shape as frequencies used to compute the ORF.
     
-    beta:
-    
-    
+    beta: float
+        Angle between detectors from center of the Earth
     
     Returns
     =======
+    
+    Splus: array_like
+        Splus parameter, as defined in Eq. (40) of https://arxiv.org/pdf/0903.0528.pdf.
     
     """
     return (
@@ -182,14 +199,18 @@ def Sminus(alpha, beta):
     Parameters
     ==========
     
-    alpha:
+    alpha: array_like
+        Given below Eq. (32) of https://arxiv.org/pdf/0903.0528.pdf. 
+        Has same shape as frequencies used to compute the ORF.
     
-    beta:
-    
-    
+    beta: float
+        Angle between detectors from center of the Earth
     
     Returns
     =======
+    
+    Sminus: array_like
+        Sminus parameter, as defined in Eq. (41) of https://arxiv.org/pdf/0903.0528.pdf.
     
     """
     return (
@@ -205,11 +226,12 @@ def T_right_left(alpha, beta):
     Parameters
     ==========
     
-    alpha:
+    alpha: array_like
+        Given below Eq. (32) of https://arxiv.org/pdf/0903.0528.pdf. 
+        Has same shape as frequencies used to compute the ORF.
     
-    beta:
-    
-    
+    beta: float
+        Angle between detectors from center of the Earth
     
     Returns
     =======
@@ -234,6 +256,9 @@ def tangent_vector(vector1, vector2):
     
     Returns
     =======
+    
+    tanget_vector: array_like
+        Tangent vector to vector1 and vector2
     
     """
     return np.subtract(
@@ -288,8 +313,8 @@ def calc_orf(
     discussion of the normalization of the scalar ORF and
     https://arxiv.org/pdf/0707.0535.pdf for the vector ORF function.
     
-    Example
-    -------
+    Examples
+    --------
     
     To illustrate how to compute the overlap reduction function (ORF), we start by 
     importing the relevant packages:

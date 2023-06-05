@@ -127,19 +127,9 @@ class PowerLawModel(GWBModel):
     .. math::
         \Omega(f) = \Omega_{\text{ref}} \left(\frac{f}{f_{\text{ref}}}\right)^{\alpha}
         
-    Parameters:
-    ===========
-    fref : float
-        Reference frequency for defining the model (:math:`f_{\text{ref}}`)
-    omega_ref : float
-        Amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
-    alpha : float
-        Spectral index of the power law (:math:`\alpha`)
-    frequencies : numpy.ndarray
-        Array of frequencies at which to evaluate the model
         
-    Example
-    -------
+    Examples
+    --------
     
     To illustrate how to construct a likelihood with this model, we start by importing the relevant packages:
     
@@ -166,6 +156,17 @@ class PowerLawModel(GWBModel):
     
     >>> kwargs_pl = {"baselines":[HL], "model_name":'PL', "fref":25}
     >>> model_pl = PowerLawModel(**kwargs_pl)
+    
+    Parameters:
+    ===========
+    fref : float
+        Reference frequency for defining the model (:math:`f_{\text{ref}}`)
+    omega_ref : float
+        Amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
+    alpha : float
+        Spectral index of the power law (:math:`\alpha`)
+    frequencies : numpy.ndarray
+        Array of frequencies at which to evaluate the model
     
     """
 
