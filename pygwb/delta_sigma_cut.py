@@ -11,7 +11,7 @@ def dsc_cut(
     bf_ss: float = 1,
     bf_ns: float = 1,
 ):
-    """
+    r"""
     Function that performs the delta sigma cut, a veto that marks certain GPS times as unusable if the estimation of
     the PSD in the naive (estimating sigma in bin J) and sliding (estimating sigma in bins J \pm 1) differ by more than
     a certain threshold:
@@ -19,6 +19,31 @@ def dsc_cut(
     .. math::
         \frac{|\bar{\sigma}_{t, \alpha} b_{\rm avg} - \sigma_{t, \alpha} b_{\rm nav} |} {\bar{\sigma}_{t, \alpha} b_{\rm avg}}>{\rm threshold}
 
+    Examples
+    --------
+    
+    As an example, we show how to use delta sigma cut. To this end, we import the relevant packages:
+    
+    >>> import numpy as np
+    >>> from pygwb.delta_sigma_cut import dsc_cut
+    
+    For concreteness, we use some randomly generated data arrays as placeholders for ``naive_sigma`` and
+    ``sliding_sigma``:
+    
+    >>> naive_sigma = np.random.normal(size=10)
+    >>> sliding_sigma = np.random.normal(size=10)
+    
+    We call the ``dsc_cut`` method with its default parameters:
+    
+    >>> dsigma_mask, dsigma = dsc_cut(naive_sigma, sliding_sigma)
+    
+    The result is a mask containing booleans, which indicate whether or not the segment should be
+    considered in the remainder of the analysis. In addition, the actual value of the difference
+    in sigmas is given as well.
+    
+    >>> print(dsigma_mask)
+    >>> print(dsigma)
+    
     Parameters
     ==========
     naive_sigma: array_like
