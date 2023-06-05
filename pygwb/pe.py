@@ -18,14 +18,15 @@ class GWBModel(bilby.Likelihood):
     where :math:`\Omega_{\rm M}(f_k|\mathbf{\Theta})` is the model being fit to data, and :math:`\mathbf{\Theta}` are the model's parameters.
 
     The noise likelihood is given by setting :math:`\Omega_{\rm M}(f_k|\mathbf{\Theta})=0`.
-    
-    See also
-    --------
-    bilby.Likelihood : The parent class used for the implementation.
 
     """
 
     def __init__(self, baselines=None, model_name=None, polarizations=None):
+        """
+        See also
+        --------
+        bilby.Likelihood : The parent class used for the implementation.
+        """
         super(GWBModel, self).__init__()
         # list of baselines
         if baselines is None:
@@ -183,24 +184,25 @@ class PowerLawModel(GWBModel):
     >>> kwargs_pl = {"baselines":[HL], "model_name":'PL', "fref":25}
     >>> model_pl = PowerLawModel(**kwargs_pl)
     
-    Parameters:
-    ===========
-    fref : float
-        Reference frequency for defining the model (:math:`f_{\text{ref}}`)
-    omega_ref : float
-        Amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
-    alpha : float
-        Spectral index of the power law (:math:`\alpha`)
-    frequencies : numpy.ndarray
-        Array of frequencies at which to evaluate the model
-        
-    See also
-    --------
-    pygwb.GWBModel : The parent class used for the implementation.
-    
     """
 
     def __init__(self, **kwargs):
+        """
+        Parameters:
+        ===========
+        fref : float
+            Reference frequency for defining the model (:math:`f_{\text{ref}}`)
+        omega_ref : float
+            Amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
+        alpha : float
+            Spectral index of the power law (:math:`\alpha`)
+        frequencies : numpy.ndarray
+            Array of frequencies at which to evaluate the model
+        
+        See also
+        --------
+        pygwb.GWBModel : The parent class used for the implementation.
+        """
         try:
             fref = kwargs.pop("fref")
         except KeyError:
@@ -270,27 +272,28 @@ class BrokenPowerLawModel(GWBModel):
     
     >>> kwargs_bpl = {"baselines":[HL], "model_name":'BPL'}
     >>> model_bpl = BrokenPowerLawModel(**kwargs_bpl)
-        
-    Parameters:
-    ===========
-    omega_ref : float
-        Amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
-    alpha_1 : float
-        Spectral index of the broken power law (:math:`\alpha_1`)
-    alpha_2 : float
-        Spectral index of the broken power law (:math:`\alpha_2`)
-    fbreak : float
-        Break frequency for the broken power law (:math:`f_{\text{ref}}`)
-    frequencies : numpy.ndarray
-        Array of frequencies at which to evaluate the model
-        
-    See also
-    --------
-    pygwb.GWBModel : The parent class used for the implementation.
     
     """
 
     def __init__(self, **kwargs):
+        """
+        Parameters:
+        ===========
+        omega_ref : float
+            Amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
+        alpha_1 : float
+            Spectral index of the broken power law (:math:`\alpha_1`)
+        alpha_2 : float
+            Spectral index of the broken power law (:math:`\alpha_2`)
+        fbreak : float
+            Break frequency for the broken power law (:math:`f_{\text{ref}}`)
+        frequencies : numpy.ndarray
+            Array of frequencies at which to evaluate the model
+
+        See also
+        --------
+        pygwb.GWBModel : The parent class used for the implementation.
+        """
         super(BrokenPowerLawModel, self).__init__(**kwargs)
 
     @property
@@ -369,30 +372,31 @@ class TripleBrokenPowerLawModel(GWBModel):
     >>> kwargs_tbpl = {"baselines":[HL], "model_name":'TBPL'}
     >>> model_tbpl = TripleBrokenPowerLawModel(**kwargs_tbpl)
     
-    Parameters:
-    ===========
-    omega_ref : float
-        Amplitude of signal at fref (:math:`\Omega_{\text{ref}}`) 
-    alpha_1 : float
-        Spectral index of the broken power law (:math:`\alpha_1`)
-    alpha_2 : float
-        Spectral index of the broken power law (:math:`\alpha_2`)
-    alpha_3 : float
-        Spectral index of the broken power law (:math:`\alpha_3`)
-    fbreak1 : float
-        First break frequency for the triple broken power law (:math:`f_1`)
-    fbreak2 : float
-        Second break frequency for the triple broken power law (:math:`f_2`)
-    frequencies : numpy.ndarray
-        Array of frequencies at which to evaluate the model
-    
-    See also
-    --------
-    pygwb.GWBModel : The parent class used for the implementation.
-    
     """
 
     def __init__(self, **kwargs):
+        """
+        Parameters:
+        ===========
+        omega_ref : float
+            Amplitude of signal at fref (:math:`\Omega_{\text{ref}}`) 
+        alpha_1 : float
+            Spectral index of the broken power law (:math:`\alpha_1`)
+        alpha_2 : float
+            Spectral index of the broken power law (:math:`\alpha_2`)
+        alpha_3 : float
+            Spectral index of the broken power law (:math:`\alpha_3`)
+        fbreak1 : float
+            First break frequency for the triple broken power law (:math:`f_1`)
+        fbreak2 : float
+            Second break frequency for the triple broken power law (:math:`f_2`)
+        frequencies : numpy.ndarray
+            Array of frequencies at which to evaluate the model
+
+        See also
+        --------
+        pygwb.GWBModel : The parent class used for the implementation.
+        """
         super(TripleBrokenPowerLawModel, self).__init__(**kwargs)
 
     @property
@@ -480,29 +484,30 @@ class SmoothBrokenPowerLawModel(GWBModel):
     
     >>> kwargs_sbpl = {"baselines":[HL], "model_name":'SBPL'}
     >>> model_sbpl = SmoothBrokenPowerLawModel(**kwargs_sbpl)
-        
-    Parameters:
-    ===========
-    omega_ref : float
-        Amplitude of signal (:math:`\Omega_{\text{ref}}`)
-    Delta : float
-        Smoothing variable for the smooth broken power law (:math:`\Delta`)
-    alpha_1 : float
-        Low-frequency spectral index of the smooth broken power law (:math:`\alpha_1`)
-    alpha_2 : float
-        High-frequency spectral index of the smooth broken power law (:math:`\alpha_2`)
-    fbreak : float
-        Break frequency for the smooth broken power law (:math:`f_{\text{ref}}`)
-    frequencies : numpy.ndarray
-        Array of frequencies at which to evaluate the model
-        
-    See also
-    --------
-    pygwb.GWBModel : The parent class used for the implementation.
     
     """
 
     def __init__(self, **kwargs):
+        """
+        Parameters:
+        ===========
+        omega_ref : float
+            Amplitude of signal (:math:`\Omega_{\text{ref}}`)
+        Delta : float
+            Smoothing variable for the smooth broken power law (:math:`\Delta`)
+        alpha_1 : float
+            Low-frequency spectral index of the smooth broken power law (:math:`\alpha_1`)
+        alpha_2 : float
+            High-frequency spectral index of the smooth broken power law (:math:`\alpha_2`)
+        fbreak : float
+            Break frequency for the smooth broken power law (:math:`f_{\text{ref}}`)
+        frequencies : numpy.ndarray
+            Array of frequencies at which to evaluate the model
+
+        See also
+        --------
+        pygwb.GWBModel : The parent class used for the implementation.
+        """
         super(SmoothBrokenPowerLawModel, self).__init__(**kwargs)
 
     @property
@@ -553,23 +558,25 @@ class SchumannModel(GWBModel):
 
     .. math::
          \Omega(f) = \sum_{ij} \kappa_i \kappa_j \left(\frac{f}{f_{\text{ref}}}\right)^{-\beta_i-\beta_j} M_{ij}(f) \times 10^{-46}
-    Parameters:
-    ===========
-    fref : float
-        Reference frequency for defining the model (:math:`f_{\text{ref}}`)
-    kappa_i : float
-        Amplitude of coupling function of interferometer i at 10 Hz (:math:`\kappa_i`)
-    beta_i : float
-        Spectral index of coupling function of interferometer i (:math:`\beta_i`)
-    frequencies : numpy.ndarray
-        Array of frequencies at which to evaluate the model
-        
-    See also
-    --------
-    pygwb.GWBModel : The parent class used for the implementation.
     """
 
     def __init__(self, **kwargs):
+        """
+        Parameters:
+        ===========
+        fref : float
+            Reference frequency for defining the model (:math:`f_{\text{ref}}`)
+        kappa_i : float
+            Amplitude of coupling function of interferometer i at 10 Hz (:math:`\kappa_i`)
+        beta_i : float
+            Spectral index of coupling function of interferometer i (:math:`\beta_i`)
+        frequencies : numpy.ndarray
+            Array of frequencies at which to evaluate the model
+
+        See also
+        --------
+        pygwb.GWBModel : The parent class used for the implementation.
+        """
         # Set valid ifos
         # get ifo's associated with this set of
         # baselines.
@@ -677,24 +684,25 @@ class TVSPowerLawModel(GWBModel):
     >>> kwargs_pl_sv = {"baselines":[HL], "model_name":'PL_SV', "polarizations":['scalar', 'vector']}
     >>> model_pl_sv = TVSPowerLawModel(**kwargs_pl_sv)
     
-    Parameters:
-    ===========
-    fref : float
-        Rference frequency for defining the model (:math:`f_{\text{ref}}`)
-    omega_ref_pol : float
-        Amplitude of signal at fref for polarization pol (:math:`\Omega_{\text{ref},\text{pol}}`)
-    alpha_pol : float
-        Spectral index of the power law for polarization pol (:math:`\alpha_{\text{pol}}`)
-    frequencies : numpy.ndarray
-        Array of frequencies at which to evaluate the model
-
-    See also
-    --------
-    pygwb.GWBModel : The parent class used for the implementation.
-    
     """
 
     def __init__(self, **kwargs):
+        """
+        Parameters:
+        ===========
+        fref : float
+            Rference frequency for defining the model (:math:`f_{\text{ref}}`)
+        omega_ref_pol : float
+            Amplitude of signal at fref for polarization pol (:math:`\Omega_{\text{ref},\text{pol}}`)
+        alpha_pol : float
+            Spectral index of the power law for polarization pol (:math:`\alpha_{\text{pol}}`)
+        frequencies : numpy.ndarray
+            Array of frequencies at which to evaluate the model
+
+        See also
+        --------
+        pygwb.GWBModel : The parent class used for the implementation.
+        """
         try:
             fref = kwargs.pop("fref")
         except KeyError:
@@ -775,26 +783,27 @@ class PVPowerLawModel(GWBModel):
     >>> kwargs_pl_pv = {"baselines":[HL], "model_name":'PL_PV', 'fref': 25}
     >>> model_pl_pv = PVPowerLawModel(**kwargs_pl_pv)
     
-    Parameters:
-    ===========
-    fref : float
-        Reference frequency for defining the model (:math:`f_{\text{ref}}`)
-    omega_ref : float
-        Amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
-    alpha : float
-        Spectral index of the power law (:math:`\alpha`)
-    Pi : float
-        Degree of parity violation (:math:`\Pi`)
-    frequencies : numpy.ndarray
-        Array of frequencies at which to evaluate the model
-        
-    See also
-    --------
-    pygwb.GWBModel : The parent class used for the implementation.
-    
     """
 
     def __init__(self, **kwargs):
+        """
+        Parameters:
+        ===========
+        fref : float
+            Reference frequency for defining the model (:math:`f_{\text{ref}}`)
+        omega_ref : float
+            Amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
+        alpha : float
+            Spectral index of the power law (:math:`\alpha`)
+        Pi : float
+            Degree of parity violation (:math:`\Pi`)
+        frequencies : numpy.ndarray
+            Array of frequencies at which to evaluate the model
+
+        See also
+        --------
+        pygwb.GWBModel : The parent class used for the implementation.
+        """
         try:
             fref = kwargs.pop("fref")
         except KeyError:
@@ -868,26 +877,27 @@ class PVPowerLawModel2(GWBModel):
     >>> kwargs_pl_pv_2 = {"baselines":[HL], "model_name":'PL_PV_2', 'fref': 25}
     >>> model_pl_pv_2 = PVPowerLawModel2(**kwargs_pl_pv_2)
     
-    Parameters:
-    ===========
-    fref : float
-        Reference frequency for defining the model (:math:`f_{\text{ref}}`)
-    omega_ref : float
-        Amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
-    alpha : float
-        Spectral index of the power law (:math:`\alpha`)
-    beta : float
-        Spectral index of the degree of parity violation (:math:`\beta`)
-    frequencies : numpy.ndarray
-        Array of frequencies at which to evaluate the model
-        
-    See also
-    --------
-    pygwb.GWBModel : The parent class used for the implementation.
-    
     """
 
     def __init__(self, **kwargs):
+        """
+        Parameters:
+        ===========
+        fref : float
+            Reference frequency for defining the model (:math:`f_{\text{ref}}`)
+        omega_ref : float
+            Amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
+        alpha : float
+            Spectral index of the power law (:math:`\alpha`)
+        beta : float
+            Spectral index of the degree of parity violation (:math:`\beta`)
+        frequencies : numpy.ndarray
+            Array of frequencies at which to evaluate the model
+
+        See also
+        --------
+        pygwb.GWBModel : The parent class used for the implementation.
+        """
         try:
             fref = kwargs.pop("fref")
         except KeyError:
