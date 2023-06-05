@@ -158,7 +158,7 @@ class Parameters:
         for name, dtype in ann.items():
             if name in kwargs:
                 try:
-                    if not bool(re.search("\{*\}", kwargs[name])): 
+                    if not bool(re.search("^.+:.+,.+:.+$", kwargs[name])): 
                         kwargs[name] = dtype(kwargs[name]) if kwargs[name] != 'False' else False
                 except TypeError:
                     pass
@@ -344,7 +344,7 @@ class Parameters:
             param.write(configfile)
 
     def parse_ifo_parameters(self):
-        ifo_parameters = ['channel', 'frametype', 'input_sample_rate', 'local_data_path']
+        ifo_parameters = ['channel', 'frametype', 'input_sample_rate', 'local_data_path', 'time_shift']
         ifo_list = self.interferometer_list
         param_dict = {}
         for ifo in ifo_list:
