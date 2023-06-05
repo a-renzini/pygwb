@@ -188,8 +188,9 @@ class PowerLawModel(GWBModel):
 
     def __init__(self, **kwargs):
         """
-        Parameters:
-        ===========
+        Parameters
+        ==========
+        
         fref : float
             Reference frequency for defining the model (:math:`f_{\text{ref}}`)
         omega_ref : float
@@ -277,8 +278,9 @@ class BrokenPowerLawModel(GWBModel):
 
     def __init__(self, **kwargs):
         """
-        Parameters:
-        ===========
+        Parameters
+        ==========
+        
         omega_ref : float
             Amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
         alpha_1 : float
@@ -376,8 +378,9 @@ class TripleBrokenPowerLawModel(GWBModel):
 
     def __init__(self, **kwargs):
         """
-        Parameters:
-        ===========
+        Parameters
+        ==========
+        
         omega_ref : float
             Amplitude of signal at fref (:math:`\Omega_{\text{ref}}`) 
         alpha_1 : float
@@ -489,8 +492,9 @@ class SmoothBrokenPowerLawModel(GWBModel):
 
     def __init__(self, **kwargs):
         """
-        Parameters:
-        ===========
+        Parameters
+        ==========
+        
         omega_ref : float
             Amplitude of signal (:math:`\Omega_{\text{ref}}`)
         Delta : float
@@ -562,8 +566,9 @@ class SchumannModel(GWBModel):
 
     def __init__(self, **kwargs):
         """
-        Parameters:
-        ===========
+        Parameters
+        ==========
+        
         fref : float
             Reference frequency for defining the model (:math:`f_{\text{ref}}`)
         kappa_i : float
@@ -688,8 +693,9 @@ class TVSPowerLawModel(GWBModel):
 
     def __init__(self, **kwargs):
         """
-        Parameters:
-        ===========
+        Parameters
+        ==========
+        
         fref : float
             Rference frequency for defining the model (:math:`f_{\text{ref}}`)
         omega_ref_pol : float
@@ -787,8 +793,9 @@ class PVPowerLawModel(GWBModel):
 
     def __init__(self, **kwargs):
         """
-        Parameters:
-        ===========
+        Parameters
+        ==========
+        
         fref : float
             Reference frequency for defining the model (:math:`f_{\text{ref}}`)
         omega_ref : float
@@ -881,8 +888,9 @@ class PVPowerLawModel2(GWBModel):
 
     def __init__(self, **kwargs):
         """
-        Parameters:
-        ===========
+        Parameters
+        ==========
+        
         fref : float
             Reference frequency for defining the model (:math:`f_{\text{ref}}`)
         omega_ref : float
