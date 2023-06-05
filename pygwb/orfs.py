@@ -288,6 +288,35 @@ def calc_orf(
     discussion of the normalization of the scalar ORF and
     https://arxiv.org/pdf/0707.0535.pdf for the vector ORF function.
     
+    Example
+    -------
+    
+    To illustrate how to compute the overlap reduction function (ORF), we start by 
+    importing the relevant packages:
+    
+    >>> import numpy as np
+    >>> from pygwb.orfs import *
+    >>> import matplotlib.pyplot as plt
+    
+    For concreteness, we consider the LIGO Hanford-Livingston baseline, and compute
+    the ORF for this baseline. We define empty detectors:
+    
+    >>> H1 = bilbydet.get_empty_interferometer('H1')
+    >>> L1 = bilbydet.get_empty_interferometer('L1')
+    
+    We  now compute the ORF for a set of frequencies by using the relevant information 
+    contained in the interferometer objects defined above:
+    
+    >>> freqs = np.arange(10.25, 256.25, 0.25)
+    >>> orf = calc_orf(freqs, H1.vertex, L1.vertex, H1.x, L1.x, H1.y, L1.y, polarization = "tensor")
+    
+    The resulting ORF looks as follows:
+    
+    >>> plt.plot(freqs, orf)
+    
+    Note that, in practice, these methods are not called by the user, but are
+    called by the ``baseline`` module directly.
+    
     Parameters
     ==========
     
@@ -342,35 +371,6 @@ def calc_orf(
     
     overlap_reduction_function: array_like
         Overlap reduction function at given frequencies for specified polarization
-        
-    Example
-    -------
-    
-    To illustrate how to compute the overlap reduction function (ORF), we start by 
-    importing the relevant packages:
-    
-    >>> import numpy as np
-    >>> from pygwb.orfs import *
-    >>> import matplotlib.pyplot as plt
-    
-    For concreteness, we consider the LIGO Hanford-Livingston baseline, and compute
-    the ORF for this baseline. We define empty detectors:
-    
-    >>> H1 = bilbydet.get_empty_interferometer('H1')
-    >>> L1 = bilbydet.get_empty_interferometer('L1')
-    
-    We  now compute the ORF for a set of frequencies by using the relevant information 
-    contained in the interferometer objects defined above:
-    
-    >>> freqs = np.arange(10.25, 256.25, 0.25)
-    >>> orf = calc_orf(freqs, H1.vertex, L1.vertex, H1.x, L1.x, H1.y, L1.y, polarization = "tensor")
-    
-    The resulting ORF looks as follows:
-    
-    >>> plt.plot(freqs, orf)
-    
-    Note that, in practice, these methods are not called by the user, but are
-    called by the ``baseline`` module directly.
     
     """
 

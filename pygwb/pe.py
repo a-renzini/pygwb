@@ -126,6 +126,7 @@ class PowerLawModel(GWBModel):
 
     .. math::
         \Omega(f) = \Omega_{\text{ref}} \left(\frac{f}{f_{\text{ref}}}\right)^{\alpha}
+        
     Parameters:
     ===========
     fref : float
@@ -210,19 +211,6 @@ class BrokenPowerLawModel(GWBModel):
             \Omega_{\text{ref}} \left( \frac{f}{f_{\text{ref}}} \right) ^ {\alpha_2}, f > f_{\text{ref}}
         \end{cases}
         
-    Parameters:
-    ===========
-    omega_ref : float
-        Amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
-    alpha_1 : float
-        Spectral index of the broken power law (:math:`\alpha_1`)
-    alpha_2 : float
-        Spectral index of the broken power law (:math:`\alpha_2`)
-    fbreak : float
-        Break frequency for the broken power law (:math:`f_{\text{ref}}`)
-    frequencies : numpy.ndarray
-        Array of frequencies at which to evaluate the model
-        
     Example
     -------
     
@@ -251,6 +239,19 @@ class BrokenPowerLawModel(GWBModel):
     
     >>> kwargs_bpl = {"baselines":[HL], "model_name":'BPL'}
     >>> model_bpl = BrokenPowerLawModel(**kwargs_bpl)
+        
+    Parameters:
+    ===========
+    omega_ref : float
+        Amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
+    alpha_1 : float
+        Spectral index of the broken power law (:math:`\alpha_1`)
+    alpha_2 : float
+        Spectral index of the broken power law (:math:`\alpha_2`)
+    fbreak : float
+        Break frequency for the broken power law (:math:`f_{\text{ref}}`)
+    frequencies : numpy.ndarray
+        Array of frequencies at which to evaluate the model
     
     """
 
