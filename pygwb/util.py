@@ -299,10 +299,10 @@ def StatKS(DKS):
     """
     Compute the Kolgomorov-Smirnov test.
     
-    Parameters
+    Parameters:
     
-    DKS: ``float``
-        DKS input value.
+        DKS: ``float``
+            DKS input value.
     
     Returns
     =======
