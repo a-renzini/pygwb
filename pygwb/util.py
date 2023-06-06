@@ -301,8 +301,8 @@ def StatKS(DKS):
     
     Parameters:
     =======
-        DKS: ``float``
-            DKS input value.
+    DKS: ``float``
+        DKS input value.
     
     Returns
     =======
