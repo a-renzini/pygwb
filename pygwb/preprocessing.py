@@ -162,7 +162,7 @@ def apply_high_pass_filter(
     Function to apply a high pass filter to a timeseries.
 
     Parameters
-    ========
+    =======
     timeseries: ``gwpy.timeseries.TimeSeries``
         Timeseries to which to apply the high pass filter.
 
