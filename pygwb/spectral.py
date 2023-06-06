@@ -488,7 +488,7 @@ def cross_spectral_density(
 
 def power_spectral_density(
     time_series_data:  TimeSeries,
-    segment_duration:  TimeSeries,
+    segment_duration:  int,
     frequency_resolution: float,
     overlap_factor: float = 0.5,
     window_fftgram_dict_welch_psd: dict = {"window_fftgram": "hann"},
