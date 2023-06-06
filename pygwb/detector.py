@@ -41,6 +41,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
 
         Parameters
         ==========
+        
         *args : arguments passed to the (parent) bilby's Interferometer class.
         **kwargs : keyword arguments passed to the (parent) bilby's Inteferometer class.
 
