@@ -1,3 +1,41 @@
+"""
+This module provides an easy-to-use tool to simulate data, both a stochastic gravitational-wave 
+background, as well as individual compact binary coalescence waveforms.
+    
+Examples
+--------
+    
+To illustrate how to create a ``simulator`` object, we start by 
+importing the relevant packages:
+    
+>>> import numpy as np
+>>> from pygwb.simulator import Simulator
+>>> import bilby.gw.detector as bilbydet
+    
+For concreteness, we will simulate a signal for the LIGO Hanford-Livingston
+baseline. We create the two detectors as follows:
+    
+>>> H1 = bilbydet.get_empty_interferometer('H1')
+>>> L1 = bilbydet.get_empty_interferometer('L1')
+    
+As an example, we consider a flat signal PSD:
+    
+>>> freqs = np.linspace(0, 1000, 10000)
+>>> signal = gwpy.frequencyseries.FrequencySeries(1e-42*np.ones(10000), frequencies=freqs)
+    
+The simulator object is then created as follows:
+    
+>>> simulator_object = Simulator(interferometers = [H1,L1], N_segments = 1, duration = 64, 
+    sampling_frequency = 1024, intensity_GW = signal)
+        
+The actual data is then simulated by calling the ``generate_data`` method:
+    
+>>> data = simulator_object.generate_data()
+    
+For more information, we refer the reader to the ``simulator`` tutorials.
+    
+"""
+
 import bilby
 import gwpy
 import numpy as np
@@ -11,44 +49,6 @@ from pygwb.util import interpolate_frequency_series
 
 
 class Simulator(object):
-    """
-    This module provides an easy-to-use tool to simulate data, both a stochastic gravitational-wave 
-    background, as well as individual compact binary coalescence waveforms.
-    
-    Examples
-    --------
-    
-    To illustrate how to create a ``simulator`` object, we start by 
-    importing the relevant packages:
-    
-    >>> import numpy as np
-    >>> from pygwb.simulator import Simulator
-    >>> import bilby.gw.detector as bilbydet
-    
-    For concreteness, we will simulate a signal for the LIGO Hanford-Livingston
-    baseline. We create the two detectors as follows:
-    
-    >>> H1 = bilbydet.get_empty_interferometer('H1')
-    >>> L1 = bilbydet.get_empty_interferometer('L1')
-    
-    As an example, we consider a flat signal PSD:
-    
-    >>> freqs = np.linspace(0, 1000, 10000)
-    >>> signal = gwpy.frequencyseries.FrequencySeries(1e-42*np.ones(10000), frequencies=freqs)
-    
-    The simulator object is then created as follows:
-    
-    >>> simulator_object = Simulator(interferometers = [H1,L1], N_segments = 1, duration = 64, 
-        sampling_frequency = 1024, intensity_GW = signal)
-        
-    The actual data is then simulated by calling the ``generate_data`` method:
-    
-    >>> data = simulator_object.generate_data()
-    
-    For more information, we refer the reader to the ``simulator`` tutorials.
-    
-    """
-    
     def __init__(
         self,
         interferometers,
@@ -69,27 +69,27 @@ class Simulator(object):
         Parameters
         ==========
         
-        interferometers: list
+        interferometers: ``list``
             List of bilby interferometer objects
-        intensity_GW: gwpy.frequencyseries.FrequencySeries, optional
+        intensity_GW: ``gwpy.frequencyseries.FrequencySeries``, optional
             A gwpy.frequencyseries.FrequencySeries containing the desired strain power spectrum
             which needs to be simulated. Defaults to None (then ``injection_dict`` should be passed).
-        injection_dict: dict, optional
+        injection_dict: ``dict``, optional
             Dictionary containing the parameters of CBC injections. Defaults to None (then 
             ``intensity_GW`` should be passed). 
-        N_segments: int
+        N_segments: ``int``
             Number of segments that needs to be generated for the simulation
-        duration: float
+        duration: ``float``
             Duration of a simulated data segment in seconds.
-        sampling_frequency: float
+        sampling_frequency: ``float``
             Sampling frequency in Hz.
-        start_time: float, optional
+        start_time: ``float``, optional
             Start time (in seconds) of the simulation. Defaults to 0.
-        no_noise: boolean, optional
+        no_noise: ``boolean``, optional
             Flag that sets the noise_PSDs to 0. Defaults to False.
-        seed: int, optional
+        seed: ``int``, optional
             Seed to use for random data generation. Defaults to None.
-        continuous: boolean, optional
+        continuous: ``boolean``, optional
             Flag to generate continuous segments. If True, a seed must also be provided. Defaults to False. 
         
         Notes
@@ -158,11 +158,13 @@ class Simulator(object):
 
         Returns
         =======
+        
         frequencies: array_like
             Array containing the computed frequencies
             
         See also
         --------
+        
         bilby.core.utils : Used to create the frequency series
         
         """
@@ -177,12 +179,14 @@ class Simulator(object):
 
         Returns
         =======
+        
         noise_PSDs_array: array_like
             Array containing the noise PSD arrays for all interferometers in
             self.interferometers.
             
         See also
         --------
+        
         pygwb.util.interpolate_frequency_series : Used to interpolate the frequency series
         
         """
@@ -224,6 +228,7 @@ class Simulator(object):
             
         Returns
         =======
+        
         orf_list: list
             List containing the overlap reduction functions for all the baselines
             in self.baselines.
@@ -251,11 +256,13 @@ class Simulator(object):
 
         Returns
         =======
+        
         interferometer_data: dict
             A dictionary with the simulated data for the interferometers.
             
         See also
         --------
+        
         pygwb.simulator.generate_data : Method to generate the data.
         """
         data = self.generate_data(data_start=self.t0)
@@ -293,17 +300,20 @@ class Simulator(object):
 
         Parameters
         ==========
+        
         data_start: float, optional
             Start time of the data that is being generated. Defaults to None.
 
         Returns
         =======
+        
         data: array_like
             An array of size Nd (number of detectors) with gwpy TimeSeries with the
             data containing the simulated isotropic stochastic background.
 
         See also
         --------
+        
         gwpy.timeseries.TimeSeries : Used as output data format for the ``simulator``.
         
         """
@@ -350,6 +360,7 @@ class Simulator(object):
 
         Returns
         =======
+        
         orf_array: array_like
             Array of shape Nd x Nd containing the orfs, where Nd is the number of
             detectors. The convention used for consistency with the remainder of the
@@ -404,12 +415,14 @@ class Simulator(object):
 
         Parameters
         ==========
+        
         flag: str
             Either flagged as "noise" or "signal", to allow for different generation of
             covariance matrix in both cases.
 
         Returns
         =======
+        
         C: array_like
             Covariance matrix corresponding to a stochastic background in the
             various detectors. Dimensions are Nd x Nd x Nf, where Nd is the
@@ -440,6 +453,7 @@ class Simulator(object):
 
         Parameters
         ==========
+        
         C: array_like
             Covariance matrix corresponding to a stochastic background in the
             various detectors. Dimensions are Nd x Nd x Nf, where Nd is the
@@ -447,6 +461,7 @@ class Simulator(object):
 
         Returns
         =======
+        
         eigval: array_like
             Array of diagonal matrices containing the eigenvalues of the
             covariance matrix C.
@@ -456,6 +471,7 @@ class Simulator(object):
             
         See also
         --------
+        
         numpy.linalg.eig : Used to compute the eigenvalues and eigenvectors
         
         """
@@ -470,11 +486,13 @@ class Simulator(object):
 
         Returns
         =======
+        
         z: array_like
             Array of size Nf x Nd containing uncorrelated frequency domain data.
             
         See also
         --------
+        
         numpy.random.randn : Used for the generation of random numbers.
         
         """
@@ -491,6 +509,7 @@ class Simulator(object):
 
         Parameters
         ==========
+        
         z: array_like
             Array containing the uncorrelated data with random phase.
         C: array_like
@@ -500,12 +519,14 @@ class Simulator(object):
 
         Returns
         =======
+        
         x: array_like
             Array of size Nf x Nd, containing the correlated stochastic
             background data.
         
         See also
         --------
+        
         numpy.einsum : Used for efficient summation over specific indices.
         
         """
@@ -529,12 +550,14 @@ class Simulator(object):
 
         Returns
         =======
+        
         y: array_like
             Array of size Nd x 2*(N_segments+1) x N_samples_per_segment containing the
             various segments with the simulated data.
             
         See also
         --------
+        
         numpy.fft.ifft : Used to transform data from the frequency domain to the time domain.
         
         """
@@ -585,6 +608,7 @@ class Simulator(object):
 
         Parameters
         ==========
+        
         segments: array_like
             Array of size Nd x (2*N_segments+1) x N_samples_per_segment containing the
             various segments with the simulated data that need to be spliced
@@ -592,6 +616,7 @@ class Simulator(object):
 
         Returns
         =======
+        
         data: array_like
             Array of size Nd x (N_segments*N_samples_per_segment) containing the simulated
             data corresponding to an isotropic stochastic background for each of the
@@ -648,6 +673,7 @@ class Simulator(object):
 
         Returns
         =======
+        
         data: array_like
             Array of size Nd x (N_segments*N_samples_per_segment) containing the simulated
             data corresponding to a background of CBC sources for each of the
@@ -655,6 +681,7 @@ class Simulator(object):
             
         See also
         --------
+        
         bilby.gw.WaveformGenerator : Used to generate CBC waveforms.
         
         """
