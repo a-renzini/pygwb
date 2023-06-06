@@ -1,4 +1,4 @@
-"""The notch module handles all things considering notches. It bookkeeps and can calculate them with the provided classes and functions.
+"""The notch module handles all things considering notches. It bookkeeps and can calculates them with the provided classes and functions.
 
 This module has two main classes and a couple of functions all dealing with the createn of a notchlist used in the analysis to get rid of bad behaving frequencies.
 First of all there is the class StochNotch, based on the Notch class from ``bilby.gw.detector.strain_data``. This class stores a single Notch object containing a small description of the notch and the corresponding minimum and maximum frequency. 
@@ -77,7 +77,8 @@ class StochNotchList(list):
         notch_list: `list`
             A list of length-3 tuples of the (min, max) frequency; description for the notches.
 
-        :raises ValueError: If the list is malformed.
+        :raises:
+            ValueError: If the list is malformed.
         """
 
         if notch_list is not None:
@@ -89,17 +90,17 @@ class StochNotchList(list):
                     raise ValueError(msg)
 
     def check_frequency(self, freq):
-        """Check if freq is inside the notch list
+        """Check if freq is inside the notch list.
 
         Parameters
         ==========
-        freq: float
-            The frequency to check
+        freq: `float`
+            The frequency to check.
 
         Returns
         =======
         True/False:
-            If freq inside any of the notches, return True, else False
+            If freq inside any of the notches, return True, else False.
         """
 
         for notch in self:
@@ -108,21 +109,21 @@ class StochNotchList(list):
         return False
 
     def get_notch_mask(self, frequency_array, save_file_flag=False, filename=""):
-        """Get a boolean mask for the frequencies in frequency_array in the notch list
+        """Get a boolean mask for the frequencies in frequency_array in the notch list.
 
         Parameters
         ==========
-        frequency_array: np.ndarray
-            An array of frequencies
-        save_file_flag: boolean
-            A boolean flag indicating whether to save the notch mask in a file or not
-        filename: str
-            The name of the file where to store the notch mask if save_file_flag is true
+        frequency_array: `np.ndarray`
+            An array of frequencies.
+        save_file_flag: `bool`
+            A boolean flag indicating whether to save the notch mask in a file or not.
+        filename: `str`
+            The name of the file where to store the notch mask if save_file_flag is true.
 
         Returns
         =======
-        notch_mask: np.ndarray
-            An array of booleans that are False for frequencies in the notch
+        notch_mask: `np.ndarray`
+            An array of booleans that are False for frequencies in the notch.
 
         Notes
         =====
@@ -139,15 +140,15 @@ class StochNotchList(list):
         return notch_mask
 
     def save_notch_mask(self, frequency_array, filename):
-        """Saves a boolean mask for the frequencies in frequency_array in the notch list
+        """Saves a boolean mask for the frequencies in frequency_array in the notch list.
 
         Parameters
         ==========
-        frequency_array: np.ndarray
-            An array of frequencies
+        frequency_array: `np.ndarray`
+            An array of frequencies.
 
-        filename: str
-            Name of the target file
+        filename: `str`
+            Name of the target file.
 
         Notes
         =====
@@ -161,11 +162,11 @@ class StochNotchList(list):
         )
 
     def save_to_txt(self, filename):
-        """Save the nocth list to a txt-file (after sorting)
+        """Save the notch list to a txt-file (after sorting).
 
         Parameters
         ==========
-        filename: str
+        filename: `str`
             Name of the target file
 
         """
@@ -186,7 +187,7 @@ class StochNotchList(list):
         )
 
     def sort_list(self):
-        """Sorts the notch list based on the minimum frequency of the notches
+        """Sorts the notch list based on the minimum frequency of the notches.
 
         Parameters
         ==========
@@ -197,11 +198,11 @@ class StochNotchList(list):
 
     @classmethod
     def load_from_file(cls, filename):
-        """Load an already existing notch list from a txt-file (with formatting as produced by this code)
+        """Load an already existing notch list from a txt-file (with formatting as produced by this code).
 
         Parameters
         ==========
-        filename: str
+        filename: `str`
             Filename of the file containing the notchlist to be read in
 
         """
@@ -224,19 +225,23 @@ class StochNotchList(list):
 
 def power_lines(fundamental=60, nharmonics=40, df=0.2):
     """
-    Create list of power line harmonics (nharmonics*fundamental Hz) to remove
+    Create list of power line harmonics (nharmonics*fundamental Hz) to remove.
 
     Parameters
     ==========
-    fundamental: float
-        Fundamental frequency of the first harmonic
-    nharmonics: float
-        Number of harmonics (should include all harmonics within studied frequency range of the study)
+    fundamental: `float`, optional
+        Fundamental frequency of the power line.
+        Default value is 60 Hz.
+    nharmonics: `float`, optional
+        Number of harmonics (should include all harmonics within studied frequency range of the study).
+        Default is 40.
+    df: `float`, optional
+        Frequency width of considered power line.
 
     Returns
     =======
-    notches: list of NoiseLine objects
-        List of lines you want to be notched in NoisLine format
+    notches: `StochNotchList`
+        StochNotchList object containing lines you want to be notched.
 
     """
     freqs = fundamental * np.arange(1, nharmonics + 1)
@@ -251,11 +256,11 @@ def power_lines(fundamental=60, nharmonics=40, df=0.2):
 
 def comb(f0, f_spacing, n_harmonics, df, description=None):
     """
-    Create a list of comb lines to remove with the form 'f0+n*f_spacing, n=0,1,...,n_harmonics-1'
+    Create a list of comb lines to remove with the form 'f0+n*f_spacing, n=0,1,...,n_harmonics-1'.
 
     Parameters
     ==========
-    f0: float
+    f0: `float`
         Fundamental frequency of the first harmonic
     f_spacing: float
         spacing between two subsequent harmonics
