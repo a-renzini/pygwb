@@ -5,7 +5,7 @@ First of all there is the class StochNotch, based on the Notch class from ``bilb
 Next, StochNotchList is the combination of multiple StochNotch objects. It will contain information about multiple notches, every notch represented as a StochNotch and the information inside.
 
 Three independent functions are also defined in this module. Those created StochNotchList objects for three of the most prevalent types of notches. 
-The first function is ``comb`` which creates a StochNotchList for a certain set of lines in a comb structure. Secondly, we have ``power_lines`` which makes a StochNotchList object for the notches coming with the power line harmonics, e.g. 60 Hz harmonics in USA and 50 Hz in Italy. The third and final function, ``pulsat_injection``, generates a StochNotchList object which are contaminated by pulsar injections.
+The first function is ``comb`` which creates a StochNotchList for a certain set of lines in a comb structure. Secondly, we have ``power_lines`` which makes a StochNotchList object for the notches coming with the power line harmonics, e.g. 60 Hz harmonics in USA and 50 Hz in Italy. The third and final function, ``pursat_injection``, generates a StochNotchList object with notches which are contaminated by pulsar injections.
 """
 
 import numpy as np
@@ -14,14 +14,14 @@ from bilby.gw.detector.strain_data import Notch
 
 class StochNotch(Notch):
     def __init__(self, minimum_frequency, maximum_frequency, description):
-        """A notch object storing the maximum and minimum frequency of the notch, as well as a description
+        """A notch object storing the maximum and minimum frequency of the notch, as well as a description.
 
         Parameters
         ==========
-        minimum_frequency, maximum_frequency: float
-            The minimum and maximum frequency of the notch
-        description: str
-            A description of the origin/reason of the notch
+        minimum_frequency, maximum_frequency: `float`
+            The minimum and maximum frequency of the notch.
+        description: `str`
+            A description of the origin/reason of the notch.
             
         See also
         --------
@@ -32,20 +32,24 @@ class StochNotch(Notch):
         self.description = description
 
     def print_notch(self):
+        """
+        Small function that prints out the defining contents of the notch.
+        It will show you the minumum and maximum frequency and the description of the notch.
+        """
         print(self.minimum_frequency, self.maximum_frequency, self.description)
 
     def get_notch_mask(self, frequency_array):
-        """Get a boolean mask for the frequencies in frequency_array in the notch
+        """Get a boolean mask for the frequencies in frequency_array in the notch.
 
         Parameters
         ==========
-        frequency_array: np.ndarray
-            An array of frequencies
+        frequency_array: `np.ndarray`
+            An array of frequencies.
 
         Returns
         =======
-        notch_mask: np.ndarray
-            An array of booleans that are False for frequencies in the notch
+        notch_mask: `np.ndarray`
+            An array of booleans that are False for frequencies in the notch.
 
         Notes
         =====
@@ -66,17 +70,14 @@ class StochNotch(Notch):
 
 class StochNotchList(list):
     def __init__(self, notch_list):
-        """A list of notches
+        """A list of notches. All these notches are represented by an object of the StochNotch class.
 
         Parameters
         ==========
-        notch_list: list
+        notch_list: `list`
             A list of length-3 tuples of the (min, max) frequency; description for the notches.
 
-        Raises
-        ======
-        ValueError
-            If the list is malformed.
+        :raises ValueError: If the list is malformed.
         """
 
         if notch_list is not None:
