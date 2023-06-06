@@ -23,7 +23,7 @@ def fftgram(
 
     Parameters
     ----------
-    time_series_data: `gwpy.timeseries.TimeSeries`
+    time_series_data: ``gwpy.timeseries.TimeSeries``
         Timeseries from which to compute the fftgram.
     fftlength: `int`
         Length of each segment (in seconds) for computing FFT.
