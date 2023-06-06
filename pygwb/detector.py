@@ -40,7 +40,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
         """Instantiate an Interferometer class
 
         Parameters
-        ==========
+        =======
         
         *args : arguments passed to the (parent) bilby's Interferometer class.
         **kwargs : keyword arguments passed to the (parent) bilby's Inteferometer class.
@@ -104,14 +104,14 @@ class Interferometer(bilby.gw.detector.Interferometer):
         Empty means no data has been read in into this object.
 
         Parameters
-        ==========
+        =======
         name : `str`
             Interferometer name, e.g. H1.
 
         Returns
         =======
-        interferometer: `gwpy.nterferometer`
-            Interferometer instance
+        interferometer: `pygwb.Interferometer`
+            Interferometer instance of pygwb.
 
         """
         filename = os.path.join(
@@ -160,12 +160,12 @@ class Interferometer(bilby.gw.detector.Interferometer):
         name : `str`
             Interferometer name, e.g. H1.
         parameters : argparser object
-            This contains attributes defined for command line options
+            This contains attributes defined for command line options.
 
         Returns
         =======
         interferometer: `pygwb.Interferometer`
-            Interferometer instance
+            Interferometer instance of pygwb.
 
         """
         ifo = cls.get_empty_interferometer(name)
@@ -240,8 +240,8 @@ class Interferometer(bilby.gw.detector.Interferometer):
         Set a timeseries attribute from a given numpy array
 
         Parameters
-        ==========
-        timeseries_array: numpy array
+        ========
+        timeseries_array: `np.ndarray`
             timeseries strain data as numpy array object
 
         **kwargs : keyword arguments passed to preprocess module.
@@ -283,8 +283,8 @@ class Interferometer(bilby.gw.detector.Interferometer):
 
         Parameters
         ==========
-        gwpy_timeseries: gwpy.timeseries
-            timeseries strain data as gwpy.timeseries object
+        gwpy_timeseries: ``gwpy.timeseries.TimeSeries``
+            Timeseries strain data as gwpy.timeseries object.
 
         **kwargs : keyword arguments passed to preprocess module.
 
@@ -323,15 +323,15 @@ class Interferometer(bilby.gw.detector.Interferometer):
         Set psd_spectrogram attribute from given spectrum-related information.
 
         Parameters
-        ==========
-        frequency_resolution: `float`
+        ========
+        frequency_resolution: ``float``
             Frequency resolution of the final PSDs; This sets the time duration
-            over which FFTs are calculated in the pwelch method
-        overlap_factor: `float`, optional
+            over which FFTs are calculated in the pwelch method.
+        overlap_factor: ``float``, optional
             Amount of overlap between adjacent segments (range between 0 and 1)
             This factor should be same as the one used for cross_spectral_density
-            (default 0, no overlap)
-        window_fftgram_dict: `dictionary`, optional
+            (default 0, no overlap).
+        window_fftgram_dict: ``dict``, optional
             Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds. Default is \"hann\".
 
         """
@@ -355,9 +355,9 @@ class Interferometer(bilby.gw.detector.Interferometer):
 
         Parameters
         ==========
-        N_average_segments_welch_psd : `int`
-            Number of segments used for PSD averaging (from both sides of the segment of interest)
-            N_avg_segs should be even and >= 2
+        N_average_segments_welch_psd : `int`, optional
+            Number of segments used for PSD averaging (from both sides of the segment of interest).
+            N_avg_segs should be even and >= 2.
 
         """
         try:
