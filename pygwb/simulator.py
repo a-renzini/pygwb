@@ -67,7 +67,7 @@ class Simulator(object):
         Create an instance of the the ``simulator`` class. 
 
         Parameters
-        ==========
+        =======
         
         interferometers: ``list``
             List of bilby interferometer objects
@@ -159,7 +159,7 @@ class Simulator(object):
         Returns
         =======
         
-        frequencies: array_like
+        frequencies: ``array_like``
             Array containing the computed frequencies
             
         See also
@@ -180,7 +180,7 @@ class Simulator(object):
         Returns
         =======
         
-        noise_PSDs_array: array_like
+        noise_PSDs_array: ``array_like``
             Array containing the noise PSD arrays for all interferometers in
             self.interferometers.
             
@@ -221,15 +221,15 @@ class Simulator(object):
         for all the baselines in self.baselines.
 
         Parameters
-        ==========
+        =======
         
-        polarization: str, optional
+        polarization: ``str``, optional
             Polarization for which to generate the overlap reduction function. Defaults to tensor.
             
         Returns
         =======
         
-        orf_list: list
+        orf_list: ``list``
             List containing the overlap reduction functions for all the baselines
             in self.baselines.
             
@@ -257,7 +257,7 @@ class Simulator(object):
         Returns
         =======
         
-        interferometer_data: dict
+        interferometer_data: ``dict``
             A dictionary with the simulated data for the interferometers.
             
         See also
@@ -299,15 +299,15 @@ class Simulator(object):
         periodicity artifacts related to IFFTs.
 
         Parameters
-        ==========
+        =======
         
-        data_start: float, optional
+        data_start: ``float``, optional
             Start time of the data that is being generated. Defaults to None.
 
         Returns
         =======
         
-        data: array_like
+        data: ``array_like``
             An array of size Nd (number of detectors) with gwpy TimeSeries with the
             data containing the simulated isotropic stochastic background.
 
@@ -361,7 +361,7 @@ class Simulator(object):
         Returns
         =======
         
-        orf_array: array_like
+        orf_array: ``array_like``
             Array of shape Nd x Nd containing the orfs, where Nd is the number of
             detectors. The convention used for consistency with the remainder of the
             simulation is as follows. ORFs are only present in the off-diagonal slots
@@ -414,16 +414,16 @@ class Simulator(object):
         background in the various detectors.
 
         Parameters
-        ==========
+        =======
         
-        flag: str
+        flag: ``str``
             Either flagged as "noise" or "signal", to allow for different generation of
             covariance matrix in both cases.
 
         Returns
         =======
         
-        C: array_like
+        C: ``array_like``
             Covariance matrix corresponding to a stochastic background in the
             various detectors. Dimensions are Nd x Nd x Nf, where Nd is the
             number of detectors and Nf is the number of frequencies.
@@ -452,9 +452,9 @@ class Simulator(object):
         matrix corresponding to a stochastic background in the various detectors.
 
         Parameters
-        ==========
+        =======
         
-        C: array_like
+        C: ``array_like``
             Covariance matrix corresponding to a stochastic background in the
             various detectors. Dimensions are Nd x Nd x Nf, where Nd is the
             number of detectors and Nf is the number of frequencies.
@@ -462,10 +462,10 @@ class Simulator(object):
         Returns
         =======
         
-        eigval: array_like
+        eigval: ``array_like``
             Array of diagonal matrices containing the eigenvalues of the
             covariance matrix C.
-        eigvec: array_like
+        eigvec: ``array_like``
             Array of matrices containing the eigenvectors of the covariance
             matrix C.
             
@@ -487,7 +487,7 @@ class Simulator(object):
         Returns
         =======
         
-        z: array_like
+        z: ``array_like``
             Array of size Nf x Nd containing uncorrelated frequency domain data.
             
         See also
@@ -508,11 +508,11 @@ class Simulator(object):
         simulated data, to correlated data.
 
         Parameters
-        ==========
+        =======
         
-        z: array_like
+        z: ``array_like``
             Array containing the uncorrelated data with random phase.
-        C: array_like
+        C: ``array_like``
             Array of size Nd x Nd x Nf representing the covariance matrices
             between detectors for a desired stochastic background, where Nd
             is the number of detectors and Nf is the number of frequencies.
@@ -520,7 +520,7 @@ class Simulator(object):
         Returns
         =======
         
-        x: array_like
+        x: ``array_like``
             Array of size Nf x Nd, containing the correlated stochastic
             background data.
         
@@ -542,16 +542,16 @@ class Simulator(object):
         background.
 
         Parameters
-        ==========
+        =======
         
-        flag: str
+        flag: ``str``
             Either flagged as "noise" or "signal", to allow for different generation of
             covariance matrix in both cases.
 
         Returns
         =======
         
-        y: array_like
+        y: ``array_like``
             Array of size Nd x 2*(N_segments+1) x N_samples_per_segment containing the
             various segments with the simulated data.
             
@@ -607,9 +607,9 @@ class Simulator(object):
         index (usually large negative numbers).
 
         Parameters
-        ==========
+        =======
         
-        segments: array_like
+        segments: ``array_like``
             Array of size Nd x (2*N_segments+1) x N_samples_per_segment containing the
             various segments with the simulated data that need to be spliced
             together, where Nd is the number of detectors.
@@ -617,7 +617,7 @@ class Simulator(object):
         Returns
         =======
         
-        data: array_like
+        data: ``array_like``
             Array of size Nd x (N_segments*N_samples_per_segment) containing the simulated
             data corresponding to an isotropic stochastic background for each of the
             detectors, where Nd is the number of detectors.
@@ -674,7 +674,7 @@ class Simulator(object):
         Returns
         =======
         
-        data: array_like
+        data: ``array_like``
             Array of size Nd x (N_segments*N_samples_per_segment) containing the simulated
             data corresponding to a background of CBC sources for each of the
             detectors, where Nd is the number of detectors.
