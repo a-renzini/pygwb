@@ -5,14 +5,86 @@ Functions are present that read data from frame files, locally or publicly. Othe
 These functionalities comes together in the triplet of ``preprocessing_data`` functions which read in data and resample and/or high-pass it immediately.
 The triplet can work from a given ``gwpy.timeseries.TimeSeries``, a normal array or using a gravitational wave channel that will read in that channel from the provided local or public frame files. 
 
-The last function can gate the data based on the gate function in gwpy, `gwpy.timeseries.TimeSeries.gate`.
+The last function can gate the data based on the gate function in gwpy, ``gwpy.timeseries.TimeSeries.gate``.
 
 Examples
 --------
 
 As an example, we will read in some data from a certain channel and then resample, high-pass and apply gating to the data.
+First, we have to import the module.
 
->>> from pygwb.preprocessing import *
+>>> import pygwb.preprocessing as ppp
+
+Then, we read in some data utilising the ``read_data`` function of preprocessing.
+We focus on reading in public data out of convenience from the "H1" detector.
+We want to read strain data hence the channel name.
+
+>>> IFO = "H1"
+>>> data_type = "public"
+>>> channel = "H1:GWOSC-16KHZ_R1_STRAIN"
+>>> t0 = 1247644138
+>>> tf = 1247648138
+>>> local_data_path = ""
+>>> input_sample_rate = 16384
+>>> data_timeseries = ppp.read_data(
+        IFO,
+        data_type,
+        channel,
+        t0,
+        tf,
+        local_data_path,
+        input_sample_rate,
+    )
+>>> print(data_timeseries.sample_rate)
+16384.0 Hz
+
+We print the sample rate just to show it is indeed 16 kHz at the moment.
+Now, we will preprocess the data, meaning it will be resampled and a high-pass
+filter will be applied to the data. We want to resample to 4 kHz.
+All the other values for parameters are default values as ever.
+
+>>> new_sample_rate = 4096
+>>> cutoff_frequency = 11
+>>> number_cropped_seconds = 2
+>>> window_downsampling = "hamming"
+>>> ftype = "fir"
+>>> time_shift = 0
+>>> preprocessed_timeseries = ppp.preprocessing_data_gwpy_timeseries(
+        IFO,
+        data_timeseries,
+        new_sample_rate,
+        cutoff_frequency,
+        number_cropped_seconds,
+        window_downsampling,
+        ftype,
+        time_shift,
+    )
+    
+Let's do a quick check if the sample rate was changed.
+
+>>> print(preprocessed_timeseries.sample_rate)
+4096.0 Hz
+
+It was succesfully changed. The last important part of preprocessing is gating the data.
+In that case, using again default values for parameters, you can run
+
+>>> gate_tzero = 1.0
+>>> gate_tpad = 0.5
+>>> gate_threshold = 50.0
+>>> cluster_window = 0.5
+>>> gate_whiten = True
+>>> gated_timeseries, deadtime = ppp.self_gate_data(
+        preprocessed_timeseries,
+        gate_tzero,
+        gate_tpad,
+        gate_threshold,
+        cluster_window,
+        gate_whiten,
+    )
+    
+In this case, we now know the gates themselves represented as ``deadtime``
+and the corresponding gated timeseries.
+
 """
 
 import copy
@@ -36,7 +108,7 @@ def set_start_time(
     Function to identify segment start times
     either with or without sidereal option
 
-    Parameters
+    Parameters:
     ========
     job_start_GPS: `int`
         Integer indicating the start time (in GPS)

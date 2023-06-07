@@ -1,6 +1,89 @@
 """Spectral module contains all functions in the pygwb package that are related to the computation of power spectral (PSD) and cross spectral densities (CSD).
 
 The functions in this module are capable of computing an fftgram from a timeseries in the form of a `gwpy.spectrogram.Spectrogram`, computing a Welch-averaged PSD and coarse-graining any data. They are also capable of computing general PSDs and CSDs using the conveniently called `power_spectral_density` and `cross_spectral_density` functions.
+
+Examples
+--------
+
+To demonstrate the power of this module, we will compute the cross spectral and power densities of two timeseries 
+representing data from two interferometers. We will look at the most important functions from the spectral module.
+
+We read in data for two interferometers using functions from the preprocessing module. Hence we import preprocessing aswell.
+
+>>> import pygwb.preprocessing as ppp
+>>> import pygwb.spectral as psp
+
+>>> IFO = "H1"
+>>> data_type = "public"
+>>> channel = "H1:GWOSC-4KHZ_R1_STRAIN"
+>>> t0 = 1247644138
+>>> tf = 1247648138
+>>> local_data_path = ""
+>>> input_sample_rate = 16384
+>>> data_timeseries = ppp.read_data(
+        IFO,
+        data_type,
+        channel,
+        t0,
+        tf,
+        local_data_path,
+        input_sample_rate,
+    )
+    
+>>> IFO = "L1"
+>>> data_type = "public"
+>>> channel = "L1:GWOSC-4KHZ_R1_STRAIN"
+>>> t0 = 1247644138
+>>> tf = 1247648138
+>>> local_data_path = ""
+>>> input_sample_rate = 16384
+>>> data_timeseries_L = ppp.read_data(
+        IFO,
+        data_type,
+        channel,
+        t0,
+        tf,
+        local_data_path,
+        input_sample_rate,
+    )
+
+We compute now the PSD of H1 and L1.
+To achieve this goal, we use common values for the parameters in this 
+spectral module. These values are used in the more general pygwb analysis.
+
+>>> PSD_H1 = psp.power_spectral_density(
+        data_timeseries,
+        segment_duration=192,
+        frequency_resolution=1/32.,
+        overlap_factor=0.5,
+        window_fftgram_dict_welch_psd={"window_fftgram": "hann"},
+        overlap_factor_welch_psd=0.5,
+    )
+    
+>>> PSD_L1 = psp.power_spectral_density(
+        data_timeseries_L,
+        segment_duration=192,
+        frequency_resolution=1/32.,
+        overlap_factor=0.5,
+        window_fftgram_dict_welch_psd={"window_fftgram": "hann"},
+        overlap_factor_welch_psd=0.5,
+    )
+
+We can also compute the CSD of our baseline H1L1.
+
+>>> CSD_baseline = psp.cross_spectral_density(
+        data_timeseries,
+        data_timeseries_L,
+        segment_duration=192,
+        frequency_resolution=1/32.,
+        overlap_factor=0.5,
+        zeropad=True,
+        window_fftgram_dict={"window_fftgram": "hann"},
+    )
+    
+The spectral module as shows here, has the capacity to compute PSDs of single detectors 
+and CSDs of baselines (or network) of detectors.
+
 """
 
 import numpy as np

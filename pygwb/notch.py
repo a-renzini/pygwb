@@ -6,6 +6,55 @@ Next, StochNotchList is the combination of multiple StochNotch objects. It will 
 
 Three independent functions are also defined in this module. Those created StochNotchList objects for three of the most prevalent types of notches. 
 The first function is ``comb`` which creates a StochNotchList for a certain set of lines in a comb structure. Secondly, we have ``power_lines`` which makes a StochNotchList object for the notches coming with the power line harmonics, e.g. 60 Hz harmonics in USA and 50 Hz in Italy. The third and final function, ``pursat_injection``, generates a StochNotchList object with notches which are contaminated by pulsar injections.
+
+Examples
+--------
+
+The notch list can be made using the functions from the notch module as we will show here.
+
+We will generate a StochNotchList from a .txt file containing multiple StochNotch objects and utilise some notch functions from the module.
+First we import the notch module and load notches into a StochNotchList object from a .txt file.
+
+>>> import pygwb.notch as pn
+>>> notch_list = pn.StochNotchList.load_from_file("./test/test_data/Official_O3_HL_notchlist.txt")
+
+Now, :code:`notch_list` contains information about all notches in the considered .txt file.
+The StochNotchList object itself is a container object that collects all notches of the file
+in different StochNotch objects.
+
+One of the more famous lines is created by the power line harmonics.
+Let's check if their fundamental frequency is available in the StochNotchList object.
+We know that that there should be a power line notched around 60 Hz.
+
+>>> is_60_in_notch_list = notch_list.check_frequency(60)
+True
+
+So, it is possible to check if a certain frequency is present in the container object.
+If one wants to have information about all the notches in the StochNotchList, you can run
+
+>>> for notch in notch_list:
+>>>    notch.print_notch()
+
+This will show the minimum and maximum frequency for all notches in StochNotchList.
+It will also print a small description of the notch itself.
+
+Another important function of the List object is computing the frequency mask that gives an array that will 
+be False for frequencies in the StochNotchList object. 
+That array can then be utilised to "mask" a real pygwb analysis spectrum and notch out the contaminated frequencies.
+
+We take a random frequency array and mask it using our StochNotchList object.
+
+>>> frequency_array = np.arange(0, 1700,1/32.)
+>>> notch_list.get_notch_mask(frequency_array, save_file_flag=False, filename="")
+
+The List function utilises the :code:`get_notch_mask` function from the StochNotch object.
+And it will combine that information for all notches. 
+
+One can also save the StochNotchList object to a .txt file using :code:`save_to_txt(filename)`.
+That will create a .txt file in the same structure as required to make a StochNotchList 
+object from a file. You can also save the mask itself using 
+:code:`save_notch_mask(frequency_array, filename)`
+
 """
 
 import numpy as np

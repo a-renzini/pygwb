@@ -1,8 +1,17 @@
 """The postprocessing modules groups all functions which are useful in the end stages of the analysis. In particular when combining spectrograms into spectra and spectra into one overall point estimate for the gravitational-wave background.
 
 When computing an estimator for the gravitational-wave background in the isotropic search as it is ran by pygwb, we go through different steps of the analysis. Postprocessing is the last stage of the analysis and the functions utilised in that step are collected in this module. This step happens after the computation of the PSDs and CSDs. It contains functions such as :code:`postprocess_Y_sigma` which combines even and odd segments from point estimate and sigma spectrograms using a ingenious method where odd and even segments are treated differently if the data is overlapping. To achieve that, it uses another function of the postprocessing module, :code:`odd_even_segment_postprocessing`.
+
 These spectrograms have to be computed from the CSDs and PSDs. The postprocessing module also contains the function responsible for this calculation, :code:`calculate_point_estimate_sigma_spectra`. Starting from a set of CSD and PSD spectrograms, one can compute the point estimate and sigma spectrograms, objects that contain both frequency and segment data information. 
 Then the spectrograms are combined into spectra with the functions mentioned above. These spectra then have to be combined into one single point estimate and its variance. To achieve that goal another function, :code:`calc_Y_sigma_from_Yf_sigmaf`, is utilised.
+
+Examples
+--------
+
+Starting from averaged PSDs and the CSD of a baseline, we can compute the overall point estimate for the gravitational-wave background of the isotropic analysis.
+
+We start our example by reading in data using preprocessing and computing PSDs and CSD with the spectral module.
+
 """
 
 import numpy as np
