@@ -24,15 +24,44 @@ class Interferometer(bilby.gw.detector.Interferometer):
     Examples
     --------
     
+    In this example we will load in data from the publicly available GWOSC servers.
+    We will gate this data, compute the PSD of the detector and the average PSD of the detector object.
+    This gives a brief overview of the most critical capabilities of the pygwb detector module.
+    We start by importing the Interferometer class from pygwb.
+    
     >>> from pygwb.detector import Interferometer
 
-    To load in some data, first make an empty detector object.
+    To load in some data, first we make an empty detector object.
+    Based on the name of the object, in our case "H1", the module will make an Interferometer object
+    that has no data, hence empty, but with all correct parameters, like the location vertex of the detector
+    it represents. The name can be any one of the detectors supported in ``bilby.gw.detector``, 
+    the parent class of our Interferometer class.
     
     >>> ifo_1 = Interferometer.get_empty_interferometer("H1")
     
-    Then, load in data using one of the provided `set` functions.
+    Then, we load in data using one of the provided ``set_timeseries_from`` functions.
+    To make life easy, we will look at public data where we only need a channel name.
     
+    >>> t0 = 1247644138
+    >>> tf = 1247648138
+    >>> data_type = "public"
+    >>> channel = "H1:GWOSC-4KHZ_R1_STRAIN"
     >>> 
+    >>> ifo_1.set_timeseries_from_channel_name(
+        channel,
+        t0=t0,
+        tf=tf,
+        data_type=data_type,
+        local_data_path = "",
+        new_sample_rate=4096,
+        input_sample_rate=4096,
+        cutoff_frequency=11,
+        segment_duration=192,
+        number_cropped_seconds=2,
+        window_downsampling="hamming",
+        ftype="fir",
+        time_shift=0,
+    )
     
     """
 
