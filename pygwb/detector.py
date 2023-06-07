@@ -41,6 +41,10 @@ class Interferometer(bilby.gw.detector.Interferometer):
     
     Then, we load in data using one of the provided ``set_timeseries_from`` functions.
     To make life easy, we will look at public data where we only need a channel name.
+    We take a start time t0 and an end time tf. We want to use public data so we 
+    set data_type to be public. We are working with H1 detector and we would like to have normal strain
+    data, hence we use the channel "H1:GWOSC-4KHZ_R1_STRAIN". All the other parameters are taken to be
+    default values which are used in the most general pygwb pipeline analysis, see pygwb paper.
     
     >>> t0 = 1247644138
     >>> tf = 1247648138
@@ -62,6 +66,42 @@ class Interferometer(bilby.gw.detector.Interferometer):
         ftype="fir",
         time_shift=0,
     )
+    
+    Now, imagine we would like to gate the detector data.
+    In gating, windows are put on top of the timeseries data to remove
+    any extra loud glitches that would influence the analysis.
+    In that case, we can call
+    
+    >>> gate_tzero = 1.0
+    >>> gate_tpad = 0.5
+    >>> gate_threshold = 50.0
+    >>> cluster_window = 0.5
+    >>> gate_whiten = True
+    >>> ifo_1.gate_data_apply(
+        gate_tzero=gate_tzero,
+        gate_tpad=gate_tpad,
+        gate_threshold=gate_threshold,
+        cluster_window=cluster_window,
+        gate_whiten=gate_whiten,
+    )
+    
+    In that case, we also used the default values for the gating parameters.
+    Now, gates have been applied and the data is relatively free of big intruders.
+    Next, we will compute the PSD spectrogram of the detector. A spectrogram
+    shows the PSD both per time and per frequency. We will use the common frequency
+    resolution of pygwb analysis.
+    
+    >>> frequency_resolution = 1/32.
+    >>> ifo_1.set_psd_spectrogram(
+            frequency_resolution,
+            overlap_factor=0.5,
+            window_fftgram_dict_welch_psd={"window_fftgram": "hann"},
+            overlap_factor_welch_psd=0.5,
+        )
+        
+    Last, but not least, we can also compute the average PSD of the detector.
+    
+    >>> ifo_1.set_average_psd(N_average_segments_welch_psd=2)
     
     """
 
