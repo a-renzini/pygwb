@@ -913,7 +913,6 @@ class Baseline(object):
         if not self._orf_polarization_set:
             self.orf_polarization = polarization
 
-        # don't get rid of information unless we need to.
         Y_fs, var_fs = calculate_point_estimate_sigma_spectra(
             freqs=self.frequencies,
             csd=self.average_csd,
@@ -924,8 +923,8 @@ class Baseline(object):
             segment_duration=self.duration,
             fref=fref,
             alpha=alpha,
-            overlap_factor=self.overlap_factor_psd,
-            window_fftgram_dict=self.window_fftgram_dict_for_bias_factors
+            overlap_factor=self.overlap_factor,
+            window_fftgram_dict=self.window_fftgram_dict_csd
         ) 
 
         sigma_name = f"{self.name} sigma spectrogram alpha={alpha}"
@@ -1281,15 +1280,14 @@ class Baseline(object):
         Note: Average PSDs are currently being used here!
         """
 
-        bad_times_indexes = self._get_bad_times_indexes(times=self.interferometer_1.average_psd.times.value, apply_dsc=apply_dsc)
+        bad_times_indexes = self._get_bad_times_indexes(times=self.interferometer_1.psd_spectrogram.times.value, apply_dsc=apply_dsc)
 
-        self.crop_frequencies_average_psd_csd(flow=flow, fhigh=fhigh)
+        deltaF = self.frequencies[1] - self.frequencies[0]
+        n_segs = len(self.interferometer_1.psd_spectrogram[~bad_times_indexes])
 
-        n_segs = len(self.interferometer_1.average_psd[~bad_times_indexes])
-
-        psd_1_average = np.mean(self.interferometer_1.average_psd[~bad_times_indexes], axis=0)
-        psd_2_average = np.mean(self.interferometer_2.average_psd[~bad_times_indexes], axis=0)
-        csd_average = np.mean(self.average_csd[~bad_times_indexes], axis=0)
+        psd_1_average = np.mean(self.interferometer_1.psd_spectrogram[~bad_times_indexes].crop_frequencies(flow, fhigh + deltaF), axis=0)
+        psd_2_average = np.mean(self.interferometer_2.psd_spectrogram[~bad_times_indexes].crop_frequencies(flow, fhigh + deltaF), axis=0)
+        csd_average = np.mean(self.csd[~bad_times_indexes].crop_frequencies(flow, fhigh + deltaF), axis=0)
 
         coherence = calculate_coherence(
             psd_1_average,
@@ -1297,7 +1295,7 @@ class Baseline(object):
             csd_average,
         )
 
-        epoch = self.average_csd.times[0]
+        epoch = self.csd.times[0]
 
         self.coherence_spectrum = FrequencySeries(
             coherence,
@@ -1464,7 +1462,7 @@ class Baseline(object):
 
         save_csd(
             f"{filename}{ext}",
-            self.frequencies,
+            self.csd.frequencies.value,
             self.average_csd.frequencies.value,
             self.csd,
             self.average_csd,

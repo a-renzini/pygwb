@@ -162,7 +162,7 @@ class Parameters:
         for name, dtype in ann.items():
             if name in kwargs:
                 try:
-                    if not bool(re.search("\{*\}", kwargs[name])): 
+                    if not bool(re.search("^.+:.+,.+:.+$", kwargs[name])): 
                         kwargs[name] = dtype(kwargs[name]) if kwargs[name] != 'False' else False
                 except TypeError:
                     pass
@@ -247,13 +247,25 @@ class Parameters:
                 dictionary.pop(item)
         if "window_fftgram" in dictionary:
             window_fft_dict = {}
-            window_fft_dict["window_fftgram"] = dictionary["window_fftgram"]
-            dictionary.pop("window_fftgram")
+            wfgram_name, *wfgram = dictionary.pop("window_fftgram").split(',')
+            window_fft_dict["window_fftgram"] = wfgram_name
+            if wfgram_name.lower()=='tukey':
+                window_fft_dict["alpha"] = wfgram[0]
+            elif wfgram_name.lower()=='hann':
+                pass
+            else: 
+                raise ValueError(f"Window {wfgram_name} not supported from command line! Please try submitting through a full parameter ini file.")
             dictionary["window_fft_dict"] = window_fft_dict
         if "window_fftgram_welch" in dictionary:
             window_fft_dict_welch = {}
-            window_fft_dict_welch["window_fftgram"] = dictionary["window_fftgram_welch"]
-            dictionary.pop("window_fftgram_welch")
+            wfgram_name_welch, *wfgram_welch = dictionary.pop("window_fftgram_welch").split(',')
+            window_fft_dict_welch["window_fftgram"] = wfgram_name_welch
+            if wfgram_name_welch.lower()=='tukey':
+                window_fft_dict_welch["alpha"] = wfgram[0]
+            elif wfgram_name_welch.lower()=='hann':
+                pass
+            else: 
+                raise ValueError(f"Window {wfgram_name_welch} not supported from command line! Please try submitting through a full parameter ini file.")
             dictionary["window_fft_dict_welch"] = window_fft_dict_welch
         self.update_from_dictionary(dictionary)
 
@@ -349,18 +361,23 @@ class Parameters:
             param.write(configfile)
 
     def parse_ifo_parameters(self):
+        ifo_parameters = ['channel', 'frametype', 'input_sample_rate', 'local_data_path', 'time_shift']
         ifo_list = self.interferometer_list
         param_dict = {}
         for ifo in ifo_list:
             param_dict[ifo] = Parameters()
         current_param_dict = self.__dict__
         for attr in current_param_dict.keys():
-            if bool(re.search("\{*\}", str(current_param_dict[attr]))) and type(current_param_dict[attr]) is not dict:
-                attr_str = str(current_param_dict[attr]).replace("{","").replace("}","")
-                attr_split = attr_str.split()
-                attr_dict = {key: value for key, value in (pair.split(':') for pair in attr_split)} 
-                for ifo in ifo_list:
-                    param_dict[ifo].update_from_dictionary({attr: attr_dict[ifo]})
+            if attr in ifo_parameters:
+                attr_str = str(current_param_dict[attr])
+                attr_split = attr_str.split(',')
+                if len(attr_split)>1:
+                    attr_dict = {key: value for key, value in (pair.split(':') for pair in attr_split)} 
+                    for ifo in ifo_list:
+                        param_dict[ifo].update_from_dictionary({attr: attr_dict[ifo]})
+                else:
+                    for ifo in ifo_list:
+                        param_dict[ifo].update_from_dictionary({attr: current_param_dict[attr]})
             else:
                 for ifo in ifo_list:
                     param_dict[ifo].update_from_dictionary({attr: current_param_dict[attr]})

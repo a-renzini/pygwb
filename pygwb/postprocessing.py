@@ -306,9 +306,9 @@ def calculate_point_estimate_sigma_spectra(
     segment_duration: float
         Duration of each segment in seconds.
     window_fftgram_dict: dictionary, optional
-        Dictionary with window characteristics used in PSD estimation. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`
+        Dictionary with window characteristics used in analysis segment estimation. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`
     overlap_factor: float, optional
-        Overlap factor used in PSD estimation. Default is 0.5.
+        Overlap factor used in analysis segment estimation. Default is 0.5.
     fref: float, optional
         Reference frequency to use in the weighting calculation.
         Final result refers to this frequency.

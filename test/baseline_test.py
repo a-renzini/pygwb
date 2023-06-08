@@ -410,7 +410,7 @@ class TestBaseline(unittest.TestCase):
         Loading_npzfile = np.load(f"{filename}.npz")
 
         loaded_frequencies = Loading_npzfile["freqs"]
-        test_frequencies = pickled_base.frequencies
+        test_frequencies = pickled_base.csd.frequencies.value
         self.assertEqual(loaded_frequencies.tolist(), test_frequencies.tolist())
 
         loaded_avg_frequencies = Loading_npzfile["avg_freqs"]
@@ -509,7 +509,7 @@ class TestBaseline(unittest.TestCase):
             Loading_picklefile = pickle.load(f)
 
         loaded_frequencies = Loading_picklefile["freqs"]
-        test_frequencies = pickled_base.frequencies
+        test_frequencies = pickled_base.csd.frequencies.value
         self.assertEqual(loaded_frequencies.tolist(), test_frequencies.tolist())
 
         loaded_avg_frequencies = Loading_picklefile["avg_freqs"]
@@ -605,7 +605,7 @@ class TestBaseline(unittest.TestCase):
             Loading_jsonfile = json.loads(j.read())
 
         loaded_frequencies = Loading_jsonfile["frequencies"]
-        test_frequencies = pickled_base.frequencies
+        test_frequencies = pickled_base.csd.frequencies.value
         self.assertEqual(loaded_frequencies, test_frequencies.tolist())
 
         loaded_avg_frequencies = Loading_jsonfile["avg_frequencies"]
@@ -715,7 +715,7 @@ class TestBaseline(unittest.TestCase):
         hf = h5py.File(f"{filename}.h5", "r")
 
         loaded_frequencies = list(hf.get("freqs"))
-        test_frequencies = pickled_base.frequencies
+        test_frequencies = pickled_base.csd.frequencies.value
         self.assertEqual(loaded_frequencies, test_frequencies.tolist())
 
         loaded_avg_frequencies = list(hf.get("avg_freqs"))
