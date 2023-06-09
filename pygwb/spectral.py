@@ -1,4 +1,5 @@
 import copy
+import warnings
 
 import numpy as np
 from gwpy.frequencyseries import FrequencySeries
@@ -50,27 +51,20 @@ def fftgram(
 
     # calculate the spectrogram using scipy.signal.spectrogram
     if zeropad:
-        f, t, Sxx = spectrogram(
-            time_series_data.data,
-            fs=sample_rate,
-            window=window_fftgram,
-            nperseg=fftlength * sample_rate,
-            noverlap=overlap_factor * fftlength * sample_rate,
-            nfft=2 * fftlength * sample_rate,
-            mode="complex",
-            detrend=False,
-        )
+        nfft = 2 * fftlength * sample_rate
     else:
-        f, t, Sxx = spectrogram(
-            time_series_data.data,
-            fs=sample_rate,
-            window=window_fftgram,
-            nperseg=fftlength * sample_rate,
-            noverlap=overlap_factor * fftlength * sample_rate,
-            nfft=fftlength * sample_rate,
-            mode="complex",
-            detrend=False,
-        )
+        nfft = fftlength * sample_rate
+
+    f, t, Sxx = spectrogram(
+        time_series_data.data,
+        fs=sample_rate,
+        window=window_fftgram,
+        nperseg=fftlength * sample_rate,
+        noverlap=overlap_factor * fftlength * sample_rate,
+        nfft=nfft,
+        mode="complex",
+        detrend=False,
+    )
 
     # convert the above spectrogram into gwpy spectrogram object
     ffts = []
@@ -99,8 +93,7 @@ def pwelch_psd(
         than or equal to the duration used for FFT.
     overlap_factor: float, optional
         Amount of overlap between adjacent average PSDs, can vary between 0
-        and 1. This factor should be same as the one used for CSD estimation.
-        Default is 0.5.
+        and 1. Default is 0.5.
 
     Returns
     =======
@@ -125,7 +118,6 @@ def pwelch_psd(
         # possible number of (overlapping) segments
         stride = segment_duration * (1 - overlap_factor)
         n_segments = int((job_duration - overlap_factor * segment_duration) / stride)
-
         avg_psds = []
         segments_start_times = np.zeros(n_segments)
         start_time = psdgram.xindex.value[0]
@@ -416,6 +408,7 @@ def cross_spectral_density(
     frequency_resolution: float,
     coarse_grain: bool = True,
     overlap_factor: float = 0.5,
+    overlap_factor_welch: float = 0.5,
     zeropad: bool = False,
     window_fftgram_dict: dict = {"window_fftgram": "hann"},
     is_psd: bool = False,
@@ -436,10 +429,8 @@ def cross_spectral_density(
         frequency domain.
     overlap_factor: float, optional
         Amount of overlap between adjacent segments (range between 0 and 1)
-        This factor should be same as the one used for power_spectral_density.
-        Users should provide proper combination of overlap_factor and
-        window_fftgram_dict. For \"hann\" window use 0.5 overlap_factor and for \"boxcar\"
-        window use 0 overlap_factor. Default id 0.5 (50% overlap).
+    overlap_factor_welch: float
+        Overlap factor to use when using Welch's method (NOT coarsegraining). Users should provide proper combination of overlap_factor and window_fftgram_dict. For \"hann\" window use 0.5 overlap_factor and for \"boxcar"\ window use 0 overlap_factor. Default is 0.5 (50% overlap), which is optimal when using Welch's method with a \"hann\" window.
     zeropad: bool, optional
         Before doing FFT whether to zero pad the data equal to the length of
         FFT or not. Default is False.
@@ -453,16 +444,25 @@ def cross_spectral_density(
        Cross spectral density of the two timeseries
     """
 
+    if (segment_duration * frequency_resolution) % 1 != 0:
+        warnings.warn(
+            "Multiplying the parameters segment_duration and frequency_resolution gives a non-integer. "
+            "This could lead to possible issues while computing CSDs and PSDs. \n It will also lead to data loss when computing the PSD. "
+            "To avoid this, make sure this multiplication is an integer."
+        )
+
     if coarse_grain:
         fftlength = segment_duration
+        overlap_factor_fftgram = overlap_factor
     else:
         # Length of data blocks to be used in pwelch
         fftlength = int(1.0 / frequency_resolution)
+        overlap_factor_fftgram = overlap_factor_welch
 
     fft_gram_1 = fftgram(
         time_series_data1,
         fftlength,
-        overlap_factor=overlap_factor,
+        overlap_factor=overlap_factor_fftgram,
         zeropad=zeropad,
         window_fftgram_dict=window_fftgram_dict,
     )
@@ -482,7 +482,7 @@ def cross_spectral_density(
         fft_gram_2 = fftgram(
             time_series_data2,
             fftlength,
-            overlap_factor=overlap_factor,
+            overlap_factor=overlap_factor_fftgram,
             zeropad=zeropad,
             window_fftgram_dict=window_fftgram_dict,
         )
@@ -504,7 +504,10 @@ def cross_spectral_density(
         csd_spectrogram[ii].value[0] = csd_spectrogram[ii].value[0] / 2
         csd_spectrogram[ii].value[-1] = csd_spectrogram[ii].value[-1] / 2
 
-    return csd_spectrogram
+    if is_psd:
+        return np.real(csd_spectrogram)
+    else:
+        return csd_spectrogram
 
 
 def power_spectral_density(
@@ -512,9 +515,10 @@ def power_spectral_density(
     segment_duration: int,
     frequency_resolution: float,
     coarse_grain: bool = False,
+    zeropad: bool = False,
     overlap_factor: float = 0.5,
-    window_fftgram_dict_welch_psd: dict = {"window_fftgram": "hann"},
-    overlap_factor_welch_psd: float = 0.5,
+    window_fftgram_dict: dict = {"window_fftgram": "hann"},
+    overlap_factor_welch: float = 0.5,
 ):
     """
     Compute the PSDs of every segment (defined by the segment duration)
@@ -532,15 +536,17 @@ def power_spectral_density(
     coarse_grain: bool
         Coarse-graining flag; if True, PSD will be estimated via coarse-graining
         as opposed to Welch-averaging. Default is False.
+    zeropad: bool, optional
+        Before doing FFT whether to zero pad the data equal to the length of
+        FFT or not. Default is False.
     overlap_factor: float, optional
         Amount of overlap between adjacent segments (range between 0 and 1).
         This factor should be same as the one used for cross_spectral_density.
-        Users should provide proper combination of overlap_factor and
-        window_fftgram_dict. For \"hann\" window use 0.5 overlap_factor and
-        for \"boxcar"\ window use 0 overlap_factor. Default is 0.5 (50% overlap)
     window_fftgram_dict: dictionary, optional
         Dictionary containing name and parameters describing which window to
         use for producing FFTs. Default is \"hann\".
+    overlap_factor_welch: float
+        Overlap factor to use when using Welch's method (NOT coarsegraining). Users should provide proper combination of overlap_factor and window_fftgram_dict. For \"hann\" window use 0.5 overlap_factor and for \"boxcar"\ window use 0 overlap_factor. Default is 0.5 (50% overlap), which is optimal when using Welch's method with a \"hann\" window.
 
     Returns
     -------
@@ -548,16 +554,16 @@ def power_spectral_density(
         PSD spectrogram with each PSD duration equal to segment duration
     """
 
-    # No zero-pad is used in the PSD estimation
     psd_spectrogram = cross_spectral_density(
         time_series_data1=time_series_data,
         time_series_data2=None,
         segment_duration=segment_duration,
         frequency_resolution=frequency_resolution,
         coarse_grain=coarse_grain,
-        overlap_factor=0.5,
-        zeropad=False,
-        window_fftgram_dict={"window_fftgram": "hann"},
+        overlap_factor=overlap_factor,
+        overlap_factor_welch=overlap_factor_welch,
+        zeropad=zeropad,
+        window_fftgram_dict=window_fftgram_dict,
         is_psd=True,
     )
     return psd_spectrogram

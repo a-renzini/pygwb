@@ -37,9 +37,10 @@ class Baseline(object):
         notch_list_path="",
         coarse_grain_psd=False,
         coarse_grain_csd=True,
+        overlap_factor_welch=0.5,
         overlap_factor=0.5,
-        zeropad_csd=True,
         window_fftgram_dict={"window_fftgram": "hann"},
+        window_fftgram_dict_welch={"window_fftgram": "hann"},
         N_average_segments_psd=2,
         sampling_frequency=None,
     ):
@@ -66,13 +67,16 @@ class Baseline(object):
             Whether to apply coarse graining to obtain PSD spectra. Default is False.
         coarse_grain_csd: bool
             Whether to apply coarse graining to obtain CSD spectra. Default is True.
+        overlap_factor_welch: float, optional
+            Overlap factor to use when if using Welch's method to estimate spectra (NOT coarsegraining). For \"hann\" window use 0.5 overlap_factor and for \"boxcar"\ window use 0 overlap_factor. Default is 0.5 (50% overlap), which is optimal when using Welch's method with a \"hann\" window.
+ 
         overlap_factor: float, optional
             Factor by which to overlap the segments in the psd and csd estimation.
             Default is 1/2, if set to 0 no overlap is performed.
-        zeropad_csd: bool, optional
-            If True, applies zeropadding in the csd estimation. True by default.
         window_fftgram_dict: dictionary, optional
-            Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds. Default is \"hann\".
+            Dictionary containing name and parameters describing which window to use when producing fftgrams for csds (and psds if these are coarse-grained). Default is \"hann\".
+        window_fftgram_dict_welch: dictionary, optional
+            Dictionary containing name and parameters describing which window to use when producing fftgrams with Welch's method. Default is \"hann\".
         N_average_segments_psd: int, optional
             Number of segments used for PSD averaging (from both sides of the segment of interest)
             N_avg_segs should be even and >= 2.
@@ -84,9 +88,10 @@ class Baseline(object):
         self.notch_list_path = notch_list_path
         self.coarse_grain_psd = coarse_grain_psd
         self.coarse_grain_csd = coarse_grain_csd
+        self.overlap_factor_welch = overlap_factor_welch
         self.overlap_factor = overlap_factor
-        self.zeropad_csd = zeropad_csd
         self.window_fftgram_dict = window_fftgram_dict
+        self.window_fftgram_dict_welch = window_fftgram_dict_welch
         self.N_average_segments_psd = N_average_segments_psd
         self._tensor_orf_calculated = False
         self._vector_orf_calculated = False
@@ -109,6 +114,26 @@ class Baseline(object):
         self.maximum_frequency = min(
             interferometer_1.maximum_frequency, interferometer_2.maximum_frequency
         )
+        # if CSD is estimated by coarse-graining, it must be zeropaded. 
+        self.zeropad_csd = self.coarse_grain_csd
+        # if PSD is estimated by coarse-graining, no overlap is used between PSD estimates. This is required for the bias factor calculation.
+        if self.coarse_grain_psd:
+            self.overlap_factor_psd = 0.0
+            self.window_fftgram_dict_psd = self.window_fftgram_dict
+            self.window_fftgram_dict_for_bias_factors = {"window_fftgram": "boxcar"}
+        else:
+            self.overlap_factor_psd = self.overlap_factor_welch
+            self.window_fftgram_dict_psd = self.window_fftgram_dict_welch
+            self.window_fftgram_dict_for_bias_factors = self.window_fftgram_dict_psd
+        if self.coarse_grain_csd:
+            self.window_fftgram_dict_csd = self.window_fftgram_dict
+        else:
+            self.window_fftgram_dict_csd = self.window_fftgram_dict_welch
+        # throw a warning if overlap factors are unsupported
+        if self.overlap_factor>0.5:
+            warnings.warn("Overlap factor not fully supported. Overlap factor should be overlap_factor <= 0.5.")
+        if self.overlap_factor_welch>0.5:
+            warnings.warn("Overlap factor for spectral estimation using Welch's method not fully supported. Overlap factor should be overlap_factor_welch <= 0.5.")
 
     def __eq__(self, other):
         if not type(self) == type(other):
@@ -690,9 +715,10 @@ class Baseline(object):
             notch_list_path=parameters.notch_list_path,
             coarse_grain_psd=parameters.coarse_grain_psd,
             coarse_grain_csd=parameters.coarse_grain_csd,
+            overlap_factor_welch=parameters.overlap_factor_welch,
             overlap_factor=parameters.overlap_factor,
-            zeropad_csd=parameters.zeropad_csd,
             window_fftgram_dict=parameters.window_fft_dict,
+            window_fftgram_dict_welch=parameters.window_fft_dict_welch,
             N_average_segments_psd=parameters.N_average_segments_psd,
             sampling_frequency=parameters.new_sample_rate,
         )
@@ -740,8 +766,8 @@ class Baseline(object):
                 frequency_resolution,
                 coarse_grain=self.coarse_grain_psd,
                 overlap_factor=self.overlap_factor,
-                window_fftgram_dict_welch_psd={"window_fftgram": "hann"},
-                overlap_factor_welch_psd=0.5,
+                window_fftgram_dict=self.window_fftgram_dict_psd,
+                overlap_factor_welch=self.overlap_factor_welch,
             )
         except AttributeError:
             raise AssertionError(
@@ -752,8 +778,8 @@ class Baseline(object):
                 frequency_resolution,
                 coarse_grain=self.coarse_grain_psd,
                 overlap_factor=self.overlap_factor,
-                window_fftgram_dict_welch_psd={"window_fftgram": "hann"},
-                overlap_factor_welch_psd=0.5,
+                window_fftgram_dict=self.window_fftgram_dict_psd,
+                overlap_factor_welch=self.overlap_factor_welch,
             )
         except AttributeError:
             raise AssertionError(
@@ -767,7 +793,8 @@ class Baseline(object):
             coarse_grain=self.coarse_grain_csd,
             overlap_factor=self.overlap_factor,
             zeropad=self.zeropad_csd,
-            window_fftgram_dict=self.window_fftgram_dict,
+            window_fftgram_dict=self.window_fftgram_dict_csd,
+            overlap_factor_welch=self.overlap_factor_welch,
         )
 
         # TODO: make this less fragile.
@@ -886,7 +913,6 @@ class Baseline(object):
         if not self._orf_polarization_set:
             self.orf_polarization = polarization
 
-        # don't get rid of information unless we need to.
         Y_fs, var_fs = calculate_point_estimate_sigma_spectra(
             freqs=self.frequencies,
             csd=self.average_csd,
@@ -897,7 +923,9 @@ class Baseline(object):
             segment_duration=self.duration,
             fref=fref,
             alpha=alpha,
-        ) #missing: pwelch estimation parameters
+            overlap_factor=self.overlap_factor,
+            window_fftgram_dict=self.window_fftgram_dict_csd
+        ) 
 
         sigma_name = f"{self.name} sigma spectrogram alpha={alpha}"
         self.point_estimate_spectrogram = OmegaSpectrogram(
@@ -1022,10 +1050,14 @@ class Baseline(object):
             deltaF,
             self.sampling_frequency,
             frequency_mask=self.frequency_mask,
+            window_fftgram_dict=self.window_fftgram_dict,
+            window_fftgram_dict_welch=self.window_fftgram_dict_for_bias_factors,
             badtimes_mask=bad_times_indexes,
             do_overlap=do_overlap,
+            overlap_factor=self.overlap_factor,
+            overlap_factor_welch=self.overlap_factor_psd,
             N_avg_segs=self.N_average_segments_psd,
-        )#missing: pwelch estimation parameters
+        )
 
         self.point_estimate_spectrum = OmegaSpectrum(
             point_estimate,
@@ -1206,6 +1238,7 @@ class Baseline(object):
         else:
             self.set_frequency_mask()
 
+
         badGPStimes, delta_sigmas = run_dsc(
             dsc=delta_sigma_cut,
             segment_duration=self.duration,
@@ -1218,9 +1251,11 @@ class Baseline(object):
             orf=self.overlap_reduction_function,
             fref=fref,
             frequency_mask=self.frequency_mask,
+            window_fftgram_dict=self.window_fftgram_dict_for_bias_factors,
+            overlap_factor=self.overlap_factor_psd, 
             N_average_segments_psd = self.N_average_segments_psd,
             return_naive_and_averaged_sigmas=return_naive_and_averaged_sigmas,
-        )#missing: pwelch estimation parameters
+        )
 
         self.badGPStimes = badGPStimes
         self.delta_sigmas = delta_sigmas
@@ -1245,15 +1280,14 @@ class Baseline(object):
         Note: Average PSDs are currently being used here!
         """
 
-        bad_times_indexes = self._get_bad_times_indexes(times=self.interferometer_1.average_psd.times.value, apply_dsc=apply_dsc)
+        bad_times_indexes = self._get_bad_times_indexes(times=self.interferometer_1.psd_spectrogram.times.value, apply_dsc=apply_dsc)
 
-        self.crop_frequencies_average_psd_csd(flow=flow, fhigh=fhigh)
+        deltaF = self.frequencies[1] - self.frequencies[0]
+        n_segs = len(self.interferometer_1.psd_spectrogram[~bad_times_indexes])
 
-        n_segs = len(self.interferometer_1.average_psd[~bad_times_indexes])
-
-        psd_1_average = np.mean(self.interferometer_1.average_psd[~bad_times_indexes], axis=0)
-        psd_2_average = np.mean(self.interferometer_2.average_psd[~bad_times_indexes], axis=0)
-        csd_average = np.mean(self.average_csd[~bad_times_indexes], axis=0)
+        psd_1_average = np.mean(self.interferometer_1.psd_spectrogram[~bad_times_indexes].crop_frequencies(flow, fhigh + deltaF), axis=0)
+        psd_2_average = np.mean(self.interferometer_2.psd_spectrogram[~bad_times_indexes].crop_frequencies(flow, fhigh + deltaF), axis=0)
+        csd_average = np.mean(self.csd[~bad_times_indexes].crop_frequencies(flow, fhigh + deltaF), axis=0)
 
         coherence = calculate_coherence(
             psd_1_average,
@@ -1261,7 +1295,7 @@ class Baseline(object):
             csd_average,
         )
 
-        epoch = self.average_csd.times[0]
+        epoch = self.csd.times[0]
 
         self.coherence_spectrum = FrequencySeries(
             coherence,
@@ -1366,6 +1400,10 @@ class Baseline(object):
             self.sigma_spectrogram,
             self.badGPStimes,
             self.delta_sigmas,
+            self.interferometer_1.gates,
+            self.interferometer_1.gate_pad,
+            self.interferometer_2.gates,
+            self.interferometer_2.gate_pad,
         )
 
     def save_psds_csds(
@@ -1424,7 +1462,7 @@ class Baseline(object):
 
         save_csd(
             f"{filename}{ext}",
-            self.frequencies,
+            self.csd.frequencies.value,
             self.average_csd.frequencies.value,
             self.csd,
             self.average_csd,
@@ -1432,10 +1470,6 @@ class Baseline(object):
             self.interferometer_2.psd_spectrogram,
             self.interferometer_1.average_psd,
             self.interferometer_2.average_psd,
-            self.interferometer_1.gates,
-            self.interferometer_1.gate_pad,
-            self.interferometer_2.gates,
-            self.interferometer_2.gate_pad,
             coherence,
             psd_1_coh,
             psd_2_coh,
@@ -1456,6 +1490,10 @@ class Baseline(object):
         sigma_spectrogram,
         badGPStimes,
         delta_sigmas,
+        ifo_1_gates,
+        ifo_1_gate_pad,
+        ifo_2_gates,
+        ifo_2_gate_pad,
     ):
         try:
             naive_sigma_values = delta_sigmas["naive_sigmas"]
@@ -1480,6 +1518,10 @@ class Baseline(object):
             delta_sigma_values=delta_sigmas["values"],
             naive_sigma_values=naive_sigma_values,
             slide_sigma_values=slide_sigma_values,
+            ifo_1_gates=ifo_1_gates,
+            ifo_1_gate_pad=ifo_1_gate_pad,
+            ifo_2_gates=ifo_2_gates,
+            ifo_2_gate_pad=ifo_2_gate_pad,
         )
 
     def _pickle_save(
@@ -1495,6 +1537,10 @@ class Baseline(object):
         sigma_spectrogram,
         badGPStimes,
         delta_sigmas,
+        ifo_1_gates,
+        ifo_1_gate_pad,
+        ifo_2_gates,
+        ifo_2_gate_pad,
     ):
         save_dictionary = {
             "frequencies": frequencies,
@@ -1507,6 +1553,10 @@ class Baseline(object):
             "sigma_spectrogram": sigma_spectrogram,
             "badGPStimes": badGPStimes,
             "delta_sigmas": list(delta_sigmas.items()),
+            "ifo_1_gates": ifo_1_gates,
+            "ifo_1_gate_pad": ifo_1_gate_pad,
+            "ifo_2_gates": ifo_2_gates,
+            "ifo_2_gate_pad": ifo_2_gate_pad,
         }
 
         with open(filename, "wb") as f:
@@ -1525,6 +1575,10 @@ class Baseline(object):
         sigma_spectrogram,
         badGPStimes,
         delta_sigmas,
+        ifo_1_gates,
+        ifo_1_gate_pad,
+        ifo_2_gates,
+        ifo_2_gate_pad,
     ):
         list_freqs = frequencies.tolist()
         list_freqs_mask = frequency_mask.tolist()
@@ -1561,6 +1615,10 @@ class Baseline(object):
             "badGPStimes": badGPStimes_list,
             "delta_sigma_alphas": delta_sigmas["alphas"],
             "delta_sigma_values": delta_sigmas["values"].tolist(),
+            "ifo_1_gates": ifo_1_gates,
+            "ifo_1_gate_pad": ifo_1_gate_pad,
+            "ifo_2_gates": ifo_2_gates,
+            "ifo_2_gate_pad": ifo_2_gate_pad,
         }
         try:
             save_dictionary["naive_sigma_values"] = delta_sigmas[
@@ -1588,6 +1646,10 @@ class Baseline(object):
         sigma_spectrogram,
         badGPStimes,
         delta_sigmas,
+        ifo_1_gates,
+        ifo_1_gate_pad,
+        ifo_2_gates,
+        ifo_2_gate_pad,
         compress=False,
     ):
         hf = h5py.File(filename, "w")
@@ -1648,6 +1710,14 @@ class Baseline(object):
         except KeyError:
             pass
 
+        gates_group = hf.create_group("Gated_Times")
+        gates_group.create_dataset(
+            "ifo_1_gates", data=ifo_1_gates, compression=compression
+        )
+        gates_group.create_dataset(
+            "ifo_2_gates", data=ifo_2_gates, compression=compression
+        )
+
         hf.close()
 
     def _npz_save_csd(
@@ -1661,10 +1731,6 @@ class Baseline(object):
         psd_2,
         avg_psd_1,
         avg_psd_2,
-        ifo_1_gates,
-        ifo_1_gate_pad,
-        ifo_2_gates,
-        ifo_2_gate_pad,
         coherence,
         psd_1_coh,
         psd_2_coh,
@@ -1685,10 +1751,6 @@ class Baseline(object):
             avg_csd_times=avg_csd.times.value,
             psd_times=psd_1.times.value,
             avg_psd_times=avg_psd_1.times.value,
-            ifo_1_gates=ifo_1_gates,
-            ifo_1_gate_pad=ifo_1_gate_pad,
-            ifo_2_gates=ifo_2_gates,
-            ifo_2_gate_pad=ifo_2_gate_pad,
             coherence=coherence,
             psd_1_coh=psd_1_coh,
             psd_2_coh=psd_2_coh,
@@ -1707,10 +1769,6 @@ class Baseline(object):
         psd_2,
         avg_psd_1,
         avg_psd_2,
-        ifo_1_gates,
-        ifo_1_gate_pad,
-        ifo_2_gates,
-        ifo_2_gate_pad,
         coherence,
         psd_1_coh,
         psd_2_coh,
@@ -1727,10 +1785,6 @@ class Baseline(object):
             "psd_2": psd_2,
             "avg_psd_1": avg_psd_1,
             "avg_psd_2": avg_psd_2,
-            "ifo_1_gates": ifo_1_gates,
-            "ifo_1_gate_pad": ifo_1_gate_pad,
-            "ifo_2_gates": ifo_2_gates,
-            "ifo_2_gate_pad": ifo_2_gate_pad,
             "coherence": coherence,
             "psd_1_coh": psd_1_coh,
             "psd_2_coh": psd_2_coh,
@@ -1755,10 +1809,6 @@ class Baseline(object):
         psd_2,
         avg_psd_1,
         avg_psd_2,
-        ifo_1_gates,
-        ifo_1_gate_pad,
-        ifo_2_gates,
-        ifo_2_gate_pad,
         coherence,
         psd_1_coh,
         psd_2_coh,
@@ -1839,10 +1889,6 @@ class Baseline(object):
             "avg_psd_1_times": avg_psd_times,
             "avg_psd_2": list_avg_psd_2,
             "avg_psd_2_times": avg_psd_2_times,
-            "ifo_1_gates": ifo_1_gates,
-            "ifo_1_gate_pad": ifo_1_gate_pad,
-            "ifo_2_gates": ifo_2_gates,
-            "ifo_2_gate_pad": ifo_2_gate_pad,
             "coherence": list_coherence,
             "psd_1_coh": list_psd_1_coh,
             "psd_2_coh": list_psd_2_coh,
@@ -1865,10 +1911,6 @@ class Baseline(object):
         psd_2,
         avg_psd_1,
         avg_psd_2,
-        ifo_1_gates,
-        ifo_1_gate_pad,
-        ifo_2_gates,
-        ifo_2_gate_pad,
         coherence,
         psd_1_coh,
         psd_2_coh,
@@ -1933,14 +1975,6 @@ class Baseline(object):
         )
         avg_psd_2_group.create_dataset(
             "avg_psd_2_times", data=avg_psd_2_times, compression=compression
-        )
-
-        gates_group = hf.create_group("Gated_Times")
-        gates_group.create_dataset(
-            "ifo_1_gates", data=ifo_1_gates, compression=compression
-        )
-        gates_group.create_dataset(
-            "ifo_2_gates", data=ifo_2_gates, compression=compression
         )
 
         if coherence:

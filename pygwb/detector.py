@@ -299,8 +299,8 @@ class Interferometer(bilby.gw.detector.Interferometer):
         frequency_resolution,
         coarse_grain=False,
         overlap_factor=0.5,
-        window_fftgram_dict_welch_psd={"window_fftgram": "hann"},
-        overlap_factor_welch_psd=0.5,
+        window_fftgram_dict={"window_fftgram": "hann"},
+        overlap_factor_welch=0.5,
     ):
         """
         Set psd_spectrogram attribute from a given spectrum-related information.
@@ -317,19 +317,25 @@ class Interferometer(bilby.gw.detector.Interferometer):
             Amount of overlap between adjacent segments (range between 0 and 1)
             This factor should be same as the one used for cross_spectral_density
             (default 0, no overlap)
-        window_fftgram_dict_welch_psd: dictionary, optional
-            Dictionary containing name and parameters describing which window to use when producing fftgrams for welch psd estimation. Default is \"hann\".
+        window_fftgram_dict: dictionary, optional
+            Dictionary containing name and parameters describing which window to use when producing fftgrams for psd estimation. Default is \"hann\".
+        overlap_factor_welch: float, optional
+            Overlap factor to use when if using Welch's method to estimate the PSD (NOT coarsegraining). For \"hann\" window use 0.5 overlap_factor and for \"boxcar"\ window use 0 overlap_factor. Default is 0.5 (50% overlap), which is optimal when using Welch's method with a \"hann\" window.
 
         """
 
-        # psd_array = spectral.psd(self.timeseries, frequencies)
+        # PSD estimation needs zeropadding when using coarse-graining
+        zeropad_psd = coarse_grain
+
         self.psd_spectrogram = power_spectral_density(
             self.timeseries,
             self.duration,
             frequency_resolution,
+            coarse_grain=coarse_grain,
+            zeropad=zeropad_psd,
             overlap_factor=overlap_factor,
-            window_fftgram_dict_welch_psd=window_fftgram_dict_welch_psd,
-            overlap_factor_welch_psd=overlap_factor_welch_psd,
+            window_fftgram_dict=window_fftgram_dict,
+            overlap_factor_welch=overlap_factor_welch,
         )
         self.psd_spectrogram.channel = self.timeseries.channel
         self._check_spectrogram_channel_name(self.timeseries.channel.name)
