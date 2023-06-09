@@ -39,7 +39,7 @@ def sort_coh_files(item):
 
 """
 SCRIPT TO COMBINE PYGWB_PIPE RUN OUTPUTS.
-currently only works with npz - this will be updated for compatibility with other formats as wego along.
+currently only works with npz - this will be updated for compatibility with other formats as we go along.
 """
 
 
@@ -87,6 +87,8 @@ def main():
         combine_args.h0 = pygwb_h0
     if not combine_args.out_path:
         combine_args.out_path = Path("./")
+    if not isdir(combine_args.out_path):
+        os.mkdir(combine_args.out_path)
     if combine_args.coherence_path:
         combine_args.combine_coherence=True
     combine_args.alpha = float(Fraction(combine_args.alpha)) 
@@ -99,15 +101,15 @@ def main():
                     files_coh = [str(coh_file) for coh_file in combine_args.coherence_path]
     elif isdir(combine_args.data_path[0]):
         files_ptest = [
-            os.path.join(combine_args.data_path, f)
-            for f in listdir(combine_args.data_path)
-            if isfile(join(combine_args.data_path, f)) and f.startswith("point")
+            os.path.join(combine_args.data_path[0], f)
+            for f in listdir(combine_args.data_path[0])
+            if isfile(join(combine_args.data_path[0], f)) and f.startswith("point")
         ]
         if combine_args.combine_coherence:
             files_coh = [
-                join(combine_args.data_path, f)
-                for f in listdir(combine_args.data_path)
-                if isfile(join(combine_args.data_path, f)) and f.startswith("psds")
+                join(combine_args.data_path[0], f)
+                for f in listdir(combine_args.data_path[0])
+                if isfile(join(combine_args.data_path[0], f)) and f.startswith("psds")
             ]
     else:
         raise ValueError("Data path provided is neither a file nor a folder.")
@@ -132,8 +134,7 @@ def main():
         combine_args.file_tag = f"{times[0]}-{times[-1]}"
 
     frequencies = np.load(files_ptest[0])["frequencies"]
-    #frequency_mask = np.load(files_ptest[0])["frequency_mask"]
-    frequency_mask = True
+    frequency_mask = np.load(files_ptest[0])["frequency_mask"]
 
     # spectral objects
     Y_j = []
@@ -148,6 +149,10 @@ def main():
     delta_sigmas_j = []
     badGPStimes_j = []
     times_j = []
+    gates_ifo1_j = []
+    gates_ifo2_j = []
+    gates_ifo1_pad_j = []
+    gates_ifo2_pad_j = []
 
     pt_est_sigma_unweighted_path = os.path.join(
         combine_args.out_path,
@@ -174,6 +179,10 @@ def main():
         slide_sigmas_j.append(data_file["slide_sigma_values"].T)
         delta_sigmas_j.append(data_file["delta_sigma_values"].T)
         times_j.append(data_file["delta_sigma_times"])
+        gates_ifo1_j.append(data_file["ifo_1_gates"])
+        gates_ifo2_j.append(data_file["ifo_2_gates"])
+        gates_ifo1_pad_j.append(data_file["ifo_1_gate_pad"])
+        gates_ifo2_pad_j.append(data_file["ifo_2_gate_pad"])
         if not data_file["badGPStimes"].size == 0:
             if data_file["badGPStimes"].size == 1:
                 list_gps = np.array(data_file["badGPStimes"].flatten())
@@ -204,6 +213,13 @@ def main():
     slide_sigmas_j = np.concatenate(slide_sigmas_j)
     delta_sigmas_j = np.concatenate(delta_sigmas_j)
     times_j = np.concatenate(times_j)
+    # concatenate gate info - filtering for empty sets of gates
+    if sum([1 for g in gates_ifo1_j if g.size>1])>0: 
+        gates_ifo1_j = np.concatenate(list(filter(lambda x: x.size>1, gates_ifo1_j)))
+    if sum([1 for g in gates_ifo2_j if g.size>1])>0: 
+        gates_ifo2_j = np.concatenate(list(filter(lambda x: x.size>1, gates_ifo2_j)))
+    gates_ifo1_pad_j = np.array(gates_ifo1_pad_j)
+    gates_ifo2_pad_j = np.array(gates_ifo2_pad_j)
     try:
         badGPStimes_j = np.concatenate(badGPStimes_j)
     except ValueError: # when there are no badGPStimes in the whole set 
@@ -215,11 +231,18 @@ def main():
         delta_sigmas=delta_sigmas_j,
         badGPStimes=badGPStimes_j,
         times=times_j,
+        gates_ifo1=gates_ifo1_j,
+        gates_ifo2=gates_ifo2_j,
+        gates_ifo1_pad=gates_ifo1_pad_j,
+        gates_ifo2_pad=gates_ifo2_pad_j,
     )
     logger.info(
         f"saved file with all sigma information related to the delta sigma cut for all times in run:\n {delta_sigma_cut_output_path}."
     )
 
+    # make combination robust against weird zero-sigma segments...
+    for spec in sigma_spectra_j:
+        spec[np.where(spec==0.0)] = np.inf
     Y_spectrum_combined, sigma_spectrum_combined = combine_spectra_with_sigma_weights(
         np.array(Y_spectra_j), np.array(sigma_spectra_j)
     )
@@ -318,6 +341,7 @@ def main():
         point_estimate_spectrum=Y_reweight_spectrum.value,
         sigma_spectrum=sigma_reweight_spectrum.value,
         frequencies=frequencies,
+        frequency_mask=frequency_mask,
         point_estimates_seg_UW=Y_seg,
         sigmas_seg_UW=sigma_seg,
     )
@@ -330,9 +354,9 @@ def main():
             combine_args.out_path,
             f"coherence_spectrum_{combine_args.file_tag}.npz",
         )
-        psd_1_average = 0
-        psd_2_average = 0
-        csd_average = 0
+        psd_1_average = None
+        psd_2_average = None
+        csd_average = None
         coh_frequencies = np.load(files_coh[0], allow_pickle=True)['avg_freqs']
         n_segs_coh_total = 0
 
@@ -344,15 +368,30 @@ def main():
             psd_1_coh = data_file['psd_1_coh']
             psd_2_coh = data_file['psd_2_coh']
             csd_coh = data_file['csd_coh']
-            n_segs_coh = data_file['n_segs_coh']
 
-            psd_1_average += n_segs_coh*psd_1_coh
-            psd_2_average += n_segs_coh*psd_2_coh
-            csd_average += n_segs_coh*csd_coh
-            n_segs_coh_total += n_segs_coh
+            if not (np.isnan(psd_1_coh).all() or np.isnan(psd_2_coh).all() or np.isnan(csd_coh).all()):
+                n_segs_coh = data_file['n_segs_coh']
+                n_segs_coh_total += n_segs_coh
 
-        combined_coherence = calculate_coherence(psd_1_average/n_segs_coh_total, psd_2_average/n_segs_coh_total, csd_average/n_segs_coh_total)
-        np.savez(coherence_path, coherence=combined_coherence, frequencies=coh_frequencies, n_segs_coh=n_segs_coh)
+                if psd_1_average is None:
+                    psd_1_average = n_segs_coh*psd_1_coh
+                    psd_2_average = n_segs_coh*psd_2_coh
+                    csd_average = n_segs_coh*csd_coh
+
+                else:
+                    psd_1_average += n_segs_coh*psd_1_coh
+                    psd_2_average += n_segs_coh*psd_2_coh
+                    csd_average += n_segs_coh*csd_coh
+            else:
+                logger.info(f"Removed a coherence set from the data as results were all NaN.")
+
+        if psd_1_average is not None and psd_2_average is not None:
+            combined_coherence = calculate_coherence(psd_1_average/n_segs_coh_total, psd_2_average/n_segs_coh_total, csd_average/n_segs_coh_total)
+        else:
+            logger.info(f"Removed all the coherences due to bad data.")
+            combined_coherence = None
+            n_segs_coh_total = 0
+        np.savez(coherence_path, coherence=combined_coherence, frequencies=coh_frequencies, n_segs_coh=n_segs_coh_total)
 
         logger.info(
             f"Saved file with coherence spectrum:\n {coherence_path}."
@@ -363,3 +402,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
