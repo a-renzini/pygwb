@@ -598,17 +598,29 @@ class StatisticalChecks(object):
         if self.coherence_spectrum is None or self.coherence_spectrum.size==1:
             return
 
-        coherence = self.coherence_spectrum
+        coherence = selfi.coherence_spectrum
+        coherence_clipped = np.ones(len(coherence))
+        clip_val = 100* 1/self.n_segs
+        for i in range(len(coherence_clipped)):
+            if coherence[i] >= clip_val:
+                coherence_clipped[i] = clip_val
+            else:
+                coherence_clipped[i] = coherence[i]
         frequencies = self.frequencies
         total_bins = 1000
         bins =  np.linspace(0, max(coherence), total_bins)
-        alpha = 1
+        bins_clipped =  np.linspace(0, max(coherence), total_bins)
         n_frequencies = len(frequencies)
-        delta_coherence = bins[1]-bins[0]
+        delta_coherence_clipped = bins_clipped[1]-bins_clipped[0]
         resolution = frequencies[1] - frequencies[0]
         fftlength = int(1.0 / resolution)
-        predicted = alpha * n_frequencies * delta_coherence * self.n_segs * np.exp(-alpha * self.n_segs * coherence)
-        threshold = np.log(alpha * self.n_segs * n_frequencies * delta_coherence) / (self.n_segs * alpha)
+        
+        
+        coherence_highres = np.arange(0,1,1e-6)
+        predicted_highres = (self.n_segs-1) * (1- coherence_highres)**(self.n_segs-2)
+        threshold = coherence_highres[np.where(predicted_highres <= 1/(n_frequencies*delta_coherence_clipped))[0][0]]
+
+        probability = predicted_highres/(n_frequencies*delta_coherence) 
 
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
    
@@ -619,10 +631,11 @@ class StatisticalChecks(object):
             ec="k",
             lw = 0.1,
             zorder=1,
+            density = True,
         )
         axs.plot(
-            coherence, 
-            predicted,
+            coherence_highres, 
+            predicted_highres,
             color=sea[0],
             zorder=2,
             alpha = 0.8,
@@ -653,16 +666,17 @@ class StatisticalChecks(object):
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))      
 
         axs.hist(
-            coherence,
-            bins,
+            coherence_clipped,
+            bins_clipped,
             color=sea[3],
             ec="k",
             lw = 0.1,
             zorder=1,
+            density = True,
         )
         axs.plot(
-            coherence, 
-            predicted,
+            coherence_highres, 
+            predicted_highres,
             color=sea[0],
             zorder=2,
             alpha = 0.8,
@@ -692,13 +706,17 @@ class StatisticalChecks(object):
         plt.close()
 
 
-        outlier_coherence = [(frequencies[i], coherence[i]) for i in range(len(coherence)) if coherence[i] > np.abs(threshold)]
+        outlier_coherence = [(frequencies[i], coherence[i],probability[np.where(coherence_highres>=coherence[i])[0][0]]) for i in range(len(coherence)) if (coherence[i] > np.abs(threshold) and notch.check_frequency(frequencies[i]) == False )]
+        outlier_coherence_notched = [(frequencies[i], coherence[i],probability[np.where(coherence_highres>=coherence[i])[0][0]]) for i in range(len(coherence)) if (coherence[i] > np.abs(threshold) and notch.check_frequency(frequencies[i]) == True )]
         n_outlier = len(outlier_coherence)
         file_name = f"{self.plot_dir / self.baseline_name}-{self.file_tag}-list_coherence_outlier.txt"
         with open(file_name, 'w') as f:
-            f.write('Frequencies  \tCoherence\n')
+            f.write('Frequencies  \tCoherence \tProbability\n')
             for tup in outlier_coherence:
-                f.write(f'{tup[0]}\t{tup[1]}\n')
+                f.write(f'{tup[0]}\t{tup[1]}\t{tup[2]}\n')
+            f.write('The outliers below are already included in the applied version of the notch-list')
+            for tup in outlier_coherence_notched:
+                f.write(f'{tup[0]}\t{tup[1]}\t{tup[2]}\n')
                 
     def plot_cumulative_sensitivity(self):
         """
