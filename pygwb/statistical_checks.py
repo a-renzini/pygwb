@@ -613,7 +613,7 @@ class StatisticalChecks(object):
             else:
                 coherence_clipped[i] = coherence[i]
         frequencies = self.frequencies
-        if total_bins is None
+        if total_bins is None:
             total_bins = 250
         bins =  np.linspace(0, max(coherence), total_bins)
         bins_clipped =  np.linspace(0, max(coherence_clipped), total_bins)
