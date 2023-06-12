@@ -1,3 +1,50 @@
+"""
+The ``Network`` module is designed to handle two different tasks. Its primary purpose is to combine results from different
+``pygwb.Baseline`` objects. Similarly to the ``Baseline`` object, the ``Network`` object imports ``Baseline`` objects as attributes which
+may be invoked through the ``Network``. In addition to this functionality, it can also be used to simulate cross-correlated
+data across a network of detectors. Both signal-only and signal and noise data can be simulated using a ``Network``
+object. The network module handles all data generation by querying the simulator module.
+
+Examples
+--------
+
+To show how a ``Network`` object can be instantiated, we start by importing the relevant
+packages:
+
+>>> import numpy as np
+>>> from pygwb.detector import Interferometer
+>>> from pygwb.network import Network
+
+For concreteness, we work with the LIGO Hanford and Livingston detectors, which we 
+instantiate through:
+
+>>> H1 = Interferometer.get_empty_interferometer("H1")
+>>> L1 = Interferometer.get_empty_interferometer("L1")
+>>> ifo_list = [H1,L1]
+
+The above detectors are ``Interferometer`` objects, but are based on ``bilby`` detectors, which have 
+default noise PSDs saved in them, in the `power_spectral_density` attribute of the ``bilby`` detector. 
+Below, we load in this noise PSD and make sure the duration and sampling frequency of the detector 
+is set to the desired value of these parameters chosen at the start of the notebook.
+
+>>> for ifo in ifo_list:
+>>>     ifo.duration = duration
+>>>     ifo.sampling_frequency = sampling_frequency
+>>>     ifo.power_spectral_density = bilby.gw.detector.PowerSpectralDensity(ifo.frequency_array, np.nan_to_num(ifo.power_spectral_density_array, posinf=1.e-41))
+
+A network can then be created by using:
+
+>>> network_HL = Network('HL', ifo_list)
+
+It is also possible to initialize the class by passing a list of ``Baselines``:
+
+>>> HL_network = Network.from_baselines(’HL’, [HL_baseline])
+
+For additional information and functionalities of the ``Network``, we refer the reader to the dedicated 
+tutorial section of the documentation.
+
+"""
+
 import os
 import warnings
 
@@ -16,13 +63,6 @@ from .simulator import Simulator
 
 
 class Network(object):
-    """
-    Network object for stochastic analyses with multiple functionalities:
-        * data simulation
-        * stochastic pre-processing
-        * isotropic stochastic analysis
-    """
-
     def __init__(
         self,
         name,
@@ -41,25 +81,25 @@ class Network(object):
 
         Parameters
         ----------
-        name: str
+        name: ``str``
             Name for the network, e.g H1H2
-        interferometers: list of intereferometer objects
-        duration: float, optional
-            the duration in seconds of each data segment in the interferometers. None by default, in which case duration is inherited from the interferometers.
-        frequencies: array_like, optional
-            the frequency array for the Baseline and
-            interferometers
-        calibration_epsilon: float, optional
-            calibration uncertainty for this baseline -- currently only supports a single notch list for all baselines
-        notch_list_path: str, optional
-            file path of the baseline notch list -- currently only supports a single notch list for all baselines
-        overlap_factor: float, optional
-            factor by which to overlap the segments in the psd and csd estimation. Default is 1/2, if set to 0 no overlap is performed.
-        zeropad_csd: bool, optional
-            if True, applies zeropadding in the csd estimation. True by default.
-        window_fftgram_dict: dictionary, optional
+        interferometers: ``list ``
+            List of intereferometer objects
+        duration: ``float``, optional
+            The duration in seconds of each data segment in the interferometers. None by default, in which case duration is inherited from the interferometers.
+        frequencies: ``array_like``, optional
+            The frequency array for the Baseline and interferometers
+        calibration_epsilon: ``float``, optional
+            Calibration uncertainty for this baseline -- currently only supports a single notch list for all baselines
+        notch_list_path: ``str``, optional
+            File path of the baseline notch list -- currently only supports a single notch list for all baselines
+        overlap_factor: ``float``, optional
+            Factor by which to overlap the segments in the psd and csd estimation. Default is 1/2, if set to 0 no overlap is performed.
+        zeropad_csd: ``bool``, optional
+            If True, applies zeropadding in the csd estimation. True by default.
+        window_fftgram_dict: ``dictionary``, optional
             Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds. Default is \"hann\".
-        N_average_segments_welch_psd: int, optional
+        N_average_segments_welch_psd: ``int``, optional
             Number of segments used for PSD averaging (from both sides of the segment of interest)
             N_avg_segs should be even and >= 2
         """
@@ -99,7 +139,22 @@ class Network(object):
     @classmethod
     def from_baselines(cls, name, baselines):
         """
-        Initialise a network from a set of baselines. Takes care to unpack the interferometers from each baselines and sets them in the Network.
+        Initialise a network from a set of baselines. Takes care to unpack the interferometers from each baseline and sets them in the network.
+
+        Parameters
+        ==========
+
+        name: ``str``
+            Name of the network
+        baselines: ``list``
+            List of ``pygwb.baseline`` objects
+
+        Returns
+        =======
+
+        network: ``pygwb.network``
+            Network object
+
         """
         if not all(baselines[0].duration == base.duration for base in baselines[1:]):
             raise AssertionError(
@@ -131,7 +186,8 @@ class Network(object):
 
         Parameters
         ==========
-        duration: float, optional
+
+        duration: ``float``, optional
             The duration to set for the Network and interferometers
         """
         if duration is not None:
@@ -168,8 +224,15 @@ class Network(object):
 
         Parameters
         ==========
-        notch_list_path: str
+
+        notch_list_path: ``str``
             Path to notch list to apply to frequency array.
+        
+        flow: ``float``, optional
+            Lowest frequency to consider. Defaults to 20.
+        fhigh: ``float``, optional
+            Highest frequency to consider. Defaults to 1726.
+
         """
         mask = (self.frequencies >= flow) & (self.frequencies <= fhigh)
         if notch_list_path:
@@ -194,22 +257,24 @@ class Network(object):
         Parameters
         ==========
 
-        N_segments: int
+        N_segments: ``int``
             Number of segments to simulate
-        GWB_intensity: gwpy.frequencyseries.FrequencySeries
-            A gwpy.frequencyseries.FrequencySeries containing the desired strain power spectrum
-        CBC_dict: dict
-            Dictionary containing the parameters of CBC injections.
-        sampling_frequency: float
+        GWB_intensity: ``gwpy.frequencyseries.FrequencySeries``, optional
+            A gwpy.frequencyseries.FrequencySeries containing the desired strain power spectrum. Defaults to None, 
+            in which case CBC_dict should be passed.
+        CBC_dict: ``dict``, optional
+            Dictionary containing the parameters of CBC injections. Default to None, 
+            in which case GWB_intensity should be passed.
+        sampling_frequency: ``float``, optional
             Sampling frequency at which the data needs to be simulated. If not specified (None), will check for interferometer's
             sampling frequency.
-        start_time: float
+        start_time: ``float``, optional
             Start time of the simulated data. If not passed (None), will check for interferometer's timeseries start time.
-            If not specified either, start time will default to zero.
-        inject_into_data_flag: boolean
+            If not specified either, start time will default to 0.
+        inject_into_data_flag: ``boolean``, optional
             Flag that specifies whether or not the simulated data needs to be injected into data, i.e. if there is already
             data present in the interferometers of the network. If so, only data will be simulated and no extra noise will
-            be added on top of the simulated data.
+            be added on top of the simulated data. Defaults to False.
         """
         no_noise = inject_into_data_flag
         if start_time == None:
@@ -257,9 +322,10 @@ class Network(object):
 
         Parameters
         ==========
-        save dir: str, optional
+        
+        save dir: ``str``, optional
             The path of the output folder. Defaults to the local folder.
-        file format: str, optional
+        file format: ``str``, optional
             The format of the output file. Defaults to hdf5 file. Acceptable formats are standard gwpy TimeSeries.write formats.
         """
         file_name = f"{self.name}_STRAIN-{int(self.interferometers[0].strain_data.start_time)}-{int(self.interferometers[0].strain_data.duration)}.{file_format}"
@@ -329,16 +395,17 @@ class Network(object):
         fhigh=1726,
     ):
         """
-        Set point estimate sigma based the combined spectra from each Baseline. This is estimate of omega_gw in each frequency bin.
+        Set point estimate sigma based the combined spectra from each Baseline. This is the estimate of omega_gw in each frequency bin.
 
         Parameters
         ==========
-        notch_list_path: str, optional
+
+        notch_list_path: ``str``, optional
             Path to the notch list to use in the spectrum; if the notch_list isn't set in the baseline,
             user can pass it directly here. If it is not set and if none is passed no notches will be applied.
-        flow: float, optional
+        flow: ``float``, optional
             Low frequency. Default is 20 Hz.
-        fhigh: float, optional
+        fhigh: ``float``, optional
             High frequency. Default is 1726 Hz.
         """
         if not hasattr(self, "point_estimate_spectrum"):
