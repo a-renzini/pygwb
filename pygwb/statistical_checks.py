@@ -1136,7 +1136,7 @@ class StatisticalChecks(object):
         )
         plt.close()
 
-    def plot_hist_sigma_squared(self):
+    def plot_hist_sigma_squared(self, max_val = 5, total_bins=100, label_number = 6):
         """
         Generates and saves a histogram of :math:`\sigma^2/\langle\sigma^2\rangle`. The plot shows data after the delta-sigma (bad GPS times) cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_sigma_cut).
 
@@ -1149,29 +1149,43 @@ class StatisticalChecks(object):
         """
         if self.delta_sigmas_cut.size==0:
             return
-
+        
+        values = 1 / np.nanmean(self.sliding_sigma_cut ** 2) * self.sliding_sigma_cut ** 2
+        
+        values_clipped = np.ones(len(values))
+        
+        for i in range(len(values_clipped)):
+            if values[i] >= max_val:
+                values_clipped[i] = max_val
+            else:
+                values_clipped[i] = values[i]
+                
+        bins = np.linspace(0, max(values_clipped), total_bins)
+        
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
-        axs.hist(
-            1 / np.nanmean(self.sliding_sigma_cut ** 2) * self.sliding_sigma_cut ** 2,
-            bins=101,
+        _, bins, patches = plt.hist(
+            values_clipped,
+            bins=bins,
             color=sea[0],
             ec="k",
             lw=0.5,
             label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
         )
+        
         axs.set_xlabel(r"$\sigma^2/\langle\sigma^2\rangle$", size=self.axes_labelsize)
         axs.set_ylabel(r"count", size=self.axes_labelsize)
         axs.set_yscale("log")
-        axs.set_xlim(0, 5)
+        axs.set_xlim(0, max_val)
         axs.legend(fontsize=self.legend_fontsize)
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
-
-        plt.title(f"Relative variance in {self.time_tag}", fontsize=self.title_fontsize)
-        plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_sigma_squared.png", bbox_inches = 'tight'
-        )
-        plt.close()
+        
+        xticks_tmp = np.linspace(0, max_val, label_number)
+        labels = [str(i) for i in xticks_tmp]
+        labels[-1]+="+"
+        plt.xticks(xticks_tmp, labels)
+        
+        plt.show()
 
     def plot_omega_time_fit(self):
         """
