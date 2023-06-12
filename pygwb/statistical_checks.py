@@ -96,7 +96,7 @@ class StatisticalChecks(object):
         frequency_mask: array
             Boolean mask applied to the specrtra in broad-band analyses. 
         notch_list: StochNotchList object
-            A StochNotchList object containg all the individual notches applied to the specrtra in broad-band analyses. 
+            A StochNotchList object containing all the individual notches applied to the specrtra in broad-band analyses. 
         gates_ifo1/gates_ifo2: list
             List of gates applied to interferometer 1/2.
         file_tag: str
@@ -135,7 +135,7 @@ class StatisticalChecks(object):
         self.coherence_spectrum = coherence_spectrum
         fftlength = int(1.0 / (self.frequencies[1] - self.frequencies[0]))
         self.n_segs = coherence_n_segs * int(np.floor(self.params.segment_duration/(fftlength*(1.-self.params.overlap_factor_welch)))-1) #fftlength/2.
-        self.n_segs_statement = r"The number of segements is" + f" {self.n_segs}."
+        self.n_segs_statement = r"The number of segments is" + f" {self.n_segs}."
 
         self.sigma_spectrum = sigma_spectrum
         self.point_estimate_spectrum = point_estimate_spectrum
