@@ -98,7 +98,7 @@ class OmegaSpectrogram(Spectrogram):
         Parameters
         ==========
 
-        source: :code:`str`
+        source: str
             Source file path.
 
         Returns
@@ -170,7 +170,7 @@ class OmegaSpectrogram(Spectrogram):
         Parameters
         ==========
 
-        new_alpha: :code:`float`
+        new_alpha: float
             New spectral index.
         new_fref: ``float``
             New reference frequency.
@@ -374,7 +374,7 @@ def reweight_spectral_object(
 
     Parameters
     ==========
-    
+
         spec: array-like
             Spectrum or spectrogram (with shape N_frequencies x Ntimes).
         freqs: array-like
