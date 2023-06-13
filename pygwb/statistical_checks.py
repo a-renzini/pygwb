@@ -671,7 +671,7 @@ class StatisticalChecks(object):
         )
 
         axs.set_xlabel(r"Coherence", size=self.axes_labelsize)
-        axs.set_ylabel(r"Number of bins", size=self.axes_labelsize)
+        axs.set_ylabel(r"Probability distribution", size=self.axes_labelsize)
         axs.legend(fontsize=self.legend_fontsize)
         axs.set_yscale("log")
         axs.set_xlim(left= 0)
@@ -723,7 +723,7 @@ class StatisticalChecks(object):
         )
 
         axs.set_xlabel(r"Coherence", size=self.axes_labelsize)
-        axs.set_ylabel(r"Number of bins", size=self.axes_labelsize)
+        axs.set_ylabel(r"Probability distribution", size=self.axes_labelsize)
         axs.legend(fontsize=self.legend_fontsize)
         axs.set_yscale("log")
         axs.set_xlim(0,max(coherence_clipped))
