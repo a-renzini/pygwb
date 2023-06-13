@@ -173,14 +173,14 @@ class StatisticalChecks(object):
 
         t0 = Time(self.sliding_times_all[0], format='gps')
         t0 = Time(t0, format='iso', scale='utc', precision=0)
-        tf = Time(self.params.tf, format='gps')
+        tf = Time(self.sliding_times_all[-1], format='gps')
         tf = Time(tf, format='iso', scale='utc', precision=0)
         self.time_tag = f"{t0}"+" $-$ "+f"{tf}"
 
         if file_tag:
             self.file_tag = file_tag
         else:
-            self.file_tag = f"{self.sliding_times_all[0]}-{self.params.tf}"
+            self.file_tag = f"{self.sliding_times_all[0]}-{self.sliding_times_all[-1]}"
 
         self.legend_fontsize = legend_fontsize
         self.axes_labelsize = legend_fontsize + 2
@@ -452,7 +452,7 @@ class StatisticalChecks(object):
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
         axs.set_xscale("log")
-        plt.title(f"|SNR| {self.time_tag}", fontsize=self.title_fontsize)
+        plt.title(f"|SNR| in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-abs_point_estimate_integrand.png",
             bbox_inches="tight",
@@ -1364,20 +1364,20 @@ class StatisticalChecks(object):
             self.gates_ifo1_statement=None
         else:
             self.total_gated_time_ifo1 = np.sum(self.gates_ifo1[:,1]-self.gates_ifo1[:,0])
-            self.total_gated_percent_ifo1 = self.total_gated_time_ifo1/(int(self.params.tf)- int(self.sliding_times_all[0]))*100
+            self.total_gated_percent_ifo1 = self.total_gated_time_ifo1/(int(self.sliding_times_all[-1])- int(self.sliding_times_all[0]))*100
             gate_times_in_days_ifo1 = (np.array(self.gates_ifo1[:,0]) - self.sliding_times_all[0]) / 86400.0
             self.gates_ifo1_statement= f"Data gated out: {self.total_gated_time_ifo1} s\n" f"Percentage: {float(f'{self.total_gated_percent_ifo1:.2g}'):g}%"
-            gatefig1 = ax.plot(gate_times_in_days_ifo1, self.gates_ifo1[:,1]-self.gates_ifo1[:,0], 's', color=sea[0], label="IFO1:\n" f"{self.gates_ifo1_statement}")
+            gatefig1 = ax.plot(gate_times_in_days_ifo1, self.gates_ifo1[:,1]-self.gates_ifo1[:,0], 's', color=sea[3], label="IFO1:\n" f"{self.gates_ifo1_statement}")
             first_legend = ax.legend(handles=gatefig1, loc=(0.05,0.75), fontsize = self.axes_labelsize)
             ax.add_artist(first_legend)
         if self.gates_ifo2 is None:
             self.gates_ifo2_statement=None
         else:
             self.total_gated_time_ifo2 = np.sum(self.gates_ifo2[:,1]-self.gates_ifo2[:,0])
-            self.total_gated_percent_ifo2 = self.total_gated_time_ifo2/(int(self.params.tf)- int(self.sliding_times_all[0]))*100
+            self.total_gated_percent_ifo2 = self.total_gated_time_ifo2/(int(self.sliding_times_all[-1])- int(self.sliding_times_all[0]))*100
             gate_times_in_days_ifo2 = (np.array(self.gates_ifo2[:,0]) - self.sliding_times_all[0]) / 86400.0
             self.gates_ifo2_statement= f"Data gated out: {self.total_gated_time_ifo2} s\n" f"Percentage: {float(f'{self.total_gated_percent_ifo2:.2g}'):g}%"
-            gatefig2 = ax.plot(gate_times_in_days_ifo2, self.gates_ifo2[:,1]-self.gates_ifo2[:,0], 's', color=sea[3], label="IFO2:\n" f"{self.gates_ifo2_statement}")
+            gatefig2 = ax.plot(gate_times_in_days_ifo2, self.gates_ifo2[:,1]-self.gates_ifo2[:,0], 's', color=sea[0], label="IFO2:\n" f"{self.gates_ifo2_statement}")
             ax.legend(handles=gatefig2, loc=(0.05, 0.1), fontsize = self.axes_labelsize)
         ax.set_xlabel(self.xaxis, size=self.axes_labelsize)
         ax.set_ylabel("Gate length (s)", size=self.axes_labelsize)
