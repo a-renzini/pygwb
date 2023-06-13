@@ -7,9 +7,8 @@ from pathlib import Path
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mt
-from loguru import logger
-
 from astropy.time import Time
+from loguru import logger
 
 matplotlib.rcParams['figure.figsize'] = (8,6)
 matplotlib.rcParams['axes.grid'] = True
