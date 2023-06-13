@@ -15,6 +15,7 @@ if __name__ == "__main__":
     parser.add_argument('-fs', '--font_size', help="Primary label font size", action="store", type=int, required=False)
     parser.add_argument('-fcoh', '--coherence_file_path', help="Path to coherence file. If passed, automatically triggers the plot coherences option.", action="store", type=Path, required=False)
     parser.add_argument('-t', '--tag', help="Tag to use when saving files", action="store", type=str, required=False)
+    parser.add_argument('-co', '--convention', help="Overall convention to use in plots", action="store", type=str, required=False)
 
     args = parser.parse_args()
 
@@ -24,6 +25,9 @@ if __name__ == "__main__":
     if not args.coherence_file_path:
         args.coherence_file_path = None
 
-    test = run_statistical_checks_from_file(args.combine_file_path, args.dsc_file_path, args.plot_dir, args.param_file, legend_fontsize=args.font_size, coherence_file_path = args.coherence_file_path, file_tag=args.tag)
+    if not args.convention:
+        args.convention = 'pygwb'
+
+    test = run_statistical_checks_from_file(args.combine_file_path, args.dsc_file_path, args.plot_dir, args.param_file, legend_fontsize=args.font_size, coherence_file_path = args.coherence_file_path, file_tag=args.tag, convention=args.convention)
     
     test.generate_all_plots()

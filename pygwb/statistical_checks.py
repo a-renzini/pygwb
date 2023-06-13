@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import matplotlib.transforms as mt
 from loguru import logger
 
+from astropy.time import Time
+
 matplotlib.rcParams['figure.figsize'] = (8,6)
 matplotlib.rcParams['axes.grid'] = True
 matplotlib.rcParams['grid.linestyle'] = ':'
@@ -54,11 +56,11 @@ class StatisticalChecks(object):
         baseline_name,
         param_file,
         frequency_mask = None,
-        notch_list = None,
         gates_ifo1 = None,
         gates_ifo2 = None,
         file_tag = None,
-        legend_fontsize = 16
+        legend_fontsize = 16,
+        convention = 'pygwb'
     ):
         """
         The statistical checks class performs various tests by plotting different quantities and saving this plots. This allows the user to check for consistency with expected results. Concretely, the following tests and plots can be generated: running point estimate, running sigma, (cumulative) point estimate integrand, real and imaginary part of point estimate integrand, FFT of the point estimate integrand, (cumulative) sensitivity, evolution of omega and sigma as a function of time, omega and sigma distribution, KS test, and a linear trend analysis of omega in time. Furthermore, part of these plots compares the values of these quantities before and after the delta sigma cut. Each of these plots can be made by calling the relevant class method (e.g. `plot_running_point_estimate()`).
@@ -95,8 +97,6 @@ class StatisticalChecks(object):
             String with path to the file containing the parameters that were used for the analysis run.
         frequency_mask: array
             Boolean mask applied to the specrtra in broad-band analyses. 
-        notch_list: StochNotchList object
-            A StochNotchList object containing all the individual notches applied to the specrtra in broad-band analyses. 
         gates_ifo1/gates_ifo2: list
             List of gates applied to interferometer 1/2.
         file_tag: str
@@ -129,8 +129,6 @@ class StatisticalChecks(object):
             self.frequency_mask = frequency_mask
         else:
             self.frequency_mask = True
-
-        self.notch_list = notch_list
 
         self.coherence_spectrum = coherence_spectrum
         fftlength = int(1.0 / (self.frequencies[1] - self.frequencies[0]))
@@ -173,7 +171,11 @@ class StatisticalChecks(object):
             self.running_sigmas,
         ) = self.compute_running_quantities()
 
-        self.time_tag = f"{int(self.sliding_times_all[0])}"+"$-$"+f"{int(self.params.tf)}"
+        t0 = Time(self.sliding_times_all[0], format='gps')
+        t0 = Time(t0, format='iso', scale='utc', precision=0)
+        tf = Time(self.params.tf, format='gps')
+        tf = Time(tf, format='iso', scale='utc', precision=0)
+        self.time_tag = f"{t0}"+" $-$ "+f"{tf}"
 
         if file_tag:
             self.file_tag = file_tag
@@ -184,6 +186,14 @@ class StatisticalChecks(object):
         self.axes_labelsize = legend_fontsize + 2
         self.title_fontsize = legend_fontsize + 4
         self.annotate_fontsize = legend_fontsize - 4
+
+        ## convention: stochmon
+        if convention == 'stochmon':
+            self.days_all = self.days_all*24 + t0.ymdhms.hour + t0.ymdhms.minute/60
+            self.days_cut = self.days_cut*24 + t0.ymdhms.hour + t0.ymdhms.minute/60
+            self.xaxis = f"Hours since {t0}"
+        else:
+            self.xaxis = f"Days since {t0}"
 
     def get_data_after_dsc(self):
         """
@@ -358,7 +368,7 @@ class StatisticalChecks(object):
         plt.xlim(self.days_cut[0], self.days_cut[-1])
         if ymin and ymax:
             plt.ylim(ymin, ymax)
-        plt.xlabel("Days since start of run", size=self.axes_labelsize)
+        plt.xlabel(self.xaxis, size=self.axes_labelsize)
         plt.ylabel(r"Point estimate $\pm 1.65 \sigma$", size=self.axes_labelsize)
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
@@ -389,7 +399,7 @@ class StatisticalChecks(object):
         plt.grid(True)
         plt.yscale("log")
         plt.xlim(self.days_cut[0], self.days_cut[-1])
-        plt.xlabel("Days since start of run", size=self.axes_labelsize)
+        plt.xlabel(self.xaxis, size=self.axes_labelsize)
         plt.ylabel(r"$\sigma$", size=self.axes_labelsize)
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
@@ -442,7 +452,7 @@ class StatisticalChecks(object):
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
         axs.set_xscale("log")
-        plt.title(f"Absolute SNR in {self.time_tag}", fontsize=self.title_fontsize)
+        plt.title(f"|SNR| {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-abs_point_estimate_integrand.png",
             bbox_inches="tight",
@@ -737,8 +747,8 @@ class StatisticalChecks(object):
         )
         plt.close()
 
-        outlier_coherence = [(frequencies[i], coherence[i],probability[np.where(coherence_highres>=coherence[i])[0][0]]) for i in range(len(coherence)) if (coherence[i] > np.abs(threshold) and self.notch_list.check_frequency(frequencies[i]) == False )]
-        outlier_coherence_notched = [(frequencies[i], coherence[i],probability[np.where(coherence_highres>=coherence[i])[0][0]]) for i in range(len(coherence)) if (coherence[i] > np.abs(threshold) and self.notch_list.check_frequency(frequencies[i]) == True )]
+        outlier_coherence = [(frequencies[i], coherence[i],probability[np.where(coherence_highres>=coherence[i])[0][0]]) for i in range(len(coherence)) if (coherence[i] > np.abs(threshold) and self.frequency_mask[i] == False)]
+        outlier_coherence_notched = [(frequencies[i], coherence[i],probability[np.where(coherence_highres>=coherence[i])[0][0]]) for i in range(len(coherence)) if (coherence[i] > np.abs(threshold) and self.frequency_mask[i] == True)]
         n_outlier = len(outlier_coherence)
         file_name = f"{self.plot_dir / self.baseline_name}-{self.file_tag}-list_coherence_outlier.txt"
         with open(file_name, 'w') as f:
@@ -795,7 +805,7 @@ class StatisticalChecks(object):
             self.sliding_omega_cut, '.',
             color=sea[0],
         )
-        axs[0].set_xlabel("Days since start of run", size=self.axes_labelsize)
+        axs[0].set_xlabel(self.xaxis, size=self.axes_labelsize)
         axs[0].set_ylabel(r"$\Omega$", size=self.axes_labelsize)
         axs[0].legend(loc="upper left", fontsize=self.legend_fontsize)
         axs[0].set_xlim(0, self.days_all[-1])
@@ -818,7 +828,7 @@ class StatisticalChecks(object):
             self.sliding_sigma_cut,'.',
             color=sea[0]
         )
-        axs[1].set_xlabel("Days since start of run", size=self.axes_labelsize)
+        axs[1].set_xlabel(self.xaxis, size=self.axes_labelsize)
         axs[1].set_ylabel(r"$\sigma$", size=self.axes_labelsize)
         axs[1].legend(loc="upper left", fontsize=self.legend_fontsize)
         axs[1].set_xlim(0, self.days_all[-1])
@@ -840,7 +850,7 @@ class StatisticalChecks(object):
             self.sliding_deviate_cut, '.',
             color=sea[0],
         )
-        axs[2].set_xlabel("Days since start of run", size=self.axes_labelsize)
+        axs[2].set_xlabel(self.xaxis, size=self.axes_labelsize)
         axs[2].set_ylabel(r"$\Delta{\rm SNR}_i$", size=self.axes_labelsize)
         axs[2].legend(loc="upper left", fontsize=self.legend_fontsize)
         axs[2].set_xlim(0, self.days_all[-1])
@@ -1272,7 +1282,7 @@ class StatisticalChecks(object):
         axs.plot(self.days_cut, self.sliding_omega_cut, '.', color=sea[0], markersize=1)
         axs.plot(self.days_cut, 3 * self.sliding_sigma_cut, color=sea[0], linewidth=1.5)
         axs.plot(self.days_cut, -3 * self.sliding_sigma_cut, color=sea[0], linewidth=1.5)
-        axs.set_xlabel("Days since start of run", size=self.axes_labelsize)
+        axs.set_xlabel(self.xaxis, size=self.axes_labelsize)
         axs.set_ylabel(r"$\Omega_i$", size=self.axes_labelsize)
         axs.set_xlim(self.days_cut[0], self.days_cut[-1])
         axs.annotate(
@@ -1321,7 +1331,7 @@ class StatisticalChecks(object):
         c1, c2 = popt[0], popt[1]
         axs.plot(self.days_cut, func(self.days_cut, c1, c2), color=sea[3])
         axs.plot(self.days_cut, self.sliding_sigma_cut, ".", color=sea[0], markersize=1)
-        axs.set_xlabel("Days since start of run", size=self.axes_labelsize)
+        axs.set_xlabel(self.xaxis, size=self.axes_labelsize)
         axs.set_ylabel(r"$\sigma_i$", size=self.axes_labelsize)
         axs.set_xlim(self.days_cut[0], self.days_cut[-1])
         axs.set_ylim(mean_sigma - 1.2 * mean_sigma, mean_sigma + 2.2 * mean_sigma)
@@ -1369,7 +1379,7 @@ class StatisticalChecks(object):
             self.gates_ifo2_statement= f"Data gated out: {self.total_gated_time_ifo2} s\n" f"Percentage: {float(f'{self.total_gated_percent_ifo2:.2g}'):g}%"
             gatefig2 = ax.plot(gate_times_in_days_ifo2, self.gates_ifo2[:,1]-self.gates_ifo2[:,0], 's', color=sea[3], label="IFO2:\n" f"{self.gates_ifo2_statement}")
             ax.legend(handles=gatefig2, loc=(0.05, 0.1), fontsize = self.axes_labelsize)
-        ax.set_xlabel("Days since start of run", size=self.axes_labelsize)
+        ax.set_xlabel(self.xaxis, size=self.axes_labelsize)
         ax.set_ylabel("Gate length (s)", size=self.axes_labelsize)
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
@@ -1428,7 +1438,7 @@ def sortingFunction(item):
 
 
 def run_statistical_checks_from_file(
-    combine_file_path, dsc_file_path, plot_dir, param_file, legend_fontsize=16, coherence_file_path = None, file_tag = None,
+    combine_file_path, dsc_file_path, plot_dir, param_file, legend_fontsize=16, coherence_file_path = None, file_tag = None, convention='pygwb'
 ):
     """
     Assumes files are in npz for now. Will generalize later.
@@ -1508,10 +1518,10 @@ def run_statistical_checks_from_file(
         baseline_name,
         param_file,
         frequency_mask,
-        notch_list,
         gates_ifo1,
         gates_ifo2,
         file_tag=file_tag,
-        legend_fontsize=legend_fontsize
+        legend_fontsize=legend_fontsize,
+        convention=convention
     )
 
