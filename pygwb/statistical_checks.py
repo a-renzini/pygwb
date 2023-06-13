@@ -615,7 +615,7 @@ class StatisticalChecks(object):
 
         coherence = self.coherence_spectrum
         coherence_clipped = np.ones(len(coherence))
-        clip_val = 100* 1/self.n_segs
+        clip_val = 50* 1/self.n_segs
         for i in range(len(coherence_clipped)):
             if coherence[i] >= clip_val:
                 coherence_clipped[i] = clip_val
@@ -683,7 +683,7 @@ class StatisticalChecks(object):
         axs.set_ylabel(r"Probability distribution", size=self.axes_labelsize)
         axs.legend(fontsize=self.legend_fontsize)
         axs.set_yscale("log")
-        axs.set_xlim(left= 0)
+        axs.set_xlim(0, max(coherence))
         axs.set_ylim(0.5/(n_frequencies*delta_coherence),10*predicted_highres[0])
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
