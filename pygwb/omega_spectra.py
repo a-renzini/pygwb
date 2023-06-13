@@ -1,10 +1,9 @@
-"""
-This module contains two self-implemented classes that are responsible for dealing with the spectra and spectrograms in the pygwb analysis. 
+"""This module contains two self-implemented classes that are responsible for dealing with the spectra and spectrograms in the pygwb analysis. 
 These objects can be reweighted with different h0 and power law indices.
 
-During the creation of the pygwb code, it was decided that the capabilities of the ``gwpy.spectrogram.Spectrogram``
+During the creation of the pygwb code, it was decided that the capabilities of the :code: `gwpy.spectrogram.Spectrogram`
 were not sufficient, even though they are already very expanded, and thus we made some subclasses inheriting 
-from the ``Spectrogram`` class. 
+from the :code:`Spectrogram` class. 
 
 Their main purpose was to expand the functionality of the spectrogram to include the ability 
 to read and save to a pickle, but more crucially to reweight the data inside the spectrogram.
@@ -13,12 +12,12 @@ quickly some new code and/or run PE. Therefore, we opted to let the spectrogram
 be reweighted for a certain power law index of the background and also for a certain value
 of h0, the Hubble constant at present time. 
 
-We also introduced a new spectrum class based on the ``gwpy.frequencyseries.FrequencySeries`` class.
+We also introduced a new spectrum class based on the :code:`gwpy.frequencyseries.FrequencySeries` class.
 This new subclass needed the same additions as the spectrograms.
 
 We also coded one function which is actually the function that performs the reweighting 
-both for the ``OmegaSpectrum`` and ``OmegaSpectrogram``. That function is 
-``reweight_spectral_object``.
+both for the :code:`OmegaSpectrum` and :code:`OmegaSpectrogram`. That function is 
+:code:`reweight_spectral_object`.
 """
 
 import pickle
@@ -40,7 +39,6 @@ class OmegaSpectrogram(Spectrogram):
     
     See also
     --------
-
     gwpy.spectrogram.Spectrogram : the parent class of this implementation.
     """
 
@@ -95,30 +93,26 @@ class OmegaSpectrogram(Spectrogram):
 
     @classmethod
     def read(cls, source, *args, **kwargs):
-        """
-        Read data into a Spectrogram. Same usage as read method of gwpy.spectrogram.Spectrogram.
+        """Read data into a Spectrogram. Same usage as read method of gwpy.spectrogram.Spectrogram.
 
         Parameters
         ==========
-
-        source: str
+        source: :code:`str`
             Source file path.
 
         Returns
-        =======
-
+        ======
         Data: ``gwpy.spectrogram.Spectrogram``
             The read in spectrogram from the source.
+        
         """
         return io_registry.read(cls, source, *args, **kwargs)
 
     def write(self, target, *args, **kwargs):
-        """
-        Write this Spectrogram to a file. Same usage as write method of gwpy.spectrogram.Spectrogram.
+        """Write this Spectrogram to a file. Same usage as write method of gwpy.spectrogram.Spectrogram.
 
         Parameters
         ==========
-
         target: str
             Target file path
         """
@@ -131,13 +125,11 @@ class OmegaSpectrogram(Spectrogram):
 
         Parameters
         ==========
-
-        filename: ``str``
+        filename: `str`
             Filename (inclusive of path) to load the pickled spectrogram from.
             
         Returns
-        =======
-
+        ======
         Spectrogram
             The spectrogram you wanted to read from ``filename``.
         """
@@ -150,7 +142,6 @@ class OmegaSpectrogram(Spectrogram):
 
         Parameters
         ==========
-
         filename: str
             Filename (inclusive of path) to save the pickled spectrogram to.
         """
@@ -159,12 +150,11 @@ class OmegaSpectrogram(Spectrogram):
 
     def reweight(self, *, new_alpha=None, new_fref=None):
         """
-        Reweight the spectrogram by a new spectral index alpha, and/or refer to a new reference frequency.
+        Reweight the spectrogram by a new spectral index alpha, and/or refer to a new reference freuency.
 
-        Parameters
+        Parameters:
         ==========
-
-        new_alpha: float
+        new_alpha: :code:`float`
             New spectral index.
         new_fref: ``float``
             New reference frequency.
@@ -190,9 +180,8 @@ class OmegaSpectrogram(Spectrogram):
         """
         Reset the hubble parameter h0. Expected values range between 0.5 and 1.
 
-        Parameters
+        Parameters:
         ==========
-
         new_h0: float
             New h0 to set the spectrum at.
         """
@@ -211,7 +200,6 @@ class OmegaSpectrum(FrequencySeries):
     
     See also
     --------
-
     gwpy.frequencyseries.FrequencySeries: the parent class of this implementation.
     """
 
@@ -270,7 +258,6 @@ class OmegaSpectrum(FrequencySeries):
 
         Parameters
         ==========
-
         source: str
             Source file path.
         """
@@ -282,7 +269,6 @@ class OmegaSpectrum(FrequencySeries):
 
         Parameters
         ==========
-
         target: str
             Target file path.
         """
@@ -295,7 +281,6 @@ class OmegaSpectrum(FrequencySeries):
 
         Parameters
         ==========
-
         filename: str
             Filename (inclusive of path) to load the pickled spectrum from.
         """
@@ -308,7 +293,6 @@ class OmegaSpectrum(FrequencySeries):
 
         Parameters
         ==========
-
         filename: str
             Filename (inclusive of path) to save the pickled spectrum to.
         """
@@ -317,9 +301,9 @@ class OmegaSpectrum(FrequencySeries):
 
     def reweight(self, *, new_alpha=None, new_fref=None):
         """
-        Reweight the spectrum by a new spectral index alpha, and/or refer to a new reference frequency.
+        Reweight the spectrum by a new spectral index alpha, and/or refer to a new reference freuency.
 
-        Parameters
+        Parameters:
         ==========
 
         new_alpha: float
@@ -347,7 +331,7 @@ class OmegaSpectrum(FrequencySeries):
         """
         Reset the hubble parameter h0. Expected values range between 0.5 and 1.
 
-        Parameters
+        Parameters:
         ==========
 
         new_h0: float
@@ -369,8 +353,7 @@ def reweight_spectral_object(
     This is meant to be a helper function used to change the spectral index of the stochastic results.
 
     Parameters
-    ==========
-
+    ----------
         spec: array-like
             Spectrum or spectrogram (with shape N_frequencies x Ntimes).
         freqs: array-like
@@ -385,8 +368,7 @@ def reweight_spectral_object(
             Reference frequency of current `spec` weighting (assumes 1 Hz). Defaults to 25 Hz.
 
     Returns
-    =======
-
+    -------
         new_spec: array-like
             Reweighted spectrum or spectrogram array.
     """
