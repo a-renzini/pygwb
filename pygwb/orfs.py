@@ -1,3 +1,41 @@
+"""
+The relative position and orientation of two detectors is taken into account by the 
+overlap reduction function (ORF) in gravitational-wave background searches. The ``orfs``
+module combines the different component methods to compute the ORF for a given detector
+baseline, and polarization. By default, general relativity (GR) polarization is assumed, i.e., tensor. However, 
+the ``orfs`` module also supports non-GR polarizations (scalar and vector).
+
+Examples
+--------
+    
+To illustrate how to compute the ORF, we start by 
+importing the relevant packages:
+    
+>>> import numpy as np
+>>> from pygwb.orfs import *
+>>> import matplotlib.pyplot as plt
+    
+For concreteness, we consider the LIGO Hanford-Livingston baseline, and compute
+the ORF for this baseline. We define empty detectors:
+    
+>>> H1 = bilbydet.get_empty_interferometer('H1')
+>>> L1 = bilbydet.get_empty_interferometer('L1')
+    
+We  now compute the ORF for a set of frequencies by using the relevant information 
+contained in the interferometer objects defined above:
+    
+>>> freqs = np.arange(10.25, 256.25, 0.25)
+>>> orf = calc_orf(freqs, H1.vertex, L1.vertex, H1.x, L1.x, H1.y, L1.y, polarization = "tensor")
+    
+Note that the ``calc_orf`` method combines the various other methods of the module. The resulting ORF 
+looks as follows:
+    
+>>> plt.plot(freqs, orf)
+    
+Note that, in practice, these methods are not called by the user, but are
+called by the ``baseline`` module directly.
+"""
+
 import numpy as np
 from scipy.special import spherical_jn
 
@@ -12,18 +50,23 @@ def Tplus(alpha, beta):
     Parameters
     ==========
     
-    alpha: array_like
+    alpha: ``array_like``
         Given below Eq. (32) of https://arxiv.org/pdf/0903.0528.pdf. 
         Has same shape as frequencies used to compute the ORF.
     
-    beta: float
+    beta: ``float``
         Angle between detectors from center of the Earth
         
     Returns
     =======
     
-    Tplus: array_like
+    Tplus: ``array_like``
         Tplus parameter, as defined in Eq. (34) of https://arxiv.org/pdf/0903.0528.pdf.
+
+    See also
+    --------
+
+    scipy.special.spherical_jn: Used for computation of the spherical Bessel function.
     
     """
     return (
@@ -55,18 +98,23 @@ def Tminus(alpha, beta):
     Parameters
     ==========
     
-    alpha: array_like
+    alpha: ``array_like``
         Given below Eq. (32) of https://arxiv.org/pdf/0903.0528.pdf. 
         Has same shape as frequencies used to compute the ORF.
     
-    beta: float
+    beta: ``float``
         Angle between detectors from center of the Earth
     
     Returns
     =======
     
-    Tminus: array_like
+    Tminus: ``array_like``
         Tminus parameter, as defined in Eq. (35) of https://arxiv.org/pdf/0903.0528.pdf.
+
+    See also
+    --------
+
+    scipy.special.spherical_jn: Used for computation of the spherical Bessel function.
     
     """
     return (
@@ -84,18 +132,23 @@ def Vplus(alpha, beta):
     Parameters
     ==========
     
-    alpha: array_like
+    alpha: ``array_like``
         Given below Eq. (32) of https://arxiv.org/pdf/0903.0528.pdf. 
         Has same shape as frequencies used to compute the ORF.
     
-    beta: float
+    beta: ``float``
         Angle between detectors from center of the Earth
     
     Returns
     =======
     
-    Vplus: array_like
+    Vplus: ``array_like``
         Vplus parameter, as defined in Eq. (37) of https://arxiv.org/pdf/0903.0528.pdf.
+
+    See also
+    --------
+
+    scipy.special.spherical_jn: Used for computation of the spherical Bessel function.
         
     """
     return (
@@ -127,18 +180,23 @@ def Vminus(alpha, beta):
     Parameters
     ==========
     
-    alpha: array_like
+    alpha: ``array_like``
         Given below Eq. (32) of https://arxiv.org/pdf/0903.0528.pdf. 
         Has same shape as frequencies used to compute the ORF.
     
-    beta: float
+    beta: ``float``
         Angle between detectors from center of the Earth.
     
     Returns
     =======
     
-    Vminus: array_like
+    Vminus: ``array_like``
         Vminus parameter, as defined in Eq. (38) of https://arxiv.org/pdf/0903.0528.pdf.
+
+    See also
+    --------
+
+    scipy.special.spherical_jn: Used for computation of the spherical Bessel function.
     
     """
     return (
@@ -156,18 +214,23 @@ def Splus(alpha, beta):
     Parameters
     ==========
     
-    alpha: array_like
+    alpha: ``array_like``
         Given below Eq. (32) of https://arxiv.org/pdf/0903.0528.pdf. 
         Has same shape as frequencies used to compute the ORF.
     
-    beta: float
+    beta: ``float``
         Angle between detectors from center of the Earth
     
     Returns
     =======
     
-    Splus: array_like
+    Splus: ``array_like``
         Splus parameter, as defined in Eq. (40) of https://arxiv.org/pdf/0903.0528.pdf.
+
+    See also
+    --------
+
+    scipy.special.spherical_jn: Used for computation of the spherical Bessel function.
     
     """
     return (
@@ -199,18 +262,23 @@ def Sminus(alpha, beta):
     Parameters
     ==========
     
-    alpha: array_like
+    alpha: ``array_like``
         Given below Eq. (32) of https://arxiv.org/pdf/0903.0528.pdf. 
         Has same shape as frequencies used to compute the ORF.
     
-    beta: float
+    beta: ``float``
         Angle between detectors from center of the Earth
     
     Returns
     =======
     
-    Sminus: array_like
+    Sminus: ``array_like``
         Sminus parameter, as defined in Eq. (41) of https://arxiv.org/pdf/0903.0528.pdf.
+
+    See also
+    --------
+
+    scipy.special.spherical_jn: Used for computation of the spherical Bessel function.
     
     """
     return (
@@ -226,16 +294,23 @@ def T_right_left(alpha, beta):
     Parameters
     ==========
     
-    alpha: array_like
+    alpha: ``array_like``
         Given below Eq. (32) of https://arxiv.org/pdf/0903.0528.pdf. 
         Has same shape as frequencies used to compute the ORF.
     
-    beta: float
+    beta: ``float``
         Angle between detectors from center of the Earth
     
     Returns
     =======
-    
+    T_right_left: ``array_like``
+        T_right_left parameter
+
+    See also
+    --------
+
+    scipy.special.spherical_jn: Used for computation of the spherical Bessel function.
+
     """
     return -np.sin(beta / 2) * (
         (-spherical_jn(1, alpha) + 7.0 / 8 * spherical_jn(3, alpha))
@@ -250,14 +325,14 @@ def tangent_vector(vector1, vector2):
     Parameters
     ==========
     
-    vector1: array_like
+    vector1: ``array_like``
     
-    vector2: array_like
+    vector2: ``array_like``
     
     Returns
     =======
     
-    tanget_vector: array_like
+    tanget_vector: ``array_like``
         Tangent vector to vector1 and vector2
     
     """
@@ -274,19 +349,19 @@ def omega_tangent_bisector(bisector, tangent_vector, perp):
     Parameters
     ==========
     
-    bisector: array_like
+    bisector: ``array_like``
         Bisector vector
         
-    tangent_vector: array_like
+    tangent_vector: ``array_like``
         Tangent vector at detector X along great circle between detectors
         
-    perp: array_like
+    perp: ``array_like``
         Outward radial vector perpendicular to the detector plane
         
     Returns
     =======
     
-    omega_detX: float
+    omega_detX: ``float``
         Angle between bisector and tangent vector at detector X
     
     """
@@ -313,88 +388,59 @@ def calc_orf(
     discussion of the normalization of the scalar ORF and
     https://arxiv.org/pdf/0707.0535.pdf for the vector ORF function.
     
-    Examples
-    --------
-    
-    To illustrate how to compute the overlap reduction function (ORF), we start by 
-    importing the relevant packages:
-    
-    >>> import numpy as np
-    >>> from pygwb.orfs import *
-    >>> import matplotlib.pyplot as plt
-    
-    For concreteness, we consider the LIGO Hanford-Livingston baseline, and compute
-    the ORF for this baseline. We define empty detectors:
-    
-    >>> H1 = bilbydet.get_empty_interferometer('H1')
-    >>> L1 = bilbydet.get_empty_interferometer('L1')
-    
-    We  now compute the ORF for a set of frequencies by using the relevant information 
-    contained in the interferometer objects defined above:
-    
-    >>> freqs = np.arange(10.25, 256.25, 0.25)
-    >>> orf = calc_orf(freqs, H1.vertex, L1.vertex, H1.x, L1.x, H1.y, L1.y, polarization = "tensor")
-    
-    The resulting ORF looks as follows:
-    
-    >>> plt.plot(freqs, orf)
-    
-    Note that, in practice, these methods are not called by the user, but are
-    called by the ``baseline`` module directly.
-    
     Parameters
     ==========
     
-    frequencies: array_like
+    frequencies: ``array_like``
         Frequencies at which to evaluate the ORFs
         
-    det1_vertex: array_like
+    det1_vertex: ``array_like``
         Coordinates (Earth-fixed cartesian, in meters) of the vertex of detector 1
     
-    det2_vertex: array_like
+    det2_vertex: ``array_like``
         Coordinates (Earth-fixed cartesian, in meters) of the vertex of detector 2
     
-    det1_xarm: array_like
+    det1_xarm: ``array_like``
         Unit vector (Earth-fixed cartesian) along the x arm of detector 1
     
-    det2_xarm: array_like
+    det2_xarm: ``array_like``
         Unit vector (Earth-fixed cartesian) along the x arm of detector 2
     
-    det1_yarm: array_like
+    det1_yarm: ``array_like``
         Unit vector (Earth-fixed cartesian) along the y arm of detector 1
     
-    det2_yarm: array_like
+    det2_yarm: ``array_like``
         Unit vector (Earth-fixed cartesian) along the y arm of detector 2
     
-    polarization: str, optional
+    polarization: ``str``, optional
         Polarization used in the computation of the overlap reduction function. Default is tesnor.
     
 
     Intermediate parameters
     =======================
 
-    beta: float
+    beta: ``float``
         Angle between detectors from center of earth
         
-    tan_detX: array_like
+    tan_detX: ``array_like``
         Tangent vector at detector X along great circle between detectors
      
-    bisector_detX: array_like
+    bisector_detX: ``array_like``
         Bisector vector for detector X
         
-    perp_detX: array_like
+    perp_detX: ``array_like``
         Outward radial vector perpendicular to the detector plane for detector X
         
-    omega_detX: float
+    omega_detX: ``float``
         Angle between bisector and tangent vector at detector X
         
-    perp: array_like
+    perp: ``array_like``
         Vector at theta=90 along great circle with det1_vertex theta=0
 
     Returns
     =======
     
-    overlap_reduction_function: array_like
+    overlap_reduction_function: ``array_like``
         Overlap reduction function at given frequencies for specified polarization
     
     """
