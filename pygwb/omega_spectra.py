@@ -1,9 +1,10 @@
-"""This module contains two self-implemented classes that are responsible for dealing with the spectra and spectrograms in the pygwb analysis. 
+"""
+This module contains two self-implemented classes that are responsible for dealing with the spectra and spectrograms in the pygwb analysis. 
 These objects can be reweighted with different h0 and power law indices.
 
-During the creation of the pygwb code, it was decided that the capabilities of the :code: `gwpy.spectrogram.Spectrogram`
+During the creation of the pygwb code, it was decided that the capabilities of the ``gwpy.spectrogram.Spectrogram``
 were not sufficient, even though they are already very expanded, and thus we made some subclasses inheriting 
-from the :code:`Spectrogram` class. 
+from the ``Spectrogram`` class. 
 
 Their main purpose was to expand the functionality of the spectrogram to include the ability 
 to read and save to a pickle, but more crucially to reweight the data inside the spectrogram.
@@ -12,12 +13,12 @@ quickly some new code and/or run PE. Therefore, we opted to let the spectrogram
 be reweighted for a certain power law index of the background and also for a certain value
 of h0, the Hubble constant at present time. 
 
-We also introduced a new spectrum class based on the :code:`gwpy.frequencyseries.FrequencySeries` class.
+We also introduced a new spectrum class based on the ``gwpy.frequencyseries.FrequencySeries`` class.
 This new subclass needed the same additions as the spectrograms.
 
 We also coded one function which is actually the function that performs the reweighting 
-both for the :code:`OmegaSpectrum` and :code:`OmegaSpectrogram`. That function is 
-:code:`reweight_spectral_object`.
+both for the ``OmegaSpectrum`` and ``OmegaSpectrogram``. That function is 
+``reweight_spectral_object``.
 """
 
 import pickle
@@ -39,6 +40,7 @@ class OmegaSpectrogram(Spectrogram):
     
     See also
     --------
+
     gwpy.spectrogram.Spectrogram : the parent class of this implementation.
     """
 
@@ -109,6 +111,7 @@ class OmegaSpectrogram(Spectrogram):
 
         See also
         --------
+
         gwpy.spectrogram.Spectrogram.read : the same implementation as this function.
         
         """
@@ -165,7 +168,7 @@ class OmegaSpectrogram(Spectrogram):
 
     def reweight(self, *, new_alpha=None, new_fref=None):
         """
-        Reweight the spectrogram by a new spectral index alpha, and/or refer to a new reference freuency.
+        Reweight the spectrogram by a new spectral index alpha, and/or refer to a new reference frequency.
 
         Parameters
         ==========
@@ -276,6 +279,7 @@ class OmegaSpectrum(FrequencySeries):
 
         Parameters
         ==========
+
         source: str
             Source file path.
         """
@@ -287,6 +291,7 @@ class OmegaSpectrum(FrequencySeries):
 
         Parameters
         ==========
+
         target: str
             Target file path.
         """
@@ -321,7 +326,7 @@ class OmegaSpectrum(FrequencySeries):
 
     def reweight(self, *, new_alpha=None, new_fref=None):
         """
-        Reweight the spectrum by a new spectral index alpha, and/or refer to a new reference freuency.
+        Reweight the spectrum by a new spectral index alpha, and/or refer to a new reference frequency.
 
         Parameters
         ==========
