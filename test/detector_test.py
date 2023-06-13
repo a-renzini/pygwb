@@ -2,6 +2,7 @@ import pickle
 import unittest
 
 import numpy as np
+from gwpy.segments import Segment, SegmentList
 
 from pygwb import detector, parameters
 
@@ -137,6 +138,26 @@ class TestInterferometer(unittest.TestCase):
         self.assertTrue((_known_gate in ifo.gates), True)
         self.assertTrue(abs(ifo.gates), 2*gate_tzero)
         self.assertTrue(ifo.gate_pad, gate_tpad)
+        
+    def test_gated_times_from_file(self):
+        gwpy_timeseries = self.testdata["original_timeseries"]
+        npzobject = np.load("./test/test_data/point_estimate_sigma_1247644138-1247645038.npz")
+        gate_tpad = 0.5
+        ifo_for_loading = detector.Interferometer.get_empty_interferometer(self.ifo)
+        ifo_for_loading.set_timeseries_from_gwpy_timeseries(
+            gwpy_timeseries=gwpy_timeseries, **self.kwargs
+        )
+
+        ifo_for_loading.apply_gates_from_file(
+            npzobject,
+            1,
+            gate_tpad = gate_tpad
+        )
+        gates_applied_from_file = ifo_for_loading.gates
+        gates_we_know = SegmentList(Segment(1247644445.8190918, 1247644447.8190918))
+        for index, gates in enumerate(gates_applied_from_file):
+            self.assertEqual(gates, gates_we_know[index])
+
 
 if __name__ == "__main__":
     unittest.main()

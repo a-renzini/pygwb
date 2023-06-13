@@ -116,17 +116,35 @@ def main():
     logger.info(f"Loaded up interferometers with selected parameters.")
 
     if params.gate_data:
-        logger.info(f"Applying gates.")
-        for ifo, ifo_obj in zip(ifo_list, [ifo_1, ifo_2]):
-            gate_params = { 
-                    "gate_tzero":param_dict[ifo].gate_tzero,
-                    "gate_tpad":param_dict[ifo].gate_tpad,
-                    "gate_threshold":param_dict[ifo].gate_threshold,
-                    "cluster_window":param_dict[ifo].cluster_window,
-                    "gate_whiten":param_dict[ifo].gate_whiten,
-                    }
-            ifo_obj.gate_data_apply(**gate_params)
-            logger.info(f"Gates for IFO {ifo}:{ifo_obj.gates}")
+        if params.path_gate_data:
+            logger.info("Loading gates from file.")
+            params.path_gate_data = Path(params.path_gate_data)
+            if not params.path_gate_data.is_file():
+                list_of_gatefiles = sorted(params.path_gate_data.glob("point_estimate*.npz"))
+                npzobject_list = [path for path in list_of_gatefiles if path.match(f"*{int(params.t0)}-{int(params.tf)}*")]
+                npzobject = np.load(params.path_gate_data / npzobject_list[0])
+            else:
+                npzobject = np.load(params.path_gate_data)
+            for index, ifo_obj in enumerate([ifo_1, ifo_2]):
+                ifo_obj.apply_gates_from_file(
+                    npzobject,
+                    index + 1,
+                    gate_tpad=param_dict[ifo_list[index]].gate_tpad,
+                )
+                logger.info(f"Gates loaded and applied for IFO {ifo_list[index]}:{ifo_obj.gates}")
+
+        else:
+            logger.info(f"Applying autogating procedure.")
+            for ifo, ifo_obj in zip(ifo_list, [ifo_1, ifo_2]):
+                gate_params = { 
+                        "gate_tzero":param_dict[ifo].gate_tzero,
+                        "gate_tpad":param_dict[ifo].gate_tpad,
+                        "gate_threshold":param_dict[ifo].gate_threshold,
+                        "cluster_window":param_dict[ifo].cluster_window,
+                        "gate_whiten":param_dict[ifo].gate_whiten,
+                        }
+                ifo_obj.gate_data_apply(**gate_params)
+                logger.info(f"Gates for IFO {ifo}:{ifo_obj.gates}")
 
     base_12 = Baseline.from_parameters(ifo_1, ifo_2, params)
     logger.info(
