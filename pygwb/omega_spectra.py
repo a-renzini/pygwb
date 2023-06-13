@@ -95,7 +95,8 @@ class OmegaSpectrogram(Spectrogram):
 
     @classmethod
     def read(cls, source, *args, **kwargs):
-        """Read data into a Spectrogram. Same usage as read method of gwpy.spectrogram.Spectrogram.
+        """
+        Read data into a Spectrogram. Same usage as read method of gwpy.spectrogram.Spectrogram.
 
         Parameters
         ==========
@@ -108,28 +109,18 @@ class OmegaSpectrogram(Spectrogram):
 
         Data: ``gwpy.spectrogram.Spectrogram``
             The read in spectrogram from the source.
-
-        See also
-        --------
-
-        gwpy.spectrogram.Spectrogram.read : the same implementation as this function.
-        
         """
         return io_registry.read(cls, source, *args, **kwargs)
 
     def write(self, target, *args, **kwargs):
-        """Write this Spectrogram to a file. Same usage as write method of gwpy.spectrogram.Spectrogram.
+        """
+        Write this Spectrogram to a file. Same usage as write method of gwpy.spectrogram.Spectrogram.
 
         Parameters
         ==========
 
         target: str
             Target file path
-
-        See also
-        --------
-
-        gwpy.spectrogram.Spectrogram.write : the same implementation as this function.
         """
         return io_registry.write(self, target, *args, **kwargs)
 
