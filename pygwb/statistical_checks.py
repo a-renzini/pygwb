@@ -54,6 +54,7 @@ class StatisticalChecks(object):
         baseline_name,
         param_file,
         frequency_mask = None,
+        notch_list = None,
         gates_ifo1 = None,
         gates_ifo2 = None,
         file_tag = None,
@@ -94,6 +95,8 @@ class StatisticalChecks(object):
             String with path to the file containing the parameters that were used for the analysis run.
         frequency_mask: array
             Boolean mask applied to the specrtra in broad-band analyses. 
+        notch_list: StochNotchList object
+            A StochNotchList object containing all the individual notches applied to the specrtra in broad-band analyses. 
         gates_ifo1/gates_ifo2: list
             List of gates applied to interferometer 1/2.
         file_tag: str
@@ -127,9 +130,12 @@ class StatisticalChecks(object):
         else:
             self.frequency_mask = True
 
+        self.notch_list = notch_list
+
         self.coherence_spectrum = coherence_spectrum
         fftlength = int(1.0 / (self.frequencies[1] - self.frequencies[0]))
         self.n_segs = coherence_n_segs * int(np.floor(self.params.segment_duration/(fftlength*(1.-self.params.overlap_factor_welch)))-1) #fftlength/2.
+        self.n_segs_statement = r"The number of segments is" + f" {self.n_segs}."
 
         self.sigma_spectrum = sigma_spectrum
         self.point_estimate_spectrum = point_estimate_spectrum
@@ -590,7 +596,7 @@ class StatisticalChecks(object):
         plt.close()
 
 
-    def plot_hist_coherence(self):
+    def plot_hist_coherence(self,total_bins = None):
         r"""
         Generates and saves a histogram of the coherence distribution. The plot shows the data after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class.
         Furthermore, it also saves a text file which contains the frequencies at which outliers of the coherence distribution were identified, i.e. spectral artefacts.
@@ -599,16 +605,32 @@ class StatisticalChecks(object):
             return
 
         coherence = self.coherence_spectrum
+        coherence_clipped = np.ones(len(coherence))
+        clip_val = 100* 1/self.n_segs
+        for i in range(len(coherence_clipped)):
+            if coherence[i] >= clip_val:
+                coherence_clipped[i] = clip_val
+            else:
+                coherence_clipped[i] = coherence[i]
         frequencies = self.frequencies
-        total_bins = 1000
+        if total_bins is None:
+            total_bins = 250
         bins =  np.linspace(0, max(coherence), total_bins)
-        alpha = 1
+        bins_clipped =  np.linspace(0, max(coherence_clipped), total_bins)
         n_frequencies = len(frequencies)
         delta_coherence = bins[1]-bins[0]
+        delta_coherence_clipped = bins_clipped[1]-bins_clipped[0]
         resolution = frequencies[1] - frequencies[0]
         fftlength = int(1.0 / resolution)
-        predicted = alpha * n_frequencies * delta_coherence * self.n_segs * np.exp(-alpha * self.n_segs * coherence)
-        threshold = np.log(alpha * self.n_segs * n_frequencies * delta_coherence) / (self.n_segs * alpha)
+        
+        coherence_notched = coherence*self.frequency_mask
+        coherence_notched_clipped = coherence_clipped*self.frequency_mask
+
+        coherence_highres = np.arange(0,1,1e-6)
+        predicted_highres = (self.n_segs-1) * (1- coherence_highres)**(self.n_segs-2)
+        threshold = coherence_highres[np.where(predicted_highres <= 1/(n_frequencies*delta_coherence_clipped))[0][0]]
+
+        probability = n_frequencies*delta_coherence_clipped * predicted_highres
 
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
    
@@ -619,29 +641,41 @@ class StatisticalChecks(object):
             ec="k",
             lw = 0.1,
             zorder=1,
+            density = True,
+            label = 'Before notching',
+        )
+        axs.hist(
+            coherence_notched,
+            bins,
+            color=sea[0],
+            ec="k",
+            lw = 0.1,
+            zorder=2,
+            density = True,
+            label = 'After notching',
         )
         axs.plot(
-            coherence, 
-            predicted,
-            color=sea[0],
-            zorder=2,
+            coherence_highres, 
+            predicted_highres,
+            color=sea[1],
+            zorder=3,
             alpha = 0.8,
             label="Predicted",
         )
         axs.axvline(
             np.abs(threshold),
-            zorder=3,
-            color=sea[1],
+            zorder=4,
+            color=sea[8],
             linestyle='dashed',
             label="Threshold",
         )
 
         axs.set_xlabel(r"Coherence", size=self.axes_labelsize)
-        axs.set_ylabel(r"Number of bins", size=self.axes_labelsize)
+        axs.set_ylabel(r"Probability distribution", size=self.axes_labelsize)
         axs.legend(fontsize=self.legend_fontsize)
         axs.set_yscale("log")
         axs.set_xlim(left= 0)
-        axs.set_ylim(0.5,10*predicted[0])
+        axs.set_ylim(0.5/(n_frequencies*delta_coherence),10*predicted_highres[0])
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
         plt.title(r"Coherence distribution at $\Delta f$ = " + f"{resolution:.3f} Hz in" f" {self.time_tag}", fontsize=self.title_fontsize)
@@ -653,35 +687,47 @@ class StatisticalChecks(object):
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))      
 
         axs.hist(
-            coherence,
-            bins,
+            coherence_clipped,
+            bins_clipped,
             color=sea[3],
             ec="k",
             lw = 0.1,
             zorder=1,
+            density = True,
+            label = 'Before notching',
+        )
+        axs.hist(
+            coherence_notched_clipped,
+            bins_clipped,
+            color=sea[0],
+            ec="k",
+            lw = 0.1,
+            zorder=2,
+            density = True,
+            label = 'After notching',
         )
         axs.plot(
-            coherence, 
-            predicted,
-            color=sea[0],
-            zorder=2,
+            coherence_highres, 
+            predicted_highres,
+            color=sea[1],
+            zorder=3,
             alpha = 0.8,
             label="Predicted",
         )
         axs.axvline(
             np.abs(threshold),
-            zorder=3,
-            color=sea[1],
+            zorder=4,
+            color=sea[8],
             linestyle='dashed',
             label="Threshold",
         )
 
         axs.set_xlabel(r"Coherence", size=self.axes_labelsize)
-        axs.set_ylabel(r"Number of bins", size=self.axes_labelsize)
+        axs.set_ylabel(r"Probability distribution", size=self.axes_labelsize)
         axs.legend(fontsize=self.legend_fontsize)
         axs.set_yscale("log")
-        axs.set_xlim(0,4*np.abs(threshold))
-        axs.set_ylim(0.5,10*predicted[0])
+        axs.set_xlim(0,max(coherence_clipped))
+        axs.set_ylim(0.5/(n_frequencies*delta_coherence_clipped),10*predicted_highres[0])
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
 
@@ -691,14 +737,17 @@ class StatisticalChecks(object):
         )
         plt.close()
 
-
-        outlier_coherence = [(frequencies[i], coherence[i]) for i in range(len(coherence)) if coherence[i] > np.abs(threshold)]
+        outlier_coherence = [(frequencies[i], coherence[i],probability[np.where(coherence_highres>=coherence[i])[0][0]]) for i in range(len(coherence)) if (coherence[i] > np.abs(threshold) and self.notch_list.check_frequency(frequencies[i]) == False )]
+        outlier_coherence_notched = [(frequencies[i], coherence[i],probability[np.where(coherence_highres>=coherence[i])[0][0]]) for i in range(len(coherence)) if (coherence[i] > np.abs(threshold) and self.notch_list.check_frequency(frequencies[i]) == True )]
         n_outlier = len(outlier_coherence)
         file_name = f"{self.plot_dir / self.baseline_name}-{self.file_tag}-list_coherence_outlier.txt"
         with open(file_name, 'w') as f:
-            f.write('Frequencies  \tCoherence\n')
+            f.write('Frequencies  \tCoherence \tProbability\n')
             for tup in outlier_coherence:
-                f.write(f'{tup[0]}\t{tup[1]}\n')
+                f.write(f'{tup[0]}\t{tup[1]}\t{tup[2]}\n')
+            f.write('\n The outliers below are already included in the applied version of the notch-list\n')
+            for tup in outlier_coherence_notched:
+                f.write(f'{tup[0]}\t{tup[1]}\t{tup[2]}\n')
                 
     def plot_cumulative_sensitivity(self):
         """
@@ -1136,7 +1185,7 @@ class StatisticalChecks(object):
         )
         plt.close()
 
-    def plot_hist_sigma_squared(self):
+    def plot_hist_sigma_squared(self, max_val = 5, total_bins=100, label_number = 6):
         """
         Generates and saves a histogram of :math:`\sigma^2/\langle\sigma^2\rangle`. The plot shows data after the delta-sigma (bad GPS times) cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_sigma_cut).
 
@@ -1149,29 +1198,43 @@ class StatisticalChecks(object):
         """
         if self.delta_sigmas_cut.size==0:
             return
-
+        
+        values = 1 / np.nanmean(self.sliding_sigma_cut ** 2) * self.sliding_sigma_cut ** 2
+        
+        values_clipped = np.ones(len(values))
+        
+        for i in range(len(values_clipped)):
+            if values[i] >= max_val:
+                values_clipped[i] = max_val
+            else:
+                values_clipped[i] = values[i]
+                
+        bins = np.linspace(0, max(values_clipped), total_bins)
+        
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
-        axs.hist(
-            1 / np.nanmean(self.sliding_sigma_cut ** 2) * self.sliding_sigma_cut ** 2,
-            bins=101,
+        _, bins, patches = plt.hist(
+            values_clipped,
+            bins=bins,
             color=sea[0],
             ec="k",
             lw=0.5,
             label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
         )
+        
         axs.set_xlabel(r"$\sigma^2/\langle\sigma^2\rangle$", size=self.axes_labelsize)
         axs.set_ylabel(r"count", size=self.axes_labelsize)
         axs.set_yscale("log")
-        axs.set_xlim(0, 5)
+        axs.set_xlim(0, max_val)
         axs.legend(fontsize=self.legend_fontsize)
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
-
-        plt.title(f"Relative variance in {self.time_tag}", fontsize=self.title_fontsize)
-        plt.savefig(
-            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_sigma_squared.png", bbox_inches = 'tight'
-        )
-        plt.close()
+        
+        xticks_tmp = np.linspace(0, max_val, label_number)
+        labels = [str(i) for i in xticks_tmp]
+        labels[-1]+="+"
+        plt.xticks(xticks_tmp, labels)
+        
+        plt.show()
 
     def plot_omega_time_fit(self):
         """
@@ -1327,6 +1390,7 @@ class StatisticalChecks(object):
         statements['dsc'] = self.dsc_statement
         statements['gates_ifo1'] = self.gates_ifo1_statement
         statements['gates_ifo2'] = self.gates_ifo2_statement
+        statements['n_segs'] = self.n_segs_statement
         with open("stats_statements.json", "w") as outfile:
                 json.dump(statements, outfile)
 
@@ -1444,6 +1508,7 @@ def run_statistical_checks_from_file(
         baseline_name,
         param_file,
         frequency_mask,
+        notch_list,
         gates_ifo1,
         gates_ifo2,
         file_tag=file_tag,
