@@ -208,11 +208,19 @@ class Baseline(object):
 
         Parameters
         ==========
+
         notch_list_path: ``str``, optional
             Path to notch list to apply to frequency array. If not 
             provided, no notching will be applied at this point.
         apply_notches: ``bool``, optional
             If True, apply frequency notches. Default is True.
+
+        See also
+        --------
+
+        pygwb.notch.StochNotchList : Used to read in the frequency notches.
+
+
         """
         mask = (self.frequencies >= self.minimum_frequency) & (
             self.frequencies <= self.maximum_frequency
@@ -234,7 +242,7 @@ class Baseline(object):
     def gamma_v(self, frequencies=None):
         """
         Overlap reduction function for asymmetrically polarised backgrounds,
-        as descrived in https://arxiv.org/pdf/0707.0535.pdf
+        as described in https://arxiv.org/pdf/0707.0535.pdf
         """
         if not self._gamma_v_calculated:
             self._gamma_v = self.calc_baseline_orf(polarization="right_left")

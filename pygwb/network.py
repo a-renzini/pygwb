@@ -102,6 +102,12 @@ class Network(object):
         N_average_segments_welch_psd: ``int``, optional
             Number of segments used for PSD averaging (from both sides of the segment of interest)
             N_avg_segs should be even and >= 2
+
+        See also
+        --------
+
+        pygwb.baseline.Baseline : Used to create the various baselines corresponding to the detectors in the network.
+
         """
         self.name = name
         self.interferometers = interferometers
@@ -233,6 +239,11 @@ class Network(object):
         fhigh: ``float``, optional
             Highest frequency to consider. Defaults to 1726.
 
+        See also
+        --------
+
+        pygwb.notch.StochNotchList : Used to read in the frequency notches.
+
         """
         mask = (self.frequencies >= flow) & (self.frequencies <= fhigh)
         if notch_list_path:
@@ -275,6 +286,12 @@ class Network(object):
             Flag that specifies whether or not the simulated data needs to be injected into data, i.e. if there is already
             data present in the interferometers of the network. If so, only data will be simulated and no extra noise will
             be added on top of the simulated data. Defaults to False.
+
+        See also
+        --------
+
+        pygwb.simulator.Simulator : Used to simulate data.
+
         """
         no_noise = inject_into_data_flag
         if start_time == None:
@@ -327,6 +344,12 @@ class Network(object):
             The path of the output folder. Defaults to the local folder.
         file format: ``str``, optional
             The format of the output file. Defaults to hdf5 file. Acceptable formats are standard gwpy TimeSeries.write formats.
+
+        See also
+        --------
+
+        gwpy.timeseries.TimeSeriesDict() : Write method used to save data to file.
+        
         """
         file_name = f"{self.name}_STRAIN-{int(self.interferometers[0].strain_data.start_time)}-{int(self.interferometers[0].strain_data.duration)}.{file_format}"
         file_path = os.path.join(save_dir, file_name)
