@@ -1243,7 +1243,11 @@ class StatisticalChecks(object):
         labels[-1]+="+"
         plt.xticks(xticks_tmp, labels)
         
-        plt.show()
+        plt.title(f"Relative variance in {self.time_tag}", fontsize=self.title_fontsize)
+        plt.savefig(
+            f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_sigma_squared.png", bbox_inches = 'tight'
+        )
+        plt.close()
 
     def plot_omega_time_fit(self):
         """
