@@ -348,8 +348,8 @@ class Network(object):
         See also
         --------
 
-        gwpy.timeseries.TimeSeriesDict() : Write method used to save data to file.
-        
+        gwpy.timeseries.TimeSeriesDict : Write method used to save data to file.
+
         """
         file_name = f"{self.name}_STRAIN-{int(self.interferometers[0].strain_data.start_time)}-{int(self.interferometers[0].strain_data.duration)}.{file_format}"
         file_path = os.path.join(save_dir, file_name)

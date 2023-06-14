@@ -1,5 +1,24 @@
 """
+The ``pe`` module performs parameter estimation as an integral part of the
+analysis, which naturally follows the computation of the optimal estimate of the gravitational-wave background (GWB). 
+The ``pe`` module is a simple and user-friendly toolkit for any model builder to constrain their physical models with GW data.
+The ``pe`` module is built on class inheritance, with ``GWBModel`` as the parent class. The methods of the parent class
+are functions shared between different GWB models, e.g., the likelihood formulation, as well as the noise
+likelihood. It is possible to include calibration uncertainty by modifying the
+calibration epsilon parameter, which defaults to 0. The GW polarization used for analysis is user-defined, and defaults to standard
+General Relativity (GR) polarization (i.e., tensor).
 
+In our implementation of ``pe``, we rely on the ``bilby`` package Ashton to perform parameter space
+exploration, and employ the sampler ``dynesty`` by default. The user has flexibility in choosing the
+sampler as well as the sampler settings.
+
+Child classes in the pe module inherit attributes and methods from the ``GWBModel`` class. Each child class represents
+a single GWB model, and combined they form a catalog of available GWB models that may be probed with GW data.
+The inheritance structure of the module makes it straightforward to expand the catalog, allowing users of the ``pygwb``
+package to add their own models. The flexibility of the ``pe`` module allows the user to combine several GWB
+models defined within the module. A particularly useful application of this is the modelling of a GWB in the presence
+of correlated magnetic noise, or the simultaneous estimation of astrophysical and
+cosmological GWBs.
 
 """
 
