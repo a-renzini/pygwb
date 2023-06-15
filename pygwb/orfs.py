@@ -146,7 +146,7 @@ def calc_orf(
     beta: angle between detectors from center of earth
     tan_detX: tangent vector at detX along great circle between detectors
     bisector_detX: detX arm bisector vector
-    perp_detX: outward radial vector perpendicular to the detector plane
+    perp_detX: inward radial unit vector perpendicular to the detector plane
     omega_detX: angle between bisector and tangent vector at detX
     perp: vector at theta=90 along great circle with det1_vertex theta=0
 
@@ -165,16 +165,14 @@ def calc_orf(
 
     tan_det1 = tangent_vector(det1_vertex, det2_vertex)
     bisector_det1 = np.add(det1_xarm, det1_yarm)
-    perp_det1 = -np.cross(det1_xarm, det1_yarm) / (
-        np.linalg.norm(det1_xarm) * np.linalg.norm(det1_yarm)
-    )
+    perp1_unnormalized = np.cross(det1_xarm, det1_yarm)
+    perp_det1 = -perp1_unnormalized / np.linalg.norm(perp1_unnormalized)
 
     perp = np.cross(np.cross(det1_vertex, det2_vertex), det1_vertex)
     tan_det2 = tangent_vector(det2_vertex, perp)
     bisector_det2 = np.add(det2_xarm, det2_yarm)
-    perp_det2 = -np.cross(det2_xarm, det2_yarm) / (
-        np.linalg.norm(det2_xarm) * np.linalg.norm(det2_yarm)
-    )
+    perp2_unnormalized = np.cross(det2_xarm, det2_yarm)
+    perp_det2 = -perp2_unnormalized / np.linalg.norm(perp2_unnormalized)
 
     if np.linalg.norm(delta_x) != 0:
         omega_det1 = omega_tangent_bisector(bisector_det1, tan_det1, perp_det1)
