@@ -193,7 +193,7 @@ class Network(object):
         Parameters
         ==========
 
-        duration: ``float``, optional
+        duration: :code:`float`, optional
             The duration to set for the Network and interferometers
         """
         if duration is not None:
