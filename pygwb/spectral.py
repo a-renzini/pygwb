@@ -121,6 +121,8 @@ def pwelch_psd(
         avg_psds = []
         segments_start_times = np.zeros(n_segments)
         start_time = psdgram.xindex.value[0]
+        if n_segments==0:
+            avg_psds = np.mean(psdgram[True], axis=0)
         for ii in range(n_segments):
             seg_indices = (psdgram.xindex.value >= start_time) & (
                 psdgram.xindex.value
@@ -132,10 +134,10 @@ def pwelch_psd(
             start_time = start_time + stride
 
         avg_psdgram = Spectrogram.from_spectra(
-            *avg_psds, epoch=segments_start_times[0], dt=stride
+            *avg_psds, epoch=psdgram.xindex.value[0], dt=stride
         )
 
-    return np.real(avg_psdgram)
+    return avg_psdgram
 
 
 def before_after_average(psdgram: Spectrogram, segment_duration: int, N_avg_segs: int):
