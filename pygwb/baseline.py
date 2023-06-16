@@ -305,6 +305,7 @@ class Baseline(object):
 
     @property
     def csd_segment_offset(self):
+        """CSD segment offset to use for this baseline"""
         if self._duration_set:
             stride = self.duration * (1 - self.overlap_factor)
             return int(np.ceil(self.duration / stride)) * int(self.N_average_segments_welch_psd/2)
@@ -426,6 +427,16 @@ class Baseline(object):
         self._sigma_set = True
 
     def _check_durations_match_baseline_ifos(self, duration):
+        """
+        Checks whether the baseline duration matches the duration set in 
+        the interferometers of the baseline.
+
+        Parameters
+        ==========
+
+        duration: float
+            Duration of the baseline
+        """
         if self.interferometer_1.duration and self.interferometer_2.duration:
             self._check_ifo_durations_match()
             if not duration == self.interferometer_1.duration:
@@ -444,6 +455,9 @@ class Baseline(object):
                 )
 
     def _check_ifo_durations_match(self):
+        """
+        Checks whether the duration in both interferometers agree.
+        """
         if not (self.interferometer_1.duration == self.interferometer_2.duration):
             raise AssertionError("Interferometer durations do not match each other!")
 
@@ -548,8 +562,8 @@ class Baseline(object):
         sampling_frequency: ``float``
             The sampling frequency that is being set for the Baseline.
 
-        Notes
-        -----
+        Warning
+        -------
 
         If the sampling frequency passed is `None`, the Baseline sampling frequency will be set to that of the interferometers, if these
         match. If these don't match, an error will be raised. If the sampling frequency of the interferometers is also `None`, then no
@@ -576,6 +590,9 @@ class Baseline(object):
                 )
 
     def _check_ifo_sampling_frequencies_match(self):
+        """
+        Check whether the sampling frequencies of the interferometers match.
+        """
         if not (
             self.interferometer_1.sampling_frequency
             == self.interferometer_2.sampling_frequency
@@ -603,6 +620,12 @@ class Baseline(object):
 
         orf: ``array_like``
             Overlap reduction function for the required polarization.
+
+        See also
+        --------
+
+        pygwb.orfs.calc_orf : Method to compute the overlap reduction function.
+
         """
         if frequencies is not None:
             return calc_orf(
@@ -645,11 +668,17 @@ class Baseline(object):
         ==========
 
         interferometers: ``list``
-            List of interferometer names.
+            List of two bilby Interferometer objects.
         duration: ``float``, optional
             Segment duration in seconds. Default is None.
         calibration_epsilon: ``float``, optional
             Calibration uncertainty for this baseline. Default is 0.
+
+        Returns
+        =======
+
+        Baseline: cls
+            Baseline class
         """
         name = "".join([ifo.name for ifo in interferometers])
         return cls(
@@ -827,10 +856,10 @@ class Baseline(object):
         Parameters
         ==========
 
-            flow: ``float``
-                Low frequency to crop.
-            fhigh: ``float``
-                High frequency to crop.
+        flow: ``float``
+            Low frequency to crop.
+        fhigh: ``float``
+            High frequency to crop.
         """
         deltaF = self.frequencies[1] - self.frequencies[0]
         # reset frequencies using the same calculation as in crop_frequencies so we get
@@ -1197,6 +1226,12 @@ class Baseline(object):
         polarization: ``str``, optional
             Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation.
             Default is tensor.
+
+        See also
+        --------
+
+        pygwb.delta_sigma_cut.run_dsc : Function used to run the delta sigma cut.
+
         """
         if not self._orf_polarization_set:
             self.orf_polarization = polarization

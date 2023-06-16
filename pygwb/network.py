@@ -186,7 +186,7 @@ class Network(object):
         return network
 
     def set_duration(self, duration):
-        """Sets the duration for the Network and Interferometers
+        r"""Sets the duration for the Network and Interferometers
 
         Note: the cross-checks that durations match in all the interferometers are done by each Baseline.
 

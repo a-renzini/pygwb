@@ -304,7 +304,8 @@ def T_right_left(alpha, beta):
     Returns
     =======
     T_right_left: ``array_like``
-        T_right_left parameter
+        T_right_left parameter as defined below Eq. (8) of 
+        https://arxiv.org/pdf/0707.0535.pdf.
 
     See also
     --------
