@@ -1277,7 +1277,7 @@ class Baseline(object):
             Apply delta sigma cut flag; if True, removes the badGPStimes from the spectra calculations.
             Default is True.
 
-        Note: Average PSDs are currently being used here!
+        Note: The coherence calculation uses averaged naive PSD estimates as the coherence is calculated using CSD and PSD estimates of each individual segment, calculated \"on shell\".
         """
 
         bad_times_indexes = self._get_bad_times_indexes(times=self.interferometer_1.psd_spectrogram.times.value, apply_dsc=apply_dsc)
