@@ -13,8 +13,9 @@ These are instructions installing :code:`pygwb`.
 
 Currently, there are 2 stable released versions:
 
-1.0.0
-1.3.0
+.. code-block:: console
+   1.0.0
+   1.3.0
 
 which may be installed using :code:`pip`:
 
