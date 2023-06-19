@@ -67,28 +67,36 @@ class Simulator(object):
         Create an instance of the the ``simulator`` class. 
 
         Parameters
-        =======
-        
-        interferometers: ``list``
+        ----------
+        interferometers: `list`
             List of bilby interferometer objects
-        intensity_GW: ``gwpy.frequencyseries.FrequencySeries``, optional
+
+        intensity_GW: `gwpy.frequencyseries.FrequencySeries`, optional
             A gwpy.frequencyseries.FrequencySeries containing the desired strain power spectrum
             which needs to be simulated. Defaults to None (then ``injection_dict`` should be passed).
-        injection_dict: ``dict``, optional
+        
+        injection_dict: `dict`, optional
             Dictionary containing the parameters of CBC injections. Defaults to None (then 
             ``intensity_GW`` should be passed). 
-        N_segments: ``int``
+
+        N_segments: `int`
             Number of segments that needs to be generated for the simulation
-        duration: ``float``
+
+        duration: `float`
             Duration of a simulated data segment in seconds.
-        sampling_frequency: ``float``
+
+        sampling_frequency: `float`
             Sampling frequency in Hz.
-        start_time: ``float``, optional
+
+        start_time: `float`, optional
             Start time (in seconds) of the simulation. Defaults to 0.
-        no_noise: ``boolean``, optional
+
+        no_noise: `boolean`, optional
             Flag that sets the noise_PSDs to 0. Defaults to False.
-        seed: ``int``, optional
+
+        seed: `int`, optional
             Seed to use for random data generation. Defaults to None.
+
         continuous: ``boolean``, optional
             Flag to generate continuous segments. If True, a seed must also be provided. Defaults to False. 
         
@@ -221,15 +229,13 @@ class Simulator(object):
         for all the baselines in self.baselines.
 
         Parameters
-        =======
-        
-        polarization: ``str``, optional
+        ----------
+        polarization: `str`, optional
             Polarization for which to generate the overlap reduction function. Defaults to tensor.
             
         Returns
-        =======
-        
-        orf_list: ``list``
+        -------
+        orf_list: `list`
             List containing the overlap reduction functions for all the baselines
             in self.baselines.
             
