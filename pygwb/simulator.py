@@ -102,7 +102,6 @@ class Simulator(object):
         
         Notes
         -----
-        
         A range of spectral indices (from -3 to 3) was tested. However, one should be 
         careful for spectral indices outside of this range, as the splicing procedure 
         implemented in this module is known to introduce a bias for some values of the 
@@ -241,8 +240,8 @@ class Simulator(object):
             
         See also
         --------
-        
-        pygwb.baseline.overlap_reduction_function : Used to access the overlap redutcion function.
+        pygwb.baseline.overlap_reduction_function
+            Used to access the overlap redutcion function.
         """
         orf_list = []
         for base in self.baselines:
