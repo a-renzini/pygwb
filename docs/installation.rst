@@ -11,9 +11,10 @@ Installing from source
 
 These are instructions installing :code:`pygwb`.
 
-Currently, there are 2 stable released versions:
+Currently, there are 2 stable released versions (see the `pygwb PyPi page <https://pypi.org/project/pygwb/>`_ for more details):
 
 .. code-block:: console
+
    1.0.0
    1.3.0
 
