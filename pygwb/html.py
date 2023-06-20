@@ -16,7 +16,7 @@ from gwpy.time import from_gps
 """Create pygwb html
 """
 
-def pygwb_html(outdir='./', config=None):
+def pygwb_html(outdir='./', config=None, segment_results=False):
 
     # =====================
     # get data
@@ -41,7 +41,7 @@ def pygwb_html(outdir='./', config=None):
     home_plots = sorted(home_plots)
     home_plots = ['/'.join(plot_loc.split('/')[-3:]) for plot_loc in home_plots]
     
-    plot_tab = gwsumm.tabs.PlotTab('Stochmon combined results',path=output_dir,index=home_index)
+    plot_tab = gwsumm.tabs.PlotTab('pygwb combined results',path=output_dir,index=home_index)
     plot_tab.set_layout((2,2))
     for plot_name in home_plots:
         plot = gwsumm.plot.core.SummaryPlot(href='./'+os.path.join(output_dir,plot_name))
@@ -51,28 +51,28 @@ def pygwb_html(outdir='./', config=None):
     tabs.append(plot_tab)
 
     seg_tabs = []
-    segment_folders = glob.glob(output_dir+'/output/*-*')
-    for i, seg_folder in enumerate(segment_folders):
-        page_name = seg_folder.split('/')[-1].split('-')[0]
-        page_name = from_gps(int(page_name)).strftime('%Y-%m-%d %H:%M:%S')
-        if i==0:
-            tab0 = gwsumm.tabs.PlotTab(page_name,
-                                       path=output_dir,parent='Segment results')
-            tab = tab0
-        else:
-            tab = gwsumm.tabs.PlotTab(page_name,
-                                      path=output_dir,parent=tab0.parent)
+    if segment_results:
+        segment_folders = glob.glob(output_dir+'/output/*-*')
+        for i, seg_folder in enumerate(segment_folders):
+            page_name = seg_folder.split('/')[-1].split('-')[0]
+            page_name = from_gps(int(page_name)).strftime('%Y-%m-%d %H:%M:%S')
+            if i==0:
+                tab0 = gwsumm.tabs.PlotTab(page_name,
+                                           path=output_dir,parent='Segment results')
+                tab = tab0
+            else:
+                tab = gwsumm.tabs.PlotTab(page_name,
+                                          path=output_dir,parent=tab0.parent)
 
-        seg_plots = glob.glob(seg_folder+'/*.png')
-        seg_plots = sorted(seg_plots)
-        seg_plots = ['/'.join(plot_loc.split('/')[-3:]) for plot_loc in seg_plots]
-        for plot_name in seg_plots:
-            plot = gwsumm.plot.core.SummaryPlot(href='./'+os.path.join(output_dir,plot_name))
-            tab.add_plot(plot)
-        tab.set_layout((2))
-        seg_tabs.append(tab)
-        tabs.append(tab)
-
+            seg_plots = glob.glob(seg_folder+'/*.png')
+            seg_plots = sorted(seg_plots)
+            seg_plots = ['/'.join(plot_loc.split('/')[-3:]) for plot_loc in seg_plots]
+            for plot_name in seg_plots:
+                plot = gwsumm.plot.core.SummaryPlot(href='./'+os.path.join(output_dir,plot_name))
+                tab.add_plot(plot)
+            tab.set_layout((2))
+            seg_tabs.append(tab)
+            tabs.append(tab)
     
     about_tab = gwsumm.tabs.AboutTab('About',path=output_dir)
     about_href = about_tab.href
@@ -103,10 +103,12 @@ def main(args=None):
                         help='Directory for all output')
     parser.add_argument('-p', '--plot-dir', type=os.path.abspath,
                         help='Directory of plots to show')
+    parser.add_argument('--plot-segment-results', action='store_true',
+                        help='Create result pages for every segment')
     args = parser.parse_args(args=args)
 
     # call the above function
-    pygwb_html(outdir=args.output_dir)
+    pygwb_html(outdir=args.output_dir, segment_results=args.plot_segment_results)
 
 # allow be be run on the command line
 if __name__ == "__main__":

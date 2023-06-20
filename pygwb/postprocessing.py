@@ -16,9 +16,10 @@ def postprocess_Y_sigma(
     new_sample_rate,
     frequency_mask=True,
     badtimes_mask=None,
-    do_overlap=True,
     window_fftgram_dict={"window_fftgram": "hann"},
+    window_fftgram_dict_welch={"window_fftgram": "hann"},
     overlap_factor=0.5,
+    overlap_factor_welch=0.5,
     N_avg_segs=2,
 ):
     """Run postprocessing of point estimate and sigma spectrograms, combining even and
@@ -40,8 +41,6 @@ def postprocess_Y_sigma(
         Boolean mask to apply to frequencies for the calculation. Defaults to True which includes all frequencies in the analysis.
     badtimes_mask: array-like, optional
         Boolean mask to apply to GPStimes in the calculation. Defaults to None such that all times are included.
-    do_overlap: bool, optional
-        Indicates whether to proceed with the odd/even postprocessing calculation which assumes a 50\% overlap between consecutive segments. Default is True.
     window_fftgram_dict: dictionary, optional
         Dictionary with window characteristics used in PSD estimation. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`
     overlap_factor: float, optional
@@ -67,7 +66,7 @@ def postprocess_Y_sigma(
         Y = Y_fs[sli]
         var = var_fs[sli]
 
-        if len(Y) == 1 or not do_overlap:
+        if len(Y) == 1:
             Y_fs_sliced.append(Y[0])
             var_fs_sliced.append(var[0])
         else:
@@ -96,8 +95,8 @@ def postprocess_Y_sigma(
         deltaF,
         1 / new_sample_rate,
         N_avg_segs=N_avg_segs,
-        window_fftgram_dict=window_fftgram_dict,
-        overlap_factor=overlap_factor,
+        window_fftgram_dict=window_fftgram_dict_welch,
+        overlap_factor=overlap_factor_welch,
     )
     logger.debug(f"Bias factor: {bias}")
     sigma_f_new *= bias
@@ -304,9 +303,9 @@ def calculate_point_estimate_sigma_spectra(
     segment_duration: float
         Duration of each segment in seconds.
     window_fftgram_dict: dictionary, optional
-        Dictionary with window characteristics used in PSD estimation. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`
+        Dictionary with window characteristics used in analysis segment estimation. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`
     overlap_factor: float, optional
-        Overlap factor used in PSD estimation. Default is 0.5.
+        Overlap factor used in analysis segment estimation. Default is 0.5.
     fref: float, optional
         Reference frequency to use in the weighting calculation.
         Final result refers to this frequency.
@@ -315,6 +314,7 @@ def calculate_point_estimate_sigma_spectra(
     """
     S_alpha = 3 * H0.si.value ** 2 / (10 * np.pi ** 2) / freqs ** 3
     S_alpha *= (freqs / fref) ** float(alpha)
+
     var_fs = (
         1
         / (2 * segment_duration * (freqs[1] - freqs[0]))

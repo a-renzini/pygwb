@@ -6,6 +6,8 @@ import lal
 import numpy as np
 import scipy
 from gwpy import timeseries
+from gwpy.segments import Segment, SegmentList
+from gwsumm.data.timeseries import get_timeseries
 
 
 def set_start_time(
@@ -69,6 +71,7 @@ def read_data(
     t0: int,
     tf: int,
     local_data_path: str = "",
+    frametype: str = "",
     tag: str = "C00",
     input_sample_rate: int = 16384,
 ):
@@ -97,6 +100,9 @@ def read_data(
     tf: int
         GPS time of the end of the data taking
 
+    frametype: string
+        Frame type that contains the channel, only used if data_type=private (e.g.: "L1_HOFT_C00")
+
     local_data_path: str, optional
         path where local gwf is stored
 
@@ -113,11 +119,18 @@ def read_data(
     """
     if data_type == "public":
         data = timeseries.TimeSeries.fetch_open_data(
-            IFO, t0, tf, sample_rate=input_sample_rate, tag=tag
+            IFO, t0, tf, sample_rate=input_sample_rate
         )
         data.channel = channel
     elif data_type == "private":
-        data = timeseries.TimeSeries.get(channel, start=t0, end=tf, verbose=True)
+        if frametype=="":
+            frametype=None
+        data = get_timeseries(channel, segments=[[t0, tf]], frametype=frametype)
+        if len(data) > 1:
+            raise ValueError("Something went wrong while getting the data!"
+                             "There was more than one data stretch returned.")
+        else:
+            data = data[0]
         data.channel = channel
     elif data_type == "local":
         if os.path.isdir(local_data_path):
@@ -259,6 +272,7 @@ def self_gate_data(
     gate_threshold: float = 50.0,
     cluster_window: float = 0.5,
     whiten: bool = True,
+    gates: SegmentList = None
 ):
     """
     Function to self-gate
@@ -304,27 +318,29 @@ def self_gate_data(
     https://gwpy.github.io/docs/latest/api/gwpy.timeseries.TimeSeries/?highlight=timeseries#gwpy.timeseries.TimeSeries.gate
     for additional details.
     """
-
-    from gwpy.segments import Segment, SegmentList
     from scipy.signal import find_peaks
 
     # Find points to gate based on a threshold
     sample = time_series_data.sample_rate.to("Hz").value
-    data = time_series_data.whiten() if whiten else time_series_data
-    window_samples = cluster_window * sample
-    gates = find_peaks(abs(data.value), height=gate_threshold, distance=window_samples)[
-        0
-    ]
-    # represent gates as time segments
-    deadtime = SegmentList(
-        [
-            Segment(
-                time_series_data.t0.value + (k / sample) - tzero,
-                time_series_data.t0.value + (k / sample) + tzero,
-            )
-            for k in gates
+    if gates is None:
+        data = time_series_data.whiten() if whiten else time_series_data
+        window_samples = cluster_window * sample
+        gates = find_peaks(abs(data.value), height=gate_threshold, distance=window_samples)[
+            0
         ]
-    ).coalesce()
+    # represent gates as time segments
+        deadtime = SegmentList(
+            [
+                Segment(
+                    time_series_data.t0.value + (k / sample) - tzero,
+                    time_series_data.t0.value + (k / sample) + tzero,
+                )
+                for k in gates
+            ]
+        ).coalesce()
+    else:
+        deadtime = SegmentList([Segment(k[0], k[1]) for k in gates]).coalesce()
+
     # return the self-gated timeseries
     gated = time_series_data.mask(deadtime=deadtime, const=0, tpad=tpad)
     return gated, deadtime
@@ -437,6 +453,7 @@ def preprocessing_data_channel_name(
     ftype: str = "fir",
     time_shift: int = 0,
     local_data_path: str = "",
+    frametype: str = "",
     tag: str = "C00",
     input_sample_rate: int = 16384,
 ):
@@ -461,6 +478,9 @@ def preprocessing_data_channel_name(
 
     channel: string
         Name of the channel (e.g.: "L1:GWOSC-4KHZ_R1_STRAIN")
+
+    frametype: string
+       Frame type that contains the channel, only used if data_type=private (e.g.: "L1_HOFT_C00") 
 
     new_sample_rate:int
         Sampling rate of the downsampled-timeseries
@@ -507,6 +527,7 @@ def preprocessing_data_channel_name(
         IFO=IFO,
         data_type=data_type,
         channel=channel,
+        frametype=frametype,
         t0=data_start_time - number_cropped_seconds,
         tf=tf,
         local_data_path=local_data_path,

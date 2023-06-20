@@ -118,7 +118,7 @@ documentation:
     - apt-get -yqq update
     - apt-get -yqq install pandoc
     - pip install --upgrade pip setuptools
-    - pip install ipykernel ipython jupyter
+    - pip install ipykernel ipython==8.12.0 jupyter
     - pip install sphinx numpydoc nbsphinx sphinx_rtd_theme sphinx-tabs autodoc ipython-genutils
     - pip install .
 

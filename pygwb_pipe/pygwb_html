@@ -4,7 +4,10 @@
 #
 # This file is part of pygwb.
 
-import logging, argparse, os
+import argparse
+import logging
+import os
+
 from pygwb.html import pygwb_html
 
 __process_name__ = 'pygwb_html'
@@ -25,10 +28,12 @@ def main(args=None):
                         help='Directory for all output')
     parser.add_argument('-p', '--plot-dir', type=os.path.abspath,
                         help='Directory of plots to show')
+    parser.add_argument('--plot-segment-results', action='store_true',
+                        help='Create result pages for every segment')
     args = parser.parse_args(args=args)
 
     # call the above function
-    pygwb_html(outdir=args.output_dir)
+    pygwb_html(outdir=args.output_dir, segment_results=args.plot_segment_results)
 
 # allow be be run on the command line
 if __name__ == "__main__":

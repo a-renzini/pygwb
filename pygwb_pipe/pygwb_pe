@@ -2,16 +2,29 @@
 
 import argparse
 import json
+from fractions import Fraction
 
-import numpy as np
 import bilby
 import h5py
-
-from fractions import Fraction
+import numpy as np
 
 import pygwb.pe as pe
 from pygwb.baseline import Baseline
 from pygwb.detector import Interferometer
+
+def load_npz(fname_path):
+    data = np.load(fname_path)
+    ptEst_ff = np.real(data["point_estimate_spectrum"])
+    sigma_ff = data["sigma_spectrum"]
+    goodInds = np.logical_and(np.invert(np.isnan(ptEst_ff)), ptEst_ff!=0, sigma_ff!=0)
+    if "frequencies" not in data.keys():
+        freqs = None
+    else:
+        freqs = data["frequencies"]
+        freqs = freqs[goodInds]
+    Y_f = ptEst_ff[goodInds]
+    sigma_f = sigma_ff[goodInds]
+    return (freqs,Y_f,sigma_f)
 
 def load_hdf5(fname_path):
     hf = h5py.File(fname_path, "r")
@@ -23,6 +36,20 @@ def load_hdf5(fname_path):
         freqs = np.array(hf.get("freqs"))
         
     return (freqs, point_estimate_spectrum, sigma_spectrum)
+
+def load_npz(fname_path):
+    data = np.load(fname_path)
+    ptEst_ff = np.real(data["point_estimate_spectrum"])
+    sigma_ff = data["sigma_spectrum"]
+    goodInds = np.logical_and(np.invert(np.isnan(ptEst_ff)), ptEst_ff!=0, sigma_ff!=0)
+    if "frequencies" not in data.keys():
+        freqs = None
+    else:
+        freqs = data["frequencies"]
+        freqs = freqs[goodInds]
+    Y_f = ptEst_ff[goodInds]
+    sigma_f = sigma_ff[goodInds]
+    return (freqs,Y_f,sigma_f)
 
 def main():
     pe_parser = argparse.ArgumentParser(add_help=True)
@@ -195,17 +222,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-def load_npz(fname_path):
-    data = np.load(fname_path)
-    ptEst_ff = np.real(data["point_estimate_spectrum"])
-    sigma_ff = data["sigma_spectrum"]
-    goodInds = np.logical_and(np.invert(np.isnan(ptEst_ff)), ptEst_ff!=0, sigma_ff!=0)
-    if "frequencies" not in data.keys():
-        freqs = None
-    else:
-        freqs = data["frequencies"]
-        freqs = freqs[goodInds]
-    Y_f = ptEst_ff[goodInds]
-    sigma_f = sigma_ff[goodInds]
-    return (freqs,Y_f,sigma_f)

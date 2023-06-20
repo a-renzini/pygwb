@@ -10,19 +10,23 @@ Installing from source
 ======================
 
 These are instructions installing :code:`pygwb`.
-These are adapted from the instructions for installing :code:`bilby` and :code:`bilby_pipe`.
 
-Currently, there are no released versions, so the code must be installed from source.
-If you already have an existing python environment, you can simply clone the code an install in any of the usual ways.
+Currently, there are 2 stable released versions (see the `pygwb PyPi page <https://pypi.org/project/pygwb/>`_ for more details):
+
+.. code-block:: console
+
+   1.0.0
+   1.3.0
+
+which may be installed using :code:`pip`:
+
+.. code-block:: console
+
+   $ pip install pygwb==[version]
+
+Otherwise, you may install the cloned repository directly. If you already have an existing python environment, you can simply clone the code and install in any of the usual ways.
 
 .. tabs::
-
-  .. tab:: conda
-
-    .. code-block:: console
-
-      $ git clone git@git.ligo.org:pygwb/pygwb.git
-      $ conda install .
 
   .. tab:: pypi
 
@@ -41,13 +45,6 @@ If you already have an existing python environment, you can simply clone the cod
 You may also wish to install in "develop" mode.
 
 .. tabs::
-
-  .. tab:: conda
-
-    .. code-block:: console
-
-      $ git clone git@git.ligo.org:pygwb/pygwb.git
-      $ conda develop .
 
   .. tab:: pypi
 

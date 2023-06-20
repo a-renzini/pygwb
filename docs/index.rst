@@ -1,8 +1,8 @@
 pygwb documentation
 ==============================================
+.. image:: pygwb_logo_plasma.png
+   :width: 200
 
-.. automodule:: pygwb
-    :members:
 
 .. toctree::
    :maxdepth: 1
@@ -33,6 +33,7 @@ API:
 
    preprocessing
    spectral
+   coherence
    postprocessing
    omega_spectra
    pe
