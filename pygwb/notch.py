@@ -83,7 +83,7 @@ class StochNotch(Notch):
     def print_notch(self):
         """
         Small function that prints out the defining contents of the notch.
-        It will show you the minumum and maximum frequency and the description of the notch.
+        It will show you the minimum and maximum frequency and the description of the notch.
         """
         print(self.minimum_frequency, self.maximum_frequency, self.description)
 

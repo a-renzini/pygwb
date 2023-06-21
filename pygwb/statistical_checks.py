@@ -1,5 +1,6 @@
 import json
 import warnings
+
 """
 The statistical checks class performs various tests by plotting different quantities and saving this plots. 
 This allows the user to check for consistency with expected results. Concretely, the following tests and plots

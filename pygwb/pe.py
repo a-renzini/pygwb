@@ -721,7 +721,7 @@ class TVSPowerLawModel(GWBModel):
         ==========
         
         fref : float
-            Rference frequency for defining the model (:math:`f_{\text{ref}}`)
+            Reference frequency for defining the model (:math:`f_{\text{ref}}`)
         omega_ref_pol : float
             Amplitude of signal at fref for polarization pol (:math:`\Omega_{\text{ref},\text{pol}}`)
         alpha_pol : float

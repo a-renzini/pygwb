@@ -4,6 +4,7 @@ from loguru import logger
 from pygwb.postprocessing import calculate_point_estimate_sigma_spectra
 from pygwb.util import calc_bias
 
+
 def dsc_cut(
     naive_sigma: np.ndarray,
     slide_sigma: np.ndarray,
