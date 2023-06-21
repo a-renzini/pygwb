@@ -1,5 +1,93 @@
 import copy
 import warnings
+"""Spectral module contains all functions in the pygwb package that are related to the computation of power spectral (PSD) and cross spectral densities (CSD).
+
+The functions in this module are capable of computing an fftgram from a timeseries in the form of a `gwpy.spectrogram.Spectrogram`, computing a Welch-averaged PSD and coarse-graining any data. They are also capable of computing general PSDs and CSDs using the conveniently called `power_spectral_density` and `cross_spectral_density` functions.
+
+Examples
+--------
+
+To demonstrate the power of this module, we will compute the cross spectral and power densities of two timeseries 
+representing data from two interferometers. We will look at the most important functions from the spectral module.
+
+We read in data for two interferometers using functions from the preprocessing module. Hence we import preprocessing aswell.
+
+>>> import pygwb.preprocessing as ppp
+>>> import pygwb.spectral as psp
+
+>>> IFO = "H1"
+>>> data_type = "public"
+>>> channel = "H1:GWOSC-4KHZ_R1_STRAIN"
+>>> t0 = 1247644138
+>>> tf = 1247648138
+>>> local_data_path = ""
+>>> input_sample_rate = 16384
+>>> data_timeseries = ppp.read_data(
+        IFO,
+        data_type,
+        channel,
+        t0,
+        tf,
+        local_data_path,
+        input_sample_rate,
+    )
+    
+>>> IFO = "L1"
+>>> data_type = "public"
+>>> channel = "L1:GWOSC-4KHZ_R1_STRAIN"
+>>> t0 = 1247644138
+>>> tf = 1247648138
+>>> local_data_path = ""
+>>> input_sample_rate = 16384
+>>> data_timeseries_L = ppp.read_data(
+        IFO,
+        data_type,
+        channel,
+        t0,
+        tf,
+        local_data_path,
+        input_sample_rate,
+    )
+
+We compute now the PSD of H1 and L1.
+To achieve this goal, we use common values for the parameters in this 
+spectral module. These values are used in the more general pygwb analysis.
+
+>>> PSD_H1 = psp.power_spectral_density(
+        data_timeseries,
+        segment_duration=192,
+        frequency_resolution=1/32.,
+        overlap_factor=0.5,
+        window_fftgram_dict_welch_psd={"window_fftgram": "hann"},
+        overlap_factor_welch_psd=0.5,
+    )
+    
+>>> PSD_L1 = psp.power_spectral_density(
+        data_timeseries_L,
+        segment_duration=192,
+        frequency_resolution=1/32.,
+        overlap_factor=0.5,
+        window_fftgram_dict_welch_psd={"window_fftgram": "hann"},
+        overlap_factor_welch_psd=0.5,
+    )
+
+We can also compute the CSD of our baseline H1L1.
+
+>>> CSD_baseline = psp.cross_spectral_density(
+        data_timeseries,
+        data_timeseries_L,
+        segment_duration=192,
+        frequency_resolution=1/32.,
+        overlap_factor=0.5,
+        zeropad=True,
+        window_fftgram_dict={"window_fftgram": "hann"},
+    )
+    
+The spectral module as shows here, has the capacity to compute PSDs of single detectors 
+and CSDs of baselines (or network) of detectors.
+
+"""
+>>>>>>> a23c1870fedd73983940dcf2d99eb66a432cf735
 
 import numpy as np
 from gwpy.frequencyseries import FrequencySeries
@@ -17,30 +105,30 @@ def fftgram(
     zeropad: bool = False,
     window_fftgram_dict: dict = {"window_fftgram": "hann"},
 ):
-    """Create an fftgram from a timeseries
+    """Create an fftgram from a timeseries.
 
     Parameters
     ----------
-    time_series_data: gwpy timeseries
+    time_series_data: ``gwpy.timeseries.TimeSeries``
         Timeseries from which to compute the fftgram.
-    fftlength: int
+    fftlength: `int`
         Length of each segment (in seconds) for computing FFT.
-    overlap_factor: float, optional
-        Factor of overlap between adjacent FFT segments (values range from 0
+    overlap_factor: `float`, optional
+        Factor of overlap between adjacent FFT segments (values range from 0 
         to 1). Users should provide proper combination of overlap_factor and
         window_fftgram_dict. For \"hann\" window use 0.5 overlap_factor and
         for \"boxcar"\ window use 0 overlap_factor. Default 0.5 (50% overlap).
-    zeropad: bool, optional
-        Before doing FFT whether to zero pad the data equal to the length of
+    zeropad: `bool`, optional
+        Before doing FFT whether to zero pad the data equal to the length of 
         FFT or not. Default is False.
-    window_fftgram_dict: dictionary, optional
-        Dictionary containing name and parameters describing which window to
+    window_fftgram_dict: `dictionary`, optional
+        Dictionary containing name and parameters describing which window to 
         use for producing FFTs. Default is \"hann\".
 
     Returns
     -------
-    data_fftgram: gwpy spectrogram (complex)
-        fftgram containing several FFTs in a matrix format
+    data_fftgram: `gwpy.spectrogram.Spectrogram` (complex)
+        fftgram containing several FFTs in a matrix format.
     """
 
     sample_rate = int(1 / time_series_data.dt.value)
@@ -85,20 +173,20 @@ def pwelch_psd(
     Estimate PSD using pwelch method.
 
     Parameters
-    ==========
-    psdgram: gwpy spectrogram (PSD)
-       PSD gram data to be averaged
-    segment_duration: int
-        Data duration over which PSDs need to be averaged. Should be greater
-        than or equal to the duration used for FFT.
-    overlap_factor: float, optional
-        Amount of overlap between adjacent average PSDs, can vary between 0
-        and 1. Default is 0.5.
+    ========
+    psdgram: `gwpy.spectrogram.Spectrogram` (PSD)
+       PSD gram data to be averaged.
+    segment_duration: `int`
+        Data duration over which PSDs need to be averaged. Should be greater 
+        than or equal to the duration used for FFT. 
+    overlap_factor: `float`, optional
+        Amount of overlap between adjacent average PSDs, can vary between 0 
+        and 1. 
 
     Returns
     =======
-    avg_psdgram: gwpy psd spectrogram
-        averaged over segments within the segment_duration
+    avg_psdgram: PSD `gwpy.spectrogram.Spectrogram`
+        Averaged over segments within the `segment_duration`.
     """
 
     averaging_factor = round(segment_duration * psdgram.dy.value)
@@ -142,23 +230,23 @@ def pwelch_psd(
 
 def before_after_average(psdgram: Spectrogram, segment_duration: int, N_avg_segs: int):
     """
-    Average the requested number of PSDs from segments adjacent to the segment
-    of interest (for which CDS is calculated)
+    Average the requested number of PSDs from segments adjacent to the segment 
+    of interest (for which CSD is calculated).
 
     Parameters
     ----------
-    psdgram: gwpy spectrogram (PSD)
+    psdgram: `gwpy.spectrogram.Spectrogram` (PSD)
         PSD spectrogram.
-    segment_duration: int
+    segment_duration: `int`
         Duration of data used for each PSD calculation.
-    N_avg_segs: int
-        Number of segments to be used for PSD averaging (from both sides of
+    N_avg_segs: `int`
+        Number of segments to be used for PSD averaging (from both sides of 
         the segment of interest). N_avg_segs should be even and >= 2
 
     Returns
     -------
-    avg_psdgram: gwpy spectrogram
-        averaged psd gram
+    avg_psdgram: `gwpy.spectrogram.Spectrogram`
+        Averaged psd gram.
     """
 
     if N_avg_segs < 2:
@@ -222,7 +310,7 @@ def coarse_grain(data, coarsening_factor):
     If the coarsening factor is odd, there are no edge effects that have to be
     considered.
 
-    The length of the output is len(data) // coarsening_factor - 1
+    The length of the output is len(data) // coarsening_factor - 1.
 
     If the coarsening factor is not an integer, :code:`coarse_grain_exact` is
     used.
@@ -230,14 +318,14 @@ def coarse_grain(data, coarsening_factor):
     Parameters
     ==========
     data: array-like
-        The data to coarse grain
-    coarsening_factor: float
-        The factor by which to coarsen the data
+        The data to coarse grain.
+    coarsening_factor: `float`
+        The factor by which to coarsen the data.
 
     Returns
     =======
     coarsened: array-like
-        The coarse-grained data
+        The coarse-grained data.
     """
     if coarsening_factor == 1:
         return data
@@ -274,14 +362,14 @@ def coarse_grain_exact(data, coarsening_factor):
     Parameters
     ==========
     data: array-like
-        The data to coarse grain
-    coarsening_factor: float
-        The factor by which to coarsen the data
+        The data to coarse grain.
+    coarsening_factor: :code:`float`
+        The factor by which to coarsen the data.
 
     Returns
     =======
     output: array-like
-        The coarse-grained data
+        The coarse-grained data.
     """
     from scipy.integrate import cumtrapz
 
@@ -302,19 +390,19 @@ def coarse_grain_naive(data, coarsening_factor):
     """
     Naive implementation of a coarse graining factor that ignores edge effects.
 
-    This is equivalent to the process performed for a Welch average
+    This is equivalent to the process performed for a Welch average.
 
     Parameters
     ==========
     data: array-like
-        The data to coarse grain
-    coarsening_factor: int
-        The factor by which to coarsen the data
+        The data to coarse grain.
+    coarsening_factor: :code:`int`
+        The factor by which to coarsen the data.
 
     Returns
     =======
-    coarsened:array-like
-        The coarse-grained data
+    coarsened: array-like
+        The coarse-grained data.
     """
     coarsening_factor = int(coarsening_factor)
     n_remove = len(data) % coarsening_factor
@@ -333,29 +421,34 @@ def coarse_grain_spectrogram(
 ):
     """
     Coarsen a spectrogram in time and/or frequency, e.g., Welch averaging /
-    coarse-graining
+    coarse-graining.
 
     The coarsening methods are either:
       - naive: this is equivalent to a Welch average
       - full: the full coarse-grain method
-      - running_mean:
+      - running_mean: computing the running mean of the array.
 
     Parameters
     ==========
-    spectrogram: gwpy.spectrogram.Spectrogram
-        Spectrogram object to be coarsened
-    delta_t: float
-        Output time spacing
-    delta_f: float
-        Output frequency spacing
-    time_method: str
-        Should be one of the coarsening methods listed above
-    frequency_method: str
-        Should be one of the coarsening methods listed above
+    spectrogram: `gwpy.spectrogram.Spectrogram`
+        Spectrogram object to be coarsened.
+    delta_t: `float`, optional.
+        Output time spacing.
+        Default is None.
+    delta_f: `float`, optional
+        Output frequency spacing.
+        Default is None. 
+    time_method: `str`, optional
+        Should be one of the coarsening methods listed above.
+        Default is "naive".
+    frequency_method: `str`, optional.
+        Should be one of the coarsening methods listed above.
+        Default is "full".
 
     Returns
     =======
-    output: gwpy.spectrogram.Spectrogram
+    output: :code:`gwpy.spectrogram.Spectrogram`
+        The coarse-grained spectrogram.
     """
     from gwpy.spectrogram import Spectrogram
 
@@ -420,30 +513,33 @@ def cross_spectral_density(
 
     Parameters
     ----------
-    time_series_data1: gwpy timeseries
+    time_series_data1: :code:`gwpy.timeseries.TimeSeries`
         Timeseries data of detector1.
-    time_series_data2: gwpy timeseries
+    time_series_data2: `gwpy.timeseries.TimeSeries`
         Timeseries data of detector2.
-    segment duration: int
-        data duration over which CSDs need to be calculated.
-    frequency_resolution: float
+    segment duration: `int`
+        Data duration over which CSDs need to be calculated.
+    frequency_resolution: `float`
         Frequency resolution of the final CSDs. This is achieved by averaing in
         frequency domain.
-    overlap_factor: float, optional
+    overlap_factor: `float`, optional
         Amount of overlap between adjacent segments (range between 0 and 1)
-    overlap_factor_welch: float
+        Users should provide proper combination of overlap_factor and
+        window_fftgram_dict. For \"hann\" window use 0.5 overlap_factor and for \"boxcar"\ 
+        window use 0 overlap_factor. Default id 0.5 (50% overlap).
+    overlap_factor_welch: `float`
         Overlap factor to use when using Welch's method (NOT coarsegraining). Users should provide proper combination of overlap_factor and window_fftgram_dict. For \"hann\" window use 0.5 overlap_factor and for \"boxcar"\ window use 0 overlap_factor. Default is 0.5 (50% overlap), which is optimal when using Welch's method with a \"hann\" window.
-    zeropad: bool, optional
-        Before doing FFT whether to zero pad the data equal to the length of
+    zeropad: `bool`, optional
+        Before doing FFT whether to zero pad the data equal to the length of 
         FFT or not. Default is False.
-    window_fftgram_dict: dictionary, optional
-        Dictionary containing name and parameters describing which window to
+    window_fftgram_dict: `dictionary`, optional
+        Dictionary containing name and parameters describing which window to 
         use for producing FFTs. Default is \"hann\".
 
     Returns
     -------
-    csd_spectrogram: gwpy spectrogram
-       Cross spectral density of the two timeseries
+    csd_spectrogram: `gwpy.spectrogram.Spectrogram`
+       Cross spectral density of the two timeseries.
     """
 
     if (segment_duration * frequency_resolution) % 1 != 0:
@@ -513,8 +609,8 @@ def cross_spectral_density(
 
 
 def power_spectral_density(
-    time_series_data: TimeSeries,
-    segment_duration: int,
+    time_series_data:  TimeSeries,
+    segment_duration:  int,
     frequency_resolution: float,
     coarse_grain: bool = False,
     zeropad: bool = False,
@@ -528,32 +624,34 @@ def power_spectral_density(
 
     Parameters
     ----------
-    time_series_data: gwpy timeseries
+    time_series_data: `gwpy.timeseries.TimeSeries`
         Timeseries from which to compute PSDs.
-    segment duration: int
+    segment duration: `int`
         Data duration over which each PSDs need to be calculated.
-    frequency_resolution: float
+    frequency_resolution: `float`
         Frequency resolution of the final PSDs. This sets the time duration
         over which FFTs are calculated in the pwelch method.
-    coarse_grain: bool
+    coarse_grain: `bool`
         Coarse-graining flag; if True, PSD will be estimated via coarse-graining
         as opposed to Welch-averaging. Default is False.
-    zeropad: bool, optional
+    zeropad: `bool`, optional
         Before doing FFT whether to zero pad the data equal to the length of
         FFT or not. Default is False.
-    overlap_factor: float, optional
+    overlap_factor: `float`, optional
         Amount of overlap between adjacent segments (range between 0 and 1).
-        This factor should be same as the one used for cross_spectral_density.
-    window_fftgram_dict: dictionary, optional
-        Dictionary containing name and parameters describing which window to
+        Users should provide proper combination of overlap_factor and
+        window_fftgram_dict. For \"hann\" window use 0.5 overlap_factor and 
+        for \"boxcar"\ window use 0 overlap_factor. Default is 0.5 (50% overlap)
+    window_fftgram_dict: `dictionary`, optional
+        Dictionary containing name and parameters describing which window to 
         use for producing FFTs. Default is \"hann\".
-    overlap_factor_welch: float
+    overlap_factor_welch: `float`, optional
         Overlap factor to use when using Welch's method (NOT coarsegraining). Users should provide proper combination of overlap_factor and window_fftgram_dict. For \"hann\" window use 0.5 overlap_factor and for \"boxcar"\ window use 0 overlap_factor. Default is 0.5 (50% overlap), which is optimal when using Welch's method with a \"hann\" window.
-
+     
     Returns
     -------
-    psd_spectrogram: gwpy PSD spectrogram
-        PSD spectrogram with each PSD duration equal to segment duration
+    psd_spectrogram: `gwpy.spectrogram.Spectrogram` PSD
+        PSD spectrogram with each PSD duration equal to segment duration.
     """
 
     psd_spectrogram = cross_spectral_density(
@@ -579,15 +677,16 @@ def running_mean(data, coarsening_factor=1, axis=-1):
     Parameters
     ----------
     data: array-like
-        Array of size M to be average
-    coarsening_factor: int
-        Number of segments to average, default=1
-    axis:
-        Axis to apply the mean over, default=-1
+        Array of size M to be averaged.
+    coarsening_factor: `int`, optional
+        Number of segments to average, default=1.
+    axis: `int`, optional
+        Axis to apply the mean over, default=-1.
 
     Returns
     -------
-    array-like: the averaged array of size M - coarsening factor
+    running_mean_array: array-like
+        The averaged array of size M - coarsening factor.
     """
     coarsening_factor = int(coarsening_factor)
     if axis != -1:

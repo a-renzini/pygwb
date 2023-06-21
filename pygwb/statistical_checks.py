@@ -1,5 +1,16 @@
 import json
 import warnings
+"""
+The statistical checks class performs various tests by plotting different quantities and saving this plots. 
+This allows the user to check for consistency with expected results. Concretely, the following tests and plots
+can be generated: running point estimate, running sigma, (cumulative) point estimate integrand, real and imaginary 
+part of point estimate integrand, FFT of the point estimate integrand, (cumulative) sensitivity, evolution of omega 
+and sigma as a function of time, omega and sigma distribution, KS test, and a linear trend analysis of omega in time. 
+Furthermore, part of these plots compares the values of these quantities before and after the delta sigma cut. Each of 
+these plots can be made by calling the relevant class method (e.g. `plot_running_point_estimate()`).
+
+"""
+
 from os import listdir
 from os.path import isfile, join
 from pathlib import Path
@@ -62,17 +73,18 @@ class StatisticalChecks(object):
         convention = 'pygwb'
     ):
         """
-        The statistical checks class performs various tests by plotting different quantities and saving this plots. This allows the user to check for consistency with expected results. Concretely, the following tests and plots can be generated: running point estimate, running sigma, (cumulative) point estimate integrand, real and imaginary part of point estimate integrand, FFT of the point estimate integrand, (cumulative) sensitivity, evolution of omega and sigma as a function of time, omega and sigma distribution, KS test, and a linear trend analysis of omega in time. Furthermore, part of these plots compares the values of these quantities before and after the delta sigma cut. Each of these plots can be made by calling the relevant class method (e.g. `plot_running_point_estimate()`).
+        Instantiate a StatisticalChecks object.
 
         Parameters
         ==========
-        sliding_times_all: array
+
+        sliding_times_all: array_like
             Array of GPS times before the bad GPS times from the delta sigma cut are applied.
-        sliding_omega_all: array
+        sliding_omega_all: array_like
             Array of sliding omegas before the bad GPS times from the delta sigma cut are applied.
-        sliding_sigmas_all: array
+        sliding_sigmas_all: array_like
             Array of sliding sigmas before the bad GPS times from the delta sigma cut are applied.
-        naive_sigmas_all: array
+        naive_sigmas_all: array_like
             Array of naive sigmas before the bad GPS times from the delta sigma cut are applied.
         coherence_spectrum: array
             Array containing a coherence spectrum. Each entry in this array corresponds to the 2-detector coherence spectrum evaluated at the corresponding frequency in the frequencies array.
@@ -84,9 +96,9 @@ class StatisticalChecks(object):
             Array containing the sigma spectrum. Each entry in this array corresponds to the sigma spectrum evaluated at the corresponding frequency in the frequencies array.
         frequencies: array
             Array containing the frequencies.
-        badGPStimes: array
+        badGPStimes: array_like
             Array of bad GPS times, i.e. times that do not pass the delta sigma cut.
-        delta_sigmas: array
+        delta_sigmas: array_like
             Array containing the value of delta sigma for all times in sliding_times_all.
         plot_dir: str
             String with the path to which the output of the statistical checks (various plots) will be saved.
@@ -103,9 +115,6 @@ class StatisticalChecks(object):
         legend_fontsize: int
             Font size for plot legends. Default is 16. All other fonts are scaled to this font.
 
-        Returns
-        =======
-        Initializes an instance of the statistical checks class.
         """
         self.params = Parameters()
         self.params.update_from_file(param_file)
@@ -199,23 +208,26 @@ class StatisticalChecks(object):
 
     def get_data_after_dsc(self):
         """
-        Function that returns the GPS times, the sliding omegas, the sliding sigmas, the naive sigmas, the delta sigmas and the sliding deviates after the bad GPS times from the delta sigma cut were applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sliding_times_all`).
+        Function that returns the GPS times, the sliding omegas, the sliding sigmas, the naive sigmas, 
+        the delta sigmas and the sliding deviates after the bad GPS times from the delta sigma cut were applied. 
+        This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `self.sliding_times_all`).
 
         Returns
         =======
-        sliding_times_cut: array
+
+        sliding_times_cut: array_like
             Array of GPS times after the bad GPS times were applied.
-        days_cut: array
+        days_cut: array_like
             Array of days after the bad GPS times were applied.
-        sliding_omega_cut: array
+        sliding_omega_cut: array_like
             Array of the sliding omega values after the bad GPS times were applied.
-        sliding_sigma_cut: array
+        sliding_sigma_cut: array_like
             Array of sliding sigmas after the bad GPS times were applied.
-        naive_sigma_cut: array
+        naive_sigma_cut: array_like
             Array of naive sigmas after the bad GPS times were applied.
-        delta_sigma_cut: array
+        delta_sigma_cut: array_like
             Array of the delta sigma values after the bad GPS times were applied.
-        sliding_deviate_cut: array
+        sliding_deviate_cut: array_like
             Array of the deviates after the bad GPS times were applied.
         """
         bad_gps_times = self.badGPStimes
@@ -258,13 +270,16 @@ class StatisticalChecks(object):
 
     def compute_running_quantities(self):
         """
-        Function that computes the running point estimate and running sigmas from the sliding point estimate and sliding sigmas. This is done only for the values after the delta sigma cut. This method does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sliding_sigma_cut`).
+        Function that computes the running point estimate and running sigmas from the sliding point estimate and sliding sigmas. 
+        This is done only for the values after the delta sigma cut. This method does not require any input parameters, as it accesses 
+        the data through the attributes of the class (e.g. `self.sliding_sigma_cut`).
 
         Returns
         =======
-        running_pt_estimate: array
+
+        running_pt_estimate: array_like
             Array containing the values of the running point estimate.
-        running_sigmas: array
+        running_sigmas: array_like
             Array containing the values of the running sigmas.
         """
         running_pt_estimate = self.sliding_omega_cut.copy()
@@ -286,14 +301,22 @@ class StatisticalChecks(object):
 
     def compute_ifft_integrand(self):
         """
-        Function that computes the inverse Fourier transform of the point estimate integrand. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `point_estimate_integrand`).
+        Function that computes the inverse Fourier transform of the point estimate integrand. 
+        This function does not require any input parameters, as it accesses the data through the 
+        attributes of the class (e.g. `self.point_estimate_integrand`).
 
         Returns
         =======
-        t_array: array
+
+        t_array: array_like
             Array containing the time lag values (in seconds).
-        omega_t: array
+        omega_t: array_like
             Array containing the
+
+        See also
+        --------
+
+        numpy.fft.fft : Method used to compute the Fourier transform.
 
         """
 
@@ -331,13 +354,16 @@ class StatisticalChecks(object):
 
     def plot_running_point_estimate(self, ymin=None, ymax=None):
         """
-        Generates and saves a plot of the running point estimate. The plotted values are the ones after the delta sigma cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `days_cut`).
+        Generates and saves a plot of the running point estimate. The plotted values are the 
+        ones after the delta sigma cut. This function does not require any input parameters, 
+        as it accesses the data through the attributes of the class (e.g. `self.days_cut`).
 
         Parameters
         ==========
-        ymin: float
+
+        ymin: array_like
             Minimum value on the y-axis.
-        ymax: float
+        ymax: array_like
             Maximum value on the y-axis.
 
         """
@@ -389,7 +415,9 @@ class StatisticalChecks(object):
 
     def plot_running_sigma(self):
         """
-        Generates and saves a plot of the running sigma. The plotted values are the ones after the delta sigma cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `days_cut`).
+        Generates and saves a plot of the running sigma. The plotted values are the ones after the delta sigma cut. 
+        This function does not require any input parameters, as it accesses the data through the attributes of the 
+        class (e.g. `self.days_cut`).
 
         """
         if self.days_cut.size==0:
@@ -413,7 +441,9 @@ class StatisticalChecks(object):
 
     def plot_IFFT_point_estimate_integrand(self):
         """
-        Generates and saves a plot of the IFFT of the point estimate integrand. The IFFT of the point estimate integrand is computed using the method "compute_ifft_integrand". This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `point_estimate_integrand`).
+        Generates and saves a plot of the IFFT of the point estimate integrand. The IFFT of the point 
+        estimate integrand is computed using the method "compute_ifft_integrand". This function does not 
+        require any input parameters, as it accesses the data through the attributes of the class (e.g. `self.point_estimate_integrand`).
         """
         t_array, omega_array = self.compute_ifft_integrand()
         if len(t_array) != len(omega_array):
@@ -436,7 +466,8 @@ class StatisticalChecks(object):
 
     def plot_SNR_spectrum(self):
         """
-        Generates and saves a plot of the point estimate integrand. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `point_estimate_integrand`).
+        Generates and saves a plot of the point estimate integrand. This function does not require any input parameters, 
+        as it accesses the data through the attributes of the class (e.g. `self.point_estimate_integrand`).
 
         """
         if np.isnan(self.point_estimate_spectrum).all() or not np.real(self.point_estimate_spectrum).any():
@@ -463,7 +494,8 @@ class StatisticalChecks(object):
 
     def plot_cumulative_SNR_spectrum(self):
         """
-        Generates and saves a plot of the cumulative point estimate integrand. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `point_estimate_integrand`).
+        Generates and saves a plot of the cumulative point estimate integrand. This function does not 
+        require any input parameters, as it accesses the data through the attributes of the class (e.g. `self.point_estimate_integrand`).
         """
         pt_est_cumul = self.point_estimate_spectrum.copy()
         pt_est_cumul[~self.frequency_mask] = 0
@@ -487,7 +519,9 @@ class StatisticalChecks(object):
 
     def plot_real_SNR_spectrum(self):
         """
-        Generates and saves a plot of the real part of the SNR spectrum. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `point_estimate_spectrum` and `sigma_spectrum`).
+        Generates and saves a plot of the real part of the SNR spectrum. This function does not require 
+        any input parameters, as it accesses the data through the attributes of the class 
+        (e.g. `self.point_estimate_spectrum` and `self.sigma_spectrum`).
         """
         fig, axs =  plt.subplots(figsize=(10, 8))
         axs.plot(
@@ -511,7 +545,9 @@ class StatisticalChecks(object):
 
     def plot_imag_SNR_spectrum(self):
         """
-        Generates and saves a plot of the imaginary part of the SNR spectrum. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `point_estimate_spectrum` and `sigma_spectrum`).
+        Generates and saves a plot of the imaginary part of the SNR spectrum. This function does not 
+        require any input parameters, as it accesses the data through the attributes of the class 
+        (e.g. `self.point_estimate_spectrum` and `self.sigma_spectrum`).
         """
         fig, axs = plt.subplots(figsize=(10, 8))
         axs.plot(
@@ -535,7 +571,9 @@ class StatisticalChecks(object):
 
     def plot_sigma_spectrum(self):
         """
-        Generates and saves a plot of the sigma spectrum. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sigma_spectrum`).
+        Generates and saves a plot of the sigma spectrum. This function does not 
+        require any input parameters, as it accesses the data through the attributes 
+        of the class (e.g. `self.sigma_spectrum`).
         """
         if np.isinf(self.sigma_spectrum).all() or not np.real(self.point_estimate_spectrum).any():
             return
@@ -763,7 +801,9 @@ class StatisticalChecks(object):
                 
     def plot_cumulative_sensitivity(self):
         """
-        Generates and saves a plot of the cumulative sensitivity. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sigma_spectrum`).
+        Generates and saves a plot of the cumulative sensitivity. This function does not 
+        require any input parameters, as it accesses the data through the attributes of 
+        the class (e.g. `self.sigma_spectrum`).
 
         """
         if np.isinf(self.sigma_spectrum).all() or not np.real(self.point_estimate_spectrum).any():
@@ -789,7 +829,12 @@ class StatisticalChecks(object):
 
     def plot_omega_sigma_in_time(self):
         r"""
-        Generates and saves a panel plot with a scatter plot of :math:`\sigma` vs :math:`\Delta{\rm SNR}_i`, as well as the evolution of :math:`\Omega`, :math:`\sigma`, and :math:`(\Omega-\langle\Omega\rangle)/\sigma` as a function of the days since the start of the run. All plots show the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sliding_sigmas_all`).
+        Generates and saves a panel plot with a scatter plot of :math:`\sigma` vs 
+        :math:`\Delta{\rm SNR}_i`, as well as the evolution of :math:`\Omega`, :math:`\sigma`, 
+        and :math:`(\Omega-\langle\Omega\rangle)/\sigma` as a function of the days since the 
+        start of the run. All plots show the data before and after the delta-sigma cut (bad GPS times) 
+        was applied. This function does not require any input parameters, as it accesses the data 
+        through the attributes of the class (e.g. `self.sliding_sigmas_all`).
         """
         fig, axs = plt.subplots(nrows=3, ncols=1, figsize=(10, 15), constrained_layout=True)
         fig.suptitle(r"$\Omega$, $\sigma$, and" + f" SNR variations in {self.time_tag} with/out " + r"$\Delta\sigma$ cut", fontsize=self.title_fontsize)
@@ -867,7 +912,10 @@ class StatisticalChecks(object):
 
     def plot_hist_sigma_dsc(self):
         r"""
-        Generates and saves a panel plot with a histogram of :math:`|\Delta\sigma|/\sigma`, as well as a histogram of :math:`\sigma`. Both plots show the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `delta_sigmas_all`).
+        Generates and saves a panel plot with a histogram of :math:`|\Delta\sigma|/\sigma`, 
+        as well as a histogram of :math:`\sigma`. Both plots show the data before and after 
+        the delta-sigma cut (bad GPS times) was applied. This function does not require any 
+        input parameters, as it accesses the data through the attributes of the class (e.g. `self.delta_sigmas_all`).
 
         """
         fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(10, 14), constrained_layout=True)
@@ -941,7 +989,10 @@ class StatisticalChecks(object):
 
     def plot_scatter_sigma_dsc(self):
         """
-        Generates and saves a scatter plot of :math:`|\Delta\sigma]/\sigma` vs :math:`\sigma`. The plot shows the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `delta_sigmas_all`).
+        Generates and saves a scatter plot of :math:`|\Delta\sigma]/\sigma` vs :math:`\sigma`. 
+        The plot shows the data before and after the delta-sigma cut (bad GPS times) was applied. 
+        This function does not require any input parameters, as it accesses the data through the 
+        attributes of the class (e.g. `self.delta_sigmas_all`).
         """
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
 
@@ -985,7 +1036,10 @@ class StatisticalChecks(object):
 
     def plot_scatter_omega_sigma_dsc(self):
         r"""
-        Generates and saves a panel plot with scatter plots of :math:`|\Delta\sigma|/\sigma` vs :math:`\Delta{\rm SNR}_i`, as well as :math:`\sigma` vs :math:`(\Omega-\langle\Omega\rangle)/\sigma`. All plots show the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `delta_sigmas_all`).
+        Generates and saves a panel plot with scatter plots of :math:`|\Delta\sigma|/\sigma` vs :math:`\Delta{\rm SNR}_i`, 
+        as well as :math:`\sigma` vs :math:`(\Omega-\langle\Omega\rangle)/\sigma`. All plots show the data before and after 
+        the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses 
+        the data through the attributes of the class (e.g. `self.delta_sigmas_all`).
         """
         fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(10, 13), constrained_layout=True)
         fig.suptitle(r"$\Delta$SNR spread" + f" in {self.time_tag} with/out " + r"$\Delta\sigma$ cut", fontsize=self.title_fontsize)
@@ -1084,7 +1138,10 @@ class StatisticalChecks(object):
 
     def plot_hist_omega_pre_post_dsc(self):
         r"""
-        Generates and saves a histogram of the :math:`\Delta{\rm SNR}_i` distribution. The plot shows the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sliding_deviate_all`).
+        Generates and saves a histogram of the :math:`\Delta{\rm SNR}_i` distribution. The plot 
+        shows the data before and after the delta-sigma cut (bad GPS times) was applied. This function
+          does not require any input parameters, as it accesses the data through the attributes of the 
+          class (e.g. `self.sliding_deviate_all`).
         """
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
 
@@ -1124,12 +1181,23 @@ class StatisticalChecks(object):
 
     def plot_KS_test(self, bias_factor=None):
         """
-        Generates and saves a panel plot with results of the Kolmogorov-Smirnov test for Gaussianity. The cumulative distribution of the data (after the delta-sigma (bad GPS times) cut) is compared to the one of Gaussian data, where the bias factor for the sigmas is taken into account. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sliding_deviate_cut`).
+        Generates and saves a panel plot with results of the Kolmogorov-Smirnov test for Gaussianity. 
+        The cumulative distribution of the data (after the delta-sigma (bad GPS times) cut) is compared 
+        to the one of Gaussian data, where the bias factor for the sigmas is taken into account. This 
+        function does not require any input parameters, as it accesses the data through the attributes 
+        of the class (e.g. `self.sliding_deviate_cut`).
 
         Parameters
         ==========
-        bias_factor: float
-            Bias factor to consider in the KS calculation.
+
+        bias_factor: float, optional
+            Bias factor to consider in the KS calculation. Defaults to None, in which case it 
+            computes the bias factor on the fly.
+
+        See also
+        --------
+
+        pygwb.util.calc_bias : Method used to compute the bias.
 
         """
         if self.delta_sigmas_cut.size==0:
@@ -1199,13 +1267,9 @@ class StatisticalChecks(object):
 
     def plot_hist_sigma_squared(self, max_val = 5, total_bins=100, label_number = 6):
         """
-        Generates and saves a histogram of :math:`\sigma^2/\langle\sigma^2\rangle`. The plot shows data after the delta-sigma (bad GPS times) cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_sigma_cut).
-
-        Parameters
-        ==========
-
-        Returns
-        =======
+        Generates and saves a histogram of :math:`\sigma^2/\langle\sigma^2\rangle`. The plot shows 
+        data after the delta-sigma (bad GPS times) cut. This function does not require any input parameters, 
+        as it accesses the data through the attributes of the class (e.g. self.sliding_sigma_cut).
 
         """
         if self.delta_sigmas_cut.size==0:
@@ -1254,13 +1318,10 @@ class StatisticalChecks(object):
 
     def plot_omega_time_fit(self):
         """
-        Generates and saves a plot of :math:`\Omega` as a function of time and fits the data to perform a linear trend analysis. The plot shows data after the delta-sigma (bad GPS times) cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_omega_cut).
-
-        Parameters
-        ==========
-
-        Returns
-        =======
+        Generates and saves a plot of :math:`\Omega` as a function of time and fits the data to perform 
+        a linear trend analysis. The plot shows data after the delta-sigma (bad GPS times) cut. This function 
+        does not require any input parameters, as it accesses the data through the attributes of the 
+        class (e.g. self.sliding_omega_cut).
 
         """
         if self.days_cut.size==0:
@@ -1312,7 +1373,10 @@ class StatisticalChecks(object):
 
     def plot_sigma_time_fit(self):
         """
-        Generates and saves a plot of :math:`\sigma` as a function of time and fits the data to perform a linear trend analysis. The plot shows data after the delta-sigma (bad GPS times) cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sliding_sigma_cut`).
+        Generates and saves a plot of :math:`\sigma` as a function of time and fits the data to perform 
+        a linear trend analysis. The plot shows data after the delta-sigma (bad GPS times) cut. This function 
+        does not require any input parameters, as it accesses the data through the attributes of the 
+        class (e.g. `self.sliding_sigma_cut`).
         """
         if self.days_cut.size==0:
             return
@@ -1447,7 +1511,24 @@ def run_statistical_checks_from_file(
     combine_file_path, dsc_file_path, plot_dir, param_file, legend_fontsize=16, coherence_file_path = None, file_tag = None, convention='pygwb'
 ):
     """
-    Assumes files are in npz for now. Will generalize later.
+    Method to generate an instance of the statistical checks class from a set of files.
+
+    Parameters
+    ==========
+
+    combine_file_path: str
+        Full path to the file containing the output of the pygwb.combine script, i.e., with the 
+        combined results of the run.
+
+    dsc_file_path: str
+        Full path to the file containing the results of the delta sigma cut.
+
+    plot_dir: str
+        Full path where the plots generated by the statistical checks module should be saved.
+    param_file: str
+        Full path to the parameter file that was used for the analysis.
+    legend_fontsize: int, optional
+        Fontsize used in the plots generated by the module. Defaults to 16.
     """
     params = Parameters()
     params.update_from_file(param_file)

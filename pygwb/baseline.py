@@ -1,3 +1,38 @@
+"""
+The ``Baseline`` module is by design the core of the pygwb stochastic analysis. Its main role is to manage the cross-
+correlation between ``Interferometer`` data products, combine these into a single cross-spectrum, which represents the
+point estimate of the analysis, and calculate the associated error.
+
+The ``Baseline`` object relies on the ``pygwb.spectral`` module to calculate cross-correlations between the data
+streams. Similarly, it relies on the ``pygwb.postprocessing`` module to obtain the point estimate and its variance.
+Calculating these, as well as performing parameter estimation on the GWB spectrum, requires the two-detector
+overlap reduction function (ORF). The ORF is calculated using the ``pygwb.orfs`` module at ``Baseline`` object 
+initialization, then stored as an attribute.
+
+Examples
+--------
+
+To show how a ``Baseline`` object can be instantiated, we start by importing the relevant
+packages:
+
+>>> import numpy as np
+>>> from pygwb.detector import Interferometer
+>>> from pygwb.baseline import Baseline
+
+For concreteness, we work with the LIGO Hanford and Livingston detectors, which we 
+instantiate through:
+
+>>> H1 = Interferometer.get_empty_interferometer("H1")
+>>> L1 = Interferometer.get_empty_interferometer("L1")
+
+The standard initialization of a ``Baseline`` object then simply requires a pair of 
+``Interferometer`` objects:
+
+>>> H1L1_baseline = baseline.Baseline("H1-L1", H1, L1)
+
+"""
+
+
 import json
 import pickle
 import warnings
@@ -22,10 +57,6 @@ from .spectral import cross_spectral_density
 
 
 class Baseline(object):
-    """
-    Baseline object for stochastic analyses.
-    """
-
     def __init__(
         self,
         name,
@@ -48,20 +79,21 @@ class Baseline(object):
         Instantiate a Baseline.
 
         Parameters
-        ----------
-        name: str
+        ==========
+
+        name: ``str``
             Name for the baseline, e.g H1H2
         interferometer_1/2: bilby Interferometer object
             The two detectors spanning the baseline
-        duration: float, optional
+        duration: ``float``, optional
             The duration in seconds of each data segment in the interferometers.
             None by default, in which case duration is inherited from the interferometers.
-        frequencies: array_like, optional
+        frequencies: ``array_like``, optional
             The frequency array for the Baseline and
             interferometers
-        calibration_epsilon: float, optional
+        calibration_epsilon: ``float``, optional
             Calibration uncertainty for this baseline
-        notch_list_path: str, optional
+        notch_list_path: ``str``, optional
             File path of the baseline notch list
         coarse_grain_psd: bool
             Whether to apply coarse graining to obtain PSD spectra. Default is False.
@@ -216,8 +248,19 @@ class Baseline(object):
 
         Parameters
         ==========
-        notch_list_path: str
-            Path to notch list to apply to frequency array.
+
+        notch_list_path: ``str``, optional
+            Path to notch list to apply to frequency array. If not 
+            provided, no notching will be applied at this point.
+        apply_notches: ``bool``, optional
+            If True, apply frequency notches. Default is True.
+
+        See also
+        --------
+
+        pygwb.notch.StochNotchList : Used to read in the frequency notches.
+
+
         """
         mask = (self.frequencies >= self.minimum_frequency) & (
             self.frequencies <= self.maximum_frequency
@@ -237,8 +280,10 @@ class Baseline(object):
 
     @property
     def gamma_v(self, frequencies=None):
-        """Overlap reduction function for asymmetrically polarised backgrounds,
-        as descrived in https://arxiv.org/pdf/0707.0535.pdf"""
+        """
+        Overlap reduction function for asymmetrically polarised backgrounds,
+        as described in https://arxiv.org/pdf/0707.0535.pdf
+        """
         if not self._gamma_v_calculated:
             self._gamma_v = self.calc_baseline_orf(polarization="right_left")
             self._gamma_v_calculated = True
@@ -254,7 +299,8 @@ class Baseline(object):
 
     @duration.setter
     def duration(self, dur):
-        """Sets the duration for the Baseline and interferometers
+        """
+        Sets the duration for the Baseline and interferometers
 
         If `duration` is passed, check that it matches the `duration`
         in the interferometers, if present.
@@ -269,7 +315,7 @@ class Baseline(object):
 
         Parameters
         ==========
-        duration: float, optional
+        dur: ``float``
             The duration to set for the Baseline and interferometers
         """
         if dur is not None:
@@ -299,6 +345,7 @@ class Baseline(object):
 
     @property
     def csd_segment_offset(self):
+        """CSD segment offset to use for this baseline"""
         if self._duration_set:
             stride = self.duration * (1 - self.overlap_factor)
             return int(np.ceil(self.duration / stride)) * int(self.N_average_segments_psd/2)
@@ -449,6 +496,16 @@ class Baseline(object):
         self._coherence_dict = cohdict
 
     def _check_durations_match_baseline_ifos(self, duration):
+        """
+        Checks whether the baseline duration matches the duration set in 
+        the interferometers of the baseline.
+
+        Parameters
+        ==========
+
+        duration: float
+            Duration of the baseline
+        """
         if self.interferometer_1.duration and self.interferometer_2.duration:
             self._check_ifo_durations_match()
             if not duration == self.interferometer_1.duration:
@@ -467,6 +524,9 @@ class Baseline(object):
                 )
 
     def _check_ifo_durations_match(self):
+        """
+        Checks whether the duration in both interferometers agree.
+        """
         if not (self.interferometer_1.duration == self.interferometer_2.duration):
             raise AssertionError("Interferometer durations do not match each other!")
 
@@ -496,8 +556,9 @@ class Baseline(object):
 
         Parameters
         ==========
-        sampling_frequency: float, optional
-            The sampling_frequency to set for the Baseline and interferometers
+
+        sampling_frequency: ``float``, optional
+            The sampling frequency to set for the Baseline and interferometers
         """
         if sampling_frequency is not None:
             self.check_sampling_frequencies_match_baseline_ifos(sampling_frequency)
@@ -564,16 +625,18 @@ class Baseline(object):
     def check_sampling_frequencies_match_baseline_ifos(self, sampling_frequency):
         """Check that the sampling frequency of the two interferometers in this Baseline match the Baseline sampling frequency.
 
-        Parameters:
+        Parameters
         ==========
-        sampling_frequency: float
+
+        sampling_frequency: ``float``
             The sampling frequency that is being set for the Baseline.
 
-        Notes:
-        =====
+        Warning
+        -------
+
         If the sampling frequency passed is `None`, the Baseline sampling frequency will be set to that of the interferometers, if these
         match. If these don't match, an error will be raised. If the sampling frequency of the interferometers is also `None`, then no
-        sampling frequency will be set, and the user will can set it at a later time.
+        sampling frequency will be set, and the user can set it at a later time.
         """
         if (
             self.interferometer_1.sampling_frequency
@@ -596,6 +659,9 @@ class Baseline(object):
                 )
 
     def _check_ifo_sampling_frequencies_match(self):
+        """
+        Check whether the sampling frequencies of the interferometers match.
+        """
         if not (
             self.interferometer_1.sampling_frequency
             == self.interferometer_2.sampling_frequency
@@ -611,16 +677,24 @@ class Baseline(object):
 
         Parameters
         ==========
-        polarization: str, optional
+
+        polarization: ``str``, optional
             Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation.
             Default is tensor.
-        frequencies: array_like, optional
+        frequencies: ``array_like``, optional
             Frequency array to use in the calculation of the orf. By default, self.frequencies is used.
 
-        Returns:
-        ========
-        orf: array_like
+        Returns
+        =======
+
+        orf: ``array_like``
             Overlap reduction function for the required polarization.
+
+        See also
+        --------
+
+        pygwb.orfs.calc_orf : Method to compute the overlap reduction function.
+
         """
         if frequencies is not None:
             return calc_orf(
@@ -661,12 +735,19 @@ class Baseline(object):
 
         Parameters
         ==========
-        interferometers: list
-            List of interferometer names.
-        duration: float, optional
-            Segment duration.
-        calibration_epsilon: float, optional
-            Calibration uncertainty for this baseline.
+
+        interferometers: ``list``
+            List of two bilby Interferometer objects.
+        duration: ``float``, optional
+            Segment duration in seconds. Default is None.
+        calibration_epsilon: ``float``, optional
+            Calibration uncertainty for this baseline. Default is 0.
+
+        Returns
+        =======
+
+        Baseline: cls
+            Baseline class
         """
         name = "".join([ifo.name for ifo in interferometers])
         return cls(
@@ -690,19 +771,22 @@ class Baseline(object):
 
         Parameters
         ==========
+
         interferometer_1/2: bilby Interferometer object
             The two detectors spanning this baseline.
-        parameters: pygwb Parameters object
+        parameters: ``pygwb.parameters`` object
             Parameters object containing necessary parameters for
             the instantiation of the baseline, and subsequent
             analyses.
-        frequencies: array_like, optional
+        frequencies: ``array_like``, optional
             Frequency array to use in the instantiation of this baseline.
             Default is None.
 
-        Returns:
-        ========
+        Returns
+        =======
+
         Baseline: cls
+            Baseline class
         """
         name = interferometer_1.name + interferometer_2.name
         return cls(
@@ -730,8 +814,15 @@ class Baseline(object):
 
         Parameters
         ==========
-        filename: str
+
+        filename: ``str``
             Filename (inclusive of path) to load the pickled baseline from.
+
+        Returns
+        =======
+
+        Baseline: ``cls``
+            Baseline class
         """
         with open(filename, "rb") as f:
             return pickle.load(f)
@@ -742,7 +833,7 @@ class Baseline(object):
 
         Parameters
         ==========
-        filename: str
+        filename: ``str``
             Filename (inclusive of path) to save the pickled baseline to.
         """
         if wipe == True:
@@ -758,7 +849,8 @@ class Baseline(object):
 
         Parameters
         ==========
-        frequency_resolution: float
+
+        frequency_resolution: ``float``
             The frequency resolution at which the cross and power spectral densities are calculated.
         """
         try:
@@ -837,12 +929,13 @@ class Baseline(object):
         """
         Crop frequencies of average PSDs and CSDS. Done in place. This is not completely implemented yet.
 
-        Parameters:
-        ===========
-            flow: float
-                Low frequency to crop.
-            fhigh: float
-                High frequency to crop.
+        Parameters
+        ==========
+
+        flow: ``float``
+            Low frequency to crop.
+        fhigh: ``float``
+            High frequency to crop.
         """
         deltaF = self.frequencies[1] - self.frequencies[0]
         # reset frequencies using the same calculation as in crop_frequencies so we get
@@ -889,16 +982,17 @@ class Baseline(object):
 
         Parameters
         ==========
-        alpha: float, optional
-            Spectral index to use in the weighting.
-        fref: float, optional
+
+        alpha: ``float``, optional
+            Spectral index to use in the weighting. Default is 0.
+        fref: ``float``, optional
             Reference frequency to use in the weighting calculation.
-            Final result refers to this frequency.
-        flow: float
-            Lowest frequency to consider.
-        fhigh: float
-            Highest frequency to consider.
-        polarization: str, optional
+            Final result refers to this frequency. Default is 25 Hz.
+        flow: ``float``, optional
+            Lowest frequency to consider. Default is 20 Hz.
+        fhigh: ``float``, optional
+            Highest frequency to consider. Default is 1726 Hz.
+        polarization: ``str``, optional
             Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation.
             Default is tensor.
         """
@@ -965,26 +1059,27 @@ class Baseline(object):
 
         Parameters
         ==========
-        badtimes: np.array, optional
+
+        badtimes: ``array_like``, optional
             Array of times to exclude from point estimate/sigma calculation.
             If no times are passed, none will be excluded.
-        alpha: float, optional
+        alpha: ``float``, optional
             Spectral index to use in the re-weighting. Default is 0.
-        fref: float, optional
+        fref: ``float``, optional
             Reference frequency to use in the re-weighting. Default is 25.
-        flow: float, optional
+        flow: ``float``, optional
             Low frequency. Default is 20 Hz.
-        fhigh: float, optional
+        fhigh: ``float``, optional
             High frequency. Default is 1726 Hz.
-        notch_list_path: str, optional
-            path to the notch list to use in the spectrum.
-        polarization: str, optional
+        notch_list_path: ``str``, optional
+            Path to the notch list to use in the spectrum. Default is empty string.
+        polarization: ``str``, optional
             Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation.
             Default is tensor.
-        apply_dsc: bool, optional
+        apply_dsc: ``bool``, optional
             Apply delta sigma cut flag; if True, removes the badGPStimes from the spectra calculations.
             Default is True.
-        apply_notches: bool, optional
+        apply_notches: ``bool``, optional
             Apply spectral notches flag; if True, remove the notches specified in the notch_list from the spectra calculations.
             Default is True.
         """
@@ -1090,27 +1185,28 @@ class Baseline(object):
 
         Parameters
         ==========
-        badtimes: np.array, optional
+
+        badtimes: ``array_like``, optional
             Array of times to exclude from point estimate/sigma calculation.
-            Default is None.
-        alpha: float, optional
+            If no times are passed, none will be excluded.
+        alpha: ``float``, optional
             Spectral index to use in the re-weighting. Default is 0.
-        fref: float, optional
+        fref: ``float``, optional
             Reference frequency to use in the re-weighting. Default is 25.
-        flow: float, optional
+        flow: ``float``, optional
             Low frequency. Default is 20 Hz.
-        fhigh: float, optional
+        fhigh: ``float``, optional
             High frequency. Default is 1726 Hz.
-        notch_list_path: str, optional
+        notch_list_path: ``str``, optional
             Path to the notch list to use in the spectrum; if the notch_list isn't set in the baseline,
             user can pass it directly here. If it is not set and if none is passed no notches will be applied.
-        polarization: str, optional
+        polarization: ``str``, optional
             Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation.
             Default is Tensor.
-        apply_dsc: bool, optional
+        apply_dsc: ``bool``, optional
             Apply delta sigma cut flag; if True, removes the badGPStimes from the spectra calculations.
             Default is True.
-        apply_notches: bool, optional
+        apply_notches: ``bool``, optional
             Apply spectral notches flag; if True, remove the notches specified in the notch_list from the spectra calculations.
             Default is True.
         """
@@ -1161,12 +1257,13 @@ class Baseline(object):
     def reweight(self, new_alpha=None, new_fref=None):
         """Reweight all the frequency-weighted attributes of this Baseline, if these are set.
 
-        Parameters:
-        ===========
-        new_alpha: float, optional
-            New alpha to weight the spectra to.
-        new_fref: float, optional
-            New reference frequency to refer the spectra to.
+        Parameters
+        ==========
+
+        new_alpha: ``float``, optional
+            New alpha to weight the spectra to. Default is None.
+        new_fref: ``float``, optional
+            New reference frequency to refer the spectra to. Default is None.
         """
         self.set_point_estimate_sigma(alpha=new_alpha, fref=new_fref)
 
@@ -1186,25 +1283,30 @@ class Baseline(object):
 
         Parameters
         ==========
-        delta_sigma_cut: float
-            the cutoff to implement in the delta sigma cut.
-        alphas: list
-            set of spectral indices to use in the delta sigma cut calculation.
-        flow: float, optional
-            low frequency. Default is 20 Hz.
-        fhigh: float, optional
-            high frequency. Default is 1726 Hz.
-        notch_list_path: str, optional
-            file path of the baseline notch list
+
+        delta_sigma_cut: ``float``
+            The cutoff to implement in the delta sigma cut.
+        alphas: ``list``
+            Set of spectral indices to use in the delta sigma cut calculation.
+        flow: ``float``, optional
+            Low frequency. Default is 20 Hz.
+        fhigh: ``float``, optional
+            High frequency. Default is 1726 Hz.
+        notch_list_path: ``str``, optional
+            File path of the baseline notch list
         fref: int
-            reference frequency (Hz)
-        return_naive_and_averaged_sigmas: bool
-            option to return naive and sliding sigmas
-        polarization: str, optional
+            Reference frequency (Hz)
+        return_naive_and_averaged_sigmas: ``bool``, optional
+            Option to return naive and sliding sigmas. Default is False.
+        polarization: ``str``, optional
             Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation.
-            Default is Tensor.
-        window_fftgram_dict: dictionary, optional
-            Dictionary with window characteristics. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`
+            Default is tensor.
+
+        See also
+        --------
+
+        pygwb.delta_sigma_cut.run_dsc : Function used to run the delta sigma cut.
+
         """
         if not self._orf_polarization_set:
             self.orf_polarization = polarization
@@ -1354,10 +1456,11 @@ class Baseline(object):
 
         Parameters
         ==========
-        save_data_type: str
+        
+        save_data_type: ``str``
             The required type of data file where the information will be stored
-        filename: str
-            the path/name of the file in which you want to save
+        filename: ``str``
+            The path/name of the file in which you want to save
 
         """
 
@@ -1412,10 +1515,11 @@ class Baseline(object):
 
         Parameters
         ==========
-        save_data_type: str
+
+        save_data_type: ``str``
             The required type of data file where the information will be stored
-        filename: str
-            the path/name of the file in which you want to save
+        filename: ``str``
+            The path/name of the file in which you want to save
 
         """
 
@@ -1984,9 +2088,15 @@ class Baseline(object):
 def get_baselines(interferometers, frequencies=None):
     """
     Get set of Baseline objects given a list of interferometers.
+
     Parameters
     ==========
-    interferometers: list of bilby interferometer objects
+
+    interferometers: ``list ``
+        List of bilby.interferometer objects
+    
+    frequencies: ``array_like``, optional
+        Frequencies to construct the baseline with. Defaults to None.
     """
     Nd = len(interferometers)
 
