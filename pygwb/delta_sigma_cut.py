@@ -91,7 +91,7 @@ def run_dsc(
     frequency_mask: np.array = True,
     window_fftgram_dict: dict = {"window_fftgram": "hann"},
     overlap_factor: float=0.5,
-    N_average_segments_welch_psd: int = 2,
+    N_average_segments_psd: int = 2,
     return_naive_and_averaged_sigmas: bool = False,
 ):
 
@@ -139,7 +139,7 @@ def run_dsc(
     overlap_factor: float, optional
         Overlap factor to use when computing the sigmas, given the PSD. Default is 0.5.
         
-    N_average_segments_welch_psd: int, optional
+    N_average_segments_psd: int, optional
         Number of segments to use during Welch averaging. Used in the computation of the bias factors. Default is 2.
 
     return_naive_and_averaged_sigmas: bool
