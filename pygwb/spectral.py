@@ -87,7 +87,6 @@ The spectral module as shows here, has the capacity to compute PSDs of single de
 and CSDs of baselines (or network) of detectors.
 
 """
->>>>>>> a23c1870fedd73983940dcf2d99eb66a432cf735
 
 import numpy as np
 from gwpy.frequencyseries import FrequencySeries
