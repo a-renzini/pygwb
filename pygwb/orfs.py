@@ -260,13 +260,15 @@ def Sminus(alpha, beta):
     Eq. (41) of https://arxiv.org/pdf/0903.0528.pdf
     
     Parameters
-    ==========
+    =======
     
     alpha: ``array_like``
+
         Given below Eq. (32) of https://arxiv.org/pdf/0903.0528.pdf. 
         Has same shape as frequencies used to compute the ORF.
     
     beta: ``float``
+
         Angle between detectors from center of the Earth
     
     Returns
