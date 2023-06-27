@@ -87,7 +87,7 @@ class Network(object):
         name: ``str``
             Name for the network, e.g H1H2.
 
-        interferometers: ``list ``
+        interferometers: ``list``
             List of intereferometer objects.
 
         duration: ``float``, optional
@@ -260,10 +260,10 @@ class Network(object):
             Path to notch list to apply to frequency array.
         
         flow: ``float``, optional
-            Lowest frequency to consider. Defaults to 20.
+            Lowest frequency to consider. Defaults to 20 Hz.
 
         fhigh: ``float``, optional
-            Highest frequency to consider. Defaults to 1726.
+            Highest frequency to consider. Defaults to 1726 Hz.
 
         See also
         --------
@@ -366,16 +366,20 @@ class Network(object):
     def save_interferometer_data_to_file(self, save_dir="./", file_format="hdf5"):
         """
         Save interferometer strain data to a file. This method relies on the gwpy  TimeSeries.write method. Typically used when simulating a signal for a whole network of interferometers.
-        Note: this will save a single frame file with a set of interferometer data; each strain channel is labelled by its interferometer.
 
         Parameters
         =======
         
-        save dir: ``str``, optional
+        save_dir: ``str``, optional
             The path of the output folder. Defaults to the local folder.
 
-        file format: ``str``, optional
+        file_format: ``str``, optional
             The format of the output file. Defaults to hdf5 file. Acceptable formats are standard gwpy TimeSeries.write formats.
+
+        Notes
+        -----
+
+        This will save a single frame file with a set of interferometer data; each strain channel is labelled by its interferometer.
 
         See also
         --------

@@ -83,33 +83,34 @@ class Baseline(object):
 
         name: ``str``
             Name for the baseline, e.g H1H2
-        interferometer_1/2: bilby Interferometer object
-            The two detectors spanning the baseline
+        interferometer_1/2: ``bilby.Interferometer`` object
+            The two detectors spanning the baseline.
         duration: ``float``, optional
             The duration in seconds of each data segment in the interferometers.
             None by default, in which case duration is inherited from the interferometers.
         frequencies: ``array_like``, optional
             The frequency array for the Baseline and
-            interferometers
+            interferometers.
         calibration_epsilon: ``float``, optional
-            Calibration uncertainty for this baseline
+            Calibration uncertainty for this baseline.
         notch_list_path: ``str``, optional
-            File path of the baseline notch list
-        coarse_grain_psd: bool
+            File path of the baseline notch list.
+        coarse_grain_psd: ``bool``, optional
             Whether to apply coarse graining to obtain PSD spectra. Default is False.
-        coarse_grain_csd: bool
+        coarse_grain_csd: ``bool``, optional
             Whether to apply coarse graining to obtain CSD spectra. Default is True.
-        overlap_factor_welch: float, optional
-            Overlap factor to use when if using Welch's method to estimate spectra (NOT coarsegraining). For \"hann\" window use 0.5 overlap_factor and for \"boxcar"\ window use 0 overlap_factor. Default is 0.5 (50% overlap), which is optimal when using Welch's method with a \"hann\" window.
- 
-        overlap_factor: float, optional
+        overlap_factor_welch: ``float``, optional
+            Overlap factor to use when if using Welch's method to estimate spectra (NOT coarsegraining). 
+            For \"hann\" window use 0.5 overlap_factor and for \"boxcar"\ window use 0 overlap_factor. Default is 0.5 (50% overlap), 
+            which is optimal when using Welch's method with a \"hann\" window.
+        overlap_factor: ``float``, optional
             Factor by which to overlap the segments in the psd and csd estimation.
             Default is 1/2, if set to 0 no overlap is performed.
-        window_fftgram_dict: dictionary, optional
+        window_fftgram_dict: ``dict``, optional
             Dictionary containing name and parameters describing which window to use when producing fftgrams for csds (and psds if these are coarse-grained). Default is \"hann\".
-        window_fftgram_dict_welch: dictionary, optional
+        window_fftgram_dict_welch: ``dict``, optional
             Dictionary containing name and parameters describing which window to use when producing fftgrams with Welch's method. Default is \"hann\".
-        N_average_segments_psd: int, optional
+        N_average_segments_psd: ``int``, optional
             Number of segments used for PSD averaging (from both sides of the segment of interest)
             N_avg_segs should be even and >= 2.
         """
@@ -252,6 +253,7 @@ class Baseline(object):
         notch_list_path: ``str``, optional
             Path to notch list to apply to frequency array. If not 
             provided, no notching will be applied at this point.
+
         apply_notches: ``bool``, optional
             If True, apply frequency notches. Default is True.
 
@@ -300,7 +302,15 @@ class Baseline(object):
     @duration.setter
     def duration(self, dur):
         """
-        Sets the duration for the Baseline and interferometers
+        Sets the duration for the Baseline and interferometers.
+
+        Parameters
+        =======
+        dur: ``float``
+            The duration to set for the Baseline and interferometers.
+
+        Notes
+        -----
 
         If `duration` is passed, check that it matches the `duration`
         in the interferometers, if present.
@@ -312,11 +322,6 @@ class Baseline(object):
         interferometer from that.
         Requires that either `duration` is not None or at least one of the
         interferometers has the `duration` set.
-
-        Parameters
-        =======
-        dur: ``float``
-            The duration to set for the Baseline and interferometers
         """
         if dur is not None:
             self._check_durations_match_baseline_ifos(dur)
@@ -345,7 +350,7 @@ class Baseline(object):
 
     @property
     def csd_segment_offset(self):
-        """CSD segment offset to use for this baseline"""
+        """CSD segment offset to use for this baseline."""
         if self._duration_set:
             stride = self.duration * (1 - self.overlap_factor)
             return int(np.ceil(self.duration / stride)) * int(self.N_average_segments_psd/2)
@@ -503,8 +508,8 @@ class Baseline(object):
         Parameters
         =======
 
-        duration: float
-            Duration of the baseline
+        duration: ``float``
+            Duration of the baseline.
         """
         if self.interferometer_1.duration and self.interferometer_2.duration:
             self._check_ifo_durations_match()
@@ -543,6 +548,15 @@ class Baseline(object):
     def sampling_frequency(self, sampling_frequency):
         """Sets the sampling_frequency for the Baseline and interferometers
 
+        Parameters
+        =======
+
+        sampling_frequency: ``float``, optional
+            The sampling frequency to set for the Baseline and interferometers
+
+        Warning
+        -------
+
         If `sampling_frequency` is passed, check that it matches the `sampling_frequency`
         in the interferometers, if present.
         If not passed, check that the sampling_frequencies in the interferometers
@@ -553,12 +567,6 @@ class Baseline(object):
         interferometer from that.
         Requires that either `sampling_frequency` is not None or at least one of the
         interferometers has the `sampling_frequency` set.
-
-        Parameters
-        =======
-
-        sampling_frequency: ``float``, optional
-            The sampling frequency to set for the Baseline and interferometers
         """
         if sampling_frequency is not None:
             self.check_sampling_frequencies_match_baseline_ifos(sampling_frequency)
@@ -631,8 +639,8 @@ class Baseline(object):
         sampling_frequency: ``float``
             The sampling frequency that is being set for the Baseline.
 
-        Warning
-        -------
+        Notes
+        -----
 
         If the sampling frequency passed is `None`, the Baseline sampling frequency will be set to that of the interferometers, if these
         match. If these don't match, an error will be raised. If the sampling frequency of the interferometers is also `None`, then no
@@ -673,17 +681,17 @@ class Baseline(object):
     def calc_baseline_orf(self, polarization="tensor", frequencies=None):
         """
         Calculate the overlap reduction function for this baseline.
-        Wraps the orf module.
+        Wraps the ORF module.
 
         Parameters
         =======
 
         polarization: ``str``, optional
-            Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation.
+            Polarization of the signal to consider (scalar, vector, tensor) for the ORF calculation.
             Default is tensor.
 
         frequencies: ``array_like``, optional
-            Frequency array to use in the calculation of the orf. By default, self.frequencies is used.
+            Frequency array to use in the calculation of the ORF. By default, self.frequencies is used.
 
         Returns
         =======
@@ -775,7 +783,7 @@ class Baseline(object):
         Parameters
         =======
 
-        interferometer_1/2: bilby Interferometer object
+        interferometer_1/2: ``bilby.Interferometer`` object
             The two detectors spanning this baseline.
 
         parameters: ``pygwb.parameters`` object
@@ -827,7 +835,7 @@ class Baseline(object):
         =======
 
         Baseline: ``cls``
-            Baseline class
+            Baseline class.
         """
         with open(filename, "rb") as f:
             return pickle.load(f)
@@ -902,7 +910,7 @@ class Baseline(object):
         self.frequencies = self.csd.frequencies.value
 
     def set_average_power_spectral_densities(self):
-        """If psds have been calculated, sets the average psd in each ifo"""
+        """If psds have been calculated, sets the average psd in each ifo."""
         try:
             self.interferometer_1.set_average_psd(self.N_average_segments_psd)
             self.interferometer_2.set_average_psd(self.N_average_segments_psd)
@@ -917,7 +925,7 @@ class Baseline(object):
         # self.frequencies = self.csd.frequencies.value
 
     def set_average_cross_spectral_density(self):
-        """If csd has been calculated, sets the average csd for the baseline"""
+        """If csd has been calculated, sets the average csd for the baseline."""
         try:
             self.average_csd = self.csd[
                 self.csd_segment_offset : -(self.csd_segment_offset + 1) + 1
@@ -1004,7 +1012,7 @@ class Baseline(object):
             Highest frequency to consider. Default is 1726 Hz.
 
         polarization: ``str``, optional
-            Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation.
+            Polarization of the signal to consider (scalar, vector, tensor) for the ORF calculation.
             Default is tensor.
         """
         # set CSD if not set
@@ -1079,7 +1087,7 @@ class Baseline(object):
             Spectral index to use in the re-weighting. Default is 0.
 
         fref: ``float``, optional
-            Reference frequency to use in the re-weighting. Default is 25.
+            Reference frequency to use in the re-weighting. Default is 25 Hz.
 
         flow: ``float``, optional
             Low frequency. Default is 20 Hz.
@@ -1327,7 +1335,7 @@ class Baseline(object):
         notch_list_path: ``str``, optional
             File path of the baseline notch list.
 
-        fref: int
+        fref: ``int``
             Reference frequency (Hz).
 
         return_naive_and_averaged_sigmas: ``bool``, optional
@@ -1398,17 +1406,17 @@ class Baseline(object):
         Parameters
         =======
 
-        flow: float, optional
+        flow: ``float``, optional
             Low frequency. Default is 20 Hz.
 
-        fhigh: float, optional
+        fhigh: ``float``, optional
             High frequency. Default is 1726 Hz.
 
-        badtimes: np.array, optional
+        badtimes: ``array_like``, optional
             Array of times to exclude from the coherence calculation.
             Default is None.
 
-        apply_dsc: bool, optional
+        apply_dsc: ``bool``, optional
             Apply delta sigma cut flag; if True, removes the badGPStimes from the spectra calculations.
             Default is True.
 
@@ -1455,16 +1463,16 @@ class Baseline(object):
 
     def _get_bad_times_indexes(self, times, badtimes=None, apply_dsc=False):
         """
-        Get indexes for segments with bad GPS times, to be removed from analysis.
+        Get indices for segments with bad GPS times, to be removed from analysis.
 
         Parameters
         =======
 
-        badtimes: np.array, optional
+        badtimes: ``array_like``, optional
             Array of times to exclude from further calculation.
             Default is None.
 
-        apply_dsc: bool
+        apply_dsc: ``bool``
             If True, calculates the indexes of the segments with a bad GPS time, according to the delta sigma cut. If False, returns None.
         """
 
@@ -1556,7 +1564,7 @@ class Baseline(object):
         """
         Save the average and naive psds and csds and the corresponding frequencies
         in the required save_data_type, which can be npz, pickle, json or hdf5.
-        You can call upon this data afterwards when loaoding in using the ['key'] dictionary format.
+        One can call upon the data afterwards when loading in using the ['key'] dictionary format.
 
         Parameters
         =======
@@ -2138,7 +2146,7 @@ def get_baselines(interferometers, frequencies=None):
     Parameters
     =======
 
-    interferometers: ``list ``
+    interferometers: ``list``
         List of bilby.interferometer objects.
     
     frequencies: ``array_like``, optional

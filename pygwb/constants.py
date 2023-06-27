@@ -13,11 +13,7 @@ line:
 
 See also
 --------
-
-astropy.constants : Used to obtain the speed of light.
-
-astropy.cosmology : Used to obtain the cosmology as given by Planck18 results.
-
+astropy : Both ``astropy.constants`` constants and ``astropy.cosmology`` are used to obtain the speed of light, and the cosmology as given by Planck18 results.
 """
 
 from astropy.constants import c

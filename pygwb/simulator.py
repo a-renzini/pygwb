@@ -72,7 +72,7 @@ class Simulator(object):
         interferometers: ``list``
             List of bilby interferometer objects.
 
-        intensity_GW: `gwpy.frequencyseries.FrequencySeries`, optional
+        intensity_GW: ``gwpy.frequencyseries.FrequencySeries``, optional
             A gwpy.frequencyseries.FrequencySeries containing the desired strain power spectrum
             which needs to be simulated. Defaults to None (then ``injection_dict`` should be passed).
         
