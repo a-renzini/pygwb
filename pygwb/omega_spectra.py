@@ -1,3 +1,25 @@
+"""This module contains two self-implemented classes that are responsible for dealing with the spectra and spectrograms in the pygwb analysis. 
+These objects can be reweighted with different h0 and power law indices.
+
+During the creation of the pygwb code, it was decided that the capabilities of the :code: `gwpy.spectrogram.Spectrogram`
+were not sufficient, even though they are already very expanded, and thus we made some subclasses inheriting 
+from the :code:`Spectrogram` class. 
+
+Their main purpose was to expand the functionality of the spectrogram to include the ability 
+to read and save to a pickle, but more crucially to reweight the data inside the spectrogram.
+In analysis, it is often important and useful to reweight quickly the output data to test
+quickly some new code and/or run PE. Therefore, we opted to let the spectrogram
+be reweighted for a certain power law index of the background and also for a certain value
+of h0, the Hubble constant at present time. 
+
+We also introduced a new spectrum class based on the :code:`gwpy.frequencyseries.FrequencySeries` class.
+This new subclass needed the same additions as the spectrograms.
+
+We also coded one function which is actually the function that performs the reweighting 
+both for the :code:`OmegaSpectrum` and :code:`OmegaSpectrogram`. That function is 
+:code:`reweight_spectral_object`.
+"""
+
 import pickle
 import warnings
 
@@ -12,7 +34,13 @@ from pygwb.constants import h0
 
 class OmegaSpectrogram(Spectrogram):
 
-    """Subclass of gwpy's Spectrogram class."""
+    """Subclass of gwpy's Spectrogram class.
+    
+    
+    See also
+    --------
+    gwpy.spectrogram.Spectrogram : the parent class of this implementation.
+    """
 
     _metadata_slots = Spectrogram._metadata_slots + ("alpha", "fref", "h0")
     # _print_slots = FrequencySeries._print_slots + ["alpha", "fref", "h0"]
@@ -65,22 +93,28 @@ class OmegaSpectrogram(Spectrogram):
 
     @classmethod
     def read(cls, source, *args, **kwargs):
-        """Read data into a Spectrogram. Same usage as read method of gwpy.Spectrogram.
+        """Read data into a Spectrogram. Same usage as read method of gwpy.spectrogram.Spectrogram.
 
         Parameters
         ==========
-        source: str
+        source: :code:`str`
             Source file path.
+
+        Returns
+        ======
+        Data: ``gwpy.spectrogram.Spectrogram``
+            The read in spectrogram from the source.
+        
         """
         return io_registry.read(cls, source, *args, **kwargs)
 
     def write(self, target, *args, **kwargs):
-        """Write this Spectrogram to a file. Same usage as write method of gwpy.Spectrogram.
+        """Write this Spectrogram to a file. Same usage as write method of gwpy.spectrogram.Spectrogram.
 
         Parameters
         ==========
         target: str
-            Target file path.
+            Target file path
         """
         return io_registry.write(self, target, *args, **kwargs)
 
@@ -91,8 +125,13 @@ class OmegaSpectrogram(Spectrogram):
 
         Parameters
         ==========
-        filename: str
+        filename: `str`
             Filename (inclusive of path) to load the pickled spectrogram from.
+            
+        Returns
+        ======
+        Spectrogram
+            The spectrogram you wanted to read from ``filename``.
         """
         with open(filename, "rb") as f:
             return pickle.load(f)
@@ -115,10 +154,9 @@ class OmegaSpectrogram(Spectrogram):
 
         Parameters:
         ==========
-
-        new_alpha: float
+        new_alpha: :code:`float`
             New spectral index.
-        new_fref: float
+        new_fref: ``float``
             New reference frequency.
         """
         if new_alpha is None:
@@ -144,7 +182,6 @@ class OmegaSpectrogram(Spectrogram):
 
         Parameters:
         ==========
-
         new_h0: float
             New h0 to set the spectrum at.
         """
@@ -159,7 +196,12 @@ class OmegaSpectrogram(Spectrogram):
 
 class OmegaSpectrum(FrequencySeries):
 
-    """Subclass of gwpy's FrequencySeries class."""
+    """Subclass of gwpy's FrequencySeries class.
+    
+    See also
+    --------
+    gwpy.frequencyseries.FrequencySeries: the parent class of this implementation.
+    """
 
     _metadata_slots = FrequencySeries._metadata_slots + ("alpha", "fref", "h0")
     _print_slots = FrequencySeries._print_slots + ["alpha", "fref", "h0"]
@@ -307,23 +349,23 @@ def reweight_spectral_object(
 ):
     """
     Reweight a spectrum or spectrogram object.
-    Input spectrogram assumes a shape of: N_frequencies x N_times
+    Input spectrogram assumes a shape of: N_frequencies x N_times.
     This is meant to be a helper function used to change the spectral index of the stochastic results.
 
     Parameters
     ----------
         spec: array-like
-            Spectrum or spectrogram (with shape N_frequencies x Ntimes)
+            Spectrum or spectrogram (with shape N_frequencies x Ntimes).
         freqs: array-like
             Frequencies associated with `spec`.
         new_alpha: float
-            New spectral index
+            New spectral index.
         new_fref: float
-            New reference frequency
+            New reference frequency.
         old_alpha: float, optional
-            Spectral index of input `spec` array (i.e. weighting of `spec`). Defaults to zero (assumes unweighted)
-        old_fref:
-            Reference frequency of current `spec` weighting (assumes 1 Hz)
+            Spectral index of input `spec` array (i.e. weighting of `spec`). Defaults to zero (assumes unweighted).
+        old_fref: float, optional
+            Reference frequency of current `spec` weighting (assumes 1 Hz). Defaults to 25 Hz.
 
     Returns
     -------

@@ -15,95 +15,89 @@ class Parameters:
     Parameters class: a dataclass which contains all parameters required for initialising a pygwb Interferometer, a pygwb Baseline, and run pygwb_pipe.
 
     Attributes
-    ----------
-    t0 : float
+    --------
+    t0 : `float`
         Initial time.
-    tf: float
+    tf: `float`
         Final time.
-    interferometer_list: list
-        List of interferometers to run the analysis with. Default is [\"H1\", \"L1\"]
-    data_type: str
+    data_type: `str`
         Type of data to access/download; options are private, public, local. Default is public.
-    channel: str
-        Channel name; needs to match an existing channel. Default is \"GWOSC-16KHZ_R1_STRAIN\"
-    frametype: str
+    channel: `str`
+        Channel name; needs to match an existing channel. Default is \"GWOSC-16KHZ_R1_STRAIN\".
+    frametype: `str`
         Frame type; Optional, desired channel needs to be found in listed frametype. Only used when data_type=private. Default is empty.
-    new_sample_rate: int
+    new_sample_rate: `int`
         Sample rate to use when downsampling the data (Hz). Default is 4096 Hz.
-    input_sample_rate: int
+    input_sample_rate: `int`
         Sample rate of the read data (Hz). Default is 16384 Hz.
-    cutoff_frequency: int
+    cutoff_frequency: `int`
         Lower frequency cutoff; applied in filtering in preprocessing (Hz). Default is 11 Hz.
-    segment_duration: int
+    segment_duration: `int`
         Duration of the individual segments to analyse (seconds). Default is 192 seconds.
-    number_cropped_seconds: int
+    number_cropped_seconds: `int`
         Number of seconds to crop at the start and end of the analysed data (seconds). Default is 2 seconds.
-    window_downsampling: str
-        Type of window to use in preprocessing. Default is \"hamming\"
-    ftype: str
-        Type of filter to use in downsampling. Default is \"fir\"
-    frequency_resolution: float
+    window_downsampling: `str`
+        Type of window to use in preprocessing. Default is \"hamming\".
+    ftype: `str`
+        Type of filter to use in downsampling. Default is \"fir\".
+    frequency_resolution: `float`
         Frequency resolution of the final output spectrum (Hz). Default is 1\/32 Hz.
-    polarization: str
+    polarization: `str`
         Polarisation type for the overlap reduction function calculation; options are scalar, vector, tensor. Default is tensor.
-    alpha: float
+    alpha: `float`
         Spectral index to filter the data for. Default is 0.
-    fref: int
+    fref: `int`
         Reference frequency to filter the data at (Hz). Default is 25 Hz.
-    flow: int
+    flow: `int`
         Lower frequency to include in the analysis (Hz). Default is 20 Hz.
-    fhigh: int
+    fhigh: `int`
         Higher frequency to include in the analysis (Hz). Default is 1726 Hz.
-    local_data_path: str
+    interferometer_list: `list`
+        List of interferometers to run the analysis with. Default is [\"H1\", \"L1\"].
+    local_data_path: `str`
         Path(s) to local data, if the local data option is chosen. Default is empty.
-    notch_list_path: str
+    notch_list_path: `str`
         Path to the notch list file. Default is empty.
-    coarse_grain_psd: bool
+    coarse_grain_psd: `bool`
         Whether to apply coarse graining to obtain PSD spectra. Default is False.
-    coarse_grain_csd: bool
+    coarse_grain_csd: `bool`
         Whether to apply coarse graining to obtain CSD spectra. Default is True.
-    overlap_factor_welch: float
+    overlap_factor_welch: `float`
         Overlap factor to use when if using Welch's method to estimate spectra (NOT coarsegraining). For \"hann\" window use 0.5 overlap_factor and for \"boxcar\" window use 0 overlap_factor. Default is 0.5 (50% overlap), which is optimal when using Welch's method with a \"hann\" window.
-        Whether to apply coarse graining to obtain CSD spectra. Default is True.
-    N_average_segments_psd: int
+    N_average_segments_psd: `int`
         Number of segments to average over when calculating the psd with Welch method. Default is 2.
-    window_fft_dict: dict
+    window_fft_dict: `dict`
         Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds. Default is \"hann\".
-    window_fft_dict_welch: dict 
-        Dictionary containing name and parameters relative to which window to use when producing fftgrams for pwelch calculation. Default is "hann".
-    calibration_epsilon: float
+    window_fft_dict_welch: `dict`
+        Dictionary containing name and parameters relative to which window to use when producing fftgrams for pwelch calculation. Default is \"hann\".
+    calibration_epsilon: `float`
         Calibation coefficient. Default is 0.
-    overlap_factor: float
-        Factor by which to overlap consecutive segments for analysis. Default is 0.5 (50%% overlap)
-    delta_sigma_cut: float
+    overlap_factor: `float`
+        Factor by which to overlap consecutive segments for analysis. Default is 0.5 (50%% overlap).
+    delta_sigma_cut: `float`
         Cutoff value for the delta sigma cut. Default is 0.2.
-    alphas_delta_sigma_cut: list
+    alphas_delta_sigma_cut: `list`
         List of spectral indexes to use in delta sigma cut calculation. Default is [-5, 0, 3].
-    save_data_type: str
+    save_data_type: `str`
         Suffix for the output data file. Options are hdf5, npz, json, pickle. Default is json.
-    time_shift: int
+    time_shift: `int`
         Seconds to timeshift the data by in preprocessing. Default is 0.
-    path_gate_data: str
-        Path to the map with pygwb output containing information about gates. If loading a single file, it has to be an .npzfile 
-        with the same structure as a pygwb output file. Default is an empty string.
-    gate_data: bool
+    gate_data: `bool`
         Whether to apply self-gating to the data in preprocessing. Default is False.
-    gate_tzero: float
+    gate_tzero: `float`
         Gate tzero. Default is 1.0.
-    gate_tpad: float
+    gate_tpad: `float`
         Gate tpad. Default is 0.5.
-    gate_threshold: float
+    gate_threshold: `float`
         Gate threshold. Default is 50.
-    cluster_window: float
+    cluster_window: `float`
         Cluster window. Default is 0.5.
-    gate_whiten: bool
+    gate_whiten: `bool`
         Whether to whiten when gating. Default is True.
     tag: str
         Hint for the read_data function to retrieve one specific type of data, e.g.: C00, C01
-    return_naive_and_averaged_sigmas: bool
-        option to return naive and sliding sigmas from delta sigma cut
-    window_fftgram_dict: dictionary, optional
-        Dictionary with window characteristics. Default is `(window_fftgram_dict={"window_fftgram": "hann"}`
+    return_naive_and_averaged_sigmas: `bool`
+        Option to return naive and sliding sigmas from delta sigma cut.
     """
 
     t0: float = 0
@@ -151,11 +145,11 @@ class Parameters:
 
 
     def update_from_dictionary(self, kwargs):
-        """Update parameters from a dictionary
+        """Update parameters from a dictionary.
 
         Parameters
-        ----------
-        kwargs: dictionary
+        --------
+        kwargs: `dict`
             Dictionary of parameters to update.
         """
         ann = getattr(self, "__annotations__", {})
@@ -174,11 +168,11 @@ class Parameters:
                 )
 
     def update_from_file(self, path: str) -> None:
-        """Update parameters from an ini file
+        """Update parameters from an ini file.
 
         Parameters
-        ----------
-        path: str
+        --------
+        path: `str`
             Path to parameters ini file to use to update class.
         """
         config = configparser.ConfigParser()
@@ -209,13 +203,13 @@ class Parameters:
         self.update_from_dictionary(dictionary)
 
     def update_from_arguments(self, args: List[str]) -> None:
-        """Update parameters from a set of arguments
+        """Update parameters from a set of arguments.
 
         Parameters
-        ----------
-        args: list
+        --------
+        args: `list`
             List of arguments to update in the Class. Format must coincide to argparse formatting, e.g.,
-            ['--t0', '0', '--tf', '100']
+            ['--t0', '0', '--tf', '100'].
 
         Notes
         -----
@@ -273,8 +267,8 @@ class Parameters:
         """Save parameters to a parameters ini file.
 
         Parameters
-        ----------
-        output_path: str
+        --------
+        output_path: `str`
             Full path for output parameters ini file.
         """
         param = configparser.ConfigParser()
@@ -361,6 +355,14 @@ class Parameters:
             param.write(configfile)
 
     def parse_ifo_parameters(self):
+        """Parse the parameters of the analysis pipeline into a dictionary 
+        with arguments per interferometer of the pipeline.
+        
+        Returns
+        ======
+        param-dict: `dict`
+            A dictionary containing the parameters of the analysis per interferometer used in the analysis.
+        """
         ifo_parameters = ['channel', 'frametype', 'input_sample_rate', 'local_data_path', 'time_shift']
         ifo_list = self.interferometer_list
         param_dict = {}
@@ -419,8 +421,8 @@ class ParametersHelp(enum.Enum):
     coarse_grain_csd = "Whether to apply coarse graining to obtain CSD spectra. Default is True."
     overlap_factor_welch = "Overlap factor to use when if using Welch's method to estimate spectra (NOT coarsegraining). For \"hann\" window use 0.5 overlap_factor and for \"boxcar\" window use 0 overlap_factor. Default is 0.5 (50%% overlap), which is optimal when using Welch's method with a \"hann\" window."
     N_average_segments_psd = "Number of segments to average over when calculating the psd with Welch's method. Default is 2."
-    window_fft_dict = 'Dictionary containing name and parameters relative to which window to use when producing fftgrams for psds and csds. Default is "hann".'
-    window_fft_dict_welch = 'Dictionary containing name and parameters relative to which window to use when producing fftgrams for pwelch calculation. Default is "hann".'
+    window_fft_dict = "Dictionary containing name and parameters relative to which window to use when producing fftgrams for psds and csds. Default is \"hann\"."
+    window_fft_dict_welch = "Dictionary containing name and parameters relative to which window to use when producing fftgrams for pwelch calculation. Default is \"hann\"."
     calibration_epsilon = "Calibation coefficient. Default is 0."
     overlap_factor = "Factor by which to overlap consecutive segments for analysis. Default is 0.5 (50%% overlap)"
     delta_sigma_cut = "Cutoff value for the delta sigma cut. Default is 0.2."
