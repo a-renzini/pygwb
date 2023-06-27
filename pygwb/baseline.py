@@ -79,7 +79,7 @@ class Baseline(object):
         Instantiate a Baseline.
 
         Parameters
-        ==========
+        =======
 
         name: ``str``
             Name for the baseline, e.g H1H2
@@ -247,7 +247,7 @@ class Baseline(object):
         Set frequency mask to frequencies attribute.
 
         Parameters
-        ==========
+        =======
 
         notch_list_path: ``str``, optional
             Path to notch list to apply to frequency array. If not 
@@ -314,7 +314,7 @@ class Baseline(object):
         interferometers has the `duration` set.
 
         Parameters
-        ==========
+        =======
         dur: ``float``
             The duration to set for the Baseline and interferometers
         """
@@ -501,7 +501,7 @@ class Baseline(object):
         the interferometers of the baseline.
 
         Parameters
-        ==========
+        =======
 
         duration: float
             Duration of the baseline
@@ -555,7 +555,7 @@ class Baseline(object):
         interferometers has the `sampling_frequency` set.
 
         Parameters
-        ==========
+        =======
 
         sampling_frequency: ``float``, optional
             The sampling frequency to set for the Baseline and interferometers
@@ -626,7 +626,7 @@ class Baseline(object):
         """Check that the sampling frequency of the two interferometers in this Baseline match the Baseline sampling frequency.
 
         Parameters
-        ==========
+        =======
 
         sampling_frequency: ``float``
             The sampling frequency that is being set for the Baseline.
@@ -676,11 +676,12 @@ class Baseline(object):
         Wraps the orf module.
 
         Parameters
-        ==========
+        =======
 
         polarization: ``str``, optional
             Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation.
             Default is tensor.
+
         frequencies: ``array_like``, optional
             Frequency array to use in the calculation of the orf. By default, self.frequencies is used.
 
@@ -734,12 +735,14 @@ class Baseline(object):
         Load a Baseline from a list of interferometers.
 
         Parameters
-        ==========
+        =======
 
         interferometers: ``list``
             List of two bilby Interferometer objects.
+
         duration: ``float``, optional
             Segment duration in seconds. Default is None.
+
         calibration_epsilon: ``float``, optional
             Calibration uncertainty for this baseline. Default is 0.
 
@@ -770,14 +773,16 @@ class Baseline(object):
         Load a Baseline from a Parameters object.
 
         Parameters
-        ==========
+        =======
 
         interferometer_1/2: bilby Interferometer object
             The two detectors spanning this baseline.
+
         parameters: ``pygwb.parameters`` object
             Parameters object containing necessary parameters for
             the instantiation of the baseline, and subsequent
             analyses.
+
         frequencies: ``array_like``, optional
             Frequency array to use in the instantiation of this baseline.
             Default is None.
@@ -813,7 +818,7 @@ class Baseline(object):
         Load baseline object from pickle file.
 
         Parameters
-        ==========
+        =======
 
         filename: ``str``
             Filename (inclusive of path) to load the pickled baseline from.
@@ -832,7 +837,8 @@ class Baseline(object):
         Save baseline object to pickle file.
 
         Parameters
-        ==========
+        =======
+
         filename: ``str``
             Filename (inclusive of path) to save the pickled baseline to.
         """
@@ -848,7 +854,7 @@ class Baseline(object):
         and the cross spectral density for the baseline object when data are available.
 
         Parameters
-        ==========
+        =======
 
         frequency_resolution: ``float``
             The frequency resolution at which the cross and power spectral densities are calculated.
@@ -930,10 +936,11 @@ class Baseline(object):
         Crop frequencies of average PSDs and CSDS. Done in place. This is not completely implemented yet.
 
         Parameters
-        ==========
+        =======
 
         flow: ``float``
             Low frequency to crop.
+
         fhigh: ``float``
             High frequency to crop.
         """
@@ -981,17 +988,21 @@ class Baseline(object):
         *does not include frequency weighting for alpha*.
 
         Parameters
-        ==========
+        =======
 
         alpha: ``float``, optional
             Spectral index to use in the weighting. Default is 0.
+
         fref: ``float``, optional
             Reference frequency to use in the weighting calculation.
             Final result refers to this frequency. Default is 25 Hz.
+
         flow: ``float``, optional
             Lowest frequency to consider. Default is 20 Hz.
+
         fhigh: ``float``, optional
             Highest frequency to consider. Default is 1726 Hz.
+
         polarization: ``str``, optional
             Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation.
             Default is tensor.
@@ -1058,27 +1069,35 @@ class Baseline(object):
         Set time-integrated point estimate spectrum and variance in each frequency bin.
 
         Parameters
-        ==========
+        =======
 
         badtimes: ``array_like``, optional
             Array of times to exclude from point estimate/sigma calculation.
             If no times are passed, none will be excluded.
+
         alpha: ``float``, optional
             Spectral index to use in the re-weighting. Default is 0.
+
         fref: ``float``, optional
             Reference frequency to use in the re-weighting. Default is 25.
+
         flow: ``float``, optional
             Low frequency. Default is 20 Hz.
+
         fhigh: ``float``, optional
             High frequency. Default is 1726 Hz.
+
         notch_list_path: ``str``, optional
             Path to the notch list to use in the spectrum. Default is empty string.
+
         polarization: ``str``, optional
             Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation.
             Default is tensor.
+
         apply_dsc: ``bool``, optional
             Apply delta sigma cut flag; if True, removes the badGPStimes from the spectra calculations.
             Default is True.
+
         apply_notches: ``bool``, optional
             Apply spectral notches flag; if True, remove the notches specified in the notch_list from the spectra calculations.
             Default is True.
@@ -1184,28 +1203,36 @@ class Baseline(object):
         Set point estimate sigma based on a set of parameters. This is estimate of omega_gw in each frequency bin.
 
         Parameters
-        ==========
+        =======
 
         badtimes: ``array_like``, optional
             Array of times to exclude from point estimate/sigma calculation.
             If no times are passed, none will be excluded.
+
         alpha: ``float``, optional
             Spectral index to use in the re-weighting. Default is 0.
+
         fref: ``float``, optional
             Reference frequency to use in the re-weighting. Default is 25.
+
         flow: ``float``, optional
             Low frequency. Default is 20 Hz.
+
         fhigh: ``float``, optional
             High frequency. Default is 1726 Hz.
+
         notch_list_path: ``str``, optional
             Path to the notch list to use in the spectrum; if the notch_list isn't set in the baseline,
             user can pass it directly here. If it is not set and if none is passed no notches will be applied.
+
         polarization: ``str``, optional
             Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation.
             Default is Tensor.
+
         apply_dsc: ``bool``, optional
             Apply delta sigma cut flag; if True, removes the badGPStimes from the spectra calculations.
             Default is True.
+
         apply_notches: ``bool``, optional
             Apply spectral notches flag; if True, remove the notches specified in the notch_list from the spectra calculations.
             Default is True.
@@ -1258,10 +1285,11 @@ class Baseline(object):
         """Reweight all the frequency-weighted attributes of this Baseline, if these are set.
 
         Parameters
-        ==========
+        =======
 
         new_alpha: ``float``, optional
             New alpha to weight the spectra to. Default is None.
+
         new_fref: ``float``, optional
             New reference frequency to refer the spectra to. Default is None.
         """
@@ -1282,22 +1310,29 @@ class Baseline(object):
         Calculate the delta sigma cut using the naive and average psds, if set in the baseline.
 
         Parameters
-        ==========
+        =======
 
         delta_sigma_cut: ``float``
             The cutoff to implement in the delta sigma cut.
+
         alphas: ``list``
             Set of spectral indices to use in the delta sigma cut calculation.
+
         flow: ``float``, optional
             Low frequency. Default is 20 Hz.
+
         fhigh: ``float``, optional
             High frequency. Default is 1726 Hz.
+
         notch_list_path: ``str``, optional
-            File path of the baseline notch list
+            File path of the baseline notch list.
+
         fref: int
-            Reference frequency (Hz)
+            Reference frequency (Hz).
+
         return_naive_and_averaged_sigmas: ``bool``, optional
             Option to return naive and sliding sigmas. Default is False.
+
         polarization: ``str``, optional
             Polarization of the signal to consider (scalar, vector, tensor) for the orf calculation.
             Default is tensor.
@@ -1361,19 +1396,26 @@ class Baseline(object):
         Set the coherence spectrum between detectors, averaged over all data in the baseline.
 
         Parameters
-        ==========
+        =======
+
         flow: float, optional
             Low frequency. Default is 20 Hz.
+
         fhigh: float, optional
             High frequency. Default is 1726 Hz.
+
         badtimes: np.array, optional
             Array of times to exclude from the coherence calculation.
             Default is None.
+
         apply_dsc: bool, optional
             Apply delta sigma cut flag; if True, removes the badGPStimes from the spectra calculations.
             Default is True.
 
-        Note: The coherence calculation uses averaged naive PSD estimates as the coherence is calculated using CSD and PSD estimates of each individual segment, calculated \"on shell\".
+        Notes
+        -----
+
+        The coherence calculation uses averaged naive PSD estimates as the coherence is calculated using CSD and PSD estimates of each individual segment, calculated \"on shell\".
         """
 
         bad_times_indexes = self._get_bad_times_indexes(times=self.interferometer_1.psd_spectrogram.times.value, apply_dsc=apply_dsc)
@@ -1416,10 +1458,12 @@ class Baseline(object):
         Get indexes for segments with bad GPS times, to be removed from analysis.
 
         Parameters
-        ==========
+        =======
+
         badtimes: np.array, optional
             Array of times to exclude from further calculation.
             Default is None.
+
         apply_dsc: bool
             If True, calculates the indexes of the segments with a bad GPS time, according to the delta sigma cut. If False, returns None.
         """
@@ -1455,12 +1499,13 @@ class Baseline(object):
         You can call upon this data afterwards when loaoding in using the ['key'] dictionary format.
 
         Parameters
-        ==========
+        =======
         
         save_data_type: ``str``
-            The required type of data file where the information will be stored
+            The required type of data file where the information will be stored.
+
         filename: ``str``
-            The path/name of the file in which you want to save
+            The path/name of the file in which you want to save.
 
         """
 
@@ -1514,12 +1559,13 @@ class Baseline(object):
         You can call upon this data afterwards when loaoding in using the ['key'] dictionary format.
 
         Parameters
-        ==========
+        =======
 
         save_data_type: ``str``
-            The required type of data file where the information will be stored
+            The required type of data file where the information will be stored.
+
         filename: ``str``
-            The path/name of the file in which you want to save
+            The path/name of the file in which you want to save.
 
         """
 
@@ -2090,10 +2136,10 @@ def get_baselines(interferometers, frequencies=None):
     Get set of Baseline objects given a list of interferometers.
 
     Parameters
-    ==========
+    =======
 
     interferometers: ``list ``
-        List of bilby.interferometer objects
+        List of bilby.interferometer objects.
     
     frequencies: ``array_like``, optional
         Frequencies to construct the baseline with. Defaults to None.
