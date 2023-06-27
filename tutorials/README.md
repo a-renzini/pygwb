@@ -1,12 +1,23 @@
 **PLEASE CLEAR ALL OUTPUTS BEFORE COMMITTING CHANGES TO NOTEBOOKS**
 
-There are four tutorial notebooks here.
+There are a set of tutorial notebooks here. These are compiled in the [documentation ](https://pygwb.docs.ligo.org/pygwb/)
 
-* `analyze_O2_open_data.ipynb` will download a short stretch of O2 data from GWOSC and run stochastic_lite, and produce data products that can be compared with stochastic.m run on the same data.
+A set of tutorials are dedicated to simulating data:
 
-* `run_PE_on_O1_O2.ipynb` will download the O1 and O2 cross-correlation spectra from the data releases, run PE, and reproduce the corner plot and upper limits from the O2 paper (for tensor modes, with a log-uniform prior).
+* `inject_simulated_data_in_network.ipynb` illustrates how to inject a stochastic background coherently across a network of interferometers.
 
-* `simulate_and_analyze_white_noise_and_signal.ipynb` will simulate a stretch of white noise and a signal, run the cross correlation analysis to produce cross-correlation spectra, and finally run PE to recover the injection.
+* `simulator_tutorial.ipynb` shows the inner workings of the simulator object, without the need of a detector/network object.
 
-* `analyze_colored_noise_and_signal.ipynb` will analyze a stretch of simulated data with a colored noise spectrum and an alpha=2/3 background, produced in advance by Sylvia Biscoveanu. 
-  * **NOTE** To run this notebook requires several large data files which have not been added to the repo. Please contact Andrew if you want to run this notebook.
+* `simulate_CBC_GWB.ipynb` shows how to inject a CBC population of signals into a pygwb object using bilby.
+
+A set are dedicated to understanding specific modules better:
+
+* `test_orfs.ipynb` illustrates the overlap reduction function calculation.
+
+* `Understand_dsc.ipynb` illustrates the delta sigma cut module.
+
+* `make_notchlist.ipynb` describes the creation of a notch list for removing loud frequency lines.
+
+A set of tutorials help bridge the gap between pygwb and other GW software:
+
+*  `write_priors_for_pe.ipynb` shows how to create a prior file to use for CBC injections. 
