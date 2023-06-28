@@ -46,21 +46,14 @@ def apply_freq_mask_to_baseline(baseline):
         pass
     elif baseline.frequency_mask == True:
         if len(baseline.point_estimate_spectrum.shape) == 1:
-            frequency_mask = np.ones(baseline.point_estimate_spectrum.shape[0], dtype=bool)
+            baseline.frequency_mask = np.ones(baseline.point_estimate_spectrum.shape[0], dtype=bool)
         elif len(baseline.point_estimate_spectrum.shape) == 2:
-            frequency_mask = np.ones(baseline.point_estimate_spectrum.shape[1], dtype=bool)
+            baseline.frequency_mask = np.ones(baseline.point_estimate_spectrum.shape[1], dtype=bool)
+        else:
+            raise TypeError(f"Point_estimate_spectrum is not a spectrum.")
 
-    if len(baseline.point_estimate_spectrum.shape) == 1 or baseline.point_estimate_spectrum.shape[0] == 1:
-        if baseline.point_estimate_spectrum.shape[0] == 1:
-            baseline.point_estimate_spectrum = baseline.point_estimate_spectrum[0]
-            baseline.sigma_spectrum = baseline.sigma_spectrum[0]
-        var = 1 / np.sum(baseline.sigma_spectrum[frequency_mask] ** (-2), axis=-1).squeeze()
-        Y = np.nansum(baseline.point_estimate_spectrum[frequency_mask] * (var / baseline.sigma_spectrum[frequency_mask]**2), axis=-1)
-    else:
-        raise ValueError("The input is not a spectrum.")
-
-    baseline.point_estimate_spectrum = Y
-    baseline.sigma_spectrum = np.sqrt(var)
+    baseline.point_estimate_spectrum = baseline.point_estimate_spectrum[baseline.frequency_mask]
+    baseline.sigma_spectrum = baseline.sigma_spectrum[baseline.frequency_mask]
 
 def main():
     pe_parser = argparse.ArgumentParser(add_help=True)
@@ -188,7 +181,7 @@ def main():
             base_12.calibration_epsilon = script_args.calibration_epsilon
 
         if not base_12._orf_polarization_set:
-            base_12.orf_polarization = "tensor" # script._args.polarization
+            base_12.orf_polarization = "tensor"
 
         base_12.frequencies = frequencies
 
