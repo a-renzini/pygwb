@@ -3,6 +3,7 @@
 import argparse
 import distutils
 import json
+import os
 from fractions import Fraction
 from pathlib import Path
 
@@ -41,24 +42,11 @@ def load_hdf5(fname_path):
 
     return (freqs, point_estimate_spectrum, sigma_spectrum, freq_mask)
     
-def apply_freq_mask_to_baseline(baseline):
-    if isinstance(baseline.frequency_mask, np.ndarray):
-        pass
-    elif baseline.frequency_mask == True:
-        if len(baseline.point_estimate_spectrum.shape) == 1:
-            baseline.frequency_mask = np.ones(baseline.point_estimate_spectrum.shape[0], dtype=bool)
-        elif len(baseline.point_estimate_spectrum.shape) == 2:
-            baseline.frequency_mask = np.ones(baseline.point_estimate_spectrum.shape[1], dtype=bool)
-        else:
-            raise TypeError(f"Point_estimate_spectrum is not a spectrum.")
-
-    baseline.point_estimate_spectrum = baseline.point_estimate_spectrum[baseline.frequency_mask]
-    baseline.sigma_spectrum = baseline.sigma_spectrum[baseline.frequency_mask]
 
 def main():
     pe_parser = argparse.ArgumentParser(add_help=True)
     pe_parser.add_argument(
-        "--path_to_file", help="Path to data file (or pickled baseline) to use for analysis.", action="store", type=str, required=True
+        "--input_file_path", help="Path to data file (or pickled baseline) to use for analysis.", action="store", type=str, required=True
     )
     pe_parser.add_argument(
         "--ifos", help="List of names of two interferometers for which you want to run PE, default is H1 and L1. Not needed when running from a pickled baseline.", action="store", type=str, required=False, default = "None"
@@ -73,10 +61,10 @@ def main():
         "--non_prior_args", help="A dictionary with the parameters of the model that are not associated with a prior, such as the reference frequency for Power-Law. Default value is reference frequency at 25 Hz for the power-law model.", type=str, action="store", required=False, default="None"
     )
     pe_parser.add_argument(
-        "--output_dir", help="Output directory of the PE (sampler). Default: ./PE_Output.", type=str, action="store", required=False, default='./PE_Output'
+        "--output_dir", help="Output directory of the PE (sampler). Default is \"./pe_output\".", type=str, action="store", required=False, default='./pe_output'
     )
     pe_parser.add_argument(
-        "--apply_notching", help="Apply notching to the data. Default set on.", action="store", type=str, required=False
+        "--apply_notching", help="Apply notching to the data. Default is True.", action="store", type=str, required=False
     )
     pe_parser.add_argument(
         "--notch_list_path", help="Absolute path from where you can load in notch list file.", action="store", type=str, required=False
@@ -85,19 +73,10 @@ def main():
         "--injection_parameters", help="The injected parameters.", required= False, default="None", type=str, action="store"
     )
     pe_parser.add_argument(
-        "--quantiles", help="The quantiles used for plotting in plot corner, default is [0.05, 0.95].", type=str, action="store", required=False, default="None"
+        "--quantiles", help="The quantiles used for plotting in plot corner. Default is [0.05, 0.95].", type=str, action="store", required=False, default="None"
     )
     pe_parser.add_argument(
-        "--f0", help="If no frequencies are saved in the loaded npz file, you can give f0, fhigh and df to the script. This is f0, the begin frequency.", type=float, action="store", default=None
-    )
-    pe_parser.add_argument(
-        "--fhigh", help="If no frequencies are saved in the loaded npz file, you can give f0, fhigh and df to the script. This is fhigh, the end frequency.", type=float, action="store", default=None
-    )
-    pe_parser.add_argument(
-        "--df", help="If no frequencies are saved in the loaded npz file, you can give f0, fhigh and df to the script. This is df, the frequency spacing.", type=float, action="store", default=None
-    )
-    pe_parser.add_argument(
-        "--calibration_epsilon", help="Calibration uncertainty. 0 by default.", type=float, action="store", default=None, required=False,
+        "--calibration_epsilon", help="Calibration uncertainty. Default is 0.", type=float, action="store", default=None, required=False,
     )
 
     script_args = pe_parser.parse_known_args()[0]
@@ -140,6 +119,10 @@ def main():
     else:
         extra_kwargs = json.loads(script_args.non_prior_args)
 
+    if script_args.output_dir == 'pe_output':
+        if not os.path.isdir('pe_output'):
+            os.mkdir('./pe_output')
+
     all_parameters_dict = dict_loaded.copy()
     all_parameters_dict.update(extra_kwargs)
 
@@ -154,15 +137,12 @@ def main():
             f"Not all required parameters of the model are present in one of the parameters dictionaries. \n These are the required parameters: {dictionary_parameters[script_args.model]}."
         )
 
-    if script_args.path_to_file.endswith(("npz")) or script_args.path_to_file.endswith((".h5")):
+    if script_args.input_file_path.endswith(("npz")) or script_args.input_file_path.endswith((".h5")):
 
-        if script_args.path_to_file.endswith(("npz")):
-            frequencies, point_estimate_spectrum, sigma_spectrum, freq_mask = load_npz(script_args.path_to_file)
+        if script_args.input_file_path.endswith(("npz")):
+            frequencies, point_estimate_spectrum, sigma_spectrum, freq_mask = load_npz(script_args.input_file_path)
         else:
-            frequencies, point_estimate_spectrum, sigma_spectrum, freq_mask = load_hdf5(script_args.path_to_file)
-
-        if frequencies is None:
-            frequencies = np.arange(script_args.f0, script_args.fhigh + script_args.df, script_args.df)
+            frequencies, point_estimate_spectrum, sigma_spectrum, freq_mask = load_hdf5(script_args.input_file_path)
 
         point_estimates = [point_estimate_spectrum]
         sigmas = [sigma_spectrum]
@@ -188,9 +168,9 @@ def main():
         base_12.point_estimate_spectrum = point_estimate_spectrum
         base_12.sigma_spectrum = sigma_spectrum
 
-    elif script_args.path_to_file.endswith((".p", ".pickle")):
+    elif script_args.input_file_path.endswith((".p", ".pickle")):
 
-        base_12 = Baseline.load_from_pickle(script_args.path_to_file)
+        base_12 = Baseline.load_from_pickle(script_args.input_file_path)
 
     else:
         raise TypeError(
@@ -203,7 +183,8 @@ def main():
         else:
             base_12.frequency_mask = freq_mask
 
-        apply_freq_mask_to_baseline(base_12)
+        base_12.point_estimate_spectrum[base_12.frequency_mask]= 0.
+        base_12.sigma_spectrum[base_12.frequency_mask] = 1.
 
     kwargs = {"baselines":[base_12], "model_name":script_args.model}
     kwargs.update(extra_kwargs)
