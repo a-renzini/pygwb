@@ -55,7 +55,7 @@ def main():
         "--model", help="Model for which to run the PE. \n Default is \"Power-law\". ", action="store", type=str, required=False, default = "Power-Law"
     )
     pe_parser.add_argument(
-        "--model_prior_file", help="The required parameters for the model and their priors. \n Default value is power-law parameters omega_ref with LogUniform bilby prior from 1e-11 to 1e-8 and alpha with Uniform bilby prior from -4 to 4.", type=str, action="store", required=False, default = "None"
+        "--model_prior_file", help="Points to a file with the required parameters for the model and their priors. \n Default value is power-law parameters omega_ref with LogUniform bilby prior from 1e-11 to 1e-8 and alpha with Uniform bilby prior from -4 to 4.", type=str, action="store", required=False, default = "None"
     )
     pe_parser.add_argument(
         "--non_prior_args", help="A dictionary with the parameters of the model that are not associated with a prior, such as the reference frequency for Power-Law. Default value is reference frequency at 25 Hz for the power-law model.", type=str, action="store", required=False, default="None"
@@ -182,9 +182,6 @@ def main():
             base_12.set_frequency_mask(notch_list_path = Path(script_args.notch_list_path))
         else:
             base_12.frequency_mask = freq_mask
-
-        base_12.point_estimate_spectrum[base_12.frequency_mask]= 0.
-        base_12.sigma_spectrum[base_12.frequency_mask] = 1.
 
     kwargs = {"baselines":[base_12], "model_name":script_args.model}
     kwargs.update(extra_kwargs)
