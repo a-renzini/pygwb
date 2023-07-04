@@ -14,7 +14,9 @@ from collections.abc import Iterable
 from getpass import getuser
 
 import numpy as np
-from gwpy.segments import DataQualityDict, DataQualityFlag
+from gwpy.io.cache import cache_segments
+from gwpy.segments import DataQualityDict, DataQualityFlag, Segment, SegmentList
+from gwsumm.data.timeseries import find_best_frames
 from pycondor import Dagman as pyDagman
 from pycondor import Job as pyJob
 from pycondor.job import JobArg
@@ -95,7 +97,8 @@ class Job(pyJob):
         arguments = ' '.join(list([arguments])+list(output_args))
 
         # surround dicts with ""
-        arguments = arguments.replace("{", "'{").replace("}", "}'")
+        # THIS HAS BEEN SOMEHOW DEPRECATED: CONDOR ADDS THEM AUTOMATICALLY
+        #arguments = arguments.replace("{", "'{").replace("}", "}'")
 
         # convert memory into integer
         try:
@@ -345,7 +348,7 @@ class Workflow():
         if self.config.has_option('data_quality', 'veto_definer'):
             logging.info('Downloading vetoes...')
             vetoes = DataQualityDict.from_veto_definer_file(
-                config['data_quality']['veto_definer']
+                self.config['data_quality']['veto_definer']
                 )
             cat1_vetoes = DataQualityDict({v: vetoes[v] for v in vetoes if (vetoes[v].category ==1) and (v[:2] in ifos)})
             cat1_vetoes.populate()
@@ -364,14 +367,14 @@ class Workflow():
             if dur < self.min_dur:
                 continue
             elif dur > self.max_dur:
-                n_edges = int(dur/self.max_dur+2)
-                edges = np.linspace(start, end, n_edges, endpoint=True)
-                for i in range(n_edges-1):
+                edges = np.arange(start, end, self.max_dur)
+                if edges[-1]+self.min_dur<end:
+                    edges = np.append(edges, end)
+                for i in range(len(edges)-1):
                     seglist_pruned.append([int(edges[i]),int(edges[i+1])])
             else:
                 seglist_pruned.append([start, end])
         return seglist_pruned
-
 
     def setup_dagman(self, name, basedir=None):
         logging.info('Writing DAG...')

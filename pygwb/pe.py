@@ -1,3 +1,27 @@
+"""
+The ``pe`` module performs parameter estimation as an integral part of the
+analysis, which naturally follows the computation of the optimal estimate of the gravitational-wave background (GWB). 
+The ``pe`` module is a simple and user-friendly toolkit for any model builder to constrain their physical models with GW data.
+The ``pe`` module is built on class inheritance, with ``GWBModel`` as the parent class. The methods of the parent class
+are functions shared between different GWB models, e.g., the likelihood formulation, as well as the noise
+likelihood. It is possible to include calibration uncertainty by modifying the
+calibration epsilon parameter, which defaults to 0. The GW polarization used for analysis is user-defined, and defaults to standard
+General Relativity (GR) polarization (i.e., tensor).
+
+In our implementation of ``pe``, we rely on the ``bilby`` package Ashton to perform parameter space
+exploration, and employ the sampler ``dynesty`` by default. The user has flexibility in choosing the
+sampler as well as the sampler settings.
+
+Child classes in the pe module inherit attributes and methods from the ``GWBModel`` class. Each child class represents
+a single GWB model, and combined they form a catalog of available GWB models that may be probed with GW data.
+The inheritance structure of the module makes it straightforward to expand the catalog, allowing users of the ``pygwb``
+package to add their own models. The flexibility of the ``pe`` module allows the user to combine several GWB
+models defined within the module. A particularly useful application of this is the modelling of a GWB in the presence
+of correlated magnetic noise, or the simultaneous estimation of astrophysical and
+cosmological GWBs.
+
+"""
+
 from abc import abstractmethod
 
 import bilby
@@ -23,6 +47,11 @@ class GWBModel(bilby.Likelihood):
     """
 
     def __init__(self, baselines=None, model_name=None, polarizations=None):
+        """
+        See also
+        --------
+        bilby.Likelihood : The parent class used for the implementation.
+        """
         super(GWBModel, self).__init__()
         # list of baselines
         if baselines is None:
@@ -54,7 +83,7 @@ class GWBModel(bilby.Likelihood):
 
     @abstractmethod
     def parameters(self):
-        """Parameters. Should return a dictionary"""
+        """Parameters to be inferred from the data. Should return a dictionary"""
         pass
 
     @abstractmethod
@@ -63,7 +92,25 @@ class GWBModel(bilby.Likelihood):
         pass
 
     def log_likelihood_IJ(self, baseline, noise=False):
-        """Function for evaluating log likelihood of IJ baseline pair"""
+        """
+        Function for evaluating log likelihood of IJ baseline pair
+        
+        Parameters
+        ==========
+        
+        baseline: pygwb.Baseline
+            Baseline for which to run parameter estimation on.
+        
+        noise: bool, optional
+            Parameter to indicate whether the likelihood should be evaluated assuming
+            the signal model, or assuming only noise is present in the data.
+        
+        Returns
+        =======
+        
+        logL_IJ: float
+            Log likelihood value for the IJ baseline pair
+        """
         if noise:
             Y_model_f = 0
         else:
@@ -107,14 +154,18 @@ class GWBModel(bilby.Likelihood):
         return logL_IJ
 
     def log_likelihood(self):
-        """Function for evaluating log likelihood of detector network"""
+        """
+        Function for evaluating log likelihood of detector network
+        """
         ll = 0
         for baseline in self.baselines:
             ll = ll + self.log_likelihood_IJ(baseline, noise=False)
         return ll
 
     def noise_log_likelihood(self):
-        """Function for evaluating noise log likelihood of detector network"""
+        """
+        Function for evaluating noise log likelihood of detector network
+        """
         ll = 0
         for baseline in self.baselines:
             ll = ll + self.log_likelihood_IJ(baseline, noise=True)
@@ -127,19 +178,57 @@ class PowerLawModel(GWBModel):
 
     .. math::
         \Omega(f) = \Omega_{\text{ref}} \left(\frac{f}{f_{\text{ref}}}\right)^{\alpha}
-    Parameters:
-    -----------
-    fref : float
-        reference frequency for defining the model (:math:`f_{\text{ref}}`)
-    omega_ref : float
-        amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
-    alpha : float
-        spectral index of the power law (:math:`\alpha`)
-    frequencies : numpy.ndarray
-        array of frequencies at which to evaluate the model
+        
+        
+    Examples
+    --------
+    
+    To illustrate how to construct a likelihood with this model, we start by importing the relevant packages:
+    
+    >>> from pygwb.pe import PowerLawModel
+    >>> from pygwb.baseline import Baseline
+    >>> import bilby.gw.detector as bilbydet
+    >>> import numpy as np
+    
+    The model requires a list of baselines on which to run the parameter estimation. For the sake of the example,
+    we consider the LIGO Hanford-Livingston baseline, and create a baseline object:
+    
+    >>> H1 = bilbydet.get_empty_interferometer('H1')
+    >>> L1 = bilbydet.get_empty_interferometer('L1')
+    >>> HL = Baseline('H1L1', H1, L1)
+    
+    The frequencies, point estimate spectrum and sigma spectrum of the baseline need to be set as well. For this
+    example and for simplicity, we populate them with random numbers
+    
+    >>> HL.frequencies = np.linspace(0,100,1000)
+    >>> HL.point_estimate_spectrum = np.random.rand(1000)
+    >>> HL.sigma_spectrum = np.random.rand(1000)
+    
+    The baseline is then added to the other kwargs needed for the model to be instantiated:
+    
+    >>> kwargs_pl = {"baselines":[HL], "model_name":'PL', "fref":25}
+    >>> model_pl = PowerLawModel(**kwargs_pl)
+    
     """
 
     def __init__(self, **kwargs):
+        """
+        Parameters
+        ==========
+        
+        fref : float
+            Reference frequency for defining the model (:math:`f_{\text{ref}}`)
+        omega_ref : float
+            Amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
+        alpha : float
+            Spectral index of the power law (:math:`\alpha`)
+        frequencies : numpy.ndarray
+            Array of frequencies at which to evaluate the model
+        
+        See also
+        --------
+        pygwb.GWBModel : The parent class used for the implementation.
+        """
         try:
             fref = kwargs.pop("fref")
         except KeyError:
@@ -180,21 +269,58 @@ class BrokenPowerLawModel(GWBModel):
             \Omega_{\text{ref}} \left( \frac{f}{f_{\text{ref}}} \right) ^ {\alpha_1}, f \leqslant f_{\text{ref}} \\
             \Omega_{\text{ref}} \left( \frac{f}{f_{\text{ref}}} \right) ^ {\alpha_2}, f > f_{\text{ref}}
         \end{cases}
-    Parameters:
-    -----------
-    omega_ref : float
-        amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
-    alpha_1 : float
-        spectral index of the broken power law (:math:`\alpha_1`)
-    alpha_2 : float
-        spectral index of the broken power law (:math:`\alpha_2`)
-    fbreak : float
-        break frequency for the broken power law (:math:`f_{\text{ref}}`)
-    frequencies : numpy.ndarray
-        array of frequencies at which to evaluate the model
+        
+    Examples
+    --------
+    
+    To illustrate how to construct a likelihood with this model, we start by importing the relevant packages:
+    
+    >>> from pygwb.pe import BrokenPowerLawModel
+    >>> from pygwb.baseline import Baseline
+    >>> import bilby.gw.detector as bilbydet
+    >>> import numpy as np
+    
+    The model requires a list of baselines on which to run the parameter estimation. For the sake of the example,
+    we consider the LIGO Hanford-Livingston baseline, and create a baseline object:
+    
+    >>> H1 = bilbydet.get_empty_interferometer('H1')
+    >>> L1 = bilbydet.get_empty_interferometer('L1')
+    >>> HL = Baseline('H1L1', H1, L1)
+    
+    The frequencies, point estimate spectrum and sigma spectrum of the baseline need to be set as well. For this
+    example and for simplicity, we populate them with random numbers
+    
+    >>> HL.frequencies = np.linspace(0,100,1000)
+    >>> HL.point_estimate_spectrum = np.random.rand(1000)
+    >>> HL.sigma_spectrum = np.random.rand(1000)
+    
+    The baseline is then added to the other kwargs needed for the model to be instantiated:
+    
+    >>> kwargs_bpl = {"baselines":[HL], "model_name":'BPL'}
+    >>> model_bpl = BrokenPowerLawModel(**kwargs_bpl)
+    
     """
 
     def __init__(self, **kwargs):
+        """
+        Parameters
+        ==========
+        
+        omega_ref : float
+            Amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
+        alpha_1 : float
+            Spectral index of the broken power law (:math:`\alpha_1`)
+        alpha_2 : float
+            Spectral index of the broken power law (:math:`\alpha_2`)
+        fbreak : float
+            Break frequency for the broken power law (:math:`f_{\text{ref}}`)
+        frequencies : numpy.ndarray
+            Array of frequencies at which to evaluate the model
+
+        See also
+        --------
+        pygwb.GWBModel : The parent class used for the implementation.
+        """
         super(BrokenPowerLawModel, self).__init__(**kwargs)
 
     @property
@@ -243,25 +369,62 @@ class TripleBrokenPowerLawModel(GWBModel):
             \Omega_{\text{ref}} \left( \frac{f}{f_1} \right) ^ {\alpha_2}, f_1 < f \leqslant f_2  \\
             \Omega_{\text{ref}} \left( \frac{f_2}{f_1} \right) ^{\alpha_2} \left( \frac{f}{f_2} \right)^{\alpha_3}, f > f_2
         \end{cases}
-    Parameters:
-    -----------
-    omega_ref : float
-        amplitude of signal at fref (:math:`\Omega_{\text{ref}}`) 
-    alpha_1 : float
-        spectral index of the broken power law (:math:`\alpha_1`)
-    alpha_2 : float
-        spectral index of the broken power law (:math:`\alpha_2`)
-    alpha_3 : float
-        spectral index of the broken power law (:math:`\alpha_3`)
-    fbreak1 : float
-        1st break frequency for the triple broken power law (:math:`f_1`)
-    fbreak2 : float
-        2nd break frequency for the triple broken power law (:math:`f_2`)
-    frequencies : numpy.ndarray
-        array of frequencies at which to evaluate the model
+        
+    Examples
+    --------
+    
+    To illustrate how to construct a likelihood with this model, we start by importing the relevant packages:
+    
+    >>> from pygwb.pe import TripleBrokenPowerLawModel
+    >>> from pygwb.baseline import Baseline
+    >>> import bilby.gw.detector as bilbydet
+    >>> import numpy as np
+    
+    The model requires a list of baselines on which to run the parameter estimation. For the sake of the example,
+    we consider the LIGO Hanford-Livingston baseline, and create a baseline object:
+    
+    >>> H1 = bilbydet.get_empty_interferometer('H1')
+    >>> L1 = bilbydet.get_empty_interferometer('L1')
+    >>> HL = Baseline('H1L1', H1, L1)
+    
+    The frequencies, point estimate spectrum and sigma spectrum of the baseline need to be set as well. For this
+    example and for simplicity, we populate them with random numbers
+    
+    >>> HL.frequencies = np.linspace(0,100,1000)
+    >>> HL.point_estimate_spectrum = np.random.rand(1000)
+    >>> HL.sigma_spectrum = np.random.rand(1000)
+    
+    The baseline is then added to the other kwargs needed for the model to be instantiated:
+    
+    >>> kwargs_tbpl = {"baselines":[HL], "model_name":'TBPL'}
+    >>> model_tbpl = TripleBrokenPowerLawModel(**kwargs_tbpl)
+    
     """
 
     def __init__(self, **kwargs):
+        """
+        Parameters
+        ==========
+        
+        omega_ref : float
+            Amplitude of signal at fref (:math:`\Omega_{\text{ref}}`) 
+        alpha_1 : float
+            Spectral index of the broken power law (:math:`\alpha_1`)
+        alpha_2 : float
+            Spectral index of the broken power law (:math:`\alpha_2`)
+        alpha_3 : float
+            Spectral index of the broken power law (:math:`\alpha_3`)
+        fbreak1 : float
+            First break frequency for the triple broken power law (:math:`f_1`)
+        fbreak2 : float
+            Second break frequency for the triple broken power law (:math:`f_2`)
+        frequencies : numpy.ndarray
+            Array of frequencies at which to evaluate the model
+
+        See also
+        --------
+        pygwb.GWBModel : The parent class used for the implementation.
+        """
         super(TripleBrokenPowerLawModel, self).__init__(**kwargs)
 
     @property
@@ -320,23 +483,60 @@ class SmoothBrokenPowerLawModel(GWBModel):
 
     .. math::
         \Omega(f) = \Omega_{\text{ref}}\left(\frac{f}{f_{\text{ref}}}\right) ^{\alpha_1} \left[1+\left(\frac{f}{f_{\text{ref}}}\right)^{\Delta}\right]^{\frac{\alpha_2-\alpha_1}{\Delta}}
-    Parameters:
-    -----------
-    omega_ref : float
-        amplitude of signal (:math:`\Omega_{\text{ref}}`)
-    Delta : float
-        smoothing variable for the smooth broken power law (:math:`\Delta`)
-    alpha_1 : float
-        low-frequency spectral index of the smooth broken power law (:math:`\alpha_1`)
-    alpha_2 : float
-        high-frequency spectral index of the smooth broken power law (:math:`\alpha_2`)
-    fbreak : float
-        break frequency for the smooth broken power law (:math:`f_{\text{ref}}`)
-    frequencies : numpy.ndarray
-        array of frequencies at which to evaluate the model
+        
+    Examples
+    --------
+    
+    To illustrate how to construct a likelihood with this model, we start by importing the relevant packages:
+    
+    >>> from pygwb.pe import SmoothBrokenPowerLawModel
+    >>> from pygwb.baseline import Baseline
+    >>> import bilby.gw.detector as bilbydet
+    >>> import numpy as np
+    
+    The model requires a list of baselines on which to run the parameter estimation. For the sake of the example,
+    we consider the LIGO Hanford-Livingston baseline, and create a baseline object:
+    
+    >>> H1 = bilbydet.get_empty_interferometer('H1')
+    >>> L1 = bilbydet.get_empty_interferometer('L1')
+    >>> HL = Baseline('H1L1', H1, L1)
+    
+    The frequencies, point estimate spectrum and sigma spectrum of the baseline need to be set as well. For this
+    example and for simplicity, we populate them with random numbers
+    
+    >>> HL.frequencies = np.linspace(0,100,1000)
+    >>> HL.point_estimate_spectrum = np.random.rand(1000)
+    >>> HL.sigma_spectrum = np.random.rand(1000)
+    
+    The baseline is then added to the other kwargs needed for the model to be instantiated:
+    
+    >>> kwargs_sbpl = {"baselines":[HL], "model_name":'SBPL'}
+    >>> model_sbpl = SmoothBrokenPowerLawModel(**kwargs_sbpl)
+    
     """
 
     def __init__(self, **kwargs):
+        """
+        Parameters
+        ==========
+        
+        omega_ref : float
+            Amplitude of signal (:math:`\Omega_{\text{ref}}`)
+        Delta : float
+            Smoothing variable for the smooth broken power law (:math:`\Delta`)
+        alpha_1 : float
+            Low-frequency spectral index of the smooth broken power law (:math:`\alpha_1`)
+        alpha_2 : float
+            High-frequency spectral index of the smooth broken power law (:math:`\alpha_2`)
+        fbreak : float
+            Break frequency for the smooth broken power law (:math:`f_{\text{ref}}`)
+        frequencies : numpy.ndarray
+            Array of frequencies at which to evaluate the model
+
+        See also
+        --------
+        pygwb.GWBModel : The parent class used for the implementation.
+        """
         super(SmoothBrokenPowerLawModel, self).__init__(**kwargs)
 
     @property
@@ -387,19 +587,26 @@ class SchumannModel(GWBModel):
 
     .. math::
          \Omega(f) = \sum_{ij} \kappa_i \kappa_j \left(\frac{f}{f_{\text{ref}}}\right)^{-\beta_i-\beta_j} M_{ij}(f) \times 10^{-46}
-    Parameters:
-    -----------
-    fref : float
-        reference frequency for defining the model (:math:`f_{\text{ref}}`)
-    kappa_i : float
-        amplitude of coupling function of interferometer i at 10 Hz (:math:`\kappa_i`)
-    beta_i : float
-        spectral index of coupling function of interferometer i (:math:`\beta_i`)
-    frequencies : numpy.ndarray
-        array of frequencies at which to evaluate the model
     """
 
     def __init__(self, **kwargs):
+        """
+        Parameters
+        ==========
+        
+        fref : float
+            Reference frequency for defining the model (:math:`f_{\text{ref}}`)
+        kappa_i : float
+            Amplitude of coupling function of interferometer i at 10 Hz (:math:`\kappa_i`)
+        beta_i : float
+            Spectral index of coupling function of interferometer i (:math:`\beta_i`)
+        frequencies : numpy.ndarray
+            Array of frequencies at which to evaluate the model
+
+        See also
+        --------
+        pygwb.GWBModel : The parent class used for the implementation.
+        """
         # Set valid ifos
         # get ifo's associated with this set of
         # baselines.
@@ -477,19 +684,56 @@ class TVSPowerLawModel(GWBModel):
         \Omega _V = (\gamma _V/\gamma_T)~\Omega _{{\text{ref}},V} \left( \frac{f}{f_{\text{ref}}}\right)^{\alpha _V}
 
         \Omega _S = (\gamma_S/\gamma_T)~\Omega _{{\text{ref}},S} \left( \frac{f}{f_{\text{ref}}}\right)^{\alpha _S}
-    Parameters:
-    -----------
-    fref : float
-        reference frequency for defining the model (:math:`f_{\text{ref}}`)
-    omega_ref_pol : float
-        amplitude of signal at fref for polarization pol (:math:`\Omega_{\text{ref},\text{pol}}`)
-    alpha_pol : float
-        spectral index of the power law for polarization pol (:math:`\alpha_{\text{pol}}`)
-    frequencies : numpy.ndarray
-        array of frequencies at which to evaluate the model
+        
+    Examples
+    --------
+    
+    To illustrate how to construct a likelihood with this model, we start by importing the relevant packages:
+    
+    >>> from pygwb.pe import TVSPowerLawModel
+    >>> from pygwb.baseline import Baseline
+    >>> import bilby.gw.detector as bilbydet
+    >>> import numpy as np
+    
+    The model requires a list of baselines on which to run the parameter estimation. For the sake of the example,
+    we consider the LIGO Hanford-Livingston baseline, and create a baseline object:
+    
+    >>> H1 = bilbydet.get_empty_interferometer('H1')
+    >>> L1 = bilbydet.get_empty_interferometer('L1')
+    >>> HL = Baseline('H1L1', H1, L1)
+    
+    The frequencies, point estimate spectrum and sigma spectrum of the baseline need to be set as well. For this
+    example and for simplicity, we populate them with random numbers
+    
+    >>> HL.frequencies = np.linspace(0,100,1000)
+    >>> HL.point_estimate_spectrum = np.random.rand(1000)
+    >>> HL.sigma_spectrum = np.random.rand(1000)
+    
+    The baseline is then added to the other kwargs needed for the model to be instantiated:
+    
+    >>> kwargs_pl_sv = {"baselines":[HL], "model_name":'PL_SV', "polarizations":['scalar', 'vector']}
+    >>> model_pl_sv = TVSPowerLawModel(**kwargs_pl_sv)
+    
     """
 
     def __init__(self, **kwargs):
+        """
+        Parameters
+        ==========
+        
+        fref : float
+            Reference frequency for defining the model (:math:`f_{\text{ref}}`)
+        omega_ref_pol : float
+            Amplitude of signal at fref for polarization pol (:math:`\Omega_{\text{ref},\text{pol}}`)
+        alpha_pol : float
+            Spectral index of the power law for polarization pol (:math:`\alpha_{\text{pol}}`)
+        frequencies : numpy.ndarray
+            Array of frequencies at which to evaluate the model
+
+        See also
+        --------
+        pygwb.GWBModel : The parent class used for the implementation.
+        """
         try:
             fref = kwargs.pop("fref")
         except KeyError:
@@ -540,21 +784,58 @@ class PVPowerLawModel(GWBModel):
 
     .. math::
         \Omega(f) = \left(1 + \Pi \frac{\gamma _V}{\gamma _I}\right) \Omega_{\text{ref}} \left( \frac{f}{f_{\text{ref}}} \right)^{\alpha}
-    Parameters:
-    -----------
-    fref : float
-        reference frequency for defining the model (:math:`f_{\text{ref}}`)
-    omega_ref : float
-        amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
-    alpha : float
-        spectral index of the power law (:math:`\alpha`)
-    Pi : float
-        degree of parity violation (:math:`\Pi`)
-    frequencies : numpy.ndarray
-        array of frequencies at which to evaluate the model
+        
+    Examples
+    --------
+    
+    To illustrate how to construct a likelihood with this model, we start by importing the relevant packages:
+    
+    >>> from pygwb.pe import PVPowerLawModel
+    >>> from pygwb.baseline import Baseline
+    >>> import bilby.gw.detector as bilbydet
+    >>> import numpy as np
+    
+    The model requires a list of baselines on which to run the parameter estimation. For the sake of the example,
+    we consider the LIGO Hanford-Livingston baseline, and create a baseline object:
+    
+    >>> H1 = bilbydet.get_empty_interferometer('H1')
+    >>> L1 = bilbydet.get_empty_interferometer('L1')
+    >>> HL = Baseline('H1L1', H1, L1)
+    
+    The frequencies, point estimate spectrum and sigma spectrum of the baseline need to be set as well. For this
+    example and for simplicity, we populate them with random numbers
+    
+    >>> HL.frequencies = np.linspace(0,100,1000)
+    >>> HL.point_estimate_spectrum = np.random.rand(1000)
+    >>> HL.sigma_spectrum = np.random.rand(1000)
+    
+    The baseline is then added to the other kwargs needed for the model to be instantiated:
+    
+    >>> kwargs_pl_pv = {"baselines":[HL], "model_name":'PL_PV', 'fref': 25}
+    >>> model_pl_pv = PVPowerLawModel(**kwargs_pl_pv)
+    
     """
 
     def __init__(self, **kwargs):
+        """
+        Parameters
+        ==========
+        
+        fref : float
+            Reference frequency for defining the model (:math:`f_{\text{ref}}`)
+        omega_ref : float
+            Amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
+        alpha : float
+            Spectral index of the power law (:math:`\alpha`)
+        Pi : float
+            Degree of parity violation (:math:`\Pi`)
+        frequencies : numpy.ndarray
+            Array of frequencies at which to evaluate the model
+
+        See also
+        --------
+        pygwb.GWBModel : The parent class used for the implementation.
+        """
         try:
             fref = kwargs.pop("fref")
         except KeyError:
@@ -598,21 +879,58 @@ class PVPowerLawModel2(GWBModel):
 
     .. math::
          \Omega(f) = \left(1 + f^{\beta} \frac{\gamma_V}{\gamma _I}\right) \Omega_{\text{ref}}\left(\frac{f}{f_{\text{ref}}} \right)^{\alpha}
-    Parameters:
-    -----------
-    fref : float
-        reference frequency for defining the model (:math:`f_{\text{ref}}`)
-    omega_ref : float
-        amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
-    alpha : float
-        spectral index of the power law (:math:`\alpha`)
-    beta : float
-        spectral index of the degree of parity violation (:math:`\beta`)
-    frequencies : numpy.ndarray
-        array of frequencies at which to evaluate the model
+         
+    Examples
+    --------
+    
+    To illustrate how to construct a likelihood with this model, we start by importing the relevant packages:
+    
+    >>> from pygwb.pe import PVPowerLawModel2
+    >>> from pygwb.baseline import Baseline
+    >>> import bilby.gw.detector as bilbydet
+    >>> import numpy as np
+    
+    The model requires a list of baselines on which to run the parameter estimation. For the sake of the example,
+    we consider the LIGO Hanford-Livingston baseline, and create a baseline object:
+    
+    >>> H1 = bilbydet.get_empty_interferometer('H1')
+    >>> L1 = bilbydet.get_empty_interferometer('L1')
+    >>> HL = Baseline('H1L1', H1, L1)
+    
+    The frequencies, point estimate spectrum and sigma spectrum of the baseline need to be set as well. For this
+    example and for simplicity, we populate them with random numbers
+    
+    >>> HL.frequencies = np.linspace(0,100,1000)
+    >>> HL.point_estimate_spectrum = np.random.rand(1000)
+    >>> HL.sigma_spectrum = np.random.rand(1000)
+    
+    The baseline is then added to the other kwargs needed for the model to be instantiated:
+    
+    >>> kwargs_pl_pv_2 = {"baselines":[HL], "model_name":'PL_PV_2', 'fref': 25}
+    >>> model_pl_pv_2 = PVPowerLawModel2(**kwargs_pl_pv_2)
+    
     """
 
     def __init__(self, **kwargs):
+        """
+        Parameters
+        ==========
+        
+        fref : float
+            Reference frequency for defining the model (:math:`f_{\text{ref}}`)
+        omega_ref : float
+            Amplitude of signal at fref (:math:`\Omega_{\text{ref}}`)
+        alpha : float
+            Spectral index of the power law (:math:`\alpha`)
+        beta : float
+            Spectral index of the degree of parity violation (:math:`\beta`)
+        frequencies : numpy.ndarray
+            Array of frequencies at which to evaluate the model
+
+        See also
+        --------
+        pygwb.GWBModel : The parent class used for the implementation.
+        """
         try:
             fref = kwargs.pop("fref")
         except KeyError:

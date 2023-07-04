@@ -41,7 +41,7 @@ def pygwb_html(outdir='./', config=None, segment_results=False):
     home_plots = sorted(home_plots)
     home_plots = ['/'.join(plot_loc.split('/')[-3:]) for plot_loc in home_plots]
     
-    plot_tab = gwsumm.tabs.PlotTab('PyGWB combined results',path=output_dir,index=home_index)
+    plot_tab = gwsumm.tabs.PlotTab('pygwb combined results',path=output_dir,index=home_index)
     plot_tab.set_layout((2,2))
     for plot_name in home_plots:
         plot = gwsumm.plot.core.SummaryPlot(href='./'+os.path.join(output_dir,plot_name))

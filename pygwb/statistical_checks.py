@@ -1,12 +1,26 @@
 import json
 import warnings
+
+"""
+The statistical checks class performs various tests by plotting different quantities and saving this plots. 
+This allows the user to check for consistency with expected results. Concretely, the following tests and plots
+can be generated: running point estimate, running sigma, (cumulative) point estimate integrand, real and imaginary 
+part of point estimate integrand, FFT of the point estimate integrand, (cumulative) sensitivity, evolution of omega 
+and sigma as a function of time, omega and sigma distribution, KS test, and a linear trend analysis of omega in time. 
+Furthermore, part of these plots compares the values of these quantities before and after the delta sigma cut. Each of 
+these plots can be made by calling the relevant class method (e.g. `plot_running_point_estimate()`).
+
+"""
+
 from os import listdir
 from os.path import isfile, join
 from pathlib import Path
 
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
+import matplotlib.transforms as mt
+from astropy.time import Time
+from loguru import logger
 
 matplotlib.rcParams['figure.figsize'] = (8,6)
 matplotlib.rcParams['axes.grid'] = True
@@ -30,6 +44,7 @@ from scipy import integrate, stats
 from scipy.optimize import curve_fit
 
 from pygwb.baseline import Baseline
+from pygwb.notch import StochNotchList
 from pygwb.parameters import Parameters
 from pygwb.util import StatKS, calc_bias
 
@@ -45,43 +60,46 @@ class StatisticalChecks(object):
         coherence_n_segs,
         point_estimate_spectrum,
         sigma_spectrum,
-        freqs,
+        frequencies,
         badGPSTimes,
         delta_sigmas,
         plot_dir,
         baseline_name,
         param_file,
+        frequency_mask = None,
         gates_ifo1 = None,
         gates_ifo2 = None,
         file_tag = None,
-        legend_fontsize = 16
+        legend_fontsize = 16,
+        convention = 'pygwb'
     ):
         """
-        The statistical checks class performs various tests by plotting different quantities and saving this plots. This allows the user to check for consistency with expected results. Concretely, the following tests and plots can be generated: running point estimate, running sigma, (cumulative) point estimate integrand, real and imaginary part of point estimate integrand, FFT of the point estimate integrand, (cumulative) sensitivity, evolution of omega and sigma as a function of time, omega and sigma distribution, KS test, and a linear trend analysis of omega in time. Furthermore, part of these plots compares the values of these quantities before and after the delta sigma cut. Each of these plots can be made by calling the relevant class method (e.g. `plot_running_point_estimate()`).
+        Instantiate a StatisticalChecks object.
 
         Parameters
         ==========
-        sliding_times_all: array
+
+        sliding_times_all: array_like
             Array of GPS times before the bad GPS times from the delta sigma cut are applied.
-        sliding_omega_all: array
+        sliding_omega_all: array_like
             Array of sliding omegas before the bad GPS times from the delta sigma cut are applied.
-        sliding_sigmas_all: array
+        sliding_sigmas_all: array_like
             Array of sliding sigmas before the bad GPS times from the delta sigma cut are applied.
-        naive_sigmas_all: array
+        naive_sigmas_all: array_like
             Array of naive sigmas before the bad GPS times from the delta sigma cut are applied.
         coherence_spectrum: array
-            Array containing a coherence spectrum. Each entry in this array corresponds to the 2-detector coherence spectrum evaluated at the corresponding frequency in the freqs array.
+            Array containing a coherence spectrum. Each entry in this array corresponds to the 2-detector coherence spectrum evaluated at the corresponding frequency in the frequencies array.
         coherence_n_segs: int
             Number of segments used for coherence calculation.
         point_estimate_spectrum: array
-            Array containing the point estimate spectrum. Each entry in this array corresponds to the point estimate spectrum evaluated at the corresponding frequency in the freqs array.
+            Array containing the point estimate spectrum. Each entry in this array corresponds to the point estimate spectrum evaluated at the corresponding frequency in the frequencies array.
         sigma_spectrum: array
-            Array containing the sigma spectrum. Each entry in this array corresponds to the sigma spectrum evaluated at the corresponding frequency in the freqs array.
-        freqs: array
+            Array containing the sigma spectrum. Each entry in this array corresponds to the sigma spectrum evaluated at the corresponding frequency in the frequencies array.
+        frequencies: array
             Array containing the frequencies.
-        badGPStimes: array
+        badGPStimes: array_like
             Array of bad GPS times, i.e. times that do not pass the delta sigma cut.
-        delta_sigmas: array
+        delta_sigmas: array_like
             Array containing the value of delta sigma for all times in sliding_times_all.
         plot_dir: str
             String with the path to which the output of the statistical checks (various plots) will be saved.
@@ -89,10 +107,15 @@ class StatisticalChecks(object):
             Name of the baseline under consideration.
         param_file: str
             String with path to the file containing the parameters that were used for the analysis run.
+        frequency_mask: array
+            Boolean mask applied to the specrtra in broad-band analyses. 
+        gates_ifo1/gates_ifo2: list
+            List of gates applied to interferometer 1/2.
+        file_tag: str
+            Tag to be used in file naming convention.
+        legend_fontsize: int
+            Font size for plot legends. Default is 16. All other fonts are scaled to this font.
 
-        Returns
-        =======
-        Initializes an instance of the statistical checks class.
         """
         self.params = Parameters()
         self.params.update_from_file(param_file)
@@ -110,11 +133,19 @@ class StatisticalChecks(object):
         self.gates_ifo1 = gates_ifo1
         self.gates_ifo2 = gates_ifo2
 
-        self.freqs = freqs
+        self.frequencies = frequencies
+        if frequency_mask is not None:
+            self.frequency_mask = frequency_mask
+        else:
+            self.frequency_mask = True
 
         self.coherence_spectrum = coherence_spectrum
-        fftlength = int(1.0 / (self.freqs[1] - self.freqs[0]))
-        self.n_segs = coherence_n_segs * int(np.floor(self.params.segment_duration/(fftlength*(1.-self.params.overlap_factor_welch)))-1) #fftlength/2.
+        fftlength = int(1.0 / (self.frequencies[1] - self.frequencies[0]))
+        self.n_segs = coherence_n_segs*(1.-self.params.overlap_factor) * int(np.floor(self.params.segment_duration/(fftlength*(1.-self.params.overlap_factor_welch)))-1)
+        if self.params.coarse_grain_csd:
+            # Note: this breaks down when self.params.segment_duration/fftlength < 3
+            self.n_segs = coherence_n_segs*(1.-self.params.overlap_factor) * int(np.floor(self.params.segment_duration/(fftlength)))
+        self.n_segs_statement = r"The number of segments is" + f" {self.n_segs}."
 
         self.sigma_spectrum = sigma_spectrum
         self.point_estimate_spectrum = point_estimate_spectrum
@@ -152,7 +183,11 @@ class StatisticalChecks(object):
             self.running_sigmas,
         ) = self.compute_running_quantities()
 
-        self.time_tag = f"{int(self.sliding_times_all[0])}"+"$-$"+f"{int(self.params.tf)}"
+        t0 = Time(self.sliding_times_all[0], format='gps')
+        t0 = Time(t0, format='iso', scale='utc', precision=0, out_subfmt='date_hm')
+        tf = Time(self.sliding_times_all[-1], format='gps')
+        tf = Time(tf, format='iso', scale='utc', precision=0, out_subfmt='date_hm')
+        self.time_tag = f"{t0}"+" $-$ "+f"{tf}"
 
         if file_tag:
             self.file_tag = file_tag
@@ -164,25 +199,36 @@ class StatisticalChecks(object):
         self.title_fontsize = legend_fontsize + 4
         self.annotate_fontsize = legend_fontsize - 4
 
+        ## convention: stochmon
+        if convention == 'stochmon':
+            self.days_all = self.days_all*24 + t0.ymdhms.hour + t0.ymdhms.minute/60
+            self.days_cut = self.days_cut*24 + t0.ymdhms.hour + t0.ymdhms.minute/60
+            self.xaxis = f"Hours since {t0}"
+        else:
+            self.xaxis = f"Days since {t0}"
+
     def get_data_after_dsc(self):
         """
-        Function that returns the GPS times, the sliding omegas, the sliding sigmas, the naive sigmas, the delta sigmas and the sliding deviates after the bad GPS times from the delta sigma cut were applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sliding_times_all`).
+        Function that returns the GPS times, the sliding omegas, the sliding sigmas, the naive sigmas, 
+        the delta sigmas and the sliding deviates after the bad GPS times from the delta sigma cut were applied. 
+        This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `self.sliding_times_all`).
 
         Returns
         =======
-        sliding_times_cut: array
+
+        sliding_times_cut: array_like
             Array of GPS times after the bad GPS times were applied.
-        days_cut: array
+        days_cut: array_like
             Array of days after the bad GPS times were applied.
-        sliding_omega_cut: array
+        sliding_omega_cut: array_like
             Array of the sliding omega values after the bad GPS times were applied.
-        sliding_sigma_cut: array
+        sliding_sigma_cut: array_like
             Array of sliding sigmas after the bad GPS times were applied.
-        naive_sigma_cut: array
+        naive_sigma_cut: array_like
             Array of naive sigmas after the bad GPS times were applied.
-        delta_sigma_cut: array
+        delta_sigma_cut: array_like
             Array of the delta sigma values after the bad GPS times were applied.
-        sliding_deviate_cut: array
+        sliding_deviate_cut: array_like
             Array of the deviates after the bad GPS times were applied.
         """
         bad_gps_times = self.badGPStimes
@@ -225,13 +271,16 @@ class StatisticalChecks(object):
 
     def compute_running_quantities(self):
         """
-        Function that computes the running point estimate and running sigmas from the sliding point estimate and sliding sigmas. This is done only for the values after the delta sigma cut. This method does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sliding_sigma_cut`).
+        Function that computes the running point estimate and running sigmas from the sliding point estimate and sliding sigmas. 
+        This is done only for the values after the delta sigma cut. This method does not require any input parameters, as it accesses 
+        the data through the attributes of the class (e.g. `self.sliding_sigma_cut`).
 
         Returns
         =======
-        running_pt_estimate: array
+
+        running_pt_estimate: array_like
             Array containing the values of the running point estimate.
-        running_sigmas: array
+        running_sigmas: array_like
             Array containing the values of the running sigmas.
         """
         running_pt_estimate = self.sliding_omega_cut.copy()
@@ -253,19 +302,26 @@ class StatisticalChecks(object):
 
     def compute_ifft_integrand(self):
         """
-        Function that computes the inverse Fourier transform of the point estimate integrand. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `point_estimate_integrand`).
+        Function that computes the inverse Fourier transform of the point estimate integrand. 
+        This function does not require any input parameters, as it accesses the data through the 
+        attributes of the class (e.g. `self.point_estimate_integrand`).
 
         Returns
         =======
-        t_array: array
+
+        t_array: array_like
             Array containing the time lag values (in seconds).
-        omega_t: array
+        omega_t: array_like
             Array containing the
+
+        See also
+        --------
+
+        numpy.fft.fft : Method used to compute the Fourier transform.
 
         """
 
         numFreqs = self.point_estimate_spectrum.shape[0]
-        freqs = self.flow + self.deltaF * np.arange(0, numFreqs)
         fhigh = self.flow + self.deltaF * numFreqs
 
         fNyq = 1 / (2 * self.deltaT)
@@ -274,7 +330,7 @@ class StatisticalChecks(object):
         f_pre = self.deltaF * np.arange(1, numFreqs_pre + 1)
         numFreqs_post = np.floor((fNyq - fhigh) / self.deltaF)
         f_post = fhigh + self.deltaF * np.arange(0, numFreqs_post)
-        fp = np.concatenate((f_pre, freqs, f_post))
+        fp = np.concatenate((f_pre, self.frequencies, f_post))
         fn = -np.flipud(fp)
         f_tot = np.concatenate((fn, np.array([0]), fp))
 
@@ -299,13 +355,16 @@ class StatisticalChecks(object):
 
     def plot_running_point_estimate(self, ymin=None, ymax=None):
         """
-        Generates and saves a plot of the running point estimate. The plotted values are the ones after the delta sigma cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `days_cut`).
+        Generates and saves a plot of the running point estimate. The plotted values are the 
+        ones after the delta sigma cut. This function does not require any input parameters, 
+        as it accesses the data through the attributes of the class (e.g. `self.days_cut`).
 
         Parameters
         ==========
-        ymin: float
+
+        ymin: array_like
             Minimum value on the y-axis.
-        ymax: float
+        ymax: array_like
             Maximum value on the y-axis.
 
         """
@@ -338,7 +397,7 @@ class StatisticalChecks(object):
         plt.xlim(self.days_cut[0], self.days_cut[-1])
         if ymin and ymax:
             plt.ylim(ymin, ymax)
-        plt.xlabel("Days since start of run", size=self.axes_labelsize)
+        plt.xlabel(self.xaxis, size=self.axes_labelsize)
         plt.ylabel(r"Point estimate $\pm 1.65 \sigma$", size=self.axes_labelsize)
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
@@ -357,7 +416,9 @@ class StatisticalChecks(object):
 
     def plot_running_sigma(self):
         """
-        Generates and saves a plot of the running sigma. The plotted values are the ones after the delta sigma cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `days_cut`).
+        Generates and saves a plot of the running sigma. The plotted values are the ones after the delta sigma cut. 
+        This function does not require any input parameters, as it accesses the data through the attributes of the 
+        class (e.g. `self.days_cut`).
 
         """
         if self.days_cut.size==0:
@@ -369,7 +430,7 @@ class StatisticalChecks(object):
         plt.grid(True)
         plt.yscale("log")
         plt.xlim(self.days_cut[0], self.days_cut[-1])
-        plt.xlabel("Days since start of run", size=self.axes_labelsize)
+        plt.xlabel(self.xaxis, size=self.axes_labelsize)
         plt.ylabel(r"$\sigma$", size=self.axes_labelsize)
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
@@ -381,7 +442,9 @@ class StatisticalChecks(object):
 
     def plot_IFFT_point_estimate_integrand(self):
         """
-        Generates and saves a plot of the IFFT of the point estimate integrand. The IFFT of the point estimate integrand is computed using the method "compute_ifft_integrand". This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `point_estimate_integrand`).
+        Generates and saves a plot of the IFFT of the point estimate integrand. The IFFT of the point 
+        estimate integrand is computed using the method "compute_ifft_integrand". This function does not 
+        require any input parameters, as it accesses the data through the attributes of the class (e.g. `self.point_estimate_integrand`).
         """
         t_array, omega_array = self.compute_ifft_integrand()
         if len(t_array) != len(omega_array):
@@ -404,23 +467,26 @@ class StatisticalChecks(object):
 
     def plot_SNR_spectrum(self):
         """
-        Generates and saves a plot of the point estimate integrand. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `point_estimate_integrand`).
+        Generates and saves a plot of the point estimate integrand. This function does not require any input parameters, 
+        as it accesses the data through the attributes of the class (e.g. `self.point_estimate_integrand`).
 
         """
         if np.isnan(self.point_estimate_spectrum).all() or not np.real(self.point_estimate_spectrum).any():
             return
-        plt.figure(figsize=(10, 8))
-        plt.semilogy(
-            self.freqs,
+        fig, axs = plt.subplots(figsize=(10, 8))
+        axs.semilogy(
+            self.frequencies,
             abs(self.point_estimate_spectrum / self.sigma_spectrum),
             color=sea[0],
         )
-        plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
-        plt.ylabel(r"$|{\rm SNR}(f)|$", size=self.axes_labelsize)
+        trans = mt.blended_transform_factory(axs.transData, axs.transAxes) 
+        axs.vlines(self.frequencies[~self.frequency_mask], ymin=0, ymax=1, linewidth=1, linestyle=':', color='black', alpha=0.5, transform=trans)
+        axs.set_xlabel("Frequency (Hz)", size=self.axes_labelsize)
+        axs.set_ylabel(r"$|{\rm SNR}(f)|$", size=self.axes_labelsize)
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
-        plt.xscale("log")
-        plt.title(f"Absolute SNR in {self.time_tag}", fontsize=self.title_fontsize)
+        axs.set_xscale("log")
+        plt.title(f"|SNR| in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-abs_point_estimate_integrand.png",
             bbox_inches="tight",
@@ -429,17 +495,20 @@ class StatisticalChecks(object):
 
     def plot_cumulative_SNR_spectrum(self):
         """
-        Generates and saves a plot of the cumulative point estimate integrand. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `point_estimate_integrand`).
+        Generates and saves a plot of the cumulative point estimate integrand. This function does not 
+        require any input parameters, as it accesses the data through the attributes of the class (e.g. `self.point_estimate_integrand`).
         """
+        pt_est_cumul = self.point_estimate_spectrum.copy()
+        pt_est_cumul[~self.frequency_mask] = 0
         cum_pt_estimate = integrate.cumtrapz(
-            np.abs(self.point_estimate_spectrum / self.sigma_spectrum), self.freqs
+            np.abs(pt_est_cumul/ self.sigma_spectrum), self.frequencies
         )
         cum_pt_estimate = cum_pt_estimate / cum_pt_estimate[-1]
-        plt.figure(figsize=(10, 8))
-        plt.plot(self.freqs[:-1], cum_pt_estimate, color=sea[0])
-        plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
-        plt.ylabel(r"Cumulative $|{\rm SNR}(f)|$", size=self.axes_labelsize)
-        plt.xscale("log")
+        fig, axs = plt.subplots(figsize=(10, 8))
+        axs.plot(self.frequencies[:-1], cum_pt_estimate, color=sea[0])
+        axs.set_xlabel("Frequency (Hz)", size=self.axes_labelsize)
+        axs.set_ylabel(r"Cumulative $|{\rm SNR}(f)|$", size=self.axes_labelsize)
+        axs.set_xscale("log")
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
         plt.title(f"Cumulative SNR in {self.time_tag}", fontsize=self.title_fontsize)
@@ -451,17 +520,21 @@ class StatisticalChecks(object):
 
     def plot_real_SNR_spectrum(self):
         """
-        Generates and saves a plot of the real part of the SNR spectrum. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `point_estimate_spectrum` and `sigma_spectrum`).
+        Generates and saves a plot of the real part of the SNR spectrum. This function does not require 
+        any input parameters, as it accesses the data through the attributes of the class 
+        (e.g. `self.point_estimate_spectrum` and `self.sigma_spectrum`).
         """
-        plt.figure(figsize=(10, 8))
-        plt.plot(
-            self.freqs,
+        fig, axs =  plt.subplots(figsize=(10, 8))
+        axs.plot(
+            self.frequencies,
             np.real(self.point_estimate_spectrum / self.sigma_spectrum),
             color=sea[0],
         )
-        plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
-        plt.ylabel(r"Re$({\rm SNR}(f))$", size=self.axes_labelsize)
-        plt.xscale("log")
+        trans = mt.blended_transform_factory(axs.transData, axs.transAxes) 
+        axs.vlines(self.frequencies[~self.frequency_mask], ymin=0, ymax=1, linewidth=1, linestyle=':', color='black', alpha=0.5, transform=trans)
+        axs.set_xlabel("Frequency (Hz)", size=self.axes_labelsize)
+        axs.set_ylabel(r"Re$({\rm SNR}(f))$", size=self.axes_labelsize)
+        axs.set_xscale("log")
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
         plt.title(f"Real SNR in {self.time_tag}", fontsize=self.title_fontsize)
@@ -473,17 +546,21 @@ class StatisticalChecks(object):
 
     def plot_imag_SNR_spectrum(self):
         """
-        Generates and saves a plot of the imaginary part of the SNR spectrum. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `point_estimate_spectrum` and `sigma_spectrum`).
+        Generates and saves a plot of the imaginary part of the SNR spectrum. This function does not 
+        require any input parameters, as it accesses the data through the attributes of the class 
+        (e.g. `self.point_estimate_spectrum` and `self.sigma_spectrum`).
         """
-        plt.figure(figsize=(10, 8))
-        plt.plot(
-            self.freqs,
+        fig, axs = plt.subplots(figsize=(10, 8))
+        axs.plot(
+            self.frequencies,
             np.imag(self.point_estimate_spectrum / self.sigma_spectrum),
             color=sea[0],
         )
-        plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
-        plt.ylabel(r"Im$({\rm SNR}(f))$", size=self.axes_labelsize)
-        plt.xscale("log")
+        trans = mt.blended_transform_factory(axs.transData, axs.transAxes) 
+        axs.vlines(self.frequencies[~self.frequency_mask], ymin=0, ymax=1, linewidth=1, linestyle=':', color='black', alpha=0.5, transform=trans)
+        axs.set_xlabel("Frequency (Hz)", size=self.axes_labelsize)
+        axs.set_ylabel(r"Im$({\rm SNR}(f))$", size=self.axes_labelsize)
+        axs.set_xscale("log")
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
         plt.title(f"Imaginary SNR in {self.time_tag}", fontsize=self.title_fontsize)
@@ -495,17 +572,21 @@ class StatisticalChecks(object):
 
     def plot_sigma_spectrum(self):
         """
-        Generates and saves a plot of the sigma spectrum. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sigma_spectrum`).
+        Generates and saves a plot of the sigma spectrum. This function does not 
+        require any input parameters, as it accesses the data through the attributes 
+        of the class (e.g. `self.sigma_spectrum`).
         """
         if np.isinf(self.sigma_spectrum).all() or not np.real(self.point_estimate_spectrum).any():
             return
 
-        plt.figure(figsize=(10, 8))
-        plt.plot(self.freqs, self.sigma_spectrum, color=sea[0])
-        plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
-        plt.ylabel(r"$\sigma(f)$", size=self.axes_labelsize)
-        plt.xscale("log")
-        plt.yscale("log")
+        fig, axs = plt.subplots(figsize=(10, 8))
+        axs.plot(self.frequencies, self.sigma_spectrum, color=sea[0])
+        trans = mt.blended_transform_factory(axs.transData, axs.transAxes) 
+        axs.vlines(self.frequencies[~self.frequency_mask], ymin=0, ymax=1, linewidth=1, linestyle=':', color='black', alpha=0.5, transform=trans)
+        axs.set_xlabel("Frequency (Hz)", size=self.axes_labelsize)
+        axs.set_ylabel(r"$\sigma(f)$", size=self.axes_labelsize)
+        axs.set_xscale("log")
+        axs.set_yscale("log")
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
         plt.title(r"Total $\sigma$ spectrum" + f" in {self.time_tag}", fontsize=self.title_fontsize)
@@ -526,7 +607,7 @@ class StatisticalChecks(object):
         fhigh = fhigh or self.fhigh
 
         plt.figure(figsize=(10, 8))
-        plt.plot(self.freqs, self.coherence_spectrum, color=sea[0])
+        plt.plot(self.frequencies, self.coherence_spectrum, color=sea[0])
         plt.axhline(y=1./self.n_segs,dashes=(4,3),color='black')
         plt.xlim(flow, fhigh)
         plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
@@ -542,7 +623,7 @@ class StatisticalChecks(object):
             size = self.annotate_fontsize,
             bbox=dict(boxstyle="round", facecolor="white", alpha=1),
         )
-        plt.title(r"Total coherence spectrum at $\Delta f$ = " + f"{float(f'{self.deltaF:.4g}'):g} Hz in {self.time_tag}", fontsize=self.title_fontsize)
+        plt.title(r"Coherence ($\Delta f$ = " + f"{float(f'{self.deltaF:.4g}'):g}Hz) in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-coherence_spectrum.png",
             bbox_inches="tight",
@@ -550,7 +631,7 @@ class StatisticalChecks(object):
         plt.close()
 
         plt.figure(figsize=(10, 8))
-        plt.plot(self.freqs, self.coherence_spectrum, color=sea[0])
+        plt.plot(self.frequencies, self.coherence_spectrum, color=sea[0])
         plt.axhline(y=1./self.n_segs,dashes=(4,3),color='black')
         plt.xlim(flow, 200)
         plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
@@ -558,7 +639,7 @@ class StatisticalChecks(object):
         plt.yscale("log")
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
-        plt.title(r"Total coherence spectrum at $\Delta f$ = " + f"{float(f'{self.deltaF:.4g}'):g} Hz in {self.time_tag}", fontsize=self.title_fontsize)
+        plt.title(r"Coherence ($\Delta f$ = " + f"{float(f'{self.deltaF:.4g}'):g}Hz) in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-coherence_spectrum_zoom.png",
             bbox_inches="tight",
@@ -566,7 +647,7 @@ class StatisticalChecks(object):
         plt.close()
 
 
-    def plot_hist_coherence(self):
+    def plot_hist_coherence(self,total_bins = None):
         r"""
         Generates and saves a histogram of the coherence distribution. The plot shows the data after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class.
         Furthermore, it also saves a text file which contains the frequencies at which outliers of the coherence distribution were identified, i.e. spectral artefacts.
@@ -575,16 +656,32 @@ class StatisticalChecks(object):
             return
 
         coherence = self.coherence_spectrum
-        frequencies = self.freqs
-        total_bins = 1000
+        coherence_clipped = np.ones(len(coherence))
+        clip_val = 50* 1/self.n_segs
+        for i in range(len(coherence_clipped)):
+            if coherence[i] >= clip_val:
+                coherence_clipped[i] = clip_val
+            else:
+                coherence_clipped[i] = coherence[i]
+        frequencies = self.frequencies
+        if total_bins is None:
+            total_bins = 250
         bins =  np.linspace(0, max(coherence), total_bins)
-        alpha = 1
+        bins_clipped =  np.linspace(0, max(coherence_clipped), total_bins)
         n_frequencies = len(frequencies)
         delta_coherence = bins[1]-bins[0]
+        delta_coherence_clipped = bins_clipped[1]-bins_clipped[0]
         resolution = frequencies[1] - frequencies[0]
         fftlength = int(1.0 / resolution)
-        predicted = alpha * n_frequencies * delta_coherence * self.n_segs * np.exp(-alpha * self.n_segs * coherence)
-        threshold = np.log(alpha * self.n_segs * n_frequencies * delta_coherence) / (self.n_segs * alpha)
+        
+        coherence_notched = coherence*self.frequency_mask
+        coherence_notched_clipped = coherence_clipped*self.frequency_mask
+
+        coherence_highres = np.arange(0,1,1e-6)
+        predicted_highres = (self.n_segs-1) * (1- coherence_highres)**(self.n_segs-2)
+        threshold = coherence_highres[np.where(predicted_highres <= 1/(n_frequencies*delta_coherence_clipped))[0][0]]
+
+        probability = n_frequencies*delta_coherence_clipped * predicted_highres
 
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
    
@@ -595,32 +692,44 @@ class StatisticalChecks(object):
             ec="k",
             lw = 0.1,
             zorder=1,
+            density = True,
+            label = 'Before notching',
+        )
+        axs.hist(
+            coherence_notched,
+            bins,
+            color=sea[0],
+            ec="k",
+            lw = 0.1,
+            zorder=2,
+            density = True,
+            label = 'After notching',
         )
         axs.plot(
-            coherence, 
-            predicted,
-            color=sea[0],
-            zorder=2,
+            coherence_highres, 
+            predicted_highres,
+            color=sea[1],
+            zorder=3,
             alpha = 0.8,
             label="Predicted",
         )
         axs.axvline(
             np.abs(threshold),
-            zorder=3,
-            color=sea[1],
+            zorder=4,
+            color=sea[8],
             linestyle='dashed',
             label="Threshold",
         )
 
         axs.set_xlabel(r"Coherence", size=self.axes_labelsize)
-        axs.set_ylabel(r"Number of bins", size=self.axes_labelsize)
+        axs.set_ylabel(r"Probability distribution", size=self.axes_labelsize)
         axs.legend(fontsize=self.legend_fontsize)
         axs.set_yscale("log")
-        axs.set_xlim(left= 0)
-        axs.set_ylim(0.5,10*predicted[0])
+        axs.set_xlim(0, max(coherence))
+        axs.set_ylim(0.5/(n_frequencies*delta_coherence),10*predicted_highres[0])
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
-        plt.title(r"Coherence distribution at $\Delta f$ = " + f"{resolution:.3f} Hz in" f" {self.time_tag}", fontsize=self.title_fontsize)
+        plt.title(r"Coherence hist ($\Delta f$ = " + f"{resolution:.3f}Hz) in" f" {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_coherence.png", bbox_inches = 'tight'
         )
@@ -629,71 +738,90 @@ class StatisticalChecks(object):
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))      
 
         axs.hist(
-            coherence,
-            bins,
+            coherence_clipped,
+            bins_clipped,
             color=sea[3],
             ec="k",
             lw = 0.1,
             zorder=1,
+            density = True,
+            label = 'Before notching',
+        )
+        axs.hist(
+            coherence_notched_clipped,
+            bins_clipped,
+            color=sea[0],
+            ec="k",
+            lw = 0.1,
+            zorder=2,
+            density = True,
+            label = 'After notching',
         )
         axs.plot(
-            coherence, 
-            predicted,
-            color=sea[0],
-            zorder=2,
+            coherence_highres, 
+            predicted_highres,
+            color=sea[1],
+            zorder=3,
             alpha = 0.8,
             label="Predicted",
         )
         axs.axvline(
             np.abs(threshold),
-            zorder=3,
-            color=sea[1],
+            zorder=4,
+            color=sea[8],
             linestyle='dashed',
             label="Threshold",
         )
 
         axs.set_xlabel(r"Coherence", size=self.axes_labelsize)
-        axs.set_ylabel(r"Number of bins", size=self.axes_labelsize)
+        axs.set_ylabel(r"Probability distribution", size=self.axes_labelsize)
         axs.legend(fontsize=self.legend_fontsize)
         axs.set_yscale("log")
-        axs.set_xlim(0,4*np.abs(threshold))
-        axs.set_ylim(0.5,10*predicted[0])
+        axs.set_xlim(0,max(coherence_clipped))
+        axs.set_ylim(0.5/(n_frequencies*delta_coherence_clipped),10*predicted_highres[0])
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
 
-        plt.title(r"Coherence distribution (zoomed) at $\Delta f$ = " + f"{resolution:.3f} Hz in" f" {self.time_tag}", fontsize=self.title_fontsize)
+        plt.title(r"Coherence hist (zoomed) ($\Delta f$ = " + f"{resolution:.3f}Hz) in" f" {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_coherence_zoom.png", bbox_inches = 'tight'
         )
         plt.close()
 
-
-        outlier_coherence = [(frequencies[i], coherence[i]) for i in range(len(coherence)) if coherence[i] > np.abs(threshold)]
+        outlier_coherence = [(frequencies[i], coherence[i],probability[np.where(coherence_highres>=coherence[i])[0][0]]) for i in range(len(coherence)) if (coherence[i] > np.abs(threshold) and self.frequency_mask[i] == True)]
+        outlier_coherence_notched = [(frequencies[i], coherence[i],probability[np.where(coherence_highres>=coherence[i])[0][0]]) for i in range(len(coherence)) if (coherence[i] > np.abs(threshold) and self.frequency_mask[i] == False)]
         n_outlier = len(outlier_coherence)
         file_name = f"{self.plot_dir / self.baseline_name}-{self.file_tag}-list_coherence_outlier.txt"
         with open(file_name, 'w') as f:
-            f.write('Frequencies  \tCoherence\n')
+            f.write('Frequencies  \tCoherence \tProbability\n')
             for tup in outlier_coherence:
-                f.write(f'{tup[0]}\t{tup[1]}\n')
+                f.write(f'{tup[0]}\t{tup[1]}\t{tup[2]}\n')
+            f.write('\n The outliers below are already included in the applied version of the notch-list\n')
+            for tup in outlier_coherence_notched:
+                f.write(f'{tup[0]}\t{tup[1]}\t{tup[2]}\n')
                 
     def plot_cumulative_sensitivity(self):
         """
-        Generates and saves a plot of the cumulative sensitivity. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sigma_spectrum`).
+        Generates and saves a plot of the cumulative sensitivity. This function does not 
+        require any input parameters, as it accesses the data through the attributes of 
+        the class (e.g. `self.sigma_spectrum`).
 
         """
         if np.isinf(self.sigma_spectrum).all() or not np.real(self.point_estimate_spectrum).any():
             return
 
-        cumul_sens = integrate.cumtrapz((1 / self.sigma_spectrum ** 2), self.freqs)
+        sigma_cumul = self.sigma_spectrum.copy()
+        sigma_cumul[~self.frequency_mask] = np.inf
+        cumul_sens = integrate.cumtrapz((1 / sigma_cumul ** 2), self.frequencies)
         cumul_sens = cumul_sens / cumul_sens[-1]
         plt.figure(figsize=(10, 8))
-        plt.plot(self.freqs[:-1], cumul_sens, color=sea[0])
+        plt.plot(self.frequencies[:-1], cumul_sens, color=sea[0])
         plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
         plt.ylabel("Cumulative sensitivity", size=self.axes_labelsize)
         plt.xscale("log")
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
-        plt.title(r"Cumulative sensitivity $1/\sigma^2$ " + f"in {self.time_tag}", fontsize=self.title_fontsize)
+        plt.title(r"$1/\sigma^2$ " + f"in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-cumulative_sigma_spectrum.png",
             bbox_inches="tight",
@@ -702,7 +830,12 @@ class StatisticalChecks(object):
 
     def plot_omega_sigma_in_time(self):
         r"""
-        Generates and saves a panel plot with a scatter plot of :math:`\sigma` vs :math:`\Delta{\rm SNR}_i`, as well as the evolution of :math:`\Omega`, :math:`\sigma`, and :math:`(\Omega-\langle\Omega\rangle)/\sigma` as a function of the days since the start of the run. All plots show the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sliding_sigmas_all`).
+        Generates and saves a panel plot with a scatter plot of :math:`\sigma` vs 
+        :math:`\Delta{\rm SNR}_i`, as well as the evolution of :math:`\Omega`, :math:`\sigma`, 
+        and :math:`(\Omega-\langle\Omega\rangle)/\sigma` as a function of the days since the 
+        start of the run. All plots show the data before and after the delta-sigma cut (bad GPS times) 
+        was applied. This function does not require any input parameters, as it accesses the data 
+        through the attributes of the class (e.g. `self.sliding_sigmas_all`).
         """
         fig, axs = plt.subplots(nrows=3, ncols=1, figsize=(10, 15), constrained_layout=True)
         fig.suptitle(r"$\Omega$, $\sigma$, and" + f" SNR variations in {self.time_tag} with/out " + r"$\Delta\sigma$ cut", fontsize=self.title_fontsize)
@@ -720,7 +853,7 @@ class StatisticalChecks(object):
             self.sliding_omega_cut, '.',
             color=sea[0],
         )
-        axs[0].set_xlabel("Days since start of run", size=self.axes_labelsize)
+        axs[0].set_xlabel(self.xaxis, size=self.axes_labelsize)
         axs[0].set_ylabel(r"$\Omega$", size=self.axes_labelsize)
         axs[0].legend(loc="upper left", fontsize=self.legend_fontsize)
         axs[0].set_xlim(0, self.days_all[-1])
@@ -743,7 +876,7 @@ class StatisticalChecks(object):
             self.sliding_sigma_cut,'.',
             color=sea[0]
         )
-        axs[1].set_xlabel("Days since start of run", size=self.axes_labelsize)
+        axs[1].set_xlabel(self.xaxis, size=self.axes_labelsize)
         axs[1].set_ylabel(r"$\sigma$", size=self.axes_labelsize)
         axs[1].legend(loc="upper left", fontsize=self.legend_fontsize)
         axs[1].set_xlim(0, self.days_all[-1])
@@ -765,7 +898,7 @@ class StatisticalChecks(object):
             self.sliding_deviate_cut, '.',
             color=sea[0],
         )
-        axs[2].set_xlabel("Days since start of run", size=self.axes_labelsize)
+        axs[2].set_xlabel(self.xaxis, size=self.axes_labelsize)
         axs[2].set_ylabel(r"$\Delta{\rm SNR}_i$", size=self.axes_labelsize)
         axs[2].legend(loc="upper left", fontsize=self.legend_fontsize)
         axs[2].set_xlim(0, self.days_all[-1])
@@ -780,7 +913,10 @@ class StatisticalChecks(object):
 
     def plot_hist_sigma_dsc(self):
         r"""
-        Generates and saves a panel plot with a histogram of :math:`|\Delta\sigma|/\sigma`, as well as a histogram of :math:`\sigma`. Both plots show the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `delta_sigmas_all`).
+        Generates and saves a panel plot with a histogram of :math:`|\Delta\sigma|/\sigma`, 
+        as well as a histogram of :math:`\sigma`. Both plots show the data before and after 
+        the delta-sigma cut (bad GPS times) was applied. This function does not require any 
+        input parameters, as it accesses the data through the attributes of the class (e.g. `self.delta_sigmas_all`).
 
         """
         fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(10, 14), constrained_layout=True)
@@ -854,7 +990,10 @@ class StatisticalChecks(object):
 
     def plot_scatter_sigma_dsc(self):
         """
-        Generates and saves a scatter plot of :math:`|\Delta\sigma]/\sigma` vs :math:`\sigma`. The plot shows the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `delta_sigmas_all`).
+        Generates and saves a scatter plot of :math:`|\Delta\sigma]/\sigma` vs :math:`\sigma`. 
+        The plot shows the data before and after the delta-sigma cut (bad GPS times) was applied. 
+        This function does not require any input parameters, as it accesses the data through the 
+        attributes of the class (e.g. `self.delta_sigmas_all`).
         """
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
 
@@ -898,7 +1037,10 @@ class StatisticalChecks(object):
 
     def plot_scatter_omega_sigma_dsc(self):
         r"""
-        Generates and saves a panel plot with scatter plots of :math:`|\Delta\sigma|/\sigma` vs :math:`\Delta{\rm SNR}_i`, as well as :math:`\sigma` vs :math:`(\Omega-\langle\Omega\rangle)/\sigma`. All plots show the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `delta_sigmas_all`).
+        Generates and saves a panel plot with scatter plots of :math:`|\Delta\sigma|/\sigma` vs :math:`\Delta{\rm SNR}_i`, 
+        as well as :math:`\sigma` vs :math:`(\Omega-\langle\Omega\rangle)/\sigma`. All plots show the data before and after 
+        the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses 
+        the data through the attributes of the class (e.g. `self.delta_sigmas_all`).
         """
         fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(10, 13), constrained_layout=True)
         fig.suptitle(r"$\Delta$SNR spread" + f" in {self.time_tag} with/out " + r"$\Delta\sigma$ cut", fontsize=self.title_fontsize)
@@ -997,7 +1139,10 @@ class StatisticalChecks(object):
 
     def plot_hist_omega_pre_post_dsc(self):
         r"""
-        Generates and saves a histogram of the :math:`\Delta{\rm SNR}_i` distribution. The plot shows the data before and after the delta-sigma cut (bad GPS times) was applied. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sliding_deviate_all`).
+        Generates and saves a histogram of the :math:`\Delta{\rm SNR}_i` distribution. The plot 
+        shows the data before and after the delta-sigma cut (bad GPS times) was applied. This function
+          does not require any input parameters, as it accesses the data through the attributes of the 
+          class (e.g. `self.sliding_deviate_all`).
         """
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
 
@@ -1037,12 +1182,23 @@ class StatisticalChecks(object):
 
     def plot_KS_test(self, bias_factor=None):
         """
-        Generates and saves a panel plot with results of the Kolmogorov-Smirnov test for Gaussianity. The cumulative distribution of the data (after the delta-sigma (bad GPS times) cut) is compared to the one of Gaussian data, where the bias factor for the sigmas is taken into account. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sliding_deviate_cut`).
+        Generates and saves a panel plot with results of the Kolmogorov-Smirnov test for Gaussianity. 
+        The cumulative distribution of the data (after the delta-sigma (bad GPS times) cut) is compared 
+        to the one of Gaussian data, where the bias factor for the sigmas is taken into account. This 
+        function does not require any input parameters, as it accesses the data through the attributes 
+        of the class (e.g. `self.sliding_deviate_cut`).
 
         Parameters
         ==========
-        bias_factor: float
-            Bias factor to consider in the KS calculation.
+
+        bias_factor: float, optional
+            Bias factor to consider in the KS calculation. Defaults to None, in which case it 
+            computes the bias factor on the fly.
+
+        See also
+        --------
+
+        pygwb.util.calc_bias : Method used to compute the bias.
 
         """
         if self.delta_sigmas_cut.size==0:
@@ -1110,37 +1266,51 @@ class StatisticalChecks(object):
         )
         plt.close()
 
-    def plot_hist_sigma_squared(self):
+    def plot_hist_sigma_squared(self, max_val = 5, total_bins=100, label_number = 6):
         """
-        Generates and saves a histogram of :math:`\sigma^2/\langle\sigma^2\rangle`. The plot shows data after the delta-sigma (bad GPS times) cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_sigma_cut).
-
-        Parameters
-        ==========
-
-        Returns
-        =======
+        Generates and saves a histogram of :math:`\sigma^2/\langle\sigma^2\rangle`. The plot shows 
+        data after the delta-sigma (bad GPS times) cut. This function does not require any input parameters, 
+        as it accesses the data through the attributes of the class (e.g. self.sliding_sigma_cut).
 
         """
         if self.delta_sigmas_cut.size==0:
             return
-
+        
+        values = 1 / np.nanmean(self.sliding_sigma_cut ** 2) * self.sliding_sigma_cut ** 2
+        
+        values_clipped = np.ones(len(values))
+        
+        for i in range(len(values_clipped)):
+            if values[i] >= max_val:
+                values_clipped[i] = max_val
+            else:
+                values_clipped[i] = values[i]
+                
+        bins = np.linspace(0, max(values_clipped), total_bins)
+        
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
-        axs.hist(
-            1 / np.nanmean(self.sliding_sigma_cut ** 2) * self.sliding_sigma_cut ** 2,
-            bins=101,
+        _, bins, patches = plt.hist(
+            values_clipped,
+            bins=bins,
             color=sea[0],
             ec="k",
             lw=0.5,
             label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
         )
+        
         axs.set_xlabel(r"$\sigma^2/\langle\sigma^2\rangle$", size=self.axes_labelsize)
         axs.set_ylabel(r"count", size=self.axes_labelsize)
         axs.set_yscale("log")
-        axs.set_xlim(0, 5)
+        axs.set_xlim(0, max_val)
         axs.legend(fontsize=self.legend_fontsize)
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
-
+        
+        xticks_tmp = np.linspace(0, max_val, label_number)
+        labels = [str(i) for i in xticks_tmp]
+        labels[-1]+="+"
+        plt.xticks(xticks_tmp, labels)
+        
         plt.title(f"Relative variance in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_sigma_squared.png", bbox_inches = 'tight'
@@ -1149,13 +1319,10 @@ class StatisticalChecks(object):
 
     def plot_omega_time_fit(self):
         """
-        Generates and saves a plot of :math:`\Omega` as a function of time and fits the data to perform a linear trend analysis. The plot shows data after the delta-sigma (bad GPS times) cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. self.sliding_omega_cut).
-
-        Parameters
-        ==========
-
-        Returns
-        =======
+        Generates and saves a plot of :math:`\Omega` as a function of time and fits the data to perform 
+        a linear trend analysis. The plot shows data after the delta-sigma (bad GPS times) cut. This function 
+        does not require any input parameters, as it accesses the data through the attributes of the 
+        class (e.g. self.sliding_omega_cut).
 
         """
         if self.days_cut.size==0:
@@ -1183,7 +1350,7 @@ class StatisticalChecks(object):
         axs.plot(self.days_cut, self.sliding_omega_cut, '.', color=sea[0], markersize=1)
         axs.plot(self.days_cut, 3 * self.sliding_sigma_cut, color=sea[0], linewidth=1.5)
         axs.plot(self.days_cut, -3 * self.sliding_sigma_cut, color=sea[0], linewidth=1.5)
-        axs.set_xlabel("Days since start of run", size=self.axes_labelsize)
+        axs.set_xlabel(self.xaxis, size=self.axes_labelsize)
         axs.set_ylabel(r"$\Omega_i$", size=self.axes_labelsize)
         axs.set_xlim(self.days_cut[0], self.days_cut[-1])
         axs.annotate(
@@ -1207,7 +1374,10 @@ class StatisticalChecks(object):
 
     def plot_sigma_time_fit(self):
         """
-        Generates and saves a plot of :math:`\sigma` as a function of time and fits the data to perform a linear trend analysis. The plot shows data after the delta-sigma (bad GPS times) cut. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `sliding_sigma_cut`).
+        Generates and saves a plot of :math:`\sigma` as a function of time and fits the data to perform 
+        a linear trend analysis. The plot shows data after the delta-sigma (bad GPS times) cut. This function 
+        does not require any input parameters, as it accesses the data through the attributes of the 
+        class (e.g. `self.sliding_sigma_cut`).
         """
         if self.days_cut.size==0:
             return
@@ -1232,7 +1402,7 @@ class StatisticalChecks(object):
         c1, c2 = popt[0], popt[1]
         axs.plot(self.days_cut, func(self.days_cut, c1, c2), color=sea[3])
         axs.plot(self.days_cut, self.sliding_sigma_cut, ".", color=sea[0], markersize=1)
-        axs.set_xlabel("Days since start of run", size=self.axes_labelsize)
+        axs.set_xlabel(self.xaxis, size=self.axes_labelsize)
         axs.set_ylabel(r"$\sigma_i$", size=self.axes_labelsize)
         axs.set_xlim(self.days_cut[0], self.days_cut[-1])
         axs.set_ylim(mean_sigma - 1.2 * mean_sigma, mean_sigma + 2.2 * mean_sigma)
@@ -1265,22 +1435,22 @@ class StatisticalChecks(object):
             self.gates_ifo1_statement=None
         else:
             self.total_gated_time_ifo1 = np.sum(self.gates_ifo1[:,1]-self.gates_ifo1[:,0])
-            self.total_gated_percent_ifo1 = self.total_gated_time_ifo1/(int(self.params.tf)- int(self.sliding_times_all[0]))*100
+            self.total_gated_percent_ifo1 = self.total_gated_time_ifo1/(int(self.sliding_times_all[-1])- int(self.sliding_times_all[0]))*100
             gate_times_in_days_ifo1 = (np.array(self.gates_ifo1[:,0]) - self.sliding_times_all[0]) / 86400.0
             self.gates_ifo1_statement= f"Data gated out: {self.total_gated_time_ifo1} s\n" f"Percentage: {float(f'{self.total_gated_percent_ifo1:.2g}'):g}%"
-            gatefig1 = ax.plot(gate_times_in_days_ifo1, self.gates_ifo1[:,1]-self.gates_ifo1[:,0], 's', color=sea[0], label="IFO1:\n" f"{self.gates_ifo1_statement}")
+            gatefig1 = ax.plot(gate_times_in_days_ifo1, self.gates_ifo1[:,1]-self.gates_ifo1[:,0], 's', color=sea[3], label="IFO1:\n" f"{self.gates_ifo1_statement}")
             first_legend = ax.legend(handles=gatefig1, loc=(0.05,0.75), fontsize = self.axes_labelsize)
             ax.add_artist(first_legend)
         if self.gates_ifo2 is None:
             self.gates_ifo2_statement=None
         else:
             self.total_gated_time_ifo2 = np.sum(self.gates_ifo2[:,1]-self.gates_ifo2[:,0])
-            self.total_gated_percent_ifo2 = self.total_gated_time_ifo2/(int(self.params.tf)- int(self.sliding_times_all[0]))*100
+            self.total_gated_percent_ifo2 = self.total_gated_time_ifo2/(int(self.sliding_times_all[-1])- int(self.sliding_times_all[0]))*100
             gate_times_in_days_ifo2 = (np.array(self.gates_ifo2[:,0]) - self.sliding_times_all[0]) / 86400.0
             self.gates_ifo2_statement= f"Data gated out: {self.total_gated_time_ifo2} s\n" f"Percentage: {float(f'{self.total_gated_percent_ifo2:.2g}'):g}%"
-            gatefig2 = ax.plot(gate_times_in_days_ifo2, self.gates_ifo2[:,1]-self.gates_ifo2[:,0], 's', color=sea[3], label="IFO2:\n" f"{self.gates_ifo2_statement}")
+            gatefig2 = ax.plot(gate_times_in_days_ifo2, self.gates_ifo2[:,1]-self.gates_ifo2[:,0], 's', color=sea[0], label="IFO2:\n" f"{self.gates_ifo2_statement}")
             ax.legend(handles=gatefig2, loc=(0.05, 0.1), fontsize = self.axes_labelsize)
-        ax.set_xlabel("Days since start of run", size=self.axes_labelsize)
+        ax.set_xlabel(self.xaxis, size=self.axes_labelsize)
         ax.set_ylabel("Gate length (s)", size=self.axes_labelsize)
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
@@ -1301,6 +1471,7 @@ class StatisticalChecks(object):
         statements['dsc'] = self.dsc_statement
         statements['gates_ifo1'] = self.gates_ifo1_statement
         statements['gates_ifo2'] = self.gates_ifo2_statement
+        statements['n_segs'] = self.n_segs_statement
         with open("stats_statements.json", "w") as outfile:
                 json.dump(statements, outfile)
 
@@ -1338,10 +1509,27 @@ def sortingFunction(item):
 
 
 def run_statistical_checks_from_file(
-    combine_file_path, dsc_file_path, plot_dir, param_file, legend_fontsize=16, coherence_file_path = None, file_tag = None,
+    combine_file_path, dsc_file_path, plot_dir, param_file, legend_fontsize=16, coherence_file_path = None, file_tag = None, convention='pygwb'
 ):
     """
-    Assumes files are in npz for now. Will generalize later.
+    Method to generate an instance of the statistical checks class from a set of files.
+
+    Parameters
+    ==========
+
+    combine_file_path: str
+        Full path to the file containing the output of the pygwb.combine script, i.e., with the 
+        combined results of the run.
+
+    dsc_file_path: str
+        Full path to the file containing the results of the delta sigma cut.
+
+    plot_dir: str
+        Full path where the plots generated by the statistical checks module should be saved.
+    param_file: str
+        Full path to the parameter file that was used for the analysis.
+    legend_fontsize: int, optional
+        Fontsize used in the plots generated by the module. Defaults to 16.
     """
     params = Parameters()
     params.update_from_file(param_file)
@@ -1365,12 +1553,23 @@ def run_statistical_checks_from_file(
         spectra_file["sigmas_seg_UW"],
     )
 
-    freqs = np.arange(
+    frequencies = np.arange(
         0,
         params.new_sample_rate / 2.0 + params.frequency_resolution,
         params.frequency_resolution,
     )
-    cut = (params.fhigh >= freqs) & (freqs >= params.flow)
+    frequency_cut = (params.fhigh >= frequencies) & (frequencies >= params.flow)
+    try:
+        frequency_mask = spectra_file["frequency_mask"]
+    except KeyError:
+        try:
+            notch_list_path = params.notch_list_path
+            logger.debug("loading notches from " + notch_list_path)
+            notch_list = StochNotchList.load_from_file(notch_list_path)
+            frequency_mask = notch_list.get_notch_mask(frequencies[frequency_cut])
+
+        except:
+            frequency_mask = None
 
     spectrum_file = np.load(combine_file_path, mmap_mode="r")
 
@@ -1400,15 +1599,17 @@ def run_statistical_checks_from_file(
         coherence_n_segs,
         point_estimate_spectrum,
         sigma_spectrum,
-        freqs[cut],
+        frequencies[frequency_cut],
         badGPStimes,
         delta_sigmas_sel,
         plot_dir,
         baseline_name,
         param_file,
+        frequency_mask,
         gates_ifo1,
         gates_ifo2,
         file_tag=file_tag,
-        legend_fontsize=legend_fontsize
+        legend_fontsize=legend_fontsize,
+        convention=convention
     )
 

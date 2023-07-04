@@ -6,6 +6,7 @@
 
 import argparse
 import configparser
+import distutils
 import glob
 import logging
 import os
@@ -33,10 +34,9 @@ def make_workflow(args=None):
 
     # check if we want segment-level results
     if pygwb_wf.config.has_option('general', 'plot_segment_results'):
-        segment_results = bool(pygwb_wf.config['general']['plot_segment_results'])
+        segment_results = bool(distutils.util.strtobool(pygwb_wf.config['general']['plot_segment_results']))
     else:
         segment_results = False
-
 
     all_jobs = []
     pipe_jobs = []
@@ -149,6 +149,8 @@ def make_workflow(args=None):
     if args.submit:
         logging.info('Submitting to condor...')
         pygwb_wf.dagman.submit_dag()
+    elif args.run_locally:
+        pygwb_wf.dagman.run_jobs_serially()
     else:
         logging.info('PyGWB Isotropic Workflow can be submitted to condor by running the following:'
                       f'\n\n\t  condor_submit_dag {pygwb_wf.dagman.submit_file}\n')
@@ -177,6 +179,8 @@ def main(args=None):
             help='config overrides listed in the form SECTION:KEY:VALUE')
     parser.add_argument('--submit', action='store_true',
             help='Submit workflow automatically')
+    parser.add_argument('--run_locally', action='store_true',
+            help='Run job on local universe')
     args = parser.parse_args(args=args)
 
     if args.verbose:

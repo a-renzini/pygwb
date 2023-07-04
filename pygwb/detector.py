@@ -16,58 +16,150 @@ from .spectral import before_after_average, power_spectral_density
 
 class Interferometer(bilby.gw.detector.Interferometer):
 
-    """Subclass of bilby's Interferometer class"""
+    """
+    Subclass of bilby's Interferometer class which is charged with handling, storing and saving all relevant interferometer data.
+    It handles all data analysis parts relating to the individual detectors in a baseline of a network.
+    An example would be loading in data from a certain channel and computing the psd of the detector.
+    
+    Examples
+    --------
+    
+    In this example we will load in data from the publicly available GWOSC servers.
+    We will gate this data, compute the PSD of the detector and the average PSD of the detector object.
+    This gives a brief overview of the most critical capabilities of the pygwb detector module.
+    We start by importing the Interferometer class from pygwb.
+    
+    >>> from pygwb.detector import Interferometer
+
+    To load in some data, first we make an empty detector object.
+    Based on the name of the object, in our case "H1", the module will make an Interferometer object
+    that has no data, hence empty, but with all correct parameters, like the location vertex of the detector
+    it represents. The name can be any one of the detectors supported in ``bilby.gw.detector``, 
+    the parent class of our Interferometer class.
+    
+    >>> ifo_1 = Interferometer.get_empty_interferometer("H1")
+    
+    Then, we load in data using one of the provided ``set_timeseries_from`` functions.
+    To make life easy, we will look at public data where we only need a channel name.
+    We take a start time t0 and an end time tf. We want to use public data so we 
+    set data_type to be public. We are working with H1 detector and we would like to have normal strain
+    data, hence we use the channel "H1:GWOSC-4KHZ_R1_STRAIN". All the other parameters are taken to be
+    default values which are used in the most general pygwb pipeline analysis, see pygwb paper.
+    
+    >>> t0 = 1247644138
+    >>> tf = 1247648138
+    >>> data_type = "public"
+    >>> channel = "H1:GWOSC-4KHZ_R1_STRAIN"
+    >>> 
+    >>> ifo_1.set_timeseries_from_channel_name(
+        channel,
+        t0=t0,
+        tf=tf,
+        data_type=data_type,
+        local_data_path = "",
+        new_sample_rate=4096,
+        input_sample_rate=4096,
+        cutoff_frequency=11,
+        segment_duration=192,
+        number_cropped_seconds=2,
+        window_downsampling="hamming",
+        ftype="fir",
+        time_shift=0,
+    )
+    
+    Now, imagine we would like to gate the detector data.
+    In gating, windows are put on top of the timeseries data to remove
+    any extra loud glitches that would influence the analysis.
+    In that case, we can call
+    
+    >>> gate_tzero = 1.0
+    >>> gate_tpad = 0.5
+    >>> gate_threshold = 50.0
+    >>> cluster_window = 0.5
+    >>> gate_whiten = True
+    >>> ifo_1.gate_data_apply(
+        gate_tzero=gate_tzero,
+        gate_tpad=gate_tpad,
+        gate_threshold=gate_threshold,
+        cluster_window=cluster_window,
+        gate_whiten=gate_whiten,
+    )
+    
+    In that case, we also used the default values for the gating parameters.
+    Now, gates have been applied and the data is relatively free of big intruders.
+    Next, we will compute the PSD spectrogram of the detector. A spectrogram
+    shows the PSD both per time and per frequency. We will use the common frequency
+    resolution of pygwb analysis.
+    
+    >>> frequency_resolution = 1/32.
+    >>> ifo_1.set_psd_spectrogram(
+            frequency_resolution,
+            overlap_factor=0.5,
+            window_fftgram_dict_welch_psd={"window_fftgram": "hann"},
+            overlap_factor_welch_psd=0.5,
+        )
+        
+    Last, but not least, we can also compute the average PSD of the detector.
+    
+    >>> ifo_1.set_average_psd(N_average_segments_welch_psd=2)
+    
+    """
 
     def __init__(self, *args, **kwargs):
         """Instantiate an Interferometer class
 
         Parameters
-        ==========
+        =======
+        
         *args : arguments passed to the (parent) bilby's Interferometer class.
         **kwargs : keyword arguments passed to the (parent) bilby's Inteferometer class.
 
         Nominally, the bilby's Interferometer class takes the following arguments.
-        name: str
+        name: `str`
             Interferometer name, e.g. H1.
-        power_spectral_density: bilby.gw.detector.PowerSpectralDensity
+        power_spectral_density: `bilby.gw.detector.PowerSpectralDensity`
             Power spectral density determining the sensitivity of the detector.
-        minimum_frequency: float
+        minimum_frequency: `float`
             Minimum frequency to analyse for detector.
-        maximum_frequency: float
+        maximum_frequency: `float`
             Maximum frequency to analyse for detector.
-        length: float
+        length: `float`
             Length of the interferometer in km.
-        latitude: float
+        latitude: `float`
             Latitude North in degrees (South is negative).
-        longitude: float
+        longitude: `float`
             Longitude East in degrees (West is negative).
-        elevation: float
+        elevation: `float`
             Height above surface in metres.
-        xarm_azimuth: float
+        xarm_azimuth: `float`
             Orientation of the x arm in degrees North of East.
-        yarm_azimuth: float
+        yarm_azimuth: `float`
             Orientation of the y arm in degrees North of East.
-        xarm_tilt: float, optional
+        xarm_tilt: `float`, optional
             Tilt of the x arm in radians above the horizontal defined by
             ellipsoid earth model in LIGO-T980044-08.
-        yarm_tilt: float, optional
+        yarm_tilt: `float`, optional
             Tilt of the y arm in radians above the horizontal.
         calibration_model: Recalibration
             Calibration model, this applies the calibration correction to the
             template, the default model applies no correction.
 
-        See https://lscsoft.docs.ligo.org/bilby/api/bilby.gw.detector.interferometer.Interferometer.html#bilby.gw.detector.interferometer.Interferometer
+        See `docs of bilby <https://lscsoft.docs.ligo.org/bilby/api/bilby.gw.detector.interferometer.Interferometer.html#bilby.gw.detector.interferometer.Interferometer>`__
         for the detailed docs of the parent class.
 
         Additional attributes
-        timeseries : gwpy timeseries
+        timeseries : `gwpy.timeseries.TimeSeries`
             timeseries object with resampling/high-pass filter applied.
-        psd_spectrogram : gwpy spectrogram
+        psd_spectrogram : `gwpy.spectrogram.Spectrogram`
             gwpy spectrogram of power spectral density
-        gates: gwpy SegmentList
+        gates: `gwpy.segments.SegmentList`
             List of segments that have been gated, not including any additional padding.
-        gate_pad: float
+        gate_pad: `float`
             Duration of padding used when applying gates.
+
+        See also
+        --------
+        bilby.gw.detector.Interferometer : The parent class used for the implementation.
 
         """
         self.gates = SegmentList()
@@ -77,17 +169,18 @@ class Interferometer(bilby.gw.detector.Interferometer):
     @classmethod
     def get_empty_interferometer(cls, name):
         """
-        A classmethod to get an Interferometer class from a given ifo name
+        A classmethod to get an Interferometer class object from a given ifo name.
+        Empty means no data has been read in into this object.
 
         Parameters
-        ==========
-        name : str
+        =======
+        name : `str`
             Interferometer name, e.g. H1.
 
         Returns
         =======
-        interferometer: Interferometer
-            Interferometer instance
+        interferometer: `pygwb.Interferometer`
+            Interferometer instance of pygwb.
 
         """
         filename = os.path.join(
@@ -129,19 +222,19 @@ class Interferometer(bilby.gw.detector.Interferometer):
     @classmethod
     def from_parameters(cls, name, parameters):
         """
-        A classmethod to get an Interferometer class from a given argparser object
+        A classmethod to get an Interferometer class from a given argparser object.
 
         Parameters
         ==========
-        name : str
+        name : `str`
             Interferometer name, e.g. H1.
         parameters : argparser object
-            This contains attributes defined for command line options
+            This contains attributes defined for command line options.
 
         Returns
         =======
-        interferometer: Interferometer
-            Interferometer instance
+        interferometer: `pygwb.Interferometer`
+            Interferometer instance of pygwb.
 
         """
         ifo = cls.get_empty_interferometer(name)
@@ -161,18 +254,17 @@ class Interferometer(bilby.gw.detector.Interferometer):
             window_downsampling=parameters.window_downsampling,
             ftype=parameters.ftype,
             time_shift=parameters.time_shift,
-            tag=parameters.tag,
             input_sample_rate=parameters.input_sample_rate,
         )
         return ifo
 
     def set_timeseries_from_channel_name(self, channel, **kwargs):
         """
-        Set a timeseries attribute from a given channel name
+        Set a timeseries attribute from a given channel name.
 
         Parameters
         ==========
-        channel: str
+        channel: `str`
             Name of the channel (e.g.: "L1:GWOSC-4KHZ_R1_STRAIN") from which to load the data.
 
         **kwargs : keyword arguments passed to preprocess module.
@@ -192,7 +284,6 @@ class Interferometer(bilby.gw.detector.Interferometer):
         window_downsampling = kwargs.pop("window_downsampling")
         ftype = kwargs.pop("ftype")
         time_shift = kwargs.pop("time_shift")
-        tag = kwargs.pop("tag")
         self.duration = segment_duration
         self.timeseries = preprocessing_data_channel_name(
             IFO=self.name,
@@ -209,7 +300,6 @@ class Interferometer(bilby.gw.detector.Interferometer):
             window_downsampling=window_downsampling,
             ftype=ftype,
             time_shift=time_shift,
-            tag=tag,
             input_sample_rate=input_sample_rate,
         )
         self._check_timeseries_channel_name(channel)
@@ -222,8 +312,8 @@ class Interferometer(bilby.gw.detector.Interferometer):
         Set a timeseries attribute from a given numpy array
 
         Parameters
-        ==========
-        timeseries_array: numpy array
+        ========
+        timeseries_array: `np.ndarray`
             timeseries strain data as numpy array object
 
         **kwargs : keyword arguments passed to preprocess module.
@@ -265,8 +355,8 @@ class Interferometer(bilby.gw.detector.Interferometer):
 
         Parameters
         ==========
-        gwpy_timeseries: gwpy.timeseries
-            timeseries strain data as gwpy.timeseries object
+        gwpy_timeseries: ``gwpy.timeseries.TimeSeries``
+            Timeseries strain data as gwpy.timeseries object.
 
         **kwargs : keyword arguments passed to preprocess module.
 
@@ -303,11 +393,11 @@ class Interferometer(bilby.gw.detector.Interferometer):
         overlap_factor_welch=0.5,
     ):
         """
-        Set psd_spectrogram attribute from a given spectrum-related information.
+        Set psd_spectrogram attribute from given spectrum-related information.
 
         Parameters
-        ==========
-        frequency_resolution: float
+        ========
+        frequency_resolution: ``float``
             Frequency resolution of the final PSDs; This sets the time duration
             over which FFTs are calculated in the pwelch method
         coarse_grain: bool
@@ -321,7 +411,6 @@ class Interferometer(bilby.gw.detector.Interferometer):
             Dictionary containing name and parameters describing which window to use when producing fftgrams for psd estimation. Default is \"hann\".
         overlap_factor_welch: float, optional
             Overlap factor to use when if using Welch's method to estimate the PSD (NOT coarsegraining). For \"hann\" window use 0.5 overlap_factor and for \"boxcar"\ window use 0 overlap_factor. Default is 0.5 (50% overlap), which is optimal when using Welch's method with a \"hann\" window.
-
         """
 
         # PSD estimation needs zeropadding when using coarse-graining
@@ -343,14 +432,13 @@ class Interferometer(bilby.gw.detector.Interferometer):
 
     def set_average_psd(self, N_average_segments=2):
         """
-        Set average_psd attribute from the existing raw psd
+        Set average_psd attribute from the existing raw psd.
 
         Parameters
         ==========
-        N_average_segments: int
-            Number of segments used for PSD averaging (from both sides of the segment of interest)
-            N_avg_segs should be even and >= 2
-
+        N_average_segments: `int`, optional
+            Number of segments used for PSD averaging (from both sides of the segment of interest).
+            N_avg_segs should be even and >= 2.
         """
         try:
             self.average_psd = before_after_average(
@@ -363,26 +451,30 @@ class Interferometer(bilby.gw.detector.Interferometer):
 
     def gate_data_apply(self, **kwargs):
         """
-        Self-gate the tgwpy timeseries associated with this timeseries. The list
+        Self-gate the gwpy.timeseries associated with this timeseries. The list
         of times gated and the padding applied are stored as properties of the Interferometer.
 
         Parameters
         ==========
-        gate_tzero : float
+        gate_tzero : `float`
             half-width time duration (seconds) in which the timeseries is
             set to zero
-        gate_tpad : float
+        gate_tpad : `float`
             half-width time duration (seconds) in which the Planck window
             is tapered
-        gate_threshold : float
+        gate_threshold : `float`
             amplitude threshold, if the data exceeds this value a gating window
             will be placed
-        cluster_window : float
+        cluster_window : `float`
             time duration (seconds) over which gating points will be clustered
-        gate_whiten : bool
+        gate_whiten : `bool`
             if True, data will be whitened before gating points are discovered,
             use of this option is highly recommended
-
+            
+        See also
+        --------
+        gwpy.timeseries.TimeSeries.gate : the function used for the gating of the data itself.
+        
         """
         gate_tzero = kwargs.pop("gate_tzero")
         gate_tpad = kwargs.pop("gate_tpad")
@@ -397,6 +489,33 @@ class Interferometer(bilby.gw.detector.Interferometer):
             cluster_window=cluster_window,
             whiten=gate_whiten,
         )
+        self.gates = self.gates | new_gates
+        self.gate_pad = gate_tpad
+
+    def apply_gates_from_file(self, loaded_object, index, **kwargs):
+        """
+        Load gates from a pygwb output file and apply them to the Interferometer object. 
+        The gated times are stored as a property of the object.
+        
+        Parameters
+        ==========
+        loaded_object : 
+            Object that represents the data in the output file, e.g. a loaded npzobject.
+        index ; int
+            Integer representing the correct ifo object in the baseline
+        gate_tpad : float
+            half-width time duration (seconds) in which the Planck window
+            is tapered
+        """
+        gates = loaded_object[f"ifo_{index}_gates"]
+        gate_tpad = kwargs.pop("gate_tpad")
+
+        self.timeseries, new_gates = self_gate_data(
+            self.timeseries,
+            tpad=gate_tpad,
+            gates=gates,
+        )
+
         self.gates = self.gates | new_gates
         self.gate_pad = gate_tpad
 
