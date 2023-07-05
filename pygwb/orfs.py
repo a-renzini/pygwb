@@ -27,13 +27,8 @@ contained in the interferometer objects defined above:
 >>> freqs = np.arange(10.25, 256.25, 0.25)
 >>> orf = calc_orf(freqs, H1.vertex, L1.vertex, H1.x, L1.x, H1.y, L1.y, polarization = "tensor")
     
-Note that the ``calc_orf`` method combines the various other methods of the module. The resulting ORF 
-looks as follows:
-    
->>> plt.plot(freqs, orf)
-    
-Note that, in practice, these methods are not called by the user, but are
-called by the ``baseline`` module directly.
+Note that the ``calc_orf`` method combines the various other methods of the module, and that, in practice, 
+these methods are not called by the user, but are called by the ``baseline`` module directly.
 """
 
 import numpy as np
@@ -292,6 +287,8 @@ def Sminus(alpha, beta):
 
 def T_right_left(alpha, beta):
     """
+    Function used in the computation of the right-left ORF, as given 
+    below Eq. (8) of https://arxiv.org/pdf/0707.0535.pdf.
     
     Parameters
     =======
