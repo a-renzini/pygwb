@@ -21,6 +21,7 @@ pygwb documentation
    contributing
    pipeline
    pe
+   simulator
    tutorials
 
 
