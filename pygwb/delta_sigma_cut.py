@@ -1,3 +1,35 @@
+"""
+In general, the noise level in ground-based detectors changes slowly on time-scales of tens of minutes to hours. The
+variance associated to each segment is an indicator of that level of noise, which typically changes
+at roughly the percent level from one data segment to the next. However, there are occasional very loud disturbances
+to the detectors, such as glitches, which violate the Gaussianity of the noise. Auto-gating procedures are in place
+to remove loud glitches from the data; however the procedure does not remove all non-
+stationarities. To avoid biases due to these noise events, an automated technique, called delta-sigma cut, 
+to exclude them from the analysis has been developed, which flags specific segments to be cut from the analyzed set.
+
+Examples
+--------
+    
+As an example, we show how to use delta sigma cut. To this end, we import the relevant packages:
+    
+>>> import numpy as np
+>>> from pygwb.delta_sigma_cut import dsc_cut
+    
+For concreteness, we use some randomly generated data arrays as placeholders for ``naive_sigma`` and
+``sliding_sigma``:
+    
+>>> naive_sigma = np.random.normal(size=10)
+>>> sliding_sigma = np.random.normal(size=10)
+    
+The ``dsc_cut`` method can be called with its default parameters:
+    
+>>> dsigma_mask, dsigma = dsc_cut(naive_sigma, sliding_sigma)
+    
+The result is a mask containing booleans, which indicates whether or not the segment should be
+considered in the remainder of the analysis. In addition, the actual value of the difference
+in sigmas is given as well.
+"""
+
 import numpy as np
 from loguru import logger
 
@@ -19,31 +51,6 @@ def dsc_cut(
     
     .. math::
         \frac{|\bar{\sigma}_{t, \alpha} b_{\rm avg} - \sigma_{t, \alpha} b_{\rm nav} |} {\bar{\sigma}_{t, \alpha} b_{\rm avg}}>{\rm threshold}
-
-    Examples
-    --------
-    
-    As an example, we show how to use delta sigma cut. To this end, we import the relevant packages:
-    
-    >>> import numpy as np
-    >>> from pygwb.delta_sigma_cut import dsc_cut
-    
-    For concreteness, we use some randomly generated data arrays as placeholders for ``naive_sigma`` and
-    ``sliding_sigma``:
-    
-    >>> naive_sigma = np.random.normal(size=10)
-    >>> sliding_sigma = np.random.normal(size=10)
-    
-    We call the ``dsc_cut`` method with its default parameters:
-    
-    >>> dsigma_mask, dsigma = dsc_cut(naive_sigma, sliding_sigma)
-    
-    The result is a mask containing booleans, which indicate whether or not the segment should be
-    considered in the remainder of the analysis. In addition, the actual value of the difference
-    in sigmas is given as well.
-    
-    >>> print(dsigma_mask)
-    >>> print(dsigma)
     
     Parameters
     =======
@@ -97,7 +104,7 @@ def run_dsc(
 ):
 
     """
-    Function that runs the delta sigma cut
+    Function that runs the delta sigma cut.
 
     Parameters
     =======
@@ -144,7 +151,7 @@ def run_dsc(
     N_average_segments_psd: ``int``, optional
         Number of segments to use during Welch averaging. Used in the computation of the bias factors. Default is 2.
 
-    return_naive_and_averaged_sigmas: ``bool``
+    return_naive_and_averaged_sigmas: ``bool``, optional
         Option to return the naive and sliding sigmas. Default is `False`.
 
     Returns
@@ -153,7 +160,7 @@ def run_dsc(
     BadGPStimes: ``array_like``
         Array containing the bad GPS times to not be considered, based on the chosen value of the delta sigma cut.
         
-    dsigmas_dict: ``rray_like``
+    dsigmas_dict: ``array_like``
         Array containing the values of the difference between sliding sigma and naive sigma, i.e., the actual value of the delta sigma per segment.
     """
 
