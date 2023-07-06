@@ -622,7 +622,7 @@ class SchumannModel(GWBModel):
             Amplitude of coupling function of interferometer i at 10 Hz (:math:`\kappa_i`)
 
         beta_i : ``float``
-            Spectral index of coupling function of interferometer i (:math:`\beta_i`)
+            Spectral index of coupling function of interferometer i (:math:`\\beta_i`)
 
         frequencies : ``array_like``
             Array of frequencies at which to evaluate the model

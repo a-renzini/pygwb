@@ -11,9 +11,6 @@ line:
 
 >>> from pygwb.constants import H0
 
-See also
---------
-astropy : Both ``astropy.constants`` constants and ``astropy.cosmology`` are used to obtain the speed of light, and the cosmology as given by Planck18 results.
 """
 
 from astropy.constants import c
