@@ -10,7 +10,6 @@ these plots can be made by calling the relevant class method (e.g. `plot_running
 
 import json
 import warnings
-
 from os import listdir
 from os.path import isfile, join
 from pathlib import Path
