@@ -5,6 +5,7 @@ import distutils
 import json
 import os
 from fractions import Fraction
+from loguru import logger
 from pathlib import Path
 
 import bilby
@@ -19,7 +20,12 @@ def load_npz(fname_path):
     data = np.load(fname_path)
     ptEst_ff = np.real(data["point_estimate_spectrum"])
     sigma_ff = data["sigma_spectrum"]
-    freq_mask = data["frequency_mask"]
+    try:
+        freq_mask = data["frequency_mask"]
+    except KeyError:
+        logger.info("Data file has no notches saved and no notchfile was passed; no notching will be applied.")
+        freq_mask = True
+        
     goodInds = np.logical_and(np.invert(np.isnan(ptEst_ff)), ptEst_ff!=0, sigma_ff!=0)
     if "frequencies" not in data.keys():
         freqs = None
@@ -46,7 +52,7 @@ def load_hdf5(fname_path):
 def main():
     pe_parser = argparse.ArgumentParser(add_help=True)
     pe_parser.add_argument(
-        "--input_file_path", help="Path to data file (or pickled baseline) to use for analysis.", action="store", type=str, required=True
+        "--input_file", help="Path to data file (or pickled baseline) to use for analysis.", action="store", type=str, required=True
     )
     pe_parser.add_argument(
         "--ifos", help="List of names of two interferometers for which you want to run PE, default is H1 and L1. Not needed when running from a pickled baseline.", action="store", type=str, required=False, default = "None"
@@ -61,7 +67,7 @@ def main():
         "--non_prior_args", help="A dictionary with the parameters of the model that are not associated with a prior, such as the reference frequency for Power-Law. Default value is reference frequency at 25 Hz for the power-law model.", type=str, action="store", required=False, default="None"
     )
     pe_parser.add_argument(
-        "--output_dir", help="Output directory of the PE (sampler). Default is \"./pe_output\".", type=str, action="store", required=False, default='./pe_output'
+        "--outdir", help="Output directory of the PE (sampler). Default is \"./pe_output\".", type=str, action="store", required=False, default='./pe_output'
     )
     pe_parser.add_argument(
         "--apply_notching", help="Apply notching to the data. Default is True.", action="store", type=str, required=False
@@ -119,7 +125,7 @@ def main():
     else:
         extra_kwargs = json.loads(script_args.non_prior_args)
 
-    if script_args.output_dir == 'pe_output':
+    if script_args.outdir == 'pe_output':
         if not os.path.isdir('pe_output'):
             os.mkdir('./pe_output')
 
@@ -137,12 +143,12 @@ def main():
             f"Not all required parameters of the model are present in one of the parameters dictionaries. \n These are the required parameters: {dictionary_parameters[script_args.model]}."
         )
 
-    if script_args.input_file_path.endswith(("npz")) or script_args.input_file_path.endswith((".h5")):
+    if script_args.input_file.endswith(("npz")) or script_args.input_file.endswith((".h5")):
 
-        if script_args.input_file_path.endswith(("npz")):
-            frequencies, point_estimate_spectrum, sigma_spectrum, freq_mask = load_npz(script_args.input_file_path)
+        if script_args.input_file.endswith(("npz")):
+            frequencies, point_estimate_spectrum, sigma_spectrum, freq_mask = load_npz(script_args.input_file)
         else:
-            frequencies, point_estimate_spectrum, sigma_spectrum, freq_mask = load_hdf5(script_args.input_file_path)
+            frequencies, point_estimate_spectrum, sigma_spectrum, freq_mask = load_hdf5(script_args.input_file)
 
         point_estimates = [point_estimate_spectrum]
         sigmas = [sigma_spectrum]
@@ -168,9 +174,9 @@ def main():
         base_12.point_estimate_spectrum = point_estimate_spectrum
         base_12.sigma_spectrum = sigma_spectrum
 
-    elif script_args.input_file_path.endswith((".p", ".pickle")):
+    elif script_args.input_file.endswith((".p", ".pickle")):
 
-        base_12 = Baseline.load_from_pickle(script_args.input_file_path)
+        base_12 = Baseline.load_from_pickle(script_args.input_file)
 
     else:
         raise TypeError(
@@ -206,7 +212,7 @@ def main():
         range_list[index] = tuple_range
 
     hlv=bilby.run_sampler(likelihood=model,priors=priors,sampler='dynesty', npoints=1000, walks=10, maxmcmc=10000, 
-    outdir=script_args.output_dir,label= 'hlv', injection_parameters = injection_parameters)
+    outdir=script_args.outdir,label= 'hlv', injection_parameters = injection_parameters)
 
     if script_args.quantiles == "None":
         quantiles = [0.05, 0.95]
