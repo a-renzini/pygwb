@@ -65,7 +65,7 @@ Let's do a quick check if the sample rate was changed.
 >>> print(preprocessed_timeseries.sample_rate)
 4096.0 Hz
 
-It was succesfully changed. The last important part of preprocessing is gating the data.
+It was successfully changed. The last important part of preprocessing is gating the data.
 In that case, using again default values for parameters, you can run
 
 >>> gate_tzero = 1.0
@@ -128,7 +128,7 @@ def set_start_time(
 
     do_sidereal: `bool`, optional
         When this option is turned on, the code 
-        considers sidereal days instead of terrestial days.
+        considers sidereal days instead of terrestrial days.
 
     Returns
     =======
