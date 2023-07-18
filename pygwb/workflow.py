@@ -338,14 +338,6 @@ class Workflow():
             self.max_dur = 1000000
 
         ifos = self.config['general']['ifos'].split(' ')
-        strfr = self.config["pygwb_pipe"]["frametype"].replace(":", ",").split(",")
-        strain_frametypes = {strfr[2*i]: strfr[(2*i+1)] for i in range(len(strfr)//2)}
-
-        seglist = SegmentList([[self.t0, self.tf]])
-        for ifo in ifos:
-            frametype = strain_frametypes[ifo]
-            cached_frames, _ = find_best_frames(ifo, frametype, start=self.t0, end=self.tf)
-            seglist &= cache_segments(cached_frames)
 
         logging.info('Downloading science flags...')
         sci_flag = DataQualityDict.query_dqsegdb(
@@ -356,39 +348,33 @@ class Workflow():
         if self.config.has_option('data_quality', 'veto_definer'):
             logging.info('Downloading vetoes...')
             vetoes = DataQualityDict.from_veto_definer_file(
-                config['data_quality']['veto_definer']
+                self.config['data_quality']['veto_definer']
                 )
             cat1_vetoes = DataQualityDict({v: vetoes[v] for v in vetoes if (vetoes[v].category ==1) and (v[:2] in ifos)})
             cat1_vetoes.populate()
 
             cat1_vetoes = cat1_vetoes.intersection().active
 
-            seglist_flags = sci_flag - cat1_vetoes
+            seglist = sci_flag - cat1_vetoes
         else:
-            seglist_flags = sci_flag
-
-        start_times = np.arange(self.t0, self.tf, self.max_dur)
-        if len(start_times) > 1:
-            start_times = start_times[:-1]
-
-        block_segs = SegmentList(
-            [
-                Segment(t, t + self.max_dur)
-                for t in start_times
-            ]
-        )
-        block_segs &= seglist
+            seglist = sci_flag
 
         seglist_pruned = []
-        for seg in block_segs:
-            if seglist_flags.intersects_segment(seg):
-                new_seg_list = (SegmentList([seg]) & seglist_flags)
-                for new_seg in new_seg_list:
-                    if abs(new_seg) > self.min_dur:
-                        seglist_pruned.append([int(new_seg[0]), int(new_seg[1])])
-
+        for seg in seglist:
+            start = int(seg[0])
+            end = int(seg[1])
+            dur = int(end-start)
+            if dur < self.min_dur:
+                continue
+            elif dur > self.max_dur:
+                edges = np.arange(start, end, self.max_dur)
+                if edges[-1]+self.min_dur<end:
+                    edges = np.append(edges, end)
+                for i in range(len(edges)-1):
+                    seglist_pruned.append([int(edges[i]),int(edges[i+1])])
+            else:
+                seglist_pruned.append([start, end])
         return seglist_pruned
-
 
     def setup_dagman(self, name, basedir=None):
         logging.info('Writing DAG...')

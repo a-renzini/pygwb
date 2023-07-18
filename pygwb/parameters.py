@@ -94,6 +94,8 @@ class Parameters:
         Cluster window. Default is 0.5.
     gate_whiten: `bool`
         Whether to whiten when gating. Default is True.
+    tag: str
+        Hint for the read_data function to retrieve one specific type of data, e.g.: C00, C01
     return_naive_and_averaged_sigmas: `bool`
         Option to return naive and sliding sigmas from delta sigma cut.
     """
@@ -439,6 +441,7 @@ class ParametersHelp(enum.Enum):
     gate_threshold = "Gate threshold. Default is 50."
     cluster_window = "Cluster window. Default is 0.5."
     gate_whiten = "Whether to whiten when gating. Default is True."
+    tag = "Hint for the read_data function to retrieve one specific type of data, e.g.: C00, C01"
     return_naive_and_averaged_sigmas = "option to return naive and sliding sigmas from delta sigma cut. Default value: False"
 
     @property

@@ -13,6 +13,7 @@ from scipy.signal import get_window
 
 from pygwb.constants import H0
 
+
 def parse_window_dict(window_dict):
     """
     Parse the window dictionary properly for scipy compatibility.

@@ -1,5 +1,6 @@
 import json
 import warnings
+
 """
 The statistical checks class performs various tests by plotting different quantities and saving this plots. 
 This allows the user to check for consistency with expected results. Concretely, the following tests and plots
@@ -673,8 +674,8 @@ class StatisticalChecks(object):
         resolution = frequencies[1] - frequencies[0]
         fftlength = int(1.0 / resolution)
         
-        coherence_notched = coherence*self.frequency_mask
-        coherence_notched_clipped = coherence_clipped*self.frequency_mask
+        coherence_notched = coherence[self.frequency_mask]
+        coherence_notched_clipped = coherence_clipped[self.frequency_mask]
 
         coherence_highres = np.arange(0,1,1e-6)
         predicted_highres = (self.n_segs-1) * (1- coherence_highres)**(self.n_segs-2)
