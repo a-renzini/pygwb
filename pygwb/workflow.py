@@ -63,6 +63,7 @@ class Job(pyJob):
         # attrs for cache system
         self.output_exits = False
         self.required_job = False
+        self.input_replaced = False
             
         # output args
         if output_file is not None:
@@ -133,19 +134,22 @@ class Job(pyJob):
                     p.check_required()
 
     def replace_input(self, cache):
-        args = self.args[0].arg.split(' ')
-        input_base = []
-        if self.input_file:
-            input_base = [os.path.basename(i_file) for i_file in self.input_file]
-        for file_pair in cache:
-            if file_pair[0] in input_base:
-                # replace this in arguments
-                for i, arg in enumerate(args):
-                    if file_pair[0] in arg:
-                        args[i] = file_pair[1]
-        self.args = [JobArg(arg=' '.join(args),
-                            name=self.args[0].name,
-                            retry=self.args[0].retry)]
+        if not self.input_replaced:
+            args = self.args[0].arg.split(' ')
+            input_base = []
+            if self.input_file:
+                input_base = [os.path.basename(i_file) for i_file in self.input_file]
+            for file_base in input_base:
+                file_index = np.where(cache.T[0] == file_base)
+                if len(file_index[0]):
+                    # replace this in arguments
+                    for i, arg in enumerate(args):
+                        if file_base in arg:
+                            args[i] = cache.T[1][file_index[0]][0]
+            self.args = [JobArg(arg=' '.join(args),
+                                name=self.args[0].name,
+                                retry=self.args[0].retry)]
+            self.input_replaced = True
 
     def replace_input_children(self, cache):
         for c in self.children:
