@@ -1,6 +1,3 @@
-import json
-import warnings
-
 """
 The statistical checks class performs various tests by plotting different quantities and saving this plots. 
 This allows the user to check for consistency with expected results. Concretely, the following tests and plots
@@ -9,9 +6,10 @@ part of point estimate integrand, FFT of the point estimate integrand, (cumulati
 and sigma as a function of time, omega and sigma distribution, KS test, and a linear trend analysis of omega in time. 
 Furthermore, part of these plots compares the values of these quantities before and after the delta sigma cut. Each of 
 these plots can be made by calling the relevant class method (e.g. `plot_running_point_estimate()`).
-
 """
 
+import json
+import warnings
 from os import listdir
 from os.path import isfile, join
 from pathlib import Path
@@ -77,45 +75,64 @@ class StatisticalChecks(object):
         Instantiate a StatisticalChecks object.
 
         Parameters
-        ==========
+        =======
 
-        sliding_times_all: array_like
+        sliding_times_all: ``array_like``
             Array of GPS times before the bad GPS times from the delta sigma cut are applied.
-        sliding_omega_all: array_like
-            Array of sliding omegas before the bad GPS times from the delta sigma cut are applied.
-        sliding_sigmas_all: array_like
-            Array of sliding sigmas before the bad GPS times from the delta sigma cut are applied.
-        naive_sigmas_all: array_like
-            Array of naive sigmas before the bad GPS times from the delta sigma cut are applied.
-        coherence_spectrum: array
-            Array containing a coherence spectrum. Each entry in this array corresponds to the 2-detector coherence spectrum evaluated at the corresponding frequency in the frequencies array.
-        coherence_n_segs: int
-            Number of segments used for coherence calculation.
-        point_estimate_spectrum: array
-            Array containing the point estimate spectrum. Each entry in this array corresponds to the point estimate spectrum evaluated at the corresponding frequency in the frequencies array.
-        sigma_spectrum: array
-            Array containing the sigma spectrum. Each entry in this array corresponds to the sigma spectrum evaluated at the corresponding frequency in the frequencies array.
-        frequencies: array
-            Array containing the frequencies.
-        badGPStimes: array_like
-            Array of bad GPS times, i.e. times that do not pass the delta sigma cut.
-        delta_sigmas: array_like
-            Array containing the value of delta sigma for all times in sliding_times_all.
-        plot_dir: str
-            String with the path to which the output of the statistical checks (various plots) will be saved.
-        baseline_name: str
-            Name of the baseline under consideration.
-        param_file: str
-            String with path to the file containing the parameters that were used for the analysis run.
-        frequency_mask: array
-            Boolean mask applied to the specrtra in broad-band analyses. 
-        gates_ifo1/gates_ifo2: list
-            List of gates applied to interferometer 1/2.
-        file_tag: str
-            Tag to be used in file naming convention.
-        legend_fontsize: int
-            Font size for plot legends. Default is 16. All other fonts are scaled to this font.
 
+        sliding_omega_all: ``array_like``
+            Array of sliding omegas before the bad GPS times from the delta sigma cut are applied.
+
+        sliding_sigmas_all: ``array_like``
+            Array of sliding sigmas before the bad GPS times from the delta sigma cut are applied.
+
+        naive_sigmas_all: ``array_like``
+            Array of naive sigmas before the bad GPS times from the delta sigma cut are applied.
+
+        coherence_spectrum: ``array_like``
+            Array containing a coherence spectrum. Each entry in this array corresponds to the 2-detector coherence spectrum evaluated at the corresponding frequency in the frequencies array.
+        
+        coherence_n_segs: ``int``
+            Number of segments used for coherence calculation.
+        
+        point_estimate_spectrum: ``array_like``
+            Array containing the point estimate spectrum. Each entry in this array corresponds to the point estimate spectrum evaluated at the corresponding frequency in the frequencies array.
+        
+        sigma_spectrum: ``array_like``
+            Array containing the sigma spectrum. Each entry in this array corresponds to the sigma spectrum evaluated at the corresponding frequency in the frequencies array.
+        
+        frequencies: ``array_like``
+            Array containing the frequencies.
+        
+        badGPStimes: ``array_like``
+            Array of bad GPS times, i.e. times that do not pass the delta sigma cut.
+        
+        delta_sigmas: ``array_like``
+            Array containing the value of delta sigma for all times in sliding_times_all.
+        
+        plot_dir: ``str``
+            String with the path to which the output of the statistical checks (various plots) will be saved.
+        
+        baseline_name: ``str``
+            Name of the baseline under consideration.
+        
+        param_file: ``str``
+            String with path to the file containing the parameters that were used for the analysis run.
+        
+        frequency_mask: ``array_like``, optional
+            Boolean mask applied to the specrtra in broad-band analyses. Defaults to None.
+        
+        gates_ifo1/gates_ifo2: ``list``, optional
+            List of gates applied to interferometer 1/2. Defaults to None.
+        
+        file_tag: ``str``, optional
+            Tag to be used in file naming convention. Defaults to None.
+        
+        legend_fontsize: ``int``, optional
+            Font size for plot legends. Default is 16. All other fonts are scaled to this font.
+        
+        convention: ``str``, optional
+            Denotes whether to run in `pygwb` or `stochmon` mode. Defaults to `pygwb`.
         """
         self.params = Parameters()
         self.params.update_from_file(param_file)
@@ -216,19 +233,25 @@ class StatisticalChecks(object):
         Returns
         =======
 
-        sliding_times_cut: array_like
+        sliding_times_cut: ``array_like``
             Array of GPS times after the bad GPS times were applied.
-        days_cut: array_like
+        
+        days_cut: ``array_like``
             Array of days after the bad GPS times were applied.
-        sliding_omega_cut: array_like
+        
+        sliding_omega_cut: ``array_like``
             Array of the sliding omega values after the bad GPS times were applied.
-        sliding_sigma_cut: array_like
+        
+        sliding_sigma_cut: ``array_like``
             Array of sliding sigmas after the bad GPS times were applied.
-        naive_sigma_cut: array_like
+        
+        naive_sigma_cut: ``array_like``
             Array of naive sigmas after the bad GPS times were applied.
-        delta_sigma_cut: array_like
+        
+        delta_sigma_cut: ``array_like``
             Array of the delta sigma values after the bad GPS times were applied.
-        sliding_deviate_cut: array_like
+        
+        sliding_deviate_cut: ``array_like``
             Array of the deviates after the bad GPS times were applied.
         """
         bad_gps_times = self.badGPStimes
@@ -278,9 +301,10 @@ class StatisticalChecks(object):
         Returns
         =======
 
-        running_pt_estimate: array_like
+        running_pt_estimate: ``array_like``
             Array containing the values of the running point estimate.
-        running_sigmas: array_like
+        
+        running_sigmas: ``array_like``
             Array containing the values of the running sigmas.
         """
         running_pt_estimate = self.sliding_omega_cut.copy()
@@ -309,10 +333,11 @@ class StatisticalChecks(object):
         Returns
         =======
 
-        t_array: array_like
+        t_array: ``array_like``
             Array containing the time lag values (in seconds).
-        omega_t: array_like
-            Array containing the
+        
+        omega_t: ``array_like``
+            Array containing the inverse Fourier transform of the point estimate integrand.
 
         See also
         --------
@@ -360,12 +385,13 @@ class StatisticalChecks(object):
         as it accesses the data through the attributes of the class (e.g. `self.days_cut`).
 
         Parameters
-        ==========
+        =======
 
-        ymin: array_like
-            Minimum value on the y-axis.
-        ymax: array_like
-            Maximum value on the y-axis.
+        ymin: ``array_like``, optional
+            Minimum value on the y-axis. Defaults to None in which case no axis limits are set.
+       
+        ymax: ``array_like``, optional
+            Maximum value on the y-axis. Defaults to None in which case no axis limits are set.
 
         """
         if self.days_cut.size==0:
@@ -1140,9 +1166,9 @@ class StatisticalChecks(object):
     def plot_hist_omega_pre_post_dsc(self):
         r"""
         Generates and saves a histogram of the :math:`\Delta{\rm SNR}_i` distribution. The plot 
-        shows the data before and after the delta-sigma cut (bad GPS times) was applied. This function
-          does not require any input parameters, as it accesses the data through the attributes of the 
-          class (e.g. `self.sliding_deviate_all`).
+        shows the data before and after the delta-sigma cut (bad GPS times) was applied. This function 
+        does not require any input parameters, as it accesses the data through the attributes of the 
+        class (e.g. `self.sliding_deviate_all`).
         """
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
 
@@ -1189,9 +1215,9 @@ class StatisticalChecks(object):
         of the class (e.g. `self.sliding_deviate_cut`).
 
         Parameters
-        ==========
+        =======
 
-        bias_factor: float, optional
+        bias_factor: ``float``, optional
             Bias factor to consider in the KS calculation. Defaults to None, in which case it 
             computes the bias factor on the fly.
 
@@ -1515,21 +1541,32 @@ def run_statistical_checks_from_file(
     Method to generate an instance of the statistical checks class from a set of files.
 
     Parameters
-    ==========
+    =======
 
-    combine_file_path: str
+    combine_file_path: ``str``
         Full path to the file containing the output of the pygwb.combine script, i.e., with the 
         combined results of the run.
 
-    dsc_file_path: str
+    dsc_file_path: ``str``
         Full path to the file containing the results of the delta sigma cut.
 
-    plot_dir: str
+    plot_dir: ``str``
         Full path where the plots generated by the statistical checks module should be saved.
-    param_file: str
+
+    param_file: ``str``
         Full path to the parameter file that was used for the analysis.
-    legend_fontsize: int, optional
+
+    legend_fontsize: ``int``, optional
         Fontsize used in the plots generated by the module. Defaults to 16.
+
+    coherence_file_path: ``str``, optional
+        Path to file containing the coherence spectra. Default is None.
+
+    file_tag: ``str``, optional
+            Tag to be used in file naming convention. Defaults to None.
+
+    convention: ``str``, optional
+        Denotes whether to run in `pygwb` or `stochmon` mode. Defaults to `pygwb`.
     """
     params = Parameters()
     params.update_from_file(param_file)
