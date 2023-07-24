@@ -76,7 +76,6 @@ class Test(unittest.TestCase):
         timeseries_output2 = preprocessing.preprocessing_data_timeseries_array(
             t0=self.t0,
             tf=self.tf,
-            IFO=self.IFO,
             array=self.timeseries_array,
             new_sample_rate=self.sample_rate,
             cutoff_frequency=self.cutoff_frequency,
@@ -91,7 +90,6 @@ class Test(unittest.TestCase):
         self.assertEqual(timeseries_output2.sample_rate.value, 4096.0) 
 
         timeseries_output3 = preprocessing.preprocessing_data_gwpy_timeseries(
-            IFO=self.IFO,
             gwpy_timeseries=self.timeseries_data,
             new_sample_rate=self.sample_rate,
             cutoff_frequency=self.cutoff_frequency,

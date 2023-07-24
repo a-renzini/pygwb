@@ -319,7 +319,6 @@ class Interferometer(bilby.gw.detector.Interferometer):
         time_shift = kwargs.pop("time_shift")
         self.duration = segment_duration
         self.timeseries = preprocessing_data_timeseries_array(
-            IFO=self.name,
             array=timeseries_array,
             t0=t0,
             tf=tf,
@@ -358,7 +357,6 @@ class Interferometer(bilby.gw.detector.Interferometer):
         time_shift = kwargs.pop("time_shift")
         self.duration = segment_duration
         self.timeseries = preprocessing_data_gwpy_timeseries(
-            IFO=self.name,
             gwpy_timeseries=gwpy_timeseries,
             new_sample_rate=new_sample_rate,
             cutoff_frequency=cutoff_frequency,
