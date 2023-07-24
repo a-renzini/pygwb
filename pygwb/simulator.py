@@ -67,34 +67,35 @@ class Simulator(object):
         Create an instance of the the ``simulator`` class. 
 
         Parameters
-        ----------
-        interferometers: `list`
-            List of bilby interferometer objects
+        =======
 
-        intensity_GW: `gwpy.frequencyseries.FrequencySeries`, optional
+        interferometers: ``list``
+            List of bilby interferometer objects.
+
+        intensity_GW: ``gwpy.frequencyseries.FrequencySeries``, optional
             A gwpy.frequencyseries.FrequencySeries containing the desired strain power spectrum
             which needs to be simulated. Defaults to None (then ``injection_dict`` should be passed).
         
-        injection_dict: `dict`, optional
+        injection_dict: ``dict``, optional
             Dictionary containing the parameters of CBC injections. Defaults to None (then 
             ``intensity_GW`` should be passed). 
 
-        N_segments: `int`
-            Number of segments that needs to be generated for the simulation
+        N_segments: ``int``
+            Number of segments that needs to be generated for the simulation.
 
-        duration: `float`
+        duration: ``float``
             Duration of a simulated data segment in seconds.
 
-        sampling_frequency: `float`
+        sampling_frequency: ``float``
             Sampling frequency in Hz.
 
-        start_time: `float`, optional
+        start_time: ``float``, optional
             Start time (in seconds) of the simulation. Defaults to 0.
 
-        no_noise: `boolean`, optional
+        no_noise: ``boolean``, optional
             Flag that sets the noise_PSDs to 0. Defaults to False.
 
-        seed: `int`, optional
+        seed: ``int``, optional
             Seed to use for random data generation. Defaults to None.
 
         continuous: ``boolean``, optional
@@ -102,6 +103,7 @@ class Simulator(object):
         
         Notes
         -----
+
         A range of spectral indices (from -3 to 3) was tested. However, one should be 
         careful for spectral indices outside of this range, as the splicing procedure 
         implemented in this module is known to introduce a bias for some values of the 
@@ -167,7 +169,7 @@ class Simulator(object):
         =======
         
         frequencies: ``array_like``
-            Array containing the computed frequencies
+            Array containing the computed frequencies.
             
         See also
         --------
@@ -228,13 +230,15 @@ class Simulator(object):
         for all the baselines in self.baselines.
 
         Parameters
-        ----------
-        polarization: `str`, optional
+        =======
+
+        polarization: ``str``, optional
             Polarization for which to generate the overlap reduction function. Defaults to tensor.
             
         Returns
-        -------
-        orf_list: `list`
+        =======
+
+        orf_list: ``list``
             List containing the overlap reduction functions for all the baselines
             in self.baselines.
             
@@ -257,7 +261,7 @@ class Simulator(object):
 
     def get_data_for_interferometers(self):
         """
-        Get a data dictionary for interferometers
+        Get a data dictionary for interferometers.
 
         Returns
         =======
@@ -470,6 +474,7 @@ class Simulator(object):
         eigval: ``array_like``
             Array of diagonal matrices containing the eigenvalues of the
             covariance matrix C.
+
         eigvec: ``array_like``
             Array of matrices containing the eigenvectors of the covariance
             matrix C.
@@ -517,6 +522,7 @@ class Simulator(object):
         
         z: ``array_like``
             Array containing the uncorrelated data with random phase.
+
         C: ``array_like``
             Array of size Nd x Nd x Nf representing the covariance matrices
             between detectors for a desired stochastic background, where Nd
