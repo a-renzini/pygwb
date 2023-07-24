@@ -1,39 +1,36 @@
-"""Preprocessing module collects all the functions that handle the preprocessing (what's in a name) of the data used in the analysis.
+"""Preprocessing module collects all the functions that handle the preprocessing of the data used in the analysis.
 
-The functions of the preprocessing module can handle anything related with preparing the data for the pygwb analysis run.
-Functions are present that read data from frame files, locally or publicly. Other functions are able to resample the data, apply a high-pass filter to it or apply a timeshift to the data.
-These functionalities comes together in the triplet of ``preprocessing_data`` functions which read in data and resample and/or high-pass it immediately.
-The triplet can work from a given ``gwpy.timeseries.TimeSeries``, a normal array or using a gravitational wave channel that will read in that channel from the provided local or public frame files. 
+The functions of the preprocessing module handle anything related with preparing the data for the pygwb analysis run.
+It contains the ability to read data from frame files, locally or publicly.
+Other functions are able to resample the data, apply a high-pass filter to data or apply a timeshift.
+These functionalities come together in the triplet of ``preprocessing_data`` functions
+which reads in data and resamples and/or high-passes it immediately.
+The triplet can work for a ``gwpy.timeseries.TimeSeries``, a normal array or using a gravitational wave channel
+that will read data from that channel using the provided local or public frame files.
 
-The last function can gate the data based on the gate function in gwpy, ``gwpy.timeseries.TimeSeries.gate``.
+The last function of the module can gate data based on the gate function in gwpy, ``gwpy.timeseries.TimeSeries.gate``.
 
 Examples
 --------
 
-As an example, we will read in some data from a certain channel and then resample, high-pass and apply gating to the data.
+As an example, we read in some data from a certain channel and then resample, high-pass and apply gating to the data.
 First, we have to import the module.
 
 >>> import pygwb.preprocessing as ppp
 
 Then, we read in some data utilising the ``read_data`` function of preprocessing.
 We focus on reading in public data out of convenience from the "H1" detector.
-We want to read strain data hence the channel name.
+We want to read strain data hence the choice for the channel name.
 
 >>> IFO = "H1"
->>> data_type = "public"
->>> channel = "H1:GWOSC-16KHZ_R1_STRAIN"
->>> t0 = 1247644138
->>> tf = 1247648138
->>> local_data_path = ""
->>> input_sample_rate = 16384
 >>> data_timeseries = ppp.read_data(
         IFO,
-        data_type,
-        channel,
-        t0,
-        tf,
-        local_data_path,
-        input_sample_rate,
+        "public",                   # data_type
+        "H1:GWOSC-16KHZ_R1_STRAIN", # channel
+        1247644138,                 # t0
+        1247648138,                 # tf
+        "",                         # local_data_path
+        16384                       # input_sample_rate
     )
 >>> print(data_timeseries.sample_rate)
 16384.0 Hz
@@ -41,23 +38,17 @@ We want to read strain data hence the channel name.
 We print the sample rate just to show it is indeed 16 kHz at the moment.
 Now, we will preprocess the data, meaning it will be resampled and a high-pass
 filter will be applied to the data. We want to resample to 4 kHz.
-All the other values for parameters are default values as ever.
 
 >>> new_sample_rate = 4096
->>> cutoff_frequency = 11
->>> number_cropped_seconds = 2
->>> window_downsampling = "hamming"
->>> ftype = "fir"
->>> time_shift = 0
 >>> preprocessed_timeseries = ppp.preprocessing_data_gwpy_timeseries(
         IFO,
         data_timeseries,
         new_sample_rate,
-        cutoff_frequency,
-        number_cropped_seconds,
-        window_downsampling,
-        ftype,
-        time_shift,
+        11,        # cutoff_frequency
+        2,         # number_cropped_seconds
+        "hamming", # window_downsampling
+        "fir",     # ftype
+        0          # timeshift
     )
     
 Let's do a quick check if the sample rate was changed.
@@ -68,18 +59,13 @@ Let's do a quick check if the sample rate was changed.
 It was successfully changed. The last important part of preprocessing is gating the data.
 In that case, using again default values for parameters, you can run
 
->>> gate_tzero = 1.0
->>> gate_tpad = 0.5
->>> gate_threshold = 50.0
->>> cluster_window = 0.5
->>> gate_whiten = True
 >>> gated_timeseries, deadtime = ppp.self_gate_data(
         preprocessed_timeseries,
-        gate_tzero,
-        gate_tpad,
-        gate_threshold,
-        cluster_window,
-        gate_whiten,
+        1.0,  # gate_tzero
+        0.5,  # gate_tpad
+        50.0, # gate_threshold
+        0.5,  # cluster_window
+        True  # gate_whiten
     )
     
 In this case, we now know the gates themselves represented as ``deadtime``
@@ -107,26 +93,25 @@ def set_start_time(
     do_sidereal: bool = False,
 ):
     """
-    Function to identify segment start times
-    either with or without sidereal option
+    Function to identify segment start times either with or without sidereal option.
 
     Parameters:
-    ========
-    job_start_GPS: `int`
+    =======
+    job_start_GPS: ``int``
         Integer indicating the start time (in GPS)
         of the data.
 
-    job_end_GPS: `int`
+    job_end_GPS: ``int``
         Integer indicating the end time (in GPS)
         of the data.
 
-    buffer_secs: `int`
+    buffer_secs: ``int``
         Number of cropped seconds.
 
-    segment_duration: `int`
+    segment_duration: ``int``
         Duration of each segment.
 
-    do_sidereal: `bool`, optional
+    do_sidereal: ``bool``, optional
         When this option is turned on, the code 
         considers sidereal days instead of terrestrial days.
 
@@ -162,15 +147,14 @@ def read_data(
     tf: int,
     local_data_path: str = "",
     frametype: str = "",
-    tag: str = "C00",
     input_sample_rate: int = 16384,
 ):
     """
     Function doing the reading of the data to be used in the
-    stochastic pipeline
+    stochastic pipeline.
 
     Parameters
-    ========
+    =======
     IFO: ``str``
         Interferometer from which to retrieve the data.
 
@@ -191,10 +175,7 @@ def read_data(
         GPS time of the end of the data taking.
 
     frametype: ``str``
-        Frame type that contains the channel, only used if data_type=private (e.g.: "L1_HOFT_C00")
-
-    tag: `str`, optional
-        Tag identifying type of data, e.g.: 'C00', 'C01'.
+        Frame type that contains the channel, only used if data_type=private (e.g.: "L1_HOFT_C00").
 
     local_data_path: ``str``, optional
         Path where local gwf is stored.
@@ -214,8 +195,8 @@ def read_data(
         )
         data.channel = channel
     elif data_type == "private":
-        if frametype=="":
-            frametype=None
+        if frametype == "":
+            frametype = None
         data = get_timeseries(channel, segments=[[t0, tf]], frametype=frametype)
         if len(data) > 1:
             raise ValueError("Something went wrong while getting the data!"
@@ -269,7 +250,7 @@ def apply_high_pass_filter(
     Returns
     =======
     filtered: ``gwpy.timeseries.TimeSeries``
-        High-pass filtered timeseries
+        High-pass filtered timeseries.
     """
     zpk = scipy.signal.butter(
         16, cutoff_frequency, "high", analog=False, output="zpk", fs=sample_rate
@@ -288,17 +269,16 @@ def resample_filter(
     ftype: str = "fir",
 ):
     """
-    Function doing part of the pre-processing
-    (resampling and filtering)
+    Function doing part of the pre-processing (resampling and filtering)
     of the data to be used in the stochastic pipeline.
 
     Parameters
-    ========
+    =======
     time_series_data: ``gwpy.timeseries.TimeSeries``
         Timeseries data to be analysed in the pipeline.
 
     new_sample_rate: ``int``
-        Sampling rate of the downsampled-timeseries.
+        Sampling rate of the downsampled timeseries.
 
     cutoff_frequency: ``float``
         Frequency (in Hz) from which to start applying the
@@ -310,7 +290,7 @@ def resample_filter(
 
     window_downsampling: ``str``, optional
         Type of window used to downsample.
-        Default window is hamminh.
+        Default window is hamming.
 
     ftype: ``str``
         Type of filter to use in the downsampling.
@@ -323,7 +303,8 @@ def resample_filter(
     """
     if (new_sample_rate * number_cropped_seconds) < 18:
         warnings.warn(
-            f"Number of cropped seconds requested {number_cropped_seconds}s is low compared to the sampling rate {new_sample_rate}: cropped-seconds x sampling-rate = {number_cropped_seconds*new_sample_rate}."
+            f"Number of cropped seconds requested {number_cropped_seconds}s is low compared to the sampling rate "
+            f"{new_sample_rate}: cropped-seconds x sampling-rate = {number_cropped_seconds*new_sample_rate}."
         )
     data_to_resample = copy.deepcopy(time_series_data.value)
     original_times = copy.deepcopy(time_series_data.times)
@@ -338,7 +319,8 @@ def resample_filter(
         new._unit = time_series_data.unit
         resampled = new.resample(new_sample_rate, window_downsampling, ftype)
         warnings.warn(
-            f"There are {np.sum(nan_mask)} NaNs in the timestream ({np.sum(nan_mask)*100/len(time_series_data)}% of the data). These will be ignored in pre-processing."
+            f"There are {np.sum(nan_mask)} NaNs in the timestream ({np.sum(nan_mask)*100/len(time_series_data)}%"
+            f" of the data). These will be ignored in pre-processing."
         )
     else:
         resampled = time_series_data.resample(
@@ -367,45 +349,49 @@ def self_gate_data(
 ):
     """
     Function to self-gate
-    data to be used in the stochastic pipeline
+    data to be used in the stochastic pipeline.
 
     Parameters
-    ========
+    =======
     time_series_data: ``gwpy.timeseries.TimeSeries``
         Timeseries data to be analysed in the pipeline.
 
-    tzero : `int`, optional
+    tzero : ``int``, optional
         Half-width time duration (seconds) in which the timeseries is
         set to zero. Default is 1.0.
 
-    tpad : `int`, optional
+    tpad : ``int``, optional
         Half-width time duration (seconds) in which the Planck window
         is tapered. Default is 0.5.
 
-    whiten : `bool`, optional
+    whiten : ``bool``, optional
         If True, data will be whitened before gating points are discovered,
         use of this option is highly recommended. Default is True.
 
-    threshold : `float`, optional
+    gate_threshold : ``float``, optional
         Amplitude threshold, if the data exceeds this value a gating window
         will be placed. Default is 50.0.
 
-    cluster_window : `float`, optional
+    cluster_window : ``float``, optional
         Time duration (seconds) over which gating points will be clustered.
         Default is 0.5.
 
+    gates: ``gwpy.segments.SegmentList``, optional
+        Argument where gates can be explicitly given to this function.
+        Those gates would then be applied to the timeseries data. If not applied, equal to None.
+
     Returns
     =======
-    gated: `gwpy.timeseries.TimeSeries`
+    gated: ``gwpy.timeseries.TimeSeries``
         TimeSeries containing the gated data.
 
-    deadtime: `gwpy.segments.SegmentList`
+    deadtime: ``gwpy.segments.SegmentList``
         SegmentList containing the times that were gated, not including
         any padding applied.
 
     Notes
     -----
-    This method is based on `gwpy.timeseries.TimeSeries.gate`. See
+    This method is based on ``gwpy.timeseries.TimeSeries.gate``. See
     https://gwpy.github.io/docs/latest/api/gwpy.timeseries.TimeSeries/?highlight=timeseries#gwpy.timeseries.TimeSeries.gate
     for additional details.
     """
@@ -440,11 +426,11 @@ def self_gate_data(
 def shift_timeseries(time_series_data: timeseries.TimeSeries, time_shift: int = 0):
 
     """
-    Function that shifts a timeseries by an amount `time_shift`
-    in order to perform the time shifted analysis
+    Function that shifts a timeseries by an amount ``time_shift``
+    in order to perform the timeshifted analysis.
 
     Parameters
-    ========
+    =======
     time_series_data: ``gwpy.timeseries.TimeSeries``
         Timeseries data to be analysed in the pipeline.
 
@@ -468,7 +454,6 @@ def shift_timeseries(time_series_data: timeseries.TimeSeries, time_shift: int = 
 
 
 def preprocessing_data_gwpy_timeseries(
-    IFO: str,
     gwpy_timeseries: timeseries.TimeSeries,
     new_sample_rate: int,
     cutoff_frequency: float,
@@ -482,21 +467,19 @@ def preprocessing_data_gwpy_timeseries(
     stochastic pipeline.
 
     Parameters
-    ========
-    IFO: ``str``
-        Interferometer from which to retrieve the data.
+    =======
 
     gwpy_timeseries: ``gwpy.timeseries.TimeSeries``
         Timeseries from gwpy.
 
-    new_sample_rate: `int`
+    new_sample_rate: ``int``
         Sampling rate of the downsampled-timeseries.
 
-    cutoff_frequency: `float`
+    cutoff_frequency: ``float``
         Frequency (in Hz) from which to start applying the
         high pass filter.
 
-    number_cropped_seconds: `int`, optional
+    number_cropped_seconds: ``int``, optional
         Number of seconds to remove at the beginning and end
         of the high-passed data. Default is 2.
 
@@ -508,13 +491,13 @@ def preprocessing_data_gwpy_timeseries(
         Type of filter to use in the downsampling.
         Default is "fir".
 
-    time_shift: `int`, optional
+    time_shift: ``int``, optional
         Value of the time shift (in seconds).
         Default is 0.
 
     Returns
     =======
-    pre_processed_data: `gwpy.timeseries.TimeSeries`
+    pre_processed_data: ``gwpy.timeseries.TimeSeries``
         Timeseries containing the filtered and high passed data (shifted if time_shift>0).
     """
     time_series_data = gwpy_timeseries
@@ -547,49 +530,45 @@ def preprocessing_data_channel_name(
     time_shift: int = 0,
     local_data_path: str = "",
     frametype: str = "",
-    tag: str = "C00",
     input_sample_rate: int = 16384,
 ):
     """
     Function doing the pre-processing of the data to be used in the
     stochastic pipeline. In this function, you read in data locally
-    or publicly available frame files from a certain `channel`.
+    or publicly available frame files from a certain ``channel``.
 
     Parameters
-    ========
-    IFO: `str`
+    =======
+    IFO: ``str``
         Interferometer from which to retrieve the data.
 
-    t0: `int`
+    t0: ``int``
         GPS time of the start of the data taking.
 
-    tf: `int`
+    tf: ``int``
         GPS time of the end of the data taking.
 
-    data_type: `str`
+    data_type: ``str``
         String indicating the type of data to be read,
         either 'public', 'private' or 'local'.
 
-    channel: `str`
+    channel: ``str``
         Name of the channel (e.g.: "L1:GWOSC-4KHZ_R1_STRAIN").
 
-    frametype: `str`
+    frametype: ``str``
        Frame type that contains the channel, only used if data_type=private (e.g.: "L1_HOFT_C00").
 
-    tag: `str`, optional
-        Tag identifying type of data, e.g.: 'C00', 'C01'.
-
-    new_sample_rate: `int`
+    new_sample_rate: ``int``
         Sampling rate of the downsampled-timeseries.
 
-    cutoff_frequency: `float`
+    cutoff_frequency: ``float``
         Frequency (in Hz) from which to start applying the
         high pass filter.
 
-    segment_duration: `int`
+    segment_duration: ``int``
         Duration of each segment (argument of set_start_time).
 
-    number_cropped_seconds: `int`, optional
+    number_cropped_seconds: ``int``, optional
         Number of seconds to remove at the beginning and end
         of the high-passed data. Default is 2.
 
@@ -597,25 +576,25 @@ def preprocessing_data_channel_name(
         Type of window used to downsample.
         Default is "hamming".
 
-    ftype: `str`, optional
+    ftype: ``str``, optional
         Type of filter to use in the downsampling.
         Default is "fir".
 
-    time_shift: `int`, optional
+    time_shift: ``int``, optional
         Value of the time shift (in seconds).
         Default is 0.
         
-    local_data_path: `str`, optional
+    local_data_path: ``str``, optional
         Path where local gwf frame file is stored.
         Default is an empty string.
 
-    input_sample_rate: `int`, optional.
+    input_sample_rate: ``int``, optional.
         Sampling rate of the timeseries to be read.
         Default is 16384 Hz.
 
     Returns
     =======
-    pre_processed_data: `gwpy.timeseries.TimeSeries`
+    pre_processed_data: ``gwpy.timeseries.TimeSeries``
         Timeseries containing the filtered and high passed data (shifted if time_shift>0).
     """
     data_start_time = set_start_time(
@@ -632,13 +611,11 @@ def preprocessing_data_channel_name(
         frametype=frametype,
         t0=data_start_time - number_cropped_seconds,
         tf=tf,
-        tag=tag,
         local_data_path=local_data_path,
         input_sample_rate=input_sample_rate,
     )
 
     return preprocessing_data_gwpy_timeseries(
-        IFO=IFO,
         gwpy_timeseries=time_series_data,
         new_sample_rate=new_sample_rate,
         cutoff_frequency=cutoff_frequency,
@@ -652,7 +629,6 @@ def preprocessing_data_channel_name(
 def preprocessing_data_timeseries_array(
     t0: int,
     tf: int,
-    IFO: str,
     array: np.ndarray,
     new_sample_rate: int,
     cutoff_frequency: float,
@@ -664,57 +640,54 @@ def preprocessing_data_timeseries_array(
     time_shift: int = 0,
 ):
     """
-    Function doing the pre-processing of a time-series array to be used in the
+    Function performing the pre-processing of a time-series array to be used in the
     stochastic pipeline.
 
     Parameters
-    ========
-    t0: `int`
+    =======
+    t0: ``int``
         GPS time of the start of the data taking.
 
-    tf: `int`
+    tf: ``int``
         GPS time of the end of the data taking.
 
-    IFO: `str`
-        Interferometer from which to retrieve the data.
-
-    array: `np.ndarray`
+    array: ``np.ndarray``
         Array containing a timeseries.
 
-    new_sample_rate: `int`
+    new_sample_rate: ``int``
         Sampling rate of the downsampled-timeseries.
 
-    cutoff_frequency: `float`
+    cutoff_frequency: ``float``
         Frequency (in Hz) from which to start applying the
         high pass filter.
 
-    segment_duration: `int`
+    segment_duration: ``int``
         Duration of each segment (argument of set_start_time).
 
-    sample_rate: `int`, optional
+    sample_rate: ``int``, optional
         Sampling rate of the original timeseries.
         Default is 4096 Hz.
 
-    number_cropped_seconds: `int`, optional
+    number_cropped_seconds: ``int``, optional
         Number of seconds to remove at the beginning and end
         of the high-passed data.
         Default is 2.
 
-    window_downsampling: `str`, optional
+    window_downsampling: ``str``, optional
         Type of window used to downsample.
         Default is "hamming".
 
-    ftype: `str`, optional
+    ftype: ``str``, optional
         Type of filter to use in the downsampling.
         Default is "fir".
 
-    time_shift: `int`, optional
+    time_shift: ``int``, optional
         Value of the time shift (in seconds).
         Default is no time shift.
 
     Returns
     =======
-    pre_processed_data: `gwpy.timeseries.TimeSeries`
+    pre_processed_data: ``gwpy.timeseries.TimeSeries``
         Timeseries containing the filtered and high passed data (shifted if time_shift>0).
     """
     data_start_time = set_start_time(
@@ -727,7 +700,6 @@ def preprocessing_data_timeseries_array(
         array, t0=data_start_time, sample_rate=sample_rate
     )
     return preprocessing_data_gwpy_timeseries(
-        IFO=IFO,
         gwpy_timeseries=time_series_data,
         new_sample_rate=new_sample_rate,
         cutoff_frequency=cutoff_frequency,
