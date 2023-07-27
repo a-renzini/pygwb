@@ -374,8 +374,6 @@ def omega_tangent_bisector(bisector, tangent_vector, perp):
 def calc_orf_from_beta_omegas(
     frequencies,
     beta,
-    omega_det1,
-    omega_det2,
     omega_minus,
     omega_plus,
     polarization="tensor",
@@ -394,10 +392,10 @@ def calc_orf_from_beta_omegas(
         Frequencies at which to evaluate the ORFs
     beta: ``float``
         Angle between detectors from center of Earth:.
-    omega_det1: ``float``
-        Angle between bisector and tangent vector at det1.
-    omega_det2: ``float``
-        Angle between bisector and tangent vector at det2.
+    omega_minus: ``float``
+        Half of the difference of the angle between bisector and tangent vector at det1 and det2.
+    omega_plus: ``float``
+        Half of the sum of the angle between bisector and tangent vector at det1 and det2.
 
     Returns
     =======
@@ -540,6 +538,6 @@ def calc_orf(
             omega_tangent_bisector(bisector_det1, bisector_det2, perp_det1) / 2
         )
 
-    overlap_reduction_function = calc_orf_from_beta_omegas(frequencies, beta, omega_det1, omega_det2, omega_minus, omega_plus, polarization)
+    overlap_reduction_function = calc_orf_from_beta_omegas(frequencies, beta, omega_minus, omega_plus, polarization)
     
     return overlap_reduction_function

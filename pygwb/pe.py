@@ -1037,6 +1037,6 @@ class Geodesy(GWBModel):
     def model_function(self, bline):
         omega_plus = (self.parameters["omega_det1"] + self.parameters["omega_det2"]) / 2.
         omega_minus = (self.parameters["omega_det1"] - self.parameters["omega_det2"]) / 2.
-        new_orf = calc_orf_from_beta_omegas(bline.frequencies, self.parameters["beta"], self.parameters["omega_det1"], self.parameters["omega_det2"], omega_minus, omega_plus)
+        new_orf = calc_orf_from_beta_omegas(bline.frequencies, self.parameters["beta"], omega_minus, omega_plus)
         old_orf = getattr(bline, "tensor_overlap_reduction_function")
         return new_orf/old_orf * self.parameters["omega_ref"] * (bline.frequencies / self.fref) ** self.parameters["alpha"]

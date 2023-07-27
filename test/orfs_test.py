@@ -109,7 +109,7 @@ class OverlapReductionFunctionTest(unittest.TestCase):
         omega_minus = (omega_det1 - omega_det2) / 2.
 
         np.testing.assert_allclose(
-            orfs.calc_orf_from_beta_omegas(freqs, beta, omega_det1, omega_det2, omega_minus, omega_plus, 'tensor'), HL.tensor_overlap_reduction_function, rtol=1e-4, atol=0
+            orfs.calc_orf_from_beta_omegas(freqs, beta, omega_minus, omega_plus, 'tensor'), HL.tensor_overlap_reduction_function, rtol=1e-4, atol=0
         )
         
 if __name__ == "__main__":
