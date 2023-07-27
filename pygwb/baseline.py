@@ -269,7 +269,7 @@ class Baseline(object):
             if notch_list_path:
                 self.notch_list_path = notch_list_path
             if self.notch_list_path:
-                logger.debug("loading notches from " + self.notch_list_path)
+                logger.debug("loading notches from " + str(self.notch_list_path))
                 notch_list = StochNotchList.load_from_file(self.notch_list_path)
                 notch_mask = notch_list.get_notch_mask(self.frequencies)
                 mask = np.logical_and(mask, notch_mask)

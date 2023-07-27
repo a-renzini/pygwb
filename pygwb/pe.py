@@ -91,7 +91,7 @@ class GWBModel(bilby.Likelihood):
         """Function for evaluating model"""
         pass
 
-    def log_likelihood_IJ(self, baseline, noise=False):
+    def log_likelihood_IJ(self, baseline, freq_mask, noise=False):
         """
         Function for evaluating log likelihood of IJ baseline pair
         
@@ -121,9 +121,10 @@ class GWBModel(bilby.Likelihood):
             logL_IJ = -0.5 * (
                 np.sum(
                     (baseline.point_estimate_spectrum - Y_model_f) ** 2
-                    / baseline.sigma_spectrum ** 2
+                    / baseline.sigma_spectrum ** 2,
+                    where=freq_mask,
                 )
-                + np.sum(np.log(2 * np.pi * baseline.sigma_spectrum ** 2))
+                + np.sum(np.log(2 * np.pi * baseline.sigma_spectrum ** 2), where=freq_mask)
             )
 
         # likelihood with calibration uncertainty marginalizatione done analytically
@@ -131,17 +132,20 @@ class GWBModel(bilby.Likelihood):
         # note \cal{N} = \Prod_j sqrt(2*pi*sigma_j^2)
         else:
             A = baseline.calibration_epsilon ** (-2) + np.sum(
-                Y_model_f ** 2 / baseline.sigma_spectrum ** 2
+                Y_model_f ** 2 / baseline.sigma_spectrum ** 2,
+                where=freq_mask,
             )
             B = baseline.calibration_epsilon ** (-2) + np.sum(
                 Y_model_f
                 * baseline.point_estimate_spectrum
-                / baseline.sigma_spectrum ** 2
+                / baseline.sigma_spectrum ** 2,
+                where=freq_mask,
             )
             C = baseline.calibration_epsilon ** (-2) + np.sum(
-                baseline.point_estimate_spectrum ** 2 / baseline.sigma_spectrum ** 2
+                baseline.point_estimate_spectrum ** 2 / baseline.sigma_spectrum ** 2,
+                where=freq_mask,
             )
-            log_norm = -0.5 * np.sum(np.log(2 * np.pi * baseline.sigma_spectrum ** 2))
+            log_norm = -0.5 * np.sum(np.log(2 * np.pi * baseline.sigma_spectrum ** 2), where=freq_mask)
 
             logL_IJ = (
                 log_norm
@@ -159,7 +163,14 @@ class GWBModel(bilby.Likelihood):
         """
         ll = 0
         for baseline in self.baselines:
-            ll = ll + self.log_likelihood_IJ(baseline, noise=False)
+            if hasattr(baseline,"frequency_mask"):
+                ll = ll + self.log_likelihood_IJ(baseline, freq_mask=baseline.frequency_mask, noise=False)
+            else:
+                ll = ll + self.log_likelihood_IJ(
+                    baseline,
+                    freq_mask=np.ones(len(baseline.frequencies), dtype=bool),
+                    noise=False,
+                )
         return ll
 
     def noise_log_likelihood(self):
@@ -168,7 +179,14 @@ class GWBModel(bilby.Likelihood):
         """
         ll = 0
         for baseline in self.baselines:
-            ll = ll + self.log_likelihood_IJ(baseline, noise=True)
+            if hasattr(baseline,"frequency_mask"):
+                ll = ll + self.log_likelihood_IJ(baseline, freq_mask=baseline.frequency_mask, noise=True)
+            else:
+                ll = ll + self.log_likelihood_IJ(
+                    baseline,
+                    freq_mask=np.ones(len(baseline.frequencies), dtype=bool),
+                    noise=True,
+                )
         return ll
 
 
