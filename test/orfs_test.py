@@ -1,12 +1,11 @@
 import unittest
 
 import bilby.gw.detector
+import bilby.gw.detector as bilbydet
 import numpy as np
 
-import bilby.gw.detector as bilbydet
-from pygwb.baseline import Baseline
-
 import pygwb.orfs as orfs
+from pygwb.baseline import Baseline
 
 
 class OverlapReductionFunctionTest(unittest.TestCase):
