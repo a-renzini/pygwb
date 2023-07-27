@@ -989,9 +989,9 @@ class Geodesy(GWBModel):
     r"""
     The Geodesy model can be used as an extra consistency check. Rather than fixing the overlap 
     reduction function (ORF) to its actual value, the parameters describing the ORF are 
-    inferred simultaneously with the GWB spectrum parameters. 
+    inferred simultaneously with the GWB spectrum parameters.
     Parameters:
-    -----------
+    -------
     fref : float
         reference frequency for defining the model (:math:`f_{\text{ref}}`)
     omega_ref : float
@@ -1005,6 +1005,9 @@ class Geodesy(GWBModel):
     omega_det2 : float
         Angle between bisector and tangent vector at detector 2
         
+    Notes
+    -----
+    This likelihood assumes the two detectors are non-colocated.    
     """
 
     def __init__(self, **kwargs):
@@ -1032,68 +1035,8 @@ class Geodesy(GWBModel):
             raise ValueError(f"unexpected type for parameters {type(parameters)}")
 
     def model_function(self, bline):
-        new_orf = calc_orf_new(bline.frequencies, self.parameters["beta"], self.parameters["omega_det1"], self.parameters["omega_det2"] ) 
+        omega_plus = (self.parameters["omega_det1"] + self.parameters["omega_det2"]) / 2.
+        omega_minus = (self.parameters["omega_det1"] - self.parameters["omega_det2"]) / 2.
+        new_orf = calc_orf_from_beta_omegas(bline.frequencies, self.parameters["beta"], self.parameters["omega_det1"], self.parameters["omega_det2"], omega_minus, omega_plus)
         old_orf = getattr(bline, "tensor_overlap_reduction_function")
         return new_orf/old_orf * self.parameters["omega_ref"] * (bline.frequencies / self.fref) ** self.parameters["alpha"]
-
-def calc_orf_new(
-    frequencies,
-    beta,
-    omega_det1,
-    omega_det2,
-    polarization="tensor",
-):
-    """
-    Calculates the tensor, scalar, and vector overlap reduction functions
-    Following Section IVb of https://arxiv.org/abs/0903.0528
-    See Appendix A of https://arxiv.org/abs/1704.08373 for a
-    discussion of the normalization of the scalar ORF and
-    https://arxiv.org/pdf/0707.0535.pdf for the gamma_V function
-
-    Inputs:
-    frequencies: frequencies at which to evaluate the ORFs
-    beta: angle between detectors from center of earth
-    omega_det1: angle between bisector and tangent vector at det1
-    omega_det2: angle between bisector and tangent vector at det2
-
-    Outputs:
-    overlap_reduction_function: overlap reduction function at given frequencies
-        for specified polarization
-    """
-    earth_radius = 6371*10**3 # m
-    
-    delta_x = 2*earth_radius*np.sin(beta/2.)
-    
-    alpha = 2 * np.pi * frequencies * delta_x / speed_of_light
-
-    #Assume detectors cannot be co-located for now
-    if np.linalg.norm(delta_x) != 0:
-        omega_plus = (omega_det1 + omega_det2) / 2
-        omega_minus = (omega_det1 - omega_det2) / 2
-    else:
-        pass
-
-    if polarization.lower() == "tensor":
-        overlap_reduction_function = Tplus(alpha, beta) * np.cos(
-            4 * omega_plus
-        ) + Tminus(alpha, beta) * np.cos(4 * omega_minus)
-    elif polarization.lower() == "vector":
-        overlap_reduction_function = Vplus(alpha, beta) * np.cos(
-            4 * omega_plus
-        ) + Vminus(alpha, beta) * np.cos(4 * omega_minus)
-    elif polarization.lower() == "scalar":
-        overlap_reduction_function = (
-            1.0
-            / 3
-            * (
-                Splus(alpha, beta) * np.cos(4 * omega_plus)
-                + Sminus(alpha, beta) * np.cos(4 * omega_minus)
-            )
-        )
-    elif polarization.lower() == "right_left":
-        overlap_reduction_function = T_right_left(alpha, beta) * np.sin(4 * omega_plus)
-    else:
-        raise ValueError(
-            "Unrecognized polarization! Must be either tensor, vector, scalar, or right_left"
-        )
-    return overlap_reduction_function

@@ -3,6 +3,9 @@ import unittest
 import bilby.gw.detector
 import numpy as np
 
+import bilby.gw.detector as bilbydet
+from pygwb.baseline import Baseline
+
 import pygwb.orfs as orfs
 
 
@@ -90,3 +93,25 @@ class OverlapReductionFunctionTest(unittest.TestCase):
                     self.assertTrue(np.argmax(abs(orf)) < 25)
                 else:
                     self.assertEqual(np.argmax(abs(orf)), 0)
+
+    def test_calc_orf_from_beta_omegas(self):
+
+        freqs = 11.0
+        H1 = bilbydet.get_empty_interferometer("H1")
+        L1 = bilbydet.get_empty_interferometer("L1")
+        HL = Baseline("HL", H1, L1)
+        HL.orf_polarization = 'tensor'
+        HL.frequencies = freqs
+        
+        beta = 0.4757189334754699
+        omega_det1 = 3.4296676473913137
+        omega_det2 = -1.2848910022634024
+        omega_plus = (omega_det1 + omega_det2) / 2.
+        omega_minus = (omega_det1 - omega_det2) / 2.
+
+        np.testing.assert_allclose(
+            orfs.calc_orf_from_beta_omegas(freqs, beta, omega_det1, omega_det2, omega_minus, omega_plus, 'tensor'), HL.tensor_overlap_reduction_function, rtol=1e-4, atol=0
+        )
+        
+if __name__ == "__main__":
+    unittest.main()

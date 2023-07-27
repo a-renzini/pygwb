@@ -371,6 +371,70 @@ def omega_tangent_bisector(bisector, tangent_vector, perp):
     cos_omega = np.dot(bisector, tangent_vector) / norm
     return np.arctan2(sin_omega, cos_omega)
 
+def calc_orf_from_beta_omegas(
+    frequencies,
+    beta,
+    omega_det1,
+    omega_det2,
+    omega_minus,
+    omega_plus,
+    polarization="tensor",
+):
+    """
+    Calculates the tensor, scalar, and vector overlap reduction functions
+    Following Section IVb of https://arxiv.org/abs/0903.0528
+    See Appendix A of https://arxiv.org/abs/1704.08373 for a
+    discussion of the normalization of the scalar ORF and
+    https://arxiv.org/pdf/0707.0535.pdf for the gamma_V function
+
+    Parameters
+    =======
+    
+    frequencies: ``array_like``
+        Frequencies at which to evaluate the ORFs
+    beta: ``float``
+        Angle between detectors from center of Earth:.
+    omega_det1: ``float``
+        Angle between bisector and tangent vector at det1.
+    omega_det2: ``float``
+        Angle between bisector and tangent vector at det2.
+
+    Returns
+    =======
+    
+    overlap_reduction_function: ``array_like``
+        Overlap reduction function at given frequencies for specified polarization.
+    """
+    earth_radius = 6371*10**3 # m
+    
+    delta_x = 2*earth_radius*np.sin(beta/2.)
+    
+    alpha = 2 * np.pi * frequencies * delta_x / speed_of_light
+
+    if polarization.lower() == "tensor":
+        overlap_reduction_function = Tplus(alpha, beta) * np.cos(
+            4 * omega_plus
+        ) + Tminus(alpha, beta) * np.cos(4 * omega_minus)
+    elif polarization.lower() == "vector":
+        overlap_reduction_function = Vplus(alpha, beta) * np.cos(
+            4 * omega_plus
+        ) + Vminus(alpha, beta) * np.cos(4 * omega_minus)
+    elif polarization.lower() == "scalar":
+        overlap_reduction_function = (
+            1.0
+            / 3
+            * (
+                Splus(alpha, beta) * np.cos(4 * omega_plus)
+                + Sminus(alpha, beta) * np.cos(4 * omega_minus)
+            )
+        )
+    elif polarization.lower() == "right_left":
+        overlap_reduction_function = T_right_left(alpha, beta) * np.sin(4 * omega_plus)
+    else:
+        raise ValueError(
+            "Unrecognized polarization! Must be either tensor, vector, scalar, or right_left"
+        )
+    return overlap_reduction_function
 
 def calc_orf(
     frequencies,
@@ -476,27 +540,6 @@ def calc_orf(
             omega_tangent_bisector(bisector_det1, bisector_det2, perp_det1) / 2
         )
 
-    if polarization.lower() == "tensor":
-        overlap_reduction_function = Tplus(alpha, beta) * np.cos(
-            4 * omega_plus
-        ) + Tminus(alpha, beta) * np.cos(4 * omega_minus)
-    elif polarization.lower() == "vector":
-        overlap_reduction_function = Vplus(alpha, beta) * np.cos(
-            4 * omega_plus
-        ) + Vminus(alpha, beta) * np.cos(4 * omega_minus)
-    elif polarization.lower() == "scalar":
-        overlap_reduction_function = (
-            1.0
-            / 3
-            * (
-                Splus(alpha, beta) * np.cos(4 * omega_plus)
-                + Sminus(alpha, beta) * np.cos(4 * omega_minus)
-            )
-        )
-    elif polarization.lower() == "right_left":
-        overlap_reduction_function = T_right_left(alpha, beta) * np.sin(4 * omega_plus)
-    else:
-        raise ValueError(
-            "Unrecognized polarization! Must be either tensor, vector, scalar, or right_left"
-        )
+    overlap_reduction_function = calc_orf_from_beta_omegas(frequencies, beta, omega_det1, omega_det2, omega_minus, omega_plus, polarization)
+    
     return overlap_reduction_function

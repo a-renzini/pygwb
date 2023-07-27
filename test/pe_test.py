@@ -261,24 +261,6 @@ class Test(unittest.TestCase):
         np.testing.assert_allclose(
             test_model.model_function(HL), test_comparison.model_function(HL), rtol=1e-4, atol=0
         )
-        
-    def test_calc_orf_new(self):
-
-        freqs = 11.0
-        H1 = bilbydet.get_empty_interferometer("H1")
-        L1 = bilbydet.get_empty_interferometer("L1")
-        HL = Baseline("HL", H1, L1)
-        HL.orf_polarization = 'tensor'
-        HL.frequencies = freqs
-        
-        beta = 0.4757189334754699
-        omega_det1 = 3.4296676473913137
-        omega_det2 = -1.2848910022634024
-
-        np.testing.assert_allclose(
-            calc_orf_new(freqs, beta, omega_det1, omega_det2), HL.tensor_overlap_reduction_function, rtol=1e-4, atol=0
-        )
-
 
 if __name__ == "__main__":
     unittest.main()

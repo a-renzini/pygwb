@@ -93,6 +93,7 @@ def main():
                          "Triple-Broken-Power-Law": pe.TripleBrokenPowerLawModel,
                          "Smooth-Broken-Power-Law": pe.SmoothBrokenPowerLawModel,
                          "Schumann": pe.SchumannModel,
+                         "Geodesy": pe.Geodesy,
                          "Parity-Violation": pe.PVPowerLawModel,
                          "Parity-Violation-2": pe.PVPowerLawModel2} #"TVS-Power-Law": pe.TVSPowerLawModel
 
@@ -101,6 +102,7 @@ def main():
                              "Triple-Broken-Power-Law": ["omega_ref", "alpha_1", "alpha_2", "alpha_3", "fbreak1", "fbreak2"],
                              "Smooth-Broken-Power-Law": ["omega_ref", "fbreak", "alpha_1", "alpha_2", "delta"],
                              "Schumann": ["kappa_H1", "kappa_L1", "beta_L1", "beta_H1"],
+                             "Geodesy": ["omega_ref", "alpha", "beta", "omega_det1", "omega_det2"],
                              "Parity-Violation": ["omega_ref", "alpha", "Pi"],
                              "Parity-Violation-2": ["omega_ref", "alpha", "beta"]}
 
@@ -178,6 +180,7 @@ def main():
     elif script_args.input_file.endswith((".p", ".pickle")):
 
         base_12 = Baseline.load_from_pickle(script_args.input_file)
+        base_12.point_estimate_spectrum = np.real(base_12.point_estimate_spectrum)
 
     else:
         raise TypeError(
