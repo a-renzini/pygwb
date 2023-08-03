@@ -45,17 +45,17 @@ from .constants import speed_of_light
 def Tplus(alpha, beta):
     """
     Function used in the computation of the tensor ORF, as given by 
-    Eq. (34) of https://arxiv.org/pdf/0903.0528.pdf
+    Eq. (34) of https://arxiv.org/pdf/0903.0528.pdf.
     
     Parameters
-    ==========
+    =======
     
     alpha: ``array_like``
         Given below Eq. (32) of https://arxiv.org/pdf/0903.0528.pdf. 
         Has same shape as frequencies used to compute the ORF.
     
     beta: ``float``
-        Angle between detectors from center of the Earth
+        Angle between detectors from center of the Earth.
         
     Returns
     =======
@@ -93,17 +93,17 @@ def Tplus(alpha, beta):
 def Tminus(alpha, beta):
     """
     Function used in the computation of the tensor ORF, as given by 
-    Eq. (35) of https://arxiv.org/pdf/0903.0528.pdf
+    Eq. (35) of https://arxiv.org/pdf/0903.0528.pdf.
     
     Parameters
-    ==========
+    =======
     
     alpha: ``array_like``
         Given below Eq. (32) of https://arxiv.org/pdf/0903.0528.pdf. 
         Has same shape as frequencies used to compute the ORF.
     
     beta: ``float``
-        Angle between detectors from center of the Earth
+        Angle between detectors from center of the Earth.
     
     Returns
     =======
@@ -127,17 +127,17 @@ def Tminus(alpha, beta):
 def Vplus(alpha, beta):
     """
     Function used in the computation of the vector ORF, as given by 
-    Eq. (37) of https://arxiv.org/pdf/0903.0528.pdf
+    Eq. (37) of https://arxiv.org/pdf/0903.0528.pdf.
     
     Parameters
-    ==========
+    =======
     
     alpha: ``array_like``
         Given below Eq. (32) of https://arxiv.org/pdf/0903.0528.pdf. 
         Has same shape as frequencies used to compute the ORF.
     
     beta: ``float``
-        Angle between detectors from center of the Earth
+        Angle between detectors from center of the Earth.
     
     Returns
     =======
@@ -178,7 +178,7 @@ def Vminus(alpha, beta):
     Eq. (38) of https://arxiv.org/pdf/0903.0528.pdf
     
     Parameters
-    ==========
+    =======
     
     alpha: ``array_like``
         Given below Eq. (32) of https://arxiv.org/pdf/0903.0528.pdf. 
@@ -209,17 +209,17 @@ def Vminus(alpha, beta):
 def Splus(alpha, beta):
     """
     Function used in the computation of the scalar ORF, as given by 
-    Eq. (40) of https://arxiv.org/pdf/0903.0528.pdf
+    Eq. (40) of https://arxiv.org/pdf/0903.0528.pdf.
     
     Parameters
-    ==========
+    =======
     
     alpha: ``array_like``
         Given below Eq. (32) of https://arxiv.org/pdf/0903.0528.pdf. 
         Has same shape as frequencies used to compute the ORF.
     
     beta: ``float``
-        Angle between detectors from center of the Earth
+        Angle between detectors from center of the Earth.
     
     Returns
     =======
@@ -260,14 +260,14 @@ def Sminus(alpha, beta):
     Eq. (41) of https://arxiv.org/pdf/0903.0528.pdf
     
     Parameters
-    ==========
+    =======
     
     alpha: ``array_like``
         Given below Eq. (32) of https://arxiv.org/pdf/0903.0528.pdf. 
         Has same shape as frequencies used to compute the ORF.
     
     beta: ``float``
-        Angle between detectors from center of the Earth
+        Angle between detectors from center of the Earth.
     
     Returns
     =======
@@ -292,14 +292,14 @@ def T_right_left(alpha, beta):
     """
     
     Parameters
-    ==========
+    =======
     
     alpha: ``array_like``
         Given below Eq. (32) of https://arxiv.org/pdf/0903.0528.pdf. 
         Has same shape as frequencies used to compute the ORF.
     
     beta: ``float``
-        Angle between detectors from center of the Earth
+        Angle between detectors from center of the Earth.
     
     Returns
     =======
@@ -324,7 +324,7 @@ def tangent_vector(vector1, vector2):
     Method to compute the tangent vector given two vectors.
     
     Parameters
-    ==========
+    =======
     
     vector1: ``array_like``
     
@@ -334,7 +334,7 @@ def tangent_vector(vector1, vector2):
     =======
     
     tanget_vector: ``array_like``
-        Tangent vector to vector1 and vector2
+        Tangent vector to vector1 and vector2.
     
     """
     return np.subtract(
@@ -348,22 +348,22 @@ def omega_tangent_bisector(bisector, tangent_vector, perp):
     Method to compute the angle between bisector and tangent vector.
     
     Parameters
-    ==========
+    =======
     
     bisector: ``array_like``
-        Bisector vector
+        Bisector vector.
         
     tangent_vector: ``array_like``
-        Tangent vector at detector X along great circle between detectors
+        Tangent vector at detector X along great circle between detectors.
         
     perp: ``array_like``
-        Outward radial vector perpendicular to the detector plane
+        Outward radial vector perpendicular to the detector plane.
         
     Returns
     =======
     
     omega_detX: ``float``
-        Angle between bisector and tangent vector at detector X
+        Angle between bisector and tangent vector at detector X.
     
     """
     norm = np.linalg.norm(bisector) * np.linalg.norm(tangent_vector)
@@ -390,28 +390,28 @@ def calc_orf(
     https://arxiv.org/pdf/0707.0535.pdf for the vector ORF function.
     
     Parameters
-    ==========
+    =======
     
     frequencies: ``array_like``
-        Frequencies at which to evaluate the ORFs
+        Frequencies at which to evaluate the ORFs.
         
     det1_vertex: ``array_like``
-        Coordinates (Earth-fixed cartesian, in meters) of the vertex of detector 1
+        Coordinates (Earth-fixed cartesian, in meters) of the vertex of detector 1.
     
     det2_vertex: ``array_like``
-        Coordinates (Earth-fixed cartesian, in meters) of the vertex of detector 2
+        Coordinates (Earth-fixed cartesian, in meters) of the vertex of detector 2.
     
     det1_xarm: ``array_like``
-        Unit vector (Earth-fixed cartesian) along the x arm of detector 1
+        Unit vector (Earth-fixed cartesian) along the x arm of detector 1.
     
     det2_xarm: ``array_like``
-        Unit vector (Earth-fixed cartesian) along the x arm of detector 2
+        Unit vector (Earth-fixed cartesian) along the x arm of detector 2.
     
     det1_yarm: ``array_like``
-        Unit vector (Earth-fixed cartesian) along the y arm of detector 1
+        Unit vector (Earth-fixed cartesian) along the y arm of detector 1.
     
     det2_yarm: ``array_like``
-        Unit vector (Earth-fixed cartesian) along the y arm of detector 2
+        Unit vector (Earth-fixed cartesian) along the y arm of detector 2.
     
     polarization: ``str``, optional
         Polarization used in the computation of the overlap reduction function. Default is tesnor.
@@ -421,28 +421,28 @@ def calc_orf(
     =======================
 
     beta: ``float``
-        Angle between detectors from center of earth
+        Angle between detectors from center of earth.
         
     tan_detX: ``array_like``
-        Tangent vector at detector X along great circle between detectors
+        Tangent vector at detector X along great circle between detectors.
      
     bisector_detX: ``array_like``
-        Bisector vector for detector X
+        Bisector vector for detector X.
         
     perp_detX: ``array_like``
-        Inward radial unit vector perpendicular to the detector plane for detector X
+        Inward radial unit vector perpendicular to the detector plane for detector X.
         
     omega_detX: ``float``
-        Angle between bisector and tangent vector at detector X
+        Angle between bisector and tangent vector at detector X.
         
     perp: ``array_like``
-        Vector at theta=90 along great circle with det1_vertex theta=0
+        Vector at theta=90 along great circle with det1_vertex theta=0.
 
     Returns
     =======
     
     overlap_reduction_function: ``array_like``
-        Overlap reduction function at given frequencies for specified polarization
+        Overlap reduction function at given frequencies for specified polarization.
     
     """
 
