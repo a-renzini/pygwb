@@ -183,16 +183,16 @@ class StatisticalChecks(object):
             self.running_sigmas,
         ) = self.compute_running_quantities()
 
-        t0 = Time(self.sliding_times_all[0], format='gps')
-        t0 = Time(t0, format='iso', scale='utc', precision=0, out_subfmt='date_hm')
-        tf = Time(self.sliding_times_all[-1], format='gps')
-        tf = Time(tf, format='iso', scale='utc', precision=0, out_subfmt='date_hm')
+        t0_gps = Time(self.sliding_times_all[0], format='gps')
+        t0 = Time(t0_gps, format='iso', scale='utc', precision=0, out_subfmt='date_hm')
+        tf_gps = Time(self.sliding_times_all[-1], format='gps')
+        tf = Time(tf_gps, format='iso', scale='utc', precision=0, out_subfmt='date_hm')
         self.time_tag = f"{t0}"+" $-$ "+f"{tf}"
 
         if file_tag:
             self.file_tag = file_tag
         else:
-            self.file_tag = f"{self.sliding_times_all[0]}-{self.params.tf}"
+            self.file_tag = f"{np.int(t0_gps.value)}-{np.int(tf_gps.value)}"
 
         self.legend_fontsize = legend_fontsize
         self.axes_labelsize = legend_fontsize + 2
@@ -1538,11 +1538,11 @@ def run_statistical_checks_from_file(
     dsc_file = np.load(dsc_file_path)
 
     badGPStimes = dsc_file["badGPStimes"]
-    delta_sigmas = dsc_file["delta_sigmas"]
-    sliding_times = dsc_file["times"]
-    naive_sigma_all = dsc_file["naive_sigmas"]
-    gates_ifo1 = dsc_file["gates_ifo1"]
-    gates_ifo2 = dsc_file["gates_ifo2"]
+    delta_sigmas = dsc_file["delta_sigma_values"]
+    sliding_times = dsc_file["delta_sigma_times"]
+    naive_sigma_all = dsc_file["naive_sigma_values"]
+    gates_ifo1 = dsc_file["ifo_1_gates"]
+    gates_ifo2 = dsc_file["ifo_2_gates"]
     if gates_ifo1.size==0:
         gates_ifo1=None
     if gates_ifo2.size==0:
@@ -1579,8 +1579,8 @@ def run_statistical_checks_from_file(
     baseline_name = params.interferometer_list[0] + params.interferometer_list[1]
 
     # select alpha for statistical checks
-    delta_sigmas_sel = delta_sigmas.T[1]
-    naive_sigmas_sel = naive_sigma_all.T[1]
+    delta_sigmas_sel = delta_sigmas[1]
+    naive_sigmas_sel = naive_sigma_all[1]
 
     if coherence_file_path is not None:
         coh_data = np.load(coherence_file_path, allow_pickle=True)
