@@ -1,25 +1,34 @@
-import numpy as np
 import bilby
-from tqdm import tqdm
+import numpy as np
 from loguru import logger
+from tqdm import tqdm
 
 from pygwb.constants import H0
+
 
 def compute_Omega_from_CBC_dictionary(injection_dict, sampling_frequency, T_obs, return_spectrum=True, f_ref=25, waveform_duration=10, waveform_approximant="IMRPhenomD", waveform_reference_frequency=25, waveform_minimum_frequency=20):
     """
     Compute the total Omega_GW injected in the data when injecting individual CBCs.
     
     Parameters
-    ----------
-    return_spectrum : bool, optional
+    =======
+
+    return_spectrum : ``bool``, optional
 	Return the full Omega spectrum. The default is True.
-    f_ref : float, optional
+    f_ref : ``float``, optional
 	Reference frequency to compute Omega_ref [Hz]. The default is 25 Hz.
-    waveform_duration: int, optional
-	Duration in seconds for the waveform generation; longer times will take longer.
+    waveform_duration: ``int``, optional
+	Duration in seconds for the waveform generation; longer times will take longer. Default is 10 seconds.
+    waveform_approximant: ``str``, optional
+        Waveform approximant to use for signal calculation. Default is IMRPhenomD.
+    waveform_reference_frequency: ``float``, optional
+        Reference frequency for waveform calcultion. Default is 25 Hz.
+    waveform_minimum frequency: ``float``, optional
+        Minimum frequency for waveform calcultion. Default is 20 Hz.
 
     Returns
-    -------
+    =======
+
     freqs_psd : numpy array
 	Frequency array
     Omega_GW_freq: numpy array
@@ -27,7 +36,7 @@ def compute_Omega_from_CBC_dictionary(injection_dict, sampling_frequency, T_obs,
     
     OR if return_spectrum is False:
     
-    Omega_ref: float
+    Omega_ref: ``float``
 	Omega at f=f_ref
     """
     
