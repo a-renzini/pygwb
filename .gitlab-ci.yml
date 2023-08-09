@@ -113,7 +113,7 @@ python-3.10:
 
 workflow:
   stage: test
-  image: python3.10
+  image: python:3.10
   before_script:
     - wget -qO - https://research.cs.wisc.edu/htcondor/ubuntu/HTCondor-Release.gpg.key | sudo apt-key add -
     - echo "deb http://research.cs.wisc.edu/htcondor/ubuntu/8.9/focal focal contrib" | sudo tee -a /etc/apt/sources.list
