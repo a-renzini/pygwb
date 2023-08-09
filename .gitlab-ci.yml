@@ -115,14 +115,14 @@ workflow:
   stage: test
   image: python:3.10
   before_script:
-    - wget -qO - https://research.cs.wisc.edu/htcondor/ubuntu/HTCondor-Release.gpg.key | sudo apt-key add -
-    - echo "deb http://research.cs.wisc.edu/htcondor/ubuntu/8.9/focal focal contrib" | sudo tee -a /etc/apt/sources.list
-    - echo "deb-src http://research.cs.wisc.edu/htcondor/ubuntu/8.9/focal focal contrib" | sudo tee -a /etc/apt/sources.list
-    - sudo apt-get -o Acquire::Retries=3 update
-    - sudo apt-get -o Acquire::Retries=3 install minihtcondor
-    - sudo systemctl start condor
-    - sudo systemctl enable condor 
     - pip install --upgrade pip setuptools
+    - curl -fsSL https://get.htcondor.org | /bin/bash -s -- --download
+    - tar -x -f condor.tar.gz
+    - mv condor-*stripped condor
+    - cd condor
+    - ./bin/make-personal-from-tarball
+    - . ~/condor/condor.sh
+    - condor_master
   script:
     - pip install .
     - condor_status
