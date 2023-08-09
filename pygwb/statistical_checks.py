@@ -192,7 +192,7 @@ class StatisticalChecks(object):
         if file_tag:
             self.file_tag = file_tag
         else:
-            self.file_tag = f"{np.int(t0_gps.value)}-{np.int(tf_gps.value)}"
+            self.file_tag = f"{int(t0_gps.value)}-{int(tf_gps.value)}"
 
         self.legend_fontsize = legend_fontsize
         self.axes_labelsize = legend_fontsize + 2
