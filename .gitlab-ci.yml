@@ -116,10 +116,10 @@ workflow:
   image: python:3.10
   before_script:
     - pip install --upgrade pip setuptools
-    - curl -fsSL https://get.htcondor.org | /bin/bash -s -- --no-dry-run
   script:
     - pip install .
-    - condor_status
+    - mkdir workflow_result
+    - pygwb_create_isotropic_workflow --configfile ./pygwb_pipe/simple_workflow_config_public.ini --basedir ./workflow_result/ --run_locally
 
 documentation:
   stage: documentation
