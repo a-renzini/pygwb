@@ -5,6 +5,7 @@ from tqdm import tqdm
 
 from pygwb.constants import H0
 
+
 def calculate_num_injections(T_obs, zs, p_dz):
     """
     Calculate the number of mergers in a given time T_obs.
