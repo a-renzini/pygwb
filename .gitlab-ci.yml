@@ -111,6 +111,16 @@ python-3.10:
   <<: *test-python
   image: python:3.10
 
+workflow:
+  stage: test
+  image: python:3.10
+  before_script:
+    - pip install --upgrade pip setuptools
+  script:
+    - pip install .
+    - mkdir workflow_result
+    - pygwb_create_isotropic_workflow --configfile ./test/test_data/config_workflow_test.ini --basedir ./workflow_result/ --run_locally
+
 documentation:
   stage: documentation
   image: python:3.8

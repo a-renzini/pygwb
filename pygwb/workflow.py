@@ -344,10 +344,14 @@ class Workflow():
         ifos = self.config['general']['ifos'].split(' ')
 
         logging.info('Downloading science flags...')
-        sci_flag = DataQualityDict.query_dqsegdb(
-            [i+':'+self.config['data_quality']['science_segment'] for i in ifos],
-            self.t0, self.tf
-            ).intersection().active
+        if self.config.has_option('data_quality', 'science_segment'):
+            sci_flag = DataQualityDict.query_dqsegdb(
+                [i+':'+self.config['data_quality']['science_segment'] for i in ifos],
+                self.t0, self.tf
+                ).intersection().active
+        else:
+            # just use provided start and end time
+            sci_flag = SegmentList([[self.t0, self.tf]])
 
         if self.config.has_option('data_quality', 'veto_definer'):
             logging.info('Downloading vetoes...')
