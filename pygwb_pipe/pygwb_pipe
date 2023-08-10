@@ -152,7 +152,7 @@ def main():
     )
 
     logger.info(f"Setting PSDs and CSDs of the baseline...")
-    base_12.set_cross_and_power_spectral_density(params.frequency_resolution)
+    base_12.set_cross_and_power_spectral_density(params.frequency_resolution) 
     base_12.set_average_power_spectral_densities()
     base_12.set_average_cross_spectral_density()
 
@@ -181,7 +181,8 @@ def main():
     if pipe_calculate_coherence:
         logger.info(f"calculating the coherence...")
 
-        base_12.set_coherence_spectrum(apply_dsc=pipe_apply_dsc)
+        base_12.set_coherence_spectrum(apply_dsc=pipe_apply_dsc, 
+            flow=params.flow, fhigh=params.fhigh)
 
     if pipe_calculate_point_estimate:
         logger.info(f"calculating the point estimate and sigma...")
