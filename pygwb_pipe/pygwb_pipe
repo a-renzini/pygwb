@@ -152,7 +152,7 @@ def main():
     )
 
     logger.info(f"Setting PSDs and CSDs of the baseline...")
-    base_12.set_cross_and_power_spectral_density(params.frequency_resolution) 
+    base_12.set_cross_and_power_spectral_density(params.frequency_resolution)
     base_12.set_average_power_spectral_densities()
     base_12.set_average_cross_spectral_density()
 

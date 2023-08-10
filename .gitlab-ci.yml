@@ -119,7 +119,7 @@ workflow:
   script:
     - pip install .
     - mkdir workflow_result
-    - pygwb_create_isotropic_workflow --configfile ./pygwb_pipe/simple_workflow_config_public.ini --basedir ./workflow_result/ --run_locally
+    - pygwb_create_isotropic_workflow --configfile ./pygwb_pipe/workflow_config.ini --basedir ./workflow_result/ --run_locally
 
 documentation:
   stage: documentation
