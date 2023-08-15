@@ -92,17 +92,28 @@ def make_workflow(args=None):
 
     # make cumulative results
     # FIX ME - how the param file is passed
-    cumu_combine_job, cumu_combine_output = pygwb_wf.create_pygwb_combine_job(
-        t0=pygwb_wf.t0, tf=pygwb_wf.tf,
-        parents=pipe_jobs, output_path=cumu_dir,
-        data_path=all_data_files, coherence_path=all_coh_files, param_file=all_param_files[-1],
-        alpha=pygwb_wf.alpha, fref=pygwb_wf.fref)
-    all_jobs.append(cumu_combine_job)
+    if pygwb_wf.config.has_option('general', 'combine_factor'):
+        cumu_combine_jobs, final_cumu_job, cumu_combine_output = pygwb_wf.create_pygwb_multi_stage_combine(
+            t0=pygwb_wf.t0, tf=pygwb_wf.tf,
+            parents=pipe_jobs, output_path=cumu_dir,
+            data_path=all_data_files, coherence_path=all_coh_files, param_file=all_param_files[-1],
+            alpha=pygwb_wf.alpha, fref=pygwb_wf.fref,
+            combine_factor=pygwb_wf.config['general']['combine_factor'])
+        for cumu_combine_job in cumu_combine_jobs:
+            all_jobs.append(cumu_combine_job)
+    else:
+        cumu_combine_job, cumu_combine_output = pygwb_wf.create_pygwb_combine_job(
+            t0=pygwb_wf.t0, tf=pygwb_wf.tf,
+            parents=pipe_jobs, output_path=cumu_dir,
+            data_path=all_data_files, coherence_path=all_coh_files, param_file=all_param_files[-1],
+            alpha=pygwb_wf.alpha, fref=pygwb_wf.fref)
+        all_jobs.append(cumu_combine_job)
+        final_cumu_job = cumu_combine_job
 
     csd_file, coh_file, dsc_file = cumu_combine_output
     cumu_stats_job = pygwb_wf.create_pygwb_stats_job(
         t0=pygwb_wf.t0, tf=pygwb_wf.tf,
-        parents=[cumu_combine_job], output_path=cumu_dir,
+        parents=[final_cumu_job], output_path=cumu_dir,
         csd_file=csd_file,
         dsc_file=dsc_file,
         coh_file=coh_file,
