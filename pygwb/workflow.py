@@ -561,7 +561,7 @@ class IsotropicWorkflow(Workflow):
         #now the big combine
         final_job, output_file = self.create_pygwb_combine_job(
             t0=self.t0, tf=self.tf,
-            parents=combined_jobs, output_path=output_path,
+            parents=combined_jobs+[parents[-1]], output_path=output_path,
             data_path=combined_data_path, coherence_path=combined_coherence_path, param_file=param_file,
             dsc_path=combined_dsc_path,
             alpha=self.alpha, fref=self.fref)
