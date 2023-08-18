@@ -358,10 +358,30 @@ class Workflow():
             sci_flag = SegmentList([[self.t0, self.tf]])
 
         if self.config.has_option('data_quality', 'veto_definer'):
+            veto_definer_path = self.config['data_quality']['veto_definer']
+            local_veto_definer_path = os.path.join(self.dagman.base_dir, 'vetoes.xml')
+            if 'http' in veto_definer_path: # download vdf first
+                import ciecplib
+                with ciecplib.Session() as s:
+                    s.get("https://git.ligo.org/users/auth/shibboleth/callback")
+                    r = s.get(veto_definer_path, allow_redirects=True)
+                    r.raise_for_status()
+                output_fp = open(local_veto_definer_path, "wb")
+                output_fp.write(r.content)
+                output_fp.close()
+                veto_definer_path = local_veto_definer_path
+
             logging.info('Downloading vetoes...')
-            vetoes = DataQualityDict.from_veto_definer_file(
-                self.config['data_quality']['veto_definer']
-                )
+            try:
+                vetoes = DataQualityDict.from_veto_definer_file(
+                    veto_definer_path
+                    )
+            except:
+                raise TypeError('Unable to read veto definer! '
+                                'This may be to an improperly formatted file '
+                                'or not correctly authenticating when the veto definer '
+                                'is provided as a url.'
+                               )
             cat1_vetoes = DataQualityDict({v: vetoes[v] for v in vetoes if (vetoes[v].category ==1) and (v[:2] in ifos)})
             cat1_vetoes.populate()
 
