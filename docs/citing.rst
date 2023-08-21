@@ -1,8 +1,8 @@
-============
-Citing pygwb
-============
+================
+Citing ``pygwb``
+================
 
-When using `pygwb` in your scientific work, we would like you to cite the `pygwb` package accordingly. `pygwb` was published in ApJ, for which we provide a bibtex entry below. 
+When using ``pygwb`` in your scientific work, we would like you to cite the ``pygwb``` package accordingly. ```pygwb``` was published in ApJ, for which we provide a bibtex entry below. 
 
   .. code-block:: bash
 
