@@ -19,6 +19,7 @@ pygwb documentation
    about
    installation
    contributing
+   citing
    pipeline
    pe
    tutorials
