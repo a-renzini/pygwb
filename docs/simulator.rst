@@ -8,7 +8,7 @@ Simulating data with ``pygwb.simulator``
 **1.1 Injecting a power spectrum in random LIGO noise**
 ---------
 
-For concreteness, we consider a broken power-law signal PSD to be injected in random LIGO Gaussian noise.  
+For concreteness, we consider a broken power-law signal power spectral density (PSD) to be injected in random LIGO Gaussian noise.  
 The ``simulator`` module takes a ``gwpy.FrequencySeries`` as input for the signal PSD to be injected. 
 We start by building a custom input signal by defining an ``IntensityGW`` function, which outputs the 
 desired signal PSD in the form of a ``gwpy.FrequencySeries``.
@@ -81,10 +81,10 @@ these parameters.
 
 .. code-block:: python
 
-    H1 = Interferometer.get_empty_interferometer("H1")
-    L1 = Interferometer.get_empty_interferometer("L1")
+    H1 = Interferometer.get_empty_interferometer("H1") #LIGO Hanford detector
+    L1 = Interferometer.get_empty_interferometer("L1") #LIGO Livingston detector
 
-    ifo_list = [H1, L1, V1, K, G]
+    ifo_list = [H1, L1]
 
     for ifo in ifo_list:
         ifo.duration = duration
@@ -117,7 +117,7 @@ times used to retrieve real data.
     params.tf=1247645100
     params.segment_duration=128
 
-We now create the two ``Interferometer`` objects that will be used for the data simulation (H1 and L1 for this concrete example).
+We now create the two ``Interferometer`` objects that will be used for the data simulation (LIGO Hanford (H1) and LIGO Livingstn (L1) for this concrete example).
 
 .. code-block:: python
 
