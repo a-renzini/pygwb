@@ -20,6 +20,7 @@ pygwb documentation
    installation
    contributing
    citing
+   api
    pipeline
    pe
    tutorials
@@ -27,36 +28,7 @@ pygwb documentation
 
 .. currentmodule:: pygwb
 
-API:
-----
 
-.. autosummary::
-   :toctree: api
-   :template: custom-module-template.rst
-   :caption: API:
-   :recursive:
-   
-   detector
-   baseline
-   network
-
-   preprocessing
-   spectral
-   coherence
-   postprocessing
-   omega_spectra
-   pe
-   statistical_checks
-
-   simulator
-
-   delta_sigma_cut
-   notch
-   
-   constants
-   orfs   
-   parameters
-   util
 
 .. toctree::
    :maxdepth: 1
@@ -69,3 +41,11 @@ API:
    make_notchlist
    run_statistical_checks
    run_pe
+
+.. toctree::
+    :maxdepth: 1
+    :hidden:
+    
+    pygwb paper <https://arxiv.org/pdf/2303.15696.pdf>
+    GitHub <https://github.com/a-renzini/pygwb>
+    Submit an issue <https://github.com/a-renzini/pygwb/issues/new>
