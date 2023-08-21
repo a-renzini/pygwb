@@ -789,7 +789,16 @@ class StatisticalChecks(object):
         plt.close()
 
         outlier_coherence = [(frequencies[i], coherence[i],probability[np.where(coherence_highres>=coherence[i])[0][0]]) for i in range(len(coherence)) if (coherence[i] > np.abs(threshold) and self.frequency_mask[i] == True)]
-        outlier_coherence_notched = [(frequencies[i], coherence[i],probability[np.where(coherence_highres>=coherence[i])[0][0]]) for i in range(len(coherence)) if (coherence[i] > np.abs(threshold) and self.frequency_mask[i] == False)]
+        
+        outlier_coherence_notched = []
+        for i in range(len(coherence)):
+            if (coherence[i] > np.abs(threshold) and self.frequency_mask[i] == False):
+                try:
+                    outlier_coherence_notched.append((frequencies[i], coherence[i],probability[np.where(coherence_highres>=coherence[i])[0][0]]))
+                except IndexError as err:
+                    warnings.warn('\n Freqnency now is %f, and coherence is %f, which is out of the boundary 1, please check it'%(frequencies[i],coherence[i]))
+                    outlier_coherence_notched.append((frequencies[i], coherence[i],'nan'))
+        
         n_outlier = len(outlier_coherence)
         file_name = f"{self.plot_dir / self.baseline_name}-{self.file_tag}-list_coherence_outlier.txt"
         with open(file_name, 'w') as f:
