@@ -1,7 +1,8 @@
 pygwb documentation
 ==============================================
 .. image:: pygwb_logo_plasma.png
-   :width: 200
+   :width: 250
+   :align: center
 
 .. automodule::
     :members:
@@ -21,26 +22,8 @@ pygwb documentation
    contributing
    citing
    api
-   pipeline
-   pe
    tutorials
-
-
-.. currentmodule:: pygwb
-
-
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Tutorials:
-
-   generate_stochastic_background_in_network
-   inject_simulated_data_in_network
-   simulate_CBC_GWB
-   test_orfs
-   make_notchlist
-   run_statistical_checks
-   run_pe
+   demos
 
 .. toctree::
     :maxdepth: 1
