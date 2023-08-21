@@ -795,7 +795,10 @@ class StatisticalChecks(object):
                 try:
                     outlier_coherence.append((frequencies[i], coherence[i],probability[np.where(coherence_highres>=coherence[i])[0][0]]))
                 except IndexError as err:
-                    warnings.warn('\nIn outlier_coherence, Freqnency now is %f, and coherence is %f, which is out of the boundary 1, please check it'%(frequencies[i],coherence[i]))
+                    warnings.warn(
+                            '\n In outlier_coherence, Freqnency now is %f, and coherence is %f, which is out of the boundary 1, please check it'
+                            %(frequencies[i],coherence[i])
+                            )
                     outlier_coherence_notched.append((frequencies[i], coherence[i],'nan'))
 
         outlier_coherence_notched = []
@@ -804,7 +807,10 @@ class StatisticalChecks(object):
                 try:
                     outlier_coherence_notched.append((frequencies[i], coherence[i],probability[np.where(coherence_highres>=coherence[i])[0][0]]))
                 except IndexError as err:
-                    warnings.warn('\nIn outlier_coherence_notched, Freqnency now is %f, and coherence is %f, which is out of the boundary 1, please check it'%(frequencies[i],coherence[i]))
+                    warnings.warn(
+                            '\n In outlier_coherence_notched, Freqnency now is %f, and coherence is %f, which is out of the boundary 1, please check it'
+                            %(frequencies[i],coherence[i])
+                            )
                     outlier_coherence_notched.append((frequencies[i], coherence[i],'nan'))
         
         n_outlier = len(outlier_coherence)
