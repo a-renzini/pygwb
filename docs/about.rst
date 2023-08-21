@@ -13,8 +13,5 @@ where :math:`d\rho_{\rm GW}` is the energy density of GWs in the frequency band 
 
 Due to the considerable amount of data to analyze, and the vast panorama of GWB models to test, the detection and characterization of a GWB requires a community effort. Furthermore, data handling and model building entail a number of different choices, depending on specific analysis purposes. This exemplifies the need for an accessible, flexible, and user-friendly open-source codebase: `pygwb`.
 
-The `pygwb` package is class-based and modular to facilitate the evolution of the code and to increase flexibility of the analysis pipeline. The advantage of the Python language lies in rapid code execution, while maintaining a certain level of user-friendliness, which results in a shallow learning curve and will encourage future contributions to the code from the whole GW community. A summary of all `pygwb` modules and its main external dependencies can be seen in the schema below.
-
-.. image:: pygwb_modules.png
-   :width: 800
+The `pygwb` package is class-based and modular to facilitate the evolution of the code and to increase flexibility of the analysis pipeline. The advantage of the Python language lies in rapid code execution, while maintaining a certain level of user-friendliness, which results in a shallow learning curve and will encourage future contributions to the code from the whole GW community.
    
