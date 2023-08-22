@@ -2,7 +2,7 @@
 API
 ============
 
-The ``pygwb``` package consists of several modules, each with a distinct functionality. A summary of all ``pygwb`` modules and its main external dependencies can be seen in the schema below.
+The ``pygwb`` package consists of several modules, each with a distinct functionality. A summary of all ``pygwb`` modules and its main external dependencies can be seen in the schema below.
 
 
 .. image:: pygwb_modules.png
