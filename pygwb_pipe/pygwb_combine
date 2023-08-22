@@ -253,8 +253,12 @@ def main():
     # concatenate gate info - filtering for empty sets of gates
     if sum([1 for g in gates_ifo1_j if g.size>1])>0: 
         gates_ifo1_j = np.concatenate(list(filter(lambda x: x.size>1, gates_ifo1_j)))
+    else:
+        gates_ifo1_j = np.array([])
     if sum([1 for g in gates_ifo2_j if g.size>1])>0: 
         gates_ifo2_j = np.concatenate(list(filter(lambda x: x.size>1, gates_ifo2_j)))
+    else:
+        gates_ifo2_j = np.array([])
     if not np.shape(gates_ifo1_pad_j[0]):
         gates_ifo1_pad_j = np.array(gates_ifo1_pad_j)
         gates_ifo2_pad_j = np.array(gates_ifo2_pad_j)
