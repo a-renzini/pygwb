@@ -131,7 +131,7 @@ class Job(pyJob):
                                  **kwargs)
 
     def check_required(self):
-        if not self.output_exits:
+        if not self.output_exits or self.final_result:
             self.required_job = True
             for p in self.parents:
                 if not p.required_job:
