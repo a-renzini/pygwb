@@ -24,20 +24,18 @@ pygwb documentation
 
 .. toctree::
    :maxdepth: 1
-   :caption: Contents:
 
    about
    installation
-   contributing
-   citing
-   api
    tutorials
    demos
+   api
 
 .. toctree::
     :maxdepth: 1
-    :hidden:
     
     pygwb paper <https://arxiv.org/pdf/2303.15696.pdf>
+    citing
     GitHub <https://github.com/a-renzini/pygwb>
+    contributing
     Submit an issue <https://github.com/a-renzini/pygwb/issues/new>
