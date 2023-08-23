@@ -1,3 +1,77 @@
+"""
+The ``detector`` module is a subclass of bilby's Interferometer class which is charged with handling, storing and
+saving all relevant interferometer data. 
+It handles all data analysis parts relating to the individual detectors in a baseline of a network.
+For example, it loads the data from a certain channel and computes the psd of the detector.
+    
+Examples
+--------
+    
+In this example, we will load in data from the publicly available GWOSC servers using the detector module.
+We will gate the data, compute the PSD and the average PSD of the detector object.
+This example gives a brief overview of the most critical capabilities of the pygwb detector module.
+We start by importing the Interferometer class from pygwb.
+    
+>>> from pygwb.detector import Interferometer
+
+To load in some data, first we make an empty detector object.
+Based on the name of the object, the module will make an Interferometer object that has no data.
+The name can be any one of the detectors supported in ``bilby.gw.detector``,
+the parent class of our Interferometer class.
+    
+>>> ifo_1 = Interferometer.get_empty_interferometer("H1")
+    
+Then, we load in data using one of the provided ``set_timeseries_from`` functions.
+We take a start time t0 and an end time tf. We want to use public data, so we
+set data_type to public. We use the channel "H1:GWOSC-4KHZ_R1_STRAIN". All the other parameters are taken to be
+default values.
+
+>>> ifo_1.set_timeseries_from_channel_name(
+    "H1:GWOSC-4KHZ_R1_STRAIN",
+    t0=1247644138,
+    tf=1247648138,
+    data_type="public",
+    local_data_path = "",
+    new_sample_rate=4096,
+    input_sample_rate=4096,
+    cutoff_frequency=11,
+    segment_duration=192,
+    number_cropped_seconds=2,
+    window_downsampling="hamming",
+    ftype="fir",
+    time_shift=0,
+    )
+    
+Now, we gate the detector data. In that case, we can call
+
+>>> ifo_1.gate_data_apply(
+    gate_tzero=1.0,
+    gate_tpad=0.5,
+    gate_threshold=50.0,
+    cluster_window=0.5,
+    gate_whiten=True,
+    )
+
+Next, we will compute the PSD spectrogram of the detector. A spectrogram
+shows the PSD both per time and per frequency. We will use the common frequency
+resolution of pygwb analysis.
+    
+>>> frequency_resolution = 1/32.
+>>> ifo_1.set_psd_spectrogram(
+        frequency_resolution,
+        overlap_factor=0.5,
+        window_fftgram_dict_welch_psd={"window_fftgram": "hann"},
+        overlap_factor_welch_psd=0.5,
+        )
+        
+Last, but not least, we can also compute the average PSD of the detector.
+    
+>>> ifo_1.set_average_psd(N_average_segments_welch_psd=2)
+
+That brings us to the end of the example for the most important functions of the detector object.
+It shows how to load in data and manipulate it using gating. It also shows how to compute the (average) psd.
+"""
+
 import logging
 import os
 
@@ -15,82 +89,6 @@ from .spectral import before_after_average, power_spectral_density
 
 
 class Interferometer(bilby.gw.detector.Interferometer):
-
-    """
-    Subclass of bilby's Interferometer class which is charged with handling, storing and
-    saving all relevant interferometer data.
-    It handles all data analysis parts relating to the individual detectors in a baseline of a network.
-    An example would be loading in data from a certain channel and computing the psd of the detector.
-    
-    Examples
-    --------
-    
-    In this example, we will load in data from the publicly available GWOSC servers using the detector module.
-    We will gate the data, compute the PSD and the average PSD of the detector object.
-    This example gives a brief overview of the most critical capabilities of the pygwb detector module.
-    We start by importing the Interferometer class from pygwb.
-    
-    >>> from pygwb.detector import Interferometer
-
-    To load in some data, first we make an empty detector object.
-    Based on the name of the object, the module will make an Interferometer object that has no data.
-    The name can be any one of the detectors supported in ``bilby.gw.detector``,
-    the parent class of our Interferometer class.
-    
-    >>> ifo_1 = Interferometer.get_empty_interferometer("H1")
-    
-    Then, we load in data using one of the provided ``set_timeseries_from`` functions.
-    We take a start time t0 and an end time tf. We want to use public data, so we
-    set data_type to public. We use the channel "H1:GWOSC-4KHZ_R1_STRAIN". All the other parameters are taken to be
-    default values.
-
-    >>> ifo_1.set_timeseries_from_channel_name(
-        "H1:GWOSC-4KHZ_R1_STRAIN",
-        t0=1247644138,
-        tf=1247648138,
-        data_type="public",
-        local_data_path = "",
-        new_sample_rate=4096,
-        input_sample_rate=4096,
-        cutoff_frequency=11,
-        segment_duration=192,
-        number_cropped_seconds=2,
-        window_downsampling="hamming",
-        ftype="fir",
-        time_shift=0,
-    )
-    
-    Noww, we gate the detector data. In that case, we can call
-
-    >>> ifo_1.gate_data_apply(
-        gate_tzero=1.0,
-        gate_tpad=0.5,
-        gate_threshold=50.0,
-        cluster_window=0.5,
-        gate_whiten=True,
-    )
-
-    Next, we will compute the PSD spectrogram of the detector. A spectrogram
-    shows the PSD both per time and per frequency. We will use the common frequency
-    resolution of pygwb analysis.
-    
-    >>> frequency_resolution = 1/32.
-    >>> ifo_1.set_psd_spectrogram(
-            frequency_resolution,
-            overlap_factor=0.5,
-            window_fftgram_dict_welch_psd={"window_fftgram": "hann"},
-            overlap_factor_welch_psd=0.5,
-        )
-        
-    Last, but not least, we can also compute the average PSD of the detector.
-    
-    >>> ifo_1.set_average_psd(N_average_segments_welch_psd=2)
-
-    That brings us to the end of the example for the most important functions of the detector object.
-    It shows how to load in data and manipulate it using gating. It also shows how to compute the (average) psd.
-    
-    """
-
     def __init__(self, *args, **kwargs):
         """Instantiate an Interferometer class
 

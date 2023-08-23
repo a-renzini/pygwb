@@ -1,6 +1,3 @@
-import json
-import warnings
-
 """
 The statistical checks class performs various tests by plotting different quantities and saving this plots. 
 This allows the user to check for consistency with expected results. Concretely, the following tests and plots
@@ -11,6 +8,8 @@ Furthermore, part of these plots compares the values of these quantities before 
 these plots can be made by calling the relevant class method (e.g. `plot_running_point_estimate()`).
 
 """
+import json
+import warnings
 
 from os import listdir
 from os.path import isfile, join
