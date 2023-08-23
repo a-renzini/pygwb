@@ -9,7 +9,7 @@ Installation
 Installing from source
 ======================
 
-These are instructions installing :code:`pygwb`.
+These are instructions installing :code:`pygwb`, which runs on Python :math:`\ge3.8`.
 
 Currently, there are 2 stable released versions (see the `pygwb PyPi page <https://pypi.org/project/pygwb/>`_ for more details):
 

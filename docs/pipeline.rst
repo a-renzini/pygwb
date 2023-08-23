@@ -1,10 +1,10 @@
-============
+=========================================
 Using ``pygwb_pipe``: a quickstart manual
-============
+=========================================
 
 
 **1. Testing the pipeline**
-=========
+===========================
 
 You can view the pipeline run options by executing
 
@@ -131,74 +131,8 @@ When running on the file ``pygwb_pipe/parameters.ini`` in the repo, one should g
 
 Note that this automatically includes the default notching. If an error related to the notch file appears, it may be necessary to add the correct path explicitly in the ``.ini`` file used.
 
-**2. Writing and submitting a `dag` file**
-=========
-
-We are now ready to condorise the pipeline and run a batch of jobs, just like the one run in point 4.
-
-* *writing the* ``dag`` *file*
-
-To prepare a dag file one  can use the ``pygwb_dag`` script:
-
-.. code-block:: shell
-
-   pygwb_dag --help
-
-  --subfile SUBFILE     Submission file.
-  --jobfile JOBFILE     Job file with start and end times and duration for each job.
-  --flag FLAG           Flag that is searched for in the DQSegDB.
-  --t0 T0               Begin time of analysed data, will query the DQSegDB. If used with jobfile, it is an optional argument if one does not wish to analyse the whole job
-                        file
-  --tf TF               End time of analysed data, will query the DQSegDB. If used with jobfile, it is an optional argument if one does not wish to analyse the whole job
-                        file
-  --parentdir PARENTDIR
-                        Starting folder.
-  --param_file PARAM_FILE
-                        Path to parameters.ini file.
-  --dag_name DAG_NAME   Dag file name.
-  --apply_dsc APPLY_DSC
-                        Apply delta-sigma cut flag for pygwb_pipe.
-  --pickle_out PICKLE_OUT
-                        Pickle output Baseline of the analysis.
-  --wipe_ifo WIPE_IFO   Wipe interferometer data to reduce size of pickled Baseline.
-  --calc_pt_est CALC_PT_EST
-                        Calculate omega point estimate and sigma from data.
-
-This script passes on relevant arguments to ``pygwb_pipe``, such as the parameter file and the ``apply_dsc`` Flag, etc.
-Note that the condor submission file is not included in the package. Its compilation will depend on the specific cluster/setup used, and is left up to the user.
-
-* *submitting the job*
-
-The ``dag`` file is now created in the ``output`` folder. To submit the job, navigate to that folder and run
-
-.. code-block:: shell
-   
-   condor_submit_dag {your-dag-file.dag}
-
-If you have not specified the ``dag`` name at the previous step, the current default name is ``dag_name.dag``.
-
-**3. Combining the output**
-==========
-
-To combine the output files from many runs of ``pygwb_pipe`` on different times one may use ``pygwb_combine``:
-
-.. code-block:: shell
-
-   >> pygwb_combine -h
-
-  --data_path DATA_PATH
-                        Path to data files folder.
-  --alpha ALPHA         Spectral index alpha to use for spectral re-weighting.
-  --fref FREF           Reference frequency to use when presenting results.
-  --param_file PARAM_FILE
-                        Parameter file
-  --h0 H0               Value of h0 to use. Default is pygwb.constants.h0.
-  --out_path OUT_PATH   Output path.
-
-This command produces combined spectra in the desired output folder.
-
 **Important Notes**
-==========
+===================
 
 **i. Detector--specific parameters** 
 

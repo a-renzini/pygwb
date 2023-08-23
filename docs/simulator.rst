@@ -1,12 +1,12 @@
-============
+========================================
 Simulating data with ``pygwb.simulator``
-============
+========================================
 
 **1. Simulating a stochastic gravitational-wave background**
-=========
+============================================================
 
 **1.1 Injecting a power spectrum in random LIGO noise**
----------
+-------------------------------------------------------
 
 For concreteness, we consider a broken power-law signal power spectral density (PSD) to be injected in random LIGO Gaussian noise.  
 The ``simulator`` module takes a ``gwpy.FrequencySeries`` as input for the signal PSD to be injected. 
@@ -103,7 +103,7 @@ We rely on the ``network`` module to simulate the data by calling the ``set_inte
 Note that one may save the data by calling ``save_interferometer_data_to_file`` and specifying the file format as an argument. This wraps ``gwpy.TimeSeries.write()``.
 
 **1.2 Injecting a power spectrum in real data**
----------
+-----------------------------------------------
 
 Alternatively, one could decide to inject a SGWB in real detector data. To illustrate this functionality, we inject the same signal as above
 in real LIGO data. The detectors are instantiated through the ``parameters`` module, which allows to load the parameters, including the GPS
@@ -151,10 +151,10 @@ set to ``True``, indicating the data will be injected in real data, and that add
 Note that one may save the data by calling ``save_interferometer_data_to_file`` and specifying the file format as an argument. This wraps ``gwpy.TimeSeries.write()``.
 
 **2. Injecting individual CBC events**
-=========
+======================================
 
 **2.1 Initialising empty interferometers and parameters for simulation**
----------
+------------------------------------------------------------------------
 
 We start by specifying the parameters that will serve as input to the ``simulator``. 
 Concretely, we specify the duration of each simulated segment, the number of segments, and the sampling frequency.
@@ -190,7 +190,7 @@ duration and sampling frequency of the detector are set to the desired value of 
     net_HL = Network('HL', ifo_list)
 
 **2.2 Specifying the CBC population**
----------
+-------------------------------------
 
 Before being able to simulate CBCs, we need to specify which population the CBC events are drawn from. This is done by using ``bilby`` priors.
 This allows the user to specify the distributions of the various parameters that come into play in CBC waveforms. A few examples are given below.
@@ -223,6 +223,7 @@ It can be very useful to save these injections to file for later use. This is do
         )
 
 **2.3 Simulating CBCs and Gaussian noise**
+------------------------------------------
 
 We are now ready to simulate the data, consisting of CBCs and Gaussian noise, colored by the noise PSD saved in each of the detectors. 
 We rely on the ``pygwb.network`` module to simulate the data by calling the ``set_interferometer_data_from_simulator`` method (which uses the ``pygwb.simulator`` module).

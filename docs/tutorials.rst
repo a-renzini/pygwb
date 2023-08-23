@@ -1,6 +1,6 @@
-============
+=========
 Tutorials
-============
+=========
 
 Below, we provide a series of tutorial which highlight the main features of the ``pygwb`` package.
 This package is constituted of several modules, each with different functionalities. These can be 
@@ -15,7 +15,7 @@ pipeline is provided below.
 
 .. raw:: html
 
-   <a href="TBC.html"><button style="background-color:#307FC1;border-color:#307FC1;color:white;width: 220.0px; height: 50.0px;border-radius: 8px;margin-bottom: 10px;display:block;margin: 0 auto">Getting started with pygwb</button></a>
+   <a href="pipeline.html"><button style="background-color:#307FC1;border-color:#307FC1;color:white;width: 220.0px; height: 50.0px;border-radius: 8px;margin-bottom: 10px;display:block;margin: 0 auto">Getting started with pygwb</button></a>
    
    <br />
 
@@ -23,7 +23,7 @@ pipeline is provided below.
 
 .. raw:: html
 
-   <a href="pipeline.html"><button style="background-color:#307FC1;border-color:#307FC1;color:white;width: 220.0px; height: 50.0px;border-radius: 8px;margin-bottom: 10px;display:block;margin: 0 auto">Run the pygwb pipeline</button></a>
+   <a href="multiple_jobs.html"><button style="background-color:#307FC1;border-color:#307FC1;color:white;width: 220.0px; height: 50.0px;border-radius: 8px;margin-bottom: 10px;display:block;margin: 0 auto">Run pygwb on multiple jobs</button></a>
    <br />
 
 In addition, the ``pygwb`` suite features a parameter estimation module, which relies on the ``bilby`` `package <https://lscsoft.docs.ligo.org/bilby/>`_.
@@ -48,5 +48,6 @@ to use the simulator module, check out the tutorial below.
    :hidden:
       
    pipeline
+   multiple_jobs
    pe
    simulator
