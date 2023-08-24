@@ -866,6 +866,10 @@ class Baseline(object):
 
         frequency_resolution: ``float``
             The frequency resolution at which the cross and power spectral densities are calculated.
+
+        See also
+        --------
+        pygwb.spectral.cross_spectral_density
         """
         try:
             self.interferometer_1.set_psd_spectrogram(
@@ -1014,6 +1018,10 @@ class Baseline(object):
         polarization: ``str``, optional
             Polarization of the signal to consider (scalar, vector, tensor) for the ORF calculation.
             Default is tensor.
+
+        See also
+        --------
+        pygwb.omega_spectra.OmegaSpectrogram
         """
         # set CSD if not set
         # self.set_average_cross_spectral_density()
@@ -1109,6 +1117,10 @@ class Baseline(object):
         apply_notches: ``bool``, optional
             Apply spectral notches flag; if True, remove the notches specified in the notch_list from the spectra calculations.
             Default is True.
+
+        See also
+        --------
+        pygwb.postprocessing.postprocess_Y_sigma
         """
         if apply_dsc == True:
             if not hasattr(self, "badGPStimes"):
@@ -1244,6 +1256,10 @@ class Baseline(object):
         apply_notches: ``bool``, optional
             Apply spectral notches flag; if True, remove the notches specified in the notch_list from the spectra calculations.
             Default is True.
+
+        See also
+        --------
+        pygwb.postprocessing.calc_Y_sigma_from_Yf_sigmaf
         """
 
         if self._point_estimate_spectrum_set:
@@ -1424,6 +1440,11 @@ class Baseline(object):
         -----
 
         The coherence calculation uses averaged naive PSD estimates as the coherence is calculated using CSD and PSD estimates of each individual segment, calculated \"on shell\".
+        
+        See also
+        --------
+        pygwb.coherence.calculate_coherence
+
         """
 
         bad_times_indexes = self._get_bad_times_indexes(times=self.interferometer_1.psd_spectrogram.times.value, apply_dsc=apply_dsc)

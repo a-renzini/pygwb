@@ -186,6 +186,10 @@ class Network(object):
         network: ``pygwb.network``
             Network object
 
+        See also
+        --------
+        pygwb.baseline.Baseline
+
         """
         if not all(baselines[0].duration == base.duration for base in baselines[1:]):
             raise AssertionError(
@@ -211,15 +215,17 @@ class Network(object):
         return network
 
     def set_duration(self, duration):
-        r"""Sets the duration for the Network and Interferometers
-
-        Note: the cross-checks that durations match in all the interferometers are done by each Baseline.
+        r"""Sets the duration for the Network and Interferometers.
 
         Parameters
         =======
 
         duration: ``float``, optional
             The duration to set for the Network and interferometers.
+
+        Note
+        ----
+        The cross-checks that durations match in all the interferometers are done by each baseline.
         """
         if duration is not None:
             self.duration = duration
@@ -398,6 +404,10 @@ class Network(object):
     def combine_point_estimate_sigma_spectra(self):
         """
         Combines the point estimate and sigma spectra from different baselines in the Network and stores them as attributes.
+
+        See also
+        --------
+        pygwb.postprocessing.combine_spectra_with_sigma_weights
         """
         try:
             point_estimate_spectra = [
@@ -468,6 +478,10 @@ class Network(object):
             
         fhigh: ``float``, optional
             High frequency. Default is 1726 Hz.
+
+        See also
+        --------
+        pygwb.postprocessing.calc_Y_sigma_from_Yf_sigmaf
         """
         if not hasattr(self, "point_estimate_spectrum"):
             logger.info(
