@@ -1,5 +1,5 @@
 """
-The statistical checks class performs various tests by plotting different quantities and saving this plots. 
+The statistical checks module performs various tests by plotting different quantities and saving these plots. 
 This allows the user to check for consistency with expected results. Concretely, the following tests and plots
 can be generated: running point estimate, running sigma, (cumulative) point estimate integrand, real and imaginary 
 part of point estimate integrand, FFT of the point estimate integrand, (cumulative) sensitivity, evolution of omega 
@@ -12,7 +12,6 @@ All plotting in the statistical checks module is performed with the `matplotlib 
 """
 import json
 import warnings
-
 from os import listdir
 from os.path import isfile, join
 from pathlib import Path

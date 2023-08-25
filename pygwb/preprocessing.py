@@ -55,7 +55,7 @@ filter will be applied to the data. As an example, the data is resampled to 4 kH
 
 One can see that the sample rate was indeed modified. 
 Another important part of preprocessing is gating the data.
-In that case, using again default values for parameters, one can run teh following lines:
+In that case, using again default values for parameters, one can run the following lines:
 
 >>> gated_timeseries, deadtime = ppp.self_gate_data(
         preprocessed_timeseries,

@@ -13,8 +13,8 @@ More information about the parent class can be found `here <https://gwpy.github.
 Examples
 --------
 
-For the sake of teh example, we elaborate on the ``OmegaSpectrogram`` class from this module.
-We import the module and make an ``OmegaSpectrogram`` object from a ``gwpy.spectrogram.Spectrogram`` object, whic we call Y_spectrogram.
+For the sake of the example, we elaborate on the ``OmegaSpectrogram`` class from this module.
+We import the module and make an ``OmegaSpectrogram`` object from a ``gwpy.spectrogram.Spectrogram`` object, which we call Y_spectrogram.
 Then, we save it into a pickle file and load it using that same pickle file.
 
 >>> from pygwb.omega_spectra import OmegaSpectrogram
@@ -23,7 +23,7 @@ Then, we save it into a pickle file and load it using that same pickle file.
 >>> omg_load = OmegaSpectrogram.load_from_pickle("pickle_test.p")
 
 The spectrogram was created with a spectral index equal to zero.
-One can use the reweight function to change the index. Additionally, one could change the reference frequency of teh spectrum as well.
+One can use the reweight function to change the index. Additionally, one could change the reference frequency of the spectrum as well.
 
 One can also reset h0 for the spectrogram which can be useful to compare between different cosmologies.
 

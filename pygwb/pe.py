@@ -21,7 +21,7 @@ of correlated magnetic noise, or the simultaneous estimation of astrophysical an
 cosmological GWBs.
 
 Additional information about parameter estimation can be found `here <https://arxiv.org/pdf/2303.15696.pdf>`_. For more information on
-how to use this moduel, we refer the reader to the dedicated tutorials and demos.
+how to use this module, we refer the reader to the dedicated tutorials and demos.
 
 """
 

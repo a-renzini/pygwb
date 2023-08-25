@@ -65,7 +65,7 @@ spectra computed above and relies on the following method:
         Y_spectrum, np.sqrt(var_spectrum), frequency_mask=True, alpha=None, fref=None
     )
 
-The result is an overal point estimate and standard deviation. Additional information on the various methods outlined above
+The result is an overall point estimate and standard deviation. Additional information on the various methods outlined above
 can be found in the following dedicated API documentation of the module.
 
 """
