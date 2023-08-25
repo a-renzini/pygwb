@@ -138,7 +138,11 @@ class Interferometer(bilby.gw.detector.Interferometer):
 
         See also
         --------
-        bilby.gw.detector.Interferometer : The parent class used for the implementation.
+        bilby.gw.detector.Interferometer
+            Test
+            
+        gwpy.segments.SegmentList
+            More information `here <https://gwpy.github.io/docs/stable/api/gwpy.segments.SegmentList/>`_.
 
         """
         self.gates = SegmentList()
@@ -405,6 +409,10 @@ class Interferometer(bilby.gw.detector.Interferometer):
             Overlap factor to use when using Welch's method to estimate the PSD (NOT coarsegraining).
             For \"hann\" window use 0.5 overlap_factor and for \"boxcar\" window use 0 overlap_factor.
             Default is 0.5 (50% overlap), which is optimal when using Welch's method with a \"hann\" window.
+
+        See also
+        --------
+        pygwb.spectral.power_spectral_density
         """
 
         # PSD estimation needs zeropadding when using coarse-graining
@@ -433,6 +441,10 @@ class Interferometer(bilby.gw.detector.Interferometer):
         N_average_segments: ``int``, optional
             Number of segments used for PSD averaging (from both sides of the segment of interest).
             N_avg_segs should be even and >= 2.
+        
+        See also
+        --------
+        pygwb.spectral.before_after_average
         """
         try:
             self.average_psd = before_after_average(
@@ -467,8 +479,9 @@ class Interferometer(bilby.gw.detector.Interferometer):
             
         See also
         --------
+        pygwb.preprocessing.self_gate_data
+
         gwpy.timeseries.TimeSeries.gate : the function used for the gating of the data itself.
-        
         """
         gate_tzero = kwargs.pop("gate_tzero")
         gate_tpad = kwargs.pop("gate_tpad")

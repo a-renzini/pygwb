@@ -1,66 +1,65 @@
-"""The notch module handles all things considering notches. It bookkeeps them with the provided classes and functions.
-
-This module has two main classes and a couple of functions all dealing with the creating of a notchlist
+"""Realistic detector data will have noise lines and various other artefacts, which should not be included in the analysis. These frequencies
+need to be notched, i.e. removed, from the analysis. The notch module handles all things related to frequency notches. 
+It has two main classes and a few of methods that create a notchlist
 used in the LVK isotropic analysis to get rid of badly behaving frequencies.
-The code is built on top of the base class StochNotch, based on the Notch class from ``bilby.gw.detector.strain_data``.
-This class stores a single Notch object containing a small description of the notch and
+The code relies on the base class ``StochNotch``, which in turn is based on the Notch class from ``bilby.gw.detector.strain_data`` 
+(more information `here <https://lscsoft.docs.ligo.org/bilby/api/bilby.gw.detector.strain_data.Notch.html>`_).
+It stores a single Notch object containing a small description of the notch and
 the corresponding minimum and maximum frequency.
-Next, StochNotchList is the combination of multiple StochNotch objects.
-It will contain information about multiple notches, every individual notch represented as a StochNotch.
+Next, ``StochNotchList`` is the combination of multiple ``StochNotch`` objects, and contains information about multiple notches.
 
-Three independent functions are also defined in this module.
-Those functions created StochNotchList objects for three of the most prevalent types of notches.
-The first function is ``comb`` which creates a StochNotchList for a certain set of lines in a comb structure.
-Secondly, we have ``power_lines`` which makes a StochNotchList object for the power line harmonic notches,
+Three additional functions are defined in this module to create a StochNotchList object for three of the most prevalent types of notches.
+The first function is ``comb`` which creates a ``StochNotchList`` for a certain set of lines in a comb structure.
+Secondly, we have ``power_lines`` which makes a ``StochNotchList`` object for the power line harmonic notches,
 e.g. 60 Hz harmonics in the USA and 50 Hz in Italy.
-The third and final function, ``pulsar_injection``, generates a StochNotchList object with notches
+The third and final function, ``pulsar_injection``, generates a ``StochNotchList`` object with notches
 which are contaminated by pulsar injections.
+
+More information on the various types of bad frequency lines that need to be notched can be found
+`here <https://arxiv.org/pdf/2210.00761.pdf>`_.
 
 Examples
 --------
 
-The notch list can be made using the functions from the notch module as we will show here.
-
 We will generate a StochNotchList from a .txt file containing multiple StochNotch objects and showcase some functions.
 
-First we import the notch module and load notches into a StochNotchList object from a .txt file.
+First, we import the notch module and load notches into a StochNotchList object from a .txt file.
 
 >>> import pygwb.notch as pn
 >>> notch_list = pn.StochNotchList.load_from_file("./test/test_data/Official_O3_HL_notchlist.txt")
 
-Now, ``notch_list`` contains information about all notches in the considered .txt file.
-The StochNotchList object itself is a container object that collects all notches of the file
-in different StochNotch objects.
+``notch_list`` now contains information about all notches in the .txt file.
+The ``StochNotchList`` object itself is a container object that collects all notches of the file
+in different ``StochNotch`` objects.
 
-We know that there should be a power line notched around 60 Hz.
+For example, it is known that there is a power line notched around 60 Hz. To check this is indeed the case, 
+one calls:
 
 >>> is_60_in_notch_list = notch_list.check_frequency(60)
 True
 
-So, it is possible to check if a certain frequency is present in the container object.
-If one wants to have information about all the notches in the StochNotchList, you can run
+This allows to check if a certain frequency is present in the container object.
+If one wants to have information about all the notches in the ``StochNotchList``, one can run
 
 >>> for notch in notch_list:
 >>>    notch.print_notch()
 
-This will show the minimum and maximum frequency for all notches in StochNotchList.
-It will also print a small description of the notch itself.
+This will show the minimum and maximum frequency for all notches in ``StochNotchList``, and prints a small description of the notch itself.
 
-Another important function of the StochNotchList object is computing the frequency mask that will
-be False for frequencies in the StochNotchList object. 
-That mask can then be utilised to "mask" a real pygwb analysis spectrum and notch out the contaminated frequencies.
+Another important functionality of the ``StochNotchList`` object is computing the frequency mask that will
+be False for frequencies in the ``StochNotchList`` object. 
+That mask can then be used to "mask" a real pygwb analysis spectrum and notch out the contaminated frequencies.
 
-We take a random frequency array and mask it using our StochNotchList object.
+For illustrative purposes, we take a random frequency array and mask it using our ``StochNotchList`` object:
 
 >>> frequency_array = np.arange(0, 1700,1/32.)
 >>> notch_list.get_notch_mask(frequency_array, save_file_flag=False, filename="")
 
-The List function utilises the ``get_notch_mask`` function from the StochNotch object.
-It will combine the mask over all notches.
+The List function uses the ``get_notch_mask`` function from the ``StochNotch`` object, and combines the mask over all notches.
 
-One can also save the StochNotchList object to a .txt file using ``save_to_txt(filename)``.
-That will create a .txt file in the same structure as required to make a StochNotchList 
-object from a file. You can also save the mask itself using ``save_notch_mask(frequency_array, filename)``.
+One can also save the ``StochNotchList`` object to a .txt file using ``save_to_txt(filename)``.
+This will create a .txt file in the same structure as required to make a ``StochNotchList``
+object from a file, as done in this example. The mask itself can also be saved, using ``save_notch_mask(frequency_array, filename)``.
 
 """
 
@@ -74,15 +73,17 @@ class StochNotch(Notch):
 
         Parameters
         =======
-        minimum_frequency, maximum_frequency: ``float``
-            The minimum and maximum frequency of the notch.
+        minimum_frequency: ``float``
+            The minimum frequency of the notch (in Hz).
+        maximum_frequency: ``float``
+            The maximum frequency of the notch (in Hz).
         description: ``str``
             A description of the origin/reason of the notch.
             
         See also
         --------
-        bilby.gw.detector.strain_data.Notch : The parent class used for this implementation.
-        
+        bilby.gw.detector.strain_data.Notch
+            More information `here <https://lscsoft.docs.ligo.org/bilby/api/bilby.gw.detector.strain_data.Notch.html>`_.
         """
         super().__init__(minimum_frequency, maximum_frequency)
         self.description = description
@@ -90,7 +91,7 @@ class StochNotch(Notch):
     def print_notch(self):
         """
         Small function that prints out the defining contents of the notch.
-        It will show you the minimum and maximum frequency and the description of the notch.
+        It will display the minimum and maximum frequency and the description of the notch.
         """
         print(self.minimum_frequency, self.maximum_frequency, self.description)
 
@@ -100,7 +101,7 @@ class StochNotch(Notch):
         Parameters
         =======
         frequency_array: ``np.ndarray``
-            An array of frequencies.
+            An array of frequencies (in Hz).
 
         Returns
         =======
@@ -108,7 +109,7 @@ class StochNotch(Notch):
             An array of booleans that are False for frequencies in the notch.
 
         Notes
-        =====
+        -----
         This notches any frequency that may have overlapping frequency content with the notch.
         """
         df = np.abs(frequency_array[1] - frequency_array[0])
@@ -126,15 +127,15 @@ class StochNotch(Notch):
 
 class StochNotchList(list):
     def __init__(self, notch_list):
-        """A list of notches. All these notches are represented by an object of the StochNotch class.
+        """A list of notches. All these notches are represented by an object of the ``StochNotch`` class.
 
         Parameters
         =======
         notch_list: ``list``
-            A list of length-3 tuples of the (min, max) frequency; description for the notches.
+            A list of length-3 tuples of the (min, max) frequency (in Hz); description for the notches.
 
         Notes
-        =====
+        -----
         :raises:
             ValueError: If the list is malformed.
         """
@@ -148,12 +149,12 @@ class StochNotchList(list):
                     raise ValueError(msg)
 
     def check_frequency(self, freq):
-        """Check if freq is inside the notch list.
+        """Checks whether a given frequency is inside the notch list.
 
         Parameters
         =======
         freq: ``float``
-            The frequency to check.
+            The frequency to check (in Hz).
 
         Returns
         =======
@@ -172,11 +173,11 @@ class StochNotchList(list):
         Parameters
         =======
         frequency_array: ``np.ndarray``
-            An array of frequencies.
+            An array of frequencies (in Hz).
         save_file_flag: ``bool``
             A boolean flag indicating whether to save the notch mask in a file or not.
         filename: ``str``
-            The name of the file where to store the notch mask if save_file_flag is true.
+            The name of the file where to store the notch mask if save_file_flag is True.
 
         Returns
         =======
@@ -184,7 +185,7 @@ class StochNotchList(list):
             An array of booleans that are False for frequencies in the notch.
 
         Notes
-        =====
+        -----
         This notches any frequency that may have overlapping frequency content with the notch.
         """
         notch_mask = np.ones(len(frequency_array), dtype=bool)
@@ -203,15 +204,19 @@ class StochNotchList(list):
         Parameters
         =======
         frequency_array: ``np.ndarray``
-            An array of frequencies.
+            An array of frequencies (in Hz).
 
         filename: ``str``
             Name of the target file.
 
         Notes
-        =====
-        This saves notch_mask (see get_notch_mask for more information) in a text file.
+        -----
+        This saves notch_mask in a .txt file.
         Notch_mask is an array of booleans that are False for frequencies in the notch.
+
+        See also
+        --------
+        :func:`pygwb.notch.StochNotch.get_notch_mask`
         """
 
         notch_mask = self.get_notch_mask(frequency_array)
@@ -221,13 +226,12 @@ class StochNotchList(list):
         )
 
     def save_to_txt(self, filename):
-        """Save the notch list to a txt-file (after sorting).
+        """Saves the notch list to a .txt file (after sorting).
 
         Parameters
         =======
         filename: ``str``
             Name of the target file.
-
         """
 
         fmin = []
@@ -292,12 +296,12 @@ def power_lines(fundamental=60, nharmonics=40, df=0.2):
         Number of harmonics (should include all harmonics within studied frequency range of the study).
         Default is 40.
     df: ``float``, optional
-        Frequency width of considered power line. Default is 0.2 Hz.
+        Frequency width (in Hz) of considered power line. Default is 0.2 Hz.
 
     Returns
     =======
     notches: ``StochNotchList``
-        StochNotchList object containing lines you want to be notched.
+        StochNotchList object containing lines to be notched.
 
     """
     freqs = fundamental * np.arange(1, nharmonics + 1)
@@ -330,7 +334,7 @@ def comb(f0, f_spacing, n_harmonics, df, description=None):
     Returns
     =======
     notches: ``StochNotchList``
-        StochNotchList object of lines you want to be notched.
+        StochNotchList object of lines to be notched.
 
     """
 
@@ -357,7 +361,7 @@ def pulsar_injections(filename, t_start, t_end, doppler=1e-4):
         https://git.ligo.org/stochastic/stochasticdetchar/-/blob/master/O3/notchlists/make_notchlist/input/pulsars.dat.
     t_start: ``int``
         GPS start time of run/analysis.
-    t_end: `int`
+    t_end: ``int``
         GPS end time of run/analysis.
     doppler: ``float``, optional
         Doppler shift; typical value of v/c for Earth motion in solar system = 1e-4 (default).

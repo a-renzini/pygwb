@@ -77,7 +77,6 @@ def dsc_cut(
         corresponding GPS times were bad, whereas False denotes good GPS times.
     dsigma: ``array_like``
         Values of the difference between sliding sigma and naive sigma, i.e., the actual value of the delta sigma per segment.
-    
     """
 
     dsigma = np.abs(slide_sigma * bf_ss - naive_sigma * bf_ns) / (slide_sigma * bf_ss)
@@ -162,6 +161,12 @@ def run_dsc(
         
     dsigmas_dict: ``array_like``
         Array containing the values of the difference between sliding sigma and naive sigma, i.e., the actual value of the delta sigma per segment.
+
+    See also
+    --------
+    pygwb.postprocessing.calculate_point_estimate_sigma_spectra
+
+    pygwb.util.calc_bias
     """
 
     logger.info("Running delta sigma cut")

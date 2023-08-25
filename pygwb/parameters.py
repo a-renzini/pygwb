@@ -1,10 +1,15 @@
-"""Parameters module contains the Parameters class which is used to store and handle all parameters of pygwb.
+"""
+Many parameters enter in a full gravitational-wave background analysis. The ``parameters`` module is meant to facilitate
+the handling of this large amount of parameters. It contains the ``Parameters`` class which is used to store and handle 
+all parameters of pygwb.
 
-This module contains only one class, the Parameters class and its accompanying helper class ParametersHelp.
-An object of the Parameters class is utilised as the storage object of all parameters in the pygwb analysis.
-It contains all the required ingredients for performing the whole isotropic stochastic LVK search.
+This module contains only one class, the ``Parameters`` class and its accompanying helper class ``ParametersHelp``.
+An object of the ``Parameters`` class is utilised as the storage object of all parameters in the ``pygwb`` analysis.
+It contains all the required ingredients to perform a stochastic gravitational-wave background analysis.
 
-The ParametersHelp class is not meant to be interacted with as a user.
+Notes
+-----
+Users should not interact with the ``ParametersHelp`` class.
 
 """
 import argparse
@@ -21,8 +26,8 @@ import json5
 @dataclass
 class Parameters:
     """
-    Parameters class: a dataclass which contains all parameters required for initialising a pygwb Interferometer,
-    a pygwb Baseline, and run pygwb_pipe.
+    A dataclass which contains all parameters required for initialising a pygwb ``Interferometer``,
+    a pygwb ``Baseline``, and run ``pygwb_pipe``.
 
     Attributes
     =======
@@ -82,10 +87,10 @@ class Parameters:
         Number of segments to average over when calculating the psd with Welch method. Default is 2.
     window_fft_dict: ``dict``
         Dictionary containing name and parameters describing which window to use when producing fftgrams
-         for psds and csds. Default is \"hann\".
+        for psds and csds. Default is \"hann\".
     window_fft_dict_welch: ``dict``
         Dictionary containing name and parameters relative to which window to use when producing fftgrams
-         for pwelch calculation. Default is \"hann\".
+        for pwelch calculation. Default is \"hann\".
     calibration_epsilon: ``float``
         Calibration coefficient. Default is 0.
     overlap_factor: ``float``
@@ -223,7 +228,7 @@ class Parameters:
         Parameters
         =======
         args: ``list``
-            List of arguments to update in the Class. Format must coincide to argparse formatting, e.g.,
+            List of arguments to update in the class. Format must coincide to argparse formatting, e.g.,
             ['--t0', '0', '--tf', '100'].
 
         Notes
@@ -381,7 +386,7 @@ class Parameters:
         
         Returns
         =======
-        param-dict: ``dict``
+        param_dict: ``dict``
             A dictionary containing the parameters of the analysis per interferometer used in the analysis.
         """
         ifo_parameters = ['channel', 'frametype', 'input_sample_rate', 'local_data_path', 'time_shift']
@@ -409,7 +414,13 @@ class Parameters:
 
 
 class ParametersHelp(enum.Enum):
-    """Description of the arguments in the Parameters class. This is an enumeration class and is not meant for user interaction."""
+    """
+    Description of the arguments in the Parameters class. 
+    
+    Notes
+    -----
+    This is an enumeration class and is not meant for user interaction.
+    """
 
     t0 = "Initial time."
     tf = "Final time."

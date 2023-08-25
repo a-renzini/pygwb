@@ -33,7 +33,8 @@ looks as follows:
 >>> plt.plot(freqs, orf)
     
 Note that, in practice, these methods are not called by the user, but are
-called by the ``baseline`` module directly.
+called by the ``baseline`` module directly. For more information on how the ``orfs`` module
+interacts with the ``baseline`` module, see :doc:`pygwb.baseline`.
 """
 
 import numpy as np
@@ -65,9 +66,8 @@ def Tplus(alpha, beta):
 
     See also
     --------
-
-    scipy.special.spherical_jn: Used for computation of the spherical Bessel function.
-    
+    scipy.special.spherical_jn
+        More information `here <https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.spherical_jn.html>`_.
     """
     return (
         -(
@@ -113,9 +113,8 @@ def Tminus(alpha, beta):
 
     See also
     --------
-
-    scipy.special.spherical_jn: Used for computation of the spherical Bessel function.
-    
+    scipy.special.spherical_jn
+        More information `here <https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.spherical_jn.html>`_.
     """
     return (
         spherical_jn(0, alpha)
@@ -147,9 +146,8 @@ def Vplus(alpha, beta):
 
     See also
     --------
-
-    scipy.special.spherical_jn: Used for computation of the spherical Bessel function.
-        
+    scipy.special.spherical_jn
+        More information `here <https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.spherical_jn.html>`_.
     """
     return (
         -(
@@ -195,9 +193,8 @@ def Vminus(alpha, beta):
 
     See also
     --------
-
-    scipy.special.spherical_jn: Used for computation of the spherical Bessel function.
-    
+    scipy.special.spherical_jn
+        More information `here <https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.spherical_jn.html>`_.
     """
     return (
         spherical_jn(0, alpha)
@@ -229,9 +226,8 @@ def Splus(alpha, beta):
 
     See also
     --------
-
-    scipy.special.spherical_jn: Used for computation of the spherical Bessel function.
-    
+    scipy.special.spherical_jn
+        More information `here <https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.spherical_jn.html>`_.
     """
     return (
         -(
@@ -277,9 +273,8 @@ def Sminus(alpha, beta):
 
     See also
     --------
-
-    scipy.special.spherical_jn: Used for computation of the spherical Bessel function.
-    
+    scipy.special.spherical_jn
+        More information `here <https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.spherical_jn.html>`_.
     """
     return (
         spherical_jn(0, alpha)
@@ -309,9 +304,8 @@ def T_right_left(alpha, beta):
 
     See also
     --------
-
-    scipy.special.spherical_jn: Used for computation of the spherical Bessel function.
-
+    scipy.special.spherical_jn
+        More information `here <https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.spherical_jn.html>`_.
     """
     return -np.sin(beta / 2) * (
         (-spherical_jn(1, alpha) + 7.0 / 8 * spherical_jn(3, alpha))
@@ -443,7 +437,6 @@ def calc_orf(
     
     overlap_reduction_function: ``array_like``
         Overlap reduction function at given frequencies for specified polarization.
-    
     """
 
     delta_x = np.subtract(det1_vertex, det2_vertex)

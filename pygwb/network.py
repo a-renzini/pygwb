@@ -126,9 +126,7 @@ class Network(object):
 
         See also
         --------
-
         pygwb.baseline.Baseline : Used to create the various baselines corresponding to the detectors in the network.
-
         """
         self.name = name
         self.interferometers = interferometers
@@ -189,7 +187,6 @@ class Network(object):
         See also
         --------
         pygwb.baseline.Baseline
-
         """
         if not all(baselines[0].duration == base.duration for base in baselines[1:]):
             raise AssertionError(
@@ -223,8 +220,8 @@ class Network(object):
         duration: ``float``, optional
             The duration to set for the Network and interferometers.
 
-        Note
-        ----
+        Notes
+        -----
         The cross-checks that durations match in all the interferometers are done by each baseline.
         """
         if duration is not None:
@@ -273,9 +270,7 @@ class Network(object):
 
         See also
         --------
-
         pygwb.notch.StochNotchList : Used to read in the frequency notches.
-
         """
         mask = (self.frequencies >= flow) & (self.frequencies <= fhigh)
         if notch_list_path:
@@ -326,9 +321,7 @@ class Network(object):
 
         See also
         --------
-
         pygwb.simulator.Simulator : Used to simulate data.
-
         """
         no_noise = inject_into_data_flag
         if start_time == None:
@@ -389,9 +382,8 @@ class Network(object):
 
         See also
         --------
-
-        gwpy.timeseries.TimeSeriesDict : Write method used to save data to file.
-
+        gwpy.timeseries.TimeSeriesDict
+            More information `here <https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeriesDict/>`_.
         """
         file_name = f"{self.name}_STRAIN-{int(self.interferometers[0].strain_data.start_time)}-{int(self.interferometers[0].strain_data.duration)}.{file_format}"
         file_path = os.path.join(save_dir, file_name)
@@ -408,6 +400,8 @@ class Network(object):
         See also
         --------
         pygwb.postprocessing.combine_spectra_with_sigma_weights
+
+        pygwb.omega_spectra.OmegaSpectrum
         """
         try:
             point_estimate_spectra = [

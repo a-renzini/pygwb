@@ -1,9 +1,6 @@
-"""Util module provides miscellaneous functions for the pygwb user used during the analysis.
-
-The util module collects all useful functions of pygwb that are called upon in multiple other modules or do not belong
-contextually in one of the other modules. These functions mainly performs computations that are relatively easy
-and are needed at multiple steps of the pipeline analysis.
-
+"""
+The ``util`` module combines miscellaneous functions used in several parts of the ``pygwb`` package.
+These functions mainly perform small computations, necessary at multiple stages of the analysis.
 """
 
 import copy
@@ -39,7 +36,7 @@ def parse_window_dict(window_dict):
 
 def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_factor=0.5):
     """
-    Calculate window factors. By default, for a hann window with 50% overlap.
+    Calculate window factors. By default for a hann window with 50% overlap.
 
     Parameters
     =======
@@ -57,6 +54,11 @@ def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_fa
     w1w2squaredbar: ``float``
     w1w2ovlbar: ``float``
     w1w2squaredovlbar: ``float``
+
+    See also
+    --------
+    scipy.signal.get_window
+        More information `here <https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.get_window.html>`_.
     """
     window_tuple = get_window_tuple(window_fftgram_dict)
     w = get_window(window_tuple, N, fftbins=False)
@@ -77,7 +79,7 @@ def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_fa
 
 def get_window_tuple(window_fftgram_dict={"window_fftgram": "hann"}):
     """
-    Unpack the ``window_fft_dict`` dictionary into a ``tuple`` that may be read by ``scipy.signal.get_window``.
+    Unpack the ``window_fft_dict`` dictionary into a ``tuple`` that can be read by ``scipy.signal.get_window``.
 
     Parameters
     =======
@@ -89,8 +91,8 @@ def get_window_tuple(window_fftgram_dict={"window_fftgram": "hann"}):
     window_tuple: ``tuple``
         A tuple containing the window_fft name as the first entry, followed by optional entries of the window_fft_dict.
 
-    Notes:
-    ======
+    Notes
+    -----
     ``window_fftgram_dict`` is expected to have at least one item, ``window_fftgram``.
     """
     window_dict = copy.deepcopy(window_fftgram_dict)
@@ -147,6 +149,11 @@ def calc_rho(N, j, window_tuple="hann", overlap_factor=0.5):
     =======
     rho: ``float``
         The normalised window correlation rho(j).
+
+    See also
+    --------
+    scipy.signal.get_window
+        More information `here <https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.get_window.html>`_.
     """
     # The base window for which we want to calculate the correlation
     w = get_window(window_tuple, N, fftbins=False)
@@ -216,9 +223,9 @@ def calc_bias(
     segmentDuration: ``float``
         Duration in seconds of Welch-averaged segment.
     deltaF: ``float``
-        Frequency resolution of Welch-averaged segment.
+        Frequency resolution (in Hz) of Welch-averaged segment.
     deltaT: ``float``
-        Time sampling of Welch-averaged segment.
+        Time sampling of Welch-averaged segment (in seconds).
     N_avg_segs: ``int``, optional
         Number of segments over which the average is performed.
     window_fftgram_dict: ``dictionary``, optional
@@ -256,22 +263,22 @@ def calc_bias(
 def omega_to_power(omega_GWB, frequencies):
     """
     Compute the GW power spectrum starting from the :math:`\Omega`\ :sub:`GWB`\
-    spectrum.
+    spectrum. For more information, see https://arxiv.org/pdf/2303.15696.pdf.
 
     Parameters
     =======
     omega_GWB: ``array_like``
         The omega spectrum to turn into strain power.
     frequencies: ``array_like``
-        Array of frequencies corresponding to the omega spectrum.
+        Array of frequencies (in Hz) corresponding to the omega spectrum.
 
     Returns
     =======
     power: ``gwpy.frequencyseries.FrequencySeries``
         A gwpy FrequencySeries containing the GW power spectrum
 
-    Notes:
-    ======
+    Notes
+    -----
     The given frequencies need to match the given spectrum.
     """
     H_theor = (3 * H0.si.value ** 2) / (10 * np.pi ** 2)
@@ -298,6 +305,10 @@ def interpolate_frequency_series(fSeries, new_frequencies):
     fSeries_new: ``gwpy.frequencyseries.FrequencySeries``
         The interpolated FrequencySeries.
 
+    See also
+    --------
+    scipy.interpolate.interp1d
+        More information `here <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html>`_.
     """
     spectrum = fSeries.value
     frequencies = fSeries.frequencies.value

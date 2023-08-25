@@ -91,7 +91,7 @@ def set_start_time(
     """
     Function to identify segment start times either with or without sidereal option.
 
-    Parameters:
+    Parameters
     =======
     job_start_GPS: ``int``
         Integer indicating the start time (in GPS)
@@ -187,6 +187,9 @@ def read_data(
     See also
     --------
     gwpy.timeseries.TimeSeries
+        More information `here <https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeries/#gwpy.timeseries.TimeSeries>`_.
+    gwsumm.data.timeseries.get_timeseries
+        More information `here <https://github.com/gwpy/gwsumm/blob/master/gwsumm/data/timeseries.py>`_.
     """
     if data_type == "public":
         data = timeseries.TimeSeries.fetch_open_data(
@@ -389,6 +392,9 @@ def self_gate_data(
     See also
     --------
     gwpy.timeseries.TimeSeries.gate
+        More information `here <https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeries/#gwpy.timeseries.TimeSeries.gate>`_.
+    gwpy.segments.SegmentList
+        More information `here <https://gwpy.github.io/docs/stable/api/gwpy.segments.SegmentList/>`_.
     """
     from scipy.signal import find_peaks
 

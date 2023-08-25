@@ -1,17 +1,18 @@
-"""Spectral module contains all functions in the pygwb package that are related to the computation of
-power spectral (PSD) and cross spectral densities (CSD).
+"""The spectral module contains all functions in the pygwb package that are related to the computation of
+the power spectral density (PSD) and the cross spectral density (CSD).
 
-The functions in this module are capable of computing a fftgram from a timeseries in the form of a
-``gwpy.spectrogram.Spectrogram``, computing a Welch-averaged PSD and coarse-graining any data.
-They can also compute PSDs and CSDs using the ``power_spectral_density`` and ``cross_spectral_density`` functions.
+The functions in this module  serve to compute an fftgram from a timeseries in the form of a
+``gwpy.spectrogram.Spectrogram``, a Welch-averaged PSD and coarse-grain any data.
+An additional functionality of the module is to compute PSDs and CSDs, which is implemented in
+the ``power_spectral_density`` and ``cross_spectral_density`` methods.
 
 Examples
 --------
 
-To demonstrate the power of this module, we will compute the cross spectral and power densities of two timeseries 
-representing data from two interferometers. We will look at the most important functions from the spectral module.
+To illustrate some of the main features of the this module, we compute the CSD and PSD of two timeseries 
+representing data from two interferometers.
 
-We read in data for two interferometers using functions from the preprocessing module.
+The data are read in for two interferometers using functions from the :doc:`pygwb.preprocessing` module.
 
 >>> import pygwb.preprocessing as ppp
 >>> import pygwb.spectral as psp
@@ -36,7 +37,7 @@ We read in data for two interferometers using functions from the preprocessing m
         16384                      # input_sample_rate
     )
 
-We compute now the PSD of H1 and L1.
+The PSD can be computed by calling the appropriate method:
 
 >>> PSD_H1 = psp.power_spectral_density(
         data_timeseries,
@@ -56,7 +57,7 @@ We compute now the PSD of H1 and L1.
         overlap_factor_welch_psd=0.5,
     )
 
-We can also compute the CSD of the baseline H1L1.
+The CSD is calculated by invoking the following lines of codes.
 
 >>> CSD_baseline = psp.cross_spectral_density(
         data_timeseries,
@@ -68,8 +69,8 @@ We can also compute the CSD of the baseline H1L1.
         window_fftgram_dict={"window_fftgram": "hann"},
     )
     
-The spectral module as shown here, has the capacity to compute PSDs of single detectors
-and CSDs of baselines (or network) of detectors.
+For any additional information on the parameters that enter the methods described here,
+we refer the reader to the more detailed API documentation of the module.
 
 """
 
@@ -114,8 +115,20 @@ def fftgram(
 
     Returns
     -------
-    data_fftgram: ``gwpy.spectrogram.Spectrogram`` (complex)
-        fftgram containing several FFTs in a matrix format.
+    data_fftgram: ``gwpy.spectrogram.Spectrogram``
+        fftgram containing several FFTs in a matrix format. Note this is a complex quantity.
+
+    See also
+    --------
+    pygwb.util.get_window_tuple
+
+    pygwb.util.parse_window_dict
+    
+    scipy.signal.get_window
+        More information `here <https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.get_window.html>`_.
+
+    gwpy.frequencyseries.FrequencySeries
+        More information `here <https://gwpy.github.io/docs/latest/api/gwpy.frequencyseries.FrequencySeries/#gwpy.frequencyseries.FrequencySeries>`_.
     """
 
     sample_rate = int(1 / time_series_data.dt.value)
@@ -157,14 +170,14 @@ def pwelch_psd(
     psdgram: Spectrogram, segment_duration: int, overlap_factor: float = 0.5
 ):
     """
-    Estimate PSD using pwelch method.
+    Estimate PSD using Welch' method.
 
     Parameters
     =======
     psdgram: ``gwpy.spectrogram.Spectrogram`` (PSD)
        PSD gram data to be averaged.
     segment_duration: ``int``
-        Data duration over which PSDs need to be averaged. Should be greater 
+        Data duration (in seconds) over which PSDs need to be averaged. Should be greater 
         than or equal to the duration used for FFT. 
     overlap_factor: ``float``, optional
         Amount of overlap between adjacent average PSDs, can vary between 0 
@@ -174,6 +187,11 @@ def pwelch_psd(
     =======
     avg_psdgram: PSD ``gwpy.spectrogram.Spectrogram``
         Averaged over segments within the ``segment_duration``.
+
+    See also
+    --------
+    gwpy.spectrogram.Spectrogram
+        More information `here <https://gwpy.github.io/docs/stable/spectrogram/>`_.
     """
 
     averaging_factor = round(segment_duration * psdgram.dy.value)
@@ -225,15 +243,20 @@ def before_after_average(psdgram: Spectrogram, segment_duration: int, N_avg_segs
     psdgram: ``gwpy.spectrogram.Spectrogram`` (PSD)
         PSD spectrogram.
     segment_duration: ``int``
-        Duration of data used for each PSD calculation.
+        Duration (in seconds) of data used for each PSD calculation.
     N_avg_segs: ``int``
         Number of segments to be used for PSD averaging (from both sides of 
-        the segment of interest). N_avg_segs should be even and >= 2
+        the segment of interest). N_avg_segs should be even and >= 2.
 
     Returns
     =======
     avg_psdgram: ``gwpy.spectrogram.Spectrogram``
         Averaged psd gram.
+
+    See also
+    --------
+    gwpy.spectrogram.Spectrogram
+        More information `here <https://gwpy.github.io/docs/stable/spectrogram/>`_.
     """
 
     if N_avg_segs < 2:
@@ -299,7 +322,7 @@ def coarse_grain(data, coarsening_factor):
 
     The length of the output is len(data) // coarsening_factor - 1.
 
-    If the coarsening factor is not an integer, :code:``coarse_grain_exact`` is
+    If the coarsening factor is not an integer, :func:``pygwb.spectral.coarse_grain_exact`` is
     used.
 
     Parameters
@@ -420,22 +443,26 @@ def coarse_grain_spectrogram(
     spectrogram: ``gwpy.spectrogram.Spectrogram``
         Spectrogram object to be coarsened.
     delta_t: ``float``, optional.
-        Output time spacing.
-        Default is None.
+        Output time spacing. Default is None.
     delta_f: ``float``, optional
-        Output frequency spacing.
-        Default is None. 
+        Output frequency spacing. Default is None. 
     time_method: ``str``, optional
-        Should be one of the coarsening methods listed above.
-        Default is "naive".
+        Should be one of the coarsening methods listed above. Default is "naive".
     frequency_method: ``str``, optional.
-        Should be one of the coarsening methods listed above.
-        Default is "full".
+        Should be one of the coarsening methods listed above. Default is "full".
 
     Returns
     =======
     output: ``gwpy.spectrogram.Spectrogram``
         The coarse-grained spectrogram.
+
+    See also
+    --------
+    gwpy.frequencyseries.FrequencySeries
+        More information `here <https://gwpy.github.io/docs/stable/api/gwpy.frequencyseries.FrequencySeries/#gwpy.frequencyseries.FrequencySeries>`_.
+    
+    gwpy.spectrogram.Spectrogram
+        More information `here <https://gwpy.github.io/docs/stable/spectrogram/>`_.
     """
     from gwpy.spectrogram import Spectrogram
 
@@ -506,9 +533,9 @@ def cross_spectral_density(
     time_series_data2: ``gwpy.timeseries.TimeSeries``
         Timeseries data of detector2.
     segment_duration: ``int``
-        Data duration over which CSDs need to be calculated.
+        Data duration (in seconds) over which CSDs need to be calculated.
     frequency_resolution: ``float``
-        Frequency resolution of the final CSDs. This is achieved by averaging in
+        Frequency resolution (in Hz) of the final CSDs. This is achieved by averaging in
         frequency domain.
     coarse_grain: ``bool``, optional
         Whether to coarsegrain the CSD or not. If True, it will be coarsegrained, otherwise
@@ -537,6 +564,14 @@ def cross_spectral_density(
     =======
     csd_spectrogram: ``gwpy.spectrogram.Spectrogram``
        Cross spectral density of the two timeseries.
+
+    See also
+    --------
+    gwpy.timeseries.TimeSeries
+        More information `here <https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeries/#gwpy.timeseries.TimeSeries>`_.
+
+    gwpy.spectrogram.Spectrogram
+        More information `here <https://gwpy.github.io/docs/stable/spectrogram/>`_.
     """
 
     if (segment_duration * frequency_resolution) % 1 != 0:
@@ -627,9 +662,9 @@ def power_spectral_density(
     segment_duration: ``int``
         Data duration over which PSDs need to be calculated.
     segment duration: ``int``
-        Data duration over which each PSDs need to be calculated.
+        Data duration (in seconds) over which each PSDs need to be calculated.
     frequency_resolution: ``float``
-        Frequency resolution of the final PSDs. This sets the time duration
+        Frequency resolution (in Hz) of the final PSDs. This sets the time duration
         over which FFTs are calculated in the pwelch method.
     coarse_grain: ``bool``, optional
         Coarse-graining flag; if True, PSD will be estimated via coarse-graining
@@ -690,6 +725,11 @@ def running_mean(data, coarsening_factor=1, axis=-1):
     =======
     running_mean_array: ``array-like``
         The averaged array of size M - coarsening factor.
+
+    See also
+    --------
+    numpy.cumsum
+        More information `here <https://numpy.org/doc/stable/reference/generated/numpy.cumsum.html>`_.
     """
     coarsening_factor = int(coarsening_factor)
     if axis != -1:

@@ -1,7 +1,7 @@
 """
 The ``constants`` module contains several constants that are used in stochastic gravitational-wave 
 background searches, such as the speed of light and the Hubble parameter. This module relies on 
-``astropy`` to obtain the value of these constants. 
+``astropy`` (more information `here <https://www.astropy.org/>`_) to obtain the value of these constants. 
 
 Examples
 --------
@@ -13,11 +13,11 @@ line:
 
 See also
 --------
+astropy.constants
+    More information `here <https://docs.astropy.org/en/stable/constants/index.html>`_.
 
-astropy.constants : Used to obtain the speed of light.
-
-astropy.cosmology : Used to obtain the cosmology as given by Planck18 results.
-
+astropy.cosmology
+    More information `here <https://docs.astropy.org/en/stable/cosmology/index.html>`_.
 """
 
 from astropy.constants import c

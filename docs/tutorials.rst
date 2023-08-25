@@ -19,11 +19,19 @@ pipeline is provided below.
    
    <br />
 
-`To be included still... Could be a tutorial on how to use dag and combine. Make tutorial above just about pygwb_pipe itself`.
+`To be included still... Could be a tutorial on how to use dag and combine, or workflow? Make tutorial above just about pygwb_pipe itself`.
 
 .. raw:: html
 
    <a href="multiple_jobs.html"><button style="background-color:#307FC1;border-color:#307FC1;color:white;width: 220.0px; height: 50.0px;border-radius: 8px;margin-bottom: 10px;display:block;margin: 0 auto">Run pygwb on multiple jobs</button></a>
+   <br />
+
+The ``pygwb`` package also come with a statistical checks module, which provides a way to visualize the results of an analysis runs. Through a series of plots, it offers the possibility
+to check the results for statistical consistency. To learn how to run a series of statistical checks, check out the tutorial below.
+
+.. raw:: html
+
+   <a href="stat_checks.html"><button style="background-color:#307FC1;border-color:#307FC1;color:white;width: 220.0px; height: 50.0px;border-radius: 8px;margin-bottom: 10px;display:block;margin: 0 auto">Run statistical checks</button></a>
    <br />
 
 In addition, the ``pygwb`` suite features a parameter estimation module, which relies on the ``bilby`` `package <https://lscsoft.docs.ligo.org/bilby/>`_.
@@ -49,5 +57,6 @@ to use the simulator module, check out the tutorial below.
       
    pipeline
    multiple_jobs
+   stat_checks
    pe
    simulator

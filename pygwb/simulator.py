@@ -108,6 +108,12 @@ class Simulator(object):
         careful for spectral indices outside of this range, as the splicing procedure 
         implemented in this module is known to introduce a bias for some values of the 
         spectral index (usually large negative numbers).
+
+        See also
+        --------
+        pygwb.baseline.get_baselines
+
+        pygwb.util.interpolate_frequency_series
         
         """
         if len(interferometers) < 2:
@@ -173,9 +179,8 @@ class Simulator(object):
             
         See also
         --------
-        
-        bilby.core.utils : Used to create the frequency series
-        
+        bilby.core.utils.create_frequency_series
+            More information `here <https://lscsoft.docs.ligo.org/bilby/api/bilby.core.utils.series.create_frequency_series.html>`_.
         """
         frequencies = create_frequency_series(
             sampling_frequency=self.sampling_frequency, duration=self.duration
@@ -195,8 +200,7 @@ class Simulator(object):
             
         See also
         --------
-        
-        pygwb.util.interpolate_frequency_series : Used to interpolate the frequency series
+        pygwb.util.interpolate_frequency_series
         
         """
         noise_PSDs = []
@@ -245,7 +249,6 @@ class Simulator(object):
         See also
         --------
         pygwb.baseline.overlap_reduction_function
-            Used to access the overlap redutcion function.
         """
         orf_list = []
         for base in self.baselines:
@@ -271,8 +274,10 @@ class Simulator(object):
             
         See also
         --------
-        
-        pygwb.simulator.generate_data : Method to generate the data.
+        pygwb.simulator.generate_data
+
+        gwpy.timeseries.TimeSeries
+            More information `here <https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeries/#gwpy.timeseries.TimeSeries>`_.
         """
         data = self.generate_data(data_start=self.t0)
         interferometer_data = {}
@@ -322,9 +327,8 @@ class Simulator(object):
 
         See also
         --------
-        
-        gwpy.timeseries.TimeSeries : Used as output data format for the ``simulator``.
-        
+        gwpy.timeseries.TimeSeries
+            More information `here <https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeries/#gwpy.timeseries.TimeSeries>`_.
         """
         if not data_start:
             data_start = self.t0
@@ -382,8 +386,7 @@ class Simulator(object):
             
         See also
         --------
-        
-        pygwb.baseline.overlap_reduction_function : Used to compute the ORF.
+        pygwb.baseline.overlap_reduction_function
         
         """
         index = 0
@@ -481,9 +484,8 @@ class Simulator(object):
             
         See also
         --------
-        
-        numpy.linalg.eig : Used to compute the eigenvalues and eigenvectors
-        
+        numpy.linalg.eig
+            More information `here <https://numpy.org/doc/stable/reference/generated/numpy.linalg.eig.html>`_.
         """
         eigval, eigvec = np.linalg.eig(C.transpose((2, 0, 1)))
         eigval = np.array([np.diag(x) for x in eigval])
@@ -502,9 +504,8 @@ class Simulator(object):
             
         See also
         --------
-        
-        numpy.random.randn : Used for the generation of random numbers.
-        
+        numpy.random.randn 
+            More information `here <https://numpy.org/doc/stable/reference/random/generated/numpy.random.randn.html>`_.
         """
         z = np.zeros((self.Nf, self.Nd), dtype="complex_")
         re = np.random.randn(self.Nf, self.Nd)
@@ -537,9 +538,8 @@ class Simulator(object):
         
         See also
         --------
-        
         numpy.einsum : Used for efficient summation over specific indices.
-        
+            More information `here <https://numpy.org/doc/stable/reference/generated/numpy.einsum.html>`_.
         """
         eigval, eigvec = self.compute_eigval_eigvec(C)
 
@@ -568,9 +568,8 @@ class Simulator(object):
             
         See also
         --------
-        
-        numpy.fft.ifft : Used to transform data from the frequency domain to the time domain.
-        
+        numpy.fft.ifft
+            More information `here <https://numpy.org/doc/stable/reference/generated/numpy.fft.ifft.html>`_.
         """
         C = self.covariance_matrix(flag)
 
@@ -611,11 +610,7 @@ class Simulator(object):
         """
         This function splices together the various segments to prevent
         artifacts related to the periodicity that can arise from inverse
-        Fourier transforms. Note: A range of spectral indices (from -3 to 3) was
-        tested for the GW power spectrum to inject. However, one should be careful
-        for spectral indices outside of this range, as the splicing procedure
-        implemented here is known to introduce a bias for some values of the spectral
-        index (usually large negative numbers).
+        Fourier transforms.
 
         Parameters
         =======
@@ -632,6 +627,14 @@ class Simulator(object):
             Array of size Nd x (N_segments*N_samples_per_segment) containing the simulated
             data corresponding to an isotropic stochastic background for each of the
             detectors, where Nd is the number of detectors.
+
+        Notes
+        -----
+        A range of spectral indices (from -3 to 3) was
+        tested for the GW power spectrum to inject. However, one should be careful
+        for spectral indices outside of this range, as the splicing procedure
+        implemented here is known to introduce a bias for some values of the spectral
+        index (usually large negative numbers).
         """
         w = np.zeros(self.N_samples_per_segment)
 
@@ -692,8 +695,11 @@ class Simulator(object):
             
         See also
         --------
-        
-        bilby.gw.WaveformGenerator : Used to generate CBC waveforms.
+        bilby.gw.WaveformGenerator
+            More information `here <https://lscsoft.docs.ligo.org/bilby/api/bilby.gw.waveform_generator.WaveformGenerator.html>`_.
+
+        gwpy.timeseries.TimeSeries
+            More information `here <https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeries/#gwpy.timeseries.TimeSeries>`_.
         
         """
 

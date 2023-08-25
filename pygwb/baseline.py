@@ -259,7 +259,6 @@ class Baseline(object):
 
         See also
         --------
-
         pygwb.notch.StochNotchList : Used to read in the frequency notches.
 
 
@@ -701,8 +700,8 @@ class Baseline(object):
 
         See also
         --------
-
-        pygwb.orfs.calc_orf : Method to compute the overlap reduction function.
+        pygwb.orfs.calc_orf
+            Method to compute the overlap reduction function.
 
         """
         if frequencies is not None:
@@ -1022,6 +1021,8 @@ class Baseline(object):
         See also
         --------
         pygwb.omega_spectra.OmegaSpectrogram
+
+        pygwb.postprocessing.calculate_point_estimate_sigma_spectra
         """
         # set CSD if not set
         # self.set_average_cross_spectral_density()
@@ -1121,6 +1122,8 @@ class Baseline(object):
         See also
         --------
         pygwb.postprocessing.postprocess_Y_sigma
+
+        pygwb.omega_spectra.OmegaSpectrum
         """
         if apply_dsc == True:
             if not hasattr(self, "badGPStimes"):
@@ -1363,8 +1366,8 @@ class Baseline(object):
 
         See also
         --------
-
-        pygwb.delta_sigma_cut.run_dsc : Function used to run the delta sigma cut.
+        pygwb.delta_sigma_cut.run_dsc
+            Function used to run the delta sigma cut.
 
         """
         if not self._orf_polarization_set:

@@ -8,8 +8,8 @@ likelihood. It is possible to include calibration uncertainty by modifying the
 calibration epsilon parameter, which defaults to 0. The GW polarization used for analysis is user-defined, and defaults to standard
 General Relativity (GR) polarization (i.e., tensor).
 
-In our implementation of ``pe``, we rely on the ``bilby`` package Ashton to perform parameter space
-exploration, and employ the sampler ``dynesty`` by default. The user has flexibility in choosing the
+In our implementation of ``pe``, we rely on the ``bilby`` package (more information `here <https://lscsoft.docs.ligo.org/bilby/>`_) to perform parameter space
+exploration, and employ the sampler ``dynesty`` (more information `here <https://dynesty.readthedocs.io/en/stable/>`_) by default. The user has flexibility in choosing the
 sampler as well as the sampler settings.
 
 Child classes in the pe module inherit attributes and methods from the ``GWBModel`` class. Each child class represents
@@ -19,6 +19,9 @@ package to add their own models. The flexibility of the ``pe`` module allows the
 models defined within the module. A particularly useful application of this is the modelling of a GWB in the presence
 of correlated magnetic noise, or the simultaneous estimation of astrophysical and
 cosmological GWBs.
+
+Additional information about parameter estimation can be found `here <https://arxiv.org/pdf/2303.15696.pdf>`_. For more information on
+how to use this moduel, we refer the reader to the dedicated tutorials and demos.
 
 """
 
@@ -49,7 +52,8 @@ class GWBModel(bilby.Likelihood):
         """
         See also
         --------
-        bilby.Likelihood : The parent class used for the implementation.
+        bilby.Likelihood
+            More information `here <https://lscsoft.docs.ligo.org/bilby/likelihood.html>`_.
         """
         super(GWBModel, self).__init__()
         # list of baselines
@@ -247,8 +251,7 @@ class PowerLawModel(GWBModel):
         
         See also
         --------
-
-        pygwb.GWBModel : The parent class used for the implementation.
+        pygwb.pe.GWBModel : The parent class used for the implementation.
         """
         try:
             fref = kwargs.pop("fref")
@@ -344,8 +347,7 @@ class BrokenPowerLawModel(GWBModel):
 
         See also
         --------
-
-        pygwb.GWBModel : The parent class used for the implementation.
+        pygwb.pe.GWBModel : The parent class used for the implementation.
         """
         super(BrokenPowerLawModel, self).__init__(**kwargs)
 
@@ -455,8 +457,7 @@ class TripleBrokenPowerLawModel(GWBModel):
 
         See also
         --------
-
-        pygwb.GWBModel : The parent class used for the implementation.
+        pygwb.pe.GWBModel : The parent class used for the implementation.
         """
         super(TripleBrokenPowerLawModel, self).__init__(**kwargs)
 
@@ -573,8 +574,7 @@ class SmoothBrokenPowerLawModel(GWBModel):
 
         See also
         --------
-
-        pygwb.GWBModel : The parent class used for the implementation.
+        pygwb.pe.GWBModel : The parent class used for the implementation.
         """
         super(SmoothBrokenPowerLawModel, self).__init__(**kwargs)
 
@@ -647,8 +647,7 @@ class SchumannModel(GWBModel):
 
         See also
         --------
-
-        pygwb.GWBModel : The parent class used for the implementation.
+        pygwb.pe.GWBModel : The parent class used for the implementation.
         """
         # Set valid ifos
         # get ifo's associated with this set of
@@ -778,8 +777,7 @@ class TVSPowerLawModel(GWBModel):
 
         See also
         --------
-
-        pygwb.GWBModel : The parent class used for the implementation.
+        pygwb.pe.GWBModel : The parent class used for the implementation.
         """
         try:
             fref = kwargs.pop("fref")
@@ -885,8 +883,7 @@ class PVPowerLawModel(GWBModel):
 
         See also
         --------
-
-        pygwb.GWBModel : The parent class used for the implementation.
+        pygwb.pe.GWBModel : The parent class used for the implementation.
         """
         try:
             fref = kwargs.pop("fref")
@@ -985,8 +982,7 @@ class PVPowerLawModel2(GWBModel):
 
         See also
         --------
-        
-        pygwb.GWBModel : The parent class used for the implementation.
+        pygwb.pe.GWBModel : The parent class used for the implementation.
         """
         try:
             fref = kwargs.pop("fref")
