@@ -162,7 +162,7 @@ and (b) that you have restarted bash for this line to take effect (i.e., run
 
 .. note::
 
-    Using your own installation of python has several advantages: its generally
+    Using your own installation of python has several advantages: it's generally
     easier to debug, avoids conflicts with other packages, and if you end up
     with a broken installation you can just delete the directory and start
     again.
