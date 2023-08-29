@@ -15,13 +15,15 @@ This allows to infer, or put constraints on, some GWB model parameters :math:`\m
 by ``pygwb``.
 
 The ``pygwb`` package comes with a script, ``pygwb_pe``, which wraps the ``pygwb.pe`` module. In this tutorial, we show how to
-use this script and escribe the basic functionalities. However, we show some additional features of the model in one of the demos, 
+use this script and describe the basic functionalities. In addition, we show some advanced features of the module in one of the `demos <run_pe.html>`_, 
 to illustrate the customizability of the module.
 
 .. tip::
 
-    Make sure to have a look at the ``pygwb.pe`` `module page <api/pygwb.pe.html>`_ before going through the tutorial for additional information.
+    Make sure to also have a look at the ``pygwb.pe`` `module page <api/pygwb.pe.html>`_ before going through the tutorial for additional information.
 
+.. note::
+    The ``pygwb.pe`` module is based on the ``bilby`` package. For more information, we refer the reader to the documentation of the ``bilby`` package `here <https://lscsoft.docs.ligo.org/bilby/index.html>`_.
 
 **1. Script parameters**
 ========================
@@ -75,23 +77,19 @@ This will display the parameters of the script as follows:
         --calibration_epsilon CALIBRATION_EPSILON
                         Calibration uncertainty. Default is 0.
 
-The only required parameter is ``path_to_file``, which refers to an output file from a ``pygwb`` analysis run. The script can be run simply with
+**2. Running the script**
+=========================
+
+The only required argument is the ``input_file``, which should point to the output file of a ``pygwb`` run containing the point estimate spectrum and its variance. 
+The script can then simply be run with
 
 .. code-block:: shell
 
     pygwb_pe --input_file {path_to_pygwb_output_file}
     
-This produces the usual output files of a ``bilby`` parameter estimation run and is saved in the ``output_dir``, which by default is ``./PE_Output``. 
-Note that upon successful completion of the parameter estimation the ``output_dir`` should contain a ``result.json`` file and a ``bilby`` corner plot 
-(in ``png`` format) summarizing the results of the PE run.
-
-**2. Customizing a run**
-========================
-
-Although the ``pygwb_pe`` can be run with the default setup as outlined above, 
-most users will want to customize some of the parameters for the run. For example, one may choose to run using a different model and different priors. 
-The model may be specified using the ``--model argument``, and must be a ``pygwb``--supported model.
-These inculde
+The above command would run ``pygwb_pipe`` with all script parameter values set to their default values. However, the various script parameters of ``pygwb_pipe``, 
+as shown above, allow for a certain level of customization. In particular, the ``pygwb_pe`` script accommodates all the models present in the ``pygwb.pe`` module through the 
+``--model`` argument (more information on available models `here <api/pygwb.pe.html>`_). These include:
 
 .. code-block:: python
 
@@ -103,12 +101,9 @@ These inculde
         "Parity-Violation": pe.PVPowerLawModel
         "Parity-Violation-2": pe.PVPowerLawModel2
 
-We refer the user to the ``pe`` documentation for a full overview of available models. 
-The priors may be specified by passing a ``prior.json`` file through the ``--model_prior_file`` argument. 
-
-This is illustrated with an example below for power-law model priors. A Log-uniform prior for Omega from 
-1e-13 to 1e-5 and a Gaussian prior for alpha with mean of 2/3 and sigma 1.5 are taken. Such a json file 
-can be made using the following code:
+Depending on the model choice above, the prior on the model parameters will have to be modified as well. This is handled by a prior file (``json`` file format),
+which contains the priors in a dictionary format used for PE (as expected by `bilby <https://lscsoft.docs.ligo.org/bilby/prior.html>`_ to run PE). To create such a file,
+one can run the following lines of code (here for a power-law model):
 
 .. code-block:: python
 
@@ -119,14 +114,45 @@ can be made using the following code:
     priors['omega_ref'] = bilby.core.prior.LogUniform(1e-13, 1e-5, '$\\Omega_{\\rm ref}$')
     priors['alpha'] = bilby.core.prior.Gaussian(mu = 2/3, sigma = 1.5, latex_label = '$\\alpha$')
     
-    priors.to_json({path_to_where_you_want_to_save_json}, label='pe')
-    
-Now you can run your script with the json file containing the information about the priors on the parameters 
+    priors.to_json({path_to_where_you_want_to_save_json}, label='pe') 
+
+This file can then be passed to the script through the ``--model_prior_file`` argument:
 
 .. code-block:: python
 
-    pygwb_pe --path_to_file {path_to_pygwb_output_file} --model_prior_file {path_to_json_file} --model {model_you_want_to_examine}
+    pygwb_pe --path_to_file {path_to_pygwb_output_file} --model_prior_file {path_to_json_file} --model {chosenn_model}
+
+.. warning::
+    Make sure to specify all the model parameters of the chosen model in the code above to avoid errors when running the script.
+
+.. tip::
+    For more information about the model parameters, see the relevant API documentation `PE pages <api/pygwb.pe.html>`_. Additional information about ``bilby`` priors can be found
+    `here <https://lscsoft.docs.ligo.org/bilby/prior.html>`_.
+
+Other script arguments allow for further customization of the PE run. For example, a notch list can be passed through the ``--notch_list_path`` to exclude specific
+frequency bins from the analysis. For more information on notching, we refer the reader to the `notch module <api/pygwb.notch.html>`_ API page.
+
+**3. Output of the script**
+===========================
+
+The ``pygwb_pe`` script produces the usual output files of a ``bilby`` PE run and is saved in the ``--output_dir`` passed when running the script from
+the command line (defaults to ``./pe_output``). This directory should contain a ``result.json`` file and a so-called corner plot (or posterior plot), 
+in ``png`` format, summarizing the results of the PE run. For examples of these corner plots and additional information on the output, we refer the 
+reader to the `bilby documentation <https://lscsoft.docs.ligo.org/bilby/bilby-output.html>`_.
+
+Note that the output of the ``pygwb_pe`` script can be read in with dedicated ``bilby`` methods. For example, one can load a PE result as follows:
+
+.. code-block:: python
+
+    result = bilby.core.result.Result.from_json("my_file.json")
+
+For additional information about the ``bilby.core.result`` object and its functionalities, we refer the reader to the 
+`documentation of the class <https://lscsoft.docs.ligo.org/bilby/api/bilby.core.result.Result.html#bilby.core.result.Result>`_.
 
 .. tip::
     Feeling overwhelmed by this tutorial? Make sure to have a look at the ``pygwb.pe`` `module page <api/pygwb.pe.html>`_ for additional information
     about the methods of the module.
+
+.. seealso::
+
+    For more information about how to customize your PE runs, make sure to check out the `PE demo <run_pe.html>`_.
