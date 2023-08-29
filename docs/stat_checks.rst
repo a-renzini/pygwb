@@ -2,17 +2,20 @@
 Running statistical checks with ``pygwb_stats``
 ===============================================
 
-The statistical checks module provides a way to visualize the results of an analysis runs. Through a series of plots, it offers the possibility
-to check the results for statistical consistency. The module itself is detailed in the `API documentation <api/pygwb.statistical_checks.html>`_. Here,
+The ``pygwb.statistical_checks`` module provides a way to visualize the results of an analysis run. Through a series of plots, it offers the possibility
+to check the results for statistical consistency. The module itself is detailed in the `module documentation <api/pygwb.statistical_checks.html>`_. Here,
 we provide some information on how to run ``pygwb_stats``, a script that calls the statistical checks module and generates all the relevant plots.
 
-To obtain some information about the script, one can execute the following command:
+**1. Script parameters**
+========================
+
+To obtain information about the parameters of the ``pygwb_stats`` script, one can execute the following command:
 
 .. code-block:: shell
 
     pygwb_stats --help
 
-This will output the optional arguments that can be passed to the script:
+This displays the optional arguments that can be passed to the script:
 
 .. code-block:: shell
 
@@ -32,10 +35,13 @@ This will output the optional arguments that can be passed to the script:
   -co CONVENTION, --convention CONVENTION
                         Overall convention to use in plots
 
-Although a detailed discussion of the interpretation of the plots is delayed to the `demo section <run_statistical_checks.html>`_, 
-we provide some additional information about the various parameters shown above. 
+A brief explanation of the parameters is given in the code snippet above, and we provide some additional information in the section below when calling the
+``pygwb_stats`` script.
 
-After running the ``pygwb_combine`` script (as explained `here <multiple_jobs.html>`_), the cript will have produced a file that looks similar to
+**2. Running the script**
+=========================
+
+After running the ``pygwb_combine`` script (as explained `here <multiple_jobs.html>`_), the script will have produced a file that looks similar to
 
 .. code-block:: shell
 
@@ -45,17 +51,33 @@ This file contains the combined spectra, where the notation indicates it was run
 reference frequency of 25 Hz, and t0 and tf would be actual numbers corresponding to the start and end time of the analysis, respectively.
 This file should be passed to the ``pygwb_stats`` through the ``-c`` argument.
 
-If the analysis was run with the delta sigma cut turned on, a file ``delta_sigma_cut_t0-tf`` should be present in the output directory as well. 
+If the ``pygwb`` analysis was run with the delta-sigma cut turned on, a file ``delta_sigma_cut_t0-tf`` should be present in the output directory as well. 
 This can be passed through the ``-dsc`` argument.
 
 The directory where the plots should be saved is passed through ``-pd``, whereas the parameter file that was used during the ``pygwb`` analysis, i.e.,
 the one passed to ``pygwb_pipe``, should be passed through ``-pf``. The label font size can be changed, by using the ``-fs`` option. Finally, the coherence file,
 if computed during the ``pygwb_pipe`` run, can also be passed via ``-fcoh``, which will create a series of additional plots related to the coherence.
 
+The ``pygwb_stats`` script can be run using, for example, the following line of code:
+
+.. code-block:: shell
+    
+    pygwb_stats -c {my_combine_file_path} -dsc {my_dsc_file_path} -pd {my_plotting_directory} -pf {my_param_file_path}
+
+The script produces some output, which is saved in the output directory specified through the ``-pd`` argument.
+
+**3. Output of the script**
+===========================
+
+The output of the ``pygwb_stats`` script contains a series of plots, atuomatically saved to ``png`` format, in the provided plotting directory ``-pd``.
+Each of these plots illustrates some quantities that provide insights on the statistical quality and behavior of various quantities of interest of the analysis.
+We refrain from giving a plot by plot discussion of the various figures here, and refer the user to the dedicated demo on this topic `here <run_statistical_checks.html>`_.
+In addition, several quantities of interest are saved to file for further follow-up (see `here <api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.save_all_statements.html>`_).
+
 .. seealso::
 
-    More information on the statistical checks can be found `here <api/pygwb.statistical_checks.html>`_.
+    More information on the ``pygwb.statistical_checks`` module can be found `here <api/pygwb.statistical_checks.html>`_.
 
 .. tip::
 
-    Make sure to check out the demo about the interpretation of the statistical checks results `here <run_statistical_checks.html>`_.
+    Make sure to check out the `demo <run_statistical_checks.html>`_ about the interpretation of the results.
