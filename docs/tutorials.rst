@@ -19,11 +19,19 @@ pipeline is provided below.
    
    <br />
 
-`To be included still... Could be a tutorial on how to use dag and combine, or workflow? Make tutorial above just about pygwb_pipe itself`.
+When running ``pygwb`` on long data sets, it can be more convenient to split the large amount of data into smaller chunks, and run the analysis on those. This functionality is supported within
+``pygwb`` through the inclusion of two additional scripts: ``pygwb_dag`` and ``pygwb_combine``. For more information, check out the tutorial below.
 
 .. raw:: html
 
    <a href="multiple_jobs.html"><button style="background-color:#307FC1;border-color:#307FC1;color:white;width: 220.0px; height: 50.0px;border-radius: 8px;margin-bottom: 10px;display:block;margin: 0 auto">Run pygwb on multiple jobs</button></a>
+   <br />
+
+`WORKFLOW`.
+
+.. raw:: html
+
+   <a href="workflow.html"><button style="background-color:#307FC1;border-color:#307FC1;color:white;width: 220.0px; height: 50.0px;border-radius: 8px;margin-bottom: 10px;display:block;margin: 0 auto">Learn more about the workflow</button></a>
    <br />
 
 The ``pygwb`` package also come with a statistical checks module, which provides a way to visualize the results of an analysis runs. Through a series of plots, it offers the possibility
@@ -57,6 +65,7 @@ to use the simulator module, check out the tutorial below.
       
    pipeline
    multiple_jobs
+   workflow
    stat_checks
    pe
    simulator

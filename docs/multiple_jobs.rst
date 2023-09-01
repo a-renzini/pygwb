@@ -2,18 +2,29 @@
 Running multiple ``pygwb_pipe`` jobs
 ====================================
 
-**1. Writing and submitting a `dag` file**
-=========
+In practice, one will probably want to run ``pygwb`` on long stretches of data. This is achieved most easily by splitting
+the large data set in smaller chunks of data. These can then be analyzed individually, and combined after the analysis to form
+one overall result for the whole data set. To this end, ``pygwb`` comes with two scripts: ``pygwb_dag`` and ``pygwb_combine``. 
+The former allows the user to run ``pygwb_pipe`` (see `here <pipeline.html>`_) simultaneously on shorter stretches of data, 
+whereas the latter allows to combine the output of the individual runs into an overall result for the whole data set.
 
-We are now ready to condorise the pipeline and run a batch of jobs, just like the one run in point 4.
+**The pygwb_dag script**
+========================
 
-* *writing the* ``dag`` *file*
+**1. Script parameteres**
+-------------------------
 
-To prepare a dag file one  can use the ``pygwb_dag`` script:
+To be able to run multiple ``pygwb_pipe`` jobs simultaneously, ``pygwb`` relies on `Condor <https://htcondor.readthedocs.io/en/latest/>`_.
+This requires a ``dag`` file, which contains information about all the jobs, i.e., running ``pygwb_pipe`` on different stretches of data.
+In ``pygwb``, this file can be created by using the ``pygwb_dag`` script. To visualize the expected argument of the script, one can call:
 
 .. code-block:: shell
 
    pygwb_dag --help
+
+This will display the required parameters, together with a small description:
+
+.. code-block:: shell
 
   --subfile SUBFILE     Submission file.
   --jobfile JOBFILE     Job file with start and end times and duration for each job.
@@ -35,27 +46,91 @@ To prepare a dag file one  can use the ``pygwb_dag`` script:
   --calc_pt_est CALC_PT_EST
                         Calculate omega point estimate and sigma from data.
 
-This script passes on relevant arguments to ``pygwb_pipe``, such as the parameter file and the ``apply_dsc`` Flag, etc.
-Note that the condor submission file is not included in the package. Its compilation will depend on the specific cluster/setup used, and is left up to the user.
+An important argument of the script, is the path to the job file, passed through ``--jobfile``. The job file is a simple ``.txt`` file and contains the different jobs, or in other words,
+the different stretches of data to run the analysis on. For concretenes, consider the case where one would want to run ``pygwb`` on 12000 seconds of data, but split this in smaller jobs.
+The job file could then look as follows:
 
-* *submitting the job*
+.. code-block:: shell
 
-The ``dag`` file is now created in the ``output`` folder. To submit the job, navigate to that folder and run
+  1 0 4000  4000
+  1 4000  9000  5000
+  1 9000 12000 3000
+
+The first column does not play a role, the second and third colum indicate the start and end time of the job, respectively, whereas the last column shows the duration of the job, i.e., the 
+difference between end and start time. The job file therefore allows the script to *know* on which stretches of data to run. In case one wants to run on a subset of the jobs in the 
+job file, one can pass an additional start and end time to the script through the ``--t0`` and ``--tf`` arguments.
+
+The ``--parentdir`` allows to pass the full path to the run directory, and the ``--param_file`` should point to the parameter file to be used by ``pygwb_pipe``.
+
+.. seealso::
+  For more information about ``pygwb_pipe`` and the usage of a parameter file, we refer the user to the tutorial `here <pipeline.html>`_.
+
+For the remainder of the arguments, we refer the user to the ``pygwb_pipe`` `tutorial <pipeline.html>`_, as the ``dag`` file passes the relevant arguments to ``pygwb_pipe`` behind the screens, 
+e.g., the parameter file and the ``apply_dsc`` flag.
+
+Note that an additional argument should be passed to the script, namely the submission file. This file passes necessary information to Condor, and the cluster/server on which the user is
+running the ``pygwb`` jobs. 
+
+.. warning::
+  The Condor submission file, passed through ``--subfile``, is not included in the ``pygwb`` package. Its specific implementation will depend on the server or cluster where the user runs the analysis.
+  More information about Condor, together with inspiration for the submission file can be found `here <https://htcondor.readthedocs.io/en/latest/users-manual/quick-start-guide.html>`_.
+
+**2. Running the script**
+-------------------------
+
+The arguments described above can be passed to the script through the following command:
+
+.. code-block:: shell
+   
+   pygwb_dag {your-dag-file.dag} --subfile {full_path_to_subfile} --jobfile {full_path_to_jobfile} --parent_dir {full_path_to_parent_dir} --param_file {full_path_to_param_file}
+
+.. note::
+
+  If the ``dag`` name was not specified when calling ``pygwb_dag`` in the previous step, the default name ``dag_name.dag`` is used.
+
+The ``dag`` file is now created in the ``{full_path_to_parent_dir}/output`` folder. To submit the job to condor and actually run all the jobs, 
+navigate to that folder and run the following line in the command line:
 
 .. code-block:: shell
    
    condor_submit_dag {your-dag-file.dag}
 
-If you have not specified the ``dag`` name at the previous step, the current default name is ``dag_name.dag``.
-
-**2. Combining the output**
-==========
-
-To combine the output files from many runs of ``pygwb_pipe`` on different times one may use ``pygwb_combine``:
+To check the status of the jobs, one can execute the command: 
 
 .. code-block:: shell
 
-   >> pygwb_combine -h
+  condor_q
+
+For additional information on Condor jobs, we refer the user to the Condor `documentation <https://htcondor.readthedocs.io/en/latest/>`_.
+
+**3. Output of the script**
+---------------------------
+
+Once all the jobs submitted through Condor and the ``dag`` file finish running, the output folder should contain similar files as the ones already discussed in the ``pygwb_pipe``
+tutorial `here <pipeline.html#output-of-the-script.html>`_. However, there will be many more files compared to one run, as ``pygwb_pipe`` ran for all the jobs, and therefore produced the output for each of the jobs.
+We refrain from repeating the information about the output of ``pygwb_pipe`` and refer to the previous `tutorial <pipeline.html#output-of-the-script.html>`_ for more information.
+
+**Combining runs with pygwb_combine**
+=====================================
+
+The ``pygwb_dag`` script described above runs multiple ``pygwb_pipe`` jobs on stretches of data. For each of these runs,
+the usual ``pygwb_pipe`` output is produced (see `here <pipeline.html#output-of-the-script>`_ for more information on the output of the ``pygwb_pipe`` script).
+However, the user is usually interested in an overall result for the whole data set. This is where ``pygwb_combine`` comes in, by allowing
+the user to combine their separate results into an overall result. For example, all separate point estimate and variance spectra will be 
+combined into one overall spectrum for the whole data set.
+
+**1. Script parameteres**
+-------------------------
+
+The required arguments of the ``pygwb_combine`` script can be displayed through:
+
+.. code-block:: shell
+
+   pygwb_combine -h
+
+This shows the following arguments with a short description:
+
+.. code-block:: shell
 
   --data_path DATA_PATH [DATA_PATH ...]
                         Path to data files or folder.
@@ -73,27 +148,39 @@ To combine the output files from many runs of ``pygwb_pipe`` on different times 
   --file_tag FILE_TAG   File naming tag. By default, reads in first and last
                         time in dataset.
 
-This command produces combined spectra in the desired output folder.
 
-**Important Notes**
-==========
 
-**i. Detector--specific parameters** 
+**2. Running the script**
+-------------------------
 
-It is possible to pass detector--specific parameters, both in the ``.ini`` file and through shell. The Syntax is:
+To run the script, one executes the following command:
 
 .. code-block:: shell
 
-  param = {IFO1:val1 IFO2:val2}
+  pygwb_combine --data_path {my_pygwb_output_folder} --alpha {my_spectral_index} --fref {my_fref} --param_file {my_parameter_file_path} --out_path {my_combine_folder}
 
-For example, if passing different channel names for Hanford and Livingston:
+Note that not all arguments listed above are required to be able to run the script.
+
+.. warning::
+
+  The ``--combine_coherence`` functionality is not supported when combining runs as a result of the ``pygwb_dag`` script.
+
+
+**3. Output of the script**
+---------------------------
+
+As mentioned above, the output of the ``pygwb_combine`` script is one overall point estimate and variance (spectrum). The folder passed through the ``--out_path``
+argument should contain a file that looks as follows:
 
 .. code-block:: shell
 
-  channel = {H1:GWOSC-16KHZ_R1_STRAIN L1:PYGWB-SIMULATED_STRAIN} 
+    point_estimate_sigma_spectra_alpha_0.0_fref_25_t0-tf.npz
 
-When passing through shell, double quotes are required, i.e., 
+This file contains the combined spectra, where the notation indicates it was run with a spectral index of 0, 
+reference frequency of 25 Hz, and t0 and tf would be actual numbers corresponding to the start and end time of the analysis, respectively.
 
-.. code-block:: shell
+.. tip::
+  Not sure about what is exactly in the ``.npz`` file? Load in the file and print out all its `keys` as shown 
+  `here <https://stackoverflow.com/questions/49219436/how-to-show-all-the-element-names-in-a-npz-file-without-having-to-load-the-compl>`_.
 
-  --channel "{H1:GWOSC-16KHZ_R1_STRAIN L1:PYGWB-SIMULATED_STRAIN}"
+If the ``pygwb_pipe`` analyses were run with the delta-sigma cut turned on, a file ``delta_sigma_cut_t0-tf.npz`` should be present in the output directory as well. 
