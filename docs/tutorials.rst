@@ -27,12 +27,6 @@ When running ``pygwb`` on long data sets, it can be more convenient to split the
    <a href="multiple_jobs.html"><button style="background-color:#307FC1;border-color:#307FC1;color:white;width: 220.0px; height: 50.0px;border-radius: 8px;margin-bottom: 10px;display:block;margin: 0 auto">Run pygwb on multiple jobs</button></a>
    <br />
 
-`WORKFLOW`.
-
-.. raw:: html
-
-   <a href="workflow.html"><button style="background-color:#307FC1;border-color:#307FC1;color:white;width: 220.0px; height: 50.0px;border-radius: 8px;margin-bottom: 10px;display:block;margin: 0 auto">Learn more about the workflow</button></a>
-   <br />
 
 The ``pygwb`` package also come with a statistical checks module, which provides a way to visualize the results of an analysis runs. Through a series of plots, it offers the possibility
 to check the results for statistical consistency. To learn how to run a series of statistical checks, check out the tutorial below.
@@ -40,6 +34,14 @@ to check the results for statistical consistency. To learn how to run a series o
 .. raw:: html
 
    <a href="stat_checks.html"><button style="background-color:#307FC1;border-color:#307FC1;color:white;width: 220.0px; height: 50.0px;border-radius: 8px;margin-bottom: 10px;display:block;margin: 0 auto">Run statistical checks</button></a>
+   <br />
+
+The different scripts above are conveniently grouped together into a workflow, which executes one script after the other. For more information on the workflow, we refer the user to the tutorial 
+below. 
+
+.. raw:: html
+
+   <a href="workflow.html"><button style="background-color:#307FC1;border-color:#307FC1;color:white;width: 220.0px; height: 50.0px;border-radius: 8px;margin-bottom: 10px;display:block;margin: 0 auto">Learn more about the workflow</button></a>
    <br />
 
 In addition, the ``pygwb`` suite features a parameter estimation module, which relies on the ``bilby`` `package <https://lscsoft.docs.ligo.org/bilby/>`_.
@@ -65,7 +67,7 @@ to use the simulator module, check out the tutorial below.
       
    pipeline
    multiple_jobs
-   workflow
    stat_checks
+   workflow
    pe
    simulator
