@@ -23,9 +23,10 @@ instantiate through:
 >>> ifo_list = [H1,L1]
 
 The above detectors are ``Interferometer`` objects, but are based on ``bilby`` detectors, which have 
-default noise PSDs saved in them, in the `power_spectral_density` attribute of the ``bilby`` detector. 
+default noise PSDs saved in them, in the ``power_spectral_density`` attribute of the ``bilby`` detector (more information can be
+found `here <https://lscsoft.docs.ligo.org/bilby/api/bilby.gw.detector.psd.PowerSpectralDensity.html>`_). 
 Below, we load in this noise PSD and make sure the duration and sampling frequency of the detector 
-is set to the desired value of these parameters chosen at the start of the notebook.
+are set to the desired value of these parameters chosen at the start of the notebook.
 
 >>> for ifo in ifo_list:
 >>>     ifo.duration = duration
@@ -39,9 +40,6 @@ A network can then be created by using:
 It is also possible to initialize the class by passing a list of ``Baselines``:
 
 >>> HL_network = Network.from_baselines(’HL’, [HL_baseline])
-
-For additional information and functionalities of the ``Network``, we refer the reader to the dedicated 
-tutorial section of the documentation.
 
 """
 

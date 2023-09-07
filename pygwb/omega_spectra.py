@@ -1,5 +1,5 @@
 """This module contains two classes that deal with the spectra and spectrograms
-in the pygwb analysis. These objects can be reweighted with different values of the Hubble parameter h0, 
+in the ``pygwb`` analysis. These objects can be reweighted with different values of the Hubble parameter `h0`, 
 power-law indices and reference frequencies. The classes inherit all features from the ``gwpy.spectrogram.Spectrogram`` 
 parent class. More information can be found `here <https://gwpy.github.io/docs/stable/spectrogram/>`_.
 
@@ -7,7 +7,7 @@ The main addition compared to the parent class constitutes the ability
 to read and save to a pickle file, but also to reweight the data inside the spectrogram.
 In the analysis, it is often important to reweight quickly the output data to test new analysis models and/or run parameter estimation (PE).
 
-Similarly to the spectrogram, we introduce the same feature in an ``OmegaSpectrum`` class, based on the ``gwpy.frequencyseries.FrequencySeries`` class.
+Similarly to the spectrogram, we introduce the same features in an ``OmegaSpectrum`` class, based on the ``gwpy.frequencyseries.FrequencySeries`` class.
 More information about the parent class can be found `here <https://gwpy.github.io/docs/stable/api/gwpy.frequencyseries.FrequencySeries/>`_.
 
 Examples
@@ -24,8 +24,7 @@ Then, we save it into a pickle file and load it using that same pickle file.
 
 The spectrogram was created with a spectral index equal to zero.
 One can use the reweight function to change the index. Additionally, one could change the reference frequency of the spectrum as well.
-
-One can also reset h0 for the spectrogram which can be useful to compare between different cosmologies.
+Additionally, one can change the value of h0 for the spectrogram which can be useful to compare between different cosmologies.
 
 >>> omg_load.reweight(new_alpha = 2/3.)
 >>> omg_load.reset_h0(new_h0 = 1)

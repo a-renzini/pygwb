@@ -5,7 +5,7 @@ Running multiple ``pygwb_pipe`` jobs
 In practice, one will probably want to run ``pygwb`` on long stretches of data. This is achieved most easily by splitting
 the large data set in smaller chunks of data. These can then be analyzed individually, and combined after the analysis to form
 one overall result for the whole data set. To this end, ``pygwb`` comes with two scripts: ``pygwb_dag`` and ``pygwb_combine``. 
-The former allows the user to run ``pygwb_pipe`` (see `here <pipeline.html>`_) simultaneously on shorter stretches of data, 
+The former allows the user to run ``pygwb_pipe`` (for which a tutorial can be found `here <pipeline.html>`_) simultaneously on shorter stretches of data, 
 whereas the latter allows to combine the output of the individual runs into an overall result for the whole data set.
 
 **The pygwb_dag script**
@@ -16,7 +16,7 @@ whereas the latter allows to combine the output of the individual runs into an o
 
 To be able to run multiple ``pygwb_pipe`` jobs simultaneously, ``pygwb`` relies on `Condor <https://htcondor.readthedocs.io/en/latest/>`_.
 This requires a ``dag`` file, which contains information about all the jobs, i.e., running ``pygwb_pipe`` on different stretches of data.
-In ``pygwb``, this file can be created by using the ``pygwb_dag`` script. To visualize the expected argument of the script, one can call:
+In ``pygwb``, this file can be created by using the ``pygwb_dag`` script. To visualize the expected arguments of the script, one can call:
 
 .. code-block:: shell
 
@@ -47,7 +47,7 @@ This will display the required parameters, together with a small description:
                         Calculate omega point estimate and sigma from data.
 
 An important argument of the script, is the path to the job file, passed through ``--jobfile``. The job file is a simple ``.txt`` file and contains the different jobs, or in other words,
-the different stretches of data to run the analysis on. For concretenes, consider the case where one would want to run ``pygwb`` on 12000 seconds of data, but split this in smaller jobs.
+the different stretches of data to run the analysis on. For concretenes, consider the case where one would want to run ``pygwb`` on 12000 seconds of data, but split into smaller jobs.
 The job file could then look as follows:
 
 .. code-block:: shell
@@ -107,8 +107,8 @@ For additional information on Condor jobs, we refer the user to the Condor `docu
 ---------------------------
 
 Once all the jobs submitted through Condor and the ``dag`` file finish running, the output folder should contain similar files as the ones already discussed in the ``pygwb_pipe``
-tutorial `here <pipeline.html#output-of-the-script.html>`_. However, there will be many more files compared to one run, as ``pygwb_pipe`` ran for all the jobs, and therefore produced the output for each of the jobs.
-We refrain from repeating the information about the output of ``pygwb_pipe`` and refer to the previous `tutorial <pipeline.html#output-of-the-script.html>`_ for more information.
+tutorial `here <pipeline.html#output-of-the-script.html>`_. However, there will be many more files compared to a single run, as ``pygwb_pipe`` was run for all the jobs, and therefore produced the output for each of the jobs.
+We refrain from repeating the information about the output of ``pygwb_pipe`` and refer to the previous `tutorial <pipeline.html#output-of-the-script.html>`_ for more information about the output.
 
 **Combining runs with pygwb_combine**
 =====================================
@@ -117,7 +117,7 @@ The ``pygwb_dag`` script described above runs multiple ``pygwb_pipe`` jobs on st
 the usual ``pygwb_pipe`` output is produced (see `here <pipeline.html#output-of-the-script>`_ for more information on the output of the ``pygwb_pipe`` script).
 However, the user is usually interested in an overall result for the whole data set. This is where ``pygwb_combine`` comes in, by allowing
 the user to combine their separate results into an overall result. For example, all separate point estimate and variance spectra will be 
-combined into one overall spectrum for the whole data set.
+combined into one overall spectrum for the whole data set. More information on this procedure can be found in the `pygwb paper <https://arxiv.org/pdf/2303.15696.pdf>`_.
 
 **1. Script parameteres**
 -------------------------
@@ -169,7 +169,7 @@ Note that not all arguments listed above are required to be able to run the scri
 **3. Output of the script**
 ---------------------------
 
-As mentioned above, the output of the ``pygwb_combine`` script is one overall point estimate and variance (spectrum). The folder passed through the ``--out_path``
+As mentioned above, the output of the ``pygwb_combine`` script is one overall point estimate and variance (spectrum). The directory passed through the ``--out_path``
 argument should contain a file that looks as follows:
 
 .. code-block:: shell

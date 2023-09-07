@@ -11,13 +11,6 @@ line:
 
 >>> from pygwb.constants import H0
 
-See also
---------
-astropy.constants
-    More information `here <https://docs.astropy.org/en/stable/constants/index.html>`_.
-
-astropy.cosmology
-    More information `here <https://docs.astropy.org/en/stable/cosmology/index.html>`_.
 """
 
 from astropy.constants import c

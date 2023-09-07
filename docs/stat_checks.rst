@@ -41,7 +41,7 @@ A brief explanation of the parameters is given in the code snippet above, and we
 **2. Running the script**
 =========================
 
-After running the ``pygwb_combine`` script (as explained `here <multiple_jobs.html>`_), the script will have produced a file that looks similar to
+After running the ``pygwb_combine`` script (as explained `here <multiple_jobs.html#combining-runs-with-pygwb-combine>`_), the script will have produced a file that looks similar to
 
 .. code-block:: shell
 
@@ -72,7 +72,7 @@ The script produces some output, which is saved in the output directory specifie
 The output of the ``pygwb_stats`` script contains a series of plots, atuomatically saved to ``png`` format, in the provided plotting directory ``-pd``.
 Each of these plots illustrates some quantities that provide insights on the statistical quality and behavior of various quantities of interest of the analysis.
 We refrain from giving a plot by plot discussion of the various figures here, and refer the user to the dedicated demo on this topic `here <run_statistical_checks.html>`_.
-In addition, several quantities of interest are saved to file for further follow-up (see `here <api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.save_all_statements.html>`_).
+In addition, several quantities of interest are saved to file for further follow-up (see `here <api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.save_all_statements>`_).
 
 .. seealso::
 
@@ -80,4 +80,4 @@ In addition, several quantities of interest are saved to file for further follow
 
 .. tip::
 
-    Make sure to check out the `demo <run_statistical_checks.html>`_ about the interpretation of the results.
+    Make sure to check out the `demo <run_statistical_checks.html>`_ about the interpretation of the results, and the relevant sections in the `pygwb paper <https://arxiv.org/pdf/2303.15696.pdf>`_.

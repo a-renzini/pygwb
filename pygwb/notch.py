@@ -1,14 +1,15 @@
-"""Realistic detector data will have noise lines and various other artefacts, which should not be included in the analysis. These frequencies
+"""Realistic detector data will have noise lines and various other artefacts, which should not be included in the analysis (more information
+`here <https://arxiv.org/pdf/2210.00761.pdf>`_). These frequencies
 need to be notched, i.e. removed, from the analysis. The notch module handles all things related to frequency notches. 
-It has two main classes and a few of methods that create a notchlist
-used in the LVK isotropic analysis to get rid of badly behaving frequencies.
-The code relies on the base class ``StochNotch``, which in turn is based on the Notch class from ``bilby.gw.detector.strain_data`` 
+It has two main classes and a few methods that create a notchlist
+that can be used in the ``pygwb``analysis to get rid of badly behaving frequencies.
+The code relies on the base class ``StochNotch``, which in turn is based on the ``Notch`` class from ``bilby.gw.detector.strain_data`` 
 (more information `here <https://lscsoft.docs.ligo.org/bilby/api/bilby.gw.detector.strain_data.Notch.html>`_).
-It stores a single Notch object containing a small description of the notch and
+It stores a single ``Notchµµµ object containing a small description of the notch and
 the corresponding minimum and maximum frequency.
 Next, ``StochNotchList`` is the combination of multiple ``StochNotch`` objects, and contains information about multiple notches.
 
-Three additional functions are defined in this module to create a StochNotchList object for three of the most prevalent types of notches.
+Three additional functions are defined in this module to create a ``StochNotchList`` object for three of the most prevalent types of notches.
 The first function is ``comb`` which creates a ``StochNotchList`` for a certain set of lines in a comb structure.
 Secondly, we have ``power_lines`` which makes a ``StochNotchList`` object for the power line harmonic notches,
 e.g. 60 Hz harmonics in the USA and 50 Hz in Italy.
@@ -21,9 +22,9 @@ More information on the various types of bad frequency lines that need to be not
 Examples
 --------
 
-We will generate a StochNotchList from a .txt file containing multiple StochNotch objects and showcase some functions.
+We will generate a ``StochNotchList`` from a ``.txt`` file containing multiple ``StochNotch`` objects and showcase some functions.
 
-First, we import the notch module and load notches into a StochNotchList object from a .txt file.
+First, we import the ``pygwb.notch`` module and load notches into a ``StochNotchList`` object from a .txt file.
 
 >>> import pygwb.notch as pn
 >>> notch_list = pn.StochNotchList.load_from_file("./test/test_data/Official_O3_HL_notchlist.txt")
@@ -47,8 +48,8 @@ If one wants to have information about all the notches in the ``StochNotchList``
 This will show the minimum and maximum frequency for all notches in ``StochNotchList``, and prints a small description of the notch itself.
 
 Another important functionality of the ``StochNotchList`` object is computing the frequency mask that will
-be False for frequencies in the ``StochNotchList`` object. 
-That mask can then be used to "mask" a real pygwb analysis spectrum and notch out the contaminated frequencies.
+be ``False`` for frequencies in the ``StochNotchList`` object. 
+That mask can then be used to "mask" a real ``pygwb`` analysis spectrum and notch out the contaminated frequencies.
 
 For illustrative purposes, we take a random frequency array and mask it using our ``StochNotchList`` object:
 
@@ -57,7 +58,7 @@ For illustrative purposes, we take a random frequency array and mask it using ou
 
 The List function uses the ``get_notch_mask`` function from the ``StochNotch`` object, and combines the mask over all notches.
 
-One can also save the ``StochNotchList`` object to a .txt file using ``save_to_txt(filename)``.
+One can also save the ``StochNotchList`` object to a ``.txt`` file using ``save_to_txt(filename)``.
 This will create a .txt file in the same structure as required to make a ``StochNotchList``
 object from a file, as done in this example. The mask itself can also be saved, using ``save_notch_mask(frequency_array, filename)``.
 

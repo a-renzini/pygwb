@@ -1,7 +1,7 @@
-"""The spectral module contains all functions in the pygwb package that are related to the computation of
+"""The spectral module contains all functions in the ``pygwb`` package that are related to the computation of
 the power spectral density (PSD) and the cross spectral density (CSD).
 
-The functions in this module  serve to compute an fftgram from a timeseries in the form of a
+The functions in this module compute an fftgram from a timeseries in the form of a
 ``gwpy.spectrogram.Spectrogram``, a Welch-averaged PSD and coarse-grain any data.
 An additional functionality of the module is to compute PSDs and CSDs, which is implemented in
 the ``power_spectral_density`` and ``cross_spectral_density`` methods.
@@ -12,7 +12,7 @@ Examples
 To illustrate some of the main features of the this module, we compute the CSD and PSD of two timeseries 
 representing data from two interferometers.
 
-The data are read in for two interferometers using functions from the :doc:`pygwb.preprocessing` module.
+The data are read in for two interferometers using methods from the :doc:`pygwb.preprocessing` module.
 
 >>> import pygwb.preprocessing as ppp
 >>> import pygwb.spectral as psp

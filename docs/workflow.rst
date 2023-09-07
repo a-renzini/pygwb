@@ -2,15 +2,15 @@
 The ``pygwb`` workflow
 ======================
 
-In practice, one will run the ``pygwb_pipe`` script on multiple jobs through the ``pygwb_dag`` script, and combine the output with 
+In practice, one will likely run the ``pygwb_pipe`` script on multiple jobs through the ``pygwb_dag`` script, and combine the output with 
 ``pygwb_combine``. After this, ``pygwb_stats`` can be run to obtain the statistical checks diagnostic plots. To facilitate the usage
-of the different script and the user-friendliness, ``pygwb`` comes with an additional script that combines the scipts above into a worklfow,
-executing one after the other.
+of the different scripts and increase the user-friendliness, ``pygwb`` comes with an additional script that combines the scipts above into a worklfow,
+executing one script after the other.
 
 .. warning::
 
     The ``pygwb`` workflow is tailored to the LIGO-Virgo-KAGRA data stream. Therefore, it is possible that not all
-    data outside the LIGO-Virgo-KAGRA format are supported by the current version of the workflow.
+    data outside the standard LIGO-Virgo-KAGRA format are supported by the current version of the workflow.
 
 .. tip::
     
@@ -56,14 +56,14 @@ The ``--debug`` argument increases the amount of verbose printed out by the scri
 
 .. tip::
 
-    Need a reminder about multiple jobs being submitted to the cluster? Check out the tutorial on multiple jobs `here <multiple_jobs.html>`_.
+    Need a reminder about multiple jobs being submitted to the cluster through Condor? Check out the tutorial on multiple jobs `here <multiple_jobs.html>`_.
 
 
 In addition, a configuration file needs to be passed to the script through the ``--configfile`` argument. An example of a possible configuration file for the workflow is 
 provided in the ``pygwb`` repo `here <https://github.com/a-renzini/pygwb/blob/master/pygwb_pipe/workflow_config.ini>`_. The configuration file is divided into different
 categories, which we discuss step by step below.
 
-A first part of the file contains general information to initialize the worksflow, such as the interferometers for which to retrieve data, the duration of the jobs, as well as
+A first part of the file contains general information to initialize the workflow, such as the interferometers for which to retrieve data, the duration of the jobs, as well as
 the start and end time for which to analyze data.
 
 .. code-block:: shell
@@ -77,7 +77,7 @@ the start and end time for which to analyze data.
     t0 = 1368921618
     tf = 1374883218
 
-As mentioned earlier, the workflow combines different script of the ``pygwb`` package. These are passed through the ``[executables]`` section of the configuration file:
+As mentioned earlier, the workflow combines different scripts of the ``pygwb`` package. These are passed through the ``[executables]`` section of the configuration file:
 
 .. code-block:: shell
 
@@ -97,9 +97,9 @@ section of the file:
     veto_definer = /home/arianna.renzini/public_html/ER15_pygwb_run/old_setup/H1L1-HOFT_C00_O4_CBC.xml
 
 An additional section, ``[pygwb_pipe]``, contains all the parameters needed to run the ``pygwb_pipe`` script. We refrain from giving a detailed overview of all these parameters, and 
-refer the user to the dedicated tutorial `here <pipeline.html>`_, as well as the ``pygwb_parameters`` API `page <api/pygwb.parameters.html>`_ for further information about these parameters.
+refer the user to the dedicated tutorial `here <pipeline.html>`_, as well as the ``pygwb.parameters`` API `page <api/pygwb.parameters.html>`_ for further information about these parameters.
 
-The last part of the workflow takes care of combining the output of all the jobs, and runs statistical checks on the combined output. The results are then displayed on a webpage.
+The last part of the workflow takes care of combining the output of all the jobs, and runs statistical checks on the combined output. The results are then displayed on an ``html`` webpage.
 Parameters related to the last part of the workflow are passed through the following lines in the configuration file:
 
 .. code-block:: shell

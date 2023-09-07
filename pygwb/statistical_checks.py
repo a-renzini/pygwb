@@ -1,13 +1,13 @@
 """
-The statistical checks module performs various tests by plotting different quantities and saving these plots. 
+The ``statistical_checks`` module performs various tests by plotting different quantities and saving these plots. 
 This allows the user to check for consistency with expected results. Concretely, the following tests and plots
 can be generated: running point estimate, running sigma, (cumulative) point estimate integrand, real and imaginary 
 part of point estimate integrand, FFT of the point estimate integrand, (cumulative) sensitivity, evolution of omega 
 and sigma as a function of time, omega and sigma distribution, KS test, and a linear trend analysis of omega in time. 
-Furthermore, part of these plots compares the values of these quantities before and after the delta sigma cut. Each of 
-these plots can be made by calling the relevant class method (e.g. ``plot_running_point_estimate()``).
+Furthermore, part of these plots compares the values of these quantities before and after the delta sigma cut.
 
-All plotting in the statistical checks module is performed with the `matplotlib package <https://matplotlib.org/>`_.
+For additional information on how to run the statistical checks, and interpret them, we refer the user to the dedicated
+tutorials and demos, as well as the `pygwb paper <https://arxiv.org/pdf/2303.15696.pdf>`_.
 
 """
 import json

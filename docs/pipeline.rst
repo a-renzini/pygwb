@@ -121,7 +121,7 @@ This will display the following set of parameters, which can be passed to the pi
                         option to return naive and sliding sigmas from delta sigma
                         cut. Default value: False
 
-As can be seen, all of the parameters above come with a brief description, which should help the user identify its functionality. In particular,
+As can be seen, all of the parameters above come with a brief description, which should help the user identify their functionality. In particular,
 we note that the above parameters are the ones present in the ``pygwb.parameters`` module. For more information, one can have a look at the 
 `pygwb paper <https://arxiv.org/pdf/2303.15696.pdf>`_, where more details are provided.
 
@@ -140,7 +140,7 @@ to use for the analysis. As an example, one can run the script with the ``parame
 
   pygwb_pipe --param_file {path_to_param_file}
 
-The output should be of the command above should be:
+The output of the command above should be:
 
 .. code-block:: c
 
@@ -184,7 +184,7 @@ When passing through shell, double quotes are required, i.e.,
 
 As mentioned previously, the purpose of the ``pygwb`` analysis package is to compute an estimator of the GWB, through the computation of a 
 point estimate and variance spectrum, which can be translated into one point estimate and variance. By default, the output of the analysis will be saved in 
-the ``./output`` folder of your directory, unless otherwise specified through the ``--output_path`` argument of the script.
+the ``./output`` folder of your run directory, unless otherwise specified through the ``--output_path`` argument of the script.
 
 A few files can be found in this directory, including a version of the parameters file used for the
 analysis. Note that this takes into account any parameters that were modified through the command line.
@@ -220,5 +220,5 @@ from this ``pickle`` file. More information about how to create a baseline from 
 
 This tutorial provides a brief overview of the ``pygwb_pipe`` script and how to run it for one job, i.e., a small stretch of data. In practice, 
 however, one probably wants to analyze months, if not years, of data. To address this need, ``pygwb_pipe`` can be run on multiple jobs, i.e., different
-stretches of data, through parallelization using Condor (more information about condor can be found `here <https://htcondor.readthedocs.io/en/latest/index.html>`_).
+stretches of data, through parallelization using Condor (more information about Condor can be found `here <https://htcondor.readthedocs.io/en/latest/index.html>`_).
 The concrete implementation within the ``pygwb`` package is outlined in the `following tutorial <multiple_jobs.html>`_.

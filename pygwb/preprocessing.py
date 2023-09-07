@@ -1,13 +1,12 @@
 """The ``preprocessing`` module combines all the functions that handle the preprocessing of the data used in the analysis.
-This is anything related to the preparation of the data for the pygwb analysis run.
-It can read data from frame files, locally or publicly.
+This is anything related to the preparation of the data for the ``pygwb`` analysis run.
+It can read data from frame files, locally or publicly (for additional information on frame files, see `here <https://gwpy.github.io/docs/v0.1/timeseries/gwf.html>`_).
 Other functionalities include resampling the data, applying a high-pass filter to data or applying a timeshift.
 These functionalities come together in the triplet of ``preprocessing_data`` functions
-which reads in data and resamples and/or high-passes it immediately.
+which read in data and resample and/or high-passe the data on the fly.
 The triplet can work for a ``gwpy.timeseries.TimeSeries``, a normal array or using a gravitational-wave channel
-that will read data from that channel using the provided local or public frame files.
-
-A last functionality of the module is to gate data based on the gating function in ``gwpy``, ``gwpy.timeseries.TimeSeries.gate``.
+that will read data from that channel using the provided local or public frame files. Another functionality of the module is to 
+gate data based on the gating function in ``gwpy``, ``gwpy.timeseries.TimeSeries.gate``.
 More information can be found `here <https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeries/#gwpy.timeseries.TimeSeries.gate>`_.
 
 Examples
@@ -20,7 +19,7 @@ First, we have to import the module.
 
 Then, we read in some data using the ``read_data`` method.
 For concreteness, we read in public data from the LIGO Hanford "H1" detector. This can be done as shown below. 
-The "public" tag indicates we are obtaining public data from the `GWOSC <https://gwosc.org/>`_.
+The "public" tag indicates we are obtaining public data from the `GWOSC <https://gwosc.org/>`_ servers.
 
 >>> IFO = "H1"
 >>> data_timeseries = ppp.read_data(
@@ -35,9 +34,9 @@ The "public" tag indicates we are obtaining public data from the `GWOSC <https:/
 >>> print(data_timeseries.sample_rate)
 16384.0 Hz
 
-The sample rate is shown for illustrative purposes. Now, we will preprocess the data, 
-meaning it will be resampled and a high-pass
-filter will be applied to the data. As an example, the data is resampled to 4 kHz.
+The sample rate is shown for illustrative purposes. Now, we preprocess the data, 
+meaning it is resampled and a high-pass
+filter is applied to the data. As an example, the data is resampled to 4 kHz.
 
 >>> new_sample_rate = 4096
 >>> preprocessed_timeseries = ppp.preprocessing_data_gwpy_timeseries(

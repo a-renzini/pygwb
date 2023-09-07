@@ -1,18 +1,18 @@
-"""The postprocessing module combines all functions which are useful in the end stages of the analysis.
-In particular, when combining spectrograms into spectra, and spectra into one overall point estimate for the gravitational-wave background.
+"""The postprocessing module combines all methods which are useful in the end stages of the analysis,
+more specifically when combining spectrograms into spectra, and spectra into one overall point estimate for the gravitational-wave background.
 
-This module contains functions such as ``postprocess_Y_sigma``, which combines point estimate and sigma spectrograms
+This module contains methods such as ``postprocess_Y_sigma``, which combines point estimate and sigma spectrograms
 into spectra using a method where odd and even segments are treated differently if the data are overlapping.
 To account for the overlap, it uses another function of the postprocessing module, ``odd_even_segment_postprocessing``. 
 Additional information about this procedure can be found `here <https://arxiv.org/pdf/2303.15696.pdf>`_.
 
-These spectrograms have to be computed from the cross spectral density (CSD) and the power spectral density (PSD).
+These spectrograms are computed from the cross spectral density (CSD) and the power spectral density (PSD).
 The postprocessing module also contains the method which takes care of the above, namely
 ``calculate_point_estimate_sigma_spectra``.
 Starting from a set of CSD and PSD spectrograms, one can compute the point estimate and sigma spectrograms,
 objects that contain both frequency and segment data information.
-Then, the spectrograms are combined into spectra with the functions aforementioned.
-These spectra then have to be combined into one single point estimate and its variance, acoomplished by calling ``calc_Y_sigma_from_Yf_sigmaf``.
+Then, the spectrograms are combined into spectra with these methods.
+These spectra then have to be combined into one single point estimate and its variance, which is achieved by calling ``calc_Y_sigma_from_Yf_sigmaf``.
 
 Examples
 --------
@@ -40,7 +40,7 @@ and its variance.
     )
 
 For this example, we used some pre-computed CSD and PSDs, for some baseline, together with its overlap reduction function.
-The above returns the point estimate and variance as a function of frequency and time (for each segment).
+The above returns the point estimate and variance as a function of frequency and time, i.e., for each segment.
 These can be combined over all analysis segments into a single point estimate and sigma spectrum, i.e. as a function of frequency only.
 
 >>> Y_spectrum, var_spectrum = postprocess_Y_sigma(
@@ -58,7 +58,7 @@ These can be combined over all analysis segments into a single point estimate an
         N_avg_segs=2,
     )
 
-To compute a single point estimate and its variance for the magnitude of the GW background, one uses the frequency 
+To compute a single point estimate and its variance for the magnitude of the GWB, one uses the frequency 
 spectra computed above and relies on the following method:
 
 >>> Y, sigma = postpp.calc_Y_sigma_from_Yf_sigmaf(

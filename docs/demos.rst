@@ -3,7 +3,7 @@ Demos
 =====
 
 In addition to the `tutorials <tutorials.html>`_, we give a few more demos to illustrate the capabilities of the ``pygwb``
-package. This differ from the tutorials in the sense that they are more specific and show how to customize some of the ``pygwb``
+package. These differ from the tutorials in the sense that they are more specific and show how to customize some of the ``pygwb``
 functionalities to your own needs.
 
 .. raw:: html
@@ -16,8 +16,8 @@ functionalities to your own needs.
    <br />
 
 .. tip::
-   
-   If you are feeling overwhelmed with these demos, make sure to have a look to the `tutorials <tutorials.html>`_ before.
+
+   If you are feeling overwhelmed with these demos, make sure to have a look to the `tutorials <tutorials.html>`_ again.
       
 .. currentmodule:: pygwb
 

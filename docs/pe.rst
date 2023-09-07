@@ -87,7 +87,7 @@ The script can then simply be run with
 
     pygwb_pe --input_file {path_to_pygwb_output_file}
     
-The above command would run ``pygwb_pipe`` with all script parameter values set to their default values. However, the various script parameters of ``pygwb_pipe``, 
+The above command would run ``pygwb_pe`` with all script parameter values set to their default values. However, the various script parameters of ``pygwb_pe``, 
 as shown above, allow for a certain level of customization. In particular, the ``pygwb_pe`` script accommodates all the models present in the ``pygwb.pe`` module through the 
 ``--model`` argument (more information on available models `here <api/pygwb.pe.html>`_). These include:
 
@@ -126,7 +126,7 @@ This file can then be passed to the script through the ``--model_prior_file`` ar
     Make sure to specify all the model parameters of the chosen model in the code above to avoid errors when running the script.
 
 .. tip::
-    For more information about the model parameters, see the relevant API documentation `PE pages <api/pygwb.pe.html>`_. Additional information about ``bilby`` priors can be found
+    For more information about the model parameters, see the relevant API PE documentation `pages <api/pygwb.pe.html>`_. Additional information about ``bilby`` priors can be found
     `here <https://lscsoft.docs.ligo.org/bilby/prior.html>`_.
 
 Other script arguments allow for further customization of the PE run. For example, a notch list can be passed through the ``--notch_list_path`` to exclude specific

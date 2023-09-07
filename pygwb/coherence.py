@@ -1,10 +1,10 @@
 """
-The ``coherence`` is a very small module and only contains one method, which is used to calculate the coherence spectrum given two power spectrograms and a cross-spectrogram.
+The ``coherence`` module only contains one method, which is used to calculate the coherence spectrum given two power spectrograms and a cross-spectrogram.
 
 Examples
 --------
     
-Given two power specvtrograms and a cross-spectrogram, the coherence can be computed by
+Given two power spectrograms and a cross-spectrogram, the coherence can be computed by
     
 >>> from pygwb.coherence import calculate_coherence
 >>> calculate_coherence(psd_1, psd_2, csd)

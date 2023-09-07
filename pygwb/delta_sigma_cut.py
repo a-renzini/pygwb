@@ -3,8 +3,8 @@ In general, the noise level in ground-based detectors changes slowly on time-sca
 variance associated to each segment is an indicator of that level of noise, which typically changes
 at roughly the percent level from one data segment to the next. However, there are occasional very loud disturbances
 to the detectors, such as glitches, which violate the Gaussianity of the noise. Auto-gating procedures are in place
-to remove loud glitches from the data; however the procedure does not remove all non-
-stationarities. To avoid biases due to these noise events, an automated technique, called delta-sigma cut, 
+to remove loud glitches from the data; however the procedure does not remove all non-stationarities. 
+To avoid biases due to these noise events, an automated technique, called delta-sigma cut, 
 to exclude them from the analysis has been developed, which flags specific segments to be cut from the analyzed set.
 
 Examples

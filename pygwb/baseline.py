@@ -5,7 +5,7 @@ point estimate of the analysis, and calculate the associated error.
 
 The ``Baseline`` object relies on the ``pygwb.spectral`` module to calculate cross-correlations between the data
 streams. Similarly, it relies on the ``pygwb.postprocessing`` module to obtain the point estimate and its variance.
-Calculating these, as well as performing parameter estimation on the GWB spectrum, requires the two-detector
+Calculating these, as well as performing parameter estimation on the gravitational-wave background (GWB) spectrum, requires the two-detector
 overlap reduction function (ORF). The ORF is calculated using the ``pygwb.orfs`` module at ``Baseline`` object 
 initialization, then stored as an attribute.
 

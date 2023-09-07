@@ -3,7 +3,8 @@ The relative position and orientation of two detectors is taken into account by 
 overlap reduction function (ORF) in gravitational-wave background searches. The ``orfs``
 module combines the different component methods to compute the ORF for a given detector
 baseline, and polarization. By default, general relativity (GR) polarization is assumed, i.e., tensor. However, 
-the ``orfs`` module also supports non-GR polarizations (scalar and vector).
+the ``orfs`` module also supports non-GR polarizations (scalar and vector). For more information about
+the ORF, see `here <https://arxiv.org/pdf/1608.06889.pdf>`_.
 
 Examples
 --------
@@ -27,10 +28,7 @@ contained in the interferometer objects defined above:
 >>> freqs = np.arange(10.25, 256.25, 0.25)
 >>> orf = calc_orf(freqs, H1.vertex, L1.vertex, H1.x, L1.x, H1.y, L1.y, polarization = "tensor")
     
-Note that the ``calc_orf`` method combines the various other methods of the module. The resulting ORF 
-looks as follows:
-    
->>> plt.plot(freqs, orf)
+Note that the ``calc_orf`` method combines the various other methods of the module. 
     
 Note that, in practice, these methods are not called by the user, but are
 called by the ``baseline`` module directly. For more information on how the ``orfs`` module

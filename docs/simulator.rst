@@ -3,7 +3,7 @@ Simulating data with ``pygwb.simulator``
 ========================================
 
 In this tutorial, we show how the ``pygwb.simulator`` module can be used to simulate a gravitational-wave background. We consider both the case
-where a power-law spectrum is injected, and where individual compact binaries are injected. For more information about the module, we refer
+where a power-law spectrum is injected, and where individual compact binary coalescences (CBCs) are injected. For more information about the module, we refer
 the reader to the ``pygwb.simulator`` `documentation page <api/pygwb.simulator.html>`_.
 
 **1. Simulating a stochastic gravitational-wave background**
@@ -88,7 +88,7 @@ The detectors for which data with the above signal PSD need to be simulated, hav
 to the ``simulator`` module. By relying on the ``detector`` module, we instantiate various detectors below.  
 In addition, we note that these detectors are ``Interferometer`` objects, but are based on ``bilby`` detectors, 
 which have default noise PSDs saved in them, in the ``power_spectral_density`` attribute of the ``bilby`` detector. 
-Below, we load in this noise PSD and make sure the duration and sampling frequency of the detector is set to the desired value of 
+Below, we load in this noise PSD and make sure the duration and sampling frequency of the detector are set to the desired value of 
 these parameters.
 
 .. code-block:: python
@@ -107,7 +107,7 @@ these parameters.
 
 .. seealso::
 
-    Additional informational information about the ``Interferometer`` object can be found `here <api/pygwb.detector.Interferometer.html>`_. For more information, we also refer the reader to the ``bilby``
+    Additional information about the ``Interferometer`` object can be found `here <api/pygwb.detector.Interferometer.html>`_. For more information, we also refer the user to the ``bilby``
     `documentation <https://lscsoft.docs.ligo.org/bilby/api/bilby.gw.detector.html>`_.
 
 
@@ -159,7 +159,7 @@ We now create the two ``Interferometer`` objects that will be used for the data 
     Additional informational information about the ``Interferometer`` object can be found `here <api/pygwb.detector.Interferometer.html>`_.
 
 Note that the interferometers above contain the desired data in which we want to inject the signal. We now make sure the 
-duration and sampling frequency of the detector is set to the desired value of these parameters, as specified in the parameters 
+duration and sampling frequency of the detector are set to the desired value of these parameters, as specified in the parameters 
 object defined at the start of this example.  The strain data in the interferometer is also set to the real data considered in this example.
 
 .. code-block:: python
@@ -169,10 +169,10 @@ object defined at the start of this example.  The strain data in the interferome
         ifo.set_strain_data_from_gwpy_timeseries(gwpy.timeseries.TimeSeries(data=ifo.timeseries.value, times=ifo.timeseries.times))
         ifo.duration=params.segment_duration
 
-To inject a signal in real data, we rely on the ``network`` module, which is instantiated below. To simulate the data, one calls
+To inject a signal in real data, we rely on the ``network`` module, for which an object is instantiated below. To simulate the data, one calls
 ``set_interferometer_data_from_simulator()`` method (which uses the ``simulator`` module). More information on the method can be found 
 `here <api/pygwb.network.Network.html#pygwb.network.Network.set_interferometer_data_from_simulator>`_. Note that the ``inject_into_data_flag`` is 
-set to ``True``, indicating the data will be injected in real data, and that additional Gaussian colored therefore does not need to be simulated.
+set to ``True``, indicating the data will be injected in real data, and that additional Gaussian colored noise therefore does not need to be simulated, nor injected on top of the signal.
 
 .. code-block:: python
 
@@ -206,7 +206,7 @@ Concretely, we specify the duration of each simulated segment, the number of seg
 
     Not sure about what the above parameters do? Make sure to check out the `documentation <api/pygwb.simulator.html>`_ of the ``simulator`` module.
 
-The detectors for which data with the above signal PSD need to be simulated, have to be passed to the simulator module. 
+The detectors for which data need to be simulated, have to be passed to the simulator module. 
 By relying on the detector module, we instantiate various detectors below. We decide to use H1 and L1 
 as an example. However, note that the data can be simulated for an arbitrary amount of detectors. One would simply add more 
 detectors to the ``ifo_list`` below.

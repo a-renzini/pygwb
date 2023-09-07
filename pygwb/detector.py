@@ -2,14 +2,14 @@
 The ``detector`` module is a subclass of bilby's Interferometer class (more details `here <https://lscsoft.docs.ligo.org/bilby/api/bilby.gw.detector.interferometer.Interferometer.html#bilby.gw.detector.interferometer.Interferometer>`_) which is charged with handling, storing and
 saving all relevant interferometer data. 
 It handles all data analysis parts relating to the individual detectors in a baseline of a network.
-For example, it loads the data from a certain channel and computes the psd of the detector.
+For example, it loads the data from a certain channel and computes the power spectral density (PSD) of the detector.
     
 Examples
 --------
     
-In this example, we will load in data from the publicly available `GWOSC <https://gwosc.org/>`_ servers using the ``detector`` module.
-We will gate the data, compute the PSD and the average PSD of the ``detector`` object.
-This example gives a brief overview of the most critical capabilities of the ``pygwb.detector`` module.
+In this example, we load in data from the publicly available `GWOSC <https://gwosc.org/>`_ servers using the ``detector`` module.
+We gate the data, compute the PSD and the average PSD of the ``detector`` object.
+This example gives a brief overview of the most important features of the ``pygwb.detector`` module.
 We start by importing the Interferometer class from ``pygwb``.
     
 >>> from pygwb.detector import Interferometer
@@ -22,9 +22,9 @@ the parent class of our Interferometer class (more details `here <https://lscsof
 >>> ifo_1 = Interferometer.get_empty_interferometer("H1")
     
 Then, we load the data using the ``set_timeseries_from`` methods, and pass a start and end time, ``t0`` and ``tf``, respectively.
-We are obtaining data from the GWOSC servers, i.e., public data, and indicate this by marking the data_type tag to public. We use 
-the channel "H1:GWOSC-4KHZ_R1_STRAIN", for concreteness. All the other parameters are taken to be
-default values.
+We are obtaining data from the `GWOSC <https://gwosc.org/>`_ servers, i.e., public data, and indicate this by marking the ``data_type`` tag to public. We use 
+the channel "H1:GWOSC-4KHZ_R1_STRAIN", for illustrative purposes. All the other parameters are set to their
+default value.
 
 >>> ifo_1.set_timeseries_from_channel_name(
     "H1:GWOSC-4KHZ_R1_STRAIN",
@@ -53,7 +53,7 @@ glitches and other artefacts. More information on the gating procedure can be fo
     gate_whiten=True,
     )
 
-The module also allows to compute the power spectral density (PSD) spectrogram of the detector. A spectrogram
+The module also allows to compute the PSD spectrogram of the detector. A spectrogram
 shows the PSD both per time and per frequency. After specifying the desired frequency resolution, one can call the
 ``set_psd_spectrogram`` method.
     

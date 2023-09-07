@@ -1,10 +1,10 @@
 """
 Many parameters enter in a full gravitational-wave background analysis. The ``parameters`` module is meant to facilitate
 the handling of this large amount of parameters. It contains the ``Parameters`` class which is used to store and handle 
-all parameters of pygwb.
+all parameters of ``pygwb``.
 
 This module contains only one class, the ``Parameters`` class and its accompanying helper class ``ParametersHelp``.
-An object of the ``Parameters`` class is utilised as the storage object of all parameters in the ``pygwb`` analysis.
+An object of the ``Parameters`` class is used as the storage object of all parameters in the ``pygwb`` analysis.
 It contains all the required ingredients to perform a stochastic gravitational-wave background analysis.
 
 Notes
