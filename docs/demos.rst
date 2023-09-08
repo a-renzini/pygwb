@@ -2,9 +2,9 @@
 Demos
 =====
 
-In addition to the `tutorials <tutorials.html>`_, we give a few more demos to illustrate the capabilities of the ``pygwb``
+In addition to the `tutorials <tutorials.html>`_, we provide a few more demos to illustrate the capabilities of the ``pygwb``
 package. These differ from the tutorials in the sense that they are more specific and show how to customize some of the ``pygwb``
-functionalities to your own needs.
+functionalities to the user's needs.
 
 .. raw:: html
 

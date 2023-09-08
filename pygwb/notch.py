@@ -2,10 +2,10 @@
 `here <https://arxiv.org/pdf/2210.00761.pdf>`_). These frequencies
 need to be notched, i.e. removed, from the analysis. The notch module handles all things related to frequency notches. 
 It has two main classes and a few methods that create a notchlist
-that can be used in the ``pygwb``analysis to get rid of badly behaving frequencies.
+that can be used in the ``pygwb`` analysis to get rid of badly behaving frequencies.
 The code relies on the base class ``StochNotch``, which in turn is based on the ``Notch`` class from ``bilby.gw.detector.strain_data`` 
 (more information `here <https://lscsoft.docs.ligo.org/bilby/api/bilby.gw.detector.strain_data.Notch.html>`_).
-It stores a single ``Notchµµµ object containing a small description of the notch and
+It stores a single ``Notch`` object containing a small description of the notch and
 the corresponding minimum and maximum frequency.
 Next, ``StochNotchList`` is the combination of multiple ``StochNotch`` objects, and contains information about multiple notches.
 

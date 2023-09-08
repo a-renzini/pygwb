@@ -8,7 +8,7 @@ Parameter estimation consists of inferring parameters from the data, using Bayes
 
 .. math::
 
-    p(\hat{C}^{IJ}(f_k) | \mathbf{\Theta}) \propto\exp\left[  -\frac{1}{2} \sum_{IJ}^N \sum_k \left(\frac{\hat{C}^{IJ}(f_k) - \Omega_{\rm M}(f_k|\mathbf{\Theta})}{\sigma^2_{IJ}(f_k)}\right)^2  \right],
+    p(\hat{C}^{IJ}(f_k) | \mathbf{\Theta}) \propto\exp\left[  -\frac{1}{2} \sum_{IJ}^N \sum_k \left(\frac{\hat{C}^{IJ}(f_k) - \Omega_{\rm M}(f_k|\mathbf{\Theta})}{\sigma_{IJ}(f_k)}\right)^2  \right],
 
 where :math:`\Omega_{\rm M}(f_k|\mathbf{\Theta})` is the model being fit to data, and :math:`\mathbf{\Theta}` are the model's parameters.
 This allows to infer, or put constraints on, some GWB model parameters :math:`\mathbf{\Theta}`, given the optimal GWB estimator :math:`\hat{C}^{IJ}(f_k)` computed
