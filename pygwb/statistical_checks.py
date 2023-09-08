@@ -141,11 +141,12 @@ class StatisticalChecks(object):
 
         self.coherence_spectrum = coherence_spectrum
         fftlength = int(1.0 / (self.frequencies[1] - self.frequencies[0]))
-        self.n_segs = coherence_n_segs*(1.-self.params.overlap_factor) * int(np.floor(self.params.segment_duration/(fftlength*(1.-self.params.overlap_factor_welch)))-1)
-        if self.params.coarse_grain_csd:
-            # Note: this breaks down when self.params.segment_duration/fftlength < 3
-            self.n_segs = coherence_n_segs*(1.-self.params.overlap_factor) * int(np.floor(self.params.segment_duration/(fftlength)))
-        self.n_segs_statement = r"The number of segments is" + f" {self.n_segs}."
+        if coherence_n_segs is not None:
+            self.n_segs = coherence_n_segs*(1.-self.params.overlap_factor) * int(np.floor(self.params.segment_duration/(fftlength*(1.-self.params.overlap_factor_welch)))-1)
+            if self.params.coarse_grain_csd:
+                # Note: this breaks down when self.params.segment_duration/fftlength < 3
+                self.n_segs = coherence_n_segs*(1.-self.params.overlap_factor) * int(np.floor(self.params.segment_duration/(fftlength)))
+            self.n_segs_statement = r"The number of segments is" + f" {self.n_segs}."
 
         self.sigma_spectrum = sigma_spectrum
         self.point_estimate_spectrum = point_estimate_spectrum
@@ -1545,11 +1546,11 @@ def run_statistical_checks_from_file(
     dsc_file = np.load(dsc_file_path)
 
     badGPStimes = dsc_file["badGPStimes"]
-    delta_sigmas = dsc_file["delta_sigmas"]
-    sliding_times = dsc_file["times"]
-    naive_sigma_all = dsc_file["naive_sigmas"]
-    gates_ifo1 = dsc_file["gates_ifo1"]
-    gates_ifo2 = dsc_file["gates_ifo2"]
+    delta_sigmas = dsc_file["delta_sigma_values"]
+    sliding_times = dsc_file["delta_sigma_times"]
+    naive_sigma_all = dsc_file["naive_sigma_values"]
+    gates_ifo1 = dsc_file["ifo_1_gates"]
+    gates_ifo2 = dsc_file["ifo_2_gates"]
     if gates_ifo1.size==0:
         gates_ifo1=None
     if gates_ifo2.size==0:
@@ -1586,8 +1587,8 @@ def run_statistical_checks_from_file(
     baseline_name = params.interferometer_list[0] + params.interferometer_list[1]
 
     # select alpha for statistical checks
-    delta_sigmas_sel = delta_sigmas.T[1]
-    naive_sigmas_sel = naive_sigma_all.T[1]
+    delta_sigmas_sel = delta_sigmas[1]
+    naive_sigmas_sel = naive_sigma_all[1]
 
     if coherence_file_path is not None:
         coh_data = np.load(coherence_file_path, allow_pickle=True)
@@ -1619,4 +1620,3 @@ def run_statistical_checks_from_file(
         legend_fontsize=legend_fontsize,
         convention=convention
     )
-
