@@ -181,7 +181,8 @@ def main():
     if pipe_calculate_coherence:
         logger.info(f"calculating the coherence...")
 
-        base_12.set_coherence_spectrum(apply_dsc=pipe_apply_dsc)
+        base_12.set_coherence_spectrum(apply_dsc=pipe_apply_dsc, 
+            flow=params.flow, fhigh=params.fhigh)
 
     if pipe_calculate_point_estimate:
         logger.info(f"calculating the point estimate and sigma...")

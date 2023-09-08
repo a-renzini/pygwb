@@ -11,6 +11,7 @@ from pathlib import Path
 import numpy as np
 from loguru import logger
 from tqdm import tqdm
+from tqdm.contrib import tzip
 
 from pygwb.baseline import Baseline
 from pygwb.coherence import calculate_coherence
@@ -77,21 +78,34 @@ def main():
         "--coherence_path", help="Path to coherence data files, if individual files are passed.", action="store", type=Path, nargs='+', required=False, default=None
     )
     combine_parser.add_argument(
+        "--delta_sigma_path", help="Path to delta-sigma data files, if individual files are passed.", action="store", type=Path, nargs='+', required=False, default=None
+    )
+    combine_parser.add_argument(
         "--out_path", help="Output path.", action="store", type=Path, required=False
     )
     combine_parser.add_argument(
         "--file_tag", help="File naming tag. By default, reads in first and last time in dataset.", action="store", type=str, required=False
     )
+
     combine_args = combine_parser.parse_args()
+
     if not combine_args.h0:
         combine_args.h0 = pygwb_h0
+
     if not combine_args.out_path:
         combine_args.out_path = Path("./")
     if not isdir(combine_args.out_path):
         os.mkdir(combine_args.out_path)
+
     if combine_args.coherence_path:
         combine_args.combine_coherence=True
+
+    one_data_file_flag = False
+    if combine_args.delta_sigma_path is None:
+        one_data_file_flag = True
+
     combine_args.alpha = float(Fraction(combine_args.alpha)) 
+
     params = Parameters()
     params.update_from_file(combine_args.param_file)
 
@@ -128,9 +142,23 @@ def main():
     else:
         files_coh = None
 
-    times = [int(sort_ptest_files(files_ptest[idx])) for idx in range(len(files_ptest))]
+    if one_data_file_flag:
+        files_dsc = files_ptest
+    else:
+        if isfile(combine_args.delta_sigma_path[0]):
+            files_dsc = [str(pt_file) for pt_file in combine_args.delta_sigma_path]
+        elif isdir(combine_args.delta_sigma_path[0]):
+            files_dsc = [
+                os.path.join(combine_args.delta_sigma_path[0], f)
+                for f in listdir(combine_args.delta_sigma_path[0])
+                if isfile(join(combine_args.delta_sigma_path[0], f)) and f.startswith("delta_sigma_cut")
+            ]
+        else:
+            raise ValueError("Delta-sigma path provided is neither a file nor a folder.")
+
 
     if not combine_args.file_tag:
+        times = [int(sort_ptest_files(files_ptest[idx])) for idx in range(len(files_ptest))]
         combine_args.file_tag = f"{times[0]}-{times[-1]}"
 
     frequencies = np.load(files_ptest[0])["frequencies"]
@@ -169,30 +197,39 @@ def main():
     )
 
     logger.info('Unpacking files...')
-    for file in tqdm(files_ptest):
-        data_file = np.load(file, allow_pickle=True)
+    for filep, filed in tzip(files_ptest, files_dsc):
+        data_file = np.load(filep, allow_pickle=True)
+        if one_data_file_flag:
+            dsc_file = data_file
+        else:
+            dsc_file = np.load(filed, allow_pickle=True)
         Y_j.append(data_file["point_estimate"])
         sigma_j.append(data_file["sigma"])
         Y_spectra_j.append(data_file["point_estimate_spectrum"])
         sigma_spectra_j.append(data_file["sigma_spectrum"])
-        naive_sigmas_j.append(data_file["naive_sigma_values"].T)
-        slide_sigmas_j.append(data_file["slide_sigma_values"].T)
-        delta_sigmas_j.append(data_file["delta_sigma_values"].T)
-        times_j.append(data_file["delta_sigma_times"])
-        gates_ifo1_j.append(data_file["ifo_1_gates"])
-        gates_ifo2_j.append(data_file["ifo_2_gates"])
-        gates_ifo1_pad_j.append(data_file["ifo_1_gate_pad"])
-        gates_ifo2_pad_j.append(data_file["ifo_2_gate_pad"])
-        if not data_file["badGPStimes"].size == 0:
-            if data_file["badGPStimes"].size == 1:
-                list_gps = np.array(data_file["badGPStimes"].flatten())
+        naive_sigmas_j.append(dsc_file["naive_sigma_values"].T)
+        slide_sigmas_j.append(dsc_file["slide_sigma_values"].T)
+        delta_sigmas_j.append(dsc_file["delta_sigma_values"].T)
+        times_j.append(dsc_file["delta_sigma_times"])
+        gates_ifo1_j.append(dsc_file["ifo_1_gates"])
+        gates_ifo2_j.append(dsc_file["ifo_2_gates"])
+        gates_ifo1_pad_j.append(dsc_file["ifo_1_gate_pad"])
+        gates_ifo2_pad_j.append(dsc_file["ifo_2_gate_pad"])
+        if not dsc_file["badGPStimes"].size == 0:
+            if dsc_file["badGPStimes"].size == 1:
+                list_gps = np.array(dsc_file["badGPStimes"].flatten())
                 badGPStimes_j.append(list_gps)
             else:
-                badGPStimes_j.append(data_file["badGPStimes"])
+                badGPStimes_j.append(dsc_file["badGPStimes"])
         
-        Y_s, sigma_s = calc_Y_sigma_from_Yf_sigmaf(
+        try: Y_s, sigma_s = calc_Y_sigma_from_Yf_sigmaf(
             data_file["point_estimate_spectrogram"], data_file["sigma_spectrogram"], frequency_mask=frequency_mask
         )
+        except KeyError:
+            try:
+                Y_s, sigma_s = data_file["point_estimates_seg_UW"], data_file["sigmas_seg_UW"]
+            except KeyError:
+                raise KeyError("Data file contains no individual segment estimates nor spectrograms. Please revise input files and try again.")
         if not np.shape(Y_s):
             Y_s = np.array([Y_s])
         if not np.shape(sigma_s):
@@ -216,25 +253,33 @@ def main():
     # concatenate gate info - filtering for empty sets of gates
     if sum([1 for g in gates_ifo1_j if g.size>1])>0: 
         gates_ifo1_j = np.concatenate(list(filter(lambda x: x.size>1, gates_ifo1_j)))
+    else:
+        gates_ifo1_j = np.array([])
     if sum([1 for g in gates_ifo2_j if g.size>1])>0: 
         gates_ifo2_j = np.concatenate(list(filter(lambda x: x.size>1, gates_ifo2_j)))
-    gates_ifo1_pad_j = np.array(gates_ifo1_pad_j)
-    gates_ifo2_pad_j = np.array(gates_ifo2_pad_j)
+    else:
+        gates_ifo2_j = np.array([])
+    if not np.shape(gates_ifo1_pad_j[0]):
+        gates_ifo1_pad_j = np.array(gates_ifo1_pad_j)
+        gates_ifo2_pad_j = np.array(gates_ifo2_pad_j)
+    else:
+        gates_ifo1_pad_j = np.concatenate(gates_ifo1_pad_j)
+        gates_ifo2_pad_j = np.concatenate(gates_ifo2_pad_j)
     try:
         badGPStimes_j = np.concatenate(badGPStimes_j)
     except ValueError: # when there are no badGPStimes in the whole set 
         badGPStimes_j = badGPStimes_j
     np.savez(
         delta_sigma_cut_output_path,
-        naive_sigmas=naive_sigmas_j,
-        slide_sigmas=slide_sigmas_j,
-        delta_sigmas=delta_sigmas_j,
+        naive_sigma_values=naive_sigmas_j.T,
+        slide_sigma_values=slide_sigmas_j.T,
+        delta_sigma_values=delta_sigmas_j.T,
         badGPStimes=badGPStimes_j,
-        times=times_j,
-        gates_ifo1=gates_ifo1_j,
-        gates_ifo2=gates_ifo2_j,
-        gates_ifo1_pad=gates_ifo1_pad_j,
-        gates_ifo2_pad=gates_ifo2_pad_j,
+        delta_sigma_times=times_j,
+        ifo_1_gates=gates_ifo1_j,
+        ifo_2_gates=gates_ifo2_j,
+        ifo_1_gate_pad=gates_ifo1_pad_j,
+        ifo_2_gate_pad=gates_ifo2_pad_j,
     )
     logger.info(
         f"saved file with all sigma information related to the delta sigma cut for all times in run:\n {delta_sigma_cut_output_path}."
@@ -337,7 +382,7 @@ def main():
     np.savez(
         pt_est_sigma_spectra_path,
         point_estimate=Y_estimate,
-        sigma_estimate=sigma_estimate,
+        sigma=sigma_estimate,
         point_estimate_spectrum=Y_reweight_spectrum.value,
         sigma_spectrum=sigma_reweight_spectrum.value,
         frequencies=frequencies,
@@ -391,7 +436,13 @@ def main():
             logger.info(f"Removed all the coherences due to bad data.")
             combined_coherence = None
             n_segs_coh_total = 0
-        np.savez(coherence_path, coherence=combined_coherence, frequencies=coh_frequencies, n_segs_coh=n_segs_coh_total)
+        np.savez(coherence_path, 
+                coherence=combined_coherence, 
+                avg_freqs=coh_frequencies, 
+                psd_1_coh=psd_1_average/n_segs_coh_total,
+                psd_2_coh=psd_2_average/n_segs_coh_total,
+                csd_coh=csd_average/n_segs_coh_total,
+                n_segs_coh=n_segs_coh_total)
 
         logger.info(
             f"Saved file with coherence spectrum:\n {coherence_path}."

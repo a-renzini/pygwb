@@ -184,16 +184,16 @@ class StatisticalChecks(object):
             self.running_sigmas,
         ) = self.compute_running_quantities()
 
-        t0 = Time(self.sliding_times_all[0], format='gps')
-        t0 = Time(t0, format='iso', scale='utc', precision=0, out_subfmt='date_hm')
-        tf = Time(self.sliding_times_all[-1], format='gps')
-        tf = Time(tf, format='iso', scale='utc', precision=0, out_subfmt='date_hm')
+        t0_gps = Time(self.sliding_times_all[0], format='gps')
+        t0 = Time(t0_gps, format='iso', scale='utc', precision=0, out_subfmt='date_hm')
+        tf_gps = Time(self.sliding_times_all[-1], format='gps')
+        tf = Time(tf_gps, format='iso', scale='utc', precision=0, out_subfmt='date_hm')
         self.time_tag = f"{t0}"+" $-$ "+f"{tf}"
 
         if file_tag:
             self.file_tag = file_tag
         else:
-            self.file_tag = f"{self.sliding_times_all[0]}-{self.params.tf}"
+            self.file_tag = f"{int(t0_gps.value)}-{int(tf_gps.value)}"
 
         self.legend_fontsize = legend_fontsize
         self.axes_labelsize = legend_fontsize + 2
@@ -789,8 +789,31 @@ class StatisticalChecks(object):
         )
         plt.close()
 
-        outlier_coherence = [(frequencies[i], coherence[i],probability[np.where(coherence_highres>=coherence[i])[0][0]]) for i in range(len(coherence)) if (coherence[i] > np.abs(threshold) and self.frequency_mask[i] == True)]
-        outlier_coherence_notched = [(frequencies[i], coherence[i],probability[np.where(coherence_highres>=coherence[i])[0][0]]) for i in range(len(coherence)) if (coherence[i] > np.abs(threshold) and self.frequency_mask[i] == False)]
+        
+        outlier_coherence = []
+        for i in range(len(coherence)):
+            if (coherence[i] > np.abs(threshold) and self.frequency_mask[i] == True):
+                try:
+                    outlier_coherence.append((frequencies[i], coherence[i],probability[np.where(coherence_highres>=coherence[i])[0][0]]))
+                except IndexError as err:
+                    warnings.warn(
+                            '\n In outlier_coherence, Freqnency now is %f, and coherence is %f, which is out of the boundary 1, please check it'
+                            %(frequencies[i],coherence[i])
+                            )
+                    outlier_coherence_notched.append((frequencies[i], coherence[i],'nan'))
+
+        outlier_coherence_notched = []
+        for i in range(len(coherence)):
+            if (coherence[i] > np.abs(threshold) and self.frequency_mask[i] == False):
+                try:
+                    outlier_coherence_notched.append((frequencies[i], coherence[i],probability[np.where(coherence_highres>=coherence[i])[0][0]]))
+                except IndexError as err:
+                    warnings.warn(
+                            '\n In outlier_coherence_notched, Freqnency now is %f, and coherence is %f, which is out of the boundary 1, please check it'
+                            %(frequencies[i],coherence[i])
+                            )
+                    outlier_coherence_notched.append((frequencies[i], coherence[i],'nan'))
+        
         n_outlier = len(outlier_coherence)
         file_name = f"{self.plot_dir / self.baseline_name}-{self.file_tag}-list_coherence_outlier.txt"
         with open(file_name, 'w') as f:
