@@ -77,7 +77,7 @@ Details on the usage may be found in the class descriptions and by calling the h
 
 In a very small subset of cases, some parameters are passed differently through the parameter file compared to the command line, and not all combinations are possible through the command line. 
 These are specifically the cases where sections of the parameter file are parsed as dictionaries, to allow for multiple parameters to be passed without having been specified in the ``Parameters`` class.
-These are the ``window_fft_specs]`` and ``window_fft_welch_specs]`` which are parsed as dictionaries and passed directly to ``scipy`` which expects all the parameters relevant to the specific window employed (e.g., ``alpha`` for a Tukey window, etc.).
+These are the ``window_fft_specs`` and ``window_fft_welch_specs`` sections which are parsed as dictionaries and passed directly to ``scipy`` which expects all the parameters relevant to the specific window employed (e.g., ``alpha`` for a Tukey window, etc.).
 When passing arguments relative to these sections from the command line directly, these should be passed as, e.g.:
 
 >>> pygwb_pipe --window_fftgram my-window-1 --window_fftgram_welch my-window-2
