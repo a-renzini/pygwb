@@ -138,7 +138,7 @@ to use for the analysis. As an example, one can run the script with the ``parame
 
 .. code-block:: shell
 
-  pygwb_pipe --param_file {path_to_param_file}
+  pygwb_pipe --param_file pygwb_pipe/parameters.ini --apply_dsc False
 
 The output of the command above should be:
 
@@ -146,7 +146,7 @@ The output of the command above should be:
 
   2023-02-21 14:43:40.817 | SUCCESS  | __main__:main:160 - Ran stochastic search over times 1247644138-1247645038                                           
   2023-02-24 16:35:25.625 | SUCCESS  | __main__:main:163 - POINT ESTIMATE: -6.496991e-06
-  2023-02-24 16:35:25.625 | SUCCESS  | __main__:main:164 - SIGMA: 2.688777e-06
+  2023-02-24 16:35:25.625 | SUCCESS  | __main__:main:164 - SIGMA: 2.688128e-06
 
 However, one could have decided to run with different parameters. An option is to modify the ``parameters.ini`` file, or one could also pass the parameters as arguments
 to the script directly. For example:
@@ -165,19 +165,19 @@ It is possible to pass detector--specific parameters, both in the ``.ini`` file 
 
 .. code-block:: shell
 
-  param = {IFO1:val1 IFO2:val2}
+  param: IFO1:val1,IFO2:val2
 
 For example, if passing different channel names for LIGO Hanford and LIGO Livingston:
 
 .. code-block:: shell
 
-  channel = {H1:GWOSC-16KHZ_R1_STRAIN L1:PYGWB-SIMULATED_STRAIN} 
+  channel: H1:GWOSC-16KHZ_R1_STRAIN,L1:PYGWB-SIMULATED_STRAIN
 
-When passing through shell, double quotes are required, i.e., 
+These are the same when passing through shell:
 
 .. code-block:: shell
 
-  --channel "{H1:GWOSC-16KHZ_R1_STRAIN L1:PYGWB-SIMULATED_STRAIN}"
+  --channel H1:GWOSC-16KHZ_R1_STRAIN,L1:PYGWB-SIMULATED_STRAIN
 
 **3. Output of the script**
 ===========================
