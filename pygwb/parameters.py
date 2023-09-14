@@ -7,8 +7,8 @@ This module contains only one class, the ``Parameters`` class and its accompanyi
 An object of the ``Parameters`` class is used as the storage object of all parameters in the ``pygwb`` analysis.
 It is a container for all the required ingredients to perform a stochastic gravitational-wave background analysis.
 
-Passing parameters: script arguments and the parameter file
------------------------------------------------------------
+Examples
+--------
 
 When using a packaged script, parameters passed to the script directly will be stored in a ```Parameters``` object. 
 To pass these, the standard ```argparse``` usage applies; for example, when using ```pygwb_pipe```:
@@ -101,7 +101,6 @@ However, when passing in different frame types for different interferometers, th
 >>> frametype: IFO1:MY_FRAME_1,IFO2:MY_FRAME_2
 
 where IFO1 and IFO2 match the names provided for the interferometers in the ```interferometer_list``` parameter.
-
 
 
 Notes
