@@ -83,8 +83,10 @@ When passing arguments relative to these sections from the command line directly
 >>> pygwb_pipe --window_fftgram my-window-1 --window_fftgram_welch my-window-2
 
 
-Special parameters
-------------------
+Notes
+-----
+
+**Special Parameters**
 
 For the most part, the usage of the ``Parameters`` object is self evident and clarified by the descriptions provided by the class itself and ``ParametersHelp``. However, certain parameters, which are `interferometer-specific`, need to be passed with specific formatting to be properly parsed. 
 These are: ``channel`` ``frametype`` ``input_sample_rate`` ``local_data_path`` ``time_shift``.
@@ -103,8 +105,6 @@ However, when passing in different frame types for different interferometers, th
 where IFO1 and IFO2 match the names provided for the interferometers in the ``interferometer_list`` parameter.
 
 
-Notes
------
 Users should not interact with the ``ParametersHelp`` class.
 
 """
