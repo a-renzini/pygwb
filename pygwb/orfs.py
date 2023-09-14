@@ -3,7 +3,8 @@ The relative position and orientation of two detectors is taken into account by 
 overlap reduction function (ORF) in gravitational-wave background searches. The ``orfs``
 module combines the different component methods to compute the ORF for a given detector
 baseline, and polarization. By default, general relativity (GR) polarization is assumed, i.e., tensor. However, 
-the ``orfs`` module also supports non-GR polarizations (scalar and vector).
+the ``orfs`` module also supports non-GR polarizations (scalar and vector). For more information about
+the ORF, see `here <https://arxiv.org/pdf/1608.06889.pdf>`_.
 
 Examples
 --------
@@ -27,13 +28,11 @@ contained in the interferometer objects defined above:
 >>> freqs = np.arange(10.25, 256.25, 0.25)
 >>> orf = calc_orf(freqs, H1.vertex, L1.vertex, H1.x, L1.x, H1.y, L1.y, polarization = "tensor")
     
-Note that the ``calc_orf`` method combines the various other methods of the module. The resulting ORF 
-looks as follows:
-    
->>> plt.plot(freqs, orf)
+Note that the ``calc_orf`` method combines the various other methods of the module. 
     
 Note that, in practice, these methods are not called by the user, but are
-called by the ``baseline`` module directly.
+called by the ``baseline`` module directly. For more information on how the ``orfs`` module
+interacts with the ``baseline`` module, see :doc:`pygwb.baseline`.
 """
 
 import numpy as np
@@ -65,9 +64,8 @@ def Tplus(alpha, beta):
 
     See also
     --------
-
-    scipy.special.spherical_jn: Used for computation of the spherical Bessel function.
-    
+    scipy.special.spherical_jn
+        More information `here <https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.spherical_jn.html>`_.
     """
     return (
         -(
@@ -113,9 +111,8 @@ def Tminus(alpha, beta):
 
     See also
     --------
-
-    scipy.special.spherical_jn: Used for computation of the spherical Bessel function.
-    
+    scipy.special.spherical_jn
+        More information `here <https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.spherical_jn.html>`_.
     """
     return (
         spherical_jn(0, alpha)
@@ -147,9 +144,8 @@ def Vplus(alpha, beta):
 
     See also
     --------
-
-    scipy.special.spherical_jn: Used for computation of the spherical Bessel function.
-        
+    scipy.special.spherical_jn
+        More information `here <https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.spherical_jn.html>`_.
     """
     return (
         -(
@@ -195,9 +191,8 @@ def Vminus(alpha, beta):
 
     See also
     --------
-
-    scipy.special.spherical_jn: Used for computation of the spherical Bessel function.
-    
+    scipy.special.spherical_jn
+        More information `here <https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.spherical_jn.html>`_.
     """
     return (
         spherical_jn(0, alpha)
@@ -229,9 +224,8 @@ def Splus(alpha, beta):
 
     See also
     --------
-
-    scipy.special.spherical_jn: Used for computation of the spherical Bessel function.
-    
+    scipy.special.spherical_jn
+        More information `here <https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.spherical_jn.html>`_.
     """
     return (
         -(
@@ -277,9 +271,8 @@ def Sminus(alpha, beta):
 
     See also
     --------
-
-    scipy.special.spherical_jn: Used for computation of the spherical Bessel function.
-    
+    scipy.special.spherical_jn
+        More information `here <https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.spherical_jn.html>`_.
     """
     return (
         spherical_jn(0, alpha)
@@ -309,9 +302,8 @@ def T_right_left(alpha, beta):
 
     See also
     --------
-
-    scipy.special.spherical_jn: Used for computation of the spherical Bessel function.
-
+    scipy.special.spherical_jn
+        More information `here <https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.spherical_jn.html>`_.
     """
     return -np.sin(beta / 2) * (
         (-spherical_jn(1, alpha) + 7.0 / 8 * spherical_jn(3, alpha))
@@ -443,7 +435,6 @@ def calc_orf(
     
     overlap_reduction_function: ``array_like``
         Overlap reduction function at given frequencies for specified polarization.
-    
     """
 
     delta_x = np.subtract(det1_vertex, det2_vertex)

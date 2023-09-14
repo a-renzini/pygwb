@@ -9,7 +9,7 @@ Installation
 Installing from source
 ======================
 
-These are instructions installing :code:`pygwb`.
+These are instructions to install :code:`pygwb`, which runs on Python :math:`\ge3.8`.
 
 Currently, there are 2 stable released versions (see the `pygwb PyPi page <https://pypi.org/project/pygwb/>`_ for more details):
 
@@ -24,7 +24,7 @@ which may be installed using :code:`pip`:
 
    $ pip install pygwb==[version]
 
-Otherwise, you may install the cloned repository directly. If you already have an existing python environment, you can simply clone the code and install in any of the usual ways.
+Otherwise, you may install the cloned repository directly. If you already have an existing Python environment, you can simply clone the code and install in any of the usual ways.
 
 .. tabs::
 
@@ -68,7 +68,7 @@ This means that any changes to the source are immediately propagated to the envi
 Creating a python environment
 =============================
 
-We recommend working with a recent version of python.
+We recommend working with a recent version of Python.
 A good reference is to use the default anaconda version.
 This is currently :code:`Python 3.8` (August 2021).
 
@@ -113,12 +113,12 @@ This is currently :code:`Python 3.8` (August 2021).
 
 .. _installing-python:
 
-Installing python
+Installing Python
 =================
 
-Most computers/clusters have a system-installed python version. You may choose
+Most computers/clusters have a system-installed Python version. You may choose
 to use this, but here we describe an alternative. In particular, how to install
-the `anaconda distribution python package
+the `anaconda distribution Python package
 <https://www.anaconda.com/download/#linux>`_. Firstly, download the install
 file. You can do this from the link above, or run the command
 
@@ -126,10 +126,10 @@ file. You can do this from the link above, or run the command
 
    $ wget https://repo.anaconda.com/archive/Anaconda3-2021.05-Linux-x86_64.sh
 
-This will download an installer for python 3.8. For other versions check
+This will download an installer for Python 3.8. For other versions check
 the `anaconda page <https://www.anaconda.com/download/#linux>`_.
 Then, `run the command
-<https://conda.io/docs/user-guide/install/linux.html>`_
+<https://conda.io/projects/conda/en/latest/user-guide/install/linux.html>`_
 
 .. code-block:: console
 
@@ -137,7 +137,7 @@ Then, `run the command
 
 and follow the prompts on the install screen.  After this process, you should
 have a directory :code:`~/anaconda3` in your home directory. This contains your
-python installation. In particular, if you run the command
+Python installation. In particular, if you run the command
 
 .. code-block:: console
 
@@ -145,9 +145,9 @@ python installation. In particular, if you run the command
    /home/users/USER/anaconda3/bin/python
 
 The output here (with a suitable replacement of the path) indicates that you
-are using the anaconda install of python. If instead, the output says something
+are using the anaconda install of Python. If instead, the output says something
 like :code:`/usr/bin/python`, then this is not the anaconda installation, but
-instead the system python.
+instead the system Python.
 
 If you are finding that you have run the above steps, but :code:`python` is
 not pointing to your anaconda install, make sure that (a) you have appended a
@@ -162,7 +162,7 @@ and (b) that you have restarted bash for this line to take effect (i.e., run
 
 .. note::
 
-    Using your own installation of python has several advantages: its generally
+    Using your own installation of Python has several advantages: it's generally
     easier to debug, avoids conflicts with other packages, and if you end up
     with a broken installation you can just delete the directory and start
     again.

@@ -23,9 +23,10 @@ instantiate through:
 >>> ifo_list = [H1,L1]
 
 The above detectors are ``Interferometer`` objects, but are based on ``bilby`` detectors, which have 
-default noise PSDs saved in them, in the `power_spectral_density` attribute of the ``bilby`` detector. 
+default noise PSDs saved in them, in the ``power_spectral_density`` attribute of the ``bilby`` detector (more information can be
+found `here <https://lscsoft.docs.ligo.org/bilby/api/bilby.gw.detector.psd.PowerSpectralDensity.html>`_). 
 Below, we load in this noise PSD and make sure the duration and sampling frequency of the detector 
-is set to the desired value of these parameters chosen at the start of the notebook.
+are set to the desired value of these parameters chosen at the start of the notebook.
 
 >>> for ifo in ifo_list:
 >>>     ifo.duration = duration
@@ -39,9 +40,6 @@ A network can then be created by using:
 It is also possible to initialize the class by passing a list of ``Baselines``:
 
 >>> HL_network = Network.from_baselines(’HL’, [HL_baseline])
-
-For additional information and functionalities of the ``Network``, we refer the reader to the dedicated 
-tutorial section of the documentation.
 
 """
 
@@ -126,9 +124,7 @@ class Network(object):
 
         See also
         --------
-
         pygwb.baseline.Baseline : Used to create the various baselines corresponding to the detectors in the network.
-
         """
         self.name = name
         self.interferometers = interferometers
@@ -186,6 +182,9 @@ class Network(object):
         network: ``pygwb.network``
             Network object
 
+        See also
+        --------
+        pygwb.baseline.Baseline
         """
         if not all(baselines[0].duration == base.duration for base in baselines[1:]):
             raise AssertionError(
@@ -211,15 +210,17 @@ class Network(object):
         return network
 
     def set_duration(self, duration):
-        r"""Sets the duration for the Network and Interferometers
-
-        Note: the cross-checks that durations match in all the interferometers are done by each Baseline.
+        r"""Sets the duration for the Network and Interferometers.
 
         Parameters
         =======
 
         duration: ``float``, optional
             The duration to set for the Network and interferometers.
+
+        Notes
+        -----
+        The cross-checks that durations match in all the interferometers are done by each baseline.
         """
         if duration is not None:
             self.duration = duration
@@ -267,9 +268,7 @@ class Network(object):
 
         See also
         --------
-
         pygwb.notch.StochNotchList : Used to read in the frequency notches.
-
         """
         mask = (self.frequencies >= flow) & (self.frequencies <= fhigh)
         if notch_list_path:
@@ -320,9 +319,7 @@ class Network(object):
 
         See also
         --------
-
         pygwb.simulator.Simulator : Used to simulate data.
-
         """
         no_noise = inject_into_data_flag
         if start_time == None:
@@ -383,9 +380,8 @@ class Network(object):
 
         See also
         --------
-
-        gwpy.timeseries.TimeSeriesDict : Write method used to save data to file.
-
+        gwpy.timeseries.TimeSeriesDict
+            More information `here <https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeriesDict/>`_.
         """
         file_name = f"{self.name}_STRAIN-{int(self.interferometers[0].strain_data.start_time)}-{int(self.interferometers[0].strain_data.duration)}.{file_format}"
         file_path = os.path.join(save_dir, file_name)
@@ -398,6 +394,12 @@ class Network(object):
     def combine_point_estimate_sigma_spectra(self):
         """
         Combines the point estimate and sigma spectra from different baselines in the Network and stores them as attributes.
+
+        See also
+        --------
+        pygwb.postprocessing.combine_spectra_with_sigma_weights
+
+        pygwb.omega_spectra.OmegaSpectrum
         """
         try:
             point_estimate_spectra = [
@@ -468,6 +470,10 @@ class Network(object):
             
         fhigh: ``float``, optional
             High frequency. Default is 1726 Hz.
+
+        See also
+        --------
+        pygwb.postprocessing.calc_Y_sigma_from_Yf_sigmaf
         """
         if not hasattr(self, "point_estimate_spectrum"):
             logger.info(

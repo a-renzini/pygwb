@@ -1,22 +1,20 @@
-"""This module contains two self-implemented classes that are responsible for dealing with the spectra and spectrograms
-in the pygwb analysis. These objects can be reweighted with different h0, power law indices and reference frequencies.
+"""This module contains two classes that deal with the spectra and spectrograms
+in the ``pygwb`` analysis. These objects can be reweighted with different values of the Hubble parameter `h0`, 
+power-law indices and reference frequencies. The classes inherit all features from the ``gwpy.spectrogram.Spectrogram`` 
+parent class. More information can be found `here <https://gwpy.github.io/docs/stable/spectrogram/>`_.
 
-The capabilities of the :code:`gwpy.spectrogram.Spectrogram` class are not sufficient for our analysis
-and thus we made a subclass ``OmegaSpectrogram`` inheriting from the :code:`Spectrogram` class.
+The main addition compared to the parent class constitutes the ability 
+to read and save to a pickle file, but also to reweight the data inside the spectrogram.
+In the analysis, it is often important to reweight quickly the output data to test new analysis models and/or run parameter estimation (PE).
 
-Their main purpose was to expand the functionality of the spectrogram to include the ability 
-to read and save to a pickle, but also to reweight the data inside the spectrogram.
-In analysis, it is often important to reweight quickly the output data to test new analysis models and/or run PE.
-
-We also introduced a new ``OmegaSpectrum`` class based on the :code:`gwpy.frequencyseries.FrequencySeries` class.
-This new subclass needed the same additions as ``OmegaSpectrum``.
+Similarly to the spectrogram, we introduce the same features in an ``OmegaSpectrum`` class, based on the ``gwpy.frequencyseries.FrequencySeries`` class.
+More information about the parent class can be found `here <https://gwpy.github.io/docs/stable/api/gwpy.frequencyseries.FrequencySeries/>`_.
 
 Examples
 --------
 
-We focus here on the ``OmegaSpectrogram`` class from this module.
-Let's look at its most useful functions and how to create such an object.
-We import the module and make a ``OmegaSpectrogram`` object from a ``gwpy.spectrogram.Spectrogram`` object Y_spectrogram.
+For the sake of the example, we elaborate on the ``OmegaSpectrogram`` class from this module.
+We import the module and make an ``OmegaSpectrogram`` object from a ``gwpy.spectrogram.Spectrogram`` object, which we call Y_spectrogram.
 Then, we save it into a pickle file and load it using that same pickle file.
 
 >>> from pygwb.omega_spectra import OmegaSpectrogram
@@ -24,19 +22,15 @@ Then, we save it into a pickle file and load it using that same pickle file.
 >>> omg_spectrogram.save_to_pickle_pickle("pickle_test.p")
 >>> omg_load = OmegaSpectrogram.load_from_pickle("pickle_test.p")
 
-We made the spectrogram with a spectral index equal to zero.
-We can utilise the reweight function to change the index. Directly changing that spectral index is not possible.
-This reweighting can be expanded with a new reference frequency.
-
-One can also reset h0 for the spectrogram which can be useful to compare between different cosmologies.
+The spectrogram was created with a spectral index equal to zero.
+One can use the reweight function to change the index. Additionally, one could change the reference frequency of the spectrum as well.
+Additionally, one can change the value of h0 for the spectrogram which can be useful to compare between different cosmologies.
 
 >>> omg_load.reweight(new_alpha = 2/3.)
 >>> omg_load.reset_h0(new_h0 = 1)
 
-Just as gwpy's Spectrogram, this function also has a more general ``read`` and ``write`` function for hdf5 files.
-
-The second object in the module is the OmegaSpectrum object based on the ``gwpy.frequencyseries.FrequencySeries`` class.
-It has exactly the same functionalities as the OmegaSpectrogram object. For use, we refer to the lines above.
+The ``OmegaSpectrum`` object has the same features as the ``OmegaSpectrogram`` described above. For additional information, we refer
+to the API documentation of the module.
 
 """
 
@@ -59,7 +53,8 @@ class OmegaSpectrogram(Spectrogram):
     
     See also
     --------
-    gwpy.spectrogram.Spectrogram : the parent class of this implementation.
+    gwpy.spectrogram.Spectrogram
+        More information `here <https://gwpy.github.io/docs/stable/spectrogram/>`_.
     """
 
     _metadata_slots = Spectrogram._metadata_slots + ("alpha", "fref", "h0")
@@ -220,7 +215,8 @@ class OmegaSpectrum(FrequencySeries):
     
     See also
     --------
-    gwpy.frequencyseries.FrequencySeries: the parent class of this implementation.
+    gwpy.frequencyseries.FrequencySeries
+        More information `here <https://gwpy.github.io/docs/stable/api/gwpy.frequencyseries.FrequencySeries/#gwpy.frequencyseries.FrequencySeries>`_.
     """
 
     _metadata_slots = FrequencySeries._metadata_slots + ("alpha", "fref", "h0")
