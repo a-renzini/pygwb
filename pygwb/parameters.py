@@ -15,7 +15,7 @@ To pass these, the standard ```argparse``` usage applies; for example, when usin
 
 >>> pygwb_pipe --parameter_to_pass [my-parameter-value]
 
-A parameter class may also be instantiated from a parameter file using the apropriate method, ```Parameters.update_from_file```.
+A parameter class may also be instantiated from a parameter file using the appropriate method, ```Parameters.update_from_file```.
 A parameter file must be structured specifically to be read by the ```Parameters``` class. The following structure should be followed:
 
 >>> [data_specs]
@@ -27,55 +27,55 @@ A parameter file must be structured specifically to be read by the ```Parameters
 >>> frametype:
 >>> time_shift:
 >>> [preprocessing]
-new_sample_rate: 
-input_sample_rate: 
-cutoff_frequency: 
-segment_duration: 
-number_cropped_seconds: 
-window_downsampling: 
-ftype: 
-[gating]
-gate_data: 
-gate_whiten: 
-gate_tzero: 
-gate_tpad: 
-gate_threshold: 
-cluster_window: 
-[window_fft_specs]
-window_fftgram: 
-alpha:
-[window_fft_welch_specs]
-window_fftgram: 
-alpha:
-[density_estimation]
-frequency_resolution: 
-N_average_segments_psd: 
-coarse_grain_psd: 
-coarse_grain_csd: 
-overlap_factor_welch: 
-overlap_factor: 
-[postprocessing]
-polarization:  
-alpha: 
-fref: 
-flow: 
-fhigh: 
-[data_quality]
-notch_list_path: 
-calibration_epsilon: 
-alphas_delta_sigma_cut:
-delta_sigma_cut: 
-return_naive_and_averaged_sigmas: 
-[output]
-save_data_type:
-[local_data]
-local_data_path:
+>>> new_sample_rate: 
+>>> input_sample_rate: 
+>>> cutoff_frequency: 
+>>> segment_duration: 
+>>> number_cropped_seconds: 
+>>> window_downsampling: 
+>>> ftype: 
+>>> [gating]
+>>> gate_data: 
+>>> gate_whiten: 
+>>> gate_tzero: 
+>>> gate_tpad: 
+>>> gate_threshold: 
+>>> cluster_window: 
+>>> [window_fft_specs]
+>>> window_fftgram: 
+>>> alpha:
+>>> [window_fft_welch_specs]
+>>> window_fftgram: 
+>>> alpha:
+>>> [density_estimation]
+>>> frequency_resolution: 
+>>> N_average_segments_psd: 
+>>> coarse_grain_psd: 
+>>> coarse_grain_csd: 
+>>> overlap_factor_welch: 
+>>> overlap_factor: 
+>>> [postprocessing]
+>>> polarization:  
+>>> alpha: 
+>>> fref: 
+>>> flow: 
+>>> fhigh: 
+>>> [data_quality]
+>>> notch_list_path: 
+>>> calibration_epsilon: 
+>>> alphas_delta_sigma_cut:
+>>> delta_sigma_cut: 
+>>> return_naive_and_averaged_sigmas: 
+>>> [output]
+>>> save_data_type:
+>>> [local_data]
+>>> local_data_path:
 
 All values of parameters have a default value and need not be passed when the user doesn't want to specify a different value. 
 An example parameters file may be found in ```/pygwb/pygwb_pipe/parameters.ini```. 
 Details on the usage may be found in the class descriptions and by calling the help function of the ```pygwb_pipe``` script. 
 
-In a very small subset of cases, some paramters are passed differently through the paramter file compared to the command line, and not all combinations are possible through the command line. 
+In a very small subset of cases, some parameters are passed differently through the parameter file compared to the command line, and not all combinations are possible through the command line. 
 These are specifically the cases where sections of the parameter file are parsed as dictionaries, to allow for multiple parameters to be passed without having been specified in the ```Parameters``` class.
 These are the ```[window_fft_specs]``` and ```[window_fft_welch_specs]```, which are parsed as dictionaries and passed directly to ```scipy``` which expects all the parameters relevant to the specific window employed (e.g., ```alpha``` for a Tukey window, etc.).
 When passing arguments relative to these sections from the command line directly, these should be passed as, e.g.:
