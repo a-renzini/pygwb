@@ -10,74 +10,74 @@ It is a container for all the required ingredients to perform a stochastic gravi
 Examples
 --------
 
-When using a packaged script, parameters passed to the script directly will be stored in a ```Parameters``` object. 
-To pass these, the standard ```argparse``` usage applies; for example, when using ```pygwb_pipe```:
+When using a packaged script, parameters passed to the script directly will be stored in a ``Parameters`` object. 
+To pass these, the standard ``argparse`` usage applies; for example, when using ``pygwb_pipe``.
 
 >>> pygwb_pipe --parameter_to_pass [my-parameter-value]
 
-A parameter class may also be instantiated from a parameter file using the appropriate method, ```Parameters.update_from_file```.
-A parameter file must be structured specifically to be read by the ```Parameters``` class. The following structure should be followed:
+A parameter class may also be instantiated from a parameter file using the appropriate method, ``Parameters.update_from_file``.
+A parameter file must be structured specifically to be read by the ``Parameters`` class. The following structure should be followed::
 
->>> [data_specs]
->>> interferometer_list: ["IFO1", "IFO2"]
->>> t0:
->>> tf:
->>> data_type:
->>> channel:
->>> frametype:
->>> time_shift:
->>> [preprocessing]
->>> new_sample_rate: 
->>> input_sample_rate: 
->>> cutoff_frequency: 
->>> segment_duration: 
->>> number_cropped_seconds: 
->>> window_downsampling: 
->>> ftype: 
->>> [gating]
->>> gate_data: 
->>> gate_whiten: 
->>> gate_tzero: 
->>> gate_tpad: 
->>> gate_threshold: 
->>> cluster_window: 
->>> [window_fft_specs]
->>> window_fftgram: 
->>> alpha:
->>> [window_fft_welch_specs]
->>> window_fftgram: 
->>> alpha:
->>> [density_estimation]
->>> frequency_resolution: 
->>> N_average_segments_psd: 
->>> coarse_grain_psd: 
->>> coarse_grain_csd: 
->>> overlap_factor_welch: 
->>> overlap_factor: 
->>> [postprocessing]
->>> polarization:  
->>> alpha: 
->>> fref: 
->>> flow: 
->>> fhigh: 
->>> [data_quality]
->>> notch_list_path: 
->>> calibration_epsilon: 
->>> alphas_delta_sigma_cut:
->>> delta_sigma_cut: 
->>> return_naive_and_averaged_sigmas: 
->>> [output]
->>> save_data_type:
->>> [local_data]
->>> local_data_path:
+    [data_specs]
+    interferometer_list: ["IFO1", "IFO2"]
+    t0:
+    tf:
+    data_type:
+    channel:
+    frametype:
+    time_shift:
+    [preprocessing]
+    new_sample_rate: 
+    input_sample_rate: 
+    cutoff_frequency: 
+    segment_duration: 
+    number_cropped_seconds: 
+    window_downsampling: 
+    ftype: 
+    [gating]
+    gate_data: 
+    gate_whiten: 
+    gate_tzero: 
+    gate_tpad: 
+    gate_threshold: 
+    cluster_window: 
+    [window_fft_specs]
+    window_fftgram: 
+    alpha:
+    [window_fft_welch_specs]
+    window_fftgram: 
+    alpha:
+    [density_estimation]
+    frequency_resolution: 
+    N_average_segments_psd: 
+    coarse_grain_psd: 
+    coarse_grain_csd: 
+    overlap_factor_welch: 
+    overlap_factor: 
+    [postprocessing]
+    polarization:  
+    alpha: 
+    fref: 
+    flow: 
+    fhigh: 
+    [data_quality]
+    notch_list_path: 
+    calibration_epsilon: 
+    alphas_delta_sigma_cut:
+    delta_sigma_cut: 
+    return_naive_and_averaged_sigmas: 
+    [output]
+    save_data_type:
+    [local_data]
+    local_data_path:
 
 All values of parameters have a default value and need not be passed when the user doesn't want to specify a different value. 
-An example parameters file may be found in ```/pygwb/pygwb_pipe/parameters.ini```. 
-Details on the usage may be found in the class descriptions and by calling the help function of the ```pygwb_pipe``` script. 
+An example parameters file may be found in ``pygwb/pygwb_pipe/parameters.ini``.
+Details on the usage may be found in the class descriptions and by calling the help function of the ``pygwb_pipe`` script. 
 
 In a very small subset of cases, some parameters are passed differently through the parameter file compared to the command line, and not all combinations are possible through the command line. 
-These are specifically the cases where sections of the parameter file are parsed as dictionaries, to allow for multiple parameters to be passed without having been specified in the ```Parameters``` class.
-These are the ```[window_fft_specs]``` and ```[window_fft_welch_specs]```, which are parsed as dictionaries and passed directly to ```scipy``` which expects all the parameters relevant to the specific window employed (e.g., ```alpha``` for a Tukey window, etc.).
+These are specifically the cases where sections of the parameter file are parsed as dictionaries, to allow for multiple parameters to be passed without having been specified in the ``Parameters`` class.
+These are the ``window_fft_specs]`` and ``window_fft_welch_specs]`` which are parsed as dictionaries and passed directly to ``scipy`` which expects all the parameters relevant to the specific window employed (e.g., ``alpha`` for a Tukey window, etc.).
 When passing arguments relative to these sections from the command line directly, these should be passed as, e.g.:
 
 >>> pygwb_pipe --window_fftgram my-window-1 --window_fftgram_welch my-window-2
@@ -87,7 +87,7 @@ Special parameters
 ------------------
 
 For the most part, the usage of the ``Parameters`` object is self evident and clarified by the descriptions provided by the class itself and ``ParametersHelp``. However, certain parameters, which are `interferometer-specific`, need to be passed with specific formatting to be properly parsed. 
-These are ```channel```, ```frametype```, ```input_sample_rate```, ```local_data_path```, ```time_shift```.
+These are: ``channel`` ``frametype`` ``input_sample_rate`` ``local_data_path`` ``time_shift``.
 When passing in the same value of one of these parameters for both interferometers, this only needs to be passed once; for example, to pass in the same frame type for both interferometers, one simply adds to the parameter file (in the appropriate section):
 
 >>> [data_specs]
@@ -100,7 +100,7 @@ However, when passing in different frame types for different interferometers, th
 >>> interferometer_list: ["IFO1", "IFO2"]
 >>> frametype: IFO1:MY_FRAME_1,IFO2:MY_FRAME_2
 
-where IFO1 and IFO2 match the names provided for the interferometers in the ```interferometer_list``` parameter.
+where IFO1 and IFO2 match the names provided for the interferometers in the ``interferometer_list`` parameter.
 
 
 Notes
