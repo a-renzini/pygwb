@@ -36,7 +36,6 @@ from loguru import logger
 from pygwb.postprocessing import calculate_point_estimate_sigma_spectra
 from pygwb.util import calc_bias
 
-
 def dsc_cut(
     naive_sigma: np.ndarray,
     slide_sigma: np.ndarray,
@@ -78,11 +77,9 @@ def dsc_cut(
     dsigma: ``array_like``
         Values of the difference between sliding sigma and naive sigma, i.e., the actual value of the delta sigma per segment.
     """
-
     dsigma = np.abs(slide_sigma * bf_ss - naive_sigma * bf_ns) / (slide_sigma * bf_ss)
 
     return dsigma >= dsc, dsigma
-
 
 def run_dsc(
     dsc: float,
@@ -101,7 +98,6 @@ def run_dsc(
     N_average_segments_psd: int = 2,
     return_naive_and_averaged_sigmas: bool = False,
 ):
-
     """
     Function that runs the delta sigma cut.
 
@@ -168,7 +164,6 @@ def run_dsc(
 
     pygwb.util.calc_bias
     """
-
     logger.info("Running delta sigma cut")
     nalphas = len(alphas)
     times = np.array(psd1_naive.times)

@@ -29,9 +29,7 @@ The standard initialization of a ``Baseline`` object then simply requires a pair
 ``Interferometer`` objects:
 
 >>> H1L1_baseline = baseline.Baseline("H1-L1", H1, L1)
-
 """
-
 
 import json
 import pickle
@@ -54,7 +52,6 @@ from .postprocessing import (
     postprocess_Y_sigma,
 )
 from .spectral import cross_spectral_density
-
 
 class Baseline(object):
     def __init__(
@@ -260,8 +257,6 @@ class Baseline(object):
         See also
         --------
         pygwb.notch.StochNotchList : Used to read in the frequency notches.
-
-
         """
         mask = (self.frequencies >= self.minimum_frequency) & (
             self.frequencies <= self.maximum_frequency
@@ -702,7 +697,6 @@ class Baseline(object):
         --------
         pygwb.orfs.calc_orf
             Method to compute the overlap reduction function.
-
         """
         if frequencies is not None:
             return calc_orf(
@@ -1264,7 +1258,6 @@ class Baseline(object):
         --------
         pygwb.postprocessing.calc_Y_sigma_from_Yf_sigmaf
         """
-
         if self._point_estimate_spectrum_set:
             self.point_estimate_spectrum.reweight(new_alpha=alpha, new_fref=fref)
             self.sigma_spectrum.reweight(new_alpha=alpha, new_fref=fref)
@@ -1368,7 +1361,6 @@ class Baseline(object):
         --------
         pygwb.delta_sigma_cut.run_dsc
             Function used to run the delta sigma cut.
-
         """
         if not self._orf_polarization_set:
             self.orf_polarization = polarization
@@ -1395,7 +1387,6 @@ class Baseline(object):
             self.set_frequency_mask(self.notch_list_path)
         else:
             self.set_frequency_mask()
-
 
         badGPStimes, delta_sigmas = run_dsc(
             dsc=delta_sigma_cut,
@@ -1447,9 +1438,7 @@ class Baseline(object):
         See also
         --------
         pygwb.coherence.calculate_coherence
-
         """
-
         bad_times_indexes = self._get_bad_times_indexes(times=self.interferometer_1.psd_spectrogram.times.value, apply_dsc=apply_dsc)
 
         deltaF = self.frequencies[1] - self.frequencies[0]
@@ -1483,8 +1472,6 @@ class Baseline(object):
         self.coherence_dict['frequencies']= self.frequencies
         self.coherence_dict['epoch']= epoch
 
-
-
     def _get_bad_times_indexes(self, times, badtimes=None, apply_dsc=False):
         """
         Get indices for segments with bad GPS times, to be removed from analysis.
@@ -1499,7 +1486,6 @@ class Baseline(object):
         apply_dsc: ``bool``
             If True, calculates the indexes of the segments with a bad GPS time, according to the delta sigma cut. If False, returns None.
         """
-
         if apply_dsc == True:
             if not hasattr(self, "badGPStimes"):
                 warnings.warn(
@@ -1538,9 +1524,7 @@ class Baseline(object):
 
         filename: ``str``
             The path/name of the file in which you want to save.
-
         """
-
         if save_data_type == "pickle":
             save = self._pickle_save
             ext = ".p"
@@ -1598,9 +1582,7 @@ class Baseline(object):
 
         filename: ``str``
             The path/name of the file in which you want to save.
-
         """
-
         if save_data_type == "pickle":
             save_csd = self._pickle_save_csd
             ext = ".p"
@@ -2161,7 +2143,6 @@ class Baseline(object):
             hf.create_dataset("n_segs_coherence", data=n_segs_coh, compression=compression)
 
         hf.close()
-
 
 def get_baselines(interferometers, frequencies=None):
     """

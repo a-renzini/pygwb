@@ -22,9 +22,7 @@ cosmological GWBs.
 
 Additional information about parameter estimation can be found `here <https://arxiv.org/pdf/2303.15696.pdf>`_. For more information on
 how to use this module, we refer the reader to the dedicated tutorials and demos.
-
 """
-
 from abc import abstractmethod
 
 import bilby
@@ -32,7 +30,6 @@ import numpy as np
 from scipy.special import erf
 
 from .baseline import Baseline
-
 
 class GWBModel(bilby.Likelihood):
     r"""
@@ -45,9 +42,7 @@ class GWBModel(bilby.Likelihood):
     where :math:`\Omega_{\rm M}(f_k|\mathbf{\Theta})` is the model being fit to data, and :math:`\mathbf{\Theta}` are the model's parameters.
 
     The noise likelihood is given by setting :math:`\Omega_{\rm M}(f_k|\mathbf{\Theta})=0`.
-
     """
-
     def __init__(self, baselines=None, model_name=None, polarizations=None):
         """
         See also
@@ -129,7 +124,6 @@ class GWBModel(bilby.Likelihood):
                 )
                 + np.sum(np.log(2 * np.pi * baseline.sigma_spectrum ** 2), where=freq_mask)
             )
-
         # likelihood with calibration uncertainty marginalizatione done analytically
         # see https://stochastic-alog.ligo.org/aLOG//index.php?callRep=339711
         # note \cal{N} = \Prod_j sqrt(2*pi*sigma_j^2)
@@ -192,14 +186,12 @@ class GWBModel(bilby.Likelihood):
                 )
         return ll
 
-
 class PowerLawModel(GWBModel):
     r"""
     Power law model is defined as:
 
     .. math::
         \Omega(f) = \Omega_{\text{ref}} \left(\frac{f}{f_{\text{ref}}}\right)^{\alpha}
-        
         
     Examples
     --------
@@ -229,9 +221,7 @@ class PowerLawModel(GWBModel):
     
     >>> kwargs_pl = {"baselines":[HL], "model_name":'PL', "fref":25}
     >>> model_pl = PowerLawModel(**kwargs_pl)
-    
     """
-
     def __init__(self, **kwargs):
         """
         Parameters
@@ -283,7 +273,6 @@ class PowerLawModel(GWBModel):
             * (bline.frequencies / self.fref) ** self.parameters["alpha"]
         )
 
-
 class BrokenPowerLawModel(GWBModel):
     r"""
     Broken Power law model is defined as: 
@@ -322,9 +311,7 @@ class BrokenPowerLawModel(GWBModel):
     
     >>> kwargs_bpl = {"baselines":[HL], "model_name":'BPL'}
     >>> model_bpl = BrokenPowerLawModel(**kwargs_bpl)
-    
     """
-
     def __init__(self, **kwargs):
         """
         Parameters
@@ -386,7 +373,6 @@ class BrokenPowerLawModel(GWBModel):
             )
         )
 
-
 class TripleBrokenPowerLawModel(GWBModel):
     r"""
     The triple broken power law is defined as: 
@@ -426,9 +412,7 @@ class TripleBrokenPowerLawModel(GWBModel):
     
     >>> kwargs_tbpl = {"baselines":[HL], "model_name":'TBPL'}
     >>> model_tbpl = TripleBrokenPowerLawModel(**kwargs_tbpl)
-    
     """
-
     def __init__(self, **kwargs):
         """
         Parameters
@@ -509,7 +493,6 @@ class TripleBrokenPowerLawModel(GWBModel):
         )
         return self.parameters["omega_ref"] * piecewise
 
-
 class SmoothBrokenPowerLawModel(GWBModel):
     r"""
 
@@ -546,9 +529,7 @@ class SmoothBrokenPowerLawModel(GWBModel):
     
     >>> kwargs_sbpl = {"baselines":[HL], "model_name":'SBPL'}
     >>> model_sbpl = SmoothBrokenPowerLawModel(**kwargs_sbpl)
-    
     """
-
     def __init__(self, **kwargs):
         """
         Parameters
@@ -617,7 +598,6 @@ class SmoothBrokenPowerLawModel(GWBModel):
             )
         )
 
-
 class SchumannModel(GWBModel):
     r"""
 
@@ -627,7 +607,6 @@ class SchumannModel(GWBModel):
     .. math::
          \Omega(f) = \sum_{ij} \kappa_i \kappa_j \left(\frac{f}{f_{\text{ref}}}\right)^{-\beta_i-\beta_j} M_{ij}(f) \times 10^{-46}
     """
-
     def __init__(self, **kwargs):
         """
         Parameters
@@ -712,7 +691,6 @@ class SchumannModel(GWBModel):
         # units of transfer function strain/pT
         return TF1 * TF2 * np.real(bline.M_f)
 
-
 class TVSPowerLawModel(GWBModel):
     r"""
     The Tensor-Vector-Scalar polarization (T,V,S) power-law model is defined as:
@@ -755,9 +733,7 @@ class TVSPowerLawModel(GWBModel):
     
     >>> kwargs_pl_sv = {"baselines":[HL], "model_name":'PL_SV', "polarizations":['scalar', 'vector']}
     >>> model_pl_sv = TVSPowerLawModel(**kwargs_pl_sv)
-    
     """
-
     def __init__(self, **kwargs):
         """
         Parameters
@@ -819,9 +795,7 @@ class TVSPowerLawModel(GWBModel):
             )
         return model
 
-
 # Parity violation models
-
 
 class PVPowerLawModel(GWBModel):
     r"""
@@ -858,9 +832,7 @@ class PVPowerLawModel(GWBModel):
     
     >>> kwargs_pl_pv = {"baselines":[HL], "model_name":'PL_PV', 'fref': 25}
     >>> model_pl_pv = PVPowerLawModel(**kwargs_pl_pv)
-    
     """
-
     def __init__(self, **kwargs):
         """
         Parameters
@@ -921,7 +893,6 @@ class PVPowerLawModel(GWBModel):
             * (bline.frequencies / self.fref) ** (self.parameters["alpha"])
         )
 
-
 class PVPowerLawModel2(GWBModel):
     r"""
     The parity violation model 2 can be defined as:
@@ -957,9 +928,7 @@ class PVPowerLawModel2(GWBModel):
     
     >>> kwargs_pl_pv_2 = {"baselines":[HL], "model_name":'PL_PV_2', 'fref': 25}
     >>> model_pl_pv_2 = PVPowerLawModel2(**kwargs_pl_pv_2)
-    
     """
-
     def __init__(self, **kwargs):
         """
         Parameters

@@ -594,4 +594,3 @@ class IsotropicWorkflow(Workflow):
         for parent in parents:
             job.add_parent(parent)
         return job
-    

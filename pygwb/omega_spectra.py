@@ -31,7 +31,6 @@ Additionally, one can change the value of h0 for the spectrogram which can be us
 
 The ``OmegaSpectrum`` object has the same features as the ``OmegaSpectrogram`` described above. For additional information, we refer
 to the API documentation of the module.
-
 """
 
 import pickle
@@ -45,18 +44,14 @@ from gwpy.types.io.hdf5 import register_hdf5_array_io
 
 from pygwb.constants import h0
 
-
 class OmegaSpectrogram(Spectrogram):
-
     """Subclass of gwpy's Spectrogram class.
-    
     
     See also
     --------
     gwpy.spectrogram.Spectrogram
         More information `here <https://gwpy.github.io/docs/stable/spectrogram/>`_.
     """
-
     _metadata_slots = Spectrogram._metadata_slots + ("alpha", "fref", "h0")
     # _print_slots = FrequencySeries._print_slots + ["alpha", "fref", "h0"]
 
@@ -119,7 +114,6 @@ class OmegaSpectrogram(Spectrogram):
         =======
         Data: ``gwpy.spectrogram.Spectrogram``
             The read in spectrogram from the source.
-        
         """
         return io_registry.read(cls, source, *args, **kwargs)
 
@@ -208,9 +202,7 @@ class OmegaSpectrogram(Spectrogram):
         self.value[:] = new_spectrum
         self._h0 = new_h0
 
-
 class OmegaSpectrum(FrequencySeries):
-
     """Subclass of gwpy's FrequencySeries class.
     
     See also
@@ -218,7 +210,6 @@ class OmegaSpectrum(FrequencySeries):
     gwpy.frequencyseries.FrequencySeries
         More information `here <https://gwpy.github.io/docs/stable/api/gwpy.frequencyseries.FrequencySeries/#gwpy.frequencyseries.FrequencySeries>`_.
     """
-
     _metadata_slots = FrequencySeries._metadata_slots + ("alpha", "fref", "h0")
     _print_slots = FrequencySeries._print_slots + ["alpha", "fref", "h0"]
 
@@ -282,7 +273,6 @@ class OmegaSpectrum(FrequencySeries):
     def write(self, target, *args, **kwargs):
         """Write this Spectrum to a file. Same usage as write method of ``gwpy.frequencyseries.FrequencySeries``.
 
-
         Parameters
         =======
         target: ``str``
@@ -321,7 +311,6 @@ class OmegaSpectrum(FrequencySeries):
 
         Parameters
         =======
-
         new_alpha: ``float``
             New spectral index.
         new_fref: ``float``
@@ -359,7 +348,6 @@ class OmegaSpectrum(FrequencySeries):
         self.value[:] = new_spectrum
         self._h0 = new_h0
 
-
 def reweight_spectral_object(
     spec, freqs, new_alpha, new_fref, old_alpha=0.0, old_fref=25.0
 ):
@@ -391,7 +379,6 @@ def reweight_spectral_object(
     weights_old = (freqs / old_fref) ** old_alpha
     weights_new = (freqs / new_fref) ** new_alpha
     return (spec.T * (weights_old / weights_new)).T
-
 
 register_hdf5_array_io(OmegaSpectrogram)
 register_hdf5_array_io(OmegaSpectrum)
