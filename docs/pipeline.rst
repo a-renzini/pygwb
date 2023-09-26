@@ -26,7 +26,9 @@ This will display the following set of parameters, which can be passed to the pi
   --param_file PARAM_FILE                                                                                                                                                     
                         Parameter file to use for analysis.                                                                                                                   
   --output_path OUTPUT_PATH                                                                                                                                                   
-                        Location to save output to.                                                                                                                           
+                        Location to save output to.         
+  --calc_coh CALC_COH	 
+                        Calculate coherence spectrum from data.                                                                                                                                      
   --calc_pt_est CALC_PT_EST                                                                                                                                                   
                         Calculate omega point estimate and sigma from data.                                                                                                   
   --apply_dsc APPLY_DSC                                                                                                                                                       
@@ -198,6 +200,27 @@ Additionally, the power-spectral densities (PSDs) and cross-spectral densities (
 .. tip::
   Not sure about what is exactly in a file? Load in the file and print out all its `keys` as shown 
   `here <https://stackoverflow.com/questions/49219436/how-to-show-all-the-element-names-in-a-npz-file-without-having-to-load-the-compl>`_.
+  
+Printing these keys will show you:
+
+.. code-block:: shell
+
+  npzfile = numpy.load("psds_csds_{start_time_of_job}_{job_duration}.npz")
+  print(list(npzfile.keys()))
+  
+  ['freqs', 'avg_freqs', 'csd', 'avg_csd', 'psd_1', 'psd_2', 'avg_psd_1', 'avg_psd_2',
+   'csd_times', 'avg_csd_times', 'psd_times', 'avg_psd_times',
+   'coherence', 'psd_1_coh', 'psd_2_coh', 'csd_coh', 'n_segs_coh']
+  
+All these keys are saved in the ``.npz`` file mentioned above. Some of those might be empty when not  Their corresponding data can be read using:
+
+.. code-block:: shell
+
+  variable = npzfile['{key}']
+
+These keys can provide the frequencies used in the analysis, both for naive estimates (``'freqs'``) and averaged estimates (``'avg_freqs'``) of the spectral densities. Those can be read using the corresponding keys. For example the csd is read using the key ``'csd'`` and the average csd can be found with the key ``'avg_csd'``. Same applies for the PSDs of the interferometers.
+
+You can also read the correct times of these spectral densities by using the keys ``'{insert_spectral_density}_times'``. If the ``--calc_coh`` argument was put to ``True``, the coherence information will also be stored in this file under the key ``'coherence'`` together with the PSDs, CSD and amount of segments used to compute coherence. 
 
 A second file contains the actual point estimate spectrum, variance spectrum, point estimate and variance. This information is accessible in:
 
@@ -213,6 +236,24 @@ from this ``pickle`` file. More information about how to create a baseline from 
 
   Saving ``pickle`` files can take up a lot of memory. Furthermore, loading in a baseline from ``pickle`` file can take quite some time. Working 
   with ``npz`` files is therefore recommended, when possible.
+
+The second file can be read the same way as the first one. It has the following keys available:
+
+.. code-block:: shell
+
+  ['frequencies', 'frequency_mask', 'point_estimate_spectrum', 'sigma_spectrum',
+  'point_estimate', 'sigma', 'point_estimate_spectrogram', 'sigma_spectrogram',
+  'badGPStimes', 'delta_sigma_alphas', 'delta_sigma_times', 'delta_sigma_values',
+  'naive_sigma_values', 'slide_sigma_values', 'ifo_1_gates', 'ifo_1_gate_pad',
+  'ifo_2_gates', 'ifo_2_gate_pad']
+
+These can be read via the same code shown before. Be aware that depending on your inclusion of gating and/or the delta-sigma cut data quality checks in the analysis, some of these keys could have empty values assigned to them.
+
+Once again, the key ``'frequencies'`` reads the frequencies corresponding to those of the ``point_estimate_spectrum``. This last one can be read using the key that is called the same. The spectrograms are read in in the same manner, but with spectrogram at the end instead of spectrum. The key ``'frequency_mask'`` provides information about the frequencies which were notched (ergo not used) in the analysis. The overall point estimate and its standard deviation can be read with ``'point_estimate'`` and ``'sigma'``.
+
+The output of the data quality checks in pygwb are also saved in the second file. The output from the delta-sigma cut is stored in different keys. First, you can find the actual times which are not allowed in the analysis using the key ``'badGPStimes'``. The alphas used for the dsc are stored in ``'delta_sigma_alphas'``, times in ``'delta_sigma_times'``, and the actual values of the computed delta sigmas are in ``'delta_sigma_values'``. The cut works with computing both the naive and sliding sigma values. Both are therefore also stored in the keys ``'naive_sigma_values'`` and ``'slide_sigma_values'``.
+
+If gating is turned on, the gated times are saved in ``'ifo_{i}_gates'`` where ``i`` can be 1 or 2. The gate_pad is the value for the used parameter ``gate_tpad`` in the analysis.
 
 .. note::
   
