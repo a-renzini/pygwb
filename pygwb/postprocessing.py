@@ -77,6 +77,7 @@ from pygwb.omega_spectra import OmegaSpectrum
 
 from .util import _check_omegaspectra, calc_bias, window_factors
 
+
 def postprocess_Y_sigma(
     Y_fs,
     var_fs,

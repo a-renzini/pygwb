@@ -45,6 +45,7 @@ from tqdm import tqdm
 from pygwb.baseline import Baseline, get_baselines
 from pygwb.util import interpolate_frequency_series
 
+
 class Simulator(object):
     def __init__(
         self,

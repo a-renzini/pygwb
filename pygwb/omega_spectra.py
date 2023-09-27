@@ -44,6 +44,7 @@ from gwpy.types.io.hdf5 import register_hdf5_array_io
 
 from pygwb.constants import h0
 
+
 class OmegaSpectrogram(Spectrogram):
     """Subclass of gwpy's Spectrogram class.
     

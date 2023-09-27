@@ -53,6 +53,7 @@ from .postprocessing import (
 )
 from .spectral import cross_spectral_density
 
+
 class Baseline(object):
     def __init__(
         self,

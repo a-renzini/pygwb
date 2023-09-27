@@ -31,6 +31,7 @@ from scipy.special import erf
 
 from .baseline import Baseline
 
+
 class GWBModel(bilby.Likelihood):
     r"""
     Generic model, contains the definition of likelihood:

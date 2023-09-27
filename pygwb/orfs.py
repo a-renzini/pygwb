@@ -40,6 +40,7 @@ from scipy.special import spherical_jn
 
 from .constants import speed_of_light
 
+
 def Tplus(alpha, beta):
     """
     Function used in the computation of the tensor ORF, as given by 

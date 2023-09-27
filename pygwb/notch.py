@@ -66,6 +66,7 @@ object from a file, as done in this example. The mask itself can also be saved, 
 import numpy as np
 from bilby.gw.detector.strain_data import Notch
 
+
 class StochNotch(Notch):
     def __init__(self, minimum_frequency, maximum_frequency, description):
         """A notch object storing the maximum and minimum frequency of the notch, as well as a description.

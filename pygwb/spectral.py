@@ -83,6 +83,7 @@ from scipy.signal import get_window, spectrogram
 
 from pygwb.util import get_window_tuple, parse_window_dict
 
+
 def fftgram(
     time_series_data: TimeSeries,
     fftlength: int,

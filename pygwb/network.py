@@ -58,6 +58,7 @@ from .postprocessing import (
 )
 from .simulator import Simulator
 
+
 class Network(object):
     def __init__(
         self,

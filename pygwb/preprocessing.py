@@ -78,6 +78,7 @@ from gwpy import timeseries
 from gwpy.segments import Segment, SegmentList
 from gwsumm.data.timeseries import get_timeseries
 
+
 def set_start_time(
     job_start_GPS: int,
     job_end_GPS: int,

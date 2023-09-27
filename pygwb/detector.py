@@ -88,6 +88,7 @@ from .preprocessing import (
 )
 from .spectral import before_after_average, power_spectral_density
 
+
 class Interferometer(bilby.gw.detector.Interferometer):
     def __init__(self, *args, **kwargs):
         """Instantiate an Interferometer class
