@@ -189,7 +189,7 @@ point estimate and variance spectrum, which can be translated into one point est
 the ``./output`` folder of your run directory, unless otherwise specified through the ``--output_path`` argument of the script.
 
 A few files can be found in this directory, including a version of the parameters file used for the
-analysis. Note that this takes into account any parameters that were modified through the command line.
+analysis. Note that this takes into account any parameters that were modified through the command line. This file will have the naming convention ``parameters_{t0}_{length_of job}_final.ini``.
 
 Additionally, the power-spectral densities (PSDs) and cross-spectral densities (CSDs) are saved in a file with naming convention:
 

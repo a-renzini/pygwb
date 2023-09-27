@@ -125,3 +125,15 @@ As mentioned in the introduction of the tutorial, the workflow combines the diff
 individual scripts. We refrain from going over the different outputs again, but refer the user to the dedicated tutorials for more information (e.g. `pygwb_pipe <pipeline.html#output-of-the-script>`_, 
 `pygwb_combine <multiple_jobs.html#id8>`_, `pygwb_stats <stat_checks.html#output-of-the-script>`_). However, we do note the additional feature of the workflow, which displays all 
 results of the run in an ``html`` page.
+
+The workflow creates a bunch of directories for the output of the workflow and the submitting of the ``.dag`` files on a cluster. In the designated directory, given by ``--basedir BASEDIR`` parameter. In that directory, the following files and directories are shown
+
+.. code-block:: shell
+
+   about  condor  config.ini  index.html  output  pygwb_cache.txt
+   
+The ``about`` directory has information of the analysis run you put in the workflow and is mainly for ``.html`` purposes. The ``condor`` directory stores all relevant files needed for the ``.dag`` submission to the cluster. Every individual job will have an ``.output``, ``.submit``, ``.error`` and a ``.log`` file starting with ``pygwb_pipe_t0_length``.
+The dag ensemble has more components. The dag file itself will be called ``pygwb_dagman.submit``. Other files can help finding errors when running dag files. See the overal condor documentation `here <https://htcondor.org/documentation/htcondor.html>`_ for more information. You can also find the submit files for the combine, stats and html script in these folders, starting with the name of the script.
+
+The file ``config.ini`` is a copy of your configuration file given to the workflow script via ``--configfile CONFIGFILE``. The ``output`` directory contains a subdirectory for every individual job. In such subdirectories, the output files mentioned `here <pipeline.html#output-of-the-script>`_ can be found.
+Next to that, there is also the subdirectory ``combined_results`` which contains the output of the ``pygwb_combine`` script, see `here <multiple_jobs.html#id8>`_ for more information. The last subdirectory ``segment_lists`` contains a datafile with the start and end times, and lengths of the jobs in the workflow.
