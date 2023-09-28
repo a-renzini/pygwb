@@ -844,7 +844,7 @@ class Baseline(object):
         filename: ``str``
             Filename (inclusive of path) to save the pickled baseline to.
         """
-        if wipe == True:
+        if wipe:
             self.interferometer_1.timeseries = None
             self.interferometer_2.timeseries = None
         with open(filename, "wb") as f:
@@ -1120,7 +1120,7 @@ class Baseline(object):
 
         pygwb.omega_spectra.OmegaSpectrum
         """
-        if apply_dsc == True:
+        if apply_dsc:
             if not hasattr(self, "badGPStimes"):
                 warnings.warn(
                     "Delta sigma cut has not been calculated yet, hence no delta sigma cut will be applied... If this is a mistake, please run `calculate_delta_sigma_cut` first, then re-calculate point estimate/sigma spectra."
@@ -1487,7 +1487,7 @@ class Baseline(object):
         apply_dsc: ``bool``
             If True, calculates the indexes of the segments with a bad GPS time, according to the delta sigma cut. If False, returns None.
         """
-        if apply_dsc == True:
+        if apply_dsc:
             if not hasattr(self, "badGPStimes"):
                 warnings.warn(
                     "Delta sigma cut has not been calculated yet, hence no delta sigma cut will be applied... If this is a mistake, please run `calculate_delta_sigma_cut` first, then re-calculate point estimate/sigma spectra."
