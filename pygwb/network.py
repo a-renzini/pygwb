@@ -40,7 +40,6 @@ A network can then be created by using:
 It is also possible to initialize the class by passing a list of ``Baselines``:
 
 >>> HL_network = Network.from_baselines(’HL’, [HL_baseline])
-
 """
 
 import os

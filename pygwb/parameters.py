@@ -82,7 +82,6 @@ When passing arguments relative to these sections from the command line directly
 
 >>> pygwb_pipe --window_fftgram my-window-1 --window_fftgram_welch my-window-2
 
-
 Notes
 -----
 
@@ -104,9 +103,7 @@ However, when passing in different frame types for different interferometers, th
 
 where IFO1 and IFO2 match the names provided for the interferometers in the ``interferometer_list`` parameter.
 
-
 Users should not interact with the ``ParametersHelp`` class.
-
 """
 import argparse
 import configparser
@@ -216,7 +213,6 @@ class Parameters:
     return_naive_and_averaged_sigmas: ``bool``
         Option to return naive and sliding sigmas from delta sigma cut.
     """
-
     t0: float = 0
     tf: float = 100
     interferometer_list: List = field(default_factory=lambda: ["H1", "L1"])
@@ -508,7 +504,6 @@ class Parameters:
 
         return param_dict
 
-
 class ParametersHelp(enum.Enum):
     """
     Description of the arguments in the Parameters class. 
@@ -517,7 +512,6 @@ class ParametersHelp(enum.Enum):
     -----
     This is an enumeration class and is not meant for user interaction.
     """
-
     t0 = "Initial time."
     tf = "Final time."
     interferometer_list = (

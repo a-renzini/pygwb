@@ -8,7 +8,6 @@ Furthermore, part of these plots compares the values of these quantities before 
 
 For additional information on how to run the statistical checks, and interpret them, we refer the user to the dedicated
 tutorials and demos, as well as the `pygwb paper <https://arxiv.org/pdf/2303.15696.pdf>`_.
-
 """
 import json
 import warnings
@@ -115,7 +114,6 @@ class StatisticalChecks(object):
             Tag to be used in file naming convention.
         legend_fontsize: ``int``
             Font size for plot legends. Default is 16. All other fonts are scaled to this font.
-
         """
         self.params = Parameters()
         self.params.update_from_file(param_file)
@@ -319,9 +317,7 @@ class StatisticalChecks(object):
         --------
         numpy.fft.fft
             More information `here <https://numpy.org/doc/stable/reference/generated/numpy.fft.fft.html>`_.
-
         """
-
         numFreqs = self.point_estimate_spectrum.shape[0]
         fhigh = self.flow + self.deltaF * numFreqs
 
@@ -367,7 +363,6 @@ class StatisticalChecks(object):
             Minimum value on the y-axis.
         ymax: ``array_like``
             Maximum value on the y-axis.
-
         """
         if self.days_cut.size==0:
             return
@@ -420,7 +415,6 @@ class StatisticalChecks(object):
         Generates and saves a plot of the running sigma. The plotted values are the ones after the delta sigma cut. 
         This function does not require any input parameters, as it accesses the data through the attributes of the 
         class (e.g. `self.days_cut`).
-
         """
         if self.days_cut.size==0:
             return
@@ -470,7 +464,6 @@ class StatisticalChecks(object):
         """
         Generates and saves a plot of the point estimate integrand. This function does not require any input parameters, 
         as it accesses the data through the attributes of the class (e.g. `self.point_estimate_integrand`).
-
         """
         if np.isnan(self.point_estimate_spectrum).all() or not np.real(self.point_estimate_spectrum).any():
             return
@@ -789,7 +782,6 @@ class StatisticalChecks(object):
         )
         plt.close()
 
-        
         outlier_coherence = []
         for i in range(len(coherence)):
             if (coherence[i] > np.abs(threshold) and self.frequency_mask[i] == True):
@@ -829,7 +821,6 @@ class StatisticalChecks(object):
         Generates and saves a plot of the cumulative sensitivity. This function does not 
         require any input parameters, as it accesses the data through the attributes of 
         the class (e.g. `self.sigma_spectrum`).
-
         """
         if np.isinf(self.sigma_spectrum).all() or not np.real(self.point_estimate_spectrum).any():
             return
@@ -1130,7 +1121,6 @@ class StatisticalChecks(object):
         axs[0].legend(fontsize=self.legend_fontsize)
         axs[0].tick_params(axis="x", labelsize=self.legend_fontsize)
         axs[0].tick_params(axis="y", labelsize=self.legend_fontsize)
-
 
         axs[1].scatter(
             self.sliding_sigmas_all,
@@ -1485,8 +1475,6 @@ class StatisticalChecks(object):
             bbox_inches="tight",
         )
         plt.close()
-            
-
 
     def save_all_statements(self):
         """
@@ -1528,10 +1516,8 @@ class StatisticalChecks(object):
             self.plot_hist_coherence()
         self.save_all_statements()
 
-
 def sortingFunction(item):
     return float(item[5:].partition("-")[0])
-
 
 def run_statistical_checks_from_file(
     combine_file_path, dsc_file_path, plot_dir, param_file, legend_fontsize=16, coherence_file_path = None, file_tag = None, convention='pygwb'

@@ -10,7 +10,6 @@ To import one of the constants from this module inside another code, one would c
 line:
 
 >>> from pygwb.constants import H0
-
 """
 
 from astropy.constants import c

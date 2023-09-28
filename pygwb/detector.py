@@ -143,7 +143,6 @@ class Interferometer(bilby.gw.detector.Interferometer):
             
         gwpy.segments.SegmentList
             More information `here <https://gwpy.github.io/docs/stable/api/gwpy.segments.SegmentList/>`_.
-
         """
         self.gates = SegmentList()
         self.gate_pad = None
@@ -164,7 +163,6 @@ class Interferometer(bilby.gw.detector.Interferometer):
         =======
         interferometer: ``pygwb.Interferometer``
             Interferometer instance of pygwb.
-
         """
         filename = os.path.join(
             os.path.dirname(bilby.gw.detector.__file__),
@@ -218,7 +216,6 @@ class Interferometer(bilby.gw.detector.Interferometer):
         =======
         interferometer: ``pygwb.Interferometer``
             Instance of the pygwb interferometer object.
-
         """
         ifo = cls.get_empty_interferometer(name)
         channel = str(ifo.name + ":" + parameters.channel)
@@ -255,9 +252,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
         See also
         --------
         pygwb.preprocessing.preprocessing_data_channel_name
-
         """
-
         t0 = kwargs.pop("t0")
         tf = kwargs.pop("tf")
         data_type = kwargs.pop("data_type")
@@ -309,9 +304,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
         See also
         --------
         pygwb.preprocessing.preprocessing_data_timeseries_array
-
         """
-
         t0 = kwargs.pop("t0")
         tf = kwargs.pop("tf")
         data_type = kwargs.pop("data_type")
@@ -355,9 +348,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
         See also
         --------
         pygwb.preprocessing.preprocessing_data_gwpy_timeseries
-
         """
-
         new_sample_rate = kwargs.pop("new_sample_rate")
         segment_duration = kwargs.pop("segment_duration")
         cutoff_frequency = kwargs.pop("cutoff_frequency")
@@ -414,7 +405,6 @@ class Interferometer(bilby.gw.detector.Interferometer):
         --------
         pygwb.spectral.power_spectral_density
         """
-
         # PSD estimation needs zeropadding when using coarse-graining
         zeropad_psd = coarse_grain
 

@@ -67,7 +67,6 @@ In that case, using again default values for parameters, one can run the followi
 
 More information on the gating procedure can be found `here <https://dcc.ligo.org/public/0172/P2000546/002/gating-mdc.pdf>`_.
 """
-
 import copy
 import os
 import warnings
@@ -132,7 +131,6 @@ def set_start_time(
         if centered_start_time - job_end_GPS < buffer_secs:
             centered_start_time = centered_start_time + segment_duration
     return centered_start_time
-
 
 def read_data(
     IFO: str,
@@ -222,7 +220,6 @@ def read_data(
         raise ValueError("Wrong data type. Choose between: public, private and local")
     return data
 
-
 def apply_high_pass_filter(
     timeseries: timeseries.TimeSeries,
     sample_rate: int,
@@ -259,7 +256,6 @@ def apply_high_pass_filter(
     filtered = timeseries.filter(zpk, filtfilt=True)
     filtered = filtered.crop(*filtered.span.contract(number_cropped_seconds))
     return filtered
-
 
 def resample_filter(
     time_series_data: timeseries.TimeSeries,
@@ -335,7 +331,6 @@ def resample_filter(
     )
 
     return filtered
-
 
 def self_gate_data(
     time_series_data: timeseries.TimeSeries,
@@ -422,7 +417,6 @@ def self_gate_data(
     gated = time_series_data.mask(deadtime=deadtime, const=0, tpad=tpad)
     return gated, deadtime
 
-
 def shift_timeseries(time_series_data: timeseries.TimeSeries, time_shift: int = 0):
 
     """
@@ -451,7 +445,6 @@ def shift_timeseries(time_series_data: timeseries.TimeSeries, time_shift: int = 
     else:
         shifted_data = time_series_data
     return shifted_data
-
 
 def preprocessing_data_gwpy_timeseries(
     gwpy_timeseries: timeseries.TimeSeries,
@@ -509,7 +502,6 @@ def preprocessing_data_gwpy_timeseries(
         return shift_timeseries(time_series_data=filtered, time_shift=time_shift)
     else:
         return filtered
-
 
 def preprocessing_data_channel_name(
     IFO: str,
@@ -613,7 +605,6 @@ def preprocessing_data_channel_name(
         ftype=ftype,
         time_shift=time_shift,
     )
-
 
 def preprocessing_data_timeseries_array(
     t0: int,

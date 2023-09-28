@@ -33,9 +33,7 @@ The actual data is then simulated by calling the ``generate_data`` method:
 >>> data = simulator_object.generate_data()
     
 For more information, we refer the reader to the ``simulator`` tutorials.
-    
 """
-
 import bilby
 import gwpy
 import numpy as np
@@ -387,7 +385,6 @@ class Simulator(object):
         See also
         --------
         pygwb.baseline.overlap_reduction_function
-        
         """
         index = 0
         orf_array = np.zeros(
@@ -700,9 +697,7 @@ class Simulator(object):
 
         gwpy.timeseries.TimeSeries
             More information `here <https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeries/#gwpy.timeseries.TimeSeries>`_.
-        
         """
-
         data = np.zeros(
             (self.Nd, self.N_samples_per_segment * self.N_segments), dtype=np.ndarray
         )

@@ -69,7 +69,7 @@ The script produces some output, which is saved in the output directory specifie
 **3. Output of the script**
 ===========================
 
-The output of the ``pygwb_stats`` script contains a series of plots, atuomatically saved to ``png`` format, in the provided plotting directory ``-pd``.
+The output of the ``pygwb_stats`` script contains a series of plots, atuomatically saved to ``png`` format, in the provided plotting directory ``-pd``. The plots follow the naming convention ``{ifo_1}{ifo_2}-{t0}-{tf}-{content_of_plot}.png``.
 Each of these plots illustrates some quantities that provide insights on the statistical quality and behavior of various quantities of interest of the analysis.
 We refrain from giving a plot by plot discussion of the various figures here, and refer the user to the dedicated demo on this topic `here <run_statistical_checks.html>`_.
 In addition, several quantities of interest are saved to file for further follow-up (see `here <api/pygwb.statistical_checks.StatisticalChecks.html#pygwb.statistical_checks.StatisticalChecks.save_all_statements>`_).

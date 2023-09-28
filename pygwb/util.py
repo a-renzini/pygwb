@@ -2,7 +2,6 @@
 The ``util`` module combines miscellaneous functions used in several parts of the ``pygwb`` package.
 These functions mainly perform small computations, necessary at multiple stages of the analysis.
 """
-
 import copy
 
 import gwpy
@@ -32,7 +31,6 @@ def parse_window_dict(window_dict):
         else:
             pass
     return window_dict
-
 
 def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_factor=0.5):
     """
@@ -76,7 +74,6 @@ def window_factors(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_fa
 
     return w1w2bar, w1w2squaredbar, w1w2ovlbar, w1w2squaredovlbar
 
-
 def get_window_tuple(window_fftgram_dict={"window_fftgram": "hann"}):
     """
     Unpack the ``window_fft_dict`` dictionary into a ``tuple`` that can be read by ``scipy.signal.get_window``.
@@ -105,7 +102,6 @@ def get_window_tuple(window_fftgram_dict={"window_fftgram": "hann"}):
         out += tuple([window_dict["sym"]])
     return out
 
-
 def calc_rho1(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_factor=0.5):
     """
     Calculate the combined window factor rho.
@@ -127,7 +123,6 @@ def calc_rho1(N, window_fftgram_dict={"window_fftgram": "hann"}, overlap_factor=
     w1w2bar, _, w1w2ovlbar, _ = window_factors(N, window_fftgram_dict, overlap_factor=overlap_factor)
     rho1 = (overlap_factor * w1w2ovlbar / w1w2bar) ** 2
     return rho1
-
 
 def calc_rho(N, j, window_tuple="hann", overlap_factor=0.5):
     """
@@ -169,7 +164,6 @@ def calc_rho(N, j, window_tuple="hann", overlap_factor=0.5):
 
     return rho
 
-
 def effective_welch_averages(nSamples, N, window_tuple="hann", overlap_factor=0.5):
     """
     Calculate the "effective" number of averages used in Welch's PSD estimate after taking into account windowing
@@ -205,7 +199,6 @@ def effective_welch_averages(nSamples, N, window_tuple="hann", overlap_factor=0.
     Neff = K/(1 + 2 * rho_sum)
 
     return Neff
-
 
 def calc_bias(
     segmentDuration,
@@ -259,7 +252,6 @@ def calc_bias(
 
     return bias
 
-
 def omega_to_power(omega_GWB, frequencies):
     """
     Compute the GW power spectrum starting from the :math:`\Omega`\ :sub:`GWB`\
@@ -287,7 +279,6 @@ def omega_to_power(omega_GWB, frequencies):
     power = gwpy.frequencyseries.FrequencySeries(power, frequencies=frequencies)
 
     return power
-
 
 def interpolate_frequency_series(fSeries, new_frequencies):
     """
@@ -321,7 +312,6 @@ def interpolate_frequency_series(fSeries, new_frequencies):
         spectrum_func(new_frequencies), frequencies=new_frequencies
     )
 
-
 def StatKS(DKS):
     """
     Compute the Kolgomorov-Smirnov test.
@@ -341,7 +331,6 @@ def StatKS(DKS):
     for jj in np.arange(1, jmax + 1):
         pvalue += 2.0 * (-1) ** (jj + 1) * np.exp(-2.0 * jj ** 2 * DKS ** 2)
     return pvalue
-
 
 def _check_omegaspectra(spectra):
     for spec in spectra:
