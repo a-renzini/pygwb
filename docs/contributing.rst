@@ -2,6 +2,14 @@
 Contributing guide
 ==================
 
+We encourage the contributions from the whole gravitational-wave community. Below, we  provide 
+instructions on how to contribute to the ``pygwb`` code and make the distinction between the
+contributing guidelines for members of the LIGO-Virgo-KAGRA (LVK) collaborations and non-members.
+
+
+**1. Contributing as LVK member**
+=================================
+
 The first stage in contributing to the code is to set up a development environment.
 This largely follows the installation instructions with some notable changes.
 
@@ -18,7 +26,7 @@ If you are hoping to introduce a new feature, there are a few steps that are gen
 If the change is a bug/typo fix, you can skip the first (and possibly second) stages and go straight to an issue/merge request.
 
 Preparing a merge request
-=========================
+-------------------------
 
 :code:`pygwb` development follows the fork and merge workflow.
 For a background on the method see, e.g., `here <https://www.atlassian.com/git/tutorials/comparing-workflows/forking-workflow>`_.
@@ -82,5 +90,16 @@ The quick version is to
   .. code-block:: console
 
     $ git remote -v
-- after you successfully push, you can open a merge request. This can be done either using the link provided or by opening `pygwb <git.ligo.org/pygwb/pygwb>`_ in your browser.
+- after you successfully push, you can open a merge request. This can be done either using the link provided or by opening `pygwb <https://git.ligo.org/pygwb/pygwb>`_ in your browser.
 - follow any feedback and suggestions from the repository maintainers in order to promptly get the new feature merged!
+
+
+**2. Contributing as a non-LVK member**
+=======================================
+
+As mentioned above, we encourage and appreciate contributions from the whole gravitational-wave community, both 
+inside and outside the LVK collaborations. However, the instructions to open a merge request detailed above
+are specific to LVK members. Nevertheless, we encourage people who want to contirbute to the 
+code to reach out by opening an `issue <https://github.com/a-renzini/pygwb/issues/new>`_ on the Git repo. This will get you in touch with the ``pygwb`` developing
+team, who will be able to assist you further in folding in your contribution, and making sure your contribution
+is properly acknowledged.
