@@ -289,7 +289,7 @@ class Dagman(pyDagman):
 def _collect_job_arguments(config, job_type):
     config_sec = config[job_type]
     args_list = list()
-    for key in config_sec.keys():
+    for key in config_sec:
         args_list.append('--' + str(key))
         val = str(config_sec[key])
         if val[0] == '$':

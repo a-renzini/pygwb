@@ -487,7 +487,7 @@ class Parameters:
         for ifo in ifo_list:
             param_dict[ifo] = Parameters()
         current_param_dict = self.__dict__
-        for attr in current_param_dict.keys():
+        for attr in current_param_dict:
             if attr in ifo_parameters:
                 attr_str = str(current_param_dict[attr])
                 attr_split = attr_str.split(',')

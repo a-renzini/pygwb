@@ -189,7 +189,7 @@ class StochNotchList(list):
         for notch in self:
             notch_mask = notch_mask & notch.get_notch_mask(frequency_array)
 
-        if save_file_flag == True:
+        if save_file_flag:
             if len(filename) == 0:
                 filename = "Notch_mask.txt"
             self.save_notch_mask(self, frequency_array, filename)

@@ -46,7 +46,7 @@ from pygwb.baseline import Baseline, get_baselines
 from pygwb.util import interpolate_frequency_series
 
 
-class Simulator(object):
+class Simulator:
     def __init__(
         self,
         interferometers,
@@ -141,10 +141,10 @@ class Simulator(object):
 
             self.seed = seed
             self.continuous = continuous
-            if (self.continuous == True) and not self.seed:
+            if (self.continuous) and not self.seed:
                 raise ValueError("Must provide a seed to generate continuous segments")
 
-            if no_noise == True:
+            if no_noise:
                 self.noise_PSD_array = np.zeros_like(self.noise_PSD_array)
 
             self.baselines = get_baselines(
@@ -719,7 +719,7 @@ class Simulator(object):
 
             for n in tqdm(range(len(self.injection_dict['geocent_time']))):
                 inj_params = {}
-                for k in self.injection_dict.keys():
+                for k in self.injection_dict:
                     inj_params[k] = self.injection_dict[k][n]
             
                 det.inject_signal(

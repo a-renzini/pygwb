@@ -59,7 +59,7 @@ from .postprocessing import (
 from .simulator import Simulator
 
 
-class Network(object):
+class Network:
     def __init__(
         self,
         name,
