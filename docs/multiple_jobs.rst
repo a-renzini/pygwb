@@ -169,7 +169,8 @@ Note that not all arguments listed above are required to be able to run the scri
 **3. Output of the script**
 ---------------------------
 
-As mentioned above, the output of the ``pygwb_combine`` script is one overall point estimate and variance (spectrum). The directory passed through the ``--out_path``
+As mentioned above, the output of the ``pygwb_combine`` script is one overall point estimate and variance (spectrum). The directory 
+passed through the ``--out_path``
 argument should contain a file that looks as follows:
 
 .. code-block:: shell
@@ -179,31 +180,33 @@ argument should contain a file that looks as follows:
 This file contains the combined spectra, where the notation indicates it was run with a spectral index of 0, 
 reference frequency of 25 Hz, and t0 and tf would be actual numbers corresponding to the start and end time of the analysis, respectively.
 
-The keys of the ``.npz`` file are shown here
+The keys of this ``npz`` file are:
 
 .. code-block:: shell
 
    ['point_estimate', 'sigma', 'point_estimate_spectrum', 'sigma_spectrum',
    'frequencies', 'frequency_mask', 'point_estimates_seg_UW', 'sigmas_seg_UW']
    
-The value associated with the key can be pulled from the ``.npz`` file via
+The value associated with the key can be accessed from the ``npz`` file through:
 
 .. code-block:: shell
 
    npzfile = numpy.load("point_estimate_sigma_spectra_alpha_0.0_fref_25_t0-tf.npz")
    variable = npzfile["key"]
    
-These keys allow you to get the value for the overall point estimate and its standard deviation via respectively ``point_estimate`` and ``sigma``.
-The corresponding spectra are found with ``point_estimate_spectrum`` and ``sigma_spectrum``. The frequencies for those spectra are found with the key ``frequencies``.
-The next key ``frequency_mask`` gives the notched out frequencies. For more information about notching, check the demo `here <make_notchlist.html>`_ or the API of the notch module `here <api/pygwb.notch.html>`_.
-Lastly you can also find the unweighted, meaning without reweighting of the spectral index which in this example was 0, point estimates and their standard deviations for every segment in the analysis.
+One obtains the value for the overall point estimate and its standard deviation through the ``point_estimate`` and ``sigma`` keys, respectively.
+The corresponding spectra are found by using the ``point_estimate_spectrum`` and ``sigma_spectrum`` keys. The frequencies for these spectra can be retrieved
+through the ``frequencies`` key. The ``frequency_mask`` key returns the notched frequencies. For more information about notching, check the demo 
+`here <make_notchlist.html>`_ or the API of the notch module `here <api/pygwb.notch.html>`_.
+Lastly, one can also access the unweighted, i.e., without reweighting of the spectral index, point estimates 
+and their standard deviations for every segment in the analysis. These are labeled with ``_UW`` at the end of the keys.
 
 .. tip::
   Not sure about what is exactly in the ``.npz`` file? Load in the file and print out all its `keys` as shown 
   `here <https://stackoverflow.com/questions/49219436/how-to-show-all-the-element-names-in-a-npz-file-without-having-to-load-the-compl>`_.
 
-If the ``pygwb_pipe`` analyses were run with the delta-sigma cut turned on, a file ``delta_sigma_cut_t0-tf.npz`` should be present in the output directory as well.
-In that case, the following keys can be found in this file
+If the ``pygwb_pipe`` analyses were run with the delta sigma cut turned on, a file ``delta_sigma_cut_t0-tf.npz`` should be present in the output directory as well.
+This file contains the following keys:
 
 .. code-block:: shell
 
@@ -211,6 +214,10 @@ In that case, the following keys can be found in this file
   'badGPStimes', 'delta_sigma_times', 'ifo_1_gates', 'ifo_2_gates',
   'ifo_1_gate_pad', 'ifo_2_gate_pad']
   
-The output from the delta-sigma cut is stored in different keys. First, you can find the actual times which are not allowed in the analysis using the key ``'badGPStimes'``. The alphas used for the dsc are stored in ``'delta_sigma_alphas'``, times in ``'delta_sigma_times'``, and the actual values of the computed delta sigmas are in ``'delta_sigma_values'``. The cut works with computing both the naive and sliding sigma values. Both are therefore also stored in the keys ``'naive_sigma_values'`` and ``'slide_sigma_values'``.
+The times flagged by the delta sigma cut that are excluded from the analysis can be retrieved with the ``'badGPStimes'`` key. The alphas used for the 
+delta sigma cut are stored in ``'delta_sigma_alphas'`` key, the times in ``'delta_sigma_times'``, 
+and the actual values of the delta sigmas in ``'delta_sigma_values'``. The delta sigma cut computes both the naive and sliding 
+sigma values, which are stored in the keys ``'naive_sigma_values'`` and ``'slide_sigma_values'``.
 
-If gating is turned on, the gated times are saved in ``'ifo_{i}_gates'`` where ``i`` can be 1 or 2. The gate_pad is the value for the used parameter ``gate_tpad`` in the analysis.
+If gating is turned on, the gated times are saved in ``'ifo_{i}_gates'`` where ``i`` denotes the first and second onterferometer used for the analysis. 
+The ``'ifo_{i}_gate_pad'`` refers to the value of the parameter ``gate_tpad`` during the analysis.
