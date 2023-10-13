@@ -1,0 +1,100 @@
+12.421876             ,  12.453124             ,  Pulsar injection                                                                                     
+16.578126             ,  17.609374             ,  H1 calibration line                                                                                  
+17.078126             ,  18.109374             ,  H1 calibration line                                                                                  
+20.046876             ,  20.203124             ,  ASC dither line                                                                                      
+20.203126             ,  20.234374             ,  H: EBAY seirack magnetometers - L: Input Mode Cleaner pitch mode                                     
+20.234376             ,  20.265624             ,  H: EBAY seirack magnetometers - L:Input Mode Cleaner pitch mode                                      
+20.328126             ,  20.359374             ,  H: BLND_GS13Z - L:Input Mode Cleaner yaw mode                                                        
+20.703126             ,  20.859374             ,  ASC dither line                                                                                      
+21.828126             ,  21.984374             ,  ASC dither line                                                                                      
+22.265626             ,  22.421874             ,  ASC dither line                                                                                      
+24.921876             ,  25.078124             ,  Unknown comb; probably digital; not all comb teeth may be visible                                    
+26.328126             ,  26.359374             ,  Pulsar injection                                                                                     
+27.390626             ,  27.546874             ,  Triple suspension bounce mode possibly SRM                                                           
+27.640626             ,  27.796874             ,  SR3 bounce mode                                                                                      
+29.921876             ,  30.078124             ,  Unknown comb; probably digital; not all comb teeth may be visible                                    
+29.921876             ,  30.078124             ,  1Hz comb in H and 10Hz comb in L                                                                     
+31.421876             ,  31.453124             ,  Pulsar injection                                                                                     
+31.421876             ,  31.578124             ,  Unknown 0.5Hz comb; probably digital; not all comb teeth may be visible                              
+31.421876             ,  31.578124             ,  1Hz comb with 0.5Hz offset in H and L                                                                
+31.890626             ,  32.109374             ,  environmental identification: link with H corner station accelerometers - regularly intermittent     
+32.421876             ,  32.578124             ,  Unknown 0.5Hz comb; probably digital; not all comb teeth may be visible                              
+32.421876             ,  32.578124             ,  1Hz comb with 0.5Hz offset in H and L                                                                
+33.171876             ,  33.203124             ,  Calibration line nonlinearity                                                                        
+33.421876             ,  33.578124             ,  Unknown 0.5Hz comb; probably digital; not all comb teeth may be visible                              
+33.421876             ,  33.578124             ,  1Hz comb with 0.5Hz offset in H and L                                                                
+33.921876             ,  34.078124             ,  Unknown 0.5Hz comb; probably digital; not all comb teeth may be visible                              
+35.640626             ,  35.796874             ,  Environmental disturbance also seen in O1/O2                                                         
+37.609376             ,  37.828124             ,  Pulsar injection                                                                                     
+39.921876             ,  40.078124             ,  Unknown comb; probably digital; not all comb teeth may be visible                                    
+39.921876             ,  40.078124             ,  1Hz comb in H and 10Hz comb in L                                                                     
+40.828126             ,  40.984374             ,  SR2/MC2 roll mode                                                                                    
+40.859376             ,  41.015624             ,  PR2 roll mode                                                                                        
+46.984376             ,  49.015624             ,  H non-stationary, non-linear noise - scat. light -fixed at end of Sep 2019                           
+49.921876             ,  50.078124             ,  environmental identification: In L coherence with many channels including magnetic, seismic and suspension isolation. For LLO harmonic of 10 Hz comb and LHO harmonic of 1Hz comb according to CW studies
+52.796876             ,  52.828124             ,  Pulsar injection                                                                                     
+53.328126             ,  53.484374             ,  Calibration line non-linearity (Hanford, central freq rounded to nearest 1/32)                       
+59.890626             ,  60.109374             ,  Power Lines                                                                                          
+60.421876             ,  60.578124             ,  Unknown 0.5Hz comb; probably digital; not all comb teeth may be visible                              
+60.921876             ,  61.078124             ,  Unknown 0.5Hz comb; probably digital; not all comb teeth may be visible                              
+61.421876             ,  61.578124             ,  Unknown 0.5Hz comb; probably digital; not all comb teeth may be visible                              
+62.421876             ,  62.578124             ,  Unknown 0.5Hz comb; probably digital; not all comb teeth may be visible                              
+62.921876             ,  63.078124             ,  Unknown 0.5Hz comb; probably digital; not all comb teeth may be visible                              
+63.421876             ,  63.578124             ,  Unknown 0.5Hz comb; probably digital; not all comb teeth may be visible                              
+99.921876             ,  100.078124            ,  Unknown comb; probably digital; not all comb teeth may be visible                                    
+99.921876             ,  100.078124            ,  1Hz comb in H and 10Hz comb in L                                                                     
+108.828126            ,  108.859374            ,  Pulsar injection                                                                                     
+119.890626            ,  120.109374            ,  Power Lines                                                                                          
+145.203126            ,  145.484374            ,  Pulsar injection                                                                                     
+174.546876            ,  174.578124            ,  H: ASC-INP1_Y_OUT,PEM-CS_ADC_4_30_16K_OUT - L:Input Mode Cleaner yaw mode                            
+179.890626            ,  180.109374            ,  Power Lines                                                                                          
+189.796876            ,  190.140624            ,  Pulsar injection                                                                                     
+234.515626            ,  234.609374            ,  Pulsar injection                                                                                     
+239.890626            ,  240.109374            ,  Power Lines                                                                                          
+258.453126            ,  258.484374            ,  L:Input Mode Cleaner yaw mode                                                                        
+265.515626            ,  265.609374            ,  Pulsar injection                                                                                     
+276.671876            ,  276.703124            ,  L:Input Mode Cleaner yaw mode                                                                        
+299.890626            ,  300.109374            ,  Power Lines                                                                                          
+331.390626            ,  332.421874            ,  H1 calibration line                                                                                  
+359.890626            ,  360.109374            ,  Power Lines                                                                                          
+394.609376            ,  394.765624            ,  H1 Calibration line non-linearity                                                                    
+409.921876            ,  409.953124            ,  H & L:Input Mode Cleaner yaw mode                                                                    
+409.796876            ,  410.828124            ,  H1 calibration line                                                                                  
+419.890626            ,  420.109374            ,  Power Lines                                                                                          
+434.390626            ,  435.421874            ,  L1 calibration line                                                                                  
+436.453126            ,  436.609374            ,  Input Mode Cleaner pitch mode                                                                        
+479.890626            ,  480.109374            ,  Power Lines                                                                                          
+479.984376            ,  520.015624            ,  Violin mode 1st harmonic                                                                             
+539.890626            ,  540.109374            ,  Power Lines                                                                                          
+575.078126            ,  575.234374            ,  Pulsar injection                                                                                     
+599.890626            ,  600.109374            ,  Power Lines                                                                                          
+659.890626            ,  660.109374            ,  Power Lines                                                                                          
+719.890626            ,  720.109374            ,  Power Lines                                                                                          
+763.765626            ,  763.921874            ,  Pulsar injection                                                                                     
+779.890626            ,  780.109374            ,  Power Lines                                                                                          
+839.890626            ,  840.109374            ,  Power Lines                                                                                          
+848.828126            ,  849.046874            ,  Pulsar injection                                                                                     
+890.015626            ,  890.234374            ,  Pulsar injection                                                                                     
+899.890626            ,  900.109374            ,  Power Lines                                                                                          
+959.890626            ,  960.109374            ,  Power Lines                                                                                          
+959.984376            ,  1040.015624           ,  Violin mode 2nd harmonic                                                                             
+1019.890626           ,  1020.109374           ,  Power Lines                                                                                          
+1079.890626           ,  1080.109374           ,  Power Lines                                                                                          
+1082.578126           ,  1083.609374           ,  L1 calibration line                                                                                  
+1083.171876           ,  1084.203124           ,  H1 calibration line                                                                                  
+1139.890626           ,  1140.109374           ,  Power Lines                                                                                          
+1152.828126           ,  1153.359374           ,  H1 & L1 Calibration line                                                                             
+1199.890626           ,  1200.109374           ,  Power Lines                                                                                          
+1220.265626           ,  1220.546874           ,  Pulsar injection                                                                                     
+1259.890626           ,  1260.109374           ,  Power Lines                                                                                          
+1319.890626           ,  1320.109374           ,  Power Lines                                                                                          
+1379.890626           ,  1380.109374           ,  Power Lines                                                                                          
+1389.859376           ,  1390.953124           ,  Pulsar injection                                                                                     
+1439.890626           ,  1440.109374           ,  Power Lines                                                                                          
+1454.984376           ,  1540.015624           ,  Violin mode 3rd harmonic                                                                             
+1499.890626           ,  1500.109374           ,  Power Lines                                                                                          
+1559.890626           ,  1560.109374           ,  Power Lines                                                                                          
+1619.890626           ,  1620.109374           ,  Power Lines                                                                                          
+1679.890626           ,  1680.109374           ,  Power Lines                                                                                          
+1990.890626           ,  1991.296874           ,  Pulsar injection                                                                                     
+2990.765626           ,  2991.421874           ,  Pulsar injection                                                                                     

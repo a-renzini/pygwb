@@ -129,6 +129,13 @@ we note that the above parameters are the ones present in the ``pygwb.parameters
 
 .. tip::
   Feeling overwhelmed with the amount of parameters? Make sure to have a look to the ``pygwb.parameters`` `documentation <api/pygwb.parameters.html>`_.
+  
+.. note::
+  The current default for the ``notch_list_path`` is an empty string, which means no notches are applied. 
+  If notching should be applied, a path to a notch list file can be added to these parameters.
+  An example for such a notch list can be downloaded :download:`here <../pygwb_pipe/Official_O3_HL_notchlist.txt>`.
+  This particular notch list was used in the analysis for the third observing run of the LIGO-Virgo-KAGRA network.
+  This file can also be found in the ``pygwb/pygwb_pipe`` folder.
 
 **2. Running the script**
 ========================
