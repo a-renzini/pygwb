@@ -65,17 +65,15 @@ def main():
     if script_args.param_file:
         params.update_from_file(script_args.param_file)
     params.update_from_arguments(parameters_args)
-    
-    print(params.notch_list_path)
+
     if params.notch_list_path:
-    	print(f'we in if statement.')
     	notch_list_path = Path(params.notch_list_path)
     	if not notch_list_path.exists():
     		raise ValueError(
     		f"Your path to the notch list {params.notch_list_path} does not exist or cannot be reached."
     		" Please enter a valid path instead or leave it blank to use no notches at all."
     		)
-    print("we after if statement")
+
     logger.info(f"Successfully imported parameters from paramfile and input.")
 
     if script_args.output_path:
