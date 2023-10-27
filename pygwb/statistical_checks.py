@@ -6,7 +6,7 @@ part of point estimate integrand, FFT of the point estimate integrand, (cumulati
 and sigma as a function of time, omega and sigma distribution, KS test, and a linear trend analysis of omega in time. 
 Furthermore, part of these plots compares the values of these quantities before and after the delta sigma cut.
 
-For additional information on how to run the statistical checks, and interpret them, we refer the user to the dedicated
+For additional information on how to run the statistical checks, and interpret them, we refer the user to the dedicatedplot_
 tutorials and demos, as well as the `pygwb paper <https://arxiv.org/pdf/2303.15696.pdf>`_.
 
 """
@@ -21,6 +21,7 @@ import matplotlib.pyplot as plt
 import matplotlib.transforms as mt
 from astropy.time import Time
 from loguru import logger
+from pygwb.util import get_window_tuple, effective_welch_averages
 
 matplotlib.rcParams['figure.figsize'] = (8,6)
 matplotlib.rcParams['axes.grid'] = True
@@ -67,6 +68,7 @@ class StatisticalChecks(object):
         baseline_name,
         param_file,
         frequency_mask = None,
+        coherence_FAR = 1,
         gates_ifo1 = None,
         gates_ifo2 = None,
         file_tag = None,
@@ -109,6 +111,8 @@ class StatisticalChecks(object):
             String with path to the file containing the parameters that were used for the analysis run.
         frequency_mask: ``array_like``
             Boolean mask applied to the specrtra in broad-band analyses. 
+        coherence_FAR: ``int``
+            Target false alarm rate for number of frequency bins in the coherence spectrum exceeding the coherence threshold.
         gates_ifo1/gates_ifo2: ``list``
             List of gates applied to interferometer 1/2.
         file_tag: ``str``
@@ -133,6 +137,7 @@ class StatisticalChecks(object):
         self.gates_ifo1 = gates_ifo1
         self.gates_ifo2 = gates_ifo2
 
+        # Possibly we should exclude the frequencies outside of the pipeline range?
         self.frequencies = frequencies
         if frequency_mask is not None:
             self.frequency_mask = frequency_mask
@@ -140,11 +145,30 @@ class StatisticalChecks(object):
             self.frequency_mask = True
 
         self.coherence_spectrum = coherence_spectrum
-        fftlength = int(1.0 / (self.frequencies[1] - self.frequencies[0]))
+        self.coherence_FAR = coherence_FAR
         if coherence_n_segs is not None:
-            self.n_segs = coherence_n_segs*(1.-self.params.overlap_factor) * int(np.floor(self.params.segment_duration/(fftlength*(1.-self.params.overlap_factor_welch)))-1)
+            fftlength = int(1.0 / (self.frequencies[1] - self.frequencies[0]))
+            nFFT = fftlength*self.params.new_sample_rate
+            nSamples = self.params.segment_duration*self.params.new_sample_rate
+            window_tuple = get_window_tuple(self.params.window_fft_dict_welch)
+            # Effective number of segments in a coherence from a single segment
+            N_eff = effective_welch_averages(nSamples, nFFT, window_tuple, self.params.overlap_factor_welch)
+
+            # Total number of effective segments (something may not right here... need to carefully check how many
+            # independent segments there should be)
+            # Also - not sure about how segments are combined to give the long-term coherence, it looks like
+            # overlapping PSDs are used so there are periodograms in common between segments. That is a bit messy.
+            # Perhaps better to use NON-overlapping segments for coherence?
+            self.n_segs = coherence_n_segs*(1.0 - self.params.overlap_factor)*N_eff
+
+            # The old method, gives a slightly larger number of segments
+            # self.n_segs = coherence_n_segs*(1.-self.params.overlap_factor)
+            #     * int(np.floor(self.params.segment_duration/(fftlength*(1.-self.params.overlap_factor_welch)))-1)
+
             if self.params.coarse_grain_csd:
                 # Note: this breaks down when self.params.segment_duration/fftlength < 3
+                # Philip note: If this is mixing a coarse-grained CSD with Welch-averaged PSDs then I am not sure how to
+                # count the independent segments
                 self.n_segs = coherence_n_segs*(1.-self.params.overlap_factor) * int(np.floor(self.params.segment_duration/(fftlength)))
             self.n_segs_statement = r"The number of segments is" + f" {self.n_segs}."
 
@@ -597,6 +621,34 @@ class StatisticalChecks(object):
         )
         plt.close()
 
+    def coherence_pdf(self, gamma):
+        """
+        Theoretical pdf of coherences assuming Gaussian noise
+
+        Parameters
+
+        ==========
+
+        gamma: ``array_like``
+            Array of coherence values
+
+        Returns
+
+        ==========
+
+        coherence_pdf: ``array_like``
+            Value of PDF at each gamma
+        """
+        return (self.n_segs - 1) * (1 - gamma)**(self.n_segs - 2)
+
+    def coherence_threshold(self):
+        """
+        Returns the coherence threshold corresponding to the given FAR.
+        """
+        threshold = 1 - (self.coherence_FAR/len(self.frequencies))**(1/(self.n_segs - 1))
+
+        return threshold
+
     def plot_coherence_spectrum(self, flow=None, fhigh=None):
         """
         Generates and saves a plot of the coherence spectrum, if present. This function does not require any input parameters, as it accesses the data through the attributes of the class (e.g. `coherence_spectrum`).
@@ -607,12 +659,20 @@ class StatisticalChecks(object):
         flow = flow or self.flow
         fhigh = fhigh or self.fhigh
 
+        threshold = self.coherence_threshold()
+        
         plt.figure(figsize=(10, 8))
         plt.plot(self.frequencies, self.coherence_spectrum, color=sea[0])
+
+        # Plot a reference line representing the mean of the theoretical coherence
         plt.axhline(y=1./self.n_segs,dashes=(4,3),color='black')
+
+        # Plot a line representing the coherence threshold
+        plt.axhline(y=threshold,dashes=(4,3),color='red')
+
         plt.xlim(flow, fhigh)
         plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
-        plt.ylabel(r"coherence spectrum", size=self.axes_labelsize)
+        plt.ylabel(r"Coherence", size=self.axes_labelsize)
         plt.xscale("log")
         plt.yscale("log")
         plt.xticks(fontsize=self.legend_fontsize)
@@ -624,7 +684,7 @@ class StatisticalChecks(object):
             size = self.annotate_fontsize,
             bbox=dict(boxstyle="round", facecolor="white", alpha=1),
         )
-        plt.title(r"Coherence ($\Delta f$ = " + f"{float(f'{self.deltaF:.4g}'):g}Hz) in {self.time_tag}", fontsize=self.title_fontsize)
+        plt.title(r"Coherence ($\Delta f$ = " + f"{float(f'{self.deltaF:.5g}'):g} Hz) in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-coherence_spectrum.png",
             bbox_inches="tight",
@@ -633,14 +693,20 @@ class StatisticalChecks(object):
 
         plt.figure(figsize=(10, 8))
         plt.plot(self.frequencies, self.coherence_spectrum, color=sea[0])
+
+        # Plot a reference line representing the mean of the theoretical coherence
         plt.axhline(y=1./self.n_segs,dashes=(4,3),color='black')
+
+        # Plot a line representing the coherence threshold
+        plt.axhline(y=threshold,dashes=(4,3),color='red')
+
         plt.xlim(flow, 200)
         plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
-        plt.ylabel(r"coherence spectrum", size=self.axes_labelsize)
+        plt.ylabel(r"Coherence", size=self.axes_labelsize)
         plt.yscale("log")
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
-        plt.title(r"Coherence ($\Delta f$ = " + f"{float(f'{self.deltaF:.4g}'):g}Hz) in {self.time_tag}", fontsize=self.title_fontsize)
+        plt.title(r"Coherence ($\Delta f$ = " + f"{float(f'{self.deltaF:.5g}'):g} Hz) in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-coherence_spectrum_zoom.png",
             bbox_inches="tight",
@@ -658,31 +724,44 @@ class StatisticalChecks(object):
 
         coherence = self.coherence_spectrum
         coherence_clipped = np.ones(len(coherence))
-        clip_val = 50* 1/self.n_segs
+        # For zoomed plots, coherence is clipped at 50 times the theoretical mean
+        clip_val = 50*(1/self.n_segs)
         for i in range(len(coherence_clipped)):
             if coherence[i] >= clip_val:
                 coherence_clipped[i] = clip_val
             else:
                 coherence_clipped[i] = coherence[i]
         frequencies = self.frequencies
+        # Philip comment: 250 bins seems like a lot, especially when coh is typically small
         if total_bins is None:
             total_bins = 250
-        bins =  np.linspace(0, max(coherence), total_bins)
-        bins_clipped =  np.linspace(0, max(coherence_clipped), total_bins)
+
+        # bins are chosen so that the highest coherence value is the centre of the last bin
+        upper_edge = max(coherence)*total_bins/(total_bins - 0.5)
+        bins =  np.linspace(0, upper_edge, total_bins, endpoint=True)
+        delta_coherence = bins[1] - bins[0]
+
+        upper_edge_clipped = max(coherence_clipped)*total_bins/(total_bins - 0.5)
+        bins_clipped =  np.linspace(0, upper_edge_clipped, total_bins, endpoint=True)
+        delta_coherence_clipped = bins_clipped[1] - bins_clipped[0]
+
         n_frequencies = len(frequencies)
-        delta_coherence = bins[1]-bins[0]
-        delta_coherence_clipped = bins_clipped[1]-bins_clipped[0]
         resolution = frequencies[1] - frequencies[0]
-        fftlength = int(1.0 / resolution)
         
         coherence_notched = coherence[self.frequency_mask]
         coherence_notched_clipped = coherence_clipped[self.frequency_mask]
 
-        coherence_highres = np.arange(0,1,1e-6)
-        predicted_highres = (self.n_segs-1) * (1- coherence_highres)**(self.n_segs-2)
-        threshold = coherence_highres[np.where(predicted_highres <= 1/(n_frequencies*delta_coherence_clipped))[0][0]]
+        # Coherence values aligned with bin centres up to twice the max value of the coherence
+        coherence_highres = np.linspace(delta_coherence/2, 2*upper_edge + delta_coherence/2, num=2*total_bins, endpoint=True)
 
-        probability = n_frequencies*delta_coherence_clipped * predicted_highres
+        # Theoretical pdf of coherences assuming Gaussian noise
+        predicted_highres = self.coherence_pdf(coherence_highres)
+
+        # Theoretical average number of counts in each bin of the coherence histogram
+        expected_counts = n_frequencies*predicted_highres*delta_coherence_clipped
+
+        # Threshold to give a false-alarm rate of FAR frequency bins per coherence spectrum
+        threshold = self.coherence_threshold()
 
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
    
@@ -719,18 +798,20 @@ class StatisticalChecks(object):
             zorder=4,
             color=sea[8],
             linestyle='dashed',
-            label="Threshold",
+            label="Threshold ($\gamma = $%.3f)" % threshold,
         )
 
         axs.set_xlabel(r"Coherence", size=self.axes_labelsize)
         axs.set_ylabel(r"Probability distribution", size=self.axes_labelsize)
         axs.legend(fontsize=self.legend_fontsize)
         axs.set_yscale("log")
-        axs.set_xlim(0, max(coherence))
-        axs.set_ylim(0.5/(n_frequencies*delta_coherence),10*predicted_highres[0])
+        max_coh = max(np.append(coherence, threshold))
+        # Go up to nearest 10th
+        axs.set_xlim(0, np.ceil(10*max_coh)/10)
+        axs.set_ylim(10**np.floor(np.log10(100.0/n_frequencies)), 10**np.ceil(np.log10(predicted_highres[0])))
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
-        plt.title(r"Coherence hist ($\Delta f$ = " + f"{resolution:.3f}Hz) in" f" {self.time_tag}", fontsize=self.title_fontsize)
+        plt.title(r"Coherence hist ($\Delta f$ = " + f"{resolution:.5f} Hz) in" f" {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_coherence.png", bbox_inches = 'tight'
         )
@@ -771,19 +852,21 @@ class StatisticalChecks(object):
             zorder=4,
             color=sea[8],
             linestyle='dashed',
-            label="Threshold",
+            label="Threshold ($\gamma = $%.3f)" % threshold,
         )
 
         axs.set_xlabel(r"Coherence", size=self.axes_labelsize)
         axs.set_ylabel(r"Probability distribution", size=self.axes_labelsize)
         axs.legend(fontsize=self.legend_fontsize)
         axs.set_yscale("log")
-        axs.set_xlim(0,max(coherence_clipped))
-        axs.set_ylim(0.5/(n_frequencies*delta_coherence_clipped),10*predicted_highres[0])
+        max_coh = max(np.append(coherence_clipped, threshold))
+        # For zoomed plot, go up to nearest 100th
+        axs.set_xlim(0, np.ceil(100*max_coh)/100)
+        axs.set_ylim(10**np.floor(np.log10(100.0/n_frequencies)), 10**np.ceil(np.log10(predicted_highres[0])))
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
 
-        plt.title(r"Coherence hist (zoomed) ($\Delta f$ = " + f"{resolution:.3f}Hz) in" f" {self.time_tag}", fontsize=self.title_fontsize)
+        plt.title(r"Coherence hist (zoomed) ($\Delta f$ = " + f"{resolution:.5f} Hz) in" f" {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_coherence_zoom.png", bbox_inches = 'tight'
         )
@@ -794,10 +877,10 @@ class StatisticalChecks(object):
         for i in range(len(coherence)):
             if (coherence[i] > np.abs(threshold) and self.frequency_mask[i] == True):
                 try:
-                    outlier_coherence.append((frequencies[i], coherence[i],probability[np.where(coherence_highres>=coherence[i])[0][0]]))
+                    outlier_coherence.append((frequencies[i], coherence[i], expected_counts[np.where(coherence_highres>=coherence[i])[0][0]]))
                 except IndexError as err:
                     warnings.warn(
-                            '\n In outlier_coherence, Freqnency now is %f, and coherence is %f, which is out of the boundary 1, please check it'
+                            '\n In outlier_coherence, Frequency now is %f, and coherence is %f, which is out of the boundary 1, please check it'
                             %(frequencies[i],coherence[i])
                             )
                     outlier_coherence_notched.append((frequencies[i], coherence[i],'nan'))
@@ -806,10 +889,10 @@ class StatisticalChecks(object):
         for i in range(len(coherence)):
             if (coherence[i] > np.abs(threshold) and self.frequency_mask[i] == False):
                 try:
-                    outlier_coherence_notched.append((frequencies[i], coherence[i],probability[np.where(coherence_highres>=coherence[i])[0][0]]))
+                    outlier_coherence_notched.append((frequencies[i], coherence[i], expected_counts[np.where(coherence_highres>=coherence[i])[0][0]]))
                 except IndexError as err:
                     warnings.warn(
-                            '\n In outlier_coherence_notched, Freqnency now is %f, and coherence is %f, which is out of the boundary 1, please check it'
+                            '\n In outlier_coherence_notched, Frequency now is %f, and coherence is %f, which is out of the boundary 1, please check it'
                             %(frequencies[i],coherence[i])
                             )
                     outlier_coherence_notched.append((frequencies[i], coherence[i],'nan'))
@@ -817,7 +900,7 @@ class StatisticalChecks(object):
         n_outlier = len(outlier_coherence)
         file_name = f"{self.plot_dir / self.baseline_name}-{self.file_tag}-list_coherence_outlier.txt"
         with open(file_name, 'w') as f:
-            f.write('Frequencies  \tCoherence \tProbability\n')
+            f.write('Frequencies  \tCoherence \tExpected counts\n')
             for tup in outlier_coherence:
                 f.write(f'{tup[0]}\t{tup[1]}\t{tup[2]}\n')
             f.write('\n The outliers below are already included in the applied version of the notch-list\n')
@@ -1534,7 +1617,8 @@ def sortingFunction(item):
 
 
 def run_statistical_checks_from_file(
-    combine_file_path, dsc_file_path, plot_dir, param_file, legend_fontsize=16, coherence_file_path = None, file_tag = None, convention='pygwb'
+        combine_file_path, dsc_file_path, plot_dir, param_file, coherence_FAR = 1, legend_fontsize=16, coherence_file_path = None,
+        file_tag = None, convention='pygwb'
 ):
     """
     Method to generate an instance of the statistical checks class from a set of files.
@@ -1564,7 +1648,6 @@ def run_statistical_checks_from_file(
     """
     params = Parameters()
     params.update_from_file(param_file)
-
     spectra_file = np.load(combine_file_path)
     dsc_file = np.load(dsc_file_path)
 
@@ -1637,6 +1720,7 @@ def run_statistical_checks_from_file(
         baseline_name,
         param_file,
         frequency_mask,
+        coherence_FAR,
         gates_ifo1,
         gates_ifo2,
         file_tag=file_tag,
