@@ -159,8 +159,8 @@ class StatisticalChecks(object):
             # Also - not sure about how segments are combined to give the long-term coherence, it looks like
             # overlapping PSDs are used so there are periodograms in common between segments. That is a bit messy.
             # Perhaps better to use NON-overlapping segments for coherence?
-            self.n_segs = coherence_n_segs*(1.0 - self.params.overlap_factor)*N_eff
-
+            self.n_segs = (self.params.overlap_factor*coherence_n_segs - 3*self.params.overlap_factor + 2)*N_eff
+            
             # The old method, gives a slightly larger number of segments
             # self.n_segs = coherence_n_segs*(1.-self.params.overlap_factor)
             #     * int(np.floor(self.params.segment_duration/(fftlength*(1.-self.params.overlap_factor_welch)))-1)
@@ -678,7 +678,7 @@ class StatisticalChecks(object):
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
         plt.annotate(
-            f"{self.params.channel}",
+            f"{self.params.channel}, threshold $\gamma = ${threshold:.3f}",
             xy=(0.01, 0.03),
             xycoords="axes fraction",
             size = self.annotate_fontsize,
@@ -706,6 +706,13 @@ class StatisticalChecks(object):
         plt.yscale("log")
         plt.xticks(fontsize=self.legend_fontsize)
         plt.yticks(fontsize=self.legend_fontsize)
+        plt.annotate(
+            f"{self.params.channel}, threshold $\gamma =$ {threshold:.3f}",
+            xy=(0.01, 0.03),
+            xycoords="axes fraction",
+            size = self.annotate_fontsize,
+            bbox=dict(boxstyle="round", facecolor="white", alpha=1),
+        )
         plt.title(r"Coherence ($\Delta f$ = " + f"{float(f'{self.deltaF:.5g}'):g} Hz) in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-coherence_spectrum_zoom.png",
@@ -745,6 +752,10 @@ class StatisticalChecks(object):
         bins_clipped =  np.linspace(0, upper_edge_clipped, total_bins, endpoint=True)
         delta_coherence_clipped = bins_clipped[1] - bins_clipped[0]
 
+        # Note that the number of frequencies should be equal to the total number of counts
+        # for the un-notched coherences, but is different to the total number of counts
+        # for notched coherences. Care may be needed when comparing predicted counts
+        # with the notched coherence histogram.
         n_frequencies = len(frequencies)
         resolution = frequencies[1] - frequencies[0]
         
