@@ -805,7 +805,7 @@ class StatisticalChecks(object):
             zorder=4,
             color=sea[8],
             linestyle='dashed',
-            label="Threshold ($\gamma = $%.3f)" % threshold,
+            label="Threshold ($\\gamma = $%.3f)" % threshold,
         )
 
         axs.set_xlabel(r"Coherence", size=self.axes_labelsize)
@@ -859,7 +859,7 @@ class StatisticalChecks(object):
             zorder=4,
             color=sea[8],
             linestyle='dashed',
-            label="Threshold ($\gamma = $%.3f)" % threshold,
+            label="Threshold ($\\gamma = $%.3f)" % threshold,
         )
 
         axs.set_xlabel(r"Coherence", size=self.axes_labelsize)
