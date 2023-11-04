@@ -21,7 +21,8 @@ import matplotlib.pyplot as plt
 import matplotlib.transforms as mt
 from astropy.time import Time
 from loguru import logger
-from pygwb.util import get_window_tuple, effective_welch_averages
+
+from pygwb.util import effective_welch_averages, get_window_tuple
 
 matplotlib.rcParams['figure.figsize'] = (8,6)
 matplotlib.rcParams['axes.grid'] = True
