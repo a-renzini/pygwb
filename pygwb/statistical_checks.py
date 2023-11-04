@@ -154,11 +154,8 @@ class StatisticalChecks(object):
             # Effective number of segments in a coherence from a single segment
             N_eff = effective_welch_averages(nSamples, nFFT, window_tuple, self.params.overlap_factor_welch)
 
-            # Total number of effective segments (something may not right here... need to carefully check how many
-            # independent segments there should be)
-            # Also - not sure about how segments are combined to give the long-term coherence, it looks like
-            # overlapping PSDs are used so there are periodograms in common between segments. That is a bit messy.
-            # Perhaps better to use NON-overlapping segments for coherence?
+            # Total number of effective segments - need to carefully check how many independent segments
+            # there should be.
             self.n_segs = (self.params.overlap_factor*coherence_n_segs - 3*self.params.overlap_factor + 2)*N_eff
             
             # The old method, gives a slightly larger number of segments
@@ -167,8 +164,6 @@ class StatisticalChecks(object):
 
             if self.params.coarse_grain_csd:
                 # Note: this breaks down when self.params.segment_duration/fftlength < 3
-                # Philip note: If this is mixing a coarse-grained CSD with Welch-averaged PSDs then I am not sure how to
-                # count the independent segments
                 self.n_segs = coherence_n_segs*(1.-self.params.overlap_factor) * int(np.floor(self.params.segment_duration/(fftlength)))
             self.n_segs_statement = r"The number of segments is" + f" {self.n_segs}."
 
@@ -475,9 +470,10 @@ class StatisticalChecks(object):
         if len(t_array) != len(omega_array):
             warnings.warn("Times and Omega arrays don't match in the IFFT. No plot could be generated. Investigation is highly recommended.")
             return
-
+        
         fig = plt.figure(figsize=(10, 8))
-        plt.plot(t_array, omega_array, color=sea[0], label=self.baseline_name)
+        # Take the real part of omega to avoid warning message when plotting complex
+        plt.plot(t_array, np.real(omega_array), color=sea[0], label=self.baseline_name)
         plt.grid(True)
         plt.xlim(t_array[0], t_array[-1])
         plt.xlabel("Lag (s)", size=self.axes_labelsize)
@@ -739,11 +735,10 @@ class StatisticalChecks(object):
             else:
                 coherence_clipped[i] = coherence[i]
         frequencies = self.frequencies
-        # Philip comment: 250 bins seems like a lot, especially when coh is typically small
         if total_bins is None:
             total_bins = 250
 
-        # bins are chosen so that the highest coherence value is the centre of the last bin
+        # Bins are chosen so that the highest coherence value is the centre of the last bin
         upper_edge = max(coherence)*total_bins/(total_bins - 0.5)
         bins =  np.linspace(0, upper_edge, total_bins, endpoint=True)
         delta_coherence = bins[1] - bins[0]
@@ -1569,6 +1564,7 @@ class StatisticalChecks(object):
             self.gates_ifo2_statement= f"Data gated out: {self.total_gated_time_ifo2} s\n" f"Percentage: {float(f'{self.total_gated_percent_ifo2:.2g}'):g}%"
             gatefig2 = ax.plot(gate_times_in_days_ifo2, self.gates_ifo2[:,1]-self.gates_ifo2[:,0], 's', color=sea[0], label="IFO2:\n" f"{self.gates_ifo2_statement}")
             ax.legend(handles=gatefig2, loc=(0.05, 0.1), fontsize = self.axes_labelsize)
+
         ax.set_xlabel(self.xaxis, size=self.axes_labelsize)
         ax.set_ylabel("Gate length (s)", size=self.axes_labelsize)
         plt.xticks(fontsize=self.legend_fontsize)
