@@ -157,7 +157,7 @@ class StatisticalChecks(object):
 
             # Total number of effective segments - need to carefully check how many independent segments
             # there should be.
-            self.n_segs = (self.params.overlap_factor*coherence_n_segs - 3*self.params.overlap_factor + 2)*N_eff
+            self.n_segs = (1 + (1 - self.params.overlap_factor)*(coherence_n_segs - 1))*N_eff
             
             # The old method, gives a slightly larger number of segments
             # self.n_segs = coherence_n_segs*(1.-self.params.overlap_factor)
