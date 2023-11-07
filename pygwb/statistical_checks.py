@@ -69,7 +69,7 @@ class StatisticalChecks(object):
         baseline_name,
         param_file,
         frequency_mask = None,
-        coherence_FAR = 1.0,
+        coherence_far = 1.0,
         gates_ifo1 = None,
         gates_ifo2 = None,
         file_tag = None,
@@ -112,7 +112,7 @@ class StatisticalChecks(object):
             String with path to the file containing the parameters that were used for the analysis run.
         frequency_mask: ``array_like``
             Boolean mask applied to the specrtra in broad-band analyses. 
-        coherence_FAR: ``float``
+        coherence_far: ``float``
             Target false alarm rate for number of frequency bins in the coherence spectrum exceeding the coherence threshold.
         gates_ifo1/gates_ifo2: ``list``
             List of gates applied to interferometer 1/2.
@@ -137,8 +137,6 @@ class StatisticalChecks(object):
         ) / self.sliding_sigmas_all
         self.gates_ifo1 = gates_ifo1
         self.gates_ifo2 = gates_ifo2
-
-        # Possibly we should exclude the frequencies outside of the pipeline range?
         self.frequencies = frequencies
         if frequency_mask is not None:
             self.frequency_mask = frequency_mask
@@ -146,7 +144,7 @@ class StatisticalChecks(object):
             self.frequency_mask = True
 
         self.coherence_spectrum = coherence_spectrum
-        self.coherence_FAR = coherence_FAR
+        self.coherence_far = coherence_far
         if coherence_n_segs is not None:
             fftlength = int(1.0 / (self.frequencies[1] - self.frequencies[0]))
             nFFT = fftlength*self.params.new_sample_rate
@@ -370,7 +368,9 @@ class StatisticalChecks(object):
         t_array = np.arange(
             -1.0 / (2 * self.deltaF) + self.deltaT, 1.0 / (2 * self.deltaF), self.deltaT
         )
-        omega_t = np.flipud(fft_integrand)
+        
+        # Take the real part to eliminate residual imaginary parts
+        omega_t = np.real(np.flipud(fft_integrand))
 
         return t_array, omega_t
 
@@ -473,8 +473,7 @@ class StatisticalChecks(object):
             return
         
         fig = plt.figure(figsize=(10, 8))
-        # Take the real part of omega to avoid warning message when plotting complex
-        plt.plot(t_array, np.real(omega_array), color=sea[0], label=self.baseline_name)
+        plt.plot(t_array, omega_array, color=sea[0], label=self.baseline_name)
         plt.grid(True)
         plt.xlim(t_array[0], t_array[-1])
         plt.xlabel("Lag (s)", size=self.axes_labelsize)
@@ -638,11 +637,31 @@ class StatisticalChecks(object):
         """
         return (self.n_segs - 1) * (1 - gamma)**(self.n_segs - 2)
 
+    def coherence_pvalue(self, gamma):
+        """
+        Upper tail p-value of the given coherences assuming Gaussian noise
+
+        Parameters
+
+        ==========
+
+        gamma: ``array_like``
+            Array of coherence values
+
+        Returns
+
+        ==========
+
+        coherence_pvalue: ``array_like``
+            p-value of each gamma
+        """
+        return (1 - gamma)**(self.n_segs - 1)
+
     def coherence_threshold(self):
         """
         Returns the coherence threshold corresponding to the given FAR.
         """
-        threshold = 1 - (self.coherence_FAR/len(self.frequencies))**(1/(self.n_segs - 1))
+        threshold = 1 - (self.coherence_far/len(self.frequencies))**(1/(self.n_segs - 1))
 
         return threshold
 
@@ -764,9 +783,6 @@ class StatisticalChecks(object):
         # Theoretical pdf of coherences assuming Gaussian noise
         predicted_highres = self.coherence_pdf(coherence_highres)
 
-        # Theoretical average number of counts in each bin of the coherence histogram
-        expected_counts = n_frequencies*predicted_highres*delta_coherence_clipped
-
         # Threshold to give a false-alarm rate of FAR frequency bins per coherence spectrum
         threshold = self.coherence_threshold()
 
@@ -884,7 +900,7 @@ class StatisticalChecks(object):
         for i in range(len(coherence)):
             if (coherence[i] > np.abs(threshold) and self.frequency_mask[i] == True):
                 try:
-                    outlier_coherence.append((frequencies[i], coherence[i], expected_counts[np.where(coherence_highres>=coherence[i])[0][0]]))
+                    outlier_coherence.append((i, frequencies[i], coherence[i], n_frequencies*self.coherence_pvalue(coherence[i])))
                 except IndexError as err:
                     warnings.warn(
                             '\n In outlier_coherence, Frequency now is %f, and coherence is %f, which is out of the boundary 1, please check it'
@@ -896,23 +912,23 @@ class StatisticalChecks(object):
         for i in range(len(coherence)):
             if (coherence[i] > np.abs(threshold) and self.frequency_mask[i] == False):
                 try:
-                    outlier_coherence_notched.append((frequencies[i], coherence[i], expected_counts[np.where(coherence_highres>=coherence[i])[0][0]]))
+                    outlier_coherence_notched.append((i, frequencies[i], coherence[i], n_frequencies*self.coherence_pvalue(coherence[i])))
                 except IndexError as err:
                     warnings.warn(
                             '\n In outlier_coherence_notched, Frequency now is %f, and coherence is %f, which is out of the boundary 1, please check it'
                             %(frequencies[i],coherence[i])
                             )
-                    outlier_coherence_notched.append((frequencies[i], coherence[i],'nan'))
+                    outlier_coherence_notched.append((frequencies[i], coherence[i], 'nan'))
         
         n_outlier = len(outlier_coherence)
         file_name = f"{self.plot_dir / self.baseline_name}-{self.file_tag}-list_coherence_outlier.txt"
         with open(file_name, 'w') as f:
-            f.write('Frequencies  \tCoherence \tExpected counts\n')
+            f.write('Bin \tFrequency \tCoherence \tExpected counts above this coherence\n')
             for tup in outlier_coherence:
-                f.write(f'{tup[0]}\t{tup[1]}\t{tup[2]}\n')
+                f.write(f'{tup[0]}\t{tup[1]}\t{tup[2]}\t{tup[3]}\n')
             f.write('\n The outliers below are already included in the applied version of the notch-list\n')
             for tup in outlier_coherence_notched:
-                f.write(f'{tup[0]}\t{tup[1]}\t{tup[2]}\n')
+                f.write(f'{tup[0]}\t{tup[1]}\t{tup[2]}\t{tup[3]}\n')
                 
     def plot_cumulative_sensitivity(self):
         """
@@ -1625,7 +1641,7 @@ def sortingFunction(item):
 
 
 def run_statistical_checks_from_file(
-        combine_file_path, dsc_file_path, plot_dir, param_file, coherence_FAR = 1.0, legend_fontsize=16, coherence_file_path = None,
+        combine_file_path, dsc_file_path, plot_dir, param_file, coherence_far = 1.0, legend_fontsize=16, coherence_file_path = None,
         file_tag = None, convention='pygwb'
 ):
     """
@@ -1645,7 +1661,7 @@ def run_statistical_checks_from_file(
         Full path where the plots generated by the statistical checks module should be saved.
     param_file: ``str``
         Full path to the parameter file that was used for the analysis.
-    coherence_FAR: ``float``
+    coherence_far: ``float``
         Coherence false alarm rate
     legend_fontsize: ``int``, optional
         Fontsize used in the plots generated by the module. Defaults to 16.
@@ -1730,7 +1746,7 @@ def run_statistical_checks_from_file(
         baseline_name,
         param_file,
         frequency_mask,
-        coherence_FAR,
+        coherence_far,
         gates_ifo1,
         gates_ifo2,
         file_tag=file_tag,
