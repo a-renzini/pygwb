@@ -48,6 +48,7 @@ from pygwb.notch import StochNotchList
 from pygwb.parameters import Parameters
 from pygwb.util import StatKS, calc_bias, effective_welch_averages, get_window_tuple
 
+
 class StatisticalChecks(object):
     def __init__(
         self,
