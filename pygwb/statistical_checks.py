@@ -22,8 +22,6 @@ import matplotlib.transforms as mt
 from astropy.time import Time
 from loguru import logger
 
-from pygwb.util import effective_welch_averages, get_window_tuple
-
 matplotlib.rcParams['figure.figsize'] = (8,6)
 matplotlib.rcParams['axes.grid'] = True
 matplotlib.rcParams['grid.linestyle'] = ':'
@@ -48,8 +46,7 @@ from scipy.optimize import curve_fit
 from pygwb.baseline import Baseline
 from pygwb.notch import StochNotchList
 from pygwb.parameters import Parameters
-from pygwb.util import StatKS, calc_bias
-
+from pygwb.util import StatKS, calc_bias, effective_welch_averages, get_window_tuple
 
 class StatisticalChecks(object):
     def __init__(
