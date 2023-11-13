@@ -6,6 +6,32 @@ from tqdm import tqdm
 from pygwb.constants import H0
 
 
+def calculate_num_injections(T_obs, zs, p_dz):
+    """
+    Calculate the number of mergers in a given time T_obs.
+    
+    Parameters
+    =======
+    
+    T_obs : ``float``
+        Observation time, in years.
+    zs : ``np.array``
+        Array of merger redshifts.
+    p_dz : ``np.array``
+        Redshift probability distribution.
+        
+    Returns
+    =======
+    
+    N : ``int``
+        Number of mergers.
+    """
+    
+    p_dz_centers = (p_dz[1:] + p_dz[:-1])/2.
+    total_sum = np.sum(np.diff(zs) * p_dz_centers)
+    N = T_obs * total_sum
+    return N
+    
 def compute_Omega_from_CBC_dictionary(injection_dict, sampling_frequency, T_obs, return_spectrum=True, f_ref=25, waveform_duration=10, waveform_approximant="IMRPhenomD", waveform_reference_frequency=25, waveform_minimum_frequency=20):
     """
     Compute the total Omega_GW injected in the data when injecting individual CBCs.
