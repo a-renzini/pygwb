@@ -129,6 +129,13 @@ we note that the above parameters are the ones present in the ``pygwb.parameters
 
 .. tip::
   Feeling overwhelmed with the amount of parameters? Make sure to have a look to the ``pygwb.parameters`` `documentation <api/pygwb.parameters.html>`_.
+  
+.. note::
+  The current default for the ``notch_list_path`` is an empty string, which means no notches are applied. 
+  If notching should be applied, a path to a notch list file can be added to these parameters.
+  An example for such a notch list can be downloaded :download:`here <../pygwb_pipe/Official_O3_HL_notchlist.txt>`.
+  This particular notch list was used in the analysis for the third observing run of the LIGO-Virgo-KAGRA network.
+  This file can also be found in the ``pygwb/pygwb_pipe`` folder.
 
 **2. Running the script**
 ========================
@@ -201,7 +208,7 @@ Additionally, the power-spectral densities (PSDs) and cross-spectral densities (
   Not sure about what is exactly in a file? Load in the file and print out all its `keys` as shown 
   `here <https://stackoverflow.com/questions/49219436/how-to-show-all-the-element-names-in-a-npz-file-without-having-to-load-the-compl>`_.
   
-Printing these keys will show you:
+Printing these keys displays the following:
 
 .. code-block:: shell
 
@@ -212,32 +219,30 @@ Printing these keys will show you:
    'csd_times', 'avg_csd_times', 'psd_times', 'avg_psd_times',
    'coherence', 'psd_1_coh', 'psd_2_coh', 'csd_coh', 'n_segs_coh']
   
-All these keys are saved in the ``.npz`` file mentioned above. Some of those might be empty when not  Their corresponding data can be read using:
+The above keys of the ``.npz`` have corresponding data associated to them, which can be read using:
 
 .. code-block:: shell
 
   variable = npzfile['{key}']
 
-These keys can provide the frequencies used in the analysis, both for naive estimates (``'freqs'``) and averaged estimates (``'avg_freqs'``) of the spectral densities. Those can be read using the corresponding keys. For example the csd is read using the key ``'csd'`` and the average csd can be found with the key ``'avg_csd'``. Same applies for the PSDs of the interferometers.
+More specifically, the frequencies for naive estimates can be accessed through the ``'freqs'`` key, whereas the ones for averaged 
+estimates of the spectral densitities can be accessed through the ``'avg_freqs'`` key. Additionally, the CSD can be read using the 
+``'csd'`` key and the average CSD can be found with the key ``'avg_csd'``. Analogously, one can load the PSDs of the interferometers.
+One can also read the times associated to these spectral densities by using the keys ``'{insert_spectral_density}_times'``. If the ``--calc_coh`` 
+argument was set to ``True`` during the analysis, the coherence information will also be stored in this file under the ``'coherence'`` key
+together with the PSDs, CSD and amount of segments used to compute coherence. 
 
-You can also read the correct times of these spectral densities by using the keys ``'{insert_spectral_density}_times'``. If the ``--calc_coh`` argument was put to ``True``, the coherence information will also be stored in this file under the key ``'coherence'`` together with the PSDs, CSD and amount of segments used to compute coherence. 
+.. note::
+  
+  Depending on the parameters used to run ``pygwb_pipe``, some keys above might not have a avalue associated to them.
 
-A second file contains the actual point estimate spectrum, variance spectrum, point estimate and variance. This information is accessible in:
+A second file contains the actual point estimate spectrum, variance spectrum, point estimate and variance. These can be found in:
 
 .. code-block:: shell
 
   point_estimate_sigma_{start_time_of_job}_{job_duration}.npz
 
-Furthermore, if the script was run with ``--pickle_out True``, a ``pickle`` file will be present in the output directory, containing a pickled
-version of the baseline. This contains all the information present in the other two ``npz`` files, but allows the user to create a baseline object
-from this ``pickle`` file. More information about how to create a baseline from such a file can be found `here <api/pygwb.baseline.Baseline.html#pygwb.baseline.Baseline.load_from_pickle>`_.
-
-.. warning::
-
-  Saving ``pickle`` files can take up a lot of memory. Furthermore, loading in a baseline from ``pickle`` file can take quite some time. Working 
-  with ``npz`` files is therefore recommended, when possible.
-
-The second file can be read the same way as the first one. It has the following keys available:
+This file can be read in similarly to the previous file, and has the following keys:
 
 .. code-block:: shell
 
@@ -247,13 +252,34 @@ The second file can be read the same way as the first one. It has the following 
   'naive_sigma_values', 'slide_sigma_values', 'ifo_1_gates', 'ifo_1_gate_pad',
   'ifo_2_gates', 'ifo_2_gate_pad']
 
-These can be read via the same code shown before. Be aware that depending on your inclusion of gating and/or the delta-sigma cut data quality checks in the analysis, some of these keys could have empty values assigned to them.
+.. note::
+  
+  Depending on the parameters used to run ``pygwb_pipe``, some keys above might not have a avalue associated to them,
+  in particular the ones related to gating and the delta sigma cut.
 
-Once again, the key ``'frequencies'`` reads the frequencies corresponding to those of the ``point_estimate_spectrum``. This last one can be read using the key that is called the same. The spectrograms are read in in the same manner, but with spectrogram at the end instead of spectrum. The key ``'frequency_mask'`` provides information about the frequencies which were notched (ergo not used) in the analysis. The overall point estimate and its standard deviation can be read with ``'point_estimate'`` and ``'sigma'``.
+The file and associated keys can be read in via the same code as the one shown above. The ``'frequencies'`` key reads 
+the frequencies corresponding to those of the ``point_estimate_spectrum``, which can in turn be 
+read using the key that is called the same. The spectrograms are read in a  nalogously, but with spectrogram at the end of the name
+instead of spectrum. The key ``'frequency_mask'`` provides information about the frequencies which were notched, i.e. not used, in the analysis. 
+The overall point estimate and its standard deviation can be loaded using the ``'point_estimate'`` and  the ``'sigma'`` keys.
 
-The output of the data quality checks in pygwb are also saved in the second file. The output from the delta-sigma cut is stored in different keys. First, you can find the actual times which are not allowed in the analysis using the key ``'badGPStimes'``. The alphas used for the dsc are stored in ``'delta_sigma_alphas'``, times in ``'delta_sigma_times'``, and the actual values of the computed delta sigmas are in ``'delta_sigma_values'``. The cut works with computing both the naive and sliding sigma values. Both are therefore also stored in the keys ``'naive_sigma_values'`` and ``'slide_sigma_values'``.
+The output of the data quality checks in ``pygwb`` are also saved in the same file. The output of the delta sigma cut is stored in 
+different keys. First, one can find the times which are not allowed in the analysis using the key ``'badGPStimes'``, i.e., the 
+times that do not pass the cut. The spectral indices used for the delta sigma cut are stored in ``'delta_sigma_alphas'``, times 
+in ``'delta_sigma_times'``, and the actual values of the computed delta sigmas can be found through the ``'delta_sigma_values'`` key. 
+The cut computes both the naive and sliding sigma values, which are also stored in the keys ``'naive_sigma_values'`` and ``'slide_sigma_values'``.
 
-If gating is turned on, the gated times are saved in ``'ifo_{i}_gates'`` where ``i`` can be 1 or 2. The gate_pad is the value for the used parameter ``gate_tpad`` in the analysis.
+If gating was applied during the analysis, the gated times are saved in ``'ifo_{i}_gates'`` where ``i`` can be 1 or 2, labeling the interferometer.
+The ``'ifo_{i}_gate_pad'`` refers to the value of the parameter ``gate_tpad`` during the analysis.
+
+To conclude, if the script was run with ``--pickle_out True``, a ``pickle`` file will be present in the output directory, containing a pickled
+version of the baseline. This contains all the information present in the other two ``npz`` files, but allows the user to create a baseline object
+from this ``pickle`` file. More information about how to create a baseline from such a file can be found `here <api/pygwb.baseline.Baseline.html#pygwb.baseline.Baseline.load_from_pickle>`_.
+
+.. warning::
+
+  Saving ``pickle`` files can take up a lot of memory. Furthermore, loading in a baseline from ``pickle`` file can take quite some time. Working 
+  with ``npz`` files is therefore recommended, when possible.
 
 .. note::
   

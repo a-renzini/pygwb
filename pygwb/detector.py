@@ -170,7 +170,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
             f"{name}.interferometer",
         )
         try:
-            parameters = dict()
+            parameters = {}
             with open(filename, "r") as parameter_file:
                 lines = parameter_file.readlines()
                 for line in lines:

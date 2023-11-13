@@ -23,7 +23,7 @@ def parse_window_dict(window_dict):
     """
     bools = ['sym', 'norm']
     floats = ['center', 'tau', 'alpha', 'beta', 'nbar', 'sll', 'std', 'p', 'sig', 'at']
-    for key in window_dict.keys():
+    for key in window_dict:
         if key in floats:
             window_dict[key] = float(window_dict[key])
         elif key in bools:
