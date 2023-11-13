@@ -1,24 +1,27 @@
 """
-The ``pe`` module performs parameter estimation as an integral part of the
+The ``pe`` module performs parameter estimation (PE) as an integral part of the
 analysis, which naturally follows the computation of the optimal estimate of the gravitational-wave background (GWB). 
-The ``pe`` module is a simple and user-friendly toolkit for any model builder to constrain their physical models with GW data.
+The ``pe`` module is a simple and user-friendly toolkit for any model builder to constrain their physical models with gravitational-wave (GW) data.
 The ``pe`` module is built on class inheritance, with ``GWBModel`` as the parent class. The methods of the parent class
 are functions shared between different GWB models, e.g., the likelihood formulation, as well as the noise
-likelihood. It is possible to include calibration uncertainty by modifying the
+likelihood. It is possible to include a calibration uncertainty by modifying the
 calibration epsilon parameter, which defaults to 0. The GW polarization used for analysis is user-defined, and defaults to standard
 General Relativity (GR) polarization (i.e., tensor).
 
-In our implementation of ``pe``, we rely on the ``bilby`` package Ashton to perform parameter space
-exploration, and employ the sampler ``dynesty`` by default. The user has flexibility in choosing the
+In our implementation of ``pe``, we rely on the ``bilby`` package (more information `here <https://lscsoft.docs.ligo.org/bilby/>`_) to perform a parameter space
+exploration, and employ the sampler ``dynesty`` (more information `here <https://dynesty.readthedocs.io/en/stable/>`_) by default. The user has flexibility in choosing the
 sampler as well as the sampler settings.
 
-Child classes in the pe module inherit attributes and methods from the ``GWBModel`` class. Each child class represents
+Child classes in the ``pe`` module inherit attributes and methods from the ``GWBModel`` class. Each child class represents
 a single GWB model, and combined they form a catalog of available GWB models that may be probed with GW data.
 The inheritance structure of the module makes it straightforward to expand the catalog, allowing users of the ``pygwb``
 package to add their own models. The flexibility of the ``pe`` module allows the user to combine several GWB
 models defined within the module. A particularly useful application of this is the modelling of a GWB in the presence
 of correlated magnetic noise, or the simultaneous estimation of astrophysical and
 cosmological GWBs.
+
+Additional information about parameter estimation can be found `here <https://arxiv.org/pdf/2303.15696.pdf>`_. For more information on
+how to use this module, we refer the reader to the dedicated tutorials and demos.
 
 """
 
@@ -37,7 +40,7 @@ class GWBModel(bilby.Likelihood):
 
     .. math::
 
-        p(\hat{C}^{IJ}(f_k) | \mathbf{\Theta}) \propto\exp\left[  -\frac{1}{2} \sum_{IJ}^N \sum_k \left(\frac{\hat{C}^{IJ}(f_k) - \Omega_{\rm M}(f_k|\mathbf{\Theta})}{\sigma^2_{IJ}(f_k)}\right)^2  \right],
+        p(\hat{C}^{IJ}(f_k) | \mathbf{\Theta}) \propto\exp\left[  -\frac{1}{2} \sum_{IJ}^N \sum_k \left(\frac{\hat{C}^{IJ}(f_k) - \Omega_{\rm M}(f_k|\mathbf{\Theta})}{\sigma_{IJ}(f_k)}\right)^2  \right],
 
     where :math:`\Omega_{\rm M}(f_k|\mathbf{\Theta})` is the model being fit to data, and :math:`\mathbf{\Theta}` are the model's parameters.
 
@@ -49,7 +52,8 @@ class GWBModel(bilby.Likelihood):
         """
         See also
         --------
-        bilby.Likelihood : The parent class used for the implementation.
+        bilby.Likelihood
+            More information `here <https://lscsoft.docs.ligo.org/bilby/likelihood.html>`_.
         """
         super(GWBModel, self).__init__()
         # list of baselines
@@ -247,8 +251,7 @@ class PowerLawModel(GWBModel):
         
         See also
         --------
-
-        pygwb.GWBModel : The parent class used for the implementation.
+        pygwb.pe.GWBModel : The parent class used for the implementation.
         """
         try:
             fref = kwargs.pop("fref")
@@ -344,8 +347,7 @@ class BrokenPowerLawModel(GWBModel):
 
         See also
         --------
-
-        pygwb.GWBModel : The parent class used for the implementation.
+        pygwb.pe.GWBModel : The parent class used for the implementation.
         """
         super(BrokenPowerLawModel, self).__init__(**kwargs)
 
@@ -391,9 +393,9 @@ class TripleBrokenPowerLawModel(GWBModel):
     
     .. math:: 
         \Omega(f) = \begin{cases}
-            \Omega_{\\text{ref}} \left( \frac{f}{f_1} \right) ^ {\alpha_1}, f \leqslant f_1 \\
-            \Omega_{\\text{ref}} \left( \frac{f}{f_1} \right) ^ {\alpha_2}, f_1 < f \leqslant f_2  \\
-            \Omega_{\\text{ref}} \left( \frac{f_2}{f_1} \right) ^{\alpha_2} \left( \frac{f}{f_2} \right)^{\alpha_3}, f > f_2
+            \Omega_{\text{ref}} \left( \frac{f}{f_1} \right) ^ {\alpha_1}, f \leqslant f_1 \\
+            \Omega_{\text{ref}} \left( \frac{f}{f_1} \right) ^ {\alpha_2}, f_1 < f \leqslant f_2  \\
+            \Omega_{\text{ref}} \left( \frac{f_2}{f_1} \right) ^{\alpha_2} \left( \frac{f}{f_2} \right)^{\alpha_3}, f > f_2
         \end{cases}
         
     Examples
@@ -455,8 +457,7 @@ class TripleBrokenPowerLawModel(GWBModel):
 
         See also
         --------
-
-        pygwb.GWBModel : The parent class used for the implementation.
+        pygwb.pe.GWBModel : The parent class used for the implementation.
         """
         super(TripleBrokenPowerLawModel, self).__init__(**kwargs)
 
@@ -573,8 +574,7 @@ class SmoothBrokenPowerLawModel(GWBModel):
 
         See also
         --------
-
-        pygwb.GWBModel : The parent class used for the implementation.
+        pygwb.pe.GWBModel : The parent class used for the implementation.
         """
         super(SmoothBrokenPowerLawModel, self).__init__(**kwargs)
 
@@ -625,7 +625,7 @@ class SchumannModel(GWBModel):
 
 
     .. math::
-         \Omega(f) = \sum_{ij} \kappa_i \kappa_j \left(\frac{f}{f_{\\text{ref}}}\right)^{-\beta_i-\beta_j} M_{ij}(f) \times 10^{-46}
+         \Omega(f) = \sum_{ij} \kappa_i \kappa_j \left(\frac{f}{f_{\text{ref}}}\right)^{-\beta_i-\beta_j} M_{ij}(f) \times 10^{-46}
     """
 
     def __init__(self, **kwargs):
@@ -647,8 +647,7 @@ class SchumannModel(GWBModel):
 
         See also
         --------
-
-        pygwb.GWBModel : The parent class used for the implementation.
+        pygwb.pe.GWBModel : The parent class used for the implementation.
         """
         # Set valid ifos
         # get ifo's associated with this set of
@@ -778,8 +777,7 @@ class TVSPowerLawModel(GWBModel):
 
         See also
         --------
-
-        pygwb.GWBModel : The parent class used for the implementation.
+        pygwb.pe.GWBModel : The parent class used for the implementation.
         """
         try:
             fref = kwargs.pop("fref")
@@ -885,8 +883,7 @@ class PVPowerLawModel(GWBModel):
 
         See also
         --------
-
-        pygwb.GWBModel : The parent class used for the implementation.
+        pygwb.pe.GWBModel : The parent class used for the implementation.
         """
         try:
             fref = kwargs.pop("fref")
@@ -985,8 +982,7 @@ class PVPowerLawModel2(GWBModel):
 
         See also
         --------
-        
-        pygwb.GWBModel : The parent class used for the implementation.
+        pygwb.pe.GWBModel : The parent class used for the implementation.
         """
         try:
             fref = kwargs.pop("fref")

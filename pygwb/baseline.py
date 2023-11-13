@@ -5,7 +5,7 @@ point estimate of the analysis, and calculate the associated error.
 
 The ``Baseline`` object relies on the ``pygwb.spectral`` module to calculate cross-correlations between the data
 streams. Similarly, it relies on the ``pygwb.postprocessing`` module to obtain the point estimate and its variance.
-Calculating these, as well as performing parameter estimation on the GWB spectrum, requires the two-detector
+Calculating these, as well as performing parameter estimation on the gravitational-wave background (GWB) spectrum, requires the two-detector
 overlap reduction function (ORF). The ORF is calculated using the ``pygwb.orfs`` module at ``Baseline`` object 
 initialization, then stored as an attribute.
 
@@ -259,7 +259,6 @@ class Baseline(object):
 
         See also
         --------
-
         pygwb.notch.StochNotchList : Used to read in the frequency notches.
 
 
@@ -701,8 +700,8 @@ class Baseline(object):
 
         See also
         --------
-
-        pygwb.orfs.calc_orf : Method to compute the overlap reduction function.
+        pygwb.orfs.calc_orf
+            Method to compute the overlap reduction function.
 
         """
         if frequencies is not None:
@@ -866,6 +865,10 @@ class Baseline(object):
 
         frequency_resolution: ``float``
             The frequency resolution at which the cross and power spectral densities are calculated.
+
+        See also
+        --------
+        pygwb.spectral.cross_spectral_density
         """
         try:
             self.interferometer_1.set_psd_spectrogram(
@@ -1014,6 +1017,12 @@ class Baseline(object):
         polarization: ``str``, optional
             Polarization of the signal to consider (scalar, vector, tensor) for the ORF calculation.
             Default is tensor.
+
+        See also
+        --------
+        pygwb.omega_spectra.OmegaSpectrogram
+
+        pygwb.postprocessing.calculate_point_estimate_sigma_spectra
         """
         # set CSD if not set
         # self.set_average_cross_spectral_density()
@@ -1109,6 +1118,12 @@ class Baseline(object):
         apply_notches: ``bool``, optional
             Apply spectral notches flag; if True, remove the notches specified in the notch_list from the spectra calculations.
             Default is True.
+
+        See also
+        --------
+        pygwb.postprocessing.postprocess_Y_sigma
+
+        pygwb.omega_spectra.OmegaSpectrum
         """
         if apply_dsc == True:
             if not hasattr(self, "badGPStimes"):
@@ -1244,6 +1259,10 @@ class Baseline(object):
         apply_notches: ``bool``, optional
             Apply spectral notches flag; if True, remove the notches specified in the notch_list from the spectra calculations.
             Default is True.
+
+        See also
+        --------
+        pygwb.postprocessing.calc_Y_sigma_from_Yf_sigmaf
         """
 
         if self._point_estimate_spectrum_set:
@@ -1347,8 +1366,8 @@ class Baseline(object):
 
         See also
         --------
-
-        pygwb.delta_sigma_cut.run_dsc : Function used to run the delta sigma cut.
+        pygwb.delta_sigma_cut.run_dsc
+            Function used to run the delta sigma cut.
 
         """
         if not self._orf_polarization_set:
@@ -1424,6 +1443,11 @@ class Baseline(object):
         -----
 
         The coherence calculation uses averaged naive PSD estimates as the coherence is calculated using CSD and PSD estimates of each individual segment, calculated \"on shell\".
+        
+        See also
+        --------
+        pygwb.coherence.calculate_coherence
+
         """
 
         bad_times_indexes = self._get_bad_times_indexes(times=self.interferometer_1.psd_spectrogram.times.value, apply_dsc=apply_dsc)

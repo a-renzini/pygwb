@@ -1,7 +1,7 @@
 """
 The ``constants`` module contains several constants that are used in stochastic gravitational-wave 
 background searches, such as the speed of light and the Hubble parameter. This module relies on 
-``astropy`` to obtain the value of these constants. 
+``astropy`` (more information `here <https://www.astropy.org/>`_) to obtain the value of these constants. 
 
 Examples
 --------
@@ -10,13 +10,6 @@ To import one of the constants from this module inside another code, one would c
 line:
 
 >>> from pygwb.constants import H0
-
-See also
---------
-
-astropy.constants : Used to obtain the speed of light.
-
-astropy.cosmology : Used to obtain the cosmology as given by Planck18 results.
 
 """
 

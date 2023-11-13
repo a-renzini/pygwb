@@ -1,33 +1,29 @@
-"""The postprocessing modules groups all functions which are useful in the end stages of the analysis.
-In particular when combining spectrograms into spectra and spectra into one overall point estimate for the background.
+"""The postprocessing module combines all methods which are useful in the end stages of the analysis,
+more specifically when combining spectrograms into spectra, and spectra into one overall point estimate for the gravitational-wave background.
 
-When computing an estimator for the gravitational-wave background in the isotropic search,
-we go through different steps of the analysis. Postprocessing is the last stage of this analysis,
-after the computation of the PSDs and CSDs.
-
-This module contains functions such as ``postprocess_Y_sigma`` which combines point estimate and sigma spectrograms
+This module contains methods such as ``postprocess_Y_sigma``, which combines point estimate and sigma spectrograms
 into spectra using a method where odd and even segments are treated differently if the data are overlapping.
-To account for the overlap, it uses another function of the postprocessing module, ``odd_even_segment_postprocessing``.
+To account for the overlap, it uses another function of the postprocessing module, ``odd_even_segment_postprocessing``. 
+Additional information about this procedure can be found `here <https://arxiv.org/pdf/2303.15696.pdf>`_.
 
-These spectrograms have to be computed from the CSDs and PSDs.
-The postprocessing module also contains the function responsible for this calculation,
+These spectrograms are computed from the cross spectral density (CSD) and the power spectral density (PSD).
+The postprocessing module also contains the method which takes care of the above, namely
 ``calculate_point_estimate_sigma_spectra``.
 Starting from a set of CSD and PSD spectrograms, one can compute the point estimate and sigma spectrograms,
 objects that contain both frequency and segment data information.
-Then the spectrograms are combined into spectra with the functions mentioned above.
-These spectra then have to be combined into one single point estimate and its variance.
-To achieve that goal, another function, ``calc_Y_sigma_from_Yf_sigmaf``, is utilised.
+Then, the spectrograms are combined into spectra with these methods.
+These spectra then have to be combined into one single point estimate and its variance, which is achieved by calling ``calc_Y_sigma_from_Yf_sigmaf``.
 
 Examples
 --------
 
 Starting from averaged PSDs and the CSD of a baseline,
-we can compute the overall point estimate for the gravitational-wave background of the isotropic analysis.
+we can compute the overall point estimate for the gravitational-wave background.
 
-We start our example with already computed CSDs and PSDs, see other modules.
-Before we can start the actual computation, we also need the overlap reduction function, see ``pygwb.orf``.
-Then, we can compute the :math:`\Omega`\ :sub:`GWB`\
-and its variance spectrograms.
+Assuming we already computed the CSDs and PSDs, see for example in :doc:`pygwb.spectral`, 
+we also need the overlap reduction function, see :doc:`pygwb.orfs`.
+With these at hand, we can compute the point estimate spectrogram
+and its variance.
 
 >>> Y_spectrogram, var_spectrogram = calculate_point_estimate_sigma_spectra(
         CSD_baseline.frequencies.value,
@@ -43,12 +39,9 @@ and its variance spectrograms.
         alpha=0.0,
     )
 
-Where we have used the CSD from a certain baseline of interferometers, their respective average PSDs and the orf.
-
-We have calculated the spectrograms, which are the point estimate as a function of frequency and time (for each segment).
-
-Now we want to combine this data over all segments into a single point estimate and sigma spectrum.
-And then combine those spectra into one single point estimate and its variance for the magnitude of the GW background.
+For this example, we used some pre-computed CSD and PSDs, for some baseline, together with its overlap reduction function.
+The above returns the point estimate and variance as a function of frequency and time, i.e., for each segment.
+These can be combined over all analysis segments into a single point estimate and sigma spectrum, i.e. as a function of frequency only.
 
 >>> Y_spectrum, var_spectrum = postprocess_Y_sigma(
         Y_spectrogram.value,
@@ -65,13 +58,15 @@ And then combine those spectra into one single point estimate and its variance f
         N_avg_segs=2,
     )
 
-At this point, we have the spectra and then the final combination into the overall point estimate and variance.
+To compute a single point estimate and its variance for the magnitude of the GWB, one uses the frequency 
+spectra computed above and relies on the following method:
 
 >>> Y, sigma = postpp.calc_Y_sigma_from_Yf_sigmaf(
         Y_spectrum, np.sqrt(var_spectrum), frequency_mask=True, alpha=None, fref=None
     )
 
-So we end up with the overall point estimate of our analysis in ``Y`` and its standard deviation in ``sigma``.
+The result is an overall point estimate and standard deviation. Additional information on the various methods outlined above
+can be found in the following dedicated API documentation of the module.
 
 """
 
@@ -131,10 +126,14 @@ def postprocess_Y_sigma(
 
     Returns
     =======
-    Y_f_new : ``array-like``
+    Y_f_new: ``array-like``
         1D point estimate spectrum.
-    sigma_f_few : ``array-like``
+    sigma_f_few: ``array-like``
         1D sigma spectrum.
+
+    See also
+    --------
+    pygwb.util.calc_bias
     """
     if badtimes_mask is None:
         badtimes_mask = np.zeros(len(Y_fs), dtype=bool)
@@ -219,10 +218,14 @@ def odd_even_segment_postprocessing(
     
     Returns
     =======
-    Y_f_new : ``array-like``
+    Y_f_new: ``array-like``
         1D point estimate spectrum.
-    var_f_few : ``array-like``
+    var_f_few: ``array-like``
         1D sigma spectrum.
+
+    See also
+    --------
+    pygwb.util.window_factors
     """
     _, w1w2squaredbar, _, w1w2squaredovlbar = window_factors(
         int(segment_duration * new_sample_rate), window_fftgram_dict, overlap_factor=overlap_factor
@@ -298,12 +301,13 @@ def calc_Y_sigma_from_Yf_sigmaf(
 
     Returns
     =======
-    Y : ``array-like`` or ``float``
+    Y: ``array-like`` or ``float``
         Point estimate or Point estimate spectrum.
-    sigma : ``array-like`` or ``float``
+    sigma: ``array-like`` or ``float``
         Point estimate standard deviation (theoretical) or spectrum of point estimate standard deviations.
-    Note
-    ======
+
+    Notes
+    -----
     If passing in spectrograms, the point estimate and sigma will be calculated per
     spectrum, without any time-averaging applied.
     Y_f and sigma_f can also be ``gwpy.spectrogram.Spectrogram`` objects, or numpy arrays. In these cases
@@ -396,6 +400,10 @@ def calculate_point_estimate_sigma_spectra(
         Final result refers to this frequency.
     alpha: ``float``, optional
         Spectral index to use in the weighting.
+
+    See also
+    --------
+    pygwb.util.window_factors
     """
     S_alpha = 3 * H0.si.value ** 2 / (10 * np.pi ** 2) / freqs ** 3
     S_alpha *= (freqs / fref) ** float(alpha)
@@ -445,6 +453,12 @@ def combine_spectra_with_sigma_weights(main_spectra, weights_spectra):
         Final spectrum obtained combining the original spectra with given weights.
     combined_weights_spectrum: ``array_like``
         Variance associated to the final spectrum obtained combining the given weights.
+
+    See also
+    --------
+    pygwb.omega_spectra.OmegaSpectrum
+    
+    pygwb.util._check_omegaspectra
     """
     if isinstance(main_spectra[0], OmegaSpectrum):
         _check_omegaspectra(main_spectra)

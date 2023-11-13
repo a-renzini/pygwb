@@ -1,17 +1,17 @@
-import json
-import warnings
-
 """
-The statistical checks class performs various tests by plotting different quantities and saving this plots. 
+The ``statistical_checks`` module performs various tests by plotting different quantities and saving these plots. 
 This allows the user to check for consistency with expected results. Concretely, the following tests and plots
 can be generated: running point estimate, running sigma, (cumulative) point estimate integrand, real and imaginary 
 part of point estimate integrand, FFT of the point estimate integrand, (cumulative) sensitivity, evolution of omega 
 and sigma as a function of time, omega and sigma distribution, KS test, and a linear trend analysis of omega in time. 
-Furthermore, part of these plots compares the values of these quantities before and after the delta sigma cut. Each of 
-these plots can be made by calling the relevant class method (e.g. `plot_running_point_estimate()`).
+Furthermore, part of these plots compares the values of these quantities before and after the delta sigma cut.
+
+For additional information on how to run the statistical checks, and interpret them, we refer the user to the dedicated
+tutorials and demos, as well as the `pygwb paper <https://arxiv.org/pdf/2303.15696.pdf>`_.
 
 """
-
+import json
+import warnings
 from os import listdir
 from os.path import isfile, join
 from pathlib import Path
@@ -79,41 +79,41 @@ class StatisticalChecks(object):
         Parameters
         ==========
 
-        sliding_times_all: array_like
+        sliding_times_all: ``array_like``
             Array of GPS times before the bad GPS times from the delta sigma cut are applied.
-        sliding_omega_all: array_like
+        sliding_omega_all: ``array_like``
             Array of sliding omegas before the bad GPS times from the delta sigma cut are applied.
-        sliding_sigmas_all: array_like
+        sliding_sigmas_all: ``array_like``
             Array of sliding sigmas before the bad GPS times from the delta sigma cut are applied.
-        naive_sigmas_all: array_like
+        naive_sigmas_all: ``array_like``
             Array of naive sigmas before the bad GPS times from the delta sigma cut are applied.
-        coherence_spectrum: array
+        coherence_spectrum: ``array_like``
             Array containing a coherence spectrum. Each entry in this array corresponds to the 2-detector coherence spectrum evaluated at the corresponding frequency in the frequencies array.
-        coherence_n_segs: int
+        coherence_n_segs: ``int``
             Number of segments used for coherence calculation.
-        point_estimate_spectrum: array
+        point_estimate_spectrum: ``array_like``
             Array containing the point estimate spectrum. Each entry in this array corresponds to the point estimate spectrum evaluated at the corresponding frequency in the frequencies array.
-        sigma_spectrum: array
+        sigma_spectrum: ``array_like``
             Array containing the sigma spectrum. Each entry in this array corresponds to the sigma spectrum evaluated at the corresponding frequency in the frequencies array.
-        frequencies: array
+        frequencies: ``array_like``
             Array containing the frequencies.
-        badGPStimes: array_like
+        badGPStimes: ``array_like``
             Array of bad GPS times, i.e. times that do not pass the delta sigma cut.
-        delta_sigmas: array_like
+        delta_sigmas: ``array_like``
             Array containing the value of delta sigma for all times in sliding_times_all.
-        plot_dir: str
+        plot_dir: ``str``
             String with the path to which the output of the statistical checks (various plots) will be saved.
-        baseline_name: str
+        baseline_name: ``str``
             Name of the baseline under consideration.
-        param_file: str
+        param_file: ``str``
             String with path to the file containing the parameters that were used for the analysis run.
-        frequency_mask: array
+        frequency_mask: ``array_like``
             Boolean mask applied to the specrtra in broad-band analyses. 
-        gates_ifo1/gates_ifo2: list
+        gates_ifo1/gates_ifo2: ``list``
             List of gates applied to interferometer 1/2.
-        file_tag: str
+        file_tag: ``str``
             Tag to be used in file naming convention.
-        legend_fontsize: int
+        legend_fontsize: ``int``
             Font size for plot legends. Default is 16. All other fonts are scaled to this font.
 
         """
@@ -141,11 +141,12 @@ class StatisticalChecks(object):
 
         self.coherence_spectrum = coherence_spectrum
         fftlength = int(1.0 / (self.frequencies[1] - self.frequencies[0]))
-        self.n_segs = coherence_n_segs*(1.-self.params.overlap_factor) * int(np.floor(self.params.segment_duration/(fftlength*(1.-self.params.overlap_factor_welch)))-1)
-        if self.params.coarse_grain_csd:
-            # Note: this breaks down when self.params.segment_duration/fftlength < 3
-            self.n_segs = coherence_n_segs*(1.-self.params.overlap_factor) * int(np.floor(self.params.segment_duration/(fftlength)))
-        self.n_segs_statement = r"The number of segments is" + f" {self.n_segs}."
+        if coherence_n_segs is not None:
+            self.n_segs = coherence_n_segs*(1.-self.params.overlap_factor) * int(np.floor(self.params.segment_duration/(fftlength*(1.-self.params.overlap_factor_welch)))-1)
+            if self.params.coarse_grain_csd:
+                # Note: this breaks down when self.params.segment_duration/fftlength < 3
+                self.n_segs = coherence_n_segs*(1.-self.params.overlap_factor) * int(np.floor(self.params.segment_duration/(fftlength)))
+            self.n_segs_statement = r"The number of segments is" + f" {self.n_segs}."
 
         self.sigma_spectrum = sigma_spectrum
         self.point_estimate_spectrum = point_estimate_spectrum
@@ -183,16 +184,16 @@ class StatisticalChecks(object):
             self.running_sigmas,
         ) = self.compute_running_quantities()
 
-        t0 = Time(self.sliding_times_all[0], format='gps')
-        t0 = Time(t0, format='iso', scale='utc', precision=0, out_subfmt='date_hm')
-        tf = Time(self.sliding_times_all[-1], format='gps')
-        tf = Time(tf, format='iso', scale='utc', precision=0, out_subfmt='date_hm')
+        t0_gps = Time(self.sliding_times_all[0], format='gps')
+        t0 = Time(t0_gps, format='iso', scale='utc', precision=0, out_subfmt='date_hm')
+        tf_gps = Time(self.sliding_times_all[-1], format='gps')
+        tf = Time(tf_gps, format='iso', scale='utc', precision=0, out_subfmt='date_hm')
         self.time_tag = f"{t0}"+" $-$ "+f"{tf}"
 
         if file_tag:
             self.file_tag = file_tag
         else:
-            self.file_tag = f"{self.sliding_times_all[0]}-{self.params.tf}"
+            self.file_tag = f"{int(t0_gps.value)}-{int(tf_gps.value)}"
 
         self.legend_fontsize = legend_fontsize
         self.axes_labelsize = legend_fontsize + 2
@@ -216,19 +217,19 @@ class StatisticalChecks(object):
         Returns
         =======
 
-        sliding_times_cut: array_like
+        sliding_times_cut: ``array_like``
             Array of GPS times after the bad GPS times were applied.
-        days_cut: array_like
+        days_cut: ``array_like``
             Array of days after the bad GPS times were applied.
-        sliding_omega_cut: array_like
+        sliding_omega_cut: ``array_like``
             Array of the sliding omega values after the bad GPS times were applied.
-        sliding_sigma_cut: array_like
+        sliding_sigma_cut: ``array_like``
             Array of sliding sigmas after the bad GPS times were applied.
-        naive_sigma_cut: array_like
+        naive_sigma_cut: ``array_like``
             Array of naive sigmas after the bad GPS times were applied.
-        delta_sigma_cut: array_like
+        delta_sigma_cut: ``array_like``
             Array of the delta sigma values after the bad GPS times were applied.
-        sliding_deviate_cut: array_like
+        sliding_deviate_cut: ``array_like``
             Array of the deviates after the bad GPS times were applied.
         """
         bad_gps_times = self.badGPStimes
@@ -278,9 +279,9 @@ class StatisticalChecks(object):
         Returns
         =======
 
-        running_pt_estimate: array_like
+        running_pt_estimate: ``array_like``
             Array containing the values of the running point estimate.
-        running_sigmas: array_like
+        running_sigmas: ``array_like``
             Array containing the values of the running sigmas.
         """
         running_pt_estimate = self.sliding_omega_cut.copy()
@@ -309,15 +310,15 @@ class StatisticalChecks(object):
         Returns
         =======
 
-        t_array: array_like
+        t_array: ``array_like``
             Array containing the time lag values (in seconds).
-        omega_t: array_like
+        omega_t: ``array_like``
             Array containing the
 
         See also
         --------
-
-        numpy.fft.fft : Method used to compute the Fourier transform.
+        numpy.fft.fft
+            More information `here <https://numpy.org/doc/stable/reference/generated/numpy.fft.fft.html>`_.
 
         """
 
@@ -360,11 +361,11 @@ class StatisticalChecks(object):
         as it accesses the data through the attributes of the class (e.g. `self.days_cut`).
 
         Parameters
-        ==========
+        =======
 
-        ymin: array_like
+        ymin: ``array_like``
             Minimum value on the y-axis.
-        ymax: array_like
+        ymax: ``array_like``
             Maximum value on the y-axis.
 
         """
@@ -788,8 +789,31 @@ class StatisticalChecks(object):
         )
         plt.close()
 
-        outlier_coherence = [(frequencies[i], coherence[i],probability[np.where(coherence_highres>=coherence[i])[0][0]]) for i in range(len(coherence)) if (coherence[i] > np.abs(threshold) and self.frequency_mask[i] == True)]
-        outlier_coherence_notched = [(frequencies[i], coherence[i],probability[np.where(coherence_highres>=coherence[i])[0][0]]) for i in range(len(coherence)) if (coherence[i] > np.abs(threshold) and self.frequency_mask[i] == False)]
+        
+        outlier_coherence = []
+        for i in range(len(coherence)):
+            if (coherence[i] > np.abs(threshold) and self.frequency_mask[i] == True):
+                try:
+                    outlier_coherence.append((frequencies[i], coherence[i],probability[np.where(coherence_highres>=coherence[i])[0][0]]))
+                except IndexError as err:
+                    warnings.warn(
+                            '\n In outlier_coherence, Freqnency now is %f, and coherence is %f, which is out of the boundary 1, please check it'
+                            %(frequencies[i],coherence[i])
+                            )
+                    outlier_coherence_notched.append((frequencies[i], coherence[i],'nan'))
+
+        outlier_coherence_notched = []
+        for i in range(len(coherence)):
+            if (coherence[i] > np.abs(threshold) and self.frequency_mask[i] == False):
+                try:
+                    outlier_coherence_notched.append((frequencies[i], coherence[i],probability[np.where(coherence_highres>=coherence[i])[0][0]]))
+                except IndexError as err:
+                    warnings.warn(
+                            '\n In outlier_coherence_notched, Freqnency now is %f, and coherence is %f, which is out of the boundary 1, please check it'
+                            %(frequencies[i],coherence[i])
+                            )
+                    outlier_coherence_notched.append((frequencies[i], coherence[i],'nan'))
+        
         n_outlier = len(outlier_coherence)
         file_name = f"{self.plot_dir / self.baseline_name}-{self.file_tag}-list_coherence_outlier.txt"
         with open(file_name, 'w') as f:
@@ -1189,16 +1213,17 @@ class StatisticalChecks(object):
         of the class (e.g. `self.sliding_deviate_cut`).
 
         Parameters
-        ==========
+        =======
 
-        bias_factor: float, optional
+        bias_factor: ``float``, optional
             Bias factor to consider in the KS calculation. Defaults to None, in which case it 
             computes the bias factor on the fly.
 
         See also
         --------
+        pygwb.util.calc_bias
 
-        pygwb.util.calc_bias : Method used to compute the bias.
+        pygwb.util.StatKS
 
         """
         if self.delta_sigmas_cut.size==0:
@@ -1515,21 +1540,27 @@ def run_statistical_checks_from_file(
     Method to generate an instance of the statistical checks class from a set of files.
 
     Parameters
-    ==========
+    =======
 
-    combine_file_path: str
+    combine_file_path: ``str``
         Full path to the file containing the output of the pygwb.combine script, i.e., with the 
         combined results of the run.
 
-    dsc_file_path: str
+    dsc_file_path: ``str``
         Full path to the file containing the results of the delta sigma cut.
 
-    plot_dir: str
+    plot_dir: ``str``
         Full path where the plots generated by the statistical checks module should be saved.
-    param_file: str
+    param_file: ``str``
         Full path to the parameter file that was used for the analysis.
-    legend_fontsize: int, optional
+    legend_fontsize: ``int``, optional
         Fontsize used in the plots generated by the module. Defaults to 16.
+
+    See also
+    --------
+    pygwb.notch.StochNotchList
+
+    pygwb.parameters.Parameters
     """
     params = Parameters()
     params.update_from_file(param_file)
@@ -1538,11 +1569,11 @@ def run_statistical_checks_from_file(
     dsc_file = np.load(dsc_file_path)
 
     badGPStimes = dsc_file["badGPStimes"]
-    delta_sigmas = dsc_file["delta_sigmas"]
-    sliding_times = dsc_file["times"]
-    naive_sigma_all = dsc_file["naive_sigmas"]
-    gates_ifo1 = dsc_file["gates_ifo1"]
-    gates_ifo2 = dsc_file["gates_ifo2"]
+    delta_sigmas = dsc_file["delta_sigma_values"]
+    sliding_times = dsc_file["delta_sigma_times"]
+    naive_sigma_all = dsc_file["naive_sigma_values"]
+    gates_ifo1 = dsc_file["ifo_1_gates"]
+    gates_ifo2 = dsc_file["ifo_2_gates"]
     if gates_ifo1.size==0:
         gates_ifo1=None
     if gates_ifo2.size==0:
@@ -1579,8 +1610,8 @@ def run_statistical_checks_from_file(
     baseline_name = params.interferometer_list[0] + params.interferometer_list[1]
 
     # select alpha for statistical checks
-    delta_sigmas_sel = delta_sigmas.T[1]
-    naive_sigmas_sel = naive_sigma_all.T[1]
+    delta_sigmas_sel = delta_sigmas[1]
+    naive_sigmas_sel = naive_sigma_all[1]
 
     if coherence_file_path is not None:
         coh_data = np.load(coherence_file_path, allow_pickle=True)
@@ -1612,4 +1643,3 @@ def run_statistical_checks_from_file(
         legend_fontsize=legend_fontsize,
         convention=convention
     )
-
