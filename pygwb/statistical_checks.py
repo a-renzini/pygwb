@@ -32,7 +32,7 @@ from matplotlib import rc
 
 rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
 # FIXME - changed to get workflow running
-rc('text', usetex=True)
+rc('text', usetex=False)
 
 import numpy as np
 import seaborn as sns
