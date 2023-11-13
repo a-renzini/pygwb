@@ -32,11 +32,9 @@ from matplotlib import rc
 
 rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
 # FIXME - changed to get workflow running
-rc('text', usetex=False)
+rc('text', usetex=True)
 
 import seaborn as sns
-
-sea = sns.color_palette("tab10")
 
 import numpy as np
 from scipy import integrate, stats
@@ -70,7 +68,8 @@ class StatisticalChecks(object):
         gates_ifo2 = None,
         file_tag = None,
         legend_fontsize = 16,
-        convention = 'pygwb'
+        convention = 'pygwb',
+        seaborn_palette = 'tab10',
     ):
         """
         Instantiate a StatisticalChecks object.
@@ -205,6 +204,9 @@ class StatisticalChecks(object):
             self.xaxis = f"Hours since {t0}"
         else:
             self.xaxis = f"Days since {t0}"
+
+        self.sea = sns.color_palette(seaborn_palette)
+
 
     def get_data_after_dsc(self):
         """
@@ -379,14 +381,14 @@ class StatisticalChecks(object):
             self.days_cut,
             self.running_pt_estimate + 1.65 * self.running_sigmas,
             ".",
-            color=sea[2],
+            color=self.sea[2],
             markersize=2,
         )
         plt.plot(
             self.days_cut,
             self.running_pt_estimate - 1.65 * self.running_sigmas,
             ".",
-            color=sea[0],
+            color=self.sea[0],
             markersize=2,
         )
         plt.grid(True)
@@ -420,7 +422,7 @@ class StatisticalChecks(object):
             return
         fig = plt.figure(figsize=(10, 8))
         plt.plot(
-            self.days_cut, self.running_sigmas, '.', markersize=2, color=sea[0], label=self.baseline_name
+            self.days_cut, self.running_sigmas, '.', markersize=2, color=self.sea[0], label=self.baseline_name
         )
         plt.grid(True)
         plt.yscale("log")
@@ -447,7 +449,7 @@ class StatisticalChecks(object):
             return
 
         fig = plt.figure(figsize=(10, 8))
-        plt.plot(t_array, omega_array, color=sea[0], label=self.baseline_name)
+        plt.plot(t_array, omega_array, color=self.sea[0], label=self.baseline_name)
         plt.grid(True)
         plt.xlim(t_array[0], t_array[-1])
         plt.xlabel("Lag (s)", size=self.axes_labelsize)
@@ -471,7 +473,7 @@ class StatisticalChecks(object):
         axs.semilogy(
             self.frequencies,
             abs(self.point_estimate_spectrum / self.sigma_spectrum),
-            color=sea[0],
+            color=self.sea[0],
         )
         trans = mt.blended_transform_factory(axs.transData, axs.transAxes) 
         axs.vlines(self.frequencies[~self.frequency_mask], ymin=0, ymax=1, linewidth=1, linestyle=':', color='black', alpha=0.5, transform=trans)
@@ -499,7 +501,7 @@ class StatisticalChecks(object):
         )
         cum_pt_estimate = cum_pt_estimate / cum_pt_estimate[-1]
         fig, axs = plt.subplots(figsize=(10, 8))
-        axs.plot(self.frequencies[:-1], cum_pt_estimate, color=sea[0])
+        axs.plot(self.frequencies[:-1], cum_pt_estimate, color=self.sea[0])
         axs.set_xlabel("Frequency (Hz)", size=self.axes_labelsize)
         axs.set_ylabel(r"Cumulative $|{\rm SNR}(f)|$", size=self.axes_labelsize)
         axs.set_xscale("log")
@@ -522,7 +524,7 @@ class StatisticalChecks(object):
         axs.plot(
             self.frequencies,
             np.real(self.point_estimate_spectrum / self.sigma_spectrum),
-            color=sea[0],
+            color=self.sea[0],
         )
         trans = mt.blended_transform_factory(axs.transData, axs.transAxes) 
         axs.vlines(self.frequencies[~self.frequency_mask], ymin=0, ymax=1, linewidth=1, linestyle=':', color='black', alpha=0.5, transform=trans)
@@ -548,7 +550,7 @@ class StatisticalChecks(object):
         axs.plot(
             self.frequencies,
             np.imag(self.point_estimate_spectrum / self.sigma_spectrum),
-            color=sea[0],
+            color=self.sea[0],
         )
         trans = mt.blended_transform_factory(axs.transData, axs.transAxes) 
         axs.vlines(self.frequencies[~self.frequency_mask], ymin=0, ymax=1, linewidth=1, linestyle=':', color='black', alpha=0.5, transform=trans)
@@ -574,7 +576,7 @@ class StatisticalChecks(object):
             return
 
         fig, axs = plt.subplots(figsize=(10, 8))
-        axs.plot(self.frequencies, self.sigma_spectrum, color=sea[0])
+        axs.plot(self.frequencies, self.sigma_spectrum, color=self.sea[0])
         trans = mt.blended_transform_factory(axs.transData, axs.transAxes) 
         axs.vlines(self.frequencies[~self.frequency_mask], ymin=0, ymax=1, linewidth=1, linestyle=':', color='black', alpha=0.5, transform=trans)
         axs.set_xlabel("Frequency (Hz)", size=self.axes_labelsize)
@@ -601,7 +603,7 @@ class StatisticalChecks(object):
         fhigh = fhigh or self.fhigh
 
         plt.figure(figsize=(10, 8))
-        plt.plot(self.frequencies, self.coherence_spectrum, color=sea[0])
+        plt.plot(self.frequencies, self.coherence_spectrum, color=self.sea[0])
         plt.axhline(y=1./self.n_segs,dashes=(4,3),color='black')
         plt.xlim(flow, fhigh)
         plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
@@ -625,7 +627,7 @@ class StatisticalChecks(object):
         plt.close()
 
         plt.figure(figsize=(10, 8))
-        plt.plot(self.frequencies, self.coherence_spectrum, color=sea[0])
+        plt.plot(self.frequencies, self.coherence_spectrum, color=self.sea[0])
         plt.axhline(y=1./self.n_segs,dashes=(4,3),color='black')
         plt.xlim(flow, 200)
         plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
@@ -682,7 +684,7 @@ class StatisticalChecks(object):
         axs.hist(
             coherence,
             bins,
-            color=sea[3],
+            color=self.sea[3],
             ec="k",
             lw = 0.1,
             zorder=1,
@@ -692,7 +694,7 @@ class StatisticalChecks(object):
         axs.hist(
             coherence_notched,
             bins,
-            color=sea[0],
+            color=self.sea[0],
             ec="k",
             lw = 0.1,
             zorder=2,
@@ -702,7 +704,7 @@ class StatisticalChecks(object):
         axs.plot(
             coherence_highres, 
             predicted_highres,
-            color=sea[1],
+            color=self.sea[1],
             zorder=3,
             alpha = 0.8,
             label="Predicted",
@@ -710,7 +712,7 @@ class StatisticalChecks(object):
         axs.axvline(
             np.abs(threshold),
             zorder=4,
-            color=sea[8],
+            color=self.sea[8],
             linestyle='dashed',
             label="Threshold",
         )
@@ -734,7 +736,7 @@ class StatisticalChecks(object):
         axs.hist(
             coherence_clipped,
             bins_clipped,
-            color=sea[3],
+            color=self.sea[3],
             ec="k",
             lw = 0.1,
             zorder=1,
@@ -744,7 +746,7 @@ class StatisticalChecks(object):
         axs.hist(
             coherence_notched_clipped,
             bins_clipped,
-            color=sea[0],
+            color=self.sea[0],
             ec="k",
             lw = 0.1,
             zorder=2,
@@ -754,7 +756,7 @@ class StatisticalChecks(object):
         axs.plot(
             coherence_highres, 
             predicted_highres,
-            color=sea[1],
+            color=self.sea[1],
             zorder=3,
             alpha = 0.8,
             label="Predicted",
@@ -762,7 +764,7 @@ class StatisticalChecks(object):
         axs.axvline(
             np.abs(threshold),
             zorder=4,
-            color=sea[8],
+            color=self.sea[8],
             linestyle='dashed',
             label="Threshold",
         )
@@ -830,7 +832,7 @@ class StatisticalChecks(object):
         cumul_sens = integrate.cumtrapz((1 / sigma_cumul ** 2), self.frequencies)
         cumul_sens = cumul_sens / cumul_sens[-1]
         plt.figure(figsize=(10, 8))
-        plt.plot(self.frequencies[:-1], cumul_sens, color=sea[0])
+        plt.plot(self.frequencies[:-1], cumul_sens, color=self.sea[0])
         plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
         plt.ylabel("Cumulative sensitivity", size=self.axes_labelsize)
         plt.xscale("log")
@@ -855,18 +857,18 @@ class StatisticalChecks(object):
         fig, axs = plt.subplots(nrows=3, ncols=1, figsize=(10, 15), constrained_layout=True)
         fig.suptitle(r"$\Omega$, $\sigma$, and" + f" SNR variations in {self.time_tag} with/out " + r"$\Delta\sigma$ cut", fontsize=self.title_fontsize)
 
-        axs[0].plot(self.days_all, self.sliding_omega_all, color=sea[3], linewidth=1, alpha=0.5, label="All data")
+        axs[0].plot(self.days_all, self.sliding_omega_all, color=self.sea[3], linewidth=1, alpha=0.5, label="All data")
         axs[0].plot(
             self.days_cut,
             self.sliding_omega_cut,
-            color=sea[0], linewidth=1, alpha=0.5,
+            color=self.sea[0], linewidth=1, alpha=0.5,
             label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
         )
-        axs[0].plot(self.days_all, self.sliding_omega_all, '.', color=sea[3])
+        axs[0].plot(self.days_all, self.sliding_omega_all, '.', color=self.sea[3])
         axs[0].plot(
             self.days_cut,
             self.sliding_omega_cut, '.',
-            color=sea[0],
+            color=self.sea[0],
         )
         axs[0].set_xlabel(self.xaxis, size=self.axes_labelsize)
         axs[0].set_ylabel(r"$\Omega$", size=self.axes_labelsize)
@@ -876,20 +878,20 @@ class StatisticalChecks(object):
         axs[0].tick_params(axis="y", labelsize=self.legend_fontsize)
         axs[0].yaxis.offsetText.set_fontsize(self.legend_fontsize)
 
-        axs[1].plot(self.days_all, self.sliding_sigmas_all, color=sea[3], linewidth=1, alpha=0.5, label="All data")
+        axs[1].plot(self.days_all, self.sliding_sigmas_all, color=self.sea[3], linewidth=1, alpha=0.5, label="All data")
         axs[1].plot(
             self.days_cut,
             self.sliding_sigma_cut,
-            color=sea[0],
+            color=self.sea[0],
             linewidth=1,
             alpha=0.5,
             label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
         )
-        axs[1].plot(self.days_all, self.sliding_sigmas_all,'.', color=sea[3])
+        axs[1].plot(self.days_all, self.sliding_sigmas_all,'.', color=self.sea[3])
         axs[1].plot(
             self.days_cut,
             self.sliding_sigma_cut,'.',
-            color=sea[0]
+            color=self.sea[0]
         )
         axs[1].set_xlabel(self.xaxis, size=self.axes_labelsize)
         axs[1].set_ylabel(r"$\sigma$", size=self.axes_labelsize)
@@ -900,18 +902,18 @@ class StatisticalChecks(object):
         axs[1].tick_params(axis="y", labelsize=self.legend_fontsize)
         axs[1].yaxis.offsetText.set_fontsize(self.legend_fontsize)
 
-        axs[2].plot(self.days_all, self.sliding_deviate_all, color=sea[3], linewidth=1, alpha=0.5, label="All data")
+        axs[2].plot(self.days_all, self.sliding_deviate_all, color=self.sea[3], linewidth=1, alpha=0.5, label="All data")
         axs[2].plot(
             self.days_cut,
             self.sliding_deviate_cut,
-            color=sea[0], linewidth=1, alpha=0.5,
+            color=self.sea[0], linewidth=1, alpha=0.5,
             label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
         )
-        axs[2].plot(self.days_all, self.sliding_deviate_all, '.', color=sea[3])
+        axs[2].plot(self.days_all, self.sliding_deviate_all, '.', color=self.sea[3])
         axs[2].plot(
             self.days_cut,
             self.sliding_deviate_cut, '.',
-            color=sea[0],
+            color=self.sea[0],
         )
         axs[2].set_xlabel(self.xaxis, size=self.axes_labelsize)
         axs[2].set_ylabel(r"$\Delta{\rm SNR}_i$", size=self.axes_labelsize)
@@ -940,7 +942,7 @@ class StatisticalChecks(object):
         axs[0].hist(
             self.delta_sigmas_all,
             bins=80,
-            color=sea[3],
+            color=self.sea[3],
             ec="k",
             lw=0.5,
             label="All data",
@@ -949,7 +951,7 @@ class StatisticalChecks(object):
         axs[0].hist(
             self.delta_sigmas_cut,
             bins=80,
-            color=sea[0],
+            color=self.sea[0],
             alpha = 0.6,
             ec="k",
             lw=0.5,
@@ -974,7 +976,7 @@ class StatisticalChecks(object):
         axs[1].hist(
             self.sliding_sigmas_all,
             bins=nx,
-            color=sea[3],
+            color=self.sea[3],
             ec="k",
             lw=0.5,
             label="All data",
@@ -983,7 +985,7 @@ class StatisticalChecks(object):
         axs[1].hist(
             self.sliding_sigma_cut,
             bins=nx,
-            color=sea[0],
+            color=self.sea[0],
             alpha = 0.6,
             ec="k",
             lw=0.5,
@@ -1016,7 +1018,7 @@ class StatisticalChecks(object):
             self.delta_sigmas_all,
             self.naive_sigmas_all,
             marker=".",
-            color=sea[3],
+            color=self.sea[3],
             label="All data",
             s=5,
         )
@@ -1024,7 +1026,7 @@ class StatisticalChecks(object):
             self.delta_sigmas_cut,
             self.naive_sigma_cut,
             marker=".",
-            color=sea[0],
+            color=self.sea[0],
             label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
 
             s=5,
@@ -1102,7 +1104,7 @@ class StatisticalChecks(object):
             self.delta_sigmas_all,
             self.sliding_deviate_all,
             marker=".",
-            color=sea[3],
+            color=self.sea[3],
             label="All data",
             s=3,
         )
@@ -1110,7 +1112,7 @@ class StatisticalChecks(object):
             self.delta_sigmas_cut,
             self.sliding_deviate_cut,
             marker=".",
-            color=sea[0],
+            color=self.sea[0],
             label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
             s=3,
         )
@@ -1126,7 +1128,7 @@ class StatisticalChecks(object):
             self.sliding_sigmas_all,
             self.sliding_deviate_all,
             marker=".",
-            color=sea[3],
+            color=self.sea[3],
             label="All data",
             s=3,
         )
@@ -1134,7 +1136,7 @@ class StatisticalChecks(object):
             self.sliding_sigma_cut,
             self.sliding_deviate_cut,
             marker=".",
-            color=sea[0],
+            color=self.sea[0],
             label=r"Data after $|\Delta\sigma/\sigma|$ outlier cut",
             s=3,
         )
@@ -1166,7 +1168,7 @@ class StatisticalChecks(object):
         axs.hist(
             self.sliding_deviate_all,
             bins,
-            color=sea[3],
+            color=self.sea[3],
             ec="k",
             lw=0.5,
             label="All data",
@@ -1174,7 +1176,7 @@ class StatisticalChecks(object):
         axs.hist(
             self.sliding_deviate_cut,
             bins,
-            color=sea[0],
+            color=self.sea[0],
             alpha = 0.6,
             ec="k",
             lw=0.5,
@@ -1248,7 +1250,7 @@ class StatisticalChecks(object):
         axs[0].plot(
             bins_count[1:],
             normal_cdf,
-            color=sea[3],
+            color=self.sea[3],
             label=r"Erf with $\sigma$=" + str(round(bias_factor, 2)),
         )
         axs[0].text(
@@ -1307,7 +1309,7 @@ class StatisticalChecks(object):
         _, bins, patches = plt.hist(
             values_clipped,
             bins=bins,
-            color=sea[0],
+            color=self.sea[0],
             ec="k",
             lw=0.5,
             label=r"Data after $|\Delta\sigma|/\sigma$ outlier cut",
@@ -1361,10 +1363,10 @@ class StatisticalChecks(object):
             sigma=sliding_sigma_cut_nansafe,
         )
         c1, c2 = popt[0], popt[1]
-        axs.plot(self.days_cut, func(self.days_cut, c1, c2), color=sea[3])
-        axs.plot(self.days_cut, self.sliding_omega_cut, '.', color=sea[0], markersize=1)
-        axs.plot(self.days_cut, 3 * self.sliding_sigma_cut, color=sea[0], linewidth=1.5)
-        axs.plot(self.days_cut, -3 * self.sliding_sigma_cut, color=sea[0], linewidth=1.5)
+        axs.plot(self.days_cut, func(self.days_cut, c1, c2), color=self.sea[3])
+        axs.plot(self.days_cut, self.sliding_omega_cut, '.', color=self.sea[0], markersize=1)
+        axs.plot(self.days_cut, 3 * self.sliding_sigma_cut, color=self.sea[0], linewidth=1.5)
+        axs.plot(self.days_cut, -3 * self.sliding_sigma_cut, color=self.sea[0], linewidth=1.5)
         axs.set_xlabel(self.xaxis, size=self.axes_labelsize)
         axs.set_ylabel(r"$\Omega_i$", size=self.axes_labelsize)
         axs.set_xlim(self.days_cut[0], self.days_cut[-1])
@@ -1415,8 +1417,8 @@ class StatisticalChecks(object):
             sliding_sigma_cut_nansafe,
         )
         c1, c2 = popt[0], popt[1]
-        axs.plot(self.days_cut, func(self.days_cut, c1, c2), color=sea[3])
-        axs.plot(self.days_cut, self.sliding_sigma_cut, ".", color=sea[0], markersize=1)
+        axs.plot(self.days_cut, func(self.days_cut, c1, c2), color=self.sea[3])
+        axs.plot(self.days_cut, self.sliding_sigma_cut, ".", color=self.sea[0], markersize=1)
         axs.set_xlabel(self.xaxis, size=self.axes_labelsize)
         axs.set_ylabel(r"$\sigma_i$", size=self.axes_labelsize)
         axs.set_xlim(self.days_cut[0], self.days_cut[-1])
@@ -1453,7 +1455,7 @@ class StatisticalChecks(object):
             self.total_gated_percent_ifo1 = self.total_gated_time_ifo1/(int(self.sliding_times_all[-1])- int(self.sliding_times_all[0]))*100
             gate_times_in_days_ifo1 = (np.array(self.gates_ifo1[:,0]) - self.sliding_times_all[0]) / 86400.0
             self.gates_ifo1_statement= f"Data gated out: {self.total_gated_time_ifo1} s\n" f"Percentage: {float(f'{self.total_gated_percent_ifo1:.2g}'):g}%"
-            gatefig1 = ax.plot(gate_times_in_days_ifo1, self.gates_ifo1[:,1]-self.gates_ifo1[:,0], 's', color=sea[3], label="IFO1:\n" f"{self.gates_ifo1_statement}")
+            gatefig1 = ax.plot(gate_times_in_days_ifo1, self.gates_ifo1[:,1]-self.gates_ifo1[:,0], 's', color=self.sea[3], label="IFO1:\n" f"{self.gates_ifo1_statement}")
             first_legend = ax.legend(handles=gatefig1, loc=(0.05,0.75), fontsize = self.axes_labelsize)
             ax.add_artist(first_legend)
         if self.gates_ifo2 is None:
@@ -1463,7 +1465,7 @@ class StatisticalChecks(object):
             self.total_gated_percent_ifo2 = self.total_gated_time_ifo2/(int(self.sliding_times_all[-1])- int(self.sliding_times_all[0]))*100
             gate_times_in_days_ifo2 = (np.array(self.gates_ifo2[:,0]) - self.sliding_times_all[0]) / 86400.0
             self.gates_ifo2_statement= f"Data gated out: {self.total_gated_time_ifo2} s\n" f"Percentage: {float(f'{self.total_gated_percent_ifo2:.2g}'):g}%"
-            gatefig2 = ax.plot(gate_times_in_days_ifo2, self.gates_ifo2[:,1]-self.gates_ifo2[:,0], 's', color=sea[0], label="IFO2:\n" f"{self.gates_ifo2_statement}")
+            gatefig2 = ax.plot(gate_times_in_days_ifo2, self.gates_ifo2[:,1]-self.gates_ifo2[:,0], 's', color=self.sea[0], label="IFO2:\n" f"{self.gates_ifo2_statement}")
             ax.legend(handles=gatefig2, loc=(0.05, 0.1), fontsize = self.axes_labelsize)
         ax.set_xlabel(self.xaxis, size=self.axes_labelsize)
         ax.set_ylabel("Gate length (s)", size=self.axes_labelsize)
@@ -1520,7 +1522,7 @@ def sortingFunction(item):
     return float(item[5:].partition("-")[0])
 
 def run_statistical_checks_from_file(
-    combine_file_path, dsc_file_path, plot_dir, param_file, legend_fontsize=16, coherence_file_path = None, file_tag = None, convention='pygwb'
+    combine_file_path, dsc_file_path, plot_dir, param_file, legend_fontsize=16, coherence_file_path = None, file_tag = None, convention='pygwb', seaborn_palette='tab10',
 ):
     """
     Method to generate an instance of the statistical checks class from a set of files.
@@ -1555,15 +1557,17 @@ def run_statistical_checks_from_file(
     dsc_file = np.load(dsc_file_path)
 
     badGPStimes = dsc_file["badGPStimes"]
-    delta_sigmas = dsc_file["delta_sigma_values"]
-    sliding_times = dsc_file["delta_sigma_times"]
-    naive_sigma_all = dsc_file["naive_sigma_values"]
-    gates_ifo1 = dsc_file["ifo_1_gates"]
-    gates_ifo2 = dsc_file["ifo_2_gates"]
-    if gates_ifo1.size==0:
-        gates_ifo1=None
-    if gates_ifo2.size==0:
-        gates_ifo2=None
+    delta_sigmas = dsc_file["delta_sigmas"].T #dsc_file["delta_sigma_values"]
+    sliding_times = dsc_file["times"] #dsc_file["delta_sigma_times"]
+    naive_sigma_all = dsc_file["naive_sigmas"].T #dsc_file["naive_sigma_values"]
+    #gates_ifo1 = dsc_file["ifo_1_gates"]
+    #gates_ifo2 = dsc_file["ifo_2_gates"]
+    #if gates_ifo1.size==0:
+    #    gates_ifo1=None
+    #if gates_ifo2.size==0:
+    #    gates_ifo2=None
+    gates_ifo1=None
+    gates_ifo2=None
 
     sliding_omega_all, sliding_sigmas_all = (
         spectra_file["point_estimates_seg_UW"],
@@ -1627,5 +1631,6 @@ def run_statistical_checks_from_file(
         gates_ifo2,
         file_tag=file_tag,
         legend_fontsize=legend_fontsize,
-        convention=convention
+        convention=convention,
+        seaborn_palette=seaborn_palette,
     )
