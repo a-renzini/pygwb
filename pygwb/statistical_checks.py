@@ -1565,8 +1565,6 @@ def run_statistical_checks_from_file(
         gates_ifo1=None
     if gates_ifo2.size==0:
         gates_ifo2=None
-    gates_ifo1=None
-    gates_ifo2=None
 
     sliding_omega_all, sliding_sigmas_all = (
         spectra_file["point_estimates_seg_UW"],
