@@ -34,9 +34,8 @@ rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
 # FIXME - changed to get workflow running
 rc('text', usetex=True)
 
-import seaborn as sns
-
 import numpy as np
+import seaborn as sns
 from scipy import integrate, stats
 from scipy.optimize import curve_fit
 
