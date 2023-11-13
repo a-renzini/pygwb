@@ -1556,15 +1556,15 @@ def run_statistical_checks_from_file(
     dsc_file = np.load(dsc_file_path)
 
     badGPStimes = dsc_file["badGPStimes"]
-    delta_sigmas = dsc_file["delta_sigmas"].T #dsc_file["delta_sigma_values"]
-    sliding_times = dsc_file["times"] #dsc_file["delta_sigma_times"]
-    naive_sigma_all = dsc_file["naive_sigmas"].T #dsc_file["naive_sigma_values"]
-    #gates_ifo1 = dsc_file["ifo_1_gates"]
-    #gates_ifo2 = dsc_file["ifo_2_gates"]
-    #if gates_ifo1.size==0:
-    #    gates_ifo1=None
-    #if gates_ifo2.size==0:
-    #    gates_ifo2=None
+    delta_sigmas = dsc_file["delta_sigma_values"]
+    sliding_times = dsc_file["delta_sigma_times"]
+    naive_sigma_all = dsc_file["naive_sigma_values"]
+    gates_ifo1 = dsc_file["ifo_1_gates"]
+    gates_ifo2 = dsc_file["ifo_2_gates"]
+    if gates_ifo1.size==0:
+        gates_ifo1=None
+    if gates_ifo2.size==0:
+        gates_ifo2=None
     gates_ifo1=None
     gates_ifo2=None
 
