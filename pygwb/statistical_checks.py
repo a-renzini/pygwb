@@ -144,16 +144,25 @@ class StatisticalChecks(object):
         self.coherence_spectrum = coherence_spectrum
         self.coherence_far = coherence_far
         if coherence_n_segs is not None:
+            # FFT length in seconds
             fftlength = int(1.0 / (self.frequencies[1] - self.frequencies[0]))
-            nFFT = fftlength*self.params.new_sample_rate
-            nSamples = self.params.segment_duration*self.params.new_sample_rate
+
+            # FFT number of samples
+            nFFT = int(fftlength*self.params.new_sample_rate)
+
+            # Number of samples in a segment used for calculating PSD
+            nSamples = int(self.params.segment_duration*self.params.new_sample_rate)
+            
             window_tuple = get_window_tuple(self.params.window_fft_dict_welch)
-            # Effective number of segments in a coherence from a single segment
-            N_eff = effective_welch_averages(nSamples, nFFT, window_tuple, self.params.overlap_factor_welch)
+
+            # Total number of samples included in the all coherence segments combined. This is only approximate
+            # since the coherences are combined across several discrete science segments. A more accurate count
+            # could be obtained by saving this quantity for each science segment.
+            N_tot = int(nSamples + (coherence_n_segs - 1)*(1 - self.params.overlap_factor)*nSamples)
 
             # Total number of effective segments - need to carefully check how many independent segments
             # there should be.
-            self.n_segs = (1 + (1 - self.params.overlap_factor)*(coherence_n_segs - 1))*N_eff
+            self.n_segs = effective_welch_averages(N_tot, nFFT, window_tuple, self.params.overlap_factor_welch)
             
             # The old method, gives a slightly larger number of segments
             # self.n_segs = coherence_n_segs*(1.-self.params.overlap_factor)
