@@ -385,9 +385,9 @@ class Workflow():
             cat1_vetoes = DataQualityDict({v: vetoes[v] for v in vetoes if (vetoes[v].category ==1) and (v[:2] in ifos)})
             cat1_vetoes.populate()
 
-            cat1_vetoes = cat1_vetoes.intersection().active
-
+            cat1_vetoes = cat1_vetoes.union().active
             seglist = sci_flag - cat1_vetoes
+
         else:
             seglist = sci_flag
 

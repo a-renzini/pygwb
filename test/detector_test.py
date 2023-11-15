@@ -117,7 +117,7 @@ class TestInterferometer(unittest.TestCase):
         )
 
     def test_gwpy_timeseries_gating(self):
-        gwpy_timeseries = self.testdata["original_timeseries"]
+        gwpy_timeseries = self.testdata["gating_timeseries"]
         ifo = detector.Interferometer.get_empty_interferometer(self.ifo)
         ifo.set_timeseries_from_gwpy_timeseries(
             gwpy_timeseries=gwpy_timeseries, **self.kwargs
@@ -133,13 +133,14 @@ class TestInterferometer(unittest.TestCase):
             gate_threshold = gate_threshold, cluster_window = cluster_window,
             gate_whiten = gate_whiten,
         )
+        print(ifo.gates)
         self.assertTrue(max(ifo.timeseries.whiten().value) < gate_threshold, True)
         self.assertTrue((_known_gate in ifo.gates), True)
         self.assertTrue(abs(ifo.gates), 2*gate_tzero)
         self.assertTrue(ifo.gate_pad, gate_tpad)
         
     def test_gated_times_from_file(self):
-        gwpy_timeseries = self.testdata["original_timeseries"]
+        gwpy_timeseries = self.testdata["gating_timeseries"]
         npzobject = np.load("./test/test_data/point_estimate_sigma_1247644138-1247645038.npz")
         gate_tpad = 0.5
         ifo_for_loading = detector.Interferometer.get_empty_interferometer(self.ifo)
