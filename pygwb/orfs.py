@@ -87,7 +87,6 @@ def Tplus(alpha, beta):
         * np.cos(2 * beta)
     )
 
-
 def Tminus(alpha, beta):
     """
     Function used in the computation of the tensor ORF, as given by 
@@ -119,7 +118,6 @@ def Tminus(alpha, beta):
         + 5.0 / 7 * spherical_jn(2, alpha)
         + 3.0 / 112 * spherical_jn(4, alpha)
     ) * np.cos(beta / 2) ** 4
-
 
 def Vplus(alpha, beta):
     """
@@ -167,7 +165,6 @@ def Vplus(alpha, beta):
         * np.cos(2 * beta)
     )
 
-
 def Vminus(alpha, beta):
     """
     Function used in the computation of the vector ORF, as given by 
@@ -199,7 +196,6 @@ def Vminus(alpha, beta):
         - 5.0 / 14 * spherical_jn(2, alpha)
         - 3.0 / 28 * spherical_jn(4, alpha)
     ) * np.cos(beta / 2) ** 4
-
 
 def Splus(alpha, beta):
     """
@@ -247,7 +243,6 @@ def Splus(alpha, beta):
         * np.cos(2 * beta)
     )
 
-
 def Sminus(alpha, beta):
     """
     Function used in the computation of the scalar ORF, as given by 
@@ -280,10 +275,8 @@ def Sminus(alpha, beta):
         + 9.0 / 56 * spherical_jn(4, alpha)
     ) * np.cos(beta / 2) ** 4
 
-
 def T_right_left(alpha, beta):
     """
-    
     Parameters
     =======
     
@@ -310,7 +303,6 @@ def T_right_left(alpha, beta):
         + (spherical_jn(1, alpha) + 3.0 / 8 * spherical_jn(3, alpha)) * np.cos(beta)
     )
 
-
 def tangent_vector(vector1, vector2):
     """
     Method to compute the tangent vector given two vectors.
@@ -333,7 +325,6 @@ def tangent_vector(vector1, vector2):
         vector2,
         np.multiply(np.dot(vector1, vector2) / np.dot(vector1, vector1), vector1),
     )
-
 
 def omega_tangent_bisector(bisector, tangent_vector, perp):
     """
@@ -362,7 +353,6 @@ def omega_tangent_bisector(bisector, tangent_vector, perp):
     sin_omega = np.dot(np.cross(bisector, tangent_vector), perp) / norm
     cos_omega = np.dot(bisector, tangent_vector) / norm
     return np.arctan2(sin_omega, cos_omega)
-
 
 def calc_orf(
     frequencies,
@@ -436,7 +426,6 @@ def calc_orf(
     overlap_reduction_function: ``array_like``
         Overlap reduction function at given frequencies for specified polarization.
     """
-
     delta_x = np.subtract(det1_vertex, det2_vertex)
     alpha = 2 * np.pi * frequencies * np.linalg.norm(delta_x) / speed_of_light
 

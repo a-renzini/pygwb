@@ -121,7 +121,32 @@ Parameters related to the last part of the workflow are passed through the follo
 **3. Output of the script**
 ===========================
 
-As mentioned in the introduction of the tutorial, the workflow combines the different ``pygwb`` scripts. Therefore, the output of the workflow will be similar to that of the
-individual scripts. We refrain from going over the different outputs again, but refer the user to the dedicated tutorials for more information (e.g. `pygwb_pipe <pipeline.html#output-of-the-script>`_, 
-`pygwb_combine <multiple_jobs.html#id8>`_, `pygwb_stats <stat_checks.html#output-of-the-script>`_). However, we do note the additional feature of the workflow, which displays all 
-results of the run in an ``html`` page.
+As mentioned in the introduction of this tutorial, the workflow combines the different ``pygwb`` scripts. Therefore, the output of the
+workflow will be similar to that of the
+individual scripts. We refrain from going over the different outputs again, but refer the user to the dedicated tutorials for more 
+information (e.g. `pygwb_pipe <pipeline.html#output-of-the-script>`_, 
+`pygwb_combine <multiple_jobs.html#id8>`_, `pygwb_stats <stat_checks.html#output-of-the-script>`_). 
+
+Futhermore, we note the additional feature of the workflow which displays all 
+results of the run in an ``html`` page. The workflow script creates several directories for the output of the workflow 
+and generates the files that will be used for the submission of the ``dag`` file on a cluster. 
+In the designated directory, given by ``--basedir BASEDIR`` parameter, the following files and directories can be found:
+
+.. code-block:: shell
+
+   about  condor  config.ini  index.html  output  pygwb_cache.txt
+   
+The ``about`` directory contains information about the analysis run, as well as the input passed to the workflow and is mainly used to set up the ``html`` pages. 
+The ``condor`` directory stores all relevant files needed for the ``dag`` submission to the cluster. Every individual job 
+will have an ``output``, ``submit``, ``error`` and a ``log`` file starting with ``pygwb_pipe_{t0}_{length}``.
+The dag file itself is labeled ``pygwb_dagman.submit``, and can be submitted through ``condor_submit_dag pygwb_dagman.submit``. The ``error`` and ``log`` files can help finding 
+errors when running the ``dag`` file. See the Condor documentation `here <https://htcondor.org/documentation/htcondor.html>`_ 
+for more information. The submit files for the ``pygwb_combine``, ``pygwb_stats`` and ``pygwb_html`` scripts are also present in this folder.
+
+The ``config.ini`` is a copy of the configuration file given to the workflow script through ``--configfile CONFIGFILE``.
+
+The ``output`` directory contains a subdirectory for every individual job. In each subdirectory, the output files mentioned
+`here <pipeline.html#output-of-the-script>`_ can be found.
+In addition, there is also the subdirectory ``combined_results`` which contains the output of the ``pygwb_combine`` script, 
+see `here <multiple_jobs.html#id8>`_ for more information. The last subdirectory ``segment_lists`` contains a data file with 
+the start times, end times, and lengths of the jobs analyzed by the workflow.
