@@ -1635,7 +1635,7 @@ def sortingFunction(item):
     return float(item[5:].partition("-")[0])
 
 def run_statistical_checks_from_file(
-    combine_file_path, dsc_file_path, plot_dir, param_file, legend_fontsize=16, coherence_file_path = None, file_tag = None, convention='pygwb', seaborn_palette='tab10',
+    combine_file_path, dsc_file_path, plot_dir, param_file, coherence_far=1.0, legend_fontsize=16, coherence_file_path = None, file_tag = None, convention='pygwb', seaborn_palette='tab10',
 ):
     """
     Method to generate an instance of the statistical checks class from a set of files.
