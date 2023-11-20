@@ -25,7 +25,6 @@ jobs:
           cp tutorials/*.ipynb ./docs
           cp tutorials/*.dat ./docs
           cp -r tutorials/input ./docs
-          rm docs/integrationTest*.ipynb
           ls docs
       - name: Sphinx build
         run: |
