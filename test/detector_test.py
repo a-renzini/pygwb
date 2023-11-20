@@ -1,5 +1,6 @@
 import pickle
 import unittest
+from test.conftest import testdir
 
 import numpy as np
 from gwpy.segments import Segment, SegmentList
@@ -10,7 +11,7 @@ from pygwb import detector, parameters
 class TestInterferometer(unittest.TestCase):
     def setUp(self):
         self.ifo = "H1"
-        param_file = "./test/test_data/parameters_detector_test.ini"
+        param_file = f"{testdir}/test_data/parameters_detector_test.ini"
         self.parameters = parameters.Parameters()
         self.parameters.update_from_file(param_file)
         self.kwargs = {
@@ -35,7 +36,7 @@ class TestInterferometer(unittest.TestCase):
             ]
         }
         self.kwargs["local_data_path"] = ""
-        with open("./test/test_data/detector_testdata_H1.pickle", "rb") as pkl:
+        with open(f"{testdir}/test_data/detector_testdata_H1.pickle", "rb") as pkl:
             self.testdata = pickle.load(pkl)
 
     def tearDown(self):
@@ -141,7 +142,7 @@ class TestInterferometer(unittest.TestCase):
         
     def test_gated_times_from_file(self):
         gwpy_timeseries = self.testdata["gating_timeseries"]
-        npzobject = np.load("./test/test_data/point_estimate_sigma_1247644138-1247645038.npz")
+        npzobject = np.load(f"{testdir}/test_data/point_estimate_sigma_1247644138-1247645038.npz")
         gate_tpad = 0.5
         ifo_for_loading = detector.Interferometer.get_empty_interferometer(self.ifo)
         ifo_for_loading.set_timeseries_from_gwpy_timeseries(

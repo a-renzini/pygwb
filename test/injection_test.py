@@ -1,6 +1,7 @@
 import copy
 import os
 import unittest
+from test.conftest import testdir
 
 import bilby
 import numpy as np
@@ -16,7 +17,7 @@ class TestSimulator(unittest.TestCase):
         self.interferometer_1 = bilby.gw.detector.get_empty_interferometer("H1")
         self.interferometer_2 = bilby.gw.detector.get_empty_interferometer("L1")
         self.interferometer_3 = bilby.gw.detector.get_empty_interferometer("V1")
-        self.intensity_GW = FrequencySeries.read("test/intensity_GW_file.txt")
+        self.intensity_GW = FrequencySeries.read(f"{testdir}/intensity_GW_file.txt")
         self.N_segments = 10
         self.duration = 60.0
         self.sampling_frequency = 2048.0

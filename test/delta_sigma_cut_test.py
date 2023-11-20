@@ -1,6 +1,7 @@
 import pickle
 import unittest
 from pathlib import Path
+from test.conftest import testdir
 
 import numpy as np
 
@@ -42,7 +43,7 @@ class Test(unittest.TestCase):
         sampling_frequency = 512
         dsc = 0.2
         alphas = [-5, 0, 3]
-        notch_file = "test/test_data/Official_O3_HL_notchlist.txt"
+        notch_file = f"{testdir}/test_data/Official_O3_HL_notchlist.txt"
 
         # test = Path(__file__).parent.resolve()
         # pickle_path = test / "test_data/naive_and_sliding_psds.pickle"
@@ -56,7 +57,7 @@ class Test(unittest.TestCase):
         # avg_psd_2 = pickle_loaded["avg_psd_2"]
 
         pickled_base = baseline.Baseline.load_from_pickle(
-            "test/test_data/H1L1_1247644138-1247644158.pickle"
+            f"{testdir}/test_data/H1L1_1247644138-1247644158.pickle"
         )
         pickled_ifo_1 = pickled_base.interferometer_1
         pickled_ifo_2 = pickled_base.interferometer_2
