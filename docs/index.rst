@@ -1,7 +1,9 @@
 pygwb documentation
-==============================================
+===================
+
 .. image:: pygwb_logo_plasma.png
-   :width: 200
+   :width: 250
+   :align: center
 
 .. automodule::
     :members:
@@ -12,60 +14,26 @@ pygwb documentation
 
 `pygwb` also includes a set of pre-packaged analysis scripts which may be used to analyse data and perform large-scale searches on a high-performance computing cluster efficiently.
 
+.. raw:: html
+
+   <a href="about.html"><button style="background-color:#307FC1;border-color:#307FC1;color:white;width: 200.0px; height: 100.0px;border-radius: 8px;margin-bottom: 10px;margin-left: 10px">More about pygwb</button></a>
+   <a href="installation.html"><button style="background-color:#307FC1;color:white;border-color:#307FC1;width: 200.0px; height: 100.0px;border-radius: 8px;margin-bottom: 10px;margin-left: 10px">Installing pygwb</button></a>
+   <a href="tutorials.html"><button style="background-color:#307FC1;color:white;border-color:#307FC1;width: 200.0px; height: 100.0px;border-radius: 8px;margin-bottom: 10px;margin-left: 10px">Tutorials</button></a>
+   <a href="demos.html"><button style="background-color:#307FC1;color:white;border-color:#307FC1;width: 200.0px; height: 100.0px;border-radius: 8px;margin-bottom: 10px;margin-left: 10px">Demos</button></a>
+   <a href="api.html"><button style="background-color:#307FC1;color:white;border-color:#307FC1;width: 200.0px; height: 100.0px;border-radius: 8px;margin-bottom: 10px;margin-left: 10px">Module API</button></a>
+   <a href="contributing.html"><button style="background-color:#307FC1;color:white;border-color:#307FC1;width: 200.0px; height: 100.0px;border-radius: 8px;margin-bottom: 10px;margin-left: 10px">Contributing to pygwb</button></a>
+   
 .. toctree::
    :maxdepth: 1
-   :caption: Contents:
+   :hidden:
 
    about
    installation
-   contributing
-   pipeline
-   pe
-   simulator
    tutorials
-
-
-.. currentmodule:: pygwb
-
-API:
-----
-
-.. autosummary::
-   :toctree: api
-   :template: custom-module-template.rst
-   :caption: API:
-   :recursive:
-   
-   detector
-   baseline
-   network
-
-   preprocessing
-   spectral
-   coherence
-   postprocessing
-   omega_spectra
-   pe
-   statistical_checks
-
-   simulator
-
-   delta_sigma_cut
-   notch
-   
-   constants
-   orfs   
-   parameters
-   util
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Tutorials:
-
-   generate_stochastic_background_in_network
-   inject_simulated_data_in_network
-   simulate_CBC_GWB
-   test_orfs
-   make_notchlist
-   run_statistical_checks
-   run_pe
+   demos
+   api
+   pygwb paper <https://arxiv.org/pdf/2303.15696.pdf>
+   citing
+   GitHub <https://github.com/a-renzini/pygwb>
+   contributing
+   Submit an issue <https://github.com/a-renzini/pygwb/issues/new>

@@ -3,8 +3,8 @@ In general, the noise level in ground-based detectors changes slowly on time-sca
 variance associated to each segment is an indicator of that level of noise, which typically changes
 at roughly the percent level from one data segment to the next. However, there are occasional very loud disturbances
 to the detectors, such as glitches, which violate the Gaussianity of the noise. Auto-gating procedures are in place
-to remove loud glitches from the data; however the procedure does not remove all non-
-stationarities. To avoid biases due to these noise events, an automated technique, called delta-sigma cut, 
+to remove loud glitches from the data; however the procedure does not remove all non-stationarities. 
+To avoid biases due to these noise events, an automated technique, called delta-sigma cut, 
 to exclude them from the analysis has been developed, which flags specific segments to be cut from the analyzed set.
 
 Examples
@@ -77,13 +77,10 @@ def dsc_cut(
         corresponding GPS times were bad, whereas False denotes good GPS times.
     dsigma: ``array_like``
         Values of the difference between sliding sigma and naive sigma, i.e., the actual value of the delta sigma per segment.
-    
     """
-
     dsigma = np.abs(slide_sigma * bf_ss - naive_sigma * bf_ns) / (slide_sigma * bf_ss)
 
     return dsigma >= dsc, dsigma
-
 
 def run_dsc(
     dsc: float,
@@ -102,7 +99,6 @@ def run_dsc(
     N_average_segments_psd: int = 2,
     return_naive_and_averaged_sigmas: bool = False,
 ):
-
     """
     Function that runs the delta sigma cut.
 
@@ -162,8 +158,13 @@ def run_dsc(
         
     dsigmas_dict: ``array_like``
         Array containing the values of the difference between sliding sigma and naive sigma, i.e., the actual value of the delta sigma per segment.
-    """
 
+    See also
+    --------
+    pygwb.postprocessing.calculate_point_estimate_sigma_spectra
+
+    pygwb.util.calc_bias
+    """
     logger.info("Running delta sigma cut")
     nalphas = len(alphas)
     times = np.array(psd1_naive.times)
@@ -265,7 +266,7 @@ def run_dsc(
     dsigmas_dict["times"] = times
     dsigmas_dict["values"] = dsigmas
 
-    if return_naive_and_averaged_sigmas == True:
+    if return_naive_and_averaged_sigmas:
         dsigmas_dict["slide_sigmas"] = slide_sigmas * bf_ss
         dsigmas_dict["naive_sigmas"] = naive_sigmas * bf_ns
 

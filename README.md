@@ -10,7 +10,7 @@
 `pygwb` also includes a set of pre-packaged analysis scripts which may be used to analyse data and perform large-scale searches on a high-performance computing cluster efficiently.
 
 
-[**Documentation**](https://a-renzini.github.io/pygwb/)
+[**Documentation**](https://pygwb.docs.ligo.org/pygwb/)
 
 ## Installation instructions
 

@@ -65,6 +65,15 @@ def main():
     if script_args.param_file:
         params.update_from_file(script_args.param_file)
     params.update_from_arguments(parameters_args)
+
+    if params.notch_list_path:
+    	notch_list_path = Path(params.notch_list_path)
+    	if not notch_list_path.exists():
+    		raise ValueError(
+    		f"Your path to the notch list {params.notch_list_path} does not exist or cannot be reached."
+    		" Please enter a valid path instead or leave it blank to use no notches at all."
+    		)
+
     logger.info(f"Successfully imported parameters from paramfile and input.")
 
     if script_args.output_path:
@@ -181,7 +190,8 @@ def main():
     if pipe_calculate_coherence:
         logger.info(f"calculating the coherence...")
 
-        base_12.set_coherence_spectrum(apply_dsc=pipe_apply_dsc)
+        base_12.set_coherence_spectrum(apply_dsc=pipe_apply_dsc, 
+            flow=params.flow, fhigh=params.fhigh)
 
     if pipe_calculate_point_estimate:
         logger.info(f"calculating the point estimate and sigma...")
