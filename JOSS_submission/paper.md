@@ -107,7 +107,7 @@ where $d\rho_{\rm GW}$ is the energy density of GWs in the frequency band $f$ to
 
 # Statement of need
 
-Due to the considerable amount of data to analyze, and the vast panorama of GWB models to test, the detection and characterization of a GWB requires a community effort. Furthermore, data handling and model building entail a number of different choices, depending on specific analysis purposes. Up until the previous LIGO-Virgo-KAGRA Collaboration (LVK) observing run, O3, the collaboration has relied on an internal matlab-based pipeline available at [@stochasticm] to perform stochastic analyses. This pipeline lacks the ability to perform parameter estimation, as well as modularity and flexibility. This exemplifies the need for an accessible, flexible, and user-friendly open-source codebase for the current and upcoming LVK runs: `pygwb`. To fully cater to user needs, `pygwb` is modular and extensively customizable, and is accompanied by exhaustive documentation.
+Due to the considerable amount of data to analyze, and the vast panorama of GWB models to test, the detection and characterization of a GWB requires a community effort. Furthermore, data handling and model building entail a number of different choices, depending on specific analysis purposes. Up until the previous LIGO-Virgo-KAGRA Collaboration (LVK) observing run, O3, the collaboration has relied on an internal MATLAB-based pipeline available at [@stochasticm] to perform stochastic analyses. This pipeline lacks the ability to perform parameter estimation, as well as modularity and flexibility. This exemplifies the need for an accessible, flexible, and user-friendly open-source codebase for the current and upcoming LVK runs: `pygwb`. To fully cater to user needs, `pygwb` is modular and extensively customizable, and is accompanied by exhaustive documentation.
 
 # Method
 
@@ -123,7 +123,7 @@ $$
 \sigma^2_{{\rm GW,} f} = \frac{1}{2 T \Delta f} \frac{P_{I, f} P_{J, f}}{\gamma^2_{IJ}(f) S^2_0(f)},
 $$
 
-where $P_{I,f}$ is the power spectral density from detector $I$ and $T$ is the duration of data used to produce the above spectral densities. This estimator is optimal and unbiased under the assumption that the signal is Gaussian, isotropic, and continuous. Details on how the estimation is carried out, as well as the implementation of the estimator on large datasets and with many potentially overlapping datasegments can be found in our companion methods paper [@pygwb_paper].
+where $P_{I,f}$ is the power spectral density from detector $I$ and $T$ is the duration of data used to produce the above spectral densities. This estimator is optimal and unbiased under the assumption that the signal is Gaussian, isotropic, and continuous. Details on how the estimation is carried out, as well as the implementation of the estimator on large datasets and with many potentially overlapping data segments can be found in our companion methods paper [@pygwb_paper].
 
 Model testing in `pygwb` is performed through Bayesian inference on a select set of parameters, given a parametric GWB model and a likelihood $p$ of observing the data given the model. Concretely, the above cross-correlation estimator is input data to a Gaussian residual likelihood,
 
@@ -146,7 +146,7 @@ A set of simple statistical checks can be performed on the data after a `pygwb` 
 In addition, a parameter estimation script, `pygwb_pe`, is also included and allows to test a subset of default models with user-defined parameters. `pygwb_pe` is based on the `pygwb` parameter estimation module, `pe`, which allows the user to test both predefined and user-defined models and obtain posterior distributions on the parameters of interest. Users are encouraged to develop and test their own models within the `pe` module.
 The `pygwb` package also contains built-in support for running on `HTCondor`-supported servers using `dag` files to parallelize the analysis of long stretches of data. Using the dedicated `pygwb_combine` script, the output can be combined into an overall estimation of the GWB for the whole data set.
 
-The source code can be found at https://github.com/a-renzini/pygwb, and can be installed from `PyPi` via `pip install pygwb`. The online documentation, tutorials and examples are hosted at https://pygwb.docs.ligo.org/pygwb/index.html. The package includes a unit test suite which currently covers 80% of the modules. `pygwb` is released under a OSI Approved :: MIT License.
+The source code can be found at [https://git.ligo.org/pygwb/pygwb](https://git.ligo.org/pygwb/pygwb) and [https://github.com/a-renzini/pygwb](https://github.com/a-renzini/pygwb), and can be installed from `PyPi` via `pip install pygwb`. The online documentation, tutorials and examples are hosted at [https://pygwb.docs.ligo.org/pygwb/index.html](https://pygwb.docs.ligo.org/pygwb/index.html). The package includes a unit test suite which currently covers 80% of the modules. `pygwb` is released under a OSI Approved :: MIT License.
 
 ![`pygwb` schema.\label{fig:schema}](../docs/pygwb_modules.png){width=80%}
 
