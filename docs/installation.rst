@@ -51,7 +51,7 @@ You may also wish to install in "develop" mode.
     .. code-block:: console
 
       $ git clone git@git.ligo.org:pygwb/pygwb.git
-      $ pip install -e .
+      $ pip install -e .[dev]
 
   .. tab:: setup.py
 

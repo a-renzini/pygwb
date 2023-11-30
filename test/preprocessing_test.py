@@ -1,6 +1,7 @@
 import pickle
 import unittest
 from random import sample
+from test.conftest import testdir
 
 import numpy as np
 from gwpy import timeseries
@@ -21,7 +22,7 @@ class Test(unittest.TestCase):
         self.time_shift = 0
         self.sample_rate = 4096
         self.input_sample_rate = 16384
-        self.local_data_path = './test/test_data/data_gwf_preproc_testing.gwf'
+        self.local_data_path = f"{testdir}/test_data/data_gwf_preproc_testing.gwf"
         self.cutoff_frequency = 11
 
         data_start_time = preprocessing.set_start_time(

@@ -33,14 +33,22 @@ setup(
     license="MIT",
     packages=["pygwb"],
     package_dir={"pygwb": "pygwb"},
-    scripts=['pygwb_pipe/pygwb_pipe','pygwb_pipe/pygwb_combine', 'pygwb_pipe/pygwb_stats', 'pygwb_pipe/pygwb_dag', 'pygwb_pipe/pygwb_pe', 'pygwb_pipe/pygwb_create_isotropic_workflow', 'pygwb_pipe/pygwb_html'],
+    scripts=[
+        "pygwb_pipe/pygwb_pipe",
+        "pygwb_pipe/pygwb_combine",
+        "pygwb_pipe/pygwb_stats",
+        "pygwb_pipe/pygwb_dag",
+        "pygwb_pipe/pygwb_pe",
+        "pygwb_pipe/pygwb_create_isotropic_workflow",
+        "pygwb_pipe/pygwb_html",
+    ],
     install_requires=[
         "numpy",
         "matplotlib",
         "scipy>=1.8.0",
         "bilby>=1.4",
         "gwpy>=3.0.4",
-        "astropy==5.2",
+        "astropy>=5.2",
         "gwdetchar",
         "gwsumm",
         "pycondor",
@@ -49,6 +57,11 @@ setup(
         "json5",
         "seaborn",
     ],
+    extras_require={
+        "dev": [
+            "pytest",
+        ]
+    },
     classifiers=[
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
@@ -59,4 +72,3 @@ setup(
     ],
     python_requires=">=3.8",
 )
-

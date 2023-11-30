@@ -156,13 +156,13 @@ class Simulator:
             self.orf = self.get_orf(polarization=orf_polarization)
 
             self.intensity_GW = intensity_GW
-            if self.intensity_GW:
+            if self.intensity_GW is not None:
                 self.intensity_GW = interpolate_frequency_series(
                     intensity_GW, self.frequencies
                 )
             self.injection_dict = injection_dict
 
-            if not self.intensity_GW and not self.injection_dict:
+            if self.intensity_GW is None and not self.injection_dict:
                 raise ValueError('Must provide at least one of intensity_GW or self.injection_dict')
 
     def get_frequencies(self):
@@ -333,7 +333,7 @@ class Simulator:
         data_signal_temp = np.zeros(
             (self.Nd, self.N_samples_per_segment * self.N_segments), dtype=np.ndarray
         )
-        if self.intensity_GW:
+        if self.intensity_GW is not None:
             y_signal = self.simulate("signal")
             if self.seed:
                 # seed is based on start time of segment

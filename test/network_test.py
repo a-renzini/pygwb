@@ -1,5 +1,6 @@
 import os
 import unittest
+from test.conftest import testdir
 
 import bilby
 import gwpy
@@ -34,15 +35,15 @@ class TestNetwork(unittest.TestCase):
 
     def test_from_baselines(self):
         pickled_base_1 = baseline.Baseline.load_from_pickle(
-            "test/test_data/H1L1_1247644138-1247644158.pickle"
+            f"{testdir}/test_data/H1L1_1247644138-1247644158.pickle"
         )
         pickled_base_2 = baseline.Baseline.load_from_pickle(
-            "test/test_data/H1L1_1247644138-1247644158.pickle"
+            f"{testdir}/test_data/H1L1_1247644138-1247644158.pickle"
         )
         bases = [pickled_base_1, pickled_base_2]
         self.net_load = network.Network.from_baselines("test_net", bases)
         pickled_base_3 = baseline.Baseline.load_from_pickle(
-            "test/test_data/H1L1_1247644138-1247644158.pickle"
+            f"{testdir}/test_data/H1L1_1247644138-1247644158.pickle"
         )
         ifo_1 = bilby.gw.detector.get_empty_interferometer("H1")
         ifo_2 = bilby.gw.detector.get_empty_interferometer("H1")
@@ -111,10 +112,10 @@ class TestNetwork(unittest.TestCase):
         with self.assertRaises(AttributeError):
             self.net_ifos.combine_point_estimate_sigma_spectra()
         pickled_base_1 = baseline.Baseline.load_from_pickle(
-            "test/test_data/H1L1_1247644138-1247644158.pickle"
+            f"{testdir}/test_data/H1L1_1247644138-1247644158.pickle"
         )
         pickled_base_2 = baseline.Baseline.load_from_pickle(
-            "test/test_data/H1L1_1247644138-1247644158.pickle"
+            f"{testdir}/test_data/H1L1_1247644138-1247644158.pickle"
         )
         pickled_base_1.point_estimate_spectrum = omega_spectra.OmegaSpectrum(pickled_base_1.point_estimate_spectrum.value, alpha=5, fref=100, h0=1)
         bases = [pickled_base_1, pickled_base_2]
@@ -126,7 +127,7 @@ class TestNetwork(unittest.TestCase):
         self.net_load.set_point_estimate_sigma()
         self.assertAlmostEqual(self.net_load.point_estimate, -8.051693930603888e-06)
         self.assertAlmostEqual(self.net_load.sigma, 7.893987472116006e-06)
-        self.net_load.set_point_estimate_sigma(notch_list_path='./test/test_data/Official_O3_HL_notchlist.txt')
+        self.net_load.set_point_estimate_sigma(notch_list_path=f'{testdir}/test_data/Official_O3_HL_notchlist.txt')
         self.assertAlmostEqual(self.net_load.point_estimate, -2.25653774940599e-05)
         self.assertAlmostEqual(self.net_load.sigma,  1.0513230811901939e-05)
 
