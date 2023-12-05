@@ -989,3 +989,53 @@ class PVPowerLawModel2(GWBModel):
             * self.parameters["omega_ref"]
             * (bline.frequencies / self.fref) ** (self.parameters["alpha"])
         )
+
+class CombinedModel(GWBModel):
+    r"""
+    Class that combines two models and runs parameter estimation on the combined models. Given model 1 with 
+    spectrum :math:`\Omega^1_{\\text{ref}}` and model 2 with spectrum :math:`\Omega^2_{\\text{ref}}`, the combined
+    model is given by:
+
+    .. math::
+        \Omega(f) = \Omega^1_{\\text{ref}} + \Omega^2_{\\text{ref}}
+    
+    """
+    def __init__(self, **kwargs):
+        try:
+            model1 = kwargs.pop("model1")
+            model2 = kwargs.pop("model2")
+        except KeyError:
+            raise KeyError("Models must be supplied")
+        self.model1 = model1
+        self.model2 = model2
+        super(CombinedModel, self).__init__(**kwargs)
+        
+    @property
+    def parameters(self):
+        if self._parameters is None: 
+            # include this so that the parent class GWBModel doesn't complain
+            print(self.get_model_params())
+            return self.get_model_params()
+        elif isinstance(self._parameters, dict):
+            return self._parameters
+
+    @parameters.setter
+    def parameters(self, parameters):
+        if parameters is None:
+            self._parameters = parameters
+        elif isinstance(parameters, dict):
+            self._parameters = parameters
+        else:
+            raise ValueError(f"unexpected type for parameters {type(parameters)}")
+
+    def get_model_params(self):
+        param_dict = {}
+        param_dict.update(self.model1.parameters)
+        param_dict.update(self.model2.parameters)
+        return param_dict
+        
+    def model_function(self, bline):
+        self.model1.parameters.update(self.parameters)
+        self.model2.parameters.update(self.parameters)
+        frequencies = bline.frequencies
+        return self.model1.model_function(bline) + self.model2.model_function(bline)
