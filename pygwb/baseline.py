@@ -1203,7 +1203,7 @@ class Baseline:
             fref=fref,
             h0=h0,
         )
-        self.point_estimate_alpha = 0
+        self.point_estimate_alpha = alpha
 
     def set_point_estimate_sigma(
         self,

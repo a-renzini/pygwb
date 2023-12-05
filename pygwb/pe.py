@@ -161,7 +161,7 @@ class GWBModel(bilby.Likelihood):
         """
         ll = 0
         for baseline in self.baselines:
-            if hasattr(baseline,"frequency_mask"):
+            if baseline.frequency_mask is not None:
                 ll = ll + self.log_likelihood_IJ(baseline, freq_mask=baseline.frequency_mask, noise=False)
             else:
                 ll = ll + self.log_likelihood_IJ(
