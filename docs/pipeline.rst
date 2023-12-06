@@ -147,7 +147,7 @@ to use for the analysis. As an example, one can run the script with the ``parame
 
 .. code-block:: shell
 
-  pygwb_pipe --param_file pygwb_pipe/parameters.ini --apply_dsc False
+  pygwb_pipe --param_file pygwb_pipe/parameters.ini --apply_dsc False --notch_list_path ./test/test_data/Official_O3_HL_notchlist.txt
 
 The output of the command above should be:
 
@@ -157,8 +157,9 @@ The output of the command above should be:
   2023-02-24 16:35:25.625 | SUCCESS  | __main__:main:163 - POINT ESTIMATE: -6.496991e-06
   2023-02-24 16:35:25.625 | SUCCESS  | __main__:main:164 - SIGMA: 2.688128e-06
 
-However, one could have decided to run with different parameters. An option is to modify the ``parameters.ini`` file, or one could also pass the parameters as arguments
-to the script directly. For example:
+We recommend employing the internal notch list provided in the test suite `./test/test_data/Official_O3_HL_notchlist.txt` to recover the results - a different notch list (or no notch list) will give different results.
+
+It is up to the user to decide which parameters to employ in the analysis. To change parameter settings, an option is to modify the ``parameters.ini`` file, or one could also pass the parameters as arguments to the script directly. For example:
 
 .. code-block:: shell
 
