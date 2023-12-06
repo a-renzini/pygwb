@@ -356,7 +356,7 @@ class Simulator:
                 f"Adding data to channel {self.interferometers[ii].name}:SIM-STOCH_INJ"
             )
             data[ii] = gwpy.timeseries.TimeSeries(
-                (data_signal_temp[ii] + data_noise_temp[ii]).astype("float64"),
+                (data_signal_temp[ii] + data_noise_temp[ii]).astype("float32"),
                 t0=data_start,
                 dt=self.deltaT,
                 channel=f"{self.interferometers[ii].name}:SIM-STOCH_INJ",
@@ -677,7 +677,7 @@ class Simulator:
 
         return data
 
-    def inject_CBC(self):
+    def inject_CBC(self, waveform_duration=60):
         """
         This function uses the provided dictionary of injection parameters to 
         simulate a background of CBC sources.
@@ -698,13 +698,12 @@ class Simulator:
         gwpy.timeseries.TimeSeries
             More information `here <https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeries/#gwpy.timeseries.TimeSeries>`_.
         """
+        len_data = self.N_samples_per_segment * self.N_segments
         data = np.zeros(
-            (self.Nd, self.N_samples_per_segment * self.N_segments), dtype=np.ndarray
+            (self.Nd, len_data), dtype=np.ndarray
         )
-        empty_ts = gwpy.timeseries.TimeSeries(np.zeros(self.N_samples_per_segment * self.N_segments),
-                                              t0=self.t0, sample_rate = self.sampling_frequency)
         waveform_generator = bilby.gw.WaveformGenerator(
-            duration=self.N_segments*self.duration, sampling_frequency=self.sampling_frequency,
+            duration=waveform_duration, sampling_frequency=self.sampling_frequency,
             frequency_domain_source_model=bilby.gw.source.lal_binary_black_hole,
             parameter_conversion=bilby.gw.conversion.convert_to_lal_binary_black_hole_parameters,
             waveform_arguments={
@@ -713,18 +712,31 @@ class Simulator:
             },
         )
         for ii in range(self.Nd):
-            det = bilby.gw.detector.get_empty_interferometer(self.interferometers[ii].name) 
-            det.strain_data.set_from_gwpy_timeseries(empty_ts) 
-            det.minimum_frequency=10.
-
             for n in tqdm(range(len(self.injection_dict['geocent_time']))):
                 inj_params = {}
                 for k in self.injection_dict:
                     inj_params[k] = self.injection_dict[k][n]
-            
+                inj_params['start_time'] = inj_params['geocent_time']-waveform_duration/2.
+                idx_end = int((- self.t0 + inj_params['geocent_time']+waveform_duration/2.) * self.sampling_frequency)
+
+                det = bilby.gw.detector.get_empty_interferometer(self.interferometers[ii].name) 
+                empty_ts = gwpy.timeseries.TimeSeries(np.zeros(waveform_duration*self.sampling_frequency),
+                                                      t0=inj_params['start_time'], sample_rate = self.sampling_frequency)
+                det.strain_data.set_from_gwpy_timeseries(empty_ts) 
+                det.minimum_frequency=10.
+
                 det.inject_signal(
                     waveform_generator=waveform_generator, parameters=inj_params
                 )
-            data[ii] = det.strain_data.to_gwpy_timeseries().value
+                idx_start = int(idx_end-len(empty_ts))
+                sig_start = None
+                sig_end = None
+                # bit of logic to include edge events
+                if idx_start<0:
+                    sig_start = -idx_start
+                    idx_start = 0
+                if idx_end>len_data:
+                    sig_end = len_data-idx_end
+                data[ii][idx_start:idx_end] += det.strain_data.to_gwpy_timeseries().value[sig_start:sig_end]
 
         return data
