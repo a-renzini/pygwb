@@ -19,6 +19,16 @@ desired signal PSD in the form of a ``gwpy.FrequencySeries``.
 
 .. code-block:: python
 
+    import numpy as np
+    import gwpy.frequencyseries
+    from pygwb.detector import Interferometer
+    import bilby.gw.detector
+    from pygwb.network import Network
+    from pygwb.parameters import Parameters
+    from pygwb.baseline import Baseline
+
+.. code-block:: python
+
     frequencies_x = np.linspace(0, 1000, 10000)
 
     alpha1 = 6
@@ -103,7 +113,7 @@ these parameters.
         ifo.sampling_frequency = sampling_frequency
         ifo.power_spectral_density = bilby.gw.detector.PowerSpectralDensity(ifo.frequency_array, np.nan_to_num(ifo.power_spectral_density_array, posinf=1.e-41))
     
-     net_HL = Network('HL', ifo_list)
+    net_HL = Network('HL', ifo_list)
 
 .. seealso::
 
