@@ -682,10 +682,10 @@ class StatisticalChecks:
         plt.plot(self.frequencies, self.coherence_spectrum, color=self.sea[0])
 
         # Plot a reference line representing the mean of the theoretical coherence
-        plt.axhline(y=1./self.n_segs,dashes=(4,3),color='black',label='Theoretical coherence level',fontsize=self.legend_fontsize)
+        plt.axhline(y=1./self.n_segs,dashes=(4,3),color='black',label='Theoretical coherence level')
 
         # Plot a line representing the coherence threshold
-        plt.axhline(y=threshold,dashes=(4,3),color='red',label='Outlier threshold',fontsize=self.legend_fontsize)
+        plt.axhline(y=threshold,dashes=(4,3),color='red',label='Outlier threshold')
 
         plt.xlim(flow, fhigh)
         plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
@@ -713,10 +713,10 @@ class StatisticalChecks:
         plt.plot(self.frequencies, self.coherence_spectrum, color=self.sea[0])
 
         # Plot a reference line representing the mean of the theoretical coherence
-        plt.axhline(y=1./self.n_segs,dashes=(4,3),color='black',label='Theoretical coherence level',fontsize=self.legend_fontsize)
+        plt.axhline(y=1./self.n_segs,dashes=(4,3),color='black',label='Theoretical coherence level')
 
         # Plot a line representing the coherence threshold
-        plt.axhline(y=threshold,dashes=(4,3),color='red',label='Outlier threshold',fontsize=self.legend_fontsize)
+        plt.axhline(y=threshold,dashes=(4,3),color='red',label='Outlier threshold')
 
         plt.xlim(flow, 200)
         plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
