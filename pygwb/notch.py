@@ -290,10 +290,20 @@ class StochNotchList(list):
 
         if np.ndim(fmin) == 1:
             for i in range(len(fmin)):
-	        if fmin[i] != self[i].minimum_frequency:
-            		warnings.warn("The miniumum frequency of your notch does not agree with the notch from your file. Please note, this check assumes the ordering of the notchlist object and the file with which you check is identical. Different ordering will also trigger this error.")
-	        if fmax[i] != self[i].maximum_frequency:
-            		warnings.warn("The maximum frequency of your notch does not agree with the notch from your file. Please note, this check assumes the ordering of the notchlist object and the file with which you check is identical. Different ordering will also trigger this error.")
+                if fmin[i] != self[i].minimum_frequency:
+                    warnings.warn("The miniumum frequency of your notch does not agree with the notch from your file. Please note, this check assumes the ordering of the notchlist object and the file with which you check is identical. Different ordering will also trigger this error.")
+                if fmax[i] != self[i].maximum_frequency:
+                    warnings.warn("The maximum frequency of your notch does not agree with the notch from your file. Please note, this check assumes the ordering of the notchlist object and the file with which you check is identical. Different ordering will also trigger this error.")
+        elif np.ndim(fmin) == 0:
+            if fmin != self.minimum_frequency:
+                    warnings.warn("The miniumum frequency of your notch does not agree with the notch from your file. Please note, this check assumes the ordering of the notchlist object and the file with which you check is identical. Different ordering will also trigger this error.")
+            if fmax != self.maximum_frequency:
+                    warnings.warn("The maximum frequency of your notch does not agree with the notch from your file. Please note, this check assumes the ordering of the notchlist object and the file with which you check is identical. Different ordering will also trigger this error.")
+        else:
+            raise TypeError("Notch list from file has too many dimensions.")
+
+
+
 
 def power_lines(fundamental=60, nharmonics=40, df=0.2):
     """
