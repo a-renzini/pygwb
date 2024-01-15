@@ -296,9 +296,9 @@ class StochNotchList(list):
                 if fmax[i] != self[i].maximum_frequency:
                     warnings.warn("The maximum frequency of your notch does not agree with the notch from your file. Please note, this check assumes the ordering of the notchlist object and the file with which you check is identical. Different ordering will also trigger this error.")
         elif np.ndim(fmin) == 0:
-            if fmin != self.minimum_frequency:
+            if fmin != self[0].minimum_frequency:
                     warnings.warn("The minimum frequency of your notch does not agree with the notch from your file. Please note, this check assumes the ordering of the notchlist object and the file with which you check is identical. Different ordering will also trigger this error.")
-            if fmax != self.maximum_frequency:
+            if fmax != self[0].maximum_frequency:
                     warnings.warn("The maximum frequency of your notch does not agree with the notch from your file. Please note, this check assumes the ordering of the notchlist object and the file with which you check is identical. Different ordering will also trigger this error.")
         else:
             raise TypeError("Notch list from file has too many dimensions.")
