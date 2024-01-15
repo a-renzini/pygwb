@@ -701,6 +701,7 @@ class StatisticalChecks:
             size = self.annotate_fontsize,
             bbox=dict(boxstyle="round", facecolor="white", alpha=1),
         )
+        plt.legend()
         plt.title(r"Coherence ($\Delta f$ = " + f"{float(f'{self.deltaF:.5g}'):g} Hz) in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-coherence_spectrum.png",
@@ -730,6 +731,7 @@ class StatisticalChecks:
             size = self.annotate_fontsize,
             bbox=dict(boxstyle="round", facecolor="white", alpha=1),
         )
+        plt.legend()
         plt.title(r"Coherence ($\Delta f$ = " + f"{float(f'{self.deltaF:.5g}'):g} Hz) in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-coherence_spectrum_zoom.png",
