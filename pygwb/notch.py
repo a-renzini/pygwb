@@ -63,8 +63,9 @@ This will create a .txt file in the same structure as required to make a ``Stoch
 object from a file, as done in this example. The mask itself can also be saved, using ``save_notch_mask(frequency_array, filename)``.
 """
 
-import numpy as np
 import warnings
+
+import numpy as np
 from bilby.gw.detector.strain_data import Notch
 
 
