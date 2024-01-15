@@ -64,6 +64,7 @@ object from a file, as done in this example. The mask itself can also be saved, 
 """
 
 import numpy as np
+import warnings
 from bilby.gw.detector.strain_data import Notch
 
 
@@ -272,7 +273,27 @@ class StochNotchList(list):
             cls.append(StochNotch(fmin, fmax, desc))
         else:
             raise TypeError("Notch list from file has too many dimensions.")
+
+        cls.check_load_from_file(filename)
+
         return cls
+
+    def check_load_from_file(self, filename):
+        """Check that a file which was loaded from an already existing notch list from a txt-file (with formatting as produced by this code) is consistent to the current notch-list.
+
+        Parameters
+        =======
+        filename: ``str``
+            Filename of the file containing the notchlist to be read in.
+        """
+        fmin, fmax = np.loadtxt(filename, delimiter=",", unpack=True, usecols=(0, 1))
+
+        if np.ndim(fmin) == 1:
+            for i in range(len(fmin)):
+		if fmin[i] != self[i].minimum_frequency:
+            		warnings.warn("The miniumum frequency of your notch does not agree with the notch from your file. Please note, this check assumes the ordering of the notchlist object and the file with which you check is identical. Different ordering will also trigger this error.")
+		if fmax[i] != self[i].maximum_frequency:
+            		warnings.warn("The maximum frequency of your notch does not agree with the notch from your file. Please note, this check assumes the ordering of the notchlist object and the file with which you check is identical. Different ordering will also trigger this error.")
 
 def power_lines(fundamental=60, nharmonics=40, df=0.2):
     """
