@@ -33,6 +33,7 @@ class TestInterferometer(unittest.TestCase):
                 "overlap_factor",
                 "N_average_segments_psd",
                 "time_shift",
+                "random_timeshift",
             ]
         }
         self.kwargs["local_data_path"] = ""
