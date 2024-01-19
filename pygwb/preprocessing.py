@@ -661,7 +661,7 @@ def preprocessing_data_timeseries_array(
     window_downsampling: str = "hamming",
     ftype: str = "fir",
     time_shift: int = 0,
-    random_timeshift: bool = 0,
+    random_timeshift: bool = False,
 ):
     """
     Function performing the pre-processing of a time-series array to be used in the remainder of the code.
