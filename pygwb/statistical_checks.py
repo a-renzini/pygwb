@@ -831,12 +831,18 @@ class StatisticalChecks:
         axs.set_ylabel(r"Probability distribution", size=self.axes_labelsize)
         axs.legend(fontsize=self.legend_fontsize)
         axs.set_yscale("log")
+
+        # Round up to the nearest multiple of a power of 10 for the x-axis
         max_coh = max(np.append(coherence, threshold))
-        # Go up to nearest 10th
-        axs.set_xlim(0, np.ceil(10*max_coh)/10)
-        axs.set_ylim(10**np.floor(np.log10(100.0/n_frequencies)), 10**np.ceil(np.log10(predicted_highres[0])))
+        coh_power = 10**np.floor(np.log10(max_coh))
+        axs.set_xlim(0, np.ceil(max_coh/coh_power)*coh_power)
+        
+        # Round up to the nearest power of 10 for the y-axis
+        axs.set_ylim(10**np.floor(np.log10(100.0/n_frequencies)), 10**(np.floor(np.log10(predicted_highres[0])) + 1))
+
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
+
         plt.title(r"Coherence hist ($\Delta f$ = " + f"{resolution:.5f} Hz) in" f" {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_coherence.png", bbox_inches = 'tight'
@@ -885,10 +891,15 @@ class StatisticalChecks:
         axs.set_ylabel(r"Probability distribution", size=self.axes_labelsize)
         axs.legend(fontsize=self.legend_fontsize)
         axs.set_yscale("log")
+
+        # Round up to the nearest multiple of a power of 10 for the x-axis
         max_coh = max(np.append(coherence_clipped, threshold))
-        # For zoomed plot, go up to nearest 100th
-        axs.set_xlim(0, np.ceil(100*max_coh)/100)
-        axs.set_ylim(10**np.floor(np.log10(100.0/n_frequencies)), 10**np.ceil(np.log10(predicted_highres[0])))
+        coh_power = 10**np.floor(np.log10(max_coh))
+        axs.set_xlim(0, np.ceil(max_coh/coh_power)*coh_power)
+        
+        # Round up to the nearest power of 10 for the y-axis
+        axs.set_ylim(10**np.floor(np.log10(100.0/n_frequencies)), 10**(np.floor(np.log10(predicted_highres[0])) + 1))
+
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
 
