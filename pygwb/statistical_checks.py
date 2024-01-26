@@ -682,10 +682,10 @@ class StatisticalChecks:
         plt.plot(self.frequencies, self.coherence_spectrum, color=self.sea[0])
 
         # Plot a reference line representing the mean of the theoretical coherence
-        plt.axhline(y=1./self.n_segs,dashes=(4,3),color='black')
+        plt.axhline(y=1./self.n_segs,dashes=(4,3),color='black',label='Theoretical coherence level')
 
         # Plot a line representing the coherence threshold
-        plt.axhline(y=threshold,dashes=(4,3),color='red')
+        plt.axhline(y=threshold,dashes=(4,3),color='red',label='Outlier threshold')
 
         plt.xlim(flow, fhigh)
         plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
@@ -701,6 +701,7 @@ class StatisticalChecks:
             size = self.annotate_fontsize,
             bbox=dict(boxstyle="round", facecolor="white", alpha=1),
         )
+        plt.legend()
         plt.title(r"Coherence ($\Delta f$ = " + f"{float(f'{self.deltaF:.5g}'):g} Hz) in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-coherence_spectrum.png",
@@ -712,10 +713,10 @@ class StatisticalChecks:
         plt.plot(self.frequencies, self.coherence_spectrum, color=self.sea[0])
 
         # Plot a reference line representing the mean of the theoretical coherence
-        plt.axhline(y=1./self.n_segs,dashes=(4,3),color='black')
+        plt.axhline(y=1./self.n_segs,dashes=(4,3),color='black',label='Theoretical coherence level')
 
         # Plot a line representing the coherence threshold
-        plt.axhline(y=threshold,dashes=(4,3),color='red')
+        plt.axhline(y=threshold,dashes=(4,3),color='red',label='Outlier threshold')
 
         plt.xlim(flow, 200)
         plt.xlabel("Frequency (Hz)", size=self.axes_labelsize)
@@ -730,6 +731,7 @@ class StatisticalChecks:
             size = self.annotate_fontsize,
             bbox=dict(boxstyle="round", facecolor="white", alpha=1),
         )
+        plt.legend()
         plt.title(r"Coherence ($\Delta f$ = " + f"{float(f'{self.deltaF:.5g}'):g} Hz) in {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-coherence_spectrum_zoom.png",
@@ -829,12 +831,18 @@ class StatisticalChecks:
         axs.set_ylabel(r"Probability distribution", size=self.axes_labelsize)
         axs.legend(fontsize=self.legend_fontsize)
         axs.set_yscale("log")
+
+        # Round up to the nearest multiple of a power of 10 for the x-axis
         max_coh = max(np.append(coherence, threshold))
-        # Go up to nearest 10th
-        axs.set_xlim(0, np.ceil(10*max_coh)/10)
-        axs.set_ylim(10**np.floor(np.log10(100.0/n_frequencies)), 10**np.ceil(np.log10(predicted_highres[0])))
+        coh_power = 10**np.floor(np.log10(max_coh))
+        axs.set_xlim(0, np.ceil(max_coh/coh_power)*coh_power)
+        
+        # Round up to the nearest power of 10 for the y-axis
+        axs.set_ylim(10**np.floor(np.log10(100.0/n_frequencies)), 10**(np.floor(np.log10(predicted_highres[0])) + 1))
+
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
+
         plt.title(r"Coherence hist ($\Delta f$ = " + f"{resolution:.5f} Hz) in" f" {self.time_tag}", fontsize=self.title_fontsize)
         plt.savefig(
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_coherence.png", bbox_inches = 'tight'
@@ -883,10 +891,15 @@ class StatisticalChecks:
         axs.set_ylabel(r"Probability distribution", size=self.axes_labelsize)
         axs.legend(fontsize=self.legend_fontsize)
         axs.set_yscale("log")
+
+        # Round up to the nearest multiple of a power of 10 for the x-axis
         max_coh = max(np.append(coherence_clipped, threshold))
-        # For zoomed plot, go up to nearest 100th
-        axs.set_xlim(0, np.ceil(100*max_coh)/100)
-        axs.set_ylim(10**np.floor(np.log10(100.0/n_frequencies)), 10**np.ceil(np.log10(predicted_highres[0])))
+        coh_power = 10**np.floor(np.log10(max_coh))
+        axs.set_xlim(0, np.ceil(max_coh/coh_power)*coh_power)
+        
+        # Round up to the nearest power of 10 for the y-axis
+        axs.set_ylim(10**np.floor(np.log10(100.0/n_frequencies)), 10**(np.floor(np.log10(predicted_highres[0])) + 1))
+
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
 
