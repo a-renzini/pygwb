@@ -28,7 +28,7 @@ def main():
         "--detectors", "-det", help="Detectors to simulate data for.", action="store", type=str, required=False, nargs='+', default=['H1', 'L1']
     )
     simulate_parser.add_argument(
-        "--sensitivity", "-sn", help="Sensitivity of the detectors. You can find all possible sensitivities at https://pycbc.org/pycbc/latest/html/pycbc.psd.html .", action="store", type=str, required=False, default='None'
+        "--sensitivity", "-sn", help="Sensitivity of the detectors. You can find all possible sensitivities at https://pycbc.org/pycbc/latest/html/pycbc.psd.html .", action="store", type=str, required=False, nargs='+', default=['None']
     )
     simulate_parser.add_argument(
         "--outdir", "-od", help="Output path.", action="store", type=Path, required=False
@@ -56,31 +56,41 @@ def main():
         ifo.duration = simulate_args.duration
         ifo.sampling_frequency = simulate_args.sampling_frequency
 
-    frequencies = ifo_H1.frequency_array
+    # load noise arrays
+    frequencies = ifo_list[0].frequency_array
     df = frequencies[1] - frequencies[0]
-    if simulate_args.sensitivity=='None':
-        noise_array = np.zeros_like(frequencies)
+    if len(simulate_args.sensitivity)==1:
+        sens_list = []
+        for idx in range(len(ifo_list)):
+            sens_list.append(simulate_args.sensitivity[0])
     else:
-        if simulate_args.sensitivity == 'Aplus':
-            sens_func = aLIGOAPlusDesignSensitivityT1800042
+        sens_list = simulate_args.sensitivity
+
+    noise_list = []
+    for sens in sens_list:
+        if sens=='None':
+            noise_array = np.zeros_like(frequencies)
         else:
-            sens_string = 'pycbc.psd.analytical.'+simulate_args.sensitivity
-            possible_sens = dir(pycbc.psd.analytical)
-            if simulate_args.sensitivity in possible_sens:
-                sens_func = eval(sens_string)
-            else:
-                raise ValueError(f"Sensitivity {simulate_args.sensitivity} is not supported.")
+            if sens == 'Aplus':
+                sens = 'aLIGOAPlusDesignSensitivityT1800042'
+            try:
+                noise_array = np.array(pycbc.psd.analytical.from_string(sens, frequencies.size, df, frequencies[0]))
+            except ValueError:
+                raise ValueError(f"Sensitivity {sens} is not supported.")
+            noise_array[noise_array<1.e-100]=1.e-41
+        noise_list.append(noise_array)
 
-        noise_array = np.array(sens_func(frequencies.size, df, frequencies[0]))
-        noise_array[noise_array<1.e-100]=1.e-41
-        
-    for ifo in ifo_list:
-        ifo.power_spectral_density = bilby.gw.detector.PowerSpectralDensity(frequencies, noise_array)
-    net_HL = Network('HL', ifo_list)
+    for ifo, noise in zip(ifo_list, noise_list):
+        ifo.power_spectral_density = bilby.gw.detector.PowerSpectralDensity(frequencies, noise)
 
-    net_HL.set_interferometer_data_from_simulator(N_segs, CBC_dict=injections, sampling_frequency = simulate_args.sampling_frequency, start_time=simulate_args.start_time)
+    network_name = ''
+    for name in simulate_args.detectors:
+        network_name+=name
+    net_sim = Network(network_name, ifo_list)
 
-    net_HL.save_interferometer_data_to_file(save_dir=simulate_args.outdir)
+    net_sim.set_interferometer_data_from_simulator(N_segs, CBC_dict=injections, sampling_frequency = simulate_args.sampling_frequency, start_time=simulate_args.start_time)
+
+    net_sim.save_interferometer_data_to_file(save_dir=simulate_args.outdir)
     exit()
 
 if __name__ == "__main__":
