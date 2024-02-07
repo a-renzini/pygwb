@@ -41,6 +41,7 @@ setup(
         "pygwb_pipe/pygwb_pe",
         "pygwb_pipe/pygwb_create_isotropic_workflow",
         "pygwb_pipe/pygwb_html",
+        "pygwb_pipe/pygwb_simulate",
     ],
     install_requires=[
         "numpy",
