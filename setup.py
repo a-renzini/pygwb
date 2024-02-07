@@ -57,6 +57,7 @@ setup(
         "loguru",
         "json5",
         "seaborn",
+        "pycbc",
     ],
     extras_require={
         "dev": [
