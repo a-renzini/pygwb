@@ -1,0 +1,87 @@
+#!/bin/env python
+
+import argparse
+import bilby
+import json
+import numpy as np
+from pathlib import Path
+from pygwb.detector import Interferometer
+from pygwb.network import Network
+
+import pycbc.psd
+from pycbc.psd.analytical import aLIGODesignSensitivityP1200087, aLIGOAPlusDesignSensitivityT1800042
+
+def main():
+    simulate_parser = argparse.ArgumentParser()
+    simulate_parser.add_argument(
+        "--duration", "-d",  help="Duration of each data segment simulated in seconds.", action="store", type=int, required=False, default=64)
+    simulate_parser.add_argument(
+        "--start_time", "-ts",  help="Start time of the observation in seconds.", action="store", type=float, default=0.0)
+    simulate_parser.add_argument(
+        "--observing_time", "-Tobs",  help="Duration of the observation in seconds.", action="store", type=int, required=True)
+    simulate_parser.add_argument(
+        "--sampling_frequency", "-fs",  help="Sampling frequency of the data in Hz.", action="store", type=int, default=2048)
+    simulate_parser.add_argument(
+        "--injection_file", "-if", help="Bilby injection json dictionary.", action="store", type=Path, required=True
+    )
+    simulate_parser.add_argument(
+        "--detectors", "-det", help="Detectors to simulate data for.", action="store", type=str, required=False, nargs='+', default=['H1', 'L1']
+    )
+    simulate_parser.add_argument(
+        "--sensitivity", "-sn", help="Sensitivity of the detectors. You can find all possible sensitivities at https://pycbc.org/pycbc/latest/html/pycbc.psd.html .", action="store", type=str, required=False, default='None'
+    )
+    simulate_parser.add_argument(
+        "--outdir", "-od", help="Output path.", action="store", type=Path, required=False
+    )
+
+    simulate_args = simulate_parser.parse_args()
+    if not simulate_args.outdir:
+        simulate_args.outdir = Path("./")
+
+    N_segs = int(simulate_args.observing_time/simulate_args.duration)  # number of data segments to generate
+
+    with open(simulate_args.injection_file, "r") as file:
+        injections = json.load(file)['injections']['content'] #, cls=bilby.core.result.BilbyJsonEncoder)
+
+    # load detectors
+    ifo_list = []
+    for ifo in simulate_args.detectors:
+        try:
+            ifo_list.append(Interferometer.get_empty_interferometer(ifo))
+        except ValueError:
+            raise ValueError(f"Requested detector {ifo} not supported by Bilby.")
+
+    for ifo in ifo_list:
+        ifo.start_time = simulate_args.start_time
+        ifo.duration = simulate_args.duration
+        ifo.sampling_frequency = simulate_args.sampling_frequency
+
+    frequencies = ifo_H1.frequency_array
+    df = frequencies[1] - frequencies[0]
+    if simulate_args.sensitivity=='None':
+        noise_array = np.zeros_like(frequencies)
+    else:
+        if simulate_args.sensitivity == 'Aplus':
+            sens_func = aLIGOAPlusDesignSensitivityT1800042
+        else:
+            sens_string = 'pycbc.psd.analytical.'+simulate_args.sensitivity
+            possible_sens = dir(pycbc.psd.analytical)
+            if simulate_args.sensitivity in possible_sens:
+                sens_func = eval(sens_string)
+            else:
+                raise ValueError(f"Sensitivity {simulate_args.sensitivity} is not supported.")
+
+        noise_array = np.array(sens_func(frequencies.size, df, frequencies[0]))
+        noise_array[noise_array<1.e-100]=1.e-41
+        
+    for ifo in ifo_list:
+        ifo.power_spectral_density = bilby.gw.detector.PowerSpectralDensity(frequencies, noise_array)
+    net_HL = Network('HL', ifo_list)
+
+    net_HL.set_interferometer_data_from_simulator(N_segs, CBC_dict=injections, sampling_frequency = simulate_args.sampling_frequency, start_time=simulate_args.start_time)
+
+    net_HL.save_interferometer_data_to_file(save_dir=simulate_args.outdir)
+    exit()
+
+if __name__ == "__main__":
+    main()
