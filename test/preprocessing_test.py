@@ -128,7 +128,7 @@ class Test(unittest.TestCase):
         )
         val1 = random_timeshifted_data.value[0]
         if val1 in self.timeseries_data.value:
-            index2 =  arr2.index(val1)
+            index2 =  self.timeseries_data.value.index(val1)
         self.assertEqual(
             random_timeshifted_data[0],
             self.time_series_data.value[index2],
