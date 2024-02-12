@@ -1014,7 +1014,6 @@ class CombinedModel(GWBModel):
     def parameters(self):
         if self._parameters is None: 
             # include this so that the parent class GWBModel doesn't complain
-            print(self.get_model_params())
             return self.get_model_params()
         elif isinstance(self._parameters, dict):
             return self._parameters
