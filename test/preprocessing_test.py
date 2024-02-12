@@ -20,6 +20,7 @@ class Test(unittest.TestCase):
         self.number_cropped_seconds = 2
         self.data_type = "public"
         self.time_shift = 0
+        self.random_timeshift = False
         self.sample_rate = 4096
         self.input_sample_rate = 16384
         self.local_data_path = f"{testdir}/test_data/data_gwf_preproc_testing.gwf"
@@ -67,6 +68,7 @@ class Test(unittest.TestCase):
             window_downsampling="hamming",
             ftype="fir",
             time_shift=self.time_shift,
+            random_timeshift=self.random_timeshift,
             local_data_path=self.local_data_path,
             input_sample_rate=self.input_sample_rate,
         )
@@ -86,6 +88,7 @@ class Test(unittest.TestCase):
             window_downsampling="hamming",
             ftype="fir",
             time_shift=self.time_shift,
+            random_timeshift=self.random_timeshift,
         )
         self.assertEqual(len(timeseries_output2), 2031616)
         self.assertEqual(timeseries_output2.sample_rate.value, 4096.0) 
@@ -98,6 +101,7 @@ class Test(unittest.TestCase):
             window_downsampling="hamming",
             ftype="fir",
             time_shift=self.time_shift,
+            random_timeshift=self.random_timeshift,
         )
 
         self.assertEqual(len(timeseries_output3), 2031616)
@@ -116,8 +120,19 @@ class Test(unittest.TestCase):
             self.timeseries_data.value[0],
             time_shifted_data.value[int(1/self.timeseries_data.dt.value)],
         )
-
         
+        random_timeshifted_data = preprocessing.shift_timeseries(
+            time_series_data = self.time_series_data,
+            time_shift = 1,
+            random_timeshift = True
+        )
+        val1 = random_timeshifted_data.value[0]
+            if val1 in self.timeseries_data.value:
+                index2 =  arr2.index(val1)
+        self.assertEqual(
+            random_timeshifted_data[0],
+            self.time_series_data.value[index2],
+        )            
 
 
 if __name__ == "__main__":
