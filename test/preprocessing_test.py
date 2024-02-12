@@ -122,7 +122,7 @@ class Test(unittest.TestCase):
         )
         
         random_timeshifted_data = preprocessing.shift_timeseries(
-            time_series_data = self.time_series_data,
+            time_series_data = self.timeseries_data,
             time_shift = 1,
             random_timeshift = True
         )
