@@ -131,7 +131,7 @@ class Test(unittest.TestCase):
             index2 = np.where(self.timeseries_data.value == val1)[0][0]
         self.assertEqual(
             random_timeshifted_data[0],
-            self.time_series_data.value[index2],
+            self.timeseries_data.value[index2],
         )            
 
 
