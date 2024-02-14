@@ -91,8 +91,8 @@ affiliations:
 date: 
 bibliography: paper.bib
 
-aas-doi: 10.3847/xxxxx <- update this with the DOI from AAS once you know it.
-aas-journal: Astrophysical Journal <- The name of the AAS journal.
+aas-doi: 10.3847/1538-4357/acd775
+aas-journal: Astrophysical Journal 
 ---
 
 # Introduction
