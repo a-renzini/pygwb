@@ -26,6 +26,7 @@ A parameter file must be structured specifically to be read by the ``Parameters`
     channel:
     frametype:
     time_shift:
+    random_time_shift:
     [preprocessing]
     new_sample_rate: 
     input_sample_rate: 
@@ -196,6 +197,9 @@ class Parameters:
         Suffix for the output data file. Options are hdf5, npz, json, pickle. Default is json.
     time_shift: ``int``
         Seconds to timeshift the data by in preprocessing. Default is 0.
+    random_time_shift: ``bool``, optional
+        If True, a random extra shift between 0 and 1 is added to the time_shift.
+        Default is False.
     gate_data: ``bool``
         Whether to apply self-gating to the data in preprocessing. Default is False.
     gate_tzero: ``float``
@@ -246,6 +250,7 @@ class Parameters:
     alphas_delta_sigma_cut: List = field(default_factory=lambda: [-5, 0, 3])
     save_data_type: str = "npz"
     time_shift: int = 0
+    random_time_shift: bool = False
     path_gate_data: str = ""
     gate_data: bool = False
     gate_tzero: float = 1.0
@@ -402,6 +407,7 @@ class Parameters:
         data_specs_dict["channel"] = param_dict["channel"]
         data_specs_dict["frametype"] = param_dict["frametype"]
         data_specs_dict["time_shift"] = param_dict["time_shift"]
+        data_specs_dict["random_time_shift"] = param_dict["random_time_shift"]
         param["data_specs"] = data_specs_dict
 
         preprocessing_dict = {}
@@ -571,6 +577,9 @@ class ParametersHelp(enum.Enum):
     alphas_delta_sigma_cut = "List of spectral indexes to use in delta sigma cut calculation. Default is [-5, 0, 3]."
     save_data_type = "Suffix for the output data file. Options are hdf5, npz, json, pickle. Default is json."
     time_shift = "Seconds to timeshift the data by in preprocessing. Default is 0."
+    random_time_shift = (
+        "If True, a random extra shift between 0 and 1 is added to the time_shift. Default is False."
+    )
     path_gate_data = (
         "Path to the pygwb output containing information about gates. "
         "If loading a single file, it has to be an .npzfile "
