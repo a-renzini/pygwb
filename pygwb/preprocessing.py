@@ -47,7 +47,8 @@ filter is applied to the data. As an example, the data is resampled to 4 kHz.
         2,         # number_cropped_seconds
         "hamming", # window_downsampling
         "fir",     # ftype
-        0          # timeshift
+        0,         # timeshift
+        False,     # adding extra random shift to the timeshift
     )
 >>> print(preprocessed_timeseries.sample_rate)
 4096.0 Hz
@@ -67,9 +68,9 @@ In that case, using again default values for parameters, one can run the followi
 
 More information on the gating procedure can be found `here <https://dcc.ligo.org/public/0172/P2000546/002/gating-mdc.pdf>`_.
 """
-
 import copy
 import os
+import random
 import warnings
 
 import lal
@@ -132,7 +133,6 @@ def set_start_time(
         if centered_start_time - job_end_GPS < buffer_secs:
             centered_start_time = centered_start_time + segment_duration
     return centered_start_time
-
 
 def read_data(
     IFO: str,
@@ -222,7 +222,6 @@ def read_data(
         raise ValueError("Wrong data type. Choose between: public, private and local")
     return data
 
-
 def apply_high_pass_filter(
     timeseries: timeseries.TimeSeries,
     sample_rate: int,
@@ -259,7 +258,6 @@ def apply_high_pass_filter(
     filtered = timeseries.filter(zpk, filtfilt=True)
     filtered = filtered.crop(*filtered.span.contract(number_cropped_seconds))
     return filtered
-
 
 def resample_filter(
     time_series_data: timeseries.TimeSeries,
@@ -335,7 +333,6 @@ def resample_filter(
     )
 
     return filtered
-
 
 def self_gate_data(
     time_series_data: timeseries.TimeSeries,
@@ -422,8 +419,7 @@ def self_gate_data(
     gated = time_series_data.mask(deadtime=deadtime, const=0, tpad=tpad)
     return gated, deadtime
 
-
-def shift_timeseries(time_series_data: timeseries.TimeSeries, time_shift: int = 0):
+def shift_timeseries(time_series_data: timeseries.TimeSeries, time_shift: int = 0, random_time_shift = False):
 
     """
     Function that shifts a timeseries by an amount ``time_shift``
@@ -438,20 +434,40 @@ def shift_timeseries(time_series_data: timeseries.TimeSeries, time_shift: int = 
         Value of the time shift (in seconds).
         Default value is 0.
 
+    random_time_shift: ``bool``, optional
+        If True, a random extra shift between 0 and 1 is added to the time_shift.
+        Default is False.
+
+
     Returns
     =======
     shifted_data: ``gwpy.timeseries.TimeSeries``
         TimeSeries containing the shifted_data.
     """
+    if random_time_shift:
+        extra_shift = random.random()
+        if extra_shift == 0:
+            extra_shift = random.random()
+    else:
+        extra_shift = 0
+
+    time_shift += extra_shift
 
     if time_shift > 0:
+        shifted_data = np.roll(
+            time_series_data, int(time_shift / time_series_data.dt.value)
+        )
+    elif time_shift < 0:
+        warnings.warn(
+            f"The provided time shift parameter {time_shift} is negative."
+            "This is not recommended and might interfere with correctly shifting the data."
+        )
         shifted_data = np.roll(
             time_series_data, int(time_shift / time_series_data.dt.value)
         )
     else:
         shifted_data = time_series_data
     return shifted_data
-
 
 def preprocessing_data_gwpy_timeseries(
     gwpy_timeseries: timeseries.TimeSeries,
@@ -461,6 +477,7 @@ def preprocessing_data_gwpy_timeseries(
     window_downsampling: str = "hamming",
     ftype: str = "fir",
     time_shift: int = 0,
+    random_time_shift: bool = False,
 ):
     """
     Function doing the pre-processing of a gwpy timeseries to be used in the remainder of the code.
@@ -491,6 +508,11 @@ def preprocessing_data_gwpy_timeseries(
     time_shift: ``int``, optional
         Value of the time shift (in seconds). Default is 0.
 
+    random_time_shift: ``bool``, optional
+        If True, a random extra shift between 0 and 1 is added to the time_shift.
+        Default is False.
+
+
     Returns
     =======
     pre_processed_data: ``gwpy.timeseries.TimeSeries``
@@ -506,10 +528,16 @@ def preprocessing_data_gwpy_timeseries(
         ftype=ftype,
     )
     if time_shift > 0:
-        return shift_timeseries(time_series_data=filtered, time_shift=time_shift)
+        return shift_timeseries(time_series_data=filtered, time_shift=time_shift, random_time_shift = random_time_shift)
+    elif time_shift < 0:
+        warnings.warn(
+            f"The provided time shift parameter {time_shift} is negative."
+            "This is not recommended and might interfere with correctly shifting the data."
+            "No shift will be applied."
+        )
+        return filtered
     else:
         return filtered
-
 
 def preprocessing_data_channel_name(
     IFO: str,
@@ -524,6 +552,7 @@ def preprocessing_data_channel_name(
     window_downsampling: str = "hamming",
     ftype: str = "fir",
     time_shift: int = 0,
+    random_time_shift: bool = False,
     local_data_path: str = "",
     frametype: str = "",
     input_sample_rate: int = 16384,
@@ -574,7 +603,11 @@ def preprocessing_data_channel_name(
 
     time_shift: ``int``, optional
         Value of the time shift (in seconds). Default is 0.
-        
+
+    random_time_shift: ``bool``, optional
+        If True, a random extra shift between 0 and 1 is added to the time_shift.
+        Default is False.
+
     local_data_path: ``str``, optional
         Path where local gwf frame file is stored. Default is an empty string.
 
@@ -612,8 +645,8 @@ def preprocessing_data_channel_name(
         window_downsampling=window_downsampling,
         ftype=ftype,
         time_shift=time_shift,
+        random_time_shift = random_time_shift,
     )
-
 
 def preprocessing_data_timeseries_array(
     t0: int,
@@ -627,6 +660,7 @@ def preprocessing_data_timeseries_array(
     window_downsampling: str = "hamming",
     ftype: str = "fir",
     time_shift: int = 0,
+    random_time_shift: bool = False,
 ):
     """
     Function performing the pre-processing of a time-series array to be used in the remainder of the code.
@@ -668,6 +702,10 @@ def preprocessing_data_timeseries_array(
     time_shift: ``int``, optional
         Value of the time shift (in seconds). Default is no time shift.
 
+    random_time_shift: ``bool``, optional
+        If True, a random extra shift between 0 and 1 is added to the time_shift.
+        Default is False.
+
     Returns
     =======
     pre_processed_data: ``gwpy.timeseries.TimeSeries``
@@ -690,4 +728,5 @@ def preprocessing_data_timeseries_array(
         window_downsampling=window_downsampling,
         ftype=ftype,
         time_shift=time_shift,
+        random_time_shift=random_time_shift,
     )

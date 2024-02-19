@@ -1,6 +1,7 @@
 import pickle
 import unittest
 from random import sample
+from test.conftest import testdir
 
 import numpy as np
 from gwpy import timeseries
@@ -19,9 +20,10 @@ class Test(unittest.TestCase):
         self.number_cropped_seconds = 2
         self.data_type = "public"
         self.time_shift = 0
+        self.random_time_shift = False
         self.sample_rate = 4096
         self.input_sample_rate = 16384
-        self.local_data_path = './test/test_data/data_gwf_preproc_testing.gwf'
+        self.local_data_path = f"{testdir}/test_data/data_gwf_preproc_testing.gwf"
         self.cutoff_frequency = 11
 
         data_start_time = preprocessing.set_start_time(
@@ -66,6 +68,7 @@ class Test(unittest.TestCase):
             window_downsampling="hamming",
             ftype="fir",
             time_shift=self.time_shift,
+            random_time_shift=self.random_time_shift,
             local_data_path=self.local_data_path,
             input_sample_rate=self.input_sample_rate,
         )
@@ -85,6 +88,7 @@ class Test(unittest.TestCase):
             window_downsampling="hamming",
             ftype="fir",
             time_shift=self.time_shift,
+            random_time_shift=self.random_time_shift,
         )
         self.assertEqual(len(timeseries_output2), 2031616)
         self.assertEqual(timeseries_output2.sample_rate.value, 4096.0) 
@@ -97,6 +101,7 @@ class Test(unittest.TestCase):
             window_downsampling="hamming",
             ftype="fir",
             time_shift=self.time_shift,
+            random_time_shift=self.random_time_shift,
         )
 
         self.assertEqual(len(timeseries_output3), 2031616)
@@ -115,8 +120,19 @@ class Test(unittest.TestCase):
             self.timeseries_data.value[0],
             time_shifted_data.value[int(1/self.timeseries_data.dt.value)],
         )
-
         
+        random_time_shifted_data = preprocessing.shift_timeseries(
+            time_series_data = self.timeseries_data,
+            time_shift = 1,
+            random_time_shift = True
+        )
+        val1 = random_time_shifted_data.value[0]
+        if val1 in self.timeseries_data.value:
+            index2 = np.where(self.timeseries_data.value == val1)[0][0]
+        self.assertEqual(
+            random_time_shifted_data[0],
+            self.timeseries_data.value[index2],
+        )            
 
 
 if __name__ == "__main__":

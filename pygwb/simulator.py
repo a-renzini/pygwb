@@ -33,9 +33,7 @@ The actual data is then simulated by calling the ``generate_data`` method:
 >>> data = simulator_object.generate_data()
     
 For more information, we refer the reader to the ``simulator`` tutorials.
-    
 """
-
 import bilby
 import gwpy
 import numpy as np
@@ -48,7 +46,7 @@ from pygwb.baseline import Baseline, get_baselines
 from pygwb.util import interpolate_frequency_series
 
 
-class Simulator(object):
+class Simulator:
     def __init__(
         self,
         interferometers,
@@ -143,10 +141,10 @@ class Simulator(object):
 
             self.seed = seed
             self.continuous = continuous
-            if (self.continuous == True) and not self.seed:
+            if (self.continuous) and not self.seed:
                 raise ValueError("Must provide a seed to generate continuous segments")
 
-            if no_noise == True:
+            if no_noise:
                 self.noise_PSD_array = np.zeros_like(self.noise_PSD_array)
 
             self.baselines = get_baselines(
@@ -158,13 +156,13 @@ class Simulator(object):
             self.orf = self.get_orf(polarization=orf_polarization)
 
             self.intensity_GW = intensity_GW
-            if self.intensity_GW:
+            if self.intensity_GW is not None:
                 self.intensity_GW = interpolate_frequency_series(
                     intensity_GW, self.frequencies
                 )
             self.injection_dict = injection_dict
 
-            if not self.intensity_GW and not self.injection_dict:
+            if self.intensity_GW is None and not self.injection_dict:
                 raise ValueError('Must provide at least one of intensity_GW or self.injection_dict')
 
     def get_frequencies(self):
@@ -335,7 +333,7 @@ class Simulator(object):
         data_signal_temp = np.zeros(
             (self.Nd, self.N_samples_per_segment * self.N_segments), dtype=np.ndarray
         )
-        if self.intensity_GW:
+        if self.intensity_GW is not None:
             y_signal = self.simulate("signal")
             if self.seed:
                 # seed is based on start time of segment
@@ -387,7 +385,6 @@ class Simulator(object):
         See also
         --------
         pygwb.baseline.overlap_reduction_function
-        
         """
         index = 0
         orf_array = np.zeros(
@@ -700,9 +697,7 @@ class Simulator(object):
 
         gwpy.timeseries.TimeSeries
             More information `here <https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeries/#gwpy.timeseries.TimeSeries>`_.
-        
         """
-
         data = np.zeros(
             (self.Nd, self.N_samples_per_segment * self.N_segments), dtype=np.ndarray
         )
@@ -724,7 +719,7 @@ class Simulator(object):
 
             for n in tqdm(range(len(self.injection_dict['geocent_time']))):
                 inj_params = {}
-                for k in self.injection_dict.keys():
+                for k in self.injection_dict:
                     inj_params[k] = self.injection_dict[k][n]
             
                 det.inject_signal(

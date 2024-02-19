@@ -61,8 +61,9 @@ The List function uses the ``get_notch_mask`` function from the ``StochNotch`` o
 One can also save the ``StochNotchList`` object to a ``.txt`` file using ``save_to_txt(filename)``.
 This will create a .txt file in the same structure as required to make a ``StochNotchList``
 object from a file, as done in this example. The mask itself can also be saved, using ``save_notch_mask(frequency_array, filename)``.
-
 """
+
+import warnings
 
 import numpy as np
 from bilby.gw.detector.strain_data import Notch
@@ -125,7 +126,6 @@ class StochNotch(Notch):
         notch_mask = [not elem for elem in (lower & upper)]
         return notch_mask
 
-
 class StochNotchList(list):
     def __init__(self, notch_list):
         """A list of notches. All these notches are represented by an object of the ``StochNotch`` class.
@@ -140,7 +140,6 @@ class StochNotchList(list):
         :raises:
             ValueError: If the list is malformed.
         """
-
         if notch_list is not None:
             for notch in notch_list:
                 if isinstance(notch, tuple) and len(notch) == 3:
@@ -162,7 +161,6 @@ class StochNotchList(list):
         True/False:
             If freq inside any of the notches, return True, else False.
         """
-
         for notch in self:
             if notch.check_frequency(freq):
                 return True
@@ -193,7 +191,7 @@ class StochNotchList(list):
         for notch in self:
             notch_mask = notch_mask & notch.get_notch_mask(frequency_array)
 
-        if save_file_flag == True:
+        if save_file_flag:
             if len(filename) == 0:
                 filename = "Notch_mask.txt"
             self.save_notch_mask(self, frequency_array, filename)
@@ -219,7 +217,6 @@ class StochNotchList(list):
         --------
         :func:`pygwb.notch.StochNotch.get_notch_mask`
         """
-
         notch_mask = self.get_notch_mask(frequency_array)
         np.savetxt(
             filename,
@@ -252,9 +249,7 @@ class StochNotchList(list):
 
     def sort_list(self):
         """Sorts the notch list based on the minimum frequency of the notches.
-
         """
-
         self.sort(key=lambda elem: elem.minimum_frequency)
 
     @classmethod
@@ -265,9 +260,7 @@ class StochNotchList(list):
         =======
         filename: ``str``
             Filename of the file containing the notchlist to be read in.
-
         """
-
         fmin, fmax = np.loadtxt(filename, delimiter=",", unpack=True, usecols=(0, 1))
         desc = np.loadtxt(
             filename, delimiter=",", unpack=True, usecols=(2), dtype="str"
@@ -281,7 +274,36 @@ class StochNotchList(list):
             cls.append(StochNotch(fmin, fmax, desc))
         else:
             raise TypeError("Notch list from file has too many dimensions.")
+
+        cls.check_load_from_file(filename)
+
         return cls
+
+    def check_load_from_file(self, filename):
+        """Check that a file which was loaded from an already existing notch list from a txt-file (with formatting as produced by this code) is consistent to the current notch-list.
+
+        Parameters
+        =======
+        filename: ``str``
+            Filename of the file containing the notchlist to be read in.
+        """
+        fmin, fmax = np.loadtxt(filename, delimiter=",", unpack=True, usecols=(0, 1))
+
+        if np.ndim(fmin) == 1:
+            for i in range(len(fmin)):
+                if fmin[i] != self[i].minimum_frequency:
+                    warnings.warn("The minimum frequency of your notch does not agree with the notch from your file. Please note, this check assumes the ordering of the notchlist object and the file with which you check is identical. Different ordering will also trigger this error.")
+                if fmax[i] != self[i].maximum_frequency:
+                    warnings.warn("The maximum frequency of your notch does not agree with the notch from your file. Please note, this check assumes the ordering of the notchlist object and the file with which you check is identical. Different ordering will also trigger this error.")
+        elif np.ndim(fmin) == 0:
+            if fmin != self[0].minimum_frequency:
+                    warnings.warn("The minimum frequency of your notch does not agree with the notch from your file. Please note, this check assumes the ordering of the notchlist object and the file with which you check is identical. Different ordering will also trigger this error.")
+            if fmax != self[0].maximum_frequency:
+                    warnings.warn("The maximum frequency of your notch does not agree with the notch from your file. Please note, this check assumes the ordering of the notchlist object and the file with which you check is identical. Different ordering will also trigger this error.")
+        else:
+            raise TypeError("Notch list from file has too many dimensions.")
+
+
 
 
 def power_lines(fundamental=60, nharmonics=40, df=0.2):
@@ -303,7 +325,6 @@ def power_lines(fundamental=60, nharmonics=40, df=0.2):
     =======
     notches: ``StochNotchList``
         StochNotchList object containing lines to be notched.
-
     """
     freqs = fundamental * np.arange(1, nharmonics + 1)
 
@@ -313,7 +334,6 @@ def power_lines(fundamental=60, nharmonics=40, df=0.2):
         notches.append(notch)
 
     return notches
-
 
 def comb(f0, f_spacing, n_harmonics, df, description=None):
     """
@@ -336,9 +356,7 @@ def comb(f0, f_spacing, n_harmonics, df, description=None):
     =======
     notches: ``StochNotchList``
         StochNotchList object of lines to be notched.
-
     """
-
     notches = StochNotchList([])
     freqs = [f0 + n * f_spacing for n in range(n_harmonics)]
     for f in freqs:
@@ -349,7 +367,6 @@ def comb(f0, f_spacing, n_harmonics, df, description=None):
         notches.append(notch)
 
     return notches
-
 
 def pulsar_injections(filename, t_start, t_end, doppler=1e-4):
     """
@@ -383,7 +400,6 @@ def pulsar_injections(filename, t_start, t_end, doppler=1e-4):
     binary:  pulsar binary system, yes or no. If yes the affected with is ~two times larger (by design).
              We use a conservative factor of 3. 
     """
-
     t_refs, f_refs, f_dots, binary = np.loadtxt(
         filename,
         unpack=True,

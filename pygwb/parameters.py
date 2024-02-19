@@ -26,6 +26,7 @@ A parameter file must be structured specifically to be read by the ``Parameters`
     channel:
     frametype:
     time_shift:
+    random_time_shift:
     [preprocessing]
     new_sample_rate: 
     input_sample_rate: 
@@ -82,7 +83,6 @@ When passing arguments relative to these sections from the command line directly
 
 >>> pygwb_pipe --window_fftgram my-window-1 --window_fftgram_welch my-window-2
 
-
 Notes
 -----
 
@@ -104,9 +104,7 @@ However, when passing in different frame types for different interferometers, th
 
 where IFO1 and IFO2 match the names provided for the interferometers in the ``interferometer_list`` parameter.
 
-
 Users should not interact with the ``ParametersHelp`` class.
-
 """
 import argparse
 import configparser
@@ -199,6 +197,9 @@ class Parameters:
         Suffix for the output data file. Options are hdf5, npz, json, pickle. Default is json.
     time_shift: ``int``
         Seconds to timeshift the data by in preprocessing. Default is 0.
+    random_time_shift: ``bool``, optional
+        If True, a random extra shift between 0 and 1 is added to the time_shift.
+        Default is False.
     gate_data: ``bool``
         Whether to apply self-gating to the data in preprocessing. Default is False.
     gate_tzero: ``float``
@@ -216,7 +217,6 @@ class Parameters:
     return_naive_and_averaged_sigmas: ``bool``
         Option to return naive and sliding sigmas from delta sigma cut.
     """
-
     t0: float = 0
     tf: float = 100
     interferometer_list: List = field(default_factory=lambda: ["H1", "L1"])
@@ -250,6 +250,7 @@ class Parameters:
     alphas_delta_sigma_cut: List = field(default_factory=lambda: [-5, 0, 3])
     save_data_type: str = "npz"
     time_shift: int = 0
+    random_time_shift: bool = False
     path_gate_data: str = ""
     gate_data: bool = False
     gate_tzero: float = 1.0
@@ -406,6 +407,7 @@ class Parameters:
         data_specs_dict["channel"] = param_dict["channel"]
         data_specs_dict["frametype"] = param_dict["frametype"]
         data_specs_dict["time_shift"] = param_dict["time_shift"]
+        data_specs_dict["random_time_shift"] = param_dict["random_time_shift"]
         param["data_specs"] = data_specs_dict
 
         preprocessing_dict = {}
@@ -491,7 +493,7 @@ class Parameters:
         for ifo in ifo_list:
             param_dict[ifo] = Parameters()
         current_param_dict = self.__dict__
-        for attr in current_param_dict.keys():
+        for attr in current_param_dict:
             if attr in ifo_parameters:
                 attr_str = str(current_param_dict[attr])
                 attr_split = attr_str.split(',')
@@ -508,7 +510,6 @@ class Parameters:
 
         return param_dict
 
-
 class ParametersHelp(enum.Enum):
     """
     Description of the arguments in the Parameters class. 
@@ -517,7 +518,6 @@ class ParametersHelp(enum.Enum):
     -----
     This is an enumeration class and is not meant for user interaction.
     """
-
     t0 = "Initial time."
     tf = "Final time."
     interferometer_list = (
@@ -577,6 +577,9 @@ class ParametersHelp(enum.Enum):
     alphas_delta_sigma_cut = "List of spectral indexes to use in delta sigma cut calculation. Default is [-5, 0, 3]."
     save_data_type = "Suffix for the output data file. Options are hdf5, npz, json, pickle. Default is json."
     time_shift = "Seconds to timeshift the data by in preprocessing. Default is 0."
+    random_time_shift = (
+        "If True, a random extra shift between 0 and 1 is added to the time_shift. Default is False."
+    )
     path_gate_data = (
         "Path to the pygwb output containing information about gates. "
         "If loading a single file, it has to be an .npzfile "

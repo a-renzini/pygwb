@@ -4,6 +4,7 @@ import os
 import pickle
 import sys
 import unittest
+from test.conftest import testdir
 
 import bilby
 import gwpy.testing.utils
@@ -28,7 +29,7 @@ class TestBaseline(unittest.TestCase):
         self.interferometer_2.name = "H2"
         self.interferometer_3 = bilby.gw.detector.get_empty_interferometer("L1")
         self.duration = 4.0
-        self.sampling_frequency = 2048.0
+        self.sampling_frequency = 512.0
         self.frequencies = np.arange(100)
 
     def tearDown(self):
@@ -68,27 +69,27 @@ class TestBaseline(unittest.TestCase):
     def test_interferometer_duration_mismatch(self):
         ifo1 = copy.deepcopy(self.interferometer_1)
         ifo1.duration = 8.0
-        ifo1.sampling_frequency = 2048.0
+        ifo1.sampling_frequency = 512.0
         ifo2 = copy.deepcopy(self.interferometer_2)
         ifo2.duration = 4.0
-        ifo2.sampling_frequency = 2048.0
+        ifo2.sampling_frequency = 512.0
         with self.assertRaises(AssertionError):
             base = baseline.Baseline("H1H2", ifo1, ifo2)
 
     def test_passed_duration_ifo_mismatch(self):
         ifo1 = copy.deepcopy(self.interferometer_1)
         ifo1.duration = 8.0
-        ifo1.sampling_frequency = 2048.0
+        ifo1.sampling_frequency = 512.0
         ifo2 = copy.deepcopy(self.interferometer_2)
         ifo2.duration = 8.0
-        ifo2.sampling_frequency = 2048.0
+        ifo2.sampling_frequency = 512.0
         with self.assertRaises(AssertionError):
             base = baseline.Baseline("H1H2", ifo1, ifo2, self.duration)
 
     def test_passed_duration_ifo1_mismatch(self):
         ifo1 = copy.deepcopy(self.interferometer_1)
         ifo1.duration = 8.0
-        ifo1.sampling_frequency = 2048.0
+        ifo1.sampling_frequency = 512.0
         with self.assertRaises(AssertionError):
             base = baseline.Baseline(
                 "H1H2",
@@ -100,7 +101,7 @@ class TestBaseline(unittest.TestCase):
     def test_passed_duration_ifo2_mismatch(self):
         ifo2 = copy.deepcopy(self.interferometer_2)
         ifo2.duration = 8.0
-        ifo2.sampling_frequency = 2048.0
+        ifo2.sampling_frequency = 512.0
         with self.assertRaises(AssertionError):
             base = baseline.Baseline(
                 "H1H2",
@@ -162,15 +163,15 @@ class TestBaseline(unittest.TestCase):
             self.interferometer_1,
             self.interferometer_2,
         )
-        base.save_to_pickle("test/test_data/baseline_pickle_test.pickle")
+        base.save_to_pickle(f"{testdir}/test_data/baseline_pickle_test.pickle")
 
     def test_load_from_pickle(self):
         base = baseline.Baseline.load_from_pickle(
-            "test/test_data/baseline_pickle_test.pickle"
+            f"{testdir}/test_data/baseline_pickle_test.pickle"
         )
 
     def test_from_parameters(self):
-        param_file = "test/test_data/parameters_baseline_test.ini"
+        param_file = f"{testdir}/test_data/parameters_baseline_test.ini"
         params = parameters.Parameters()
         params.update_from_file(param_file)
         base = baseline.Baseline.from_parameters(
@@ -179,7 +180,7 @@ class TestBaseline(unittest.TestCase):
 
     def test_set_cross_and_power_spectral_density(self):
         pickled_base = baseline.Baseline.load_from_pickle(
-            "test/test_data/H1L1_1247644138-1247645038.pickle"
+            f"{testdir}/test_data/H1L1_1247644138-1247644158.pickle"
         )
         pickled_ifo_1 = pickled_base.interferometer_1
         pickled_ifo_2 = pickled_base.interferometer_2
@@ -218,9 +219,12 @@ class TestBaseline(unittest.TestCase):
 
     def test_set_average_power_spectral_densities(self):
         pickled_base = baseline.Baseline.load_from_pickle(
-            "test/test_data/H1L1_1247644138-1247645038.pickle"
+            f"{testdir}/test_data/H1L1_1247644138-1247644158.pickle"
         )
-        pickled_base.crop_frequencies_average_psd_csd(50, 500)
+        notch_file = f"{testdir}/test_data/Official_O3_HL_notchlist.txt"
+
+        pickled_base.notch_list_path = notch_file
+        pickled_base.crop_frequencies_average_psd_csd(50, 200)
         pickled_ifo_1 = pickled_base.interferometer_1
         pickled_ifo_2 = pickled_base.interferometer_2
         PSD_1_test = pickled_ifo_1.average_psd
@@ -231,9 +235,11 @@ class TestBaseline(unittest.TestCase):
         ifo_1.average_psd = None
         ifo_2.average_psd = None
         base = baseline.Baseline.from_interferometers([ifo_1, ifo_2])
+        base.notch_list_path = notch_file
+
         base.set_average_power_spectral_densities()
         base.frequencies = pickled_base.frequencies
-        base.crop_frequencies_average_psd_csd(50, 500)
+        base.crop_frequencies_average_psd_csd(50, 200)
         gwpy.testing.utils.assert_quantity_sub_equal(
             PSD_1_test, base.interferometer_1.average_psd, almost_equal=True
         )
@@ -243,43 +249,49 @@ class TestBaseline(unittest.TestCase):
 
     def test_set_average_cross_spectral_density(self):
         pickled_base = baseline.Baseline.load_from_pickle(
-            "test/test_data/H1L1_1247644138-1247645038.pickle"
+            f"{testdir}/test_data/H1L1_1247644138-1247644158.pickle"
         )
-        pickled_base.crop_frequencies_average_psd_csd(50, 500)
+        notch_file = f"{testdir}/test_data/Official_O3_HL_notchlist.txt"
+
+        pickled_base.notch_list_path = notch_file
+        pickled_base.crop_frequencies_average_psd_csd(50, 200)
         pickled_ifo_1 = pickled_base.interferometer_1
         pickled_ifo_2 = pickled_base.interferometer_2
         CSD_test = pickled_base.average_csd
 
         base = baseline.Baseline.load_from_pickle(
-            "test/test_data/H1L1_1247644138-1247645038.pickle"
+            f"{testdir}/test_data/H1L1_1247644138-1247644158.pickle"
         )
+        base.notch_list_path = notch_file
+
         base.average_csd = None
         base.set_average_cross_spectral_density()
-        base.crop_frequencies_average_psd_csd(50, 500)
+        base.crop_frequencies_average_psd_csd(50, 200)
         gwpy.testing.utils.assert_quantity_sub_equal(
             CSD_test, base.average_csd, almost_equal=True
         )
 
     def test_calculate_delta_sigma_cut(self):
         pickled_base = baseline.Baseline.load_from_pickle(
-            "test/test_data/H1L1_1247644138-1247645038.pickle"
+            f"{testdir}/test_data/H1L1_1247644138-1247644158.pickle"
         )
         badGPStimes_test = pickled_base.badGPStimes
         dsc_test = pickled_base.delta_sigmas['values']
         base = baseline.Baseline.load_from_pickle(
-            "test/test_data/H1L1_1247644138-1247645038.pickle"
+            f"{testdir}/test_data/H1L1_1247644138-1247644158.pickle"
         )
         base.badGPStimes = None
         base.delta_sigmas = None
-        notch_file = "test/test_data/Official_O3_HL_notchlist.txt"
+        notch_file = f"{testdir}/test_data/Official_O3_HL_notchlist.txt"
+        base.notch_list_path = notch_file
         base.calculate_delta_sigma_cut(
-            delta_sigma_cut=0.2, alphas=[-5, 0, 3], fref= 25, flow=20, fhigh=500
+            delta_sigma_cut=0.2, alphas=[-5, 0, 3], fref= 25, flow=20, fhigh=200
         )
         self.assertTrue(np.array_equal(badGPStimes_test, base.badGPStimes))
 
     def test_set_point_estimate_sigma(self):
         pickled_base = baseline.Baseline.load_from_pickle(
-            "test/test_data/H1L1_1247644138-1247645038.pickle"
+            f"{testdir}/test_data/H1L1_1247644138-1247644158.pickle"
         )
         pickled_ifo_1 = pickled_base.interferometer_1
         pickled_ifo_2 = pickled_base.interferometer_2
@@ -304,6 +316,9 @@ class TestBaseline(unittest.TestCase):
         frequency_resolution = PSD_1_test.df.value
 
         base = baseline.Baseline.from_interferometers([ifo_1, ifo_2])
+        notch_file = f"{testdir}/test_data/Official_O3_HL_notchlist.txt"
+        base.notch_list_path = notch_file
+
         base.set_cross_and_power_spectral_density(frequency_resolution)
         base.set_average_power_spectral_densities()
         base.set_average_cross_spectral_density()
@@ -317,12 +332,12 @@ class TestBaseline(unittest.TestCase):
             alphas=[-5, 0, 3],
             fref=25,
             flow=20, 
-            fhigh=500
+            fhigh=200
         )
 
         # set point estimate, sigma with notch list
         base.set_point_estimate_sigma(
-            notch_list_path="test/test_data/Official_O3_HL_notchlist.txt"
+            notch_list_path=f"{testdir}/test_data/Official_O3_HL_notchlist.txt"
         )
 
         # check point estimate, sigma spectrum
@@ -352,10 +367,10 @@ class TestBaseline(unittest.TestCase):
 
     def test_save_point_estimate_spectra_npz(self):
         pickled_base = baseline.Baseline.load_from_pickle(
-            "test/test_data/H1L1_1247644138-1247645038.pickle"
+            f"{testdir}/test_data/H1L1_1247644138-1247644158.pickle"
         )
         save_data_type = "npz"
-        filename = "test/test_data/testing_save_function_of_baseline"
+        filename = f"{testdir}/test_data/testing_save_function_of_baseline"
         pickled_base.save_point_estimate_spectra(save_data_type, filename)
         Loaded_npzfile = np.load(filename + ".npz")
         loaded_frequencies = Loaded_npzfile["frequencies"]
@@ -402,10 +417,10 @@ class TestBaseline(unittest.TestCase):
 
     def test_save_psds_csd_npz(self):
         pickled_base = baseline.Baseline.load_from_pickle(
-            "test/test_data/H1L1_1247644138-1247645038.pickle"
+            f"{testdir}/test_data/H1L1_1247644138-1247644158.pickle"
         )
         save_data_type = "npz"
-        filename = "psds_csds_4138-5038"
+        filename = "psds_csds_4138-4158"
         pickled_base.save_psds_csds(save_data_type, filename)
         Loading_npzfile = np.load(f"{filename}.npz")
 
@@ -445,10 +460,10 @@ class TestBaseline(unittest.TestCase):
 
     def test_save_point_estimate_spectra_pickle(self):
         pickled_base = baseline.Baseline.load_from_pickle(
-            "test/test_data/H1L1_1247644138-1247645038.pickle"
+            f"{testdir}/test_data/H1L1_1247644138-1247644158.pickle"
         )
         save_data_type = "pickle"
-        filename = "test/test_data/testing_save_function_of_baseline"
+        filename = f"{testdir}/test_data/testing_save_function_of_baseline"
         pickled_base.save_point_estimate_spectra(save_data_type, filename)
         with open(filename + ".p", "rb") as f:
             Loaded_picklefile = pickle.load(f)
@@ -500,10 +515,10 @@ class TestBaseline(unittest.TestCase):
 
     def test_save_psds_csd_pickle(self):
         pickled_base = baseline.Baseline.load_from_pickle(
-            "test/test_data/H1L1_1247644138-1247645038.pickle"
+            f"{testdir}/test_data/H1L1_1247644138-1247644158.pickle"
         )
         save_data_type = "pickle"
-        filename = "psds_csds_4138-5038"
+        filename = "psds_csds_4138-4158"
         pickled_base.save_psds_csds(save_data_type, filename)
         with open(f"{filename}.p", "rb") as f:
             Loading_picklefile = pickle.load(f)
@@ -548,10 +563,10 @@ class TestBaseline(unittest.TestCase):
 
     def test_save_point_estimate_spectra_json(self):
         pickled_base = baseline.Baseline.load_from_pickle(
-            "test/test_data/H1L1_1247644138-1247645038.pickle"
+            f"{testdir}/test_data/H1L1_1247644138-1247644158.pickle"
         )
         save_data_type = "json"
-        filename = "test/test_data/testing_save_function_of_baseline"
+        filename = f"{testdir}/test_data/testing_save_function_of_baseline"
         pickled_base.save_point_estimate_spectra(save_data_type, filename)
         with open(filename + ".json", "r") as j:
             Loaded_jsonfile = json.loads(j.read())
@@ -596,10 +611,10 @@ class TestBaseline(unittest.TestCase):
 
     def test_save_psds_csd_json(self):
         pickled_base = baseline.Baseline.load_from_pickle(
-            "test/test_data/H1L1_1247644138-1247645038.pickle"
+            f"{testdir}/test_data/H1L1_1247644138-1247644158.pickle"
         )
         save_data_type = "json"
-        filename = "psds_csds_4138-5038"
+        filename = "psds_csds_4138-4158"
         pickled_base.save_psds_csds(save_data_type, filename)
         with open(f"{filename}.json", "r") as j:
             Loading_jsonfile = json.loads(j.read())
@@ -650,10 +665,10 @@ class TestBaseline(unittest.TestCase):
 
     def test_save_point_estimate_spectra_hdf5(self):
         pickled_base = baseline.Baseline.load_from_pickle(
-            "test/test_data/H1L1_1247644138-1247645038.pickle"
+            f"{testdir}/test_data/H1L1_1247644138-1247644158.pickle"
         )
         save_data_type = "hdf5"
-        filename = "test/test_data/testing_save_function_of_baseline"
+        filename = f"{testdir}/test_data/testing_save_function_of_baseline"
         pickled_base.save_point_estimate_spectra(save_data_type, filename)
 
         hf = h5py.File(f"{filename}.h5", "r")
@@ -707,10 +722,10 @@ class TestBaseline(unittest.TestCase):
 
     def test_save_psds_csd_hdf5(self):
         pickled_base = baseline.Baseline.load_from_pickle(
-            "test/test_data/H1L1_1247644138-1247645038.pickle"
+            f"{testdir}/test_data/H1L1_1247644138-1247644158.pickle"
         )
         save_data_type = "hdf5"
-        filename = "psds_csds_4138-5038"
+        filename = "psds_csds_4138-4158"
         pickled_base.save_psds_csds(save_data_type, filename)
         hf = h5py.File(f"{filename}.h5", "r")
 

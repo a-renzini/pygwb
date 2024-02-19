@@ -71,9 +71,7 @@ The CSD is calculated by invoking the following lines of codes.
     
 For any additional information on the parameters that enter the methods described here,
 we refer the reader to the more detailed API documentation of the module.
-
 """
-
 import copy
 import warnings
 
@@ -130,7 +128,6 @@ def fftgram(
     gwpy.frequencyseries.FrequencySeries
         More information `here <https://gwpy.github.io/docs/latest/api/gwpy.frequencyseries.FrequencySeries/#gwpy.frequencyseries.FrequencySeries>`_.
     """
-
     sample_rate = int(1 / time_series_data.dt.value)
 
     # get the window function
@@ -165,7 +162,6 @@ def fftgram(
 
     return data_fftgram
 
-
 def pwelch_psd(
     psdgram: Spectrogram, segment_duration: int, overlap_factor: float = 0.5
 ):
@@ -193,7 +189,6 @@ def pwelch_psd(
     gwpy.spectrogram.Spectrogram
         More information `here <https://gwpy.github.io/docs/stable/spectrogram/>`_.
     """
-
     averaging_factor = round(segment_duration * psdgram.dy.value)
 
     if averaging_factor < 1:
@@ -232,7 +227,6 @@ def pwelch_psd(
 
     return avg_psdgram
 
-
 def before_after_average(psdgram: Spectrogram, segment_duration: int, N_avg_segs: int):
     """
     Average the requested number of PSDs from segments adjacent to the segment 
@@ -258,7 +252,6 @@ def before_after_average(psdgram: Spectrogram, segment_duration: int, N_avg_segs
     gwpy.spectrogram.Spectrogram
         More information `here <https://gwpy.github.io/docs/stable/spectrogram/>`_.
     """
-
     if N_avg_segs < 2:
         raise ValueError("N_avg_segs should be >=2")
 
@@ -307,7 +300,6 @@ def before_after_average(psdgram: Spectrogram, segment_duration: int, N_avg_segs
     )
     return avg_psdgram
 
-
 def coarse_grain(data, coarsening_factor):
     """
     Coarse grain a frequency series by an integer factor.
@@ -354,7 +346,6 @@ def coarse_grain(data, coarsening_factor):
         coarsened += (left_edges - right_edges) / 2 / coarsening_factor
     return coarsened
 
-
 def coarse_grain_exact(data, coarsening_factor):
     """
     Coarse grain an array using any coarsening factor.
@@ -395,7 +386,6 @@ def coarse_grain_exact(data, coarsening_factor):
 
     return output
 
-
 def coarse_grain_naive(data, coarsening_factor):
     """
     Naive implementation of a coarse graining factor that ignores edge effects.
@@ -420,7 +410,6 @@ def coarse_grain_naive(data, coarsening_factor):
         data = data[:-n_remove]
     coarsened = np.mean(data.reshape(-1, coarsening_factor), axis=-1)
     return coarsened
-
 
 def coarse_grain_spectrogram(
     spectrogram,
@@ -507,9 +496,7 @@ def coarse_grain_spectrogram(
         epoch=coarse_times[0].value,
         dt=coarse_times[1].value - coarse_times[0].value,
     )
-
     return output
-
 
 def cross_spectral_density(
     time_series_data1: TimeSeries,
@@ -573,7 +560,6 @@ def cross_spectral_density(
     gwpy.spectrogram.Spectrogram
         More information `here <https://gwpy.github.io/docs/stable/spectrogram/>`_.
     """
-
     if (segment_duration * frequency_resolution) % 1 != 0:
         warnings.warn(
             "Multiplying the parameters segment_duration and frequency_resolution gives a non-integer. "
@@ -640,7 +626,6 @@ def cross_spectral_density(
     else:
         return csd_spectrogram
 
-
 def power_spectral_density(
     time_series_data:  TimeSeries,
     segment_duration:  int,
@@ -691,7 +676,6 @@ def power_spectral_density(
     psd_spectrogram: ``gwpy.spectrogram.Spectrogram``
         PSD spectrogram with each PSD duration equal to segment duration.
     """
-
     psd_spectrogram = cross_spectral_density(
         time_series_data1=time_series_data,
         time_series_data2=None,
@@ -705,7 +689,6 @@ def power_spectral_density(
         is_psd=True,
     )
     return psd_spectrogram
-
 
 def running_mean(data, coarsening_factor=1, axis=-1):
     """

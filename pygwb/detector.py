@@ -40,6 +40,7 @@ default value.
     window_downsampling="hamming",
     ftype="fir",
     time_shift=0,
+    random_time_shift=False,
     )
     
 To illustrate one of the features of the module, we gate the detector data. This procedure applies a window to stretches of data to get rid of
@@ -143,7 +144,6 @@ class Interferometer(bilby.gw.detector.Interferometer):
             
         gwpy.segments.SegmentList
             More information `here <https://gwpy.github.io/docs/stable/api/gwpy.segments.SegmentList/>`_.
-
         """
         self.gates = SegmentList()
         self.gate_pad = None
@@ -164,7 +164,6 @@ class Interferometer(bilby.gw.detector.Interferometer):
         =======
         interferometer: ``pygwb.Interferometer``
             Interferometer instance of pygwb.
-
         """
         filename = os.path.join(
             os.path.dirname(bilby.gw.detector.__file__),
@@ -172,7 +171,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
             f"{name}.interferometer",
         )
         try:
-            parameters = dict()
+            parameters = {}
             with open(filename, "r") as parameter_file:
                 lines = parameter_file.readlines()
                 for line in lines:
@@ -218,7 +217,6 @@ class Interferometer(bilby.gw.detector.Interferometer):
         =======
         interferometer: ``pygwb.Interferometer``
             Instance of the pygwb interferometer object.
-
         """
         ifo = cls.get_empty_interferometer(name)
         channel = str(ifo.name + ":" + parameters.channel)
@@ -237,6 +235,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
             window_downsampling=parameters.window_downsampling,
             ftype=parameters.ftype,
             time_shift=parameters.time_shift,
+            random_time_shift=parameters.random_time_shift,
             input_sample_rate=parameters.input_sample_rate,
         )
         return ifo
@@ -255,9 +254,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
         See also
         --------
         pygwb.preprocessing.preprocessing_data_channel_name
-
         """
-
         t0 = kwargs.pop("t0")
         tf = kwargs.pop("tf")
         data_type = kwargs.pop("data_type")
@@ -271,6 +268,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
         window_downsampling = kwargs.pop("window_downsampling")
         ftype = kwargs.pop("ftype")
         time_shift = kwargs.pop("time_shift")
+        random_time_shift = kwargs.pop("random_time_shift")
         self.duration = segment_duration
         self.timeseries = preprocessing_data_channel_name(
             IFO=self.name,
@@ -287,6 +285,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
             window_downsampling=window_downsampling,
             ftype=ftype,
             time_shift=time_shift,
+            random_time_shift = random_time_shift,
             input_sample_rate=input_sample_rate,
         )
         self._check_timeseries_channel_name(channel)
@@ -309,9 +308,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
         See also
         --------
         pygwb.preprocessing.preprocessing_data_timeseries_array
-
         """
-
         t0 = kwargs.pop("t0")
         tf = kwargs.pop("tf")
         data_type = kwargs.pop("data_type")
@@ -322,6 +319,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
         window_downsampling = kwargs.pop("window_downsampling")
         ftype = kwargs.pop("ftype")
         time_shift = kwargs.pop("time_shift")
+        random_time_shift = kwargs.pop("random_time_shift")
         self.duration = segment_duration
         self.timeseries = preprocessing_data_timeseries_array(
             array=timeseries_array,
@@ -335,6 +333,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
             window_downsampling=window_downsampling,
             ftype=ftype,
             time_shift=time_shift,
+            random_time_shift=random_time_shift,
         )
         self.timeseries.channel = kwargs.pop("channel")
         self._check_timeseries_sample_rate(new_sample_rate)
@@ -355,9 +354,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
         See also
         --------
         pygwb.preprocessing.preprocessing_data_gwpy_timeseries
-
         """
-
         new_sample_rate = kwargs.pop("new_sample_rate")
         segment_duration = kwargs.pop("segment_duration")
         cutoff_frequency = kwargs.pop("cutoff_frequency")
@@ -365,6 +362,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
         window_downsampling = kwargs.pop("window_downsampling")
         ftype = kwargs.pop("ftype")
         time_shift = kwargs.pop("time_shift")
+        random_time_shift = kwargs.pop("random_time_shift")
         self.duration = segment_duration
         self.timeseries = preprocessing_data_gwpy_timeseries(
             gwpy_timeseries=gwpy_timeseries,
@@ -374,6 +372,7 @@ class Interferometer(bilby.gw.detector.Interferometer):
             window_downsampling=window_downsampling,
             ftype=ftype,
             time_shift=time_shift,
+            random_time_shift=random_time_shift,
         )
         self.timeseries.channel = kwargs.pop("channel")
         self._check_timeseries_sample_rate(new_sample_rate)
@@ -414,7 +413,6 @@ class Interferometer(bilby.gw.detector.Interferometer):
         --------
         pygwb.spectral.power_spectral_density
         """
-
         # PSD estimation needs zeropadding when using coarse-graining
         zeropad_psd = coarse_grain
 

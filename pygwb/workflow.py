@@ -289,7 +289,7 @@ class Dagman(pyDagman):
 def _collect_job_arguments(config, job_type):
     config_sec = config[job_type]
     args_list = list()
-    for key in config_sec.keys():
+    for key in config_sec:
         args_list.append('--' + str(key))
         val = str(config_sec[key])
         if val[0] == '$':
@@ -385,9 +385,9 @@ class Workflow():
             cat1_vetoes = DataQualityDict({v: vetoes[v] for v in vetoes if (vetoes[v].category ==1) and (v[:2] in ifos)})
             cat1_vetoes.populate()
 
-            cat1_vetoes = cat1_vetoes.intersection().active
-
+            cat1_vetoes = cat1_vetoes.union().active
             seglist = sci_flag - cat1_vetoes
+
         else:
             seglist = sci_flag
 
@@ -614,4 +614,3 @@ class IsotropicWorkflow(Workflow):
         for parent in parents:
             job.add_parent(parent)
         return job
-    

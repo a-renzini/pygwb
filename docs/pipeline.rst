@@ -26,7 +26,9 @@ This will display the following set of parameters, which can be passed to the pi
   --param_file PARAM_FILE                                                                                                                                                     
                         Parameter file to use for analysis.                                                                                                                   
   --output_path OUTPUT_PATH                                                                                                                                                   
-                        Location to save output to.                                                                                                                           
+                        Location to save output to.         
+  --calc_coh CALC_COH	 
+                        Calculate coherence spectrum from data.                                                                                                                                      
   --calc_pt_est CALC_PT_EST                                                                                                                                                   
                         Calculate omega point estimate and sigma from data.                                                                                                   
   --apply_dsc APPLY_DSC                                                                                                                                                       
@@ -127,6 +129,13 @@ we note that the above parameters are the ones present in the ``pygwb.parameters
 
 .. tip::
   Feeling overwhelmed with the amount of parameters? Make sure to have a look to the ``pygwb.parameters`` `documentation <api/pygwb.parameters.html>`_.
+  
+.. note::
+  The current default for the ``notch_list_path`` is an empty string, which means no notches are applied. 
+  If notching should be applied, a path to a notch list file can be added to these parameters.
+  An example for such a notch list can be downloaded :download:`here <../pygwb_pipe/Official_O3_HL_notchlist.txt>`.
+  This particular notch list was used in the analysis for the third observing run of the LIGO-Virgo-KAGRA network.
+  This file can also be found in the ``pygwb/pygwb_pipe`` folder.
 
 **2. Running the script**
 ========================
@@ -138,7 +147,7 @@ to use for the analysis. As an example, one can run the script with the ``parame
 
 .. code-block:: shell
 
-  pygwb_pipe --param_file pygwb_pipe/parameters.ini --apply_dsc False
+  pygwb_pipe --param_file pygwb_pipe/parameters.ini --apply_dsc False --notch_list_path ./test/test_data/Official_O3_HL_notchlist.txt
 
 The output of the command above should be:
 
@@ -148,8 +157,9 @@ The output of the command above should be:
   2023-02-24 16:35:25.625 | SUCCESS  | __main__:main:163 - POINT ESTIMATE: -6.496991e-06
   2023-02-24 16:35:25.625 | SUCCESS  | __main__:main:164 - SIGMA: 2.688128e-06
 
-However, one could have decided to run with different parameters. An option is to modify the ``parameters.ini`` file, or one could also pass the parameters as arguments
-to the script directly. For example:
+We recommend employing the internal notch list provided in the test suite `./test/test_data/Official_O3_HL_notchlist.txt` to recover the results - a different notch list (or no notch list) will give different results.
+
+It is up to the user to decide which parameters to employ in the analysis. To change parameter settings, an option is to modify the ``parameters.ini`` file, or one could also pass the parameters as arguments to the script directly. For example:
 
 .. code-block:: shell
 
@@ -187,7 +197,7 @@ point estimate and variance spectrum, which can be translated into one point est
 the ``./output`` folder of your run directory, unless otherwise specified through the ``--output_path`` argument of the script.
 
 A few files can be found in this directory, including a version of the parameters file used for the
-analysis. Note that this takes into account any parameters that were modified through the command line.
+analysis. Note that this takes into account any parameters that were modified through the command line. This file will have the naming convention ``parameters_{t0}_{length_of job}_final.ini``.
 
 Additionally, the power-spectral densities (PSDs) and cross-spectral densities (CSDs) are saved in a file with naming convention:
 
@@ -198,14 +208,72 @@ Additionally, the power-spectral densities (PSDs) and cross-spectral densities (
 .. tip::
   Not sure about what is exactly in a file? Load in the file and print out all its `keys` as shown 
   `here <https://stackoverflow.com/questions/49219436/how-to-show-all-the-element-names-in-a-npz-file-without-having-to-load-the-compl>`_.
+  
+Printing these keys displays the following:
 
-A second file contains the actual point estimate spectrum, variance spectrum, point estimate and variance. This information is accessible in:
+.. code-block:: shell
+
+  npzfile = numpy.load("psds_csds_{start_time_of_job}_{job_duration}.npz")
+  print(list(npzfile.keys()))
+  
+  ['freqs', 'avg_freqs', 'csd', 'avg_csd', 'psd_1', 'psd_2', 'avg_psd_1', 'avg_psd_2',
+   'csd_times', 'avg_csd_times', 'psd_times', 'avg_psd_times',
+   'coherence', 'psd_1_coh', 'psd_2_coh', 'csd_coh', 'n_segs_coh']
+  
+The above keys of the ``.npz`` have corresponding data associated to them, which can be read using:
+
+.. code-block:: shell
+
+  variable = npzfile['{key}']
+
+More specifically, the frequencies for naive estimates can be accessed through the ``'freqs'`` key, whereas the ones for averaged 
+estimates of the spectral densitities can be accessed through the ``'avg_freqs'`` key. Additionally, the CSD can be read using the 
+``'csd'`` key and the average CSD can be found with the key ``'avg_csd'``. Analogously, one can load the PSDs of the interferometers.
+One can also read the times associated to these spectral densities by using the keys ``'{insert_spectral_density}_times'``. If the ``--calc_coh`` 
+argument was set to ``True`` during the analysis, the coherence information will also be stored in this file under the ``'coherence'`` key
+together with the PSDs, CSD and amount of segments used to compute coherence. 
+
+.. note::
+  
+  Depending on the parameters used to run ``pygwb_pipe``, some keys above might not have a avalue associated to them.
+
+A second file contains the actual point estimate spectrum, variance spectrum, point estimate and variance. These can be found in:
 
 .. code-block:: shell
 
   point_estimate_sigma_{start_time_of_job}_{job_duration}.npz
 
-Furthermore, if the script was run with ``--pickle_out True``, a ``pickle`` file will be present in the output directory, containing a pickled
+This file can be read in similarly to the previous file, and has the following keys:
+
+.. code-block:: shell
+
+  ['frequencies', 'frequency_mask', 'point_estimate_spectrum', 'sigma_spectrum',
+  'point_estimate', 'sigma', 'point_estimate_spectrogram', 'sigma_spectrogram',
+  'badGPStimes', 'delta_sigma_alphas', 'delta_sigma_times', 'delta_sigma_values',
+  'naive_sigma_values', 'slide_sigma_values', 'ifo_1_gates', 'ifo_1_gate_pad',
+  'ifo_2_gates', 'ifo_2_gate_pad']
+
+.. note::
+  
+  Depending on the parameters used to run ``pygwb_pipe``, some keys above might not have a avalue associated to them,
+  in particular the ones related to gating and the delta sigma cut.
+
+The file and associated keys can be read in via the same code as the one shown above. The ``'frequencies'`` key reads 
+the frequencies corresponding to those of the ``point_estimate_spectrum``, which can in turn be 
+read using the key that is called the same. The spectrograms are read in a  nalogously, but with spectrogram at the end of the name
+instead of spectrum. The key ``'frequency_mask'`` provides information about the frequencies which were notched, i.e. not used, in the analysis. 
+The overall point estimate and its standard deviation can be loaded using the ``'point_estimate'`` and  the ``'sigma'`` keys.
+
+The output of the data quality checks in ``pygwb`` are also saved in the same file. The output of the delta sigma cut is stored in 
+different keys. First, one can find the times which are not allowed in the analysis using the key ``'badGPStimes'``, i.e., the 
+times that do not pass the cut. The spectral indices used for the delta sigma cut are stored in ``'delta_sigma_alphas'``, times 
+in ``'delta_sigma_times'``, and the actual values of the computed delta sigmas can be found through the ``'delta_sigma_values'`` key. 
+The cut computes both the naive and sliding sigma values, which are also stored in the keys ``'naive_sigma_values'`` and ``'slide_sigma_values'``.
+
+If gating was applied during the analysis, the gated times are saved in ``'ifo_{i}_gates'`` where ``i`` can be 1 or 2, labeling the interferometer.
+The ``'ifo_{i}_gate_pad'`` refers to the value of the parameter ``gate_tpad`` during the analysis.
+
+To conclude, if the script was run with ``--pickle_out True``, a ``pickle`` file will be present in the output directory, containing a pickled
 version of the baseline. This contains all the information present in the other two ``npz`` files, but allows the user to create a baseline object
 from this ``pickle`` file. More information about how to create a baseline from such a file can be found `here <api/pygwb.baseline.Baseline.html#pygwb.baseline.Baseline.load_from_pickle>`_.
 

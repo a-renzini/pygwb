@@ -67,9 +67,7 @@ spectra computed above and relies on the following method:
 
 The result is an overall point estimate and standard deviation. Additional information on the various methods outlined above
 can be found in the following dedicated API documentation of the module.
-
 """
-
 import numpy as np
 import scipy.ndimage as ndi
 from loguru import logger
@@ -185,7 +183,6 @@ def postprocess_Y_sigma(
 
     return Y_f_new, sigma_f_new
 
-
 def odd_even_segment_postprocessing(
     Y_fs,
     var_fs,
@@ -273,7 +270,6 @@ def odd_even_segment_postprocessing(
 
     return Y_f_new, var_f_new
 
-
 def calc_Y_sigma_from_Yf_sigmaf(
     Y_f, sigma_f, frequency_mask=True, alpha=None, fref=None
 ):
@@ -312,7 +308,6 @@ def calc_Y_sigma_from_Yf_sigmaf(
     spectrum, without any time-averaging applied.
     Y_f and sigma_f can also be ``gwpy.spectrogram.Spectrogram`` objects, or numpy arrays. In these cases
     however the reweight functionality is not supported.
-
     """
     # Reweight in case one wants to pass it.
     if alpha is not None or fref is not None:
@@ -352,7 +347,6 @@ def calc_Y_sigma_from_Yf_sigmaf(
     sigma = np.sqrt(var)
 
     return Y, sigma
-
 
 def calculate_point_estimate_sigma_spectra(
     freqs,
@@ -426,16 +420,13 @@ def calculate_point_estimate_sigma_spectra(
     else:
         return var_fs
 
-
 def combine_spectra_with_sigma_weights(main_spectra, weights_spectra):
     r"""
     Combine different statistically independent spectra :math:`S_i(f)` using spectral weights :math:`w_i(f)`, as
 
-
     .. math::
 
         S(f) = \frac{\sum_i \frac{S_i(f)}{w^2_i(f)}}{\sum_i \frac{1}{w^2_i(f)}},\,\,\,\, \sigma = \sqrt{\frac{1}{\sum_i \frac{1}{w^2_i(f)}}}.
-
 
     If main_spectra is 2D and has dimensions N_1 x N_2, final spectrum has dimension N_2
     (in contrast to ``calc_Y_sigma_from_Yf_sigmaf`` which combines across other dimension).

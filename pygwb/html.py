@@ -17,7 +17,6 @@ from gwpy.time import from_gps
 """
 
 def pygwb_html(outdir='./', config=None, segment_results=False):
-
     # =====================
     # get data
     
@@ -113,4 +112,3 @@ def main(args=None):
 # allow be be run on the command line
 if __name__ == "__main__":
     main(args=None)
-

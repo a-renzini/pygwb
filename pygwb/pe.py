@@ -22,9 +22,7 @@ cosmological GWBs.
 
 Additional information about parameter estimation can be found `here <https://arxiv.org/pdf/2303.15696.pdf>`_. For more information on
 how to use this module, we refer the reader to the dedicated tutorials and demos.
-
 """
-
 from abc import abstractmethod
 
 import bilby
@@ -45,9 +43,7 @@ class GWBModel(bilby.Likelihood):
     where :math:`\Omega_{\rm M}(f_k|\mathbf{\Theta})` is the model being fit to data, and :math:`\mathbf{\Theta}` are the model's parameters.
 
     The noise likelihood is given by setting :math:`\Omega_{\rm M}(f_k|\mathbf{\Theta})=0`.
-
     """
-
     def __init__(self, baselines=None, model_name=None, polarizations=None):
         """
         See also
@@ -129,7 +125,6 @@ class GWBModel(bilby.Likelihood):
                 )
                 + np.sum(np.log(2 * np.pi * baseline.sigma_spectrum ** 2), where=freq_mask)
             )
-
         # likelihood with calibration uncertainty marginalizatione done analytically
         # see https://stochastic-alog.ligo.org/aLOG//index.php?callRep=339711
         # note \cal{N} = \Prod_j sqrt(2*pi*sigma_j^2)
@@ -166,7 +161,7 @@ class GWBModel(bilby.Likelihood):
         """
         ll = 0
         for baseline in self.baselines:
-            if hasattr(baseline,"frequency_mask"):
+            if baseline.frequency_mask is not None:
                 ll = ll + self.log_likelihood_IJ(baseline, freq_mask=baseline.frequency_mask, noise=False)
             else:
                 ll = ll + self.log_likelihood_IJ(
@@ -192,14 +187,12 @@ class GWBModel(bilby.Likelihood):
                 )
         return ll
 
-
 class PowerLawModel(GWBModel):
     r"""
     Power law model is defined as:
 
     .. math::
         \Omega(f) = \Omega_{\text{ref}} \left(\frac{f}{f_{\text{ref}}}\right)^{\alpha}
-        
         
     Examples
     --------
@@ -229,9 +222,7 @@ class PowerLawModel(GWBModel):
     
     >>> kwargs_pl = {"baselines":[HL], "model_name":'PL', "fref":25}
     >>> model_pl = PowerLawModel(**kwargs_pl)
-    
     """
-
     def __init__(self, **kwargs):
         """
         Parameters
@@ -283,7 +274,6 @@ class PowerLawModel(GWBModel):
             * (bline.frequencies / self.fref) ** self.parameters["alpha"]
         )
 
-
 class BrokenPowerLawModel(GWBModel):
     r"""
     Broken Power law model is defined as: 
@@ -322,9 +312,7 @@ class BrokenPowerLawModel(GWBModel):
     
     >>> kwargs_bpl = {"baselines":[HL], "model_name":'BPL'}
     >>> model_bpl = BrokenPowerLawModel(**kwargs_bpl)
-    
     """
-
     def __init__(self, **kwargs):
         """
         Parameters
@@ -386,7 +374,6 @@ class BrokenPowerLawModel(GWBModel):
             )
         )
 
-
 class TripleBrokenPowerLawModel(GWBModel):
     r"""
     The triple broken power law is defined as: 
@@ -426,9 +413,7 @@ class TripleBrokenPowerLawModel(GWBModel):
     
     >>> kwargs_tbpl = {"baselines":[HL], "model_name":'TBPL'}
     >>> model_tbpl = TripleBrokenPowerLawModel(**kwargs_tbpl)
-    
     """
-
     def __init__(self, **kwargs):
         """
         Parameters
@@ -509,7 +494,6 @@ class TripleBrokenPowerLawModel(GWBModel):
         )
         return self.parameters["omega_ref"] * piecewise
 
-
 class SmoothBrokenPowerLawModel(GWBModel):
     r"""
 
@@ -546,9 +530,7 @@ class SmoothBrokenPowerLawModel(GWBModel):
     
     >>> kwargs_sbpl = {"baselines":[HL], "model_name":'SBPL'}
     >>> model_sbpl = SmoothBrokenPowerLawModel(**kwargs_sbpl)
-    
     """
-
     def __init__(self, **kwargs):
         """
         Parameters
@@ -617,7 +599,6 @@ class SmoothBrokenPowerLawModel(GWBModel):
             )
         )
 
-
 class SchumannModel(GWBModel):
     r"""
 
@@ -627,7 +608,6 @@ class SchumannModel(GWBModel):
     .. math::
          \Omega(f) = \sum_{ij} \kappa_i \kappa_j \left(\frac{f}{f_{\text{ref}}}\right)^{-\beta_i-\beta_j} M_{ij}(f) \times 10^{-46}
     """
-
     def __init__(self, **kwargs):
         """
         Parameters
@@ -712,7 +692,6 @@ class SchumannModel(GWBModel):
         # units of transfer function strain/pT
         return TF1 * TF2 * np.real(bline.M_f)
 
-
 class TVSPowerLawModel(GWBModel):
     r"""
     The Tensor-Vector-Scalar polarization (T,V,S) power-law model is defined as:
@@ -755,9 +734,7 @@ class TVSPowerLawModel(GWBModel):
     
     >>> kwargs_pl_sv = {"baselines":[HL], "model_name":'PL_SV', "polarizations":['scalar', 'vector']}
     >>> model_pl_sv = TVSPowerLawModel(**kwargs_pl_sv)
-    
     """
-
     def __init__(self, **kwargs):
         """
         Parameters
@@ -819,9 +796,7 @@ class TVSPowerLawModel(GWBModel):
             )
         return model
 
-
 # Parity violation models
-
 
 class PVPowerLawModel(GWBModel):
     r"""
@@ -858,9 +833,7 @@ class PVPowerLawModel(GWBModel):
     
     >>> kwargs_pl_pv = {"baselines":[HL], "model_name":'PL_PV', 'fref': 25}
     >>> model_pl_pv = PVPowerLawModel(**kwargs_pl_pv)
-    
     """
-
     def __init__(self, **kwargs):
         """
         Parameters
@@ -921,7 +894,6 @@ class PVPowerLawModel(GWBModel):
             * (bline.frequencies / self.fref) ** (self.parameters["alpha"])
         )
 
-
 class PVPowerLawModel2(GWBModel):
     r"""
     The parity violation model 2 can be defined as:
@@ -957,9 +929,7 @@ class PVPowerLawModel2(GWBModel):
     
     >>> kwargs_pl_pv_2 = {"baselines":[HL], "model_name":'PL_PV_2', 'fref': 25}
     >>> model_pl_pv_2 = PVPowerLawModel2(**kwargs_pl_pv_2)
-    
     """
-
     def __init__(self, **kwargs):
         """
         Parameters
@@ -1019,3 +989,52 @@ class PVPowerLawModel2(GWBModel):
             * self.parameters["omega_ref"]
             * (bline.frequencies / self.fref) ** (self.parameters["alpha"])
         )
+
+class CombinedModel(GWBModel):
+    r"""
+    Class that combines two models and runs parameter estimation on the combined models. Given model 1 with 
+    spectrum :math:`\Omega^1_{\\text{ref}}` and model 2 with spectrum :math:`\Omega^2_{\\text{ref}}`, the combined
+    model is given by:
+
+    .. math::
+        \Omega(f) = \Omega^1_{\\text{ref}} + \Omega^2_{\\text{ref}}
+    
+    """
+    def __init__(self, **kwargs):
+        try:
+            model1 = kwargs.pop("model1")
+            model2 = kwargs.pop("model2")
+        except KeyError:
+            raise KeyError("Models must be supplied")
+        self.model1 = model1
+        self.model2 = model2
+        super(CombinedModel, self).__init__(**kwargs)
+        
+    @property
+    def parameters(self):
+        if self._parameters is None: 
+            # include this so that the parent class GWBModel doesn't complain
+            return self.get_model_params()
+        elif isinstance(self._parameters, dict):
+            return self._parameters
+
+    @parameters.setter
+    def parameters(self, parameters):
+        if parameters is None:
+            self._parameters = parameters
+        elif isinstance(parameters, dict):
+            self._parameters = parameters
+        else:
+            raise ValueError(f"unexpected type for parameters {type(parameters)}")
+
+    def get_model_params(self):
+        param_dict = {}
+        param_dict.update(self.model1.parameters)
+        param_dict.update(self.model2.parameters)
+        return param_dict
+        
+    def model_function(self, bline):
+        self.model1.parameters.update(self.parameters)
+        self.model2.parameters.update(self.parameters)
+        frequencies = bline.frequencies
+        return self.model1.model_function(bline) + self.model2.model_function(bline)
