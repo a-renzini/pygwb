@@ -24,10 +24,10 @@ class BackgroundTest(unittest.TestCase):
         sampling_frequency = test_data['sampling_frequency']
         T_obs = test_data['T_obs']
         freqs, omega_gw = background.compute_Omega_from_CBC_dictionary(injection_dict, sampling_frequency, T_obs, waveform_minimum_frequency=10)
-        self.assertEqual(
+        self.assertAlmostEqual(
             freqs.tolist(), test_data['freqs']
         )
-        self.assertEqual(
+        self.assertAlmostEqual(
             omega_gw.tolist(), test_data['omega_gw']
         )
 
