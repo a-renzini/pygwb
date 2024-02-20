@@ -24,11 +24,11 @@ class BackgroundTest(unittest.TestCase):
         sampling_frequency = test_data['sampling_frequency']
         T_obs = test_data['T_obs']
         freqs, omega_gw = background.compute_Omega_from_CBC_dictionary(injection_dict, sampling_frequency, T_obs, waveform_minimum_frequency=10)
-        self.assertAlmostEqual(
-            freqs.tolist(), test_data['freqs']
+        np.testing.assert_almost_equal(
+            freqs.tolist(), test_data['freqs'], decimal=7
         )
-        self.assertAlmostEqual(
-            omega_gw.tolist(), test_data['omega_gw']
+        np.testing.assert_almost_equal(
+            omega_gw.tolist(), test_data['omega_gw'], decimal=7
         )
 
 if __name__ == "__main__":
