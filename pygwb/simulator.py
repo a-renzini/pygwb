@@ -46,13 +46,13 @@ from pygwb.baseline import Baseline, get_baselines
 from pygwb.util import interpolate_frequency_series
 
 default_waveform_arguments = {
-        "waveform_approximant": "IMRPhenomD",
+        "waveform_approximant": "IMRPhenomPv2",
         "reference_frequency": 50,
         }
 
 default_waveform_generator_arguments = {
         "duration": 60,
-        "frequency_domain_source_model":bilby.gw.source.lal_binary_black_hole,
+        "frequency_domain_source_model": bilby.gw.source.lal_binary_black_hole,
         "parameter_conversion": bilby.gw.conversion.convert_to_lal_binary_black_hole_parameters,
         "waveform_arguments": default_waveform_arguments,
         }
