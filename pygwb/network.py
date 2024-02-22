@@ -284,6 +284,7 @@ class Network:
         sampling_frequency=None,
         start_time=None,
         inject_into_data_flag=False,
+        waveform_generator_arguments=None,
     ):
         """
         Fill interferometers with data from simulation. Data can already be present in the intereferometers of the network,
@@ -316,6 +317,8 @@ class Network:
             data present in the interferometers of the network. If so, only data will be simulated and no extra noise will
             be added on top of the simulated data. Defaults to False.
 
+        waveform_generator_arguments: ``dict``, optional
+            Dictionary with arguments referring to waveform generation. Defaults to values set in the ``simulator`` module.
         See also
         --------
         pygwb.simulator.Simulator : Used to simulate data.
@@ -347,6 +350,7 @@ class Network:
             start_time=start_time,
             sampling_frequency=sampling_frequency,
             no_noise=no_noise,
+            waveform_generator_arguments=waveform_generator_arguments,
         )
         data = data_simulator.get_data_for_interferometers()
 

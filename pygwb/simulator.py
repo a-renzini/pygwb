@@ -45,6 +45,17 @@ from tqdm import tqdm
 from pygwb.baseline import Baseline, get_baselines
 from pygwb.util import interpolate_frequency_series
 
+default_waveform_arguments = {
+        "waveform_approximant": "IMRPhenomD",
+        "reference_frequency": 50,
+        }
+
+default_waveform_generator_arguments = {
+        "duration": 60,
+        "frequency_domain_source_model":bilby.gw.source.lal_binary_black_hole,
+        "parameter_conversion": bilby.gw.conversion.convert_to_lal_binary_black_hole_parameters,
+        "waveform_arguments": default_waveform_arguments,
+        }
 
 class Simulator:
     def __init__(
@@ -60,6 +71,7 @@ class Simulator:
         orf_polarization="tensor",
         seed=None,
         continuous=False,
+        waveform_generator_arguments=None,
     ):
         """
         Create an instance of the the ``simulator`` class. 
@@ -98,6 +110,9 @@ class Simulator:
 
         continuous: ``boolean``, optional
             Flag to generate continuous segments. If True, a seed must also be provided. Defaults to False. 
+
+        waveform_arguments: ``dict``, optional
+            Waveform arguments dictionary using Bilby conventions.
         
         Notes
         -----
@@ -164,6 +179,15 @@ class Simulator:
 
             if self.intensity_GW is None and not self.injection_dict:
                 raise ValueError('Must provide at least one of intensity_GW or self.injection_dict')
+
+            self.waveform_generator_arguments =default_waveform_generator_arguments
+            if waveform_generator_arguments is not None:
+                for key in waveform_generator_arguments.keys():
+                    if key=='waveform_arguments':
+                        self.waveform_generator_arguments[key] = default_waveform_arguments
+                        for key2 in waveform_generator_arguments[key].keys():
+                            self.waveform_generator_arguments[key][key2] = waveform_generator_arguments[key][key2] 
+                    self.waveform_generator_arguments[key] = waveform_generator_arguments[key] 
 
     def get_frequencies(self):
         """
@@ -677,7 +701,7 @@ class Simulator:
 
         return data
 
-    def inject_CBC(self, waveform_duration=60):
+    def inject_CBC(self):
         """
         This function uses the provided dictionary of injection parameters to 
         simulate a background of CBC sources.
@@ -703,24 +727,22 @@ class Simulator:
             (self.Nd, len_data), dtype=np.ndarray
         )
         waveform_generator = bilby.gw.WaveformGenerator(
-            duration=waveform_duration, sampling_frequency=self.sampling_frequency,
-            frequency_domain_source_model=bilby.gw.source.lal_binary_black_hole,
-            parameter_conversion=bilby.gw.conversion.convert_to_lal_binary_black_hole_parameters,
-            waveform_arguments={
-                "waveform_approximant": "IMRPhenomPv2",
-                "reference_frequency": 50,
-            },
+            duration=self.waveform_generator_arguments['duration'], 
+            sampling_frequency=self.sampling_frequency,
+            frequency_domain_source_model=self.waveform_generator_arguments['frequency_domain_source_model'],
+            parameter_conversion=self.waveform_generator_arguments['parameter_conversion'],
+            waveform_arguments=self.waveform_generator_arguments['waveform_arguments'],
         )
         for ii in range(self.Nd):
             for n in tqdm(range(len(self.injection_dict['geocent_time']))):
                 inj_params = {}
                 for k in self.injection_dict:
                     inj_params[k] = self.injection_dict[k][n]
-                inj_params['start_time'] = inj_params['geocent_time']-waveform_duration/2.
-                idx_end = int((- self.t0 + inj_params['geocent_time']+waveform_duration/2.) * self.sampling_frequency)
+                inj_params['start_time'] = inj_params['geocent_time']-self.waveform_generator_arguments['duration']/2.
+                idx_end = int((- self.t0 + inj_params['geocent_time']+self.waveform_generator_arguments['duration']/2.) * self.sampling_frequency)
 
                 det = bilby.gw.detector.get_empty_interferometer(self.interferometers[ii].name) 
-                empty_ts = gwpy.timeseries.TimeSeries(np.zeros(waveform_duration*self.sampling_frequency),
+                empty_ts = gwpy.timeseries.TimeSeries(np.zeros(self.waveform_generator_arguments['duration']*self.sampling_frequency),
                                                       t0=inj_params['start_time'], sample_rate = self.sampling_frequency)
                 det.strain_data.set_from_gwpy_timeseries(empty_ts) 
                 det.minimum_frequency=10.
