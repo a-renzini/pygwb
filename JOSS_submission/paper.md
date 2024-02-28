@@ -114,13 +114,13 @@ Due to the considerable amount of data to analyze, and the vast panorama of GWB 
 The GWB spectrum estimation implemented in `pygwb` is based on the unbiased minimum variance cross-correlation estimator [@RomanoRev],
 
 $$
-\hat{\Omega}_{{\mathrm{GW}}, f} = \frac{{\mathrm{Re}}[C_{IJ, f}]}{\gamma_{IJ}(f) S_0(f)}.
+\hat{\Omega}_{\mathrm{GW}, f} = \frac{\mathrm{Re}[C_{IJ, f}]}{\gamma_{IJ}(f) S_0(f)}.
 $$
 
 Here, $C_{IJ, f}$ is the cross-correlation spectral density between two detectors $I$ and $J$, $\gamma_{IJ}$ is the overlap reduction function [@AllenRomano], and $S_0(f)$ = $\frac{3H_0^2}{10\pi^2}\frac{1}{f^3}$, where $H_0$ is the Hubble constant today [@Planck2018]. The variance of the estimator is given by
 
 $$
-\sigma^2_{{\mathrm{GW},} f} = \frac{1}{2 T \Delta f} \frac{P_{I, f} P_{J, f}}{\gamma^2_{IJ}(f) S^2_0(f)},
+\sigma^2_{\mathrm{GW}, f} = \frac{1}{2 T \Delta f} \frac{P_{I, f} P_{J, f}}{\gamma^2_{IJ}(f) S^2_0(f)},
 $$
 
 where $P_{I,f}$ is the power spectral density from detector $I$ and $T$ is the duration of data used to produce the above spectral densities. This estimator is optimal and unbiased under the assumption that the signal is Gaussian, isotropic, and continuous. Details on how the estimation is carried out, as well as the implementation of the estimator on large datasets and with many potentially overlapping data segments can be found in our companion methods paper [@pygwb_paper].
@@ -128,7 +128,7 @@ where $P_{I,f}$ is the power spectral density from detector $I$ and $T$ is the d
 Model testing in `pygwb` is performed through Bayesian inference on a select set of parameters, given a parametric GWB model and a likelihood $p$ of observing the data given the model. Concretely, the above cross-correlation estimator is input data to a Gaussian residual likelihood,
 
 $$
-p\left(\hat{\Omega}^{IJ}_{{\mathrm{GW}}, f} | \lambda\right) \propto\exp\left[  -\frac{1}{2} \sum_{IJ}^B \sum_f \left(\frac{\hat{\Omega}^{IJ}_{{\mathrm{GW}}, f}  - \Omega_{\mathrm{M}}(f|\lambda)}{\hat{\sigma}^{IJ}_{{\mathrm{GW}}, f}}\right)^2  \right],
+p\left(\hat{\Omega}^{IJ}_{\mathrm{GW}, f} | \lambda\right) \propto\exp\left[-\frac{1}{2} \sum_{IJ}^B \sum_f \left(\frac{\hat{\Omega}^{IJ}_{\mathrm{GW}, f}  - \Omega_{\mathrm{M}}(f|\lambda)}{\hat{\sigma}^{IJ}_{\mathrm{GW}, f}}\right)^2  \right],
 $$
 
 where $\Omega_{\mathrm{M}}(f|\lambda)$ is the GWB model and $\lambda$ are its parameters. `pygwb` currently admits a variety of GWB models, compatible with the Gaussian likelihood above. More information about the parameter estimation and the implemented models can be found in our companion methods paper [@pygwb_paper].
