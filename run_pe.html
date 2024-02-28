@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parameter estimation demo: customizing runs &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/tabs.css?v=a5c4661c" />
+      <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=0264ad83"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Generate a notch list" href="make_notchlist.html" />
+    <link rel="prev" title="Demos" href="demos.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="demos.html">Demos</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Parameter estimation demo: customizing runs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Importing-data-and-creating-baseline">Importing data and creating baseline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Run-parameter-estimation-for-a-power-law-model">Run parameter estimation for a power-law model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Non-GR-polarizations:-tensor-vector-scalar-polarization-model">Non-GR polarizations: tensor-vector-scalar polarization model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Combining-models">Combining models</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="make_notchlist.html">Generate a notch list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_orfs.html">Calculate overlap reduction functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="run_statistical_checks.html">Interpret the output of the <code class="docutils literal notranslate"><span class="pre">statistical_checks</span></code> module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="demos.html">Demos</a></li>
+      <li class="breadcrumb-item active">Parameter estimation demo: customizing runs</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/run_pe.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Parameter-estimation-demo:-customizing-runs">
+<h1>Parameter estimation demo: customizing runs<a class="headerlink" href="#Parameter-estimation-demo:-customizing-runs" title="Permalink to this heading"></a></h1>
+<p>Parameter estimation (PE) forms an integral part of the <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> package and is implemented in the <code class="docutils literal notranslate"><span class="pre">pe</span></code> module (for details, see <a class="reference external" href="api/pygwb.pe.html">here</a>). Some aspects of PE were already covered in the dedicated tutorial <a class="reference external" href="pe.html">here</a>, where the <code class="docutils literal notranslate"><span class="pre">pygwb_pe</span></code> script was explained in more details. In this notebook, we cover how to run PE from a notebook, without relying on the <code class="docutils literal notranslate"><span class="pre">pygwb_pe</span></code>. This approach offers an additional level of flexibility, and allows the user to customize PE
+runs to their own needs.</p>
+<p>We start by importing some packages needed for the execution of the demo:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">bilby</span>
+<span class="kn">from</span> <span class="nn">scipy.io</span> <span class="kn">import</span> <span class="n">loadmat</span>
+<span class="kn">from</span> <span class="nn">pygwb.pe</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pygwb.baseline</span> <span class="kn">import</span> <span class="n">Baseline</span>
+<span class="kn">import</span> <span class="nn">bilby.gw.detector</span> <span class="k">as</span> <span class="nn">bilbydet</span>
+</pre></div>
+</div>
+</div>
+<p><em>Note: make sure to run this notebook within an environment that has all the above packages installed.</em></p>
+<section id="Importing-data-and-creating-baseline">
+<h2>Importing data and creating baseline<a class="headerlink" href="#Importing-data-and-creating-baseline" title="Permalink to this heading"></a></h2>
+<p>For this demo, we will run parameter estimation (PE) on the results of the LVK O3 run. For convenience, these results have been saved to file, which we now read in. Each file corresponds to one baseline, i.e., LIGO Hanford-Livingston (HL), LIGO Hanford-Virgo (HV), and LIGO Livingston-Virgo (LV), containing the point estimate spectrum <span class="math notranslate nohighlight">\(Y(f)\)</span> and sigma spectrum <span class="math notranslate nohighlight">\(\sigma(f)\)</span>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">frequencies</span><span class="p">,</span> <span class="n">Y_HL</span><span class="p">,</span> <span class="n">sigma_HL</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s1">&#39;C_O3_HL.dat&#39;</span><span class="p">,</span> <span class="n">unpack</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+<span class="n">Y_HV</span><span class="p">,</span> <span class="n">sigma_HV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s1">&#39;C_O3_HV.dat&#39;</span><span class="p">,</span> <span class="n">unpack</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+<span class="n">Y_LV</span><span class="p">,</span> <span class="n">sigma_LV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s1">&#39;C_O3_LV.dat&#39;</span><span class="p">,</span> <span class="n">unpack</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>Current detector sensitivity limits the frequency range our search can probe. Hence, for PE in this demo, we limit ourselves to frequencies below 256 Hz. This is done by applying a cut in the cell below.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">idx</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">frequencies</span><span class="o">-</span><span class="mi">256</span><span class="p">))</span>
+<span class="n">frequencies</span> <span class="o">=</span> <span class="n">frequencies</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span>
+
+<span class="n">sigma_HL</span> <span class="o">=</span> <span class="n">sigma_HL</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span>
+<span class="n">Y_HL</span> <span class="o">=</span> <span class="n">Y_HL</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span>
+<span class="n">sigma_HV</span> <span class="o">=</span> <span class="n">sigma_HV</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span>
+<span class="n">Y_HV</span> <span class="o">=</span> <span class="n">Y_HV</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span>
+<span class="n">sigma_LV</span> <span class="o">=</span> <span class="n">sigma_LV</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span>
+<span class="n">Y_LV</span> <span class="o">=</span> <span class="n">Y_LV</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>It can happen that <span class="math notranslate nohighlight">\(\sigma(f)\)</span> contains infinities. To remedy this, we check these arrays for infinities and mask these entries out in the point estimate arrays, the sigma arrays, and the frequency array. This is repeated for each of the baselines.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">inf_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">sigma_HL</span><span class="p">)</span>
+<span class="n">not_inf_array</span> <span class="o">=</span> <span class="o">~</span> <span class="n">inf_array</span>
+<span class="n">sigma_HL</span> <span class="o">=</span> <span class="n">sigma_HL</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">Y_HL</span><span class="o">=</span><span class="n">Y_HL</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">sigma_HV</span> <span class="o">=</span> <span class="n">sigma_HV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">Y_HV</span><span class="o">=</span><span class="n">Y_HV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">sigma_LV</span> <span class="o">=</span> <span class="n">sigma_LV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">Y_LV</span><span class="o">=</span><span class="n">Y_LV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">frequencies</span><span class="o">=</span><span class="n">frequencies</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+
+<span class="n">inf_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">sigma_HV</span><span class="p">)</span>
+<span class="n">not_inf_array</span> <span class="o">=</span> <span class="o">~</span> <span class="n">inf_array</span>
+<span class="n">sigma_HL</span> <span class="o">=</span> <span class="n">sigma_HL</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">Y_HL</span><span class="o">=</span><span class="n">Y_HL</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">sigma_HV</span> <span class="o">=</span> <span class="n">sigma_HV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">Y_HV</span><span class="o">=</span><span class="n">Y_HV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">sigma_LV</span> <span class="o">=</span> <span class="n">sigma_LV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">Y_LV</span><span class="o">=</span><span class="n">Y_LV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">frequencies</span><span class="o">=</span><span class="n">frequencies</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+
+<span class="n">inf_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">sigma_LV</span><span class="p">)</span>
+<span class="n">not_inf_array</span> <span class="o">=</span> <span class="o">~</span> <span class="n">inf_array</span>
+<span class="n">sigma_HL</span> <span class="o">=</span> <span class="n">sigma_HL</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">Y_HL</span><span class="o">=</span><span class="n">Y_HL</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">sigma_HV</span> <span class="o">=</span> <span class="n">sigma_HV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">Y_HV</span><span class="o">=</span><span class="n">Y_HV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">sigma_LV</span> <span class="o">=</span> <span class="n">sigma_LV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">Y_LV</span><span class="o">=</span><span class="n">Y_LV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">frequencies</span><span class="o">=</span><span class="n">frequencies</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">pe</span></code> module relies on the <code class="docutils literal notranslate"><span class="pre">baseline</span></code> object as a container for the point estimate spectrum and sigma spectrum. We therefore instantiate the three baselines, i.e., HL, LV, HV, by first initializing the three detectors.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">H1</span> <span class="o">=</span> <span class="n">bilbydet</span><span class="o">.</span><span class="n">get_empty_interferometer</span><span class="p">(</span><span class="s1">&#39;H1&#39;</span><span class="p">)</span>
+<span class="n">L1</span> <span class="o">=</span> <span class="n">bilbydet</span><span class="o">.</span><span class="n">get_empty_interferometer</span><span class="p">(</span><span class="s1">&#39;L1&#39;</span><span class="p">)</span>
+<span class="n">V1</span> <span class="o">=</span> <span class="n">bilbydet</span><span class="o">.</span><span class="n">get_empty_interferometer</span><span class="p">(</span><span class="s1">&#39;V1&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>With these at hand, we now create the three baselines (more information about the baseline can be found <a class="reference external" href="api/pygwb.baseline.html">here</a>).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">HL</span> <span class="o">=</span> <span class="n">Baseline</span><span class="p">(</span><span class="s1">&#39;H1L1&#39;</span><span class="p">,</span> <span class="n">H1</span><span class="p">,</span> <span class="n">L1</span><span class="p">)</span>
+<span class="n">HV</span> <span class="o">=</span> <span class="n">Baseline</span><span class="p">(</span><span class="s1">&#39;H1V1&#39;</span><span class="p">,</span> <span class="n">H1</span><span class="p">,</span> <span class="n">V1</span><span class="p">)</span>
+<span class="n">LV</span> <span class="o">=</span> <span class="n">Baseline</span><span class="p">(</span><span class="s1">&#39;L1V1&#39;</span><span class="p">,</span> <span class="n">L1</span><span class="p">,</span> <span class="n">V1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/kevin.turbang/.conda/envs/pygwb_maintenance/lib/python3.9/site-packages/pygwb/baseline.py:497: UserWarning: Neither baseline nor interferometer sampling_frequency is set.
+  warnings.warn(
+/home/kevin.turbang/.conda/envs/pygwb_maintenance/lib/python3.9/site-packages/pygwb/baseline.py:263: UserWarning: Neither baseline nor interferometer duration is set.
+  warnings.warn(&#34;Neither baseline nor interferometer duration is set.&#34;)
+</pre></div></div>
+</div>
+<p>Note that executing the cell above returns a warning about the duration and the sampling frequency of the baseline not being set. This does not pose a problem for the <code class="docutils literal notranslate"><span class="pre">pe</span></code> module, as the <code class="docutils literal notranslate"><span class="pre">baseline</span></code> objects are solely used as containers for the spectra. This warning can therefore be ignored in this case.</p>
+<p>The above <code class="docutils literal notranslate"><span class="pre">baseline</span></code> are still empty and do not contain the spectra needed for PE. We now set the baseline frequencies, point estimate spectrum and sigma spectrum, which are the spectra that were read in from file at the beginning of this notebook.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">HL</span><span class="o">.</span><span class="n">frequencies</span> <span class="o">=</span> <span class="n">frequencies</span>
+<span class="n">HV</span><span class="o">.</span><span class="n">frequencies</span> <span class="o">=</span> <span class="n">frequencies</span>
+<span class="n">LV</span><span class="o">.</span><span class="n">frequencies</span> <span class="o">=</span> <span class="n">frequencies</span>
+
+<span class="n">HL</span><span class="o">.</span><span class="n">point_estimate_spectrum</span> <span class="o">=</span> <span class="n">Y_HL</span>
+<span class="n">HL</span><span class="o">.</span><span class="n">sigma_spectrum</span> <span class="o">=</span> <span class="n">sigma_HL</span>
+
+<span class="n">HV</span><span class="o">.</span><span class="n">point_estimate_spectrum</span> <span class="o">=</span> <span class="n">Y_HV</span>
+<span class="n">HV</span><span class="o">.</span><span class="n">sigma_spectrum</span> <span class="o">=</span> <span class="n">sigma_HV</span>
+
+<span class="n">LV</span><span class="o">.</span><span class="n">point_estimate_spectrum</span> <span class="o">=</span> <span class="n">Y_LV</span>
+<span class="n">LV</span><span class="o">.</span><span class="n">sigma_spectrum</span> <span class="o">=</span> <span class="n">sigma_LV</span>
+</pre></div>
+</div>
+</div>
+<p>For completeness, we also set the overlap reduction function polarisation to tensor polarization:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">HL</span><span class="o">.</span><span class="n">orf_polarization</span> <span class="o">=</span> <span class="s2">&quot;tensor&quot;</span>
+<span class="n">HV</span><span class="o">.</span><span class="n">orf_polarization</span> <span class="o">=</span> <span class="s2">&quot;tensor&quot;</span>
+<span class="n">LV</span><span class="o">.</span><span class="n">orf_polarization</span> <span class="o">=</span> <span class="s2">&quot;tensor&quot;</span>
+</pre></div>
+</div>
+</div>
+<p>When using real detector data, a calibration uncertainty (referred to as calibration epsilon) can be taken into account for each of the baselines. This is also set as an attribute of the baseline:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">HL</span><span class="o">.</span><span class="n">calibration_epsilon</span> <span class="o">=</span> <span class="mf">0.148</span>
+<span class="n">HV</span><span class="o">.</span><span class="n">calibration_epsilon</span> <span class="o">=</span> <span class="mf">0.123</span>
+<span class="n">LV</span><span class="o">.</span><span class="n">calibration_epsilon</span> <span class="o">=</span> <span class="mf">0.108</span>
+</pre></div>
+</div>
+</div>
+<p>Depending on the value of the calibration epsilon, i.e., if it is zero or not, the <code class="docutils literal notranslate"><span class="pre">pe</span></code> module will execute a slightly different version of the likelihood to account for this extra uncertainty. Note that if the calibration epsilon is not specified at the level of the <code class="docutils literal notranslate"><span class="pre">baseline</span></code>, it defaults to zero. For more information and the source code where this is handled, see <a class="reference external" href="api/pygwb.pe.GWBModel.html#pygwb.pe.GWBModel.log_likelihood_IJ">here</a>.</p>
+</section>
+<section id="Run-parameter-estimation-for-a-power-law-model">
+<h2>Run parameter estimation for a power-law model<a class="headerlink" href="#Run-parameter-estimation-for-a-power-law-model" title="Permalink to this heading"></a></h2>
+<p>With the different baselines set and containing the spectra needed to run PE, we are ready to call the <code class="docutils literal notranslate"><span class="pre">pe</span></code> module. One needs to decide which model to run PE on. Several models are provided within the <code class="docutils literal notranslate"><span class="pre">pe</span></code> module. We run PE on the power-law model, illustrating how the <code class="docutils literal notranslate"><span class="pre">pe</span></code> module can be used to perform PE. We will go into details for the first model, and refer the user to the API <a class="reference external" href="api/pygwb.pe.html">documentation</a> of each model to run PE for the other models of the module.</p>
+<p>As a reminder, the likelihood takes the form:</p>
+<div class="math notranslate nohighlight">
+\[p(\hat{C}^{IJ}(f_k) | \mathbf{\Theta}) \propto\exp\left[  -\frac{1}{2} \sum_{IJ}^N \sum_k \left(\frac{\hat{C}^{IJ}(f_k) - \Omega_{\rm M}(f_k|\mathbf{\Theta})}{\sigma_{IJ}(f_k)}\right)^2  \right],\]</div>
+<p>where <span class="math notranslate nohighlight">\(\Omega_{\rm M}(f_k|\mathbf{\Theta})\)</span> is the model being fit to point estimate spectra <span class="math notranslate nohighlight">\(\hat{C}^{IJ}(f_k)\)</span> with variance <span class="math notranslate nohighlight">\(\sigma^2_{IJ}(f_k)\)</span>, running over baselines <span class="math notranslate nohighlight">\(IJ\)</span>, and <span class="math notranslate nohighlight">\(\mathbf{\Theta}\)</span> are the model’s parameters.</p>
+<p><em>Disclaimer: as we are running this demo on LVK O3 data, we do not expect to recover anything from PE, since no gravitational-wave background was detected. However, one can repeat this demo on spectra obtained from simulated data sets that contain a signal, to see how the recovery with PE looks like.</em></p>
+<p>Consider a simple power-law. As a reminder, the model is given by</p>
+<div class="math notranslate nohighlight">
+\[\Omega(f) = \Omega_{\text{ref}} \left(\frac{f}{f_{\text{ref}}}\right)^{\alpha}.\]</div>
+<p>More information on the implementation of this model can be found <a class="reference external" href="api/pygwb.pe.PowerLawModel.html#pygwb.pe.PowerLawModel">here</a>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">pe</span></code> module expects some <code class="docutils literal notranslate"><span class="pre">kwargs</span></code> for this model, including the <code class="docutils literal notranslate"><span class="pre">baseline</span></code> objects to include in the PE run (note that these contain the spectra, as specified above in this demo), as well as the model name and a reference frequency (which defaults to 25 Hz if not specified).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">kwargs_pl</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;baselines&quot;</span><span class="p">:[</span><span class="n">HL</span><span class="p">,</span><span class="n">HV</span><span class="p">,</span><span class="n">LV</span><span class="p">],</span> <span class="s2">&quot;model_name&quot;</span><span class="p">:</span><span class="s1">&#39;PL&#39;</span><span class="p">,</span> <span class="s2">&quot;fref&quot;</span><span class="p">:</span><span class="mi">25</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>Note in the above expression one could decide to only run for one of the baselines, by passing only e.g., <code class="docutils literal notranslate"><span class="pre">&quot;baselines&quot;:[HL]</span></code>.</p>
+<p>The model used for PE can then be instantiated, by passing it the necessary <code class="docutils literal notranslate"><span class="pre">kwargs</span></code>:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_pl</span> <span class="o">=</span> <span class="n">PowerLawModel</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs_pl</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>For each of the model parameters, a prior needs to be specified. For this, we rely on the <code class="docutils literal notranslate"><span class="pre">bilby</span></code> package (remember that the whole <code class="docutils literal notranslate"><span class="pre">pe</span></code> module is based on <code class="docutils literal notranslate"><span class="pre">bilby</span></code>). For more information about the possible prior choices, we refer the reader to <a class="reference external" href="https://lscsoft.docs.ligo.org/bilby/prior.html">this page</a>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">priors_pl</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;omega_ref&#39;</span><span class="p">:</span> <span class="n">bilby</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">LogUniform</span><span class="p">(</span><span class="mf">1e-13</span><span class="p">,</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="s1">&#39;$</span><span class="se">\\</span><span class="s1">Omega_{</span><span class="se">\\</span><span class="s1">rm ref}$&#39;</span><span class="p">),</span>
+                        <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="n">bilby</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">Gaussian</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="s1">&#39;$</span><span class="se">\\</span><span class="s1">alpha$&#39;</span><span class="p">)}</span>
+</pre></div>
+</div>
+</div>
+<p>One can now run PE by calling the <code class="docutils literal notranslate"><span class="pre">bilby</span></code> sampler with our model as a likelihood.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hlv_pl</span><span class="o">=</span><span class="n">bilby</span><span class="o">.</span><span class="n">run_sampler</span><span class="p">(</span><span class="n">likelihood</span><span class="o">=</span><span class="n">model_pl</span><span class="p">,</span><span class="n">priors</span><span class="o">=</span><span class="n">priors_pl</span><span class="p">,</span><span class="n">sampler</span><span class="o">=</span><span class="s1">&#39;dynesty&#39;</span><span class="p">,</span> <span class="n">npoints</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">walks</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">npool</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">outdir</span><span class="o">=</span><span class="s1">&#39;./pe/&#39;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span> <span class="s1">&#39;hlv_pl&#39;</span><span class="p">,</span> <span class="n">resume</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>To plot the results of the PE run, we rely on the <code class="docutils literal notranslate"><span class="pre">plot_corner()</span></code> method of <code class="docutils literal notranslate"><span class="pre">bilby</span></code>. More information on the <code class="docutils literal notranslate"><span class="pre">bilby</span></code> package can be found <a class="reference external" href="https://lscsoft.docs.ligo.org/bilby/api/bilby.core.result.Result.html#bilby.core.result.Result">here</a>. This shows the 1D and 2D posteriors on the parameters of our model.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hlv_pl</span><span class="o">.</span><span class="n">plot_corner</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="_images/run_pe_38_0.png" src="_images/run_pe_38_0.png" />
+</div>
+</div>
+<p>As mentioned before, we do not recover a specific parameter value, as no gravitational-wave background was detected during the LIGO-Virgo third observing run O3.</p>
+<p>Note that the steps that were carried out so far in the notebook, is exactly what the <code class="docutils literal notranslate"><span class="pre">pygwb_pe</span></code> script does. More information on the script can be found <a class="reference external" href="pe.html">here</a>.</p>
+<p>We refrain from providing a demo for each of the models. From the API pages, it should be clear what the parameters of each model are. Note that a prior should be passed for each of these parameters. For example, for the broken power-law model (see <a class="reference external" href="api/pygwb.pe.BrokenPowerLawModel.html">here</a>), the parameters of the model are different, resulting in a different prior as well:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">kwargs_bpl</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;baselines&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">HL</span><span class="p">,</span> <span class="n">HV</span><span class="p">,</span> <span class="n">LV</span><span class="p">],</span> <span class="s2">&quot;model_name&quot;</span><span class="p">:</span><span class="s1">&#39;BPL&#39;</span><span class="p">}</span>
+<span class="n">model_bpl</span> <span class="o">=</span> <span class="n">BrokenPowerLawModel</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs_bpl</span><span class="p">)</span>
+<span class="n">priors_bpl</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;omega_ref&#39;</span><span class="p">:</span> <span class="n">bilby</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">LogUniform</span><span class="p">(</span><span class="mf">1e-13</span><span class="p">,</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="s1">&#39;$</span><span class="se">\\</span><span class="s1">Omega_{</span><span class="se">\\</span><span class="s1">rm ref}$&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;fbreak&#39;</span><span class="p">:</span> <span class="n">bilby</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">Uniform</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span><span class="s1">&#39;$f_{</span><span class="se">\\</span><span class="s1">rm break}$&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;alpha_1&#39;</span><span class="p">:</span> <span class="n">bilby</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">Gaussian</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="s1">&#39;$</span><span class="se">\\</span><span class="s1">alpha_1$&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;alpha_2&#39;</span><span class="p">:</span> <span class="n">bilby</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">Gaussian</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="s1">&#39;$</span><span class="se">\\</span><span class="s1">alpha_2$&#39;</span><span class="p">)}</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Non-GR-polarizations:-tensor-vector-scalar-polarization-model">
+<h2>Non-GR polarizations: tensor-vector-scalar polarization model<a class="headerlink" href="#Non-GR-polarizations:-tensor-vector-scalar-polarization-model" title="Permalink to this heading"></a></h2>
+<p>To illustrate some of the specifics of the <code class="docutils literal notranslate"><span class="pre">pe</span></code> module, we show how the module allows for polarizations that go beyond the tensor polarization of General Relativity (GR). The model we now consider allows for a linear combination of combinations of different polarizations. As a reminder, the model is given by</p>
+<div class="math notranslate nohighlight">
+\[\Omega(f) = \Omega _T + \Omega _V + \Omega _S,\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\Omega _T = \Omega _{{\text{ref}},T} \left( \frac{f}{f_{\text{ref}}}\right)^{\alpha _T},\]</div>
+<div class="math notranslate nohighlight">
+\[\Omega _V = (\gamma _V/\gamma_T)~\Omega _{{\text{ref}},V} \left( \frac{f}{f_{\text{ref}}}\right)^{\alpha _V},\]</div>
+<p>and</p>
+<div class="math notranslate nohighlight">
+\[\Omega _S = (\gamma_S/\gamma_T)~\Omega _{{\text{ref}},S} \left( \frac{f}{f_{\text{ref}}}\right)^{\alpha _S}.\]</div>
+<p>More information on the implementation of this model can be found <a class="reference external" href="api/pygwb.pe.TVSPowerLawModel.html">here</a>.</p>
+<p>Note that the effect of different polarizations would be apparent in the overlap reduction function. Indeed, as was illustrated in <a class="reference external" href="test_orfs.html">this</a> demo, the overlap reduction function differs, depending on the assumed polarization. More information about the computation of the overlap reduction function for different polarizations can be found on the API page of the <code class="docutils literal notranslate"><span class="pre">orfs</span></code> module <a class="reference external" href="api/pygwb.orfs.html">here</a>.</p>
+<p>One can specify for which polarizations to run, by using the <code class="docutils literal notranslate"><span class="pre">&quot;polarizations&quot;</span></code> kwarg, as shown below:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">kwargs_pl_sv</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;baselines&quot;</span><span class="p">:[</span><span class="n">HL</span><span class="p">,</span> <span class="n">HV</span><span class="p">,</span> <span class="n">LV</span><span class="p">],</span> <span class="s2">&quot;model_name&quot;</span><span class="p">:</span><span class="s1">&#39;PL_SV&#39;</span><span class="p">,</span> <span class="s2">&quot;fref&quot;</span><span class="p">:</span><span class="mi">25</span><span class="p">,</span> <span class="s2">&quot;polarizations&quot;</span><span class="p">:[</span><span class="s1">&#39;scalar&#39;</span><span class="p">,</span> <span class="s1">&#39;vector&#39;</span><span class="p">]}</span>
+<span class="n">model_pl_sv</span> <span class="o">=</span> <span class="n">TVSPowerLawModel</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs_pl_sv</span><span class="p">)</span>
+<span class="n">priors_pl_sv</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;omega_ref_scalar&#39;</span><span class="p">:</span> <span class="n">bilby</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">LogUniform</span><span class="p">(</span><span class="mf">1e-13</span><span class="p">,</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="s1">&#39;$</span><span class="se">\\</span><span class="s1">Omega_{</span><span class="se">\\</span><span class="s1">rm ref,s}$&#39;</span><span class="p">),</span>
+                      <span class="s1">&#39;alpha_scalar&#39;</span><span class="p">:</span> <span class="n">bilby</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">Gaussian</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="s1">&#39;$</span><span class="se">\\</span><span class="s1">alpha_s$&#39;</span><span class="p">),</span>
+          <span class="s1">&#39;omega_ref_vector&#39;</span><span class="p">:</span> <span class="n">bilby</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">LogUniform</span><span class="p">(</span><span class="mf">1e-13</span><span class="p">,</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="s1">&#39;$</span><span class="se">\\</span><span class="s1">Omega_{</span><span class="se">\\</span><span class="s1">rm ref,v}$&#39;</span><span class="p">),</span>
+                      <span class="s1">&#39;alpha_vector&#39;</span><span class="p">:</span> <span class="n">bilby</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">Gaussian</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="s1">&#39;$</span><span class="se">\\</span><span class="s1">alpha_v$&#39;</span><span class="p">)}</span>
+<span class="n">hlv_pl_sv</span><span class="o">=</span><span class="n">bilby</span><span class="o">.</span><span class="n">run_sampler</span><span class="p">(</span><span class="n">likelihood</span><span class="o">=</span><span class="n">model_pl_sv</span><span class="p">,</span><span class="n">priors</span><span class="o">=</span><span class="n">priors_pl_sv</span><span class="p">,</span><span class="n">sampler</span><span class="o">=</span><span class="s1">&#39;dynesty&#39;</span><span class="p">,</span> <span class="n">npoints</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">walks</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">npool</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">outdir</span><span class="o">=</span><span class="s1">&#39;./pe/&#39;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span> <span class="s1">&#39;hlv_pl_sv&#39;</span><span class="p">,</span> <span class="n">resume</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Note that as mentioned before, priors should be changed to reflect the parameters of the model being considered.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hlv_pl_sv</span><span class="o">.</span><span class="n">plot_corner</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="_images/run_pe_48_0.png" src="_images/run_pe_48_0.png" />
+</div>
+</div>
+</section>
+<section id="Combining-models">
+<h2>Combining models<a class="headerlink" href="#Combining-models" title="Permalink to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">pe</span></code> module also offers the possibility of combining models and performing inference jointly. Concrete examples of why this could be useful include:</p>
+<ul class="simple">
+<li><p>A cosmological gravitational-wave background in the presence of an astrophysical background</p></li>
+<li><p>Correlated magnetic noise in the presence of a gravitational-wave background</p></li>
+</ul>
+<p>The option to perform inference simultaneoulsy on different models, allows to take into account <em>all</em> contributions to the gravitaional-wave background estimator as computed in <code class="docutils literal notranslate"><span class="pre">pygwb</span></code>.</p>
+<p>Understanding correlated magnetic noise, also called Schumann resonances, forms an important part of a stochastic gravitational-wave background analysis. This model allows to search for such Schumann resonances with a PE run. As a reminder, the model is given by</p>
+<div class="math notranslate nohighlight">
+\[\Omega(f) = \sum_{ij} \kappa_i \kappa_j \left(\frac{f}{f_{\text{ref}}}\right)^{-\beta_i-\beta_j} M_{ij}(f) \times 10^{-46}.\]</div>
+<p>More information on the implementation of this model can be found <a class="reference external" href="api/pygwb.pe.SchumannModel.html">here</a>.</p>
+<p>However, for this model, we need additional data, namely from magnetometers. We repeat the steps from the beginning of the demo, where we load in the data. We again apply a frequency cut, due to our sensitivity limitations at higher frequencies, and set the baselines with the various spectra. We will not go through all the details, and refer the reader to the beginning of this notebook for additional information.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">frequencies</span><span class="p">,</span> <span class="n">Y_HL</span><span class="p">,</span> <span class="n">sigma_HL</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s1">&#39;C_O3_HL.dat&#39;</span><span class="p">,</span> <span class="n">unpack</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+<span class="n">Y_HV</span><span class="p">,</span> <span class="n">sigma_HV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s1">&#39;C_O3_HV.dat&#39;</span><span class="p">,</span> <span class="n">unpack</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+<span class="n">Y_LV</span><span class="p">,</span> <span class="n">sigma_LV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s1">&#39;C_O3_LV.dat&#39;</span><span class="p">,</span> <span class="n">unpack</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+
+<span class="n">mag_data</span> <span class="o">=</span> <span class="n">loadmat</span><span class="p">(</span><span class="s1">&#39;/home/patrick.meyers/git_repos/o3-isotropic-final/magnetic/magnetic_data_product_for_pe.mat&#39;</span><span class="p">)</span>
+<span class="n">M_HL</span><span class="o">=</span><span class="p">(</span><span class="n">mag_data</span><span class="p">[</span><span class="s1">&#39;hl&#39;</span><span class="p">][</span><span class="s1">&#39;ptEst_mag&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">real</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">M_HV</span><span class="o">=</span><span class="p">(</span><span class="n">mag_data</span><span class="p">[</span><span class="s1">&#39;hv&#39;</span><span class="p">][</span><span class="s1">&#39;ptEst_mag&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">real</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">M_LV</span><span class="o">=</span><span class="p">(</span><span class="n">mag_data</span><span class="p">[</span><span class="s1">&#39;lv&#39;</span><span class="p">][</span><span class="s1">&#39;ptEst_mag&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">real</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">idx</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">frequencies</span><span class="o">-</span><span class="mi">99</span><span class="p">))</span>
+<span class="n">frequencies</span> <span class="o">=</span> <span class="n">frequencies</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span>
+<span class="n">sigma_HL</span> <span class="o">=</span> <span class="n">sigma_HL</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span>
+<span class="n">Y_HL</span> <span class="o">=</span> <span class="n">Y_HL</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span>
+<span class="n">M_HL</span> <span class="o">=</span> <span class="n">M_HL</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span>
+<span class="n">sigma_HV</span> <span class="o">=</span> <span class="n">sigma_HV</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span>
+<span class="n">Y_HV</span> <span class="o">=</span> <span class="n">Y_HV</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span>
+<span class="n">M_HV</span> <span class="o">=</span> <span class="n">M_HV</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span>
+<span class="n">sigma_LV</span> <span class="o">=</span> <span class="n">sigma_LV</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span>
+<span class="n">Y_LV</span> <span class="o">=</span> <span class="n">Y_LV</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span>
+<span class="n">M_LV</span> <span class="o">=</span> <span class="n">M_LV</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span>
+
+<span class="c1">#remove infinities from sigma measurements</span>
+<span class="n">inf_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">sigma_HL</span><span class="p">)</span>
+<span class="n">not_inf_array</span> <span class="o">=</span> <span class="o">~</span> <span class="n">inf_array</span>
+<span class="n">sigma_HL</span> <span class="o">=</span> <span class="n">sigma_HL</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">Y_HL</span><span class="o">=</span><span class="n">Y_HL</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">M_HL</span><span class="o">=</span><span class="n">M_HL</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">sigma_HV</span> <span class="o">=</span> <span class="n">sigma_HV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">Y_HV</span><span class="o">=</span><span class="n">Y_HV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">M_HV</span><span class="o">=</span><span class="n">M_HV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">sigma_LV</span> <span class="o">=</span> <span class="n">sigma_LV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">Y_LV</span><span class="o">=</span><span class="n">Y_LV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">M_LV</span><span class="o">=</span><span class="n">M_LV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">frequencies</span><span class="o">=</span><span class="n">frequencies</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+
+<span class="n">inf_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">sigma_HV</span><span class="p">)</span>
+<span class="n">not_inf_array</span> <span class="o">=</span> <span class="o">~</span> <span class="n">inf_array</span>
+<span class="n">sigma_HL</span> <span class="o">=</span> <span class="n">sigma_HL</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">Y_HL</span><span class="o">=</span><span class="n">Y_HL</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">M_HL</span><span class="o">=</span><span class="n">M_HL</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">sigma_HV</span> <span class="o">=</span> <span class="n">sigma_HV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">Y_HV</span><span class="o">=</span><span class="n">Y_HV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">M_HV</span><span class="o">=</span><span class="n">M_HV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">sigma_LV</span> <span class="o">=</span> <span class="n">sigma_LV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">Y_LV</span><span class="o">=</span><span class="n">Y_LV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">M_LV</span><span class="o">=</span><span class="n">M_LV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">frequencies</span><span class="o">=</span><span class="n">frequencies</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+
+<span class="n">inf_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">sigma_LV</span><span class="p">)</span>
+<span class="n">not_inf_array</span> <span class="o">=</span> <span class="o">~</span> <span class="n">inf_array</span>
+<span class="n">sigma_HL</span> <span class="o">=</span> <span class="n">sigma_HL</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">Y_HL</span><span class="o">=</span><span class="n">Y_HL</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">M_HL</span><span class="o">=</span><span class="n">M_HL</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">sigma_HV</span> <span class="o">=</span> <span class="n">sigma_HV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">Y_HV</span><span class="o">=</span><span class="n">Y_HV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">M_HV</span><span class="o">=</span><span class="n">M_HV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">sigma_LV</span> <span class="o">=</span> <span class="n">sigma_LV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">Y_LV</span><span class="o">=</span><span class="n">Y_LV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">M_LV</span><span class="o">=</span><span class="n">M_LV</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+<span class="n">frequencies</span><span class="o">=</span><span class="n">frequencies</span><span class="p">[</span><span class="n">not_inf_array</span><span class="p">]</span>
+
+<span class="c1">#remove nans from mag data</span>
+<span class="n">nan_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">M_HL</span><span class="p">)</span>
+<span class="n">not_nan_array</span> <span class="o">=</span> <span class="o">~</span> <span class="n">nan_array</span>
+<span class="n">sigma_HL</span> <span class="o">=</span> <span class="n">sigma_HL</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+<span class="n">Y_HL</span><span class="o">=</span><span class="n">Y_HL</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+<span class="n">M_HL</span><span class="o">=</span><span class="n">M_HL</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+<span class="n">sigma_HV</span> <span class="o">=</span> <span class="n">sigma_HV</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+<span class="n">Y_HV</span><span class="o">=</span><span class="n">Y_HV</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+<span class="n">M_HV</span><span class="o">=</span><span class="n">M_HV</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+<span class="n">sigma_LV</span> <span class="o">=</span> <span class="n">sigma_LV</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+<span class="n">Y_LV</span><span class="o">=</span><span class="n">Y_LV</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+<span class="n">M_LV</span><span class="o">=</span><span class="n">M_LV</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+<span class="n">frequencies</span><span class="o">=</span><span class="n">frequencies</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+
+<span class="n">nan_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">M_HV</span><span class="p">)</span>
+<span class="n">not_nan_array</span> <span class="o">=</span> <span class="o">~</span> <span class="n">nan_array</span>
+<span class="n">sigma_HL</span> <span class="o">=</span> <span class="n">sigma_HL</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+<span class="n">Y_HL</span><span class="o">=</span><span class="n">Y_HL</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+<span class="n">M_HL</span><span class="o">=</span><span class="n">M_HL</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+<span class="n">sigma_HV</span> <span class="o">=</span> <span class="n">sigma_HV</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+<span class="n">Y_HV</span><span class="o">=</span><span class="n">Y_HV</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+<span class="n">M_HV</span><span class="o">=</span><span class="n">M_HV</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+<span class="n">sigma_LV</span> <span class="o">=</span> <span class="n">sigma_LV</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+<span class="n">Y_LV</span><span class="o">=</span><span class="n">Y_LV</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+<span class="n">M_LV</span><span class="o">=</span><span class="n">M_LV</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+<span class="n">frequencies</span><span class="o">=</span><span class="n">frequencies</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+
+<span class="n">nan_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">M_LV</span><span class="p">)</span>
+<span class="n">not_nan_array</span> <span class="o">=</span> <span class="o">~</span> <span class="n">nan_array</span>
+<span class="n">sigma_HL</span> <span class="o">=</span> <span class="n">sigma_HL</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+<span class="n">Y_HL</span><span class="o">=</span><span class="n">Y_HL</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+<span class="n">M_HL</span><span class="o">=</span><span class="n">M_HL</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+<span class="n">sigma_HV</span> <span class="o">=</span> <span class="n">sigma_HV</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+<span class="n">Y_HV</span><span class="o">=</span><span class="n">Y_HV</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+<span class="n">M_HV</span><span class="o">=</span><span class="n">M_HV</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+<span class="n">sigma_LV</span> <span class="o">=</span> <span class="n">sigma_LV</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+<span class="n">Y_LV</span><span class="o">=</span><span class="n">Y_LV</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+<span class="n">M_LV</span><span class="o">=</span><span class="n">M_LV</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+<span class="n">frequencies</span><span class="o">=</span><span class="n">frequencies</span><span class="p">[</span><span class="n">not_nan_array</span><span class="p">]</span>
+
+<span class="n">H1</span> <span class="o">=</span> <span class="n">bilbydet</span><span class="o">.</span><span class="n">get_empty_interferometer</span><span class="p">(</span><span class="s1">&#39;H1&#39;</span><span class="p">)</span>
+<span class="n">L1</span> <span class="o">=</span> <span class="n">bilbydet</span><span class="o">.</span><span class="n">get_empty_interferometer</span><span class="p">(</span><span class="s1">&#39;L1&#39;</span><span class="p">)</span>
+<span class="n">V1</span> <span class="o">=</span> <span class="n">bilbydet</span><span class="o">.</span><span class="n">get_empty_interferometer</span><span class="p">(</span><span class="s1">&#39;V1&#39;</span><span class="p">)</span>
+
+<span class="n">HL</span> <span class="o">=</span> <span class="n">Baseline</span><span class="p">(</span><span class="s1">&#39;HL&#39;</span><span class="p">,</span> <span class="n">H1</span><span class="p">,</span> <span class="n">L1</span><span class="p">)</span>
+<span class="n">HV</span> <span class="o">=</span> <span class="n">Baseline</span><span class="p">(</span><span class="s1">&#39;HV&#39;</span><span class="p">,</span> <span class="n">H1</span><span class="p">,</span> <span class="n">V1</span><span class="p">)</span>
+<span class="n">LV</span> <span class="o">=</span> <span class="n">Baseline</span><span class="p">(</span><span class="s1">&#39;LV&#39;</span><span class="p">,</span> <span class="n">L1</span><span class="p">,</span> <span class="n">V1</span><span class="p">)</span>
+
+<span class="n">HL</span><span class="o">.</span><span class="n">frequencies</span> <span class="o">=</span> <span class="n">frequencies</span>
+<span class="n">HV</span><span class="o">.</span><span class="n">frequencies</span> <span class="o">=</span> <span class="n">frequencies</span>
+<span class="n">LV</span><span class="o">.</span><span class="n">frequencies</span> <span class="o">=</span> <span class="n">frequencies</span>
+
+<span class="n">HL</span><span class="o">.</span><span class="n">M_f</span> <span class="o">=</span> <span class="n">M_HL</span>
+<span class="n">HV</span><span class="o">.</span><span class="n">M_f</span> <span class="o">=</span> <span class="n">M_HV</span>
+<span class="n">LV</span><span class="o">.</span><span class="n">M_f</span> <span class="o">=</span> <span class="n">M_LV</span>
+
+<span class="n">HL</span><span class="o">.</span><span class="n">point_estimate_spectrum</span> <span class="o">=</span> <span class="n">Y_HL</span>
+<span class="n">HL</span><span class="o">.</span><span class="n">sigma_spectrum</span> <span class="o">=</span> <span class="n">sigma_HL</span>
+<span class="n">HV</span><span class="o">.</span><span class="n">point_estimate_spectrum</span> <span class="o">=</span> <span class="n">Y_HV</span>
+<span class="n">HV</span><span class="o">.</span><span class="n">sigma_spectrum</span> <span class="o">=</span> <span class="n">sigma_HV</span>
+<span class="n">LV</span><span class="o">.</span><span class="n">point_estimate_spectrum</span> <span class="o">=</span> <span class="n">Y_LV</span>
+<span class="n">LV</span><span class="o">.</span><span class="n">sigma_spectrum</span> <span class="o">=</span> <span class="n">sigma_LV</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/kevin.turbang/.conda/envs/pygwb_maintenance/lib/python3.9/site-packages/pygwb/baseline.py:497: UserWarning: Neither baseline nor interferometer sampling_frequency is set.
+  warnings.warn(
+/home/kevin.turbang/.conda/envs/pygwb_maintenance/lib/python3.9/site-packages/pygwb/baseline.py:263: UserWarning: Neither baseline nor interferometer duration is set.
+  warnings.warn(&#34;Neither baseline nor interferometer duration is set.&#34;)
+</pre></div></div>
+</div>
+<p>We now run the combined power-law and Schumann resonance model below. Additional information can also be found <a class="reference external" href="https://stackoverflow.com/questions/9667818/python-how-to-merge-two-class">here</a>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">gw_schu</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="s1">&#39;gw_schu&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">PowerLawModel</span><span class="p">,</span><span class="n">SchumannModel</span><span class="p">),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">c</span><span class="o">=</span><span class="s1">&#39;c&#39;</span><span class="p">))</span>
+<span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;baselines&quot;</span><span class="p">:[</span><span class="n">HL</span><span class="p">,</span> <span class="n">HV</span><span class="p">,</span> <span class="n">LV</span><span class="p">],</span> <span class="s2">&quot;model_name&quot;</span><span class="p">:</span><span class="s1">&#39;PL+Schu&#39;</span><span class="p">,</span> <span class="s2">&quot;polarizations&quot;</span><span class="p">:[</span><span class="s1">&#39;tensor&#39;</span><span class="p">],</span><span class="s2">&quot;fref&quot;</span><span class="p">:</span><span class="mi">25</span><span class="p">}</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">gw_schu</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<span class="n">priors</span><span class="o">=</span> <span class="p">{</span><span class="s1">&#39;kappa_H&#39;</span><span class="p">:</span> <span class="n">bilby</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">LogUniform</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;$</span><span class="se">\\</span><span class="s1">kappa_H$&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;kappa_L&#39;</span><span class="p">:</span> <span class="n">bilby</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">LogUniform</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;$</span><span class="se">\\</span><span class="s1">kappa_L$&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;kappa_V&#39;</span><span class="p">:</span> <span class="n">bilby</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">LogUniform</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;$</span><span class="se">\\</span><span class="s1">kappa_V$&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;beta_H&#39;</span><span class="p">:</span> <span class="n">bilby</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">Uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">12.0</span><span class="p">,</span> <span class="s1">&#39;$</span><span class="se">\\</span><span class="s1">beta_H$&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;beta_L&#39;</span><span class="p">:</span> <span class="n">bilby</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">Uniform</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="s1">&#39;$</span><span class="se">\\</span><span class="s1">beta_L$&#39;</span><span class="p">),</span>
+           <span class="s1">&#39;beta_V&#39;</span><span class="p">:</span> <span class="n">bilby</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">Uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">,</span> <span class="s1">&#39;$</span><span class="se">\\</span><span class="s1">beta_V$&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;omega_ref&#39;</span><span class="p">:</span> <span class="n">bilby</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">LogUniform</span><span class="p">(</span><span class="mf">1e-13</span><span class="p">,</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="s1">&#39;$</span><span class="se">\\</span><span class="s1">Omega_{</span><span class="se">\\</span><span class="s1">rm ref}$&#39;</span><span class="p">),</span>
+             <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="n">bilby</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">Gaussian</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="s1">&#39;$</span><span class="se">\\</span><span class="s1">alpha$&#39;</span><span class="p">)}</span>
+<span class="n">hlv_gw_schu</span><span class="o">=</span><span class="n">bilby</span><span class="o">.</span><span class="n">run_sampler</span><span class="p">(</span><span class="n">likelihood</span><span class="o">=</span><span class="n">model</span><span class="p">,</span><span class="n">priors</span><span class="o">=</span><span class="n">priors</span><span class="p">,</span><span class="n">sampler</span><span class="o">=</span><span class="s1">&#39;dynesty&#39;</span><span class="p">,</span> <span class="n">npoints</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">walks</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">npool</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">outdir</span><span class="o">=</span><span class="s1">&#39;./pe/&#39;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span> <span class="s1">&#39;hlv_gw_schu&#39;</span><span class="p">,</span> <span class="n">resume</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hlv_gw_schu</span><span class="o">.</span><span class="n">plot_corner</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="_images/run_pe_56_0.png" src="_images/run_pe_56_0.png" />
+</div>
+</div>
+<p><strong>Disclaimer</strong></p>
+<p>Note that the joint inference of two different models can only be performed if none of the parameter names are shared, otherwise the PE code does not know which parameter to infer of the two models. This could be remedied by changing the parameter name in one of the models in the <code class="docutils literal notranslate"><span class="pre">pe</span></code> code fo example.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="demos.html" class="btn btn-neutral float-left" title="Demos" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="make_notchlist.html" class="btn btn-neutral float-right" title="Generate a notch list" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

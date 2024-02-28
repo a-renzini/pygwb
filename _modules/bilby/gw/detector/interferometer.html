@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bilby.gw.detector.interferometer &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/tabs.css?v=a5c4661c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js?v=0264ad83"></script>
+        <script src="../../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=4825356b"></script>
+        <script src="../../../../_static/tabs.js?v=3030b3cb"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../../../../about.html" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html">
+            
+              <img src="../../../../_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../demos.html">Demos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">bilby.gw.detector.interferometer</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for bilby.gw.detector.interferometer</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">bilby_cython.geometry</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_polarization_tensor</span><span class="p">,</span>
+    <span class="n">three_by_three_matrix_contraction</span><span class="p">,</span>
+    <span class="n">time_delay_from_geocenter</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">...core</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">...core.utils</span> <span class="kn">import</span> <span class="n">docstring</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">PropertyAccessor</span><span class="p">,</span> <span class="n">safe_file_dump</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">utils</span> <span class="k">as</span> <span class="n">gwutils</span>
+<span class="kn">from</span> <span class="nn">.calibration</span> <span class="kn">import</span> <span class="n">Recalibrate</span>
+<span class="kn">from</span> <span class="nn">.geometry</span> <span class="kn">import</span> <span class="n">InterferometerGeometry</span>
+<span class="kn">from</span> <span class="nn">.strain_data</span> <span class="kn">import</span> <span class="n">InterferometerStrainData</span>
+<span class="kn">from</span> <span class="nn">..conversion</span> <span class="kn">import</span> <span class="n">generate_all_bbh_parameters</span>
+
+
+<span class="k">class</span> <span class="nc">Interferometer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for the Interferometer &quot;&quot;&quot;</span>
+
+    <span class="n">length</span> <span class="o">=</span> <span class="n">PropertyAccessor</span><span class="p">(</span><span class="s1">&#39;geometry&#39;</span><span class="p">,</span> <span class="s1">&#39;length&#39;</span><span class="p">)</span>
+    <span class="n">latitude</span> <span class="o">=</span> <span class="n">PropertyAccessor</span><span class="p">(</span><span class="s1">&#39;geometry&#39;</span><span class="p">,</span> <span class="s1">&#39;latitude&#39;</span><span class="p">)</span>
+    <span class="n">latitude_radians</span> <span class="o">=</span> <span class="n">PropertyAccessor</span><span class="p">(</span><span class="s1">&#39;geometry&#39;</span><span class="p">,</span> <span class="s1">&#39;latitude_radians&#39;</span><span class="p">)</span>
+    <span class="n">longitude</span> <span class="o">=</span> <span class="n">PropertyAccessor</span><span class="p">(</span><span class="s1">&#39;geometry&#39;</span><span class="p">,</span> <span class="s1">&#39;longitude&#39;</span><span class="p">)</span>
+    <span class="n">longitude_radians</span> <span class="o">=</span> <span class="n">PropertyAccessor</span><span class="p">(</span><span class="s1">&#39;geometry&#39;</span><span class="p">,</span> <span class="s1">&#39;longitude_radians&#39;</span><span class="p">)</span>
+    <span class="n">elevation</span> <span class="o">=</span> <span class="n">PropertyAccessor</span><span class="p">(</span><span class="s1">&#39;geometry&#39;</span><span class="p">,</span> <span class="s1">&#39;elevation&#39;</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">PropertyAccessor</span><span class="p">(</span><span class="s1">&#39;geometry&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">PropertyAccessor</span><span class="p">(</span><span class="s1">&#39;geometry&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">)</span>
+    <span class="n">xarm_azimuth</span> <span class="o">=</span> <span class="n">PropertyAccessor</span><span class="p">(</span><span class="s1">&#39;geometry&#39;</span><span class="p">,</span> <span class="s1">&#39;xarm_azimuth&#39;</span><span class="p">)</span>
+    <span class="n">yarm_azimuth</span> <span class="o">=</span> <span class="n">PropertyAccessor</span><span class="p">(</span><span class="s1">&#39;geometry&#39;</span><span class="p">,</span> <span class="s1">&#39;yarm_azimuth&#39;</span><span class="p">)</span>
+    <span class="n">xarm_tilt</span> <span class="o">=</span> <span class="n">PropertyAccessor</span><span class="p">(</span><span class="s1">&#39;geometry&#39;</span><span class="p">,</span> <span class="s1">&#39;xarm_tilt&#39;</span><span class="p">)</span>
+    <span class="n">yarm_tilt</span> <span class="o">=</span> <span class="n">PropertyAccessor</span><span class="p">(</span><span class="s1">&#39;geometry&#39;</span><span class="p">,</span> <span class="s1">&#39;yarm_tilt&#39;</span><span class="p">)</span>
+    <span class="n">vertex</span> <span class="o">=</span> <span class="n">PropertyAccessor</span><span class="p">(</span><span class="s1">&#39;geometry&#39;</span><span class="p">,</span> <span class="s1">&#39;vertex&#39;</span><span class="p">)</span>
+    <span class="n">detector_tensor</span> <span class="o">=</span> <span class="n">PropertyAccessor</span><span class="p">(</span><span class="s1">&#39;geometry&#39;</span><span class="p">,</span> <span class="s1">&#39;detector_tensor&#39;</span><span class="p">)</span>
+
+    <span class="n">duration</span> <span class="o">=</span> <span class="n">PropertyAccessor</span><span class="p">(</span><span class="s1">&#39;strain_data&#39;</span><span class="p">,</span> <span class="s1">&#39;duration&#39;</span><span class="p">)</span>
+    <span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">PropertyAccessor</span><span class="p">(</span><span class="s1">&#39;strain_data&#39;</span><span class="p">,</span> <span class="s1">&#39;sampling_frequency&#39;</span><span class="p">)</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">PropertyAccessor</span><span class="p">(</span><span class="s1">&#39;strain_data&#39;</span><span class="p">,</span> <span class="s1">&#39;start_time&#39;</span><span class="p">)</span>
+    <span class="n">frequency_array</span> <span class="o">=</span> <span class="n">PropertyAccessor</span><span class="p">(</span><span class="s1">&#39;strain_data&#39;</span><span class="p">,</span> <span class="s1">&#39;frequency_array&#39;</span><span class="p">)</span>
+    <span class="n">time_array</span> <span class="o">=</span> <span class="n">PropertyAccessor</span><span class="p">(</span><span class="s1">&#39;strain_data&#39;</span><span class="p">,</span> <span class="s1">&#39;time_array&#39;</span><span class="p">)</span>
+    <span class="n">minimum_frequency</span> <span class="o">=</span> <span class="n">PropertyAccessor</span><span class="p">(</span><span class="s1">&#39;strain_data&#39;</span><span class="p">,</span> <span class="s1">&#39;minimum_frequency&#39;</span><span class="p">)</span>
+    <span class="n">maximum_frequency</span> <span class="o">=</span> <span class="n">PropertyAccessor</span><span class="p">(</span><span class="s1">&#39;strain_data&#39;</span><span class="p">,</span> <span class="s1">&#39;maximum_frequency&#39;</span><span class="p">)</span>
+    <span class="n">frequency_mask</span> <span class="o">=</span> <span class="n">PropertyAccessor</span><span class="p">(</span><span class="s1">&#39;strain_data&#39;</span><span class="p">,</span> <span class="s1">&#39;frequency_mask&#39;</span><span class="p">)</span>
+    <span class="n">frequency_domain_strain</span> <span class="o">=</span> <span class="n">PropertyAccessor</span><span class="p">(</span><span class="s1">&#39;strain_data&#39;</span><span class="p">,</span> <span class="s1">&#39;frequency_domain_strain&#39;</span><span class="p">)</span>
+    <span class="n">time_domain_strain</span> <span class="o">=</span> <span class="n">PropertyAccessor</span><span class="p">(</span><span class="s1">&#39;strain_data&#39;</span><span class="p">,</span> <span class="s1">&#39;time_domain_strain&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">power_spectral_density</span><span class="p">,</span> <span class="n">minimum_frequency</span><span class="p">,</span> <span class="n">maximum_frequency</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span><span class="p">,</span>
+                 <span class="n">elevation</span><span class="p">,</span> <span class="n">xarm_azimuth</span><span class="p">,</span> <span class="n">yarm_azimuth</span><span class="p">,</span> <span class="n">xarm_tilt</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">yarm_tilt</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">calibration_model</span><span class="o">=</span><span class="n">Recalibrate</span><span class="p">()):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Instantiate an Interferometer object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+<span class="sd">        name: str</span>
+<span class="sd">            Interferometer name, e.g., H1.</span>
+<span class="sd">        power_spectral_density: bilby.gw.detector.PowerSpectralDensity</span>
+<span class="sd">            Power spectral density determining the sensitivity of the detector.</span>
+<span class="sd">        minimum_frequency: float</span>
+<span class="sd">            Minimum frequency to analyse for detector.</span>
+<span class="sd">        maximum_frequency: float</span>
+<span class="sd">            Maximum frequency to analyse for detector.</span>
+<span class="sd">        length: float</span>
+<span class="sd">            Length of the interferometer in km.</span>
+<span class="sd">        latitude: float</span>
+<span class="sd">            Latitude North in degrees (South is negative).</span>
+<span class="sd">        longitude: float</span>
+<span class="sd">            Longitude East in degrees (West is negative).</span>
+<span class="sd">        elevation: float</span>
+<span class="sd">            Height above surface in metres.</span>
+<span class="sd">        xarm_azimuth: float</span>
+<span class="sd">            Orientation of the x arm in degrees North of East.</span>
+<span class="sd">        yarm_azimuth: float</span>
+<span class="sd">            Orientation of the y arm in degrees North of East.</span>
+<span class="sd">        xarm_tilt: float, optional</span>
+<span class="sd">            Tilt of the x arm in radians above the horizontal defined by</span>
+<span class="sd">            ellipsoid earth model in LIGO-T980044-08.</span>
+<span class="sd">        yarm_tilt: float, optional</span>
+<span class="sd">            Tilt of the y arm in radians above the horizontal.</span>
+<span class="sd">        calibration_model: Recalibration</span>
+<span class="sd">            Calibration model, this applies the calibration correction to the</span>
+<span class="sd">            template, the default model applies no correction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">InterferometerGeometry</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span><span class="p">,</span> <span class="n">elevation</span><span class="p">,</span>
+                                               <span class="n">xarm_azimuth</span><span class="p">,</span> <span class="n">yarm_azimuth</span><span class="p">,</span> <span class="n">xarm_tilt</span><span class="p">,</span> <span class="n">yarm_tilt</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">power_spectral_density</span> <span class="o">=</span> <span class="n">power_spectral_density</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calibration_model</span> <span class="o">=</span> <span class="n">calibration_model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span> <span class="o">=</span> <span class="n">InterferometerStrainData</span><span class="p">(</span>
+            <span class="n">minimum_frequency</span><span class="o">=</span><span class="n">minimum_frequency</span><span class="p">,</span>
+            <span class="n">maximum_frequency</span><span class="o">=</span><span class="n">maximum_frequency</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span> <span class="ow">and</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">geometry</span> <span class="ow">and</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">power_spectral_density</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">power_spectral_density</span><span class="p">)</span> <span class="ow">and</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">calibration_model</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">calibration_model</span> <span class="ow">and</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">strain_data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s1">&#39;(name=</span><span class="se">\&#39;</span><span class="si">{}</span><span class="se">\&#39;</span><span class="s1">, power_spectral_density=</span><span class="si">{}</span><span class="s1">, minimum_frequency=</span><span class="si">{}</span><span class="s1">, &#39;</span> \
+                                         <span class="s1">&#39;maximum_frequency=</span><span class="si">{}</span><span class="s1">, length=</span><span class="si">{}</span><span class="s1">, latitude=</span><span class="si">{}</span><span class="s1">, longitude=</span><span class="si">{}</span><span class="s1">, elevation=</span><span class="si">{}</span><span class="s1">, &#39;</span> \
+                                         <span class="s1">&#39;xarm_azimuth=</span><span class="si">{}</span><span class="s1">, yarm_azimuth=</span><span class="si">{}</span><span class="s1">, xarm_tilt=</span><span class="si">{}</span><span class="s1">, yarm_tilt=</span><span class="si">{}</span><span class="s1">)&#39;</span> \
+            <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">power_spectral_density</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">minimum_frequency</span><span class="p">),</span>
+                    <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">maximum_frequency</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">length</span><span class="p">),</span>
+                    <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">latitude</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">longitude</span><span class="p">),</span>
+                    <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">elevation</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">xarm_azimuth</span><span class="p">),</span>
+                    <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">yarm_azimuth</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">xarm_tilt</span><span class="p">),</span>
+                    <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">yarm_tilt</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Interferometer.set_strain_data_from_gwpy_timeseries"><a class="viewcode-back" href="../../../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.set_strain_data_from_gwpy_timeseries">[docs]</a>    <span class="k">def</span> <span class="nf">set_strain_data_from_gwpy_timeseries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_series</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Set the `Interferometer.strain_data` from a gwpy TimeSeries</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+<span class="sd">        time_series: gwpy.timeseries.timeseries.TimeSeries</span>
+<span class="sd">            The data to set.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">set_from_gwpy_timeseries</span><span class="p">(</span><span class="n">time_series</span><span class="o">=</span><span class="n">time_series</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interferometer.set_strain_data_from_frequency_domain_strain"><a class="viewcode-back" href="../../../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.set_strain_data_from_frequency_domain_strain">[docs]</a>    <span class="k">def</span> <span class="nf">set_strain_data_from_frequency_domain_strain</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">frequency_domain_strain</span><span class="p">,</span> <span class="n">sampling_frequency</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">duration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">frequency_array</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Set the `Interferometer.strain_data` from a numpy array</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+<span class="sd">        frequency_domain_strain: array_like</span>
+<span class="sd">            The data to set.</span>
+<span class="sd">        sampling_frequency: float</span>
+<span class="sd">            The sampling frequency (in Hz).</span>
+<span class="sd">        duration: float</span>
+<span class="sd">            The data duration (in s).</span>
+<span class="sd">        start_time: float</span>
+<span class="sd">            The GPS start-time of the data.</span>
+<span class="sd">        frequency_array: array_like</span>
+<span class="sd">            The array of frequencies, if sampling_frequency and duration not</span>
+<span class="sd">            given.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">set_from_frequency_domain_strain</span><span class="p">(</span>
+            <span class="n">frequency_domain_strain</span><span class="o">=</span><span class="n">frequency_domain_strain</span><span class="p">,</span>
+            <span class="n">sampling_frequency</span><span class="o">=</span><span class="n">sampling_frequency</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="n">duration</span><span class="p">,</span>
+            <span class="n">start_time</span><span class="o">=</span><span class="n">start_time</span><span class="p">,</span> <span class="n">frequency_array</span><span class="o">=</span><span class="n">frequency_array</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interferometer.set_strain_data_from_power_spectral_density"><a class="viewcode-back" href="../../../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.set_strain_data_from_power_spectral_density">[docs]</a>    <span class="k">def</span> <span class="nf">set_strain_data_from_power_spectral_density</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">sampling_frequency</span><span class="p">,</span> <span class="n">duration</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Set the `Interferometer.strain_data` from a power spectal density</span>
+
+<span class="sd">        This uses the `interferometer.power_spectral_density` object to set</span>
+<span class="sd">        the `strain_data` to a noise realization. See</span>
+<span class="sd">        `bilby.gw.detector.InterferometerStrainData` for further information.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+<span class="sd">        sampling_frequency: float</span>
+<span class="sd">            The sampling frequency (in Hz)</span>
+<span class="sd">        duration: float</span>
+<span class="sd">            The data duration (in s)</span>
+<span class="sd">        start_time: float</span>
+<span class="sd">            The GPS start-time of the data</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">set_from_power_spectral_density</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">power_spectral_density</span><span class="p">,</span> <span class="n">sampling_frequency</span><span class="o">=</span><span class="n">sampling_frequency</span><span class="p">,</span>
+            <span class="n">duration</span><span class="o">=</span><span class="n">duration</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="n">start_time</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interferometer.set_strain_data_from_frame_file"><a class="viewcode-back" href="../../../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.set_strain_data_from_frame_file">[docs]</a>    <span class="k">def</span> <span class="nf">set_strain_data_from_frame_file</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">frame_file</span><span class="p">,</span> <span class="n">sampling_frequency</span><span class="p">,</span> <span class="n">duration</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">channel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">buffer_time</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Set the `Interferometer.strain_data` from a frame file</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+<span class="sd">        frame_file: str</span>
+<span class="sd">            File from which to load data.</span>
+<span class="sd">        channel: str</span>
+<span class="sd">            Channel to read from frame.</span>
+<span class="sd">        sampling_frequency: float</span>
+<span class="sd">            The sampling frequency (in Hz)</span>
+<span class="sd">        duration: float</span>
+<span class="sd">            The data duration (in s)</span>
+<span class="sd">        start_time: float</span>
+<span class="sd">            The GPS start-time of the data</span>
+<span class="sd">        buffer_time: float</span>
+<span class="sd">            Read in data with `start_time-buffer_time` and</span>
+<span class="sd">            `start_time+duration+buffer_time`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">set_from_frame_file</span><span class="p">(</span>
+            <span class="n">frame_file</span><span class="o">=</span><span class="n">frame_file</span><span class="p">,</span> <span class="n">sampling_frequency</span><span class="o">=</span><span class="n">sampling_frequency</span><span class="p">,</span>
+            <span class="n">duration</span><span class="o">=</span><span class="n">duration</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="n">start_time</span><span class="p">,</span>
+            <span class="n">channel</span><span class="o">=</span><span class="n">channel</span><span class="p">,</span> <span class="n">buffer_time</span><span class="o">=</span><span class="n">buffer_time</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interferometer.set_strain_data_from_channel_name"><a class="viewcode-back" href="../../../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.set_strain_data_from_channel_name">[docs]</a>    <span class="k">def</span> <span class="nf">set_strain_data_from_channel_name</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">sampling_frequency</span><span class="p">,</span> <span class="n">duration</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the `Interferometer.strain_data` by fetching from given channel</span>
+<span class="sd">        using strain_data.set_from_channel_name()</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+<span class="sd">        channel: str</span>
+<span class="sd">            Channel to look for using gwpy in the format `IFO:Channel`</span>
+<span class="sd">        sampling_frequency: float</span>
+<span class="sd">            The sampling frequency (in Hz)</span>
+<span class="sd">        duration: float</span>
+<span class="sd">            The data duration (in s)</span>
+<span class="sd">        start_time: float</span>
+<span class="sd">            The GPS start-time of the data</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">set_from_channel_name</span><span class="p">(</span>
+            <span class="n">channel</span><span class="o">=</span><span class="n">channel</span><span class="p">,</span> <span class="n">sampling_frequency</span><span class="o">=</span><span class="n">sampling_frequency</span><span class="p">,</span>
+            <span class="n">duration</span><span class="o">=</span><span class="n">duration</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="n">start_time</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interferometer.set_strain_data_from_csv"><a class="viewcode-back" href="../../../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.set_strain_data_from_csv">[docs]</a>    <span class="k">def</span> <span class="nf">set_strain_data_from_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Set the `Interferometer.strain_data` from a csv file</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+<span class="sd">        filename: str</span>
+<span class="sd">            The path to the file to read in</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">set_from_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interferometer.set_strain_data_from_zero_noise"><a class="viewcode-back" href="../../../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.set_strain_data_from_zero_noise">[docs]</a>    <span class="k">def</span> <span class="nf">set_strain_data_from_zero_noise</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">sampling_frequency</span><span class="p">,</span> <span class="n">duration</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Set the `Interferometer.strain_data` to zero noise</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+<span class="sd">        sampling_frequency: float</span>
+<span class="sd">            The sampling frequency (in Hz)</span>
+<span class="sd">        duration: float</span>
+<span class="sd">            The data duration (in s)</span>
+<span class="sd">        start_time: float</span>
+<span class="sd">            The GPS start-time of the data</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">set_from_zero_noise</span><span class="p">(</span>
+            <span class="n">sampling_frequency</span><span class="o">=</span><span class="n">sampling_frequency</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="n">duration</span><span class="p">,</span>
+            <span class="n">start_time</span><span class="o">=</span><span class="n">start_time</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interferometer.antenna_response"><a class="viewcode-back" href="../../../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.antenna_response">[docs]</a>    <span class="k">def</span> <span class="nf">antenna_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">psi</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the antenna response function for a given sky location</span>
+
+<span class="sd">        See Nishizawa et al. (2009) arXiv:0903.0528 for definitions of the polarisation tensors.</span>
+<span class="sd">        [u, v, w] represent the Earth-frame</span>
+<span class="sd">        [m, n, omega] represent the wave-frame</span>
+<span class="sd">        Note: there is a typo in the definition of the wave-frame in Nishizawa et al.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+<span class="sd">        ra: float</span>
+<span class="sd">            right ascension in radians</span>
+<span class="sd">        dec: float</span>
+<span class="sd">            declination in radians</span>
+<span class="sd">        time: float</span>
+<span class="sd">            geocentric GPS time</span>
+<span class="sd">        psi: float</span>
+<span class="sd">            binary polarisation angle counter-clockwise about the direction of propagation</span>
+<span class="sd">        mode: str</span>
+<span class="sd">            polarisation mode (e.g. &#39;plus&#39;, &#39;cross&#39;) or the name of a specific detector.</span>
+<span class="sd">            If mode == self.name, return 1</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        float: The antenna response for the specified mode and time/location</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;plus&quot;</span><span class="p">,</span> <span class="s2">&quot;cross&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;breathing&quot;</span><span class="p">,</span> <span class="s2">&quot;longitudinal&quot;</span><span class="p">]:</span>
+            <span class="n">polarization_tensor</span> <span class="o">=</span> <span class="n">get_polarization_tensor</span><span class="p">(</span><span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">psi</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">three_by_three_matrix_contraction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">detector_tensor</span><span class="p">,</span> <span class="n">polarization_tensor</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="Interferometer.get_detector_response"><a class="viewcode-back" href="../../../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.get_detector_response">[docs]</a>    <span class="k">def</span> <span class="nf">get_detector_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveform_polarizations</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">frequencies</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Get the detector response for a particular waveform</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+<span class="sd">        waveform_polarizations: dict</span>
+<span class="sd">            polarizations of the waveform</span>
+<span class="sd">        parameters: dict</span>
+<span class="sd">            parameters describing position and time of arrival of the signal</span>
+<span class="sd">        frequencies: array-like, optional</span>
+<span class="sd">        The frequency values to evaluate the response at. If</span>
+<span class="sd">        not provided, the response is computed using</span>
+<span class="sd">        :code:`self.frequency_array`. If the frequencies are</span>
+<span class="sd">        specified, no frequency masking is performed.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        array_like: A 3x3 array representation of the detector response (signal observed in the interferometer)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">frequencies</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">frequencies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequency_array</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency_mask</span><span class="p">]</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequency_mask</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">frequencies</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+
+        <span class="n">signal</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">mode</span> <span class="ow">in</span> <span class="n">waveform_polarizations</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">det_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">antenna_response</span><span class="p">(</span>
+                <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;ra&#39;</span><span class="p">],</span>
+                <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;dec&#39;</span><span class="p">],</span>
+                <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;geocent_time&#39;</span><span class="p">],</span>
+                <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;psi&#39;</span><span class="p">],</span> <span class="n">mode</span><span class="p">)</span>
+
+            <span class="n">signal</span><span class="p">[</span><span class="n">mode</span><span class="p">]</span> <span class="o">=</span> <span class="n">waveform_polarizations</span><span class="p">[</span><span class="n">mode</span><span class="p">]</span> <span class="o">*</span> <span class="n">det_response</span>
+        <span class="n">signal_ifo</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">*</span> <span class="n">mask</span>
+
+        <span class="n">time_shift</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_delay_from_geocenter</span><span class="p">(</span>
+            <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;ra&#39;</span><span class="p">],</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;dec&#39;</span><span class="p">],</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;geocent_time&#39;</span><span class="p">])</span>
+
+        <span class="c1"># Be careful to first subtract the two GPS times which are ~1e9 sec.</span>
+        <span class="c1"># And then add the time_shift which varies at ~1e-5 sec</span>
+        <span class="n">dt_geocent</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;geocent_time&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">start_time</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">dt_geocent</span> <span class="o">+</span> <span class="n">time_shift</span>
+
+        <span class="n">signal_ifo</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">signal_ifo</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">frequencies</span><span class="p">)</span>
+
+        <span class="n">signal_ifo</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration_model</span><span class="o">.</span><span class="n">get_calibration_factor</span><span class="p">(</span>
+            <span class="n">frequencies</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;recalib_</span><span class="si">{}</span><span class="s1">_&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="o">**</span><span class="n">parameters</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">signal_ifo</span></div>
+
+<div class="viewcode-block" id="Interferometer.check_signal_duration"><a class="viewcode-back" href="../../../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.check_signal_duration">[docs]</a>    <span class="k">def</span> <span class="nf">check_signal_duration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">raise_error</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Check that the signal with the given parameters fits in the data</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+<span class="sd">        parameters: dict</span>
+<span class="sd">            A dictionary of the injection parameters</span>
+<span class="sd">        raise_error: bool</span>
+<span class="sd">            If True, raise an error in the signal does not fit. Otherwise, print</span>
+<span class="sd">            a warning message.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">parameters</span> <span class="o">=</span> <span class="n">generate_all_bbh_parameters</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;generate_all_bbh_parameters parameters failed during check_signal_duration&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;mass_1&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;mass_2&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">raise_error</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Unable to check signal duration as mass not given&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span>
+
+        <span class="c1"># Calculate the time to merger</span>
+        <span class="n">deltaT</span> <span class="o">=</span> <span class="n">gwutils</span><span class="o">.</span><span class="n">calculate_time_to_merger</span><span class="p">(</span>
+            <span class="n">frequency</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">minimum_frequency</span><span class="p">,</span>
+            <span class="n">mass_1</span><span class="o">=</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;mass_1&quot;</span><span class="p">],</span>
+            <span class="n">mass_2</span><span class="o">=</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;mass_2&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="n">deltaT</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">deltaT</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">deltaT</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The injected signal has a duration in-band of </span><span class="si">{</span><span class="n">deltaT</span><span class="si">}</span><span class="s2">s, but &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;the data for detector </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> has a duration of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">duration</span><span class="si">}</span><span class="s2">s&quot;</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">raise_error</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interferometer.inject_signal"><a class="viewcode-back" href="../../../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.inject_signal">[docs]</a>    <span class="k">def</span> <span class="nf">inject_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">injection_polarizations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">waveform_generator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">raise_error</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; General signal injection method.</span>
+<span class="sd">        Provide the injection parameters and either the injection polarizations</span>
+<span class="sd">        or the waveform generator to inject a signal into the detector.</span>
+<span class="sd">        Defaults to the injection polarizations is both are given.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+<span class="sd">        parameters: dict</span>
+<span class="sd">            Parameters of the injection.</span>
+<span class="sd">        injection_polarizations: dict, optional</span>
+<span class="sd">           Polarizations of waveform to inject, output of</span>
+<span class="sd">           `waveform_generator.frequency_domain_strain()`. If</span>
+<span class="sd">           `waveform_generator` is also given, the injection_polarizations will</span>
+<span class="sd">           be calculated directly and this argument can be ignored.</span>
+<span class="sd">        waveform_generator: bilby.gw.waveform_generator.WaveformGenerator, optional</span>
+<span class="sd">            A WaveformGenerator instance using the source model to inject. If</span>
+<span class="sd">            `injection_polarizations` is given, this will be ignored.</span>
+<span class="sd">        raise_error: bool</span>
+<span class="sd">            If true, raise an error if the injected signal has a duration</span>
+<span class="sd">            longer than the data duration. If False, a warning will be printed</span>
+<span class="sd">            instead.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        =====</span>
+<span class="sd">        if your signal takes a substantial amount of time to generate, or</span>
+<span class="sd">        you experience buggy behaviour. It is preferable to provide the</span>
+<span class="sd">        injection_polarizations directly.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        injection_polarizations: dict</span>
+<span class="sd">            The injected polarizations. This is the same as the injection_polarizations parameters</span>
+<span class="sd">            if it was passed in. Otherwise it is the return value of waveform_generator.frequency_domain_strain().</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_signal_duration</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">raise_error</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">injection_polarizations</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">waveform_generator</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;inject_signal needs one of waveform_generator or &quot;</span>
+                <span class="s2">&quot;injection_polarizations.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">injection_polarizations</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inject_signal_from_waveform_polarizations</span><span class="p">(</span><span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
+                                                           <span class="n">injection_polarizations</span><span class="o">=</span><span class="n">injection_polarizations</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">waveform_generator</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">injection_polarizations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inject_signal_from_waveform_generator</span><span class="p">(</span><span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
+                                                                                 <span class="n">waveform_generator</span><span class="o">=</span><span class="n">waveform_generator</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">injection_polarizations</span></div>
+
+<div class="viewcode-block" id="Interferometer.inject_signal_from_waveform_generator"><a class="viewcode-back" href="../../../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.inject_signal_from_waveform_generator">[docs]</a>    <span class="k">def</span> <span class="nf">inject_signal_from_waveform_generator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">waveform_generator</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Inject a signal using a waveform generator and a set of parameters.</span>
+<span class="sd">        Alternative to `inject_signal` and `inject_signal_from_waveform_polarizations`</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+<span class="sd">        parameters: dict</span>
+<span class="sd">            Parameters of the injection.</span>
+<span class="sd">        waveform_generator: bilby.gw.waveform_generator.WaveformGenerator</span>
+<span class="sd">            A WaveformGenerator instance using the source model to inject.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        =====</span>
+<span class="sd">        if your signal takes a substantial amount of time to generate, or</span>
+<span class="sd">        you experience buggy behaviour. It is preferable to use the</span>
+<span class="sd">        inject_signal_from_waveform_polarizations() method.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        injection_polarizations: dict</span>
+<span class="sd">            The internally generated injection parameters</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">injection_polarizations</span> <span class="o">=</span> \
+            <span class="n">waveform_generator</span><span class="o">.</span><span class="n">frequency_domain_strain</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inject_signal_from_waveform_polarizations</span><span class="p">(</span><span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
+                                                       <span class="n">injection_polarizations</span><span class="o">=</span><span class="n">injection_polarizations</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">injection_polarizations</span></div>
+
+<div class="viewcode-block" id="Interferometer.inject_signal_from_waveform_polarizations"><a class="viewcode-back" href="../../../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.inject_signal_from_waveform_polarizations">[docs]</a>    <span class="k">def</span> <span class="nf">inject_signal_from_waveform_polarizations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">injection_polarizations</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Inject a signal into the detector from a dict of waveform polarizations.</span>
+<span class="sd">        Alternative to `inject_signal` and `inject_signal_from_waveform_generator`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+<span class="sd">        parameters: dict</span>
+<span class="sd">            Parameters of the injection.</span>
+<span class="sd">        injection_polarizations: dict</span>
+<span class="sd">           Polarizations of waveform to inject, output of</span>
+<span class="sd">           `waveform_generator.frequency_domain_strain()`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">time_within_data</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;geocent_time&#39;</span><span class="p">]):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s1">&#39;Injecting signal outside segment, start_time=</span><span class="si">{}</span><span class="s1">, merger time=</span><span class="si">{}</span><span class="s1">.&#39;</span>
+                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">start_time</span><span class="p">,</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;geocent_time&#39;</span><span class="p">]))</span>
+
+        <span class="n">signal_ifo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_detector_response</span><span class="p">(</span><span class="n">injection_polarizations</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_domain_strain</span> <span class="o">+=</span> <span class="n">signal_ifo</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">[</span><span class="s1">&#39;optimal_SNR&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optimal_snr_squared</span><span class="p">(</span><span class="n">signal</span><span class="o">=</span><span class="n">signal_ifo</span><span class="p">))</span><span class="o">.</span><span class="n">real</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">[</span><span class="s1">&#39;matched_filter_SNR&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">matched_filter_snr</span><span class="p">(</span><span class="n">signal</span><span class="o">=</span><span class="n">signal_ifo</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Injected signal in </span><span class="si">{}</span><span class="s2">:&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  optimal SNR = </span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">[</span><span class="s1">&#39;optimal_SNR&#39;</span><span class="p">]))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  matched filter SNR = </span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">[</span><span class="s1">&#39;matched_filter_SNR&#39;</span><span class="p">]))</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;  </span><span class="si">{}</span><span class="s1"> = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">parameters</span><span class="p">[</span><span class="n">key</span><span class="p">]))</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">amplitude_spectral_density_array</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Returns the amplitude spectral density (ASD) given we know a power spectral density (PSD)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        array_like: An array representation of the ASD</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">power_spectral_density</span><span class="o">.</span><span class="n">get_amplitude_spectral_density_array</span><span class="p">(</span>
+                <span class="n">frequency_array</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_array</span><span class="p">)</span> <span class="o">*</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">window_factor</span><span class="o">**</span><span class="mf">0.5</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">power_spectral_density_array</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Returns the power spectral density (PSD)</span>
+
+<span class="sd">        This accounts for whether the data in the interferometer has been windowed.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        array_like: An array representation of the PSD</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">power_spectral_density</span><span class="o">.</span><span class="n">get_power_spectral_density_array</span><span class="p">(</span>
+                <span class="n">frequency_array</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_array</span><span class="p">)</span> <span class="o">*</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">window_factor</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">unit_vector_along_arm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arm</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;This method has been moved and will be removed in the future.&quot;</span>
+                       <span class="s2">&quot;Use Interferometer.geometry.unit_vector_along_arm instead.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">unit_vector_along_arm</span><span class="p">(</span><span class="n">arm</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Interferometer.time_delay_from_geocenter"><a class="viewcode-back" href="../../../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.time_delay_from_geocenter">[docs]</a>    <span class="k">def</span> <span class="nf">time_delay_from_geocenter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the time delay from the geocenter for the interferometer.</span>
+
+<span class="sd">        Use the time delay function from utils.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+<span class="sd">        ra: float</span>
+<span class="sd">            right ascension of source in radians</span>
+<span class="sd">        dec: float</span>
+<span class="sd">            declination of source in radians</span>
+<span class="sd">        time: float</span>
+<span class="sd">            GPS time</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        float: The time delay from geocenter in seconds</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">time_delay_from_geocenter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">vertex</span><span class="p">,</span> <span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interferometer.vertex_position_geocentric"><a class="viewcode-back" href="../../../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.vertex_position_geocentric">[docs]</a>    <span class="k">def</span> <span class="nf">vertex_position_geocentric</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the position of the IFO vertex in geocentric coordinates in meters.</span>
+
+<span class="sd">        Based on arXiv:gr-qc/0008066 Eqs. B11-B13 except for the typo in the definition of the local radius.</span>
+<span class="sd">        See Section 2.1 of LIGO-T980044-10 for the correct expression</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        array_like: A 3D array representation of the vertex</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">gwutils</span><span class="o">.</span><span class="n">get_vertex_position_geocentric</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">latitude_radians</span><span class="p">,</span>
+                                                      <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">longitude_radians</span><span class="p">,</span>
+                                                      <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">elevation</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interferometer.optimal_snr_squared"><a class="viewcode-back" href="../../../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.optimal_snr_squared">[docs]</a>    <span class="k">def</span> <span class="nf">optimal_snr_squared</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signal</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+<span class="sd">        signal: array_like</span>
+<span class="sd">            Array containing the signal</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        float: The optimal signal to noise ratio possible squared</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">gwutils</span><span class="o">.</span><span class="n">optimal_snr_squared</span><span class="p">(</span>
+            <span class="n">signal</span><span class="o">=</span><span class="n">signal</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_mask</span><span class="p">],</span>
+            <span class="n">power_spectral_density</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">power_spectral_density_array</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_mask</span><span class="p">],</span>
+            <span class="n">duration</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interferometer.inner_product"><a class="viewcode-back" href="../../../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.inner_product">[docs]</a>    <span class="k">def</span> <span class="nf">inner_product</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signal</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+<span class="sd">        signal: array_like</span>
+<span class="sd">            Array containing the signal</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        float: The optimal signal to noise ratio possible squared</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">gwutils</span><span class="o">.</span><span class="n">noise_weighted_inner_product</span><span class="p">(</span>
+            <span class="n">aa</span><span class="o">=</span><span class="n">signal</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_mask</span><span class="p">],</span>
+            <span class="n">bb</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_domain_strain</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_mask</span><span class="p">],</span>
+            <span class="n">power_spectral_density</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">power_spectral_density_array</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_mask</span><span class="p">],</span>
+            <span class="n">duration</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interferometer.matched_filter_snr"><a class="viewcode-back" href="../../../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.matched_filter_snr">[docs]</a>    <span class="k">def</span> <span class="nf">matched_filter_snr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signal</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+<span class="sd">        signal: array_like</span>
+<span class="sd">            Array containing the signal</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        float: The matched filter signal to noise ratio squared</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">gwutils</span><span class="o">.</span><span class="n">matched_filter_snr</span><span class="p">(</span>
+            <span class="n">signal</span><span class="o">=</span><span class="n">signal</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_mask</span><span class="p">],</span>
+            <span class="n">frequency_domain_strain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_domain_strain</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_mask</span><span class="p">],</span>
+            <span class="n">power_spectral_density</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">power_spectral_density_array</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_mask</span><span class="p">],</span>
+            <span class="n">duration</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">whitened_frequency_domain_strain</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Calculates the whitened data by dividing the frequency domain data by</span>
+<span class="sd">        ((amplitude spectral density) * (duration / 4) ** 0.5). The resulting</span>
+<span class="sd">        data will have unit variance.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        array_like: The whitened data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_domain_strain</span> <span class="o">/</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">amplitude_spectral_density_array</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="Interferometer.save_data"><a class="viewcode-back" href="../../../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.save_data">[docs]</a>    <span class="k">def</span> <span class="nf">save_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdir</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Creates save files for interferometer data in plain text format.</span>
+
+<span class="sd">        Saves two files: the frequency domain strain data with three columns [f, real part of h(f),</span>
+<span class="sd">        imaginary part of h(f)], and the amplitude spectral density with two columns [f, ASD(f)].</span>
+
+<span class="sd">        Note that in v1.3.0 and below, the ASD was saved in a file called *_psd.dat.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+<span class="sd">        outdir: str</span>
+<span class="sd">            The output directory in which the data is supposed to be saved</span>
+<span class="sd">        label: str</span>
+<span class="sd">            The name of the output files</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">filename_asd</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">_asd.dat&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">filename_data</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">_frequency_domain_data.dat&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">filename_asd</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">_asd.dat&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+            <span class="n">filename_data</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">_frequency_domain_data.dat&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">filename_data</span><span class="p">,</span>
+                   <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                       <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_array</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_domain_strain</span><span class="o">.</span><span class="n">real</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_domain_strain</span><span class="o">.</span><span class="n">imag</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+                   <span class="n">header</span><span class="o">=</span><span class="s1">&#39;f real_h(f) imag_h(f)&#39;</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">filename_asd</span><span class="p">,</span>
+                   <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                       <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_array</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">amplitude_spectral_density_array</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+                   <span class="n">header</span><span class="o">=</span><span class="s1">&#39;f h(f)&#39;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">plot_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signal</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">outdir</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+        <span class="k">if</span> <span class="n">utils</span><span class="o">.</span><span class="n">command_line_args</span><span class="o">.</span><span class="n">bilby_test_mode</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_array</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">asd</span> <span class="o">=</span> <span class="n">gwutils</span><span class="o">.</span><span class="n">asd_from_freq_series</span><span class="p">(</span>
+            <span class="n">freq_data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_domain_strain</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_array</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_mask</span><span class="p">],</span>
+                  <span class="n">asd</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_mask</span><span class="p">],</span>
+                  <span class="n">color</span><span class="o">=</span><span class="s1">&#39;C0&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_array</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_mask</span><span class="p">],</span>
+                  <span class="bp">self</span><span class="o">.</span><span class="n">amplitude_spectral_density_array</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_mask</span><span class="p">],</span>
+                  <span class="n">color</span><span class="o">=</span><span class="s1">&#39;C1&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39; ASD&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">signal</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">signal_asd</span> <span class="o">=</span> <span class="n">gwutils</span><span class="o">.</span><span class="n">asd_from_freq_series</span><span class="p">(</span>
+                <span class="n">freq_data</span><span class="o">=</span><span class="n">signal</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
+
+            <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_array</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_mask</span><span class="p">],</span>
+                      <span class="n">signal_asd</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_mask</span><span class="p">],</span>
+                      <span class="n">color</span><span class="o">=</span><span class="s1">&#39;C2&#39;</span><span class="p">,</span>
+                      <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Signal&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Strain [strain/$\sqrt{\rm Hz}$]&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Frequency [Hz]&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
+                <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">_frequency_domain_data.png&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
+                <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">_frequency_domain_data.png&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">outdir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">label</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Interferometer.plot_time_domain_data"><a class="viewcode-back" href="../../../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.plot_time_domain_data">[docs]</a>    <span class="k">def</span> <span class="nf">plot_time_domain_data</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">outdir</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bandpass_frequencies</span><span class="o">=</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">250</span><span class="p">),</span>
+            <span class="n">notches</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">start_end</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">t0</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Plots the strain data in the time domain</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+<span class="sd">        outdir, label: str</span>
+<span class="sd">            Used in setting the saved filename.</span>
+<span class="sd">        bandpass: tuple, optional</span>
+<span class="sd">            A tuple of the (low, high) frequencies to use when bandpassing the</span>
+<span class="sd">            data, if None no bandpass is applied.</span>
+<span class="sd">        notches: list, optional</span>
+<span class="sd">            A list of frequencies specifying any lines to notch</span>
+<span class="sd">        start_end: tuple</span>
+<span class="sd">            A tuple of the (start, end) range of GPS times to plot</span>
+<span class="sd">        t0: float</span>
+<span class="sd">            If given, the reference time to subtract from the time series before</span>
+<span class="sd">            plotting.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+        <span class="kn">from</span> <span class="nn">gwpy.timeseries</span> <span class="kn">import</span> <span class="n">TimeSeries</span>
+        <span class="kn">from</span> <span class="nn">gwpy.signal.filter_design</span> <span class="kn">import</span> <span class="n">bandpass</span><span class="p">,</span> <span class="n">concatenate_zpks</span><span class="p">,</span> <span class="n">notch</span>
+
+        <span class="c1"># We use the gwpy timeseries to perform bandpass and notching</span>
+        <span class="k">if</span> <span class="n">notches</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">notches</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">timeseries</span> <span class="o">=</span> <span class="n">TimeSeries</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">time_domain_strain</span><span class="p">,</span> <span class="n">times</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">time_array</span><span class="p">)</span>
+        <span class="n">zpks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">bandpass_frequencies</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">zpks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bandpass</span><span class="p">(</span>
+                <span class="n">bandpass_frequencies</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bandpass_frequencies</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">notches</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">notches</span><span class="p">:</span>
+                <span class="n">zpks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">notch</span><span class="p">(</span>
+                    <span class="n">line</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">zpks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">zpk</span> <span class="o">=</span> <span class="n">concatenate_zpks</span><span class="p">(</span><span class="o">*</span><span class="n">zpks</span><span class="p">)</span>
+            <span class="n">strain</span> <span class="o">=</span> <span class="n">timeseries</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">zpk</span><span class="p">,</span> <span class="n">filtfilt</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">strain</span> <span class="o">=</span> <span class="n">timeseries</span>
+
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">t0</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">time_array</span> <span class="o">-</span> <span class="n">t0</span>
+            <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;GPS time [s] - </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">time_array</span>
+            <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;GPS time [s]&#39;</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">strain</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">xlabel</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Strain&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">start_end</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">*</span><span class="n">start_end</span><span class="p">)</span>
+
+        <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
+                <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">_time_domain_data.png&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
+                <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">_time_domain_data.png&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">label</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_filename_from_outdir_label_extension</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="s2">&quot;h5&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="n">label</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;.</span><span class="si">{</span><span class="n">extension</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">_save_ifo_docstring</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot; Save the object to a </span><span class="si">{format}</span><span class="s2"> file</span>
+
+<span class="s2">    </span><span class="si">{extra}</span>
+
+<span class="s2">    Attributes</span>
+<span class="s2">    ==========</span>
+<span class="s2">    outdir: str, optional</span>
+<span class="s2">        Output directory name of the file, defaults to &#39;outdir&#39;.</span>
+<span class="s2">    label: str, optional</span>
+<span class="s2">        Output file name, is self.name if not given otherwise.</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+
+    <span class="n">_load_docstring</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot; Loads in an Interferometer object from a </span><span class="si">{format}</span><span class="s2"> file</span>
+
+<span class="s2">    Parameters</span>
+<span class="s2">    ==========</span>
+<span class="s2">    filename: str</span>
+<span class="s2">        If given, try to load from this filename</span>
+
+<span class="s2">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Interferometer.to_pickle"><a class="viewcode-back" href="../../../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.to_pickle">[docs]</a>    <span class="nd">@docstring</span><span class="p">(</span><span class="n">_save_ifo_docstring</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;pickle&quot;</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="s2">&quot;.. versionadded:: 1.1.0&quot;</span>
+    <span class="p">))</span>
+    <span class="k">def</span> <span class="nf">to_pickle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdir</span><span class="o">=</span><span class="s2">&quot;outdir&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">check_directory_exists_and_if_not_mkdir</span><span class="p">(</span><span class="s1">&#39;outdir&#39;</span><span class="p">)</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filename_from_outdir_label_extension</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="s2">&quot;pkl&quot;</span><span class="p">)</span>
+        <span class="n">safe_file_dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;dill&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interferometer.from_pickle"><a class="viewcode-back" href="../../../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.from_pickle">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="nd">@docstring</span><span class="p">(</span><span class="n">_load_docstring</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;pickle&quot;</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">from_pickle</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">dill</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ff</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">dill</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">ff</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">!=</span> <span class="bp">cls</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;The loaded object is not an Interferometer&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

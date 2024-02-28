@@ -1,0 +1,6 @@
+pygwb.util.calc\_rho
+====================
+
+.. currentmodule:: pygwb.util
+
+.. autofunction:: calc_rho

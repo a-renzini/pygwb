@@ -1,0 +1,172 @@
+pygwb.omega\_spectra.OmegaSpectrogram
+=====================================
+
+.. currentmodule:: pygwb.omega_spectra
+
+.. autoclass:: OmegaSpectrogram
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+   .. automethod:: __call__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~OmegaSpectrogram.__init__
+      ~OmegaSpectrogram.abs
+      ~OmegaSpectrogram.all
+      ~OmegaSpectrogram.any
+      ~OmegaSpectrogram.append
+      ~OmegaSpectrogram.argmax
+      ~OmegaSpectrogram.argmin
+      ~OmegaSpectrogram.argpartition
+      ~OmegaSpectrogram.argsort
+      ~OmegaSpectrogram.astype
+      ~OmegaSpectrogram.byteswap
+      ~OmegaSpectrogram.choose
+      ~OmegaSpectrogram.clip
+      ~OmegaSpectrogram.compress
+      ~OmegaSpectrogram.conj
+      ~OmegaSpectrogram.conjugate
+      ~OmegaSpectrogram.copy
+      ~OmegaSpectrogram.crop
+      ~OmegaSpectrogram.crop_frequencies
+      ~OmegaSpectrogram.cumprod
+      ~OmegaSpectrogram.cumsum
+      ~OmegaSpectrogram.decompose
+      ~OmegaSpectrogram.diagonal
+      ~OmegaSpectrogram.diff
+      ~OmegaSpectrogram.dot
+      ~OmegaSpectrogram.dump
+      ~OmegaSpectrogram.dumps
+      ~OmegaSpectrogram.ediff1d
+      ~OmegaSpectrogram.fill
+      ~OmegaSpectrogram.filter
+      ~OmegaSpectrogram.flatten
+      ~OmegaSpectrogram.from_spectra
+      ~OmegaSpectrogram.getfield
+      ~OmegaSpectrogram.imshow
+      ~OmegaSpectrogram.inject
+      ~OmegaSpectrogram.insert
+      ~OmegaSpectrogram.is_compatible
+      ~OmegaSpectrogram.is_contiguous
+      ~OmegaSpectrogram.item
+      ~OmegaSpectrogram.itemset
+      ~OmegaSpectrogram.load_from_pickle
+      ~OmegaSpectrogram.max
+      ~OmegaSpectrogram.mean
+      ~OmegaSpectrogram.median
+      ~OmegaSpectrogram.min
+      ~OmegaSpectrogram.nansum
+      ~OmegaSpectrogram.newbyteorder
+      ~OmegaSpectrogram.nonzero
+      ~OmegaSpectrogram.override_unit
+      ~OmegaSpectrogram.pad
+      ~OmegaSpectrogram.partition
+      ~OmegaSpectrogram.pcolormesh
+      ~OmegaSpectrogram.percentile
+      ~OmegaSpectrogram.plot
+      ~OmegaSpectrogram.prepend
+      ~OmegaSpectrogram.prod
+      ~OmegaSpectrogram.ptp
+      ~OmegaSpectrogram.put
+      ~OmegaSpectrogram.ratio
+      ~OmegaSpectrogram.ravel
+      ~OmegaSpectrogram.read
+      ~OmegaSpectrogram.repeat
+      ~OmegaSpectrogram.reset_h0
+      ~OmegaSpectrogram.reshape
+      ~OmegaSpectrogram.resize
+      ~OmegaSpectrogram.reweight
+      ~OmegaSpectrogram.round
+      ~OmegaSpectrogram.save_to_pickle
+      ~OmegaSpectrogram.searchsorted
+      ~OmegaSpectrogram.setfield
+      ~OmegaSpectrogram.setflags
+      ~OmegaSpectrogram.shift
+      ~OmegaSpectrogram.sort
+      ~OmegaSpectrogram.squeeze
+      ~OmegaSpectrogram.std
+      ~OmegaSpectrogram.step
+      ~OmegaSpectrogram.sum
+      ~OmegaSpectrogram.swapaxes
+      ~OmegaSpectrogram.take
+      ~OmegaSpectrogram.to
+      ~OmegaSpectrogram.to_string
+      ~OmegaSpectrogram.to_value
+      ~OmegaSpectrogram.tobytes
+      ~OmegaSpectrogram.tofile
+      ~OmegaSpectrogram.tolist
+      ~OmegaSpectrogram.tostring
+      ~OmegaSpectrogram.trace
+      ~OmegaSpectrogram.transpose
+      ~OmegaSpectrogram.update
+      ~OmegaSpectrogram.value_at
+      ~OmegaSpectrogram.var
+      ~OmegaSpectrogram.variance
+      ~OmegaSpectrogram.view
+      ~OmegaSpectrogram.write
+      ~OmegaSpectrogram.zip
+      ~OmegaSpectrogram.zpk
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~OmegaSpectrogram.T
+      ~OmegaSpectrogram.alpha
+      ~OmegaSpectrogram.band
+      ~OmegaSpectrogram.base
+      ~OmegaSpectrogram.cgs
+      ~OmegaSpectrogram.channel
+      ~OmegaSpectrogram.ctypes
+      ~OmegaSpectrogram.data
+      ~OmegaSpectrogram.df
+      ~OmegaSpectrogram.dt
+      ~OmegaSpectrogram.dtype
+      ~OmegaSpectrogram.dx
+      ~OmegaSpectrogram.dy
+      ~OmegaSpectrogram.epoch
+      ~OmegaSpectrogram.equivalencies
+      ~OmegaSpectrogram.f0
+      ~OmegaSpectrogram.flags
+      ~OmegaSpectrogram.flat
+      ~OmegaSpectrogram.fref
+      ~OmegaSpectrogram.frequencies
+      ~OmegaSpectrogram.h0
+      ~OmegaSpectrogram.imag
+      ~OmegaSpectrogram.info
+      ~OmegaSpectrogram.isscalar
+      ~OmegaSpectrogram.itemsize
+      ~OmegaSpectrogram.name
+      ~OmegaSpectrogram.nbytes
+      ~OmegaSpectrogram.ndim
+      ~OmegaSpectrogram.real
+      ~OmegaSpectrogram.shape
+      ~OmegaSpectrogram.si
+      ~OmegaSpectrogram.size
+      ~OmegaSpectrogram.span
+      ~OmegaSpectrogram.strides
+      ~OmegaSpectrogram.t0
+      ~OmegaSpectrogram.times
+      ~OmegaSpectrogram.unit
+      ~OmegaSpectrogram.value
+      ~OmegaSpectrogram.x0
+      ~OmegaSpectrogram.xindex
+      ~OmegaSpectrogram.xspan
+      ~OmegaSpectrogram.xunit
+      ~OmegaSpectrogram.y0
+      ~OmegaSpectrogram.yindex
+      ~OmegaSpectrogram.yspan
+      ~OmegaSpectrogram.yunit
+   
+   

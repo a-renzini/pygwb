@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pygwb.notch.StochNotch &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=a5c4661c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=0264ad83"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pygwb.notch.StochNotchList" href="pygwb.notch.StochNotchList.html" />
+    <link rel="prev" title="pygwb.notch.pulsar_injections" href="pygwb.notch.pulsar_injections.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demos.html">Demos</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pygwb.detector.html">pygwb.detector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.baseline.html">pygwb.baseline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.network.html">pygwb.network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.preprocessing.html">pygwb.preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.spectral.html">pygwb.spectral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.coherence.html">pygwb.coherence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.postprocessing.html">pygwb.postprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.omega_spectra.html">pygwb.omega_spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.pe.html">pygwb.pe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.statistical_checks.html">pygwb.statistical_checks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.simulator.html">pygwb.simulator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.delta_sigma_cut.html">pygwb.delta_sigma_cut</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pygwb.notch.html">pygwb.notch</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="pygwb.notch.comb.html">pygwb.notch.comb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.notch.power_lines.html">pygwb.notch.power_lines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.notch.pulsar_injections.html">pygwb.notch.pulsar_injections</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pygwb.notch.StochNotch</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pygwb.notch.StochNotch"><code class="docutils literal notranslate"><span class="pre">StochNotch</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.notch.StochNotchList.html">pygwb.notch.StochNotchList</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.constants.html">pygwb.constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.orfs.html">pygwb.orfs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.parameters.html">pygwb.parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.util.html">pygwb.util</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API</a></li>
+          <li class="breadcrumb-item"><a href="pygwb.notch.html">pygwb.notch</a></li>
+      <li class="breadcrumb-item active">pygwb.notch.StochNotch</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/pygwb.notch.StochNotch.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pygwb-notch-stochnotch">
+<h1>pygwb.notch.StochNotch<a class="headerlink" href="#pygwb-notch-stochnotch" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pygwb.notch.StochNotch">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pygwb.notch.</span></span><span class="sig-name descname"><span class="pre">StochNotch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">minimum_frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum_frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/notch.html#StochNotch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.notch.StochNotch" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Notch</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.notch.StochNotch.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">minimum_frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum_frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/notch.html#StochNotch.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.notch.StochNotch.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>A notch object storing the maximum and minimum frequency of the notch, as well as a description.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>minimum_frequency</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>) – The minimum frequency of the notch (in Hz).</p></li>
+<li><p><strong>maximum_frequency</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>) – The maximum frequency of the notch (in Hz).</p></li>
+<li><p><strong>description</strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>) – A description of the origin/reason of the notch.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">bilby.gw.detector.strain_data.Notch</span></code></dt><dd><p>More information <a class="reference external" href="https://lscsoft.docs.ligo.org/bilby/api/bilby.gw.detector.strain_data.Notch.html">here</a>.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.notch.StochNotch.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pygwb.notch.StochNotch.__call__" title="Permalink to this definition"></a></dt>
+<dd><p>Call self as a function.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.notch.StochNotch.__init__" title="pygwb.notch.StochNotch.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(minimum_frequency, ...)</p></td>
+<td><p>A notch object storing the maximum and minimum frequency of the notch, as well as a description.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.notch.StochNotch.check_frequency" title="pygwb.notch.StochNotch.check_frequency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_frequency</span></code></a>(freq)</p></td>
+<td><p>Check if freq is inside the notch</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.notch.StochNotch.get_idxs" title="pygwb.notch.StochNotch.get_idxs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_idxs</span></code></a>(frequency_array)</p></td>
+<td><p>Get a boolean mask for the frequencies in frequency_array in the notch</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.notch.StochNotch.get_notch_mask" title="pygwb.notch.StochNotch.get_notch_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_notch_mask</span></code></a>(frequency_array)</p></td>
+<td><p>Get a boolean mask for the frequencies in frequency_array in the notch.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.notch.StochNotch.print_notch" title="pygwb.notch.StochNotch.print_notch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_notch</span></code></a>()</p></td>
+<td><p>Small function that prints out the defining contents of the notch.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.notch.StochNotch.check_frequency">
+<span class="sig-name descname"><span class="pre">check_frequency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freq</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pygwb.notch.StochNotch.check_frequency" title="Permalink to this definition"></a></dt>
+<dd><p>Check if freq is inside the notch</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>freq: float</strong></dt><dd><p>The frequency to check</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>True/False:</dt><dd><p>If freq inside the notch, return True, else False</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.notch.StochNotch.get_idxs">
+<span class="sig-name descname"><span class="pre">get_idxs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency_array</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pygwb.notch.StochNotch.get_idxs" title="Permalink to this definition"></a></dt>
+<dd><p>Get a boolean mask for the frequencies in frequency_array in the notch</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frequency_array: np.ndarray</strong></dt><dd><p>An array of frequencies</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>idxs: np.ndarray</dt><dd><p>An array of booleans which are True for frequencies in the notch</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.notch.StochNotch.get_notch_mask">
+<span class="sig-name descname"><span class="pre">get_notch_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency_array</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/notch.html#StochNotch.get_notch_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.notch.StochNotch.get_notch_mask" title="Permalink to this definition"></a></dt>
+<dd><p>Get a boolean mask for the frequencies in frequency_array in the notch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>frequency_array</strong> (<code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code>) – An array of frequencies (in Hz).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>notch_mask: <code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code></dt><dd><p>An array of booleans that are False for frequencies in the notch.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This notches any frequency that may have overlapping frequency content with the notch.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.notch.StochNotch.print_notch">
+<span class="sig-name descname"><span class="pre">print_notch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/notch.html#StochNotch.print_notch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.notch.StochNotch.print_notch" title="Permalink to this definition"></a></dt>
+<dd><p>Small function that prints out the defining contents of the notch.
+It will display the minimum and maximum frequency and the description of the notch.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pygwb.notch.pulsar_injections.html" class="btn btn-neutral float-left" title="pygwb.notch.pulsar_injections" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pygwb.notch.StochNotchList.html" class="btn btn-neutral float-right" title="pygwb.notch.StochNotchList" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

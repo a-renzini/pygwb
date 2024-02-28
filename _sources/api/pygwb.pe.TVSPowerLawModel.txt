@@ -1,0 +1,39 @@
+pygwb.pe.TVSPowerLawModel
+=========================
+
+.. currentmodule:: pygwb.pe
+
+.. autoclass:: TVSPowerLawModel
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+   .. automethod:: __call__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TVSPowerLawModel.__init__
+      ~TVSPowerLawModel.log_likelihood
+      ~TVSPowerLawModel.log_likelihood_IJ
+      ~TVSPowerLawModel.log_likelihood_ratio
+      ~TVSPowerLawModel.model_function
+      ~TVSPowerLawModel.noise_log_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TVSPowerLawModel.marginalized_parameters
+      ~TVSPowerLawModel.meta_data
+      ~TVSPowerLawModel.parameters
+   
+   

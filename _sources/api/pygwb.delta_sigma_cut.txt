@@ -1,0 +1,33 @@
+﻿pygwb.delta\_sigma\_cut
+=======================
+
+.. currentmodule:: pygwb.delta_sigma_cut
+
+.. automodule:: pygwb.delta_sigma_cut
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      dsc_cut
+      run_dsc
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,6 @@
+pygwb.preprocessing.apply\_high\_pass\_filter
+=============================================
+
+.. currentmodule:: pygwb.preprocessing
+
+.. autofunction:: apply_high_pass_filter

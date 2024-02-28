@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pygwb.orfs.Tplus &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=a5c4661c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=0264ad83"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pygwb.orfs.Vminus" href="pygwb.orfs.Vminus.html" />
+    <link rel="prev" title="pygwb.orfs.Tminus" href="pygwb.orfs.Tminus.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demos.html">Demos</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pygwb.detector.html">pygwb.detector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.baseline.html">pygwb.baseline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.network.html">pygwb.network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.preprocessing.html">pygwb.preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.spectral.html">pygwb.spectral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.coherence.html">pygwb.coherence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.postprocessing.html">pygwb.postprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.omega_spectra.html">pygwb.omega_spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.pe.html">pygwb.pe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.statistical_checks.html">pygwb.statistical_checks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.simulator.html">pygwb.simulator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.delta_sigma_cut.html">pygwb.delta_sigma_cut</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.notch.html">pygwb.notch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.constants.html">pygwb.constants</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pygwb.orfs.html">pygwb.orfs</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="pygwb.orfs.Sminus.html">pygwb.orfs.Sminus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.orfs.Splus.html">pygwb.orfs.Splus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.orfs.T_right_left.html">pygwb.orfs.T_right_left</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.orfs.Tminus.html">pygwb.orfs.Tminus</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pygwb.orfs.Tplus</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pygwb.orfs.Tplus"><code class="docutils literal notranslate"><span class="pre">Tplus()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.orfs.Vminus.html">pygwb.orfs.Vminus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.orfs.Vplus.html">pygwb.orfs.Vplus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.orfs.calc_orf.html">pygwb.orfs.calc_orf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.orfs.omega_tangent_bisector.html">pygwb.orfs.omega_tangent_bisector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.orfs.tangent_vector.html">pygwb.orfs.tangent_vector</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.parameters.html">pygwb.parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.util.html">pygwb.util</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API</a></li>
+          <li class="breadcrumb-item"><a href="pygwb.orfs.html">pygwb.orfs</a></li>
+      <li class="breadcrumb-item active">pygwb.orfs.Tplus</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/pygwb.orfs.Tplus.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pygwb-orfs-tplus">
+<h1>pygwb.orfs.Tplus<a class="headerlink" href="#pygwb-orfs-tplus" title="Permalink to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="pygwb.orfs.Tplus">
+<span class="sig-prename descclassname"><span class="pre">pygwb.orfs.</span></span><span class="sig-name descname"><span class="pre">Tplus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/orfs.html#Tplus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.orfs.Tplus" title="Permalink to this definition"></a></dt>
+<dd><p>Function used in the computation of the tensor ORF, as given by
+Eq. (34) of <a class="reference external" href="https://arxiv.org/pdf/0903.0528.pdf">https://arxiv.org/pdf/0903.0528.pdf</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>alpha</strong> (<code class="docutils literal notranslate"><span class="pre">array_like</span></code>) – Given below Eq. (32) of <a class="reference external" href="https://arxiv.org/pdf/0903.0528.pdf">https://arxiv.org/pdf/0903.0528.pdf</a>.
+Has same shape as frequencies used to compute the ORF.</p></li>
+<li><p><strong>beta</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>) – Angle between detectors from center of the Earth.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>Tplus: <code class="docutils literal notranslate"><span class="pre">array_like</span></code></dt><dd><p>Tplus parameter, as defined in Eq. (34) of <a class="reference external" href="https://arxiv.org/pdf/0903.0528.pdf">https://arxiv.org/pdf/0903.0528.pdf</a>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">scipy.special.spherical_jn</span></code></dt><dd><p>More information <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.spherical_jn.html">here</a>.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pygwb.orfs.Tminus.html" class="btn btn-neutral float-left" title="pygwb.orfs.Tminus" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pygwb.orfs.Vminus.html" class="btn btn-neutral float-right" title="pygwb.orfs.Vminus" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

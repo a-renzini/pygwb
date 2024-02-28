@@ -1,0 +1,6 @@
+pygwb.util.parse\_window\_dict
+==============================
+
+.. currentmodule:: pygwb.util
+
+.. autofunction:: parse_window_dict

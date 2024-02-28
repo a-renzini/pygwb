@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Running multiple pygwb_pipe jobs &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/tabs.css?v=a5c4661c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=0264ad83"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Running statistical checks with pygwb_stats" href="stat_checks.html" />
+    <link rel="prev" title="Using pygwb_pipe: a quickstart manual" href="pipeline.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pipeline.html">Using <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code>: a quickstart manual</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Running multiple <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> jobs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-pygwb-dag-script"><strong>The pygwb_dag script</strong></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#script-parameteres"><strong>1. Script parameteres</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#running-the-script"><strong>2. Running the script</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#output-of-the-script"><strong>3. Output of the script</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#combining-runs-with-pygwb-combine"><strong>Combining runs with pygwb_combine</strong></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id6"><strong>1. Script parameteres</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id7"><strong>2. Running the script</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id8"><strong>3. Output of the script</strong></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stat_checks.html">Running statistical checks with <code class="docutils literal notranslate"><span class="pre">pygwb_stats</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="workflow.html">The <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pe.html">Parameter estimation using <code class="docutils literal notranslate"><span class="pre">pygwb_pe</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulator.html">Simulating data with <code class="docutils literal notranslate"><span class="pre">pygwb.simulator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="demos.html">Demos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tutorials.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">Running multiple <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> jobs</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/multiple_jobs.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="running-multiple-pygwb-pipe-jobs">
+<h1>Running multiple <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> jobs<a class="headerlink" href="#running-multiple-pygwb-pipe-jobs" title="Permalink to this heading"></a></h1>
+<p>In practice, one will probably want to run <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> on long stretches of data. This is achieved most easily by splitting
+the large data set in smaller chunks of data. These can then be analyzed individually, and combined after the analysis to form
+one overall result for the whole data set. To this end, <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> comes with two scripts: <code class="docutils literal notranslate"><span class="pre">pygwb_dag</span></code> and <code class="docutils literal notranslate"><span class="pre">pygwb_combine</span></code>.
+The former allows the user to run <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> (for which a tutorial can be found <a class="reference external" href="pipeline.html">here</a>) simultaneously on shorter stretches of data,
+whereas the latter allows to combine the output of the individual runs into an overall result for the whole data set.</p>
+<section id="the-pygwb-dag-script">
+<h2><strong>The pygwb_dag script</strong><a class="headerlink" href="#the-pygwb-dag-script" title="Permalink to this heading"></a></h2>
+<section id="script-parameteres">
+<h3><strong>1. Script parameteres</strong><a class="headerlink" href="#script-parameteres" title="Permalink to this heading"></a></h3>
+<p>To be able to run multiple <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> jobs simultaneously, <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> relies on <a class="reference external" href="https://htcondor.readthedocs.io/en/latest/">Condor</a>.
+This requires a <code class="docutils literal notranslate"><span class="pre">dag</span></code> file, which contains information about all the jobs, i.e., running <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> on different stretches of data.
+In <code class="docutils literal notranslate"><span class="pre">pygwb</span></code>, this file can be created by using the <code class="docutils literal notranslate"><span class="pre">pygwb_dag</span></code> script. To visualize the expected arguments of the script, one can call:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pygwb_dag<span class="w"> </span>--help
+</pre></div>
+</div>
+<p>This will display the required parameters, together with a small description:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>--subfile<span class="w"> </span>SUBFILE<span class="w">     </span>Submission<span class="w"> </span>file.
+--jobfile<span class="w"> </span>JOBFILE<span class="w">     </span>Job<span class="w"> </span>file<span class="w"> </span>with<span class="w"> </span>start<span class="w"> </span>and<span class="w"> </span>end<span class="w"> </span><span class="nb">times</span><span class="w"> </span>and<span class="w"> </span>duration<span class="w"> </span><span class="k">for</span><span class="w"> </span>each<span class="w"> </span>job.
+--flag<span class="w"> </span>FLAG<span class="w">           </span>Flag<span class="w"> </span>that<span class="w"> </span>is<span class="w"> </span>searched<span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">in</span><span class="w"> </span>the<span class="w"> </span>DQSegDB.
+--t0<span class="w"> </span>T0<span class="w">               </span>Begin<span class="w"> </span><span class="nb">time</span><span class="w"> </span>of<span class="w"> </span>analysed<span class="w"> </span>data,<span class="w"> </span>will<span class="w"> </span>query<span class="w"> </span>the<span class="w"> </span>DQSegDB.<span class="w"> </span>If<span class="w"> </span>used<span class="w"> </span>with<span class="w"> </span>jobfile,<span class="w"> </span>it<span class="w"> </span>is<span class="w"> </span>an<span class="w"> </span>optional<span class="w"> </span>argument<span class="w"> </span><span class="k">if</span><span class="w"> </span>one<span class="w"> </span>does<span class="w"> </span>not<span class="w"> </span>wish<span class="w"> </span>to<span class="w"> </span>analyse<span class="w"> </span>the<span class="w"> </span>whole<span class="w"> </span>job
+<span class="w">                      </span>file
+--tf<span class="w"> </span>TF<span class="w">               </span>End<span class="w"> </span><span class="nb">time</span><span class="w"> </span>of<span class="w"> </span>analysed<span class="w"> </span>data,<span class="w"> </span>will<span class="w"> </span>query<span class="w"> </span>the<span class="w"> </span>DQSegDB.<span class="w"> </span>If<span class="w"> </span>used<span class="w"> </span>with<span class="w"> </span>jobfile,<span class="w"> </span>it<span class="w"> </span>is<span class="w"> </span>an<span class="w"> </span>optional<span class="w"> </span>argument<span class="w"> </span><span class="k">if</span><span class="w"> </span>one<span class="w"> </span>does<span class="w"> </span>not<span class="w"> </span>wish<span class="w"> </span>to<span class="w"> </span>analyse<span class="w"> </span>the<span class="w"> </span>whole<span class="w"> </span>job
+<span class="w">                      </span>file
+--parentdir<span class="w"> </span>PARENTDIR
+<span class="w">                      </span>Starting<span class="w"> </span>folder.
+--param_file<span class="w"> </span>PARAM_FILE
+<span class="w">                      </span>Path<span class="w"> </span>to<span class="w"> </span>parameters.ini<span class="w"> </span>file.
+--dag_name<span class="w"> </span>DAG_NAME<span class="w">   </span>Dag<span class="w"> </span>file<span class="w"> </span>name.
+--apply_dsc<span class="w"> </span>APPLY_DSC
+<span class="w">                      </span>Apply<span class="w"> </span>delta-sigma<span class="w"> </span>cut<span class="w"> </span>flag<span class="w"> </span><span class="k">for</span><span class="w"> </span>pygwb_pipe.
+--pickle_out<span class="w"> </span>PICKLE_OUT
+<span class="w">                      </span>Pickle<span class="w"> </span>output<span class="w"> </span>Baseline<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>analysis.
+--wipe_ifo<span class="w"> </span>WIPE_IFO<span class="w">   </span>Wipe<span class="w"> </span>interferometer<span class="w"> </span>data<span class="w"> </span>to<span class="w"> </span>reduce<span class="w"> </span>size<span class="w"> </span>of<span class="w"> </span>pickled<span class="w"> </span>Baseline.
+--calc_pt_est<span class="w"> </span>CALC_PT_EST
+<span class="w">                      </span>Calculate<span class="w"> </span>omega<span class="w"> </span>point<span class="w"> </span>estimate<span class="w"> </span>and<span class="w"> </span>sigma<span class="w"> </span>from<span class="w"> </span>data.
+</pre></div>
+</div>
+<p>An important argument of the script, is the path to the job file, passed through <code class="docutils literal notranslate"><span class="pre">--jobfile</span></code>. The job file is a simple <code class="docutils literal notranslate"><span class="pre">.txt</span></code> file and contains the different jobs, or in other words,
+the different stretches of data to run the analysis on. For concretenes, consider the case where one would want to run <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> on 12000 seconds of data, but split into smaller jobs.
+The job file could then look as follows:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="m">1</span><span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="m">4000</span><span class="w">  </span><span class="m">4000</span>
+<span class="m">1</span><span class="w"> </span><span class="m">4000</span><span class="w">  </span><span class="m">9000</span><span class="w">  </span><span class="m">5000</span>
+<span class="m">1</span><span class="w"> </span><span class="m">9000</span><span class="w"> </span><span class="m">12000</span><span class="w"> </span><span class="m">3000</span>
+</pre></div>
+</div>
+<p>The first column does not play a role, the second and third colum indicate the start and end time of the job, respectively, whereas the last column shows the duration of the job, i.e., the
+difference between end and start time. The job file therefore allows the script to <em>know</em> on which stretches of data to run. In case one wants to run on a subset of the jobs in the
+job file, one can pass an additional start and end time to the script through the <code class="docutils literal notranslate"><span class="pre">--t0</span></code> and <code class="docutils literal notranslate"><span class="pre">--tf</span></code> arguments.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--parentdir</span></code> allows to pass the full path to the run directory, and the <code class="docutils literal notranslate"><span class="pre">--param_file</span></code> should point to the parameter file to be used by <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>For more information about <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> and the usage of a parameter file, we refer the user to the tutorial <a class="reference external" href="pipeline.html">here</a>.</p>
+</div>
+<p>For the remainder of the arguments, we refer the user to the <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> <a class="reference external" href="pipeline.html">tutorial</a>, as the <code class="docutils literal notranslate"><span class="pre">dag</span></code> file passes the relevant arguments to <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> behind the screens,
+e.g., the parameter file and the <code class="docutils literal notranslate"><span class="pre">apply_dsc</span></code> flag.</p>
+<p>Note that an additional argument should be passed to the script, namely the submission file. This file passes necessary information to Condor, and the cluster/server on which the user is
+running the <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> jobs.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The Condor submission file, passed through <code class="docutils literal notranslate"><span class="pre">--subfile</span></code>, is not included in the <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> package. Its specific implementation will depend on the server or cluster where the user runs the analysis.
+More information about Condor, together with inspiration for the submission file can be found <a class="reference external" href="https://htcondor.readthedocs.io/en/latest/users-manual/quick-start-guide.html">here</a>.</p>
+</div>
+</section>
+<section id="running-the-script">
+<h3><strong>2. Running the script</strong><a class="headerlink" href="#running-the-script" title="Permalink to this heading"></a></h3>
+<p>The arguments described above can be passed to the script through the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pygwb_dag<span class="w"> </span><span class="o">{</span>your-dag-file.dag<span class="o">}</span><span class="w"> </span>--subfile<span class="w"> </span><span class="o">{</span>full_path_to_subfile<span class="o">}</span><span class="w"> </span>--jobfile<span class="w"> </span><span class="o">{</span>full_path_to_jobfile<span class="o">}</span><span class="w"> </span>--parent_dir<span class="w"> </span><span class="o">{</span>full_path_to_parent_dir<span class="o">}</span><span class="w"> </span>--param_file<span class="w"> </span><span class="o">{</span>full_path_to_param_file<span class="o">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If the <code class="docutils literal notranslate"><span class="pre">dag</span></code> name was not specified when calling <code class="docutils literal notranslate"><span class="pre">pygwb_dag</span></code> in the previous step, the default name <code class="docutils literal notranslate"><span class="pre">dag_name.dag</span></code> is used.</p>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">dag</span></code> file is now created in the <code class="docutils literal notranslate"><span class="pre">{full_path_to_parent_dir}/output</span></code> folder. To submit the job to condor and actually run all the jobs,
+navigate to that folder and run the following line in the command line:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>condor_submit_dag<span class="w"> </span><span class="o">{</span>your-dag-file.dag<span class="o">}</span>
+</pre></div>
+</div>
+<p>To check the status of the jobs, one can execute the command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>condor_q
+</pre></div>
+</div>
+<p>For additional information on Condor jobs, we refer the user to the Condor <a class="reference external" href="https://htcondor.readthedocs.io/en/latest/">documentation</a>.</p>
+</section>
+<section id="output-of-the-script">
+<h3><strong>3. Output of the script</strong><a class="headerlink" href="#output-of-the-script" title="Permalink to this heading"></a></h3>
+<p>Once all the jobs submitted through Condor and the <code class="docutils literal notranslate"><span class="pre">dag</span></code> file finish running, the output folder should contain similar files as the ones already discussed in the <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code>
+tutorial <a class="reference external" href="pipeline.html#output-of-the-script.html">here</a>. However, there will be many more files compared to a single run, as <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> was run for all the jobs, and therefore produced the output for each of the jobs.
+We refrain from repeating the information about the output of <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> and refer to the previous <a class="reference external" href="pipeline.html#output-of-the-script.html">tutorial</a> for more information about the output.</p>
+</section>
+</section>
+<section id="combining-runs-with-pygwb-combine">
+<h2><strong>Combining runs with pygwb_combine</strong><a class="headerlink" href="#combining-runs-with-pygwb-combine" title="Permalink to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">pygwb_dag</span></code> script described above runs multiple <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> jobs on stretches of data. For each of these runs,
+the usual <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> output is produced (see <a class="reference external" href="pipeline.html#output-of-the-script">here</a> for more information on the output of the <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> script).
+However, the user is usually interested in an overall result for the whole data set. This is where <code class="docutils literal notranslate"><span class="pre">pygwb_combine</span></code> comes in, by allowing
+the user to combine their separate results into an overall result. For example, all separate point estimate and variance spectra will be
+combined into one overall spectrum for the whole data set. More information on this procedure can be found in the <a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a>.</p>
+<section id="id6">
+<h3><strong>1. Script parameteres</strong><a class="headerlink" href="#id6" title="Permalink to this heading"></a></h3>
+<p>The required arguments of the <code class="docutils literal notranslate"><span class="pre">pygwb_combine</span></code> script can be displayed through:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pygwb_combine<span class="w"> </span>-h
+</pre></div>
+</div>
+<p>This shows the following arguments with a short description:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>--data_path<span class="w"> </span>DATA_PATH<span class="w"> </span><span class="o">[</span>DATA_PATH<span class="w"> </span>...<span class="o">]</span>
+<span class="w">                      </span>Path<span class="w"> </span>to<span class="w"> </span>data<span class="w"> </span>files<span class="w"> </span>or<span class="w"> </span>folder.
+--alpha<span class="w"> </span>ALPHA<span class="w">         </span>Spectral<span class="w"> </span>index<span class="w"> </span>alpha<span class="w"> </span>to<span class="w"> </span>use<span class="w"> </span><span class="k">for</span><span class="w"> </span>spectral<span class="w"> </span>re-weighting.
+--fref<span class="w"> </span>FREF<span class="w">           </span>Reference<span class="w"> </span>frequency<span class="w"> </span>to<span class="w"> </span>use<span class="w"> </span>when<span class="w"> </span>presenting<span class="w"> </span>results.
+--param_file<span class="w"> </span>PARAM_FILE
+<span class="w">                      </span>Parameter<span class="w"> </span>file
+--h0<span class="w"> </span>H0<span class="w">               </span>Value<span class="w"> </span>of<span class="w"> </span>h0<span class="w"> </span>to<span class="w"> </span>use.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span>pygwb.constants.h0.
+--combine_coherence<span class="w"> </span>COMBINE_COHERENCE
+<span class="w">                      </span>Calculate<span class="w"> </span>combined<span class="w"> </span>coherence<span class="w"> </span>over<span class="w"> </span>all<span class="w"> </span>available<span class="w"> </span>data.
+--coherence_path<span class="w"> </span>COHERENCE_PATH<span class="w"> </span><span class="o">[</span>COHERENCE_PATH<span class="w"> </span>...<span class="o">]</span>
+<span class="w">                      </span>Path<span class="w"> </span>to<span class="w"> </span>coherence<span class="w"> </span>data<span class="w"> </span>files,<span class="w"> </span><span class="k">if</span><span class="w"> </span>individual<span class="w"> </span>files<span class="w"> </span>are
+<span class="w">                      </span>passed.
+--out_path<span class="w"> </span>OUT_PATH<span class="w">   </span>Output<span class="w"> </span>path.
+--file_tag<span class="w"> </span>FILE_TAG<span class="w">   </span>File<span class="w"> </span>naming<span class="w"> </span>tag.<span class="w"> </span>By<span class="w"> </span>default,<span class="w"> </span>reads<span class="w"> </span><span class="k">in</span><span class="w"> </span>first<span class="w"> </span>and<span class="w"> </span>last
+<span class="w">                      </span><span class="nb">time</span><span class="w"> </span><span class="k">in</span><span class="w"> </span>dataset.
+</pre></div>
+</div>
+</section>
+<section id="id7">
+<h3><strong>2. Running the script</strong><a class="headerlink" href="#id7" title="Permalink to this heading"></a></h3>
+<p>To run the script, one executes the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pygwb_combine<span class="w"> </span>--data_path<span class="w"> </span><span class="o">{</span>my_pygwb_output_folder<span class="o">}</span><span class="w"> </span>--alpha<span class="w"> </span><span class="o">{</span>my_spectral_index<span class="o">}</span><span class="w"> </span>--fref<span class="w"> </span><span class="o">{</span>my_fref<span class="o">}</span><span class="w"> </span>--param_file<span class="w"> </span><span class="o">{</span>my_parameter_file_path<span class="o">}</span><span class="w"> </span>--out_path<span class="w"> </span><span class="o">{</span>my_combine_folder<span class="o">}</span>
+</pre></div>
+</div>
+<p>Note that not all arguments listed above are required to be able to run the script.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--combine_coherence</span></code> functionality is not supported when combining runs as a result of the <code class="docutils literal notranslate"><span class="pre">pygwb_dag</span></code> script.</p>
+</div>
+</section>
+<section id="id8">
+<h3><strong>3. Output of the script</strong><a class="headerlink" href="#id8" title="Permalink to this heading"></a></h3>
+<p>As mentioned above, the output of the <code class="docutils literal notranslate"><span class="pre">pygwb_combine</span></code> script is one overall point estimate and variance (spectrum). The directory
+passed through the <code class="docutils literal notranslate"><span class="pre">--out_path</span></code>
+argument should contain a file that looks as follows:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>point_estimate_sigma_spectra_alpha_0.0_fref_25_t0-tf.npz
+</pre></div>
+</div>
+<p>This file contains the combined spectra, where the notation indicates it was run with a spectral index of 0,
+reference frequency of 25 Hz, and t0 and tf would be actual numbers corresponding to the start and end time of the analysis, respectively.</p>
+<p>The keys of this <code class="docutils literal notranslate"><span class="pre">npz</span></code> file are:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">[</span><span class="s1">&#39;point_estimate&#39;</span>,<span class="w"> </span><span class="s1">&#39;sigma&#39;</span>,<span class="w"> </span><span class="s1">&#39;point_estimate_spectrum&#39;</span>,<span class="w"> </span><span class="s1">&#39;sigma_spectrum&#39;</span>,
+<span class="s1">&#39;frequencies&#39;</span>,<span class="w"> </span><span class="s1">&#39;frequency_mask&#39;</span>,<span class="w"> </span><span class="s1">&#39;point_estimates_seg_UW&#39;</span>,<span class="w"> </span><span class="s1">&#39;sigmas_seg_UW&#39;</span><span class="o">]</span>
+</pre></div>
+</div>
+<p>The value associated with the key can be accessed from the <code class="docutils literal notranslate"><span class="pre">npz</span></code> file through:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">npzfile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>numpy.load<span class="o">(</span><span class="s2">&quot;point_estimate_sigma_spectra_alpha_0.0_fref_25_t0-tf.npz&quot;</span><span class="o">)</span>
+<span class="nv">variable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>npzfile<span class="o">[</span><span class="s2">&quot;key&quot;</span><span class="o">]</span>
+</pre></div>
+</div>
+<p>One obtains the value for the overall point estimate and its standard deviation through the <code class="docutils literal notranslate"><span class="pre">point_estimate</span></code> and <code class="docutils literal notranslate"><span class="pre">sigma</span></code> keys, respectively.
+The corresponding spectra are found by using the <code class="docutils literal notranslate"><span class="pre">point_estimate_spectrum</span></code> and <code class="docutils literal notranslate"><span class="pre">sigma_spectrum</span></code> keys. The frequencies for these spectra can be retrieved
+through the <code class="docutils literal notranslate"><span class="pre">frequencies</span></code> key. The <code class="docutils literal notranslate"><span class="pre">frequency_mask</span></code> key returns the notched frequencies. For more information about notching, check the demo
+<a class="reference external" href="make_notchlist.html">here</a> or the API of the notch module <a class="reference external" href="api/pygwb.notch.html">here</a>.
+Lastly, one can also access the unweighted, i.e., without reweighting of the spectral index, point estimates
+and their standard deviations for every segment in the analysis. These are labeled with <code class="docutils literal notranslate"><span class="pre">_UW</span></code> at the end of the keys.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Not sure about what is exactly in the <code class="docutils literal notranslate"><span class="pre">.npz</span></code> file? Load in the file and print out all its <cite>keys</cite> as shown
+<a class="reference external" href="https://stackoverflow.com/questions/49219436/how-to-show-all-the-element-names-in-a-npz-file-without-having-to-load-the-compl">here</a>.</p>
+</div>
+<p>If the <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> analyses were run with the delta sigma cut turned on, a file <code class="docutils literal notranslate"><span class="pre">delta_sigma_cut_t0-tf.npz</span></code> should be present in the output directory as well.
+This file contains the following keys:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">[</span><span class="s1">&#39;naive_sigma_values&#39;</span>,<span class="w"> </span><span class="s1">&#39;slide_sigma_values&#39;</span>,<span class="w"> </span><span class="s1">&#39;delta_sigma_values&#39;</span>,
+<span class="s1">&#39;badGPStimes&#39;</span>,<span class="w"> </span><span class="s1">&#39;delta_sigma_times&#39;</span>,<span class="w"> </span><span class="s1">&#39;ifo_1_gates&#39;</span>,<span class="w"> </span><span class="s1">&#39;ifo_2_gates&#39;</span>,
+<span class="s1">&#39;ifo_1_gate_pad&#39;</span>,<span class="w"> </span><span class="s1">&#39;ifo_2_gate_pad&#39;</span><span class="o">]</span>
+</pre></div>
+</div>
+<p>The times flagged by the delta sigma cut that are excluded from the analysis can be retrieved with the <code class="docutils literal notranslate"><span class="pre">'badGPStimes'</span></code> key. The alphas used for the
+delta sigma cut are stored in <code class="docutils literal notranslate"><span class="pre">'delta_sigma_alphas'</span></code> key, the times in <code class="docutils literal notranslate"><span class="pre">'delta_sigma_times'</span></code>,
+and the actual values of the delta sigmas in <code class="docutils literal notranslate"><span class="pre">'delta_sigma_values'</span></code>. The delta sigma cut computes both the naive and sliding
+sigma values, which are stored in the keys <code class="docutils literal notranslate"><span class="pre">'naive_sigma_values'</span></code> and <code class="docutils literal notranslate"><span class="pre">'slide_sigma_values'</span></code>.</p>
+<p>If gating is turned on, the gated times are saved in <code class="docutils literal notranslate"><span class="pre">'ifo_{i}_gates'</span></code> where <code class="docutils literal notranslate"><span class="pre">i</span></code> denotes the first and second onterferometer used for the analysis.
+The <code class="docutils literal notranslate"><span class="pre">'ifo_{i}_gate_pad'</span></code> refers to the value of the parameter <code class="docutils literal notranslate"><span class="pre">gate_tpad</span></code> during the analysis.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pipeline.html" class="btn btn-neutral float-left" title="Using pygwb_pipe: a quickstart manual" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="stat_checks.html" class="btn btn-neutral float-right" title="Running statistical checks with pygwb_stats" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

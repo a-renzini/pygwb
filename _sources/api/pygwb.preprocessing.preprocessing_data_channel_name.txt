@@ -1,0 +1,6 @@
+pygwb.preprocessing.preprocessing\_data\_channel\_name
+======================================================
+
+.. currentmodule:: pygwb.preprocessing
+
+.. autofunction:: preprocessing_data_channel_name

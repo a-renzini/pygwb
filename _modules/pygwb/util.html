@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pygwb.util &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=0264ad83"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+        <script src="../../_static/tabs.js?v=3030b3cb"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../../about.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../demos.html">Demos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pygwb.util</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pygwb.util</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The ``util`` module combines miscellaneous functions used in several parts of the ``pygwb`` package.</span>
+<span class="sd">These functions mainly perform small computations, necessary at multiple stages of the analysis.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+
+<span class="kn">import</span> <span class="nn">gwpy</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">interp1d</span>
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">get_window</span>
+
+<span class="kn">from</span> <span class="nn">pygwb.constants</span> <span class="kn">import</span> <span class="n">H0</span>
+
+
+<div class="viewcode-block" id="parse_window_dict"><a class="viewcode-back" href="../../api/pygwb.util.parse_window_dict.html#pygwb.util.parse_window_dict">[docs]</a><span class="k">def</span> <span class="nf">parse_window_dict</span><span class="p">(</span><span class="n">window_dict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse the window dictionary properly for scipy compatibility.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    window_dict: ``dictionary``</span>
+<span class="sd">        Dictionary containing the window characteristics.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">bools</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;sym&#39;</span><span class="p">,</span> <span class="s1">&#39;norm&#39;</span><span class="p">]</span>
+    <span class="n">floats</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="s1">&#39;tau&#39;</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">,</span> <span class="s1">&#39;beta&#39;</span><span class="p">,</span> <span class="s1">&#39;nbar&#39;</span><span class="p">,</span> <span class="s1">&#39;sll&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;sig&#39;</span><span class="p">,</span> <span class="s1">&#39;at&#39;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">window_dict</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">floats</span><span class="p">:</span>
+            <span class="n">window_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">window_dict</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">bools</span><span class="p">:</span>
+            <span class="n">window_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">window_dict</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">window_dict</span></div>
+
+<div class="viewcode-block" id="window_factors"><a class="viewcode-back" href="../../api/pygwb.util.window_factors.html#pygwb.util.window_factors">[docs]</a><span class="k">def</span> <span class="nf">window_factors</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">window_fftgram_dict</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;window_fftgram&quot;</span><span class="p">:</span> <span class="s2">&quot;hann&quot;</span><span class="p">},</span> <span class="n">overlap_factor</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate window factors. By default for a hann window with 50% overlap.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    N: ``int``</span>
+<span class="sd">        Length of the window.</span>
+<span class="sd">    window_fftgram_dict: ``dictionary``, optional</span>
+<span class="sd">        Dictionary with window characteristics. Default is ``window_fftgram_dict={&quot;window_fftgram&quot;: &quot;hann&quot;}``</span>
+<span class="sd">    overlap_factor: ``float``, optional</span>
+<span class="sd">        Defines the overlap between consecutive data chunks used in the calculation. Default is 0.5.        </span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    This functions returns the four window factors which correct the analysis for the effect of the window factor.</span>
+<span class="sd">    w1w2bar: ``float``</span>
+<span class="sd">    w1w2squaredbar: ``float``</span>
+<span class="sd">    w1w2ovlbar: ``float``</span>
+<span class="sd">    w1w2squaredovlbar: ``float``</span>
+
+<span class="sd">    See also</span>
+<span class="sd">    --------</span>
+<span class="sd">    scipy.signal.get_window</span>
+<span class="sd">        More information `here &lt;https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.get_window.html&gt;`_.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">window_tuple</span> <span class="o">=</span> <span class="n">get_window_tuple</span><span class="p">(</span><span class="n">window_fftgram_dict</span><span class="p">)</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">get_window</span><span class="p">(</span><span class="n">window_tuple</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">fftbins</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">w1w2bar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">w</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">w1w2squaredbar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">w</span> <span class="o">**</span> <span class="mi">4</span><span class="p">)</span>
+
+    <span class="n">S</span> <span class="o">=</span> <span class="n">N</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">overlap_factor</span><span class="o">*</span><span class="n">N</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">overlap_factor</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">or</span> <span class="n">overlap_factor</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">w1w2squaredovlbar</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">w1w2ovlbar</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">w1w2squaredovlbar</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">N</span><span class="o">*</span><span class="n">overlap_factor</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">N</span><span class="o">-</span><span class="n">S</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">w</span><span class="p">[</span><span class="n">S</span><span class="p">:</span><span class="n">N</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">w1w2ovlbar</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">N</span><span class="o">*</span><span class="n">overlap_factor</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">N</span><span class="o">-</span><span class="n">S</span><span class="p">]</span><span class="o">*</span><span class="n">w</span><span class="p">[</span><span class="n">S</span><span class="p">:</span><span class="n">N</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">w1w2bar</span><span class="p">,</span> <span class="n">w1w2squaredbar</span><span class="p">,</span> <span class="n">w1w2ovlbar</span><span class="p">,</span> <span class="n">w1w2squaredovlbar</span></div>
+
+<div class="viewcode-block" id="get_window_tuple"><a class="viewcode-back" href="../../api/pygwb.util.get_window_tuple.html#pygwb.util.get_window_tuple">[docs]</a><span class="k">def</span> <span class="nf">get_window_tuple</span><span class="p">(</span><span class="n">window_fftgram_dict</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;window_fftgram&quot;</span><span class="p">:</span> <span class="s2">&quot;hann&quot;</span><span class="p">}):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Unpack the ``window_fft_dict`` dictionary into a ``tuple`` that can be read by ``scipy.signal.get_window``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    window_fftgram_dict: ``dictionary``, optional</span>
+<span class="sd">        Dictionary with window characteristics. Default is ``window_fftgram_dict={&quot;window_fftgram&quot;: &quot;hann&quot;}``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    window_tuple: ``tuple``</span>
+<span class="sd">        A tuple containing the window_fft name as the first entry, followed by optional entries of the window_fft_dict.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    ``window_fftgram_dict`` is expected to have at least one item, ``window_fftgram``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">window_dict</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">window_fftgram_dict</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">window_dict</span><span class="p">[</span><span class="s2">&quot;window_fftgram&quot;</span><span class="p">]])</span>
+    <span class="n">window_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;window_fftgram&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">window_dict</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;sym&quot;</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">+=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">window_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]])</span>
+    <span class="k">if</span> <span class="s2">&quot;sym&quot;</span> <span class="ow">in</span> <span class="n">window_fftgram_dict</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">window_dict</span><span class="p">[</span><span class="s2">&quot;sym&quot;</span><span class="p">]])</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+<div class="viewcode-block" id="calc_rho1"><a class="viewcode-back" href="../../api/pygwb.util.calc_rho1.html#pygwb.util.calc_rho1">[docs]</a><span class="k">def</span> <span class="nf">calc_rho1</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">window_fftgram_dict</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;window_fftgram&quot;</span><span class="p">:</span> <span class="s2">&quot;hann&quot;</span><span class="p">},</span> <span class="n">overlap_factor</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the combined window factor rho.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    N: ``int``</span>
+<span class="sd">        Length of the window.</span>
+<span class="sd">    window_fftgram_dict: ``dictionary``, optional</span>
+<span class="sd">        Dictionary with window characteristics. Default is ``window_fftgram_dict={&quot;window_fftgram&quot;: &quot;hann&quot;}``.</span>
+<span class="sd">    overlap_factor: ``float``, optional</span>
+<span class="sd">        Defines the overlap between consecutive data chunks used in the calculation. Default is 0.5.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    rho1: ``float``</span>
+<span class="sd">        The combined window factor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">w1w2bar</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">w1w2ovlbar</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">window_factors</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">window_fftgram_dict</span><span class="p">,</span> <span class="n">overlap_factor</span><span class="o">=</span><span class="n">overlap_factor</span><span class="p">)</span>
+    <span class="n">rho1</span> <span class="o">=</span> <span class="p">(</span><span class="n">overlap_factor</span> <span class="o">*</span> <span class="n">w1w2ovlbar</span> <span class="o">/</span> <span class="n">w1w2bar</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="k">return</span> <span class="n">rho1</span></div>
+
+<div class="viewcode-block" id="calc_rho"><a class="viewcode-back" href="../../api/pygwb.util.calc_rho.html#pygwb.util.calc_rho">[docs]</a><span class="k">def</span> <span class="nf">calc_rho</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">window_tuple</span><span class="o">=</span><span class="s2">&quot;hann&quot;</span><span class="p">,</span> <span class="n">overlap_factor</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the normalised correlation of a window with itself shifted ``j`` times. This is identical</span>
+<span class="sd">    to the ``rho(j)`` from Welch (1967).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    N: ``int``</span>
+<span class="sd">        Length of the window.</span>
+<span class="sd">    j: ``int``</span>
+<span class="sd">        Number of &quot;shifts&quot; to apply to the window when correlating with itself.</span>
+<span class="sd">    window_tuple: ``str`` or ``tuple``, optional</span>
+<span class="sd">        Window name or tuple as used in ``scipy.signal.get_window()``. Default is ``window_tuple=&quot;hann&quot;``.</span>
+<span class="sd">    overlap_factor: ``float``, optional</span>
+<span class="sd">        Defines the overlap between consecutive segments used in the calculation. Default is 0.5.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    rho: ``float``</span>
+<span class="sd">        The normalised window correlation rho(j).</span>
+
+<span class="sd">    See also</span>
+<span class="sd">    --------</span>
+<span class="sd">    scipy.signal.get_window</span>
+<span class="sd">        More information `here &lt;https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.get_window.html&gt;`_.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># The base window for which we want to calculate the correlation</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">get_window</span><span class="p">(</span><span class="n">window_tuple</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">fftbins</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    
+    <span class="c1"># S is the shift, that is, the number of samples by which the window is shifted from the base window</span>
+    <span class="n">S</span> <span class="o">=</span> <span class="n">N</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">overlap_factor</span><span class="o">*</span><span class="n">N</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="p">(</span><span class="n">j</span><span class="o">*</span><span class="n">S</span> <span class="o">&lt;</span> <span class="n">N</span><span class="p">):</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">N</span><span class="o">-</span><span class="n">j</span><span class="o">*</span><span class="n">S</span><span class="p">]</span><span class="o">*</span><span class="n">w</span><span class="p">[</span><span class="n">j</span><span class="o">*</span><span class="n">S</span><span class="p">:</span><span class="n">N</span><span class="p">])</span><span class="o">/</span><span class="nb">sum</span><span class="p">(</span><span class="n">w</span><span class="o">*</span><span class="n">w</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># j*S &gt;= N so no overlap</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">return</span> <span class="n">rho</span></div>
+
+<div class="viewcode-block" id="effective_welch_averages"><a class="viewcode-back" href="../../api/pygwb.util.effective_welch_averages.html#pygwb.util.effective_welch_averages">[docs]</a><span class="k">def</span> <span class="nf">effective_welch_averages</span><span class="p">(</span><span class="n">nSamples</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">window_tuple</span><span class="o">=</span><span class="s2">&quot;hann&quot;</span><span class="p">,</span> <span class="n">overlap_factor</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the &quot;effective&quot; number of averages used in Welch&#39;s PSD estimate after taking into account windowing</span>
+<span class="sd">    and overlap.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    nSamples: ``int``</span>
+<span class="sd">        Number of samples to be used to estimate the PSD.</span>
+<span class="sd">    N: ``int``</span>
+<span class="sd">        Length of the window.</span>
+<span class="sd">    window_tuple: ``str`` or ``tuple``, optional</span>
+<span class="sd">        Window name or tuple as used in ``scipy.signal.get_window()``. Default is ``window_tuple=&quot;hann&quot;``.</span>
+<span class="sd">    overlap_factor: ``float``, optional</span>
+<span class="sd">        Defines the overlap between consecutive segments used in the calculation. Default is 0.5.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    Neff: ``float``</span>
+<span class="sd">        The effective number of averages.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># S is the shift, that is, the number of samples by which the window is shifted from the base window</span>
+    <span class="n">S</span> <span class="o">=</span> <span class="n">N</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">overlap_factor</span><span class="o">*</span><span class="n">N</span><span class="p">)</span>
+    
+    <span class="c1"># K is the number of segments that will be averaged in the corresponding Welch estimate</span>
+    <span class="n">K</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">int</span><span class="p">((</span><span class="n">nSamples</span> <span class="o">-</span> <span class="n">N</span><span class="p">)</span><span class="o">/</span><span class="n">S</span><span class="p">)</span>
+
+    <span class="c1"># Form the weighted sum of the window correlations for shifts j = 1 to K-1</span>
+    <span class="n">rho_sum</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">K</span><span class="p">):</span>
+        <span class="n">rho_sum</span> <span class="o">+=</span> <span class="p">(</span><span class="n">K</span> <span class="o">-</span> <span class="n">j</span><span class="p">)</span><span class="o">/</span><span class="n">K</span><span class="o">*</span><span class="n">calc_rho</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">window_tuple</span><span class="o">=</span><span class="n">window_tuple</span><span class="p">,</span> <span class="n">overlap_factor</span><span class="o">=</span><span class="n">overlap_factor</span><span class="p">)</span>
+    
+    <span class="n">Neff</span> <span class="o">=</span> <span class="n">K</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">rho_sum</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Neff</span></div>
+
+<div class="viewcode-block" id="calc_bias"><a class="viewcode-back" href="../../api/pygwb.util.calc_bias.html#pygwb.util.calc_bias">[docs]</a><span class="k">def</span> <span class="nf">calc_bias</span><span class="p">(</span>
+    <span class="n">segmentDuration</span><span class="p">,</span>
+    <span class="n">deltaF</span><span class="p">,</span>
+    <span class="n">deltaT</span><span class="p">,</span>
+    <span class="n">N_avg_segs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">window_fftgram_dict</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;window_fftgram&quot;</span><span class="p">:</span> <span class="s2">&quot;hann&quot;</span><span class="p">},</span>
+    <span class="n">overlap_factor</span><span class="o">=</span><span class="mf">0.5</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the bias factor introduced by Welch averaging.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    segmentDuration: ``float``</span>
+<span class="sd">        Duration in seconds of Welch-averaged segment.</span>
+<span class="sd">    deltaF: ``float``</span>
+<span class="sd">        Frequency resolution (in Hz) of Welch-averaged segment.</span>
+<span class="sd">    deltaT: ``float``</span>
+<span class="sd">        Time sampling of Welch-averaged segment (in seconds).</span>
+<span class="sd">    N_avg_segs: ``int``, optional</span>
+<span class="sd">        Number of segments over which the average is performed.</span>
+<span class="sd">    window_fftgram_dict: ``dictionary``, optional</span>
+<span class="sd">        Dictionary with window characteristics. Default is ``window_fftgram_dict={&quot;window_fftgram&quot;: &quot;hann&quot;}``.</span>
+<span class="sd">    overlap_factor: ``float``, optional</span>
+<span class="sd">        Defines the overlap between consecutive data chunks used in the calculation. Default is 0.5.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    bias: ``float``</span>
+<span class="sd">        The bias factor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Number of samples in a data chunk</span>
+    <span class="n">nSamples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">segmentDuration</span> <span class="o">/</span> <span class="n">deltaT</span><span class="p">)</span>
+
+    <span class="c1"># Number of samples in the window used for Welch&#39;s estimate</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">deltaT</span> <span class="o">*</span> <span class="n">deltaF</span><span class="p">))</span>
+
+    <span class="c1"># Effective number of segments that are averaged for this windowing scheme</span>
+    <span class="n">window_tuple</span> <span class="o">=</span> <span class="n">get_window_tuple</span><span class="p">(</span><span class="n">window_fftgram_dict</span><span class="p">)</span>
+    <span class="n">Neff</span> <span class="o">=</span> <span class="n">effective_welch_averages</span><span class="p">(</span><span class="n">nSamples</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">window_tuple</span><span class="p">,</span> <span class="n">overlap_factor</span><span class="o">=</span><span class="n">overlap_factor</span><span class="p">)</span>
+
+    <span class="c1"># if Neff is the same as the true number of segments, no bias.</span>
+    <span class="k">if</span> <span class="n">Neff</span> <span class="o">==</span> <span class="p">(</span><span class="n">nSamples</span><span class="o">/</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">bias</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Correction for number of PSDs that will be averaged </span>
+        <span class="n">Neff</span> <span class="o">=</span> <span class="n">N_avg_segs</span> <span class="o">*</span> <span class="n">Neff</span>
+        <span class="n">bias</span> <span class="o">=</span> <span class="n">Neff</span> <span class="o">/</span> <span class="p">(</span><span class="n">Neff</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">bias</span></div>
+
+<div class="viewcode-block" id="omega_to_power"><a class="viewcode-back" href="../../api/pygwb.util.omega_to_power.html#pygwb.util.omega_to_power">[docs]</a><span class="k">def</span> <span class="nf">omega_to_power</span><span class="p">(</span><span class="n">omega_GWB</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the GW power spectrum starting from the :math:`\Omega`\ :sub:`GWB`\</span>
+<span class="sd">    spectrum. For more information, see https://arxiv.org/pdf/2303.15696.pdf.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    omega_GWB: ``array_like``</span>
+<span class="sd">        The omega spectrum to turn into strain power.</span>
+<span class="sd">    frequencies: ``array_like``</span>
+<span class="sd">        Array of frequencies (in Hz) corresponding to the omega spectrum.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    power: ``gwpy.frequencyseries.FrequencySeries``</span>
+<span class="sd">        A gwpy FrequencySeries containing the GW power spectrum</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The given frequencies need to match the given spectrum.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">H_theor</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">H0</span><span class="o">.</span><span class="n">si</span><span class="o">.</span><span class="n">value</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">power</span> <span class="o">=</span> <span class="n">H_theor</span> <span class="o">*</span> <span class="n">omega_GWB</span> <span class="o">*</span> <span class="n">frequencies</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">power</span> <span class="o">=</span> <span class="n">gwpy</span><span class="o">.</span><span class="n">frequencyseries</span><span class="o">.</span><span class="n">FrequencySeries</span><span class="p">(</span><span class="n">power</span><span class="p">,</span> <span class="n">frequencies</span><span class="o">=</span><span class="n">frequencies</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">power</span></div>
+
+<div class="viewcode-block" id="interpolate_frequency_series"><a class="viewcode-back" href="../../api/pygwb.util.interpolate_frequency_series.html#pygwb.util.interpolate_frequency_series">[docs]</a><span class="k">def</span> <span class="nf">interpolate_frequency_series</span><span class="p">(</span><span class="n">fSeries</span><span class="p">,</span> <span class="n">new_frequencies</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interpolate a frequency series, given a new set of frequencies.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    fSeries: ``gwpy.frequencyseries.FrequencySeries``</span>
+<span class="sd">        The FrequencySeries to interpolate.</span>
+<span class="sd">    new_frequencies: ``array_like``</span>
+<span class="sd">        The new set of frequencies to interpolate to.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    fSeries_new: ``gwpy.frequencyseries.FrequencySeries``</span>
+<span class="sd">        The interpolated FrequencySeries.</span>
+
+<span class="sd">    See also</span>
+<span class="sd">    --------</span>
+<span class="sd">    scipy.interpolate.interp1d</span>
+<span class="sd">        More information `here &lt;https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html&gt;`_.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">spectrum</span> <span class="o">=</span> <span class="n">fSeries</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">frequencies</span> <span class="o">=</span> <span class="n">fSeries</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="n">spectrum_func</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span>
+        <span class="n">frequencies</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;cubic&quot;</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s2">&quot;extrapolate&quot;</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">gwpy</span><span class="o">.</span><span class="n">frequencyseries</span><span class="o">.</span><span class="n">FrequencySeries</span><span class="p">(</span>
+        <span class="n">spectrum_func</span><span class="p">(</span><span class="n">new_frequencies</span><span class="p">),</span> <span class="n">frequencies</span><span class="o">=</span><span class="n">new_frequencies</span>
+    <span class="p">)</span></div>
+
+<div class="viewcode-block" id="StatKS"><a class="viewcode-back" href="../../api/pygwb.util.StatKS.html#pygwb.util.StatKS">[docs]</a><span class="k">def</span> <span class="nf">StatKS</span><span class="p">(</span><span class="n">DKS</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the Kolgomorov-Smirnov test.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">    =======</span>
+<span class="sd">    DKS: ``float``</span>
+<span class="sd">        DKS input value.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    pvalue: ``float``</span>
+<span class="sd">        The p-value for the KS test.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">jmax</span> <span class="o">=</span> <span class="mi">500</span>
+    <span class="n">pvalue</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">jmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">pvalue</span> <span class="o">+=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="n">jj</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">jj</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">DKS</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pvalue</span></div>
+
+<span class="k">def</span> <span class="nf">_check_omegaspectra</span><span class="p">(</span><span class="n">spectra</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">spectra</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">alpha</span> <span class="o">!=</span> <span class="n">spectra</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">alpha</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span> <span class="n">spectra</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">alpha</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;spectra in this set have been weighted with different alphas. Please correct this before continuing.&#39;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">fref</span> <span class="o">!=</span> <span class="n">spectra</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">fref</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;spectra in this set have been set at different reference frequencies. &#39;</span>
+                <span class="s1">&#39;Please correct this before continuing.&#39;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">h0</span> <span class="o">!=</span> <span class="n">spectra</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">h0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;spectra in this set have been set at different h0. Please correct this before continuing.&#39;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">spectra</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;spectra in this set have different frequencies. Please correct this before continuing.&#39;</span>
+            <span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

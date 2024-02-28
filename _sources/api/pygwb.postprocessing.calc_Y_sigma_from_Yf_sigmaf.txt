@@ -1,0 +1,6 @@
+pygwb.postprocessing.calc\_Y\_sigma\_from\_Yf\_sigmaf
+=====================================================
+
+.. currentmodule:: pygwb.postprocessing
+
+.. autofunction:: calc_Y_sigma_from_Yf_sigmaf

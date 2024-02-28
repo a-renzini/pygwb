@@ -1,0 +1,6 @@
+pygwb.preprocessing.shift\_timeseries
+=====================================
+
+.. currentmodule:: pygwb.preprocessing
+
+.. autofunction:: shift_timeseries

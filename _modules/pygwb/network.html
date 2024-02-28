@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pygwb.network &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=0264ad83"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+        <script src="../../_static/tabs.js?v=3030b3cb"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../../about.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../demos.html">Demos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pygwb.network</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pygwb.network</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The ``Network`` module is designed to handle two different tasks. Its primary purpose is to combine results from different</span>
+<span class="sd">``pygwb.Baseline`` objects. Similarly to the ``Baseline`` object, the ``Network`` object imports ``Baseline`` objects as attributes which</span>
+<span class="sd">may be invoked through the ``Network``. In addition to this functionality, it can also be used to simulate cross-correlated</span>
+<span class="sd">data across a network of detectors. Both signal-only and signal and noise data can be simulated using a ``Network``</span>
+<span class="sd">object. The network module handles all data generation by querying the simulator module.</span>
+
+<span class="sd">Examples</span>
+<span class="sd">--------</span>
+
+<span class="sd">To show how a ``Network`` object can be instantiated, we start by importing the relevant</span>
+<span class="sd">packages:</span>
+
+<span class="sd">&gt;&gt;&gt; import numpy as np</span>
+<span class="sd">&gt;&gt;&gt; from pygwb.detector import Interferometer</span>
+<span class="sd">&gt;&gt;&gt; from pygwb.network import Network</span>
+
+<span class="sd">For concreteness, we work with the LIGO Hanford and Livingston detectors, which we </span>
+<span class="sd">instantiate through:</span>
+
+<span class="sd">&gt;&gt;&gt; H1 = Interferometer.get_empty_interferometer(&quot;H1&quot;)</span>
+<span class="sd">&gt;&gt;&gt; L1 = Interferometer.get_empty_interferometer(&quot;L1&quot;)</span>
+<span class="sd">&gt;&gt;&gt; ifo_list = [H1,L1]</span>
+
+<span class="sd">The above detectors are ``Interferometer`` objects, but are based on ``bilby`` detectors, which have </span>
+<span class="sd">default noise PSDs saved in them, in the ``power_spectral_density`` attribute of the ``bilby`` detector (more information can be</span>
+<span class="sd">found `here &lt;https://lscsoft.docs.ligo.org/bilby/api/bilby.gw.detector.psd.PowerSpectralDensity.html&gt;`_). </span>
+<span class="sd">Below, we load in this noise PSD and make sure the duration and sampling frequency of the detector </span>
+<span class="sd">are set to the desired value of these parameters chosen at the start of the notebook.</span>
+
+<span class="sd">&gt;&gt;&gt; for ifo in ifo_list:</span>
+<span class="sd">&gt;&gt;&gt;     ifo.duration = duration</span>
+<span class="sd">&gt;&gt;&gt;     ifo.sampling_frequency = sampling_frequency</span>
+<span class="sd">&gt;&gt;&gt;     ifo.power_spectral_density = bilby.gw.detector.PowerSpectralDensity(ifo.frequency_array, np.nan_to_num(ifo.power_spectral_density_array, posinf=1.e-41))</span>
+
+<span class="sd">A network can then be created by using:</span>
+
+<span class="sd">&gt;&gt;&gt; network_HL = Network(&#39;HL&#39;, ifo_list)</span>
+
+<span class="sd">It is also possible to initialize the class by passing a list of ``Baselines``:</span>
+
+<span class="sd">&gt;&gt;&gt; HL_network = Network.from_baselines(’HL’, [HL_baseline])</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">import</span> <span class="nn">gwpy</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">loguru</span> <span class="kn">import</span> <span class="n">logger</span>
+
+<span class="kn">from</span> <span class="nn">.baseline</span> <span class="kn">import</span> <span class="n">Baseline</span>
+<span class="kn">from</span> <span class="nn">.notch</span> <span class="kn">import</span> <span class="n">StochNotchList</span>
+<span class="kn">from</span> <span class="nn">.omega_spectra</span> <span class="kn">import</span> <span class="n">OmegaSpectrum</span>
+<span class="kn">from</span> <span class="nn">.postprocessing</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">calc_Y_sigma_from_Yf_sigmaf</span><span class="p">,</span>
+    <span class="n">combine_spectra_with_sigma_weights</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.simulator</span> <span class="kn">import</span> <span class="n">Simulator</span>
+
+
+<div class="viewcode-block" id="Network"><a class="viewcode-back" href="../../api/pygwb.network.Network.html#pygwb.network.Network">[docs]</a><span class="k">class</span> <span class="nc">Network</span><span class="p">:</span>
+<div class="viewcode-block" id="Network.__init__"><a class="viewcode-back" href="../../api/pygwb.network.Network.html#pygwb.network.Network.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">,</span>
+        <span class="n">interferometers</span><span class="p">,</span>
+        <span class="n">duration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">frequencies</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">calibration_epsilon</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">notch_list_path</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">coarse_grain_psd</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">coarse_grain_csd</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">overlap_factor_welch</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">overlap_factor</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">window_fftgram_dict</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;window_fftgram&quot;</span><span class="p">:</span> <span class="s2">&quot;hann&quot;</span><span class="p">},</span>
+        <span class="n">window_fftgram_dict_welch</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;window_fftgram&quot;</span><span class="p">:</span> <span class="s2">&quot;hann&quot;</span><span class="p">},</span>
+        <span class="n">N_average_segments_psd</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Instantiate a Network object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        name: ``str``</span>
+<span class="sd">            Name for the network, e.g H1H2.</span>
+
+<span class="sd">        interferometers: ``list``</span>
+<span class="sd">            List of intereferometer objects.</span>
+
+<span class="sd">        duration: ``float``, optional</span>
+<span class="sd">            The duration in seconds of each data segment in the interferometers. None by default, in which case duration is inherited from the interferometers.</span>
+
+<span class="sd">        frequencies: ``array_like``, optional</span>
+<span class="sd">            The frequency array for the Baseline and interferometers.</span>
+
+<span class="sd">        calibration_epsilon: ``float``, optional</span>
+<span class="sd">            Calibration uncertainty for this baseline -- currently only supports a single notch list for all baselines. Defaults to 0.</span>
+
+<span class="sd">        notch_list_path: ``str``, optional</span>
+<span class="sd">            File path of the baseline notch list -- currently only supports a single notch list for all baselines. Defaults to empty path.</span>
+
+<span class="sd">        coarse_grain_psd: ``bool``, optional</span>
+<span class="sd">            Indicates whether PSD should be coarse-grained or not. Defaults to False, in which case the PSD will be Welch averaged.</span>
+
+<span class="sd">        coarse_grain_csd: ``bool``, optional</span>
+<span class="sd">            Indicates whether CSD should be coarse-grained or not. Defaults to True. If False, the CSD will be Welch averaged.</span>
+
+<span class="sd">        overlap_factor_welch: ``float``, optional</span>
+<span class="sd">            Factor by which to overlap the segments in the psd and csd estimation. Default is 1/2, if set to 0, no overlap is performed.</span>
+
+<span class="sd">        overlap_factor: ``float``, optional</span>
+<span class="sd">            Factor by which to overlap the segments in the psd and csd estimation. Default is 1/2, if set to 0, no overlap is performed.</span>
+
+<span class="sd">        window_fftgram_dict: ``dictionary``, optional</span>
+<span class="sd">            Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds. Default is \&quot;hann\&quot;.</span>
+
+<span class="sd">        window_fftgram_dict_welch: ``dictionary``, optional</span>
+<span class="sd">            Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds using the Welch average method. Default is \&quot;hann\&quot;.</span>
+
+<span class="sd">        N_average_segments_psd: ``int``, optional</span>
+<span class="sd">            Number of segments used for PSD averaging (from both sides of the segment of interest).</span>
+<span class="sd">            N_avg_segs should be even and &gt;= 2.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        pygwb.baseline.Baseline : Used to create the various baselines corresponding to the detectors in the network.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span> <span class="o">=</span> <span class="n">interferometers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Nifo</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">interferometers</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_duration</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span>
+
+        <span class="n">combo_tuples</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">interferometers</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">j</span><span class="p">):</span>
+                <span class="n">combo_tuples</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">j</span><span class="p">))</span>
+
+        <span class="n">baselines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">combo_tuples</span><span class="p">:</span>
+            <span class="n">base_name</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="n">baselines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">Baseline</span><span class="p">(</span>
+                    <span class="n">base_name</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span><span class="p">[</span><span class="n">j</span><span class="p">],</span>
+                    <span class="n">duration</span><span class="o">=</span><span class="n">duration</span><span class="p">,</span>
+                    <span class="n">frequencies</span><span class="o">=</span><span class="n">frequencies</span><span class="p">,</span>
+                    <span class="n">calibration_epsilon</span><span class="o">=</span><span class="n">calibration_epsilon</span><span class="p">,</span>
+                    <span class="n">notch_list_path</span><span class="o">=</span><span class="n">notch_list_path</span><span class="p">,</span>
+                    <span class="n">coarse_grain_psd</span><span class="o">=</span><span class="n">coarse_grain_psd</span><span class="p">,</span>
+                    <span class="n">coarse_grain_csd</span><span class="o">=</span><span class="n">coarse_grain_csd</span><span class="p">,</span>
+                    <span class="n">overlap_factor_welch</span><span class="o">=</span><span class="n">overlap_factor_welch</span><span class="p">,</span>
+                    <span class="n">overlap_factor</span><span class="o">=</span><span class="n">overlap_factor</span><span class="p">,</span>
+                    <span class="n">window_fftgram_dict</span><span class="o">=</span><span class="n">window_fftgram_dict</span><span class="p">,</span>
+                    <span class="n">window_fftgram_dict_welch</span><span class="o">=</span><span class="n">window_fftgram_dict_welch</span><span class="p">,</span>
+                    <span class="n">N_average_segments_psd</span><span class="o">=</span><span class="n">N_average_segments_psd</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">baselines</span> <span class="o">=</span> <span class="n">baselines</span></div>
+
+<div class="viewcode-block" id="Network.from_baselines"><a class="viewcode-back" href="../../api/pygwb.network.Network.html#pygwb.network.Network.from_baselines">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_baselines</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">baselines</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialise a network from a set of baselines. Takes care to unpack the interferometers from each baseline and sets them in the network.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        name: ``str``</span>
+<span class="sd">            Name of the network.</span>
+
+<span class="sd">        baselines: ``list``</span>
+<span class="sd">            List of ``pygwb.baseline`` objects.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        network: ``pygwb.network``</span>
+<span class="sd">            Network object</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        pygwb.baseline.Baseline</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">baselines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">duration</span> <span class="o">==</span> <span class="n">base</span><span class="o">.</span><span class="n">duration</span> <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="n">baselines</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+                <span class="s2">&quot;All baselines used to initialise must have same duration set.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">network</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">name</span><span class="p">,</span>
+            <span class="n">interferometers</span><span class="o">=</span><span class="p">[],</span>
+            <span class="n">duration</span><span class="o">=</span><span class="n">baselines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">duration</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">network</span><span class="o">.</span><span class="n">baselines</span> <span class="o">=</span> <span class="n">baselines</span>
+        <span class="n">ifo_visited</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">interferometers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="n">baselines</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">base</span><span class="o">.</span><span class="n">interferometer_1</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ifo_visited</span><span class="p">:</span>
+                <span class="n">ifo_visited</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">interferometer_1</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="n">interferometers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">interferometer_1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">base</span><span class="o">.</span><span class="n">interferometer_2</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ifo_visited</span><span class="p">:</span>
+                <span class="n">ifo_visited</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">interferometer_2</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="n">interferometers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">interferometer_2</span><span class="p">)</span>
+        <span class="n">network</span><span class="o">.</span><span class="n">interferometers</span> <span class="o">=</span> <span class="n">interferometers</span>
+        <span class="n">network</span><span class="o">.</span><span class="n">Nifo</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">interferometers</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">network</span></div>
+
+<div class="viewcode-block" id="Network.set_duration"><a class="viewcode-back" href="../../api/pygwb.network.Network.html#pygwb.network.Network.set_duration">[docs]</a>    <span class="k">def</span> <span class="nf">set_duration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">duration</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Sets the duration for the Network and Interferometers.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        duration: ``float``, optional</span>
+<span class="sd">            The duration to set for the Network and interferometers.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The cross-checks that durations match in all the interferometers are done by each baseline.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">duration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="n">duration</span>
+            <span class="k">for</span> <span class="n">ifo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span><span class="p">:</span>
+                <span class="n">ifo</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="n">duration</span>
+            <span class="k">return</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">duration</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+                <span class="n">ifo</span><span class="o">.</span><span class="n">duration</span> <span class="k">for</span> <span class="n">ifo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span> <span class="k">if</span> <span class="n">ifo</span><span class="o">.</span><span class="n">duration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;The Network duration is not set, &quot;</span>
+                <span class="s2">&quot;and the interferometer durations are all None.&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">return</span>
+
+        <span class="n">check_dur</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span><span class="n">ifo</span><span class="o">.</span><span class="n">duration</span> <span class="o">==</span> <span class="n">duration</span> <span class="k">for</span> <span class="n">ifo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">check_dur</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+                <span class="s2">&quot;The interferometer durations don&#39;t match! &quot;</span>
+                <span class="s2">&quot;The Network can&#39;t handle this. &quot;</span>
+                <span class="s2">&quot;Make sure that the interferometer durations are the same.&quot;</span>
+            <span class="p">)</span>
+            <span class="c1"># for ifo in self.interferometers:</span>
+            <span class="c1">#    ifo.duration = duration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="n">duration</span></div>
+
+<div class="viewcode-block" id="Network.set_frequency_mask"><a class="viewcode-back" href="../../api/pygwb.network.Network.html#pygwb.network.Network.set_frequency_mask">[docs]</a>    <span class="k">def</span> <span class="nf">set_frequency_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">notch_list_path</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">flow</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fhigh</span><span class="o">=</span><span class="mi">1726</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set frequency mask to frequencies attribute.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        notch_list_path: ``str``</span>
+<span class="sd">            Path to notch list to apply to frequency array.</span>
+<span class="sd">        </span>
+<span class="sd">        flow: ``float``, optional</span>
+<span class="sd">            Lowest frequency to consider. Defaults to 20 Hz.</span>
+
+<span class="sd">        fhigh: ``float``, optional</span>
+<span class="sd">            Highest frequency to consider. Defaults to 1726 Hz.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        pygwb.notch.StochNotchList : Used to read in the frequency notches.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span> <span class="o">&gt;=</span> <span class="n">flow</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span> <span class="o">&lt;=</span> <span class="n">fhigh</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">notch_list_path</span><span class="p">:</span>
+            <span class="n">notch_list</span> <span class="o">=</span> <span class="n">StochNotchList</span><span class="o">.</span><span class="n">load_from_file</span><span class="p">(</span><span class="n">notch_list_path</span><span class="p">)</span>
+            <span class="n">notch_mask</span> <span class="o">=</span> <span class="n">notch_list</span><span class="o">.</span><span class="n">get_notch_mask</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">)</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">notch_mask</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frequency_mask</span> <span class="o">=</span> <span class="n">mask</span></div>
+
+<div class="viewcode-block" id="Network.set_interferometer_data_from_simulator"><a class="viewcode-back" href="../../api/pygwb.network.Network.html#pygwb.network.Network.set_interferometer_data_from_simulator">[docs]</a>    <span class="k">def</span> <span class="nf">set_interferometer_data_from_simulator</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">N_segments</span><span class="p">,</span>
+        <span class="n">GWB_intensity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">CBC_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">sampling_frequency</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">start_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">inject_into_data_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fill interferometers with data from simulation. Data can already be present in the intereferometers of the network,</span>
+<span class="sd">        in which case the simulated data will be injected on top of the data already present.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        N_segments: ``int``</span>
+<span class="sd">            Number of segments to simulate.</span>
+
+<span class="sd">        GWB_intensity: ``gwpy.frequencyseries.FrequencySeries``, optional</span>
+<span class="sd">            A gwpy.frequencyseries.FrequencySeries containing the desired strain power spectrum. Defaults to None, </span>
+<span class="sd">            in which case CBC_dict should be passed.</span>
+
+<span class="sd">        CBC_dict: ``dict``, optional</span>
+<span class="sd">            Dictionary containing the parameters of CBC injections. Default to None, </span>
+<span class="sd">            in which case GWB_intensity should be passed.</span>
+
+<span class="sd">        sampling_frequency: ``float``, optional</span>
+<span class="sd">            Sampling frequency at which the data needs to be simulated. If not specified (None), will check for interferometer&#39;s</span>
+<span class="sd">            sampling frequency.</span>
+
+<span class="sd">        start_time: ``float``, optional</span>
+<span class="sd">            Start time of the simulated data. If not passed (None), will check for interferometer&#39;s timeseries start time.</span>
+<span class="sd">            If not specified either, start time will default to 0.</span>
+
+<span class="sd">        inject_into_data_flag: ``bool``, optional</span>
+<span class="sd">            Flag that specifies whether or not the simulated data needs to be injected into data, i.e. if there is already</span>
+<span class="sd">            data present in the interferometers of the network. If so, only data will be simulated and no extra noise will</span>
+<span class="sd">            be added on top of the simulated data. Defaults to False.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        pygwb.simulator.Simulator : Used to simulate data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">no_noise</span> <span class="o">=</span> <span class="n">inject_into_data_flag</span>
+        <span class="k">if</span> <span class="n">start_time</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">start_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">timeseries</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">start_time</span> <span class="o">=</span> <span class="mf">0.0</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;User did not specify a start time. Setting start time to zero.&quot;</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">sampling_frequency</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">sampling_frequency</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sampling_frequency</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Sampling frequency was not set. Please set sampling frequency in interferometers or pass directly to function.&quot;</span>
+                <span class="p">)</span>
+
+        <span class="n">data_simulator</span> <span class="o">=</span> <span class="n">Simulator</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span><span class="p">,</span>
+            <span class="n">N_segments</span><span class="p">,</span>
+            <span class="n">duration</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">duration</span><span class="p">,</span>
+            <span class="n">intensity_GW</span><span class="o">=</span><span class="n">GWB_intensity</span><span class="p">,</span>
+            <span class="n">injection_dict</span><span class="o">=</span><span class="n">CBC_dict</span><span class="p">,</span>
+            <span class="n">start_time</span><span class="o">=</span><span class="n">start_time</span><span class="p">,</span>
+            <span class="n">sampling_frequency</span><span class="o">=</span><span class="n">sampling_frequency</span><span class="p">,</span>
+            <span class="n">no_noise</span><span class="o">=</span><span class="n">no_noise</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data_simulator</span><span class="o">.</span><span class="n">get_data_for_interferometers</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">inject_into_data_flag</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ifo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span><span class="p">:</span>
+                <span class="n">ifo</span><span class="o">.</span><span class="n">set_strain_data_from_gwpy_timeseries</span><span class="p">(</span>
+                    <span class="n">ifo</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">to_gwpy_timeseries</span><span class="p">()</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">ifo</span><span class="o">.</span><span class="n">name</span><span class="p">])</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ifo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span><span class="p">:</span>
+                <span class="n">ifo</span><span class="o">.</span><span class="n">set_strain_data_from_gwpy_timeseries</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">ifo</span><span class="o">.</span><span class="n">name</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Network.save_interferometer_data_to_file"><a class="viewcode-back" href="../../api/pygwb.network.Network.html#pygwb.network.Network.save_interferometer_data_to_file">[docs]</a>    <span class="k">def</span> <span class="nf">save_interferometer_data_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="s2">&quot;./&quot;</span><span class="p">,</span> <span class="n">file_format</span><span class="o">=</span><span class="s2">&quot;hdf5&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save interferometer strain data to a file. This method relies on the gwpy  TimeSeries.write method. Typically used when simulating a signal for a whole network of interferometers.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        </span>
+<span class="sd">        save_dir: ``str``, optional</span>
+<span class="sd">            The path of the output folder. Defaults to the local folder.</span>
+
+<span class="sd">        file_format: ``str``, optional</span>
+<span class="sd">            The format of the output file. Defaults to hdf5 file. Acceptable formats are standard gwpy TimeSeries.write formats.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+
+<span class="sd">        This will save a single frame file with a set of interferometer data; each strain channel is labelled by its interferometer.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        gwpy.timeseries.TimeSeriesDict</span>
+<span class="sd">            More information `here &lt;https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeriesDict/&gt;`_.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_STRAIN-</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">file_format</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+        <span class="n">data_dict</span> <span class="o">=</span> <span class="n">gwpy</span><span class="o">.</span><span class="n">timeseries</span><span class="o">.</span><span class="n">TimeSeriesDict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">ifo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span><span class="p">:</span>
+            <span class="n">channel</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;STRAIN_</span><span class="si">{</span><span class="n">ifo</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">data_dict</span><span class="p">[</span><span class="n">channel</span><span class="p">]</span> <span class="o">=</span> <span class="n">ifo</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">to_gwpy_timeseries</span><span class="p">()</span>
+        <span class="n">data_dict</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">file_format</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Network.combine_point_estimate_sigma_spectra"><a class="viewcode-back" href="../../api/pygwb.network.Network.html#pygwb.network.Network.combine_point_estimate_sigma_spectra">[docs]</a>    <span class="k">def</span> <span class="nf">combine_point_estimate_sigma_spectra</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Combines the point estimate and sigma spectra from different baselines in the Network and stores them as attributes.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        pygwb.postprocessing.combine_spectra_with_sigma_weights</span>
+
+<span class="sd">        pygwb.omega_spectra.OmegaSpectrum</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">point_estimate_spectra</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">base</span><span class="o">.</span><span class="n">point_estimate_spectrum</span> <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">baselines</span>
+            <span class="p">]</span>
+            <span class="n">sigma_spectra</span> <span class="o">=</span> <span class="p">[</span><span class="n">base</span><span class="o">.</span><span class="n">sigma_spectrum</span> <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">baselines</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;The Baselines of the Network have not been set!&quot;</span><span class="p">)</span>
+
+        <span class="n">alphas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">spec</span><span class="o">.</span><span class="n">alpha</span> <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">point_estimate_spectra</span><span class="p">])</span>
+        <span class="n">frefs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">spec</span><span class="o">.</span><span class="n">fref</span> <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">point_estimate_spectra</span><span class="p">])</span>
+        <span class="n">h0s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">spec</span><span class="o">.</span><span class="n">h0</span> <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">point_estimate_spectra</span><span class="p">])</span>
+        <span class="n">dfs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">spec</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">point_estimate_spectra</span><span class="p">])</span>
+        <span class="n">f0s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">spec</span><span class="o">.</span><span class="n">f0</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">point_estimate_spectra</span><span class="p">])</span>
+
+        <span class="n">dict_attributes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">alphas</span><span class="p">,</span> <span class="s2">&quot;spectral indices&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;fref&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">frefs</span><span class="p">,</span> <span class="s2">&quot;reference frequencies&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;h0&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">h0s</span><span class="p">,</span> <span class="s2">&quot;cosmology h0&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;df&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">dfs</span><span class="p">,</span> <span class="s2">&quot;sampling frequency&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;f0&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">f0s</span><span class="p">,</span> <span class="s2">&quot;begin frequency&quot;</span><span class="p">],</span>
+        <span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">dict_attributes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">dict_attributes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">dict_attributes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;The </span><span class="si">{</span><span class="n">dict_attributes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> of the spectra in each Baseline don&#39;t match! Spectra may not be combined.&quot;</span>
+                <span class="p">)</span>
+
+        <span class="n">pt_est_spec</span><span class="p">,</span> <span class="n">sig_spec</span> <span class="o">=</span> <span class="n">combine_spectra_with_sigma_weights</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">point_estimate_spectra</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sigma_spectra</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">point_estimate_spectrum</span> <span class="o">=</span> <span class="n">OmegaSpectrum</span><span class="p">(</span>
+            <span class="n">pt_est_spec</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="n">alphas</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">fref</span><span class="o">=</span><span class="n">frefs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">h0</span><span class="o">=</span><span class="n">h0s</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Y_spectrum_network&quot;</span><span class="p">,</span>
+            <span class="n">frequencies</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">baselines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">frequencies</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigma_spectrum</span> <span class="o">=</span> <span class="n">OmegaSpectrum</span><span class="p">(</span>
+            <span class="n">sig_spec</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="n">alphas</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">fref</span><span class="o">=</span><span class="n">frefs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">h0</span><span class="o">=</span><span class="n">h0s</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sigma_spectrum_network&quot;</span><span class="p">,</span>
+            <span class="n">frequencies</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">baselines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">frequencies</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Network.set_point_estimate_sigma"><a class="viewcode-back" href="../../api/pygwb.network.Network.html#pygwb.network.Network.set_point_estimate_sigma">[docs]</a>    <span class="k">def</span> <span class="nf">set_point_estimate_sigma</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">notch_list_path</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">flow</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="n">fhigh</span><span class="o">=</span><span class="mi">1726</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set point estimate sigma based the combined spectra from each Baseline. This is the estimate of omega_gw in each frequency bin.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        notch_list_path: ``str``, optional</span>
+<span class="sd">            Path to the notch list to use in the spectrum; if the notch_list isn&#39;t set in the baseline,</span>
+<span class="sd">            user can pass it directly here. If it is not set and if none is passed no notches will be applied.</span>
+
+<span class="sd">        flow: ``float``, optional</span>
+<span class="sd">            Low frequency. Default is 20 Hz.</span>
+<span class="sd">            </span>
+<span class="sd">        fhigh: ``float``, optional</span>
+<span class="sd">            High frequency. Default is 1726 Hz.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        pygwb.postprocessing.calc_Y_sigma_from_Yf_sigmaf</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;point_estimate_spectrum&quot;</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;Point estimate and sigma spectra have not been set before. Setting it now...&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">combine_point_estimate_sigma_spectra</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">point_estimate_spectrum</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_frequency_mask</span><span class="p">(</span><span class="n">notch_list_path</span><span class="p">,</span> <span class="n">flow</span><span class="o">=</span><span class="n">flow</span><span class="p">,</span> <span class="n">fhigh</span><span class="o">=</span><span class="n">fhigh</span><span class="p">)</span>
+
+        <span class="n">Y</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> <span class="n">calc_Y_sigma_from_Yf_sigmaf</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">point_estimate_spectrum</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sigma_spectrum</span><span class="p">,</span>
+            <span class="n">frequency_mask</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency_mask</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">point_estimate</span> <span class="o">=</span> <span class="n">Y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="n">sigma</span></div></div>
+
+
+<span class="c1"># TODO: add options in the network to apply dsc, frequency notching at the network level.</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

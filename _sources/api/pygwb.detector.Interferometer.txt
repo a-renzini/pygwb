@@ -1,0 +1,67 @@
+pygwb.detector.Interferometer
+=============================
+
+.. currentmodule:: pygwb.detector
+
+.. autoclass:: Interferometer
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+   .. automethod:: __call__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Interferometer.__init__
+      ~Interferometer.antenna_response
+      ~Interferometer.apply_gates_from_file
+      ~Interferometer.check_signal_duration
+      ~Interferometer.from_parameters
+      ~Interferometer.from_pickle
+      ~Interferometer.gate_data_apply
+      ~Interferometer.get_detector_response
+      ~Interferometer.get_empty_interferometer
+      ~Interferometer.inject_signal
+      ~Interferometer.inject_signal_from_waveform_generator
+      ~Interferometer.inject_signal_from_waveform_polarizations
+      ~Interferometer.inner_product
+      ~Interferometer.matched_filter_snr
+      ~Interferometer.optimal_snr_squared
+      ~Interferometer.plot_data
+      ~Interferometer.plot_time_domain_data
+      ~Interferometer.save_data
+      ~Interferometer.set_average_psd
+      ~Interferometer.set_psd_spectrogram
+      ~Interferometer.set_strain_data_from_channel_name
+      ~Interferometer.set_strain_data_from_csv
+      ~Interferometer.set_strain_data_from_frame_file
+      ~Interferometer.set_strain_data_from_frequency_domain_strain
+      ~Interferometer.set_strain_data_from_gwpy_timeseries
+      ~Interferometer.set_strain_data_from_power_spectral_density
+      ~Interferometer.set_strain_data_from_zero_noise
+      ~Interferometer.set_timeseries_from_channel_name
+      ~Interferometer.set_timeseries_from_gwpy_timeseries
+      ~Interferometer.set_timeseries_from_timeseries_array
+      ~Interferometer.time_delay_from_geocenter
+      ~Interferometer.to_pickle
+      ~Interferometer.unit_vector_along_arm
+      ~Interferometer.vertex_position_geocentric
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Interferometer.amplitude_spectral_density_array
+      ~Interferometer.power_spectral_density_array
+      ~Interferometer.whitened_frequency_domain_strain
+   
+   

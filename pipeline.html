@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Using pygwb_pipe: a quickstart manual &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/tabs.css?v=a5c4661c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=0264ad83"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Running multiple pygwb_pipe jobs" href="multiple_jobs.html" />
+    <link rel="prev" title="Tutorials" href="tutorials.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Using <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code>: a quickstart manual</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#script-parameters"><strong>1. Script parameters</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#running-the-script"><strong>2. Running the script</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#output-of-the-script"><strong>3. Output of the script</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="multiple_jobs.html">Running multiple <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> jobs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stat_checks.html">Running statistical checks with <code class="docutils literal notranslate"><span class="pre">pygwb_stats</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="workflow.html">The <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pe.html">Parameter estimation using <code class="docutils literal notranslate"><span class="pre">pygwb_pe</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulator.html">Simulating data with <code class="docutils literal notranslate"><span class="pre">pygwb.simulator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="demos.html">Demos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tutorials.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">Using <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code>: a quickstart manual</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/pipeline.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="using-pygwb-pipe-a-quickstart-manual">
+<h1>Using <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code>: a quickstart manual<a class="headerlink" href="#using-pygwb-pipe-a-quickstart-manual" title="Permalink to this heading"></a></h1>
+<p>The various modules of the <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> package can be combined into a pipeline, as done in the <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> script. This script
+takes the data as input and outputs an estimator of the point estimate and variance of the gravitational-wave background (GWB) for these
+data. More information on how the various modules interact and are combined into a pipeline can be found in the <a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The proposed <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> pipeline is only one of the many ways to assemble the <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> modules, and users should
+feel free to create their own pipeline, that addresses their needs.</p>
+</div>
+<section id="script-parameters">
+<h2><strong>1. Script parameters</strong><a class="headerlink" href="#script-parameters" title="Permalink to this heading"></a></h2>
+<p>The parameters of the <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> script can be visualized by running the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pygwb_pipe<span class="w"> </span>--help
+</pre></div>
+</div>
+<p>This will display the following set of parameters, which can be passed to the pipeline:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>--param_file<span class="w"> </span>PARAM_FILE
+<span class="w">                      </span>Parameter<span class="w"> </span>file<span class="w"> </span>to<span class="w"> </span>use<span class="w"> </span><span class="k">for</span><span class="w"> </span>analysis.
+--output_path<span class="w"> </span>OUTPUT_PATH
+<span class="w">                      </span>Location<span class="w"> </span>to<span class="w"> </span>save<span class="w"> </span>output<span class="w"> </span>to.
+--calc_coh<span class="w"> </span>CALC_COH
+<span class="w">                      </span>Calculate<span class="w"> </span>coherence<span class="w"> </span>spectrum<span class="w"> </span>from<span class="w"> </span>data.
+--calc_pt_est<span class="w"> </span>CALC_PT_EST
+<span class="w">                      </span>Calculate<span class="w"> </span>omega<span class="w"> </span>point<span class="w"> </span>estimate<span class="w"> </span>and<span class="w"> </span>sigma<span class="w"> </span>from<span class="w"> </span>data.
+--apply_dsc<span class="w"> </span>APPLY_DSC
+<span class="w">                      </span>Apply<span class="w"> </span>delta<span class="w"> </span>sigma<span class="w"> </span>cut<span class="w"> </span>when<span class="w"> </span>calculating<span class="w"> </span>final<span class="w"> </span>output.
+--pickle_out<span class="w"> </span>PICKLE_OUT
+<span class="w">                      </span>Pickle<span class="w"> </span>output<span class="w"> </span>Baseline<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>analysis.
+--wipe_ifo<span class="w"> </span>WIPE_IFO<span class="w">   </span>Wipe<span class="w"> </span>interferometer<span class="w"> </span>data<span class="w"> </span>to<span class="w"> </span>reduce<span class="w"> </span>size<span class="w"> </span>of<span class="w"> </span>pickled<span class="w"> </span>Baseline.
+--t0<span class="w"> </span>T0<span class="w">               </span>Initial<span class="w"> </span>time.
+--tf<span class="w"> </span>TF<span class="w">               </span>Final<span class="w"> </span>time.
+--data_type<span class="w"> </span>DATA_TYPE
+<span class="w">                      </span>Type<span class="w"> </span>of<span class="w"> </span>data<span class="w"> </span>to<span class="w"> </span>access/download<span class="p">;</span><span class="w"> </span>options<span class="w"> </span>are<span class="w"> </span>private,
+<span class="w">                      </span>public,<span class="w"> </span>local.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span>public.
+--channel<span class="w"> </span>CHANNEL<span class="w">     </span>Channel<span class="w"> </span>name<span class="p">;</span><span class="w"> </span>needs<span class="w"> </span>to<span class="w"> </span>match<span class="w"> </span>an<span class="w"> </span>existing<span class="w"> </span>channel.<span class="w"> </span>Default<span class="w"> </span>is
+<span class="w">                      </span><span class="s2">&quot;GWOSC-16KHZ_R1_STRAIN&quot;</span>
+--new_sample_rate<span class="w"> </span>NEW_SAMPLE_RATE
+<span class="w">                      </span>Sample<span class="w"> </span>rate<span class="w"> </span>to<span class="w"> </span>use<span class="w"> </span>when<span class="w"> </span>downsampling<span class="w"> </span>the<span class="w"> </span>data<span class="w"> </span><span class="o">(</span>Hz<span class="o">)</span>.<span class="w"> </span>Default
+<span class="w">                      </span>is<span class="w"> </span><span class="m">4096</span><span class="w"> </span>Hz.
+--input_sample_rate<span class="w"> </span>INPUT_SAMPLE_RATE
+<span class="w">                      </span>Sample<span class="w"> </span>rate<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span><span class="nb">read</span><span class="w"> </span>data<span class="w"> </span><span class="o">(</span>Hz<span class="o">)</span>.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="m">16384</span><span class="w"> </span>Hz.
+--cutoff_frequency<span class="w"> </span>CUTOFF_FREQUENCY
+<span class="w">                      </span>Lower<span class="w"> </span>frequency<span class="w"> </span>cutoff<span class="p">;</span><span class="w"> </span>applied<span class="w"> </span><span class="k">in</span><span class="w"> </span>filtering<span class="w"> </span><span class="k">in</span>
+<span class="w">                      </span>preprocessing<span class="w"> </span><span class="o">(</span>Hz<span class="o">)</span>.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="m">11</span><span class="w"> </span>Hz.
+--segment_duration<span class="w"> </span>SEGMENT_DURATION
+<span class="w">                      </span>Duration<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>individual<span class="w"> </span>segments<span class="w"> </span>to<span class="w"> </span>analyse<span class="w"> </span><span class="o">(</span>seconds<span class="o">)</span>.
+<span class="w">                      </span>Default<span class="w"> </span>is<span class="w"> </span><span class="m">192</span><span class="w"> </span>seconds.
+--number_cropped_seconds<span class="w"> </span>NUMBER_CROPPED_SECONDS
+<span class="w">                      </span>Number<span class="w"> </span>of<span class="w"> </span>seconds<span class="w"> </span>to<span class="w"> </span>crop<span class="w"> </span>at<span class="w"> </span>the<span class="w"> </span>start<span class="w"> </span>and<span class="w"> </span>end<span class="w"> </span>of<span class="w"> </span>the
+<span class="w">                      </span>analysed<span class="w"> </span>data<span class="w"> </span><span class="o">(</span>seconds<span class="o">)</span>.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="m">2</span><span class="w"> </span>seconds.
+--window_downsampling<span class="w"> </span>WINDOW_DOWNSAMPLING
+<span class="w">                      </span>Type<span class="w"> </span>of<span class="w"> </span>window<span class="w"> </span>to<span class="w"> </span>use<span class="w"> </span><span class="k">in</span><span class="w"> </span>preprocessing.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="s2">&quot;hamming&quot;</span>
+--ftype<span class="w"> </span>FTYPE<span class="w">         </span>Type<span class="w"> </span>of<span class="w"> </span>filter<span class="w"> </span>to<span class="w"> </span>use<span class="w"> </span><span class="k">in</span><span class="w"> </span>downsampling.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="s2">&quot;fir&quot;</span>
+--frequency_resolution<span class="w"> </span>FREQUENCY_RESOLUTION
+<span class="w">                      </span>Frequency<span class="w"> </span>resolution<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>final<span class="w"> </span>output<span class="w"> </span>spectrum<span class="w"> </span><span class="o">(</span>Hz<span class="o">)</span>.
+<span class="w">                      </span>Default<span class="w"> </span>is<span class="w"> </span><span class="m">1</span><span class="se">\/</span><span class="m">32</span><span class="w"> </span>Hz.
+--polarization<span class="w"> </span>POLARIZATION
+<span class="w">                      </span>Polarisation<span class="w"> </span><span class="nb">type</span><span class="w"> </span><span class="k">for</span><span class="w"> </span>the<span class="w"> </span>overlap<span class="w"> </span>reduction<span class="w"> </span><span class="k">function</span><span class="w"> </span>calculation<span class="p">;</span><span class="w"> </span>options<span class="w"> </span>are<span class="w"> </span>scalar,<span class="w"> </span>vector,<span class="w"> </span>tensor.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span>tensor.
+--alpha<span class="w"> </span>ALPHA<span class="w">         </span>Spectral<span class="w"> </span>index<span class="w"> </span>to<span class="w"> </span>filter<span class="w"> </span>the<span class="w"> </span>data<span class="w"> </span><span class="k">for</span>.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="m">0</span>.
+--fref<span class="w"> </span>FREF<span class="w">           </span>Reference<span class="w"> </span>frequency<span class="w"> </span>to<span class="w"> </span>filter<span class="w"> </span>the<span class="w"> </span>data<span class="w"> </span>at<span class="w"> </span><span class="o">(</span>Hz<span class="o">)</span>.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="m">25</span><span class="w"> </span>Hz.
+--flow<span class="w"> </span>FLOW<span class="w">           </span>Lower<span class="w"> </span>frequency<span class="w"> </span>to<span class="w"> </span>include<span class="w"> </span><span class="k">in</span><span class="w"> </span>the<span class="w"> </span>analysis<span class="w"> </span><span class="o">(</span>Hz<span class="o">)</span>.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="m">20</span><span class="w"> </span>Hz.
+--fhigh<span class="w"> </span>FHIGH<span class="w">         </span>Higher<span class="w"> </span>frequency<span class="w"> </span>to<span class="w"> </span>include<span class="w"> </span><span class="k">in</span><span class="w"> </span>the<span class="w"> </span>analysis<span class="w"> </span><span class="o">(</span>Hz<span class="o">)</span>.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="m">1726</span><span class="w"> </span>Hz.
+--coarse_grain<span class="w"> </span>COARSE_GRAIN
+<span class="w">                      </span>Whether<span class="w"> </span>to<span class="w"> </span>apply<span class="w"> </span>coarse<span class="w"> </span>graining<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>spectra.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="m">0</span>.
+--interferometer_list<span class="w"> </span>INTERFEROMETER_LIST<span class="w"> </span><span class="o">[</span>INTERFEROMETER_LIST<span class="w"> </span>...<span class="o">]</span>
+<span class="w">                      </span>List<span class="w"> </span>of<span class="w"> </span>interferometers<span class="w"> </span>to<span class="w"> </span>run<span class="w"> </span>the<span class="w"> </span>analysis<span class="w"> </span>with.<span class="w"> </span>Default<span class="w"> </span>is
+<span class="w">                      </span><span class="o">[</span><span class="s2">&quot;H1&quot;</span>,<span class="w"> </span><span class="s2">&quot;L1&quot;</span><span class="o">]</span>
+--local_data_path<span class="w"> </span>LOCAL_DATA_PATH
+<span class="w">                      </span>Path<span class="o">(</span>s<span class="o">)</span><span class="w"> </span>to<span class="w"> </span><span class="nb">local</span><span class="w"> </span>data,<span class="w"> </span><span class="k">if</span><span class="w"> </span>the<span class="w"> </span><span class="nb">local</span><span class="w"> </span>data<span class="w"> </span>option<span class="w"> </span>is<span class="w"> </span>chosen.
+<span class="w">                      </span>Default<span class="w"> </span>is<span class="w"> </span>empty.
+--notch_list_path<span class="w"> </span>NOTCH_LIST_PATH
+<span class="w">                      </span>Path<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>notch<span class="w"> </span>list<span class="w"> </span>file.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span>empty.
+--N_average_segments_welch_psd<span class="w"> </span>N_AVERAGE_SEGMENTS_WELCH_PSD
+<span class="w">                      </span>Number<span class="w"> </span>of<span class="w"> </span>segments<span class="w"> </span>to<span class="w"> </span>average<span class="w"> </span>over<span class="w"> </span>when<span class="w"> </span>calculating<span class="w"> </span>the<span class="w"> </span>psd
+<span class="w">                      </span>with<span class="w"> </span>Welch<span class="w"> </span>method.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="m">2</span>.
+--window_fft_dict<span class="w"> </span>WINDOW_FFT_DICT
+<span class="w">                      </span>Dictionary<span class="w"> </span>containing<span class="w"> </span>name<span class="w"> </span>and<span class="w"> </span>parameters<span class="w"> </span>relative<span class="w"> </span>to<span class="w"> </span>which
+<span class="w">                      </span>window<span class="w"> </span>to<span class="w"> </span>use<span class="w"> </span>when<span class="w"> </span>producing<span class="w"> </span>fftgrams<span class="w"> </span><span class="k">for</span><span class="w"> </span>psds<span class="w"> </span>and<span class="w"> </span>csds.
+<span class="w">                      </span>Default<span class="w"> </span>is<span class="w"> </span><span class="s2">&quot;hann&quot;</span>.
+--calibration_epsilon<span class="w"> </span>CALIBRATION_EPSILON
+<span class="w">                      </span>Calibation<span class="w"> </span>coefficient.<span class="w"> </span>Default<span class="w"> </span><span class="m">0</span>.
+--overlap_factor<span class="w"> </span>OVERLAP_FACTOR
+<span class="w">                      </span>Factor<span class="w"> </span>by<span class="w"> </span>which<span class="w"> </span>to<span class="w"> </span>overlap<span class="w"> </span>consecutive<span class="w"> </span>segments<span class="w"> </span><span class="k">for</span>
+<span class="w">                      </span>analysis.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="m">0</span>.5<span class="w"> </span><span class="o">(</span><span class="m">50</span>%<span class="w"> </span>overlap<span class="o">)</span>
+--zeropad_csd<span class="w"> </span>ZEROPAD_CSD
+<span class="w">                      </span>Whether<span class="w"> </span>to<span class="w"> </span>zeropad<span class="w"> </span>the<span class="w"> </span>csd<span class="w"> </span>or<span class="w"> </span>not.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span>True.
+--delta_sigma_cut<span class="w"> </span>DELTA_SIGMA_CUT
+<span class="w">                      </span>Cutoff<span class="w"> </span>value<span class="w"> </span><span class="k">for</span><span class="w"> </span>the<span class="w"> </span>delta<span class="w"> </span>sigma<span class="w"> </span>cut.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="m">0</span>.2.
+--alphas_delta_sigma_cut<span class="w"> </span>ALPHAS_DELTA_SIGMA_CUT<span class="w"> </span><span class="o">[</span>ALPHAS_DELTA_SIGMA_CUT<span class="w"> </span>...<span class="o">]</span>
+<span class="w">                      </span>List<span class="w"> </span>of<span class="w"> </span>spectral<span class="w"> </span>indexes<span class="w"> </span>to<span class="w"> </span>use<span class="w"> </span><span class="k">in</span><span class="w"> </span>delta<span class="w"> </span>sigma<span class="w"> </span>cut
+<span class="w">                      </span>calculation.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="o">[</span>-5,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">3</span><span class="o">]</span>.
+--save_data_type<span class="w"> </span>SAVE_DATA_TYPE
+<span class="w">                      </span>Suffix<span class="w"> </span><span class="k">for</span><span class="w"> </span>the<span class="w"> </span>output<span class="w"> </span>data<span class="w"> </span>file.<span class="w"> </span>Options<span class="w"> </span>are<span class="w"> </span>hdf5,<span class="w"> </span>npz,
+<span class="w">                      </span>json,<span class="w"> </span>pickle.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span>json.
+--time_shift<span class="w"> </span>TIME_SHIFT
+<span class="w">                      </span>Seconds<span class="w"> </span>to<span class="w"> </span>timeshift<span class="w"> </span>the<span class="w"> </span>data<span class="w"> </span>by<span class="w"> </span><span class="k">in</span><span class="w"> </span>preprocessing.<span class="w"> </span>Default
+<span class="w">                      </span>is<span class="w"> </span><span class="m">0</span>.
+--gate_data<span class="w"> </span>GATE_DATA
+<span class="w">                      </span>Whether<span class="w"> </span>to<span class="w"> </span>apply<span class="w"> </span>self-gating<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>data<span class="w"> </span><span class="k">in</span><span class="w"> </span>preprocessing.
+<span class="w">                      </span>Default<span class="w"> </span>is<span class="w"> </span>False.
+--gate_tzero<span class="w"> </span>GATE_TZERO
+<span class="w">                      </span>Gate<span class="w"> </span>tzero.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="m">1</span>.0.
+--gate_tpad<span class="w"> </span>GATE_TPAD
+<span class="w">                      </span>Gate<span class="w"> </span>tpad.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="m">0</span>.5.
+--gate_threshold<span class="w"> </span>GATE_THRESHOLD
+<span class="w">                      </span>Gate<span class="w"> </span>threshold.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="m">50</span>.
+--cluster_window<span class="w"> </span>CLUSTER_WINDOW
+<span class="w">                      </span>Cluster<span class="w"> </span>window.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="m">0</span>.5.
+--gate_whiten<span class="w"> </span>GATE_WHITEN
+<span class="w">                      </span>Whether<span class="w"> </span>to<span class="w"> </span>whiten<span class="w"> </span>when<span class="w"> </span>gating.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span>True.
+--tag<span class="w"> </span>TAG<span class="w">             </span>Hint<span class="w"> </span><span class="k">for</span><span class="w"> </span>the<span class="w"> </span>read_data<span class="w"> </span><span class="k">function</span><span class="w"> </span>to<span class="w"> </span>retrieve<span class="w"> </span>one<span class="w"> </span>specific
+<span class="w">                      </span><span class="nb">type</span><span class="w"> </span>of<span class="w"> </span>data,<span class="w"> </span>e.g.:<span class="w"> </span>C00,<span class="w"> </span>C01
+--return_naive_and_averaged_sigmas<span class="w"> </span>RETURN_NAIVE_AND_AVERAGED_SIGMAS
+<span class="w">                      </span>option<span class="w"> </span>to<span class="w"> </span><span class="k">return</span><span class="w"> </span>naive<span class="w"> </span>and<span class="w"> </span>sliding<span class="w"> </span>sigmas<span class="w"> </span>from<span class="w"> </span>delta<span class="w"> </span>sigma
+<span class="w">                      </span>cut.<span class="w"> </span>Default<span class="w"> </span>value:<span class="w"> </span>False
+</pre></div>
+</div>
+<p>As can be seen, all of the parameters above come with a brief description, which should help the user identify their functionality. In particular,
+we note that the above parameters are the ones present in the <code class="docutils literal notranslate"><span class="pre">pygwb.parameters</span></code> module. For more information, one can have a look at the
+<a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a>, where more details are provided.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Feeling overwhelmed with the amount of parameters? Make sure to have a look to the <code class="docutils literal notranslate"><span class="pre">pygwb.parameters</span></code> <a class="reference external" href="api/pygwb.parameters.html">documentation</a>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The current default for the <code class="docutils literal notranslate"><span class="pre">notch_list_path</span></code> is an empty string, which means no notches are applied.
+If notching should be applied, a path to a notch list file can be added to these parameters.
+An example for such a notch list can be downloaded <a class="reference download internal" download="" href="_downloads/790862af1ec0903ae59f488c68ad311b/Official_O3_HL_notchlist.txt"><code class="xref download docutils literal notranslate"><span class="pre">here</span></code></a>.
+This particular notch list was used in the analysis for the third observing run of the LIGO-Virgo-KAGRA network.
+This file can also be found in the <code class="docutils literal notranslate"><span class="pre">pygwb/pygwb_pipe</span></code> folder.</p>
+</div>
+</section>
+<section id="running-the-script">
+<h2><strong>2. Running the script</strong><a class="headerlink" href="#running-the-script" title="Permalink to this heading"></a></h2>
+<p>Although all of the parameters shown above can be passed to the script, we start by running <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> without passing any optional parameters directly to the script.
+The only required argument is a path to a parameter file, which contains the parameter values
+to use for the analysis. As an example, one can run the script with the <code class="docutils literal notranslate"><span class="pre">parameters.ini</span></code> file provided in the <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> directory of the
+<a class="reference external" href="https://github.com/a-renzini/pygwb/blob/master/pygwb_pipe/parameters.ini">repository</a>. To test the pipeline, run the command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pygwb_pipe<span class="w"> </span>--param_file<span class="w"> </span>pygwb_pipe/parameters.ini<span class="w"> </span>--apply_dsc<span class="w"> </span>False
+</pre></div>
+</div>
+<p>The output of the command above should be:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="mi">2023</span><span class="mo">-02</span><span class="mi">-21</span><span class="w"> </span><span class="mi">14</span><span class="o">:</span><span class="mi">43</span><span class="o">:</span><span class="mf">40.817</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">SUCCESS</span><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="n">__main__</span><span class="o">:</span><span class="n">main</span><span class="o">:</span><span class="mi">160</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">Ran</span><span class="w"> </span><span class="n">stochastic</span><span class="w"> </span><span class="n">search</span><span class="w"> </span><span class="n">over</span><span class="w"> </span><span class="n">times</span><span class="w"> </span><span class="mi">1247644138-1247645038</span>
+<span class="mi">2023</span><span class="mo">-02</span><span class="mi">-24</span><span class="w"> </span><span class="mi">16</span><span class="o">:</span><span class="mi">35</span><span class="o">:</span><span class="mf">25.625</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">SUCCESS</span><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="n">__main__</span><span class="o">:</span><span class="n">main</span><span class="o">:</span><span class="mi">163</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">POINT</span><span class="w"> </span><span class="n">ESTIMATE</span><span class="o">:</span><span class="w"> </span><span class="mf">-6.496991e-06</span>
+<span class="mi">2023</span><span class="mo">-02</span><span class="mi">-24</span><span class="w"> </span><span class="mi">16</span><span class="o">:</span><span class="mi">35</span><span class="o">:</span><span class="mf">25.625</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">SUCCESS</span><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="n">__main__</span><span class="o">:</span><span class="n">main</span><span class="o">:</span><span class="mi">164</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">SIGMA</span><span class="o">:</span><span class="w"> </span><span class="mf">2.688128e-06</span>
+</pre></div>
+</div>
+<p>However, one could have decided to run with different parameters. An option is to modify the <code class="docutils literal notranslate"><span class="pre">parameters.ini</span></code> file, or one could also pass the parameters as arguments
+to the script directly. For example:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pygwb_pipe<span class="w"> </span>--param_file<span class="w"> </span><span class="o">{</span>path_to_param_file<span class="o">}</span><span class="w"> </span>--apply_dsc<span class="w"> </span>True<span class="w"> </span>--gate_data<span class="w"> </span>True
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Passing any parameters through the command line overwrites the value in the <code class="docutils literal notranslate"><span class="pre">parameters.ini</span></code> file.</p>
+</div>
+<p><strong>Note: detector–specific parameters</strong></p>
+<p>It is possible to pass detector–specific parameters, both in the <code class="docutils literal notranslate"><span class="pre">.ini</span></code> file and through shell. The syntax is:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>param:<span class="w"> </span>IFO1:val1,IFO2:val2
+</pre></div>
+</div>
+<p>For example, if passing different channel names for LIGO Hanford and LIGO Livingston:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>channel:<span class="w"> </span>H1:GWOSC-16KHZ_R1_STRAIN,L1:PYGWB-SIMULATED_STRAIN
+</pre></div>
+</div>
+<p>These are the same when passing through shell:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>--channel<span class="w"> </span>H1:GWOSC-16KHZ_R1_STRAIN,L1:PYGWB-SIMULATED_STRAIN
+</pre></div>
+</div>
+</section>
+<section id="output-of-the-script">
+<h2><strong>3. Output of the script</strong><a class="headerlink" href="#output-of-the-script" title="Permalink to this heading"></a></h2>
+<p>As mentioned previously, the purpose of the <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> analysis package is to compute an estimator of the GWB, through the computation of a
+point estimate and variance spectrum, which can be translated into one point estimate and variance. By default, the output of the analysis will be saved in
+the <code class="docutils literal notranslate"><span class="pre">./output</span></code> folder of your run directory, unless otherwise specified through the <code class="docutils literal notranslate"><span class="pre">--output_path</span></code> argument of the script.</p>
+<p>A few files can be found in this directory, including a version of the parameters file used for the
+analysis. Note that this takes into account any parameters that were modified through the command line. This file will have the naming convention <code class="docutils literal notranslate"><span class="pre">parameters_{t0}_{length_of</span> <span class="pre">job}_final.ini</span></code>.</p>
+<p>Additionally, the power-spectral densities (PSDs) and cross-spectral densities (CSDs) are saved in a file with naming convention:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>psds_csds_<span class="o">{</span>start_time_of_job<span class="o">}</span>_<span class="o">{</span>job_duration<span class="o">}</span>.npz
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Not sure about what is exactly in a file? Load in the file and print out all its <cite>keys</cite> as shown
+<a class="reference external" href="https://stackoverflow.com/questions/49219436/how-to-show-all-the-element-names-in-a-npz-file-without-having-to-load-the-compl">here</a>.</p>
+</div>
+<p>Printing these keys displays the following:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">npzfile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>numpy.load<span class="o">(</span><span class="s2">&quot;psds_csds_{start_time_of_job}_{job_duration}.npz&quot;</span><span class="o">)</span>
+print<span class="o">(</span>list<span class="o">(</span>npzfile.keys<span class="o">()))</span>
+
+<span class="o">[</span><span class="s1">&#39;freqs&#39;</span>,<span class="w"> </span><span class="s1">&#39;avg_freqs&#39;</span>,<span class="w"> </span><span class="s1">&#39;csd&#39;</span>,<span class="w"> </span><span class="s1">&#39;avg_csd&#39;</span>,<span class="w"> </span><span class="s1">&#39;psd_1&#39;</span>,<span class="w"> </span><span class="s1">&#39;psd_2&#39;</span>,<span class="w"> </span><span class="s1">&#39;avg_psd_1&#39;</span>,<span class="w"> </span><span class="s1">&#39;avg_psd_2&#39;</span>,
+<span class="w"> </span><span class="s1">&#39;csd_times&#39;</span>,<span class="w"> </span><span class="s1">&#39;avg_csd_times&#39;</span>,<span class="w"> </span><span class="s1">&#39;psd_times&#39;</span>,<span class="w"> </span><span class="s1">&#39;avg_psd_times&#39;</span>,
+<span class="w"> </span><span class="s1">&#39;coherence&#39;</span>,<span class="w"> </span><span class="s1">&#39;psd_1_coh&#39;</span>,<span class="w"> </span><span class="s1">&#39;psd_2_coh&#39;</span>,<span class="w"> </span><span class="s1">&#39;csd_coh&#39;</span>,<span class="w"> </span><span class="s1">&#39;n_segs_coh&#39;</span><span class="o">]</span>
+</pre></div>
+</div>
+<p>The above keys of the <code class="docutils literal notranslate"><span class="pre">.npz</span></code> have corresponding data associated to them, which can be read using:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">variable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>npzfile<span class="o">[</span><span class="s1">&#39;{key}&#39;</span><span class="o">]</span>
+</pre></div>
+</div>
+<p>More specifically, the frequencies for naive estimates can be accessed through the <code class="docutils literal notranslate"><span class="pre">'freqs'</span></code> key, whereas the ones for averaged
+estimates of the spectral densitities can be accessed through the <code class="docutils literal notranslate"><span class="pre">'avg_freqs'</span></code> key. Additionally, the CSD can be read using the
+<code class="docutils literal notranslate"><span class="pre">'csd'</span></code> key and the average CSD can be found with the key <code class="docutils literal notranslate"><span class="pre">'avg_csd'</span></code>. Analogously, one can load the PSDs of the interferometers.
+One can also read the times associated to these spectral densities by using the keys <code class="docutils literal notranslate"><span class="pre">'{insert_spectral_density}_times'</span></code>. If the <code class="docutils literal notranslate"><span class="pre">--calc_coh</span></code>
+argument was set to <code class="docutils literal notranslate"><span class="pre">True</span></code> during the analysis, the coherence information will also be stored in this file under the <code class="docutils literal notranslate"><span class="pre">'coherence'</span></code> key
+together with the PSDs, CSD and amount of segments used to compute coherence.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Depending on the parameters used to run <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code>, some keys above might not have a avalue associated to them.</p>
+</div>
+<p>A second file contains the actual point estimate spectrum, variance spectrum, point estimate and variance. These can be found in:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>point_estimate_sigma_<span class="o">{</span>start_time_of_job<span class="o">}</span>_<span class="o">{</span>job_duration<span class="o">}</span>.npz
+</pre></div>
+</div>
+<p>This file can be read in similarly to the previous file, and has the following keys:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">[</span><span class="s1">&#39;frequencies&#39;</span>,<span class="w"> </span><span class="s1">&#39;frequency_mask&#39;</span>,<span class="w"> </span><span class="s1">&#39;point_estimate_spectrum&#39;</span>,<span class="w"> </span><span class="s1">&#39;sigma_spectrum&#39;</span>,
+<span class="s1">&#39;point_estimate&#39;</span>,<span class="w"> </span><span class="s1">&#39;sigma&#39;</span>,<span class="w"> </span><span class="s1">&#39;point_estimate_spectrogram&#39;</span>,<span class="w"> </span><span class="s1">&#39;sigma_spectrogram&#39;</span>,
+<span class="s1">&#39;badGPStimes&#39;</span>,<span class="w"> </span><span class="s1">&#39;delta_sigma_alphas&#39;</span>,<span class="w"> </span><span class="s1">&#39;delta_sigma_times&#39;</span>,<span class="w"> </span><span class="s1">&#39;delta_sigma_values&#39;</span>,
+<span class="s1">&#39;naive_sigma_values&#39;</span>,<span class="w"> </span><span class="s1">&#39;slide_sigma_values&#39;</span>,<span class="w"> </span><span class="s1">&#39;ifo_1_gates&#39;</span>,<span class="w"> </span><span class="s1">&#39;ifo_1_gate_pad&#39;</span>,
+<span class="s1">&#39;ifo_2_gates&#39;</span>,<span class="w"> </span><span class="s1">&#39;ifo_2_gate_pad&#39;</span><span class="o">]</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Depending on the parameters used to run <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code>, some keys above might not have a avalue associated to them,
+in particular the ones related to gating and the delta sigma cut.</p>
+</div>
+<p>The file and associated keys can be read in via the same code as the one shown above. The <code class="docutils literal notranslate"><span class="pre">'frequencies'</span></code> key reads
+the frequencies corresponding to those of the <code class="docutils literal notranslate"><span class="pre">point_estimate_spectrum</span></code>, which can in turn be
+read using the key that is called the same. The spectrograms are read in a  nalogously, but with spectrogram at the end of the name
+instead of spectrum. The key <code class="docutils literal notranslate"><span class="pre">'frequency_mask'</span></code> provides information about the frequencies which were notched, i.e. not used, in the analysis.
+The overall point estimate and its standard deviation can be loaded using the <code class="docutils literal notranslate"><span class="pre">'point_estimate'</span></code> and  the <code class="docutils literal notranslate"><span class="pre">'sigma'</span></code> keys.</p>
+<p>The output of the data quality checks in <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> are also saved in the same file. The output of the delta sigma cut is stored in
+different keys. First, one can find the times which are not allowed in the analysis using the key <code class="docutils literal notranslate"><span class="pre">'badGPStimes'</span></code>, i.e., the
+times that do not pass the cut. The spectral indices used for the delta sigma cut are stored in <code class="docutils literal notranslate"><span class="pre">'delta_sigma_alphas'</span></code>, times
+in <code class="docutils literal notranslate"><span class="pre">'delta_sigma_times'</span></code>, and the actual values of the computed delta sigmas can be found through the <code class="docutils literal notranslate"><span class="pre">'delta_sigma_values'</span></code> key.
+The cut computes both the naive and sliding sigma values, which are also stored in the keys <code class="docutils literal notranslate"><span class="pre">'naive_sigma_values'</span></code> and <code class="docutils literal notranslate"><span class="pre">'slide_sigma_values'</span></code>.</p>
+<p>If gating was applied during the analysis, the gated times are saved in <code class="docutils literal notranslate"><span class="pre">'ifo_{i}_gates'</span></code> where <code class="docutils literal notranslate"><span class="pre">i</span></code> can be 1 or 2, labeling the interferometer.
+The <code class="docutils literal notranslate"><span class="pre">'ifo_{i}_gate_pad'</span></code> refers to the value of the parameter <code class="docutils literal notranslate"><span class="pre">gate_tpad</span></code> during the analysis.</p>
+<p>To conclude, if the script was run with <code class="docutils literal notranslate"><span class="pre">--pickle_out</span> <span class="pre">True</span></code>, a <code class="docutils literal notranslate"><span class="pre">pickle</span></code> file will be present in the output directory, containing a pickled
+version of the baseline. This contains all the information present in the other two <code class="docutils literal notranslate"><span class="pre">npz</span></code> files, but allows the user to create a baseline object
+from this <code class="docutils literal notranslate"><span class="pre">pickle</span></code> file. More information about how to create a baseline from such a file can be found <a class="reference external" href="api/pygwb.baseline.Baseline.html#pygwb.baseline.Baseline.load_from_pickle">here</a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Saving <code class="docutils literal notranslate"><span class="pre">pickle</span></code> files can take up a lot of memory. Furthermore, loading in a baseline from <code class="docutils literal notranslate"><span class="pre">pickle</span></code> file can take quite some time. Working
+with <code class="docutils literal notranslate"><span class="pre">npz</span></code> files is therefore recommended, when possible.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Depending on the parameters used to run <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code>, the output of the script and amount of files might differ from the one described here.</p>
+</div>
+<p>This tutorial provides a brief overview of the <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> script and how to run it for one job, i.e., a small stretch of data. In practice,
+however, one probably wants to analyze months, if not years, of data. To address this need, <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> can be run on multiple jobs, i.e., different
+stretches of data, through parallelization using Condor (more information about Condor can be found <a class="reference external" href="https://htcondor.readthedocs.io/en/latest/index.html">here</a>).
+The concrete implementation within the <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> package is outlined in the <a class="reference external" href="multiple_jobs.html">following tutorial</a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tutorials.html" class="btn btn-neutral float-left" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="multiple_jobs.html" class="btn btn-neutral float-right" title="Running multiple pygwb_pipe jobs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

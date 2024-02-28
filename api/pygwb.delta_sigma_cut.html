@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pygwb.delta_sigma_cut &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=a5c4661c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=0264ad83"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pygwb.delta_sigma_cut.dsc_cut" href="pygwb.delta_sigma_cut.dsc_cut.html" />
+    <link rel="prev" title="pygwb.simulator.Simulator" href="pygwb.simulator.Simulator.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demos.html">Demos</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pygwb.detector.html">pygwb.detector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.baseline.html">pygwb.baseline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.network.html">pygwb.network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.preprocessing.html">pygwb.preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.spectral.html">pygwb.spectral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.coherence.html">pygwb.coherence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.postprocessing.html">pygwb.postprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.omega_spectra.html">pygwb.omega_spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.pe.html">pygwb.pe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.statistical_checks.html">pygwb.statistical_checks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.simulator.html">pygwb.simulator</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">pygwb.delta_sigma_cut</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.delta_sigma_cut.dsc_cut.html">pygwb.delta_sigma_cut.dsc_cut</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.delta_sigma_cut.run_dsc.html">pygwb.delta_sigma_cut.run_dsc</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.notch.html">pygwb.notch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.constants.html">pygwb.constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.orfs.html">pygwb.orfs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.parameters.html">pygwb.parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.util.html">pygwb.util</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API</a></li>
+      <li class="breadcrumb-item active">pygwb.delta_sigma_cut</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/pygwb.delta_sigma_cut.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-pygwb.delta_sigma_cut">
+<span id="pygwb-delta-sigma-cut"></span><h1>pygwb.delta_sigma_cut<a class="headerlink" href="#module-pygwb.delta_sigma_cut" title="Permalink to this heading"></a></h1>
+<p>In general, the noise level in ground-based detectors changes slowly on time-scales of tens of minutes to hours. The
+variance associated to each segment is an indicator of that level of noise, which typically changes
+at roughly the percent level from one data segment to the next. However, there are occasional very loud disturbances
+to the detectors, such as glitches, which violate the Gaussianity of the noise. Auto-gating procedures are in place
+to remove loud glitches from the data; however the procedure does not remove all non-stationarities.
+To avoid biases due to these noise events, an automated technique, called delta-sigma cut,
+to exclude them from the analysis has been developed, which flags specific segments to be cut from the analyzed set.</p>
+<p class="rubric">Examples</p>
+<p>As an example, we show how to use delta sigma cut. To this end, we import the relevant packages:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pygwb.delta_sigma_cut</span> <span class="kn">import</span> <span class="n">dsc_cut</span>
+</pre></div>
+</div>
+<p>For concreteness, we use some randomly generated data arrays as placeholders for <code class="docutils literal notranslate"><span class="pre">naive_sigma</span></code> and
+<code class="docutils literal notranslate"><span class="pre">sliding_sigma</span></code>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">naive_sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sliding_sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">dsc_cut</span></code> method can be called with its default parameters:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dsigma_mask</span><span class="p">,</span> <span class="n">dsigma</span> <span class="o">=</span> <span class="n">dsc_cut</span><span class="p">(</span><span class="n">naive_sigma</span><span class="p">,</span> <span class="n">sliding_sigma</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The result is a mask containing booleans, which indicates whether or not the segment should be
+considered in the remainder of the analysis. In addition, the actual value of the difference
+in sigmas is given as well.</p>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="pygwb.delta_sigma_cut.dsc_cut.html#pygwb.delta_sigma_cut.dsc_cut" title="pygwb.delta_sigma_cut.dsc_cut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dsc_cut</span></code></a>(naive_sigma, slide_sigma[, dsc, ...])</p></td>
+<td><p>Function that performs the delta sigma cut, a veto that marks certain GPS times as unusable if the estimation of the PSD in the naive (estimating sigma in bin J) and sliding (estimating sigma in bins J pm 1) differ by more than a certain threshold:</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pygwb.delta_sigma_cut.run_dsc.html#pygwb.delta_sigma_cut.run_dsc" title="pygwb.delta_sigma_cut.run_dsc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_dsc</span></code></a>(dsc, segment_duration, psd1_naive, ...)</p></td>
+<td><p>Function that runs the delta sigma cut.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pygwb.simulator.Simulator.html" class="btn btn-neutral float-left" title="pygwb.simulator.Simulator" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pygwb.delta_sigma_cut.dsc_cut.html" class="btn btn-neutral float-right" title="pygwb.delta_sigma_cut.dsc_cut" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

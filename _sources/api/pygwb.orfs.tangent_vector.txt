@@ -1,0 +1,6 @@
+pygwb.orfs.tangent\_vector
+==========================
+
+.. currentmodule:: pygwb.orfs
+
+.. autofunction:: tangent_vector

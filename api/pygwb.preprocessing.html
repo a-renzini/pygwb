@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pygwb.preprocessing &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=a5c4661c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=0264ad83"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pygwb.preprocessing.apply_high_pass_filter" href="pygwb.preprocessing.apply_high_pass_filter.html" />
+    <link rel="prev" title="pygwb.network.Network" href="pygwb.network.Network.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demos.html">Demos</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pygwb.detector.html">pygwb.detector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.baseline.html">pygwb.baseline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.network.html">pygwb.network</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">pygwb.preprocessing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.preprocessing.apply_high_pass_filter.html">pygwb.preprocessing.apply_high_pass_filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.preprocessing.preprocessing_data_channel_name.html">pygwb.preprocessing.preprocessing_data_channel_name</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.preprocessing.preprocessing_data_gwpy_timeseries.html">pygwb.preprocessing.preprocessing_data_gwpy_timeseries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.preprocessing.preprocessing_data_timeseries_array.html">pygwb.preprocessing.preprocessing_data_timeseries_array</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.preprocessing.read_data.html">pygwb.preprocessing.read_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.preprocessing.resample_filter.html">pygwb.preprocessing.resample_filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.preprocessing.self_gate_data.html">pygwb.preprocessing.self_gate_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.preprocessing.set_start_time.html">pygwb.preprocessing.set_start_time</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.preprocessing.shift_timeseries.html">pygwb.preprocessing.shift_timeseries</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.spectral.html">pygwb.spectral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.coherence.html">pygwb.coherence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.postprocessing.html">pygwb.postprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.omega_spectra.html">pygwb.omega_spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.pe.html">pygwb.pe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.statistical_checks.html">pygwb.statistical_checks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.simulator.html">pygwb.simulator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.delta_sigma_cut.html">pygwb.delta_sigma_cut</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.notch.html">pygwb.notch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.constants.html">pygwb.constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.orfs.html">pygwb.orfs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.parameters.html">pygwb.parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.util.html">pygwb.util</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API</a></li>
+      <li class="breadcrumb-item active">pygwb.preprocessing</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/pygwb.preprocessing.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-pygwb.preprocessing">
+<span id="pygwb-preprocessing"></span><h1>pygwb.preprocessing<a class="headerlink" href="#module-pygwb.preprocessing" title="Permalink to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">preprocessing</span></code> module combines all the functions that handle the preprocessing of the data used in the analysis.
+This is anything related to the preparation of the data for the <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> analysis run.
+It can read data from frame files, locally or publicly (for additional information on frame files, see <a class="reference external" href="https://gwpy.github.io/docs/v0.1/timeseries/gwf.html">here</a>).
+Other functionalities include resampling the data, applying a high-pass filter to data or applying a timeshift.
+These functionalities come together in the triplet of <code class="docutils literal notranslate"><span class="pre">preprocessing_data</span></code> functions
+which read in data and resample and/or high-passe the data on the fly.
+The triplet can work for a <code class="docutils literal notranslate"><span class="pre">gwpy.timeseries.TimeSeries</span></code>, a normal array or using a gravitational-wave channel
+that will read data from that channel using the provided local or public frame files. Another functionality of the module is to
+gate data based on the gating function in <code class="docutils literal notranslate"><span class="pre">gwpy</span></code>, <code class="docutils literal notranslate"><span class="pre">gwpy.timeseries.TimeSeries.gate</span></code>.
+More information can be found <a class="reference external" href="https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeries/#gwpy.timeseries.TimeSeries.gate">here</a>.</p>
+<p class="rubric">Examples</p>
+<p>As an example, we read in some data from a certain channel and then resample, high-pass and apply gating to the data.
+First, we have to import the module.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pygwb.preprocessing</span> <span class="k">as</span> <span class="nn">ppp</span>
+</pre></div>
+</div>
+<p>Then, we read in some data using the <code class="docutils literal notranslate"><span class="pre">read_data</span></code> method.
+For concreteness, we read in public data from the LIGO Hanford “H1” detector. This can be done as shown below.
+The “public” tag indicates we are obtaining public data from the <a class="reference external" href="https://gwosc.org/">GWOSC</a> servers.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">IFO</span> <span class="o">=</span> <span class="s2">&quot;H1&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_timeseries</span> <span class="o">=</span> <span class="n">ppp</span><span class="o">.</span><span class="n">read_data</span><span class="p">(</span>
+<span class="go">        IFO,</span>
+<span class="go">        &quot;public&quot;,                   # data_type</span>
+<span class="go">        &quot;H1:GWOSC-16KHZ_R1_STRAIN&quot;, # channel</span>
+<span class="go">        1247644138,                 # t0</span>
+<span class="go">        1247648138,                 # tf</span>
+<span class="go">        &quot;&quot;,                         # local_data_path</span>
+<span class="go">        16384                       # input_sample_rate</span>
+<span class="go">    )</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">data_timeseries</span><span class="o">.</span><span class="n">sample_rate</span><span class="p">)</span>
+<span class="go">16384.0 Hz</span>
+</pre></div>
+</div>
+<p>The sample rate is shown for illustrative purposes. Now, we preprocess the data,
+meaning it is resampled and a high-pass
+filter is applied to the data. As an example, the data is resampled to 4 kHz.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">new_sample_rate</span> <span class="o">=</span> <span class="mi">4096</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">preprocessed_timeseries</span> <span class="o">=</span> <span class="n">ppp</span><span class="o">.</span><span class="n">preprocessing_data_gwpy_timeseries</span><span class="p">(</span>
+<span class="go">        IFO,</span>
+<span class="go">        data_timeseries,</span>
+<span class="go">        new_sample_rate,</span>
+<span class="go">        11,        # cutoff_frequency</span>
+<span class="go">        2,         # number_cropped_seconds</span>
+<span class="go">        &quot;hamming&quot;, # window_downsampling</span>
+<span class="go">        &quot;fir&quot;,     # ftype</span>
+<span class="go">        0          # timeshift</span>
+<span class="go">    )</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">preprocessed_timeseries</span><span class="o">.</span><span class="n">sample_rate</span><span class="p">)</span>
+<span class="go">4096.0 Hz</span>
+</pre></div>
+</div>
+<p>One can see that the sample rate was indeed modified.
+Another important part of preprocessing is gating the data.
+In that case, using again default values for parameters, one can run the following lines:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gated_timeseries</span><span class="p">,</span> <span class="n">deadtime</span> <span class="o">=</span> <span class="n">ppp</span><span class="o">.</span><span class="n">self_gate_data</span><span class="p">(</span>
+<span class="go">        preprocessed_timeseries,</span>
+<span class="go">        1.0,  # gate_tzero</span>
+<span class="go">        0.5,  # gate_tpad</span>
+<span class="go">        50.0, # gate_threshold</span>
+<span class="go">        0.5,  # cluster_window</span>
+<span class="go">        True  # gate_whiten</span>
+<span class="go">    )</span>
+</pre></div>
+</div>
+<p>More information on the gating procedure can be found <a class="reference external" href="https://dcc.ligo.org/public/0172/P2000546/002/gating-mdc.pdf">here</a>.</p>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="pygwb.preprocessing.apply_high_pass_filter.html#pygwb.preprocessing.apply_high_pass_filter" title="pygwb.preprocessing.apply_high_pass_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_high_pass_filter</span></code></a>(timeseries, ...[, ...])</p></td>
+<td><p>Function to apply a high pass filter to a timeseries.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pygwb.preprocessing.preprocessing_data_channel_name.html#pygwb.preprocessing.preprocessing_data_channel_name" title="pygwb.preprocessing.preprocessing_data_channel_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing_data_channel_name</span></code></a>(IFO, t0, tf, ...)</p></td>
+<td><p>Function doing the pre-processing of the data to be used in the remainder of the code.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pygwb.preprocessing.preprocessing_data_gwpy_timeseries.html#pygwb.preprocessing.preprocessing_data_gwpy_timeseries" title="pygwb.preprocessing.preprocessing_data_gwpy_timeseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing_data_gwpy_timeseries</span></code></a>(...[, ...])</p></td>
+<td><p>Function doing the pre-processing of a gwpy timeseries to be used in the remainder of the code.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pygwb.preprocessing.preprocessing_data_timeseries_array.html#pygwb.preprocessing.preprocessing_data_timeseries_array" title="pygwb.preprocessing.preprocessing_data_timeseries_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing_data_timeseries_array</span></code></a>(t0, tf, ...)</p></td>
+<td><p>Function performing the pre-processing of a time-series array to be used in the remainder of the code.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pygwb.preprocessing.read_data.html#pygwb.preprocessing.read_data" title="pygwb.preprocessing.read_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_data</span></code></a>(IFO, data_type, channel, t0, tf[, ...])</p></td>
+<td><p>Function that read in the data to be used in the rest of the code.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pygwb.preprocessing.resample_filter.html#pygwb.preprocessing.resample_filter" title="pygwb.preprocessing.resample_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resample_filter</span></code></a>(time_series_data, ...[, ...])</p></td>
+<td><p>Function doing part of the pre-processing (resampling and filtering) of the data to be used in the remainder of the code.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pygwb.preprocessing.self_gate_data.html#pygwb.preprocessing.self_gate_data" title="pygwb.preprocessing.self_gate_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">self_gate_data</span></code></a>(time_series_data[, tzero, ...])</p></td>
+<td><p>Function to self-gate data to be used in the stochastic pipeline.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pygwb.preprocessing.set_start_time.html#pygwb.preprocessing.set_start_time" title="pygwb.preprocessing.set_start_time"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_start_time</span></code></a>(job_start_GPS, job_end_GPS, ...)</p></td>
+<td><p>Function to identify segment start times either with or without sidereal option.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pygwb.preprocessing.shift_timeseries.html#pygwb.preprocessing.shift_timeseries" title="pygwb.preprocessing.shift_timeseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shift_timeseries</span></code></a>(time_series_data[, time_shift])</p></td>
+<td><p>Function that shifts a timeseries by an amount <code class="docutils literal notranslate"><span class="pre">time_shift</span></code> in order to perform the timeshifted analysis.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pygwb.network.Network.html" class="btn btn-neutral float-left" title="pygwb.network.Network" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pygwb.preprocessing.apply_high_pass_filter.html" class="btn btn-neutral float-right" title="pygwb.preprocessing.apply_high_pass_filter" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

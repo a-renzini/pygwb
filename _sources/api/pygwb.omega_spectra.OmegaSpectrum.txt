@@ -1,0 +1,162 @@
+pygwb.omega\_spectra.OmegaSpectrum
+==================================
+
+.. currentmodule:: pygwb.omega_spectra
+
+.. autoclass:: OmegaSpectrum
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+   .. automethod:: __call__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~OmegaSpectrum.__init__
+      ~OmegaSpectrum.abs
+      ~OmegaSpectrum.all
+      ~OmegaSpectrum.any
+      ~OmegaSpectrum.append
+      ~OmegaSpectrum.argmax
+      ~OmegaSpectrum.argmin
+      ~OmegaSpectrum.argpartition
+      ~OmegaSpectrum.argsort
+      ~OmegaSpectrum.astype
+      ~OmegaSpectrum.byteswap
+      ~OmegaSpectrum.choose
+      ~OmegaSpectrum.clip
+      ~OmegaSpectrum.compress
+      ~OmegaSpectrum.conj
+      ~OmegaSpectrum.conjugate
+      ~OmegaSpectrum.copy
+      ~OmegaSpectrum.crop
+      ~OmegaSpectrum.cumprod
+      ~OmegaSpectrum.cumsum
+      ~OmegaSpectrum.decompose
+      ~OmegaSpectrum.diagonal
+      ~OmegaSpectrum.diff
+      ~OmegaSpectrum.dot
+      ~OmegaSpectrum.dump
+      ~OmegaSpectrum.dumps
+      ~OmegaSpectrum.ediff1d
+      ~OmegaSpectrum.fill
+      ~OmegaSpectrum.filter
+      ~OmegaSpectrum.filterba
+      ~OmegaSpectrum.flatten
+      ~OmegaSpectrum.from_lal
+      ~OmegaSpectrum.from_pycbc
+      ~OmegaSpectrum.getfield
+      ~OmegaSpectrum.ifft
+      ~OmegaSpectrum.inject
+      ~OmegaSpectrum.insert
+      ~OmegaSpectrum.interpolate
+      ~OmegaSpectrum.is_compatible
+      ~OmegaSpectrum.is_contiguous
+      ~OmegaSpectrum.item
+      ~OmegaSpectrum.itemset
+      ~OmegaSpectrum.load_from_pickle
+      ~OmegaSpectrum.max
+      ~OmegaSpectrum.mean
+      ~OmegaSpectrum.median
+      ~OmegaSpectrum.min
+      ~OmegaSpectrum.nansum
+      ~OmegaSpectrum.newbyteorder
+      ~OmegaSpectrum.nonzero
+      ~OmegaSpectrum.override_unit
+      ~OmegaSpectrum.pad
+      ~OmegaSpectrum.partition
+      ~OmegaSpectrum.plot
+      ~OmegaSpectrum.prepend
+      ~OmegaSpectrum.prod
+      ~OmegaSpectrum.ptp
+      ~OmegaSpectrum.put
+      ~OmegaSpectrum.ravel
+      ~OmegaSpectrum.read
+      ~OmegaSpectrum.repeat
+      ~OmegaSpectrum.reset_h0
+      ~OmegaSpectrum.reshape
+      ~OmegaSpectrum.resize
+      ~OmegaSpectrum.reweight
+      ~OmegaSpectrum.round
+      ~OmegaSpectrum.save_to_pickle
+      ~OmegaSpectrum.searchsorted
+      ~OmegaSpectrum.setfield
+      ~OmegaSpectrum.setflags
+      ~OmegaSpectrum.shift
+      ~OmegaSpectrum.sort
+      ~OmegaSpectrum.squeeze
+      ~OmegaSpectrum.std
+      ~OmegaSpectrum.step
+      ~OmegaSpectrum.sum
+      ~OmegaSpectrum.swapaxes
+      ~OmegaSpectrum.take
+      ~OmegaSpectrum.to
+      ~OmegaSpectrum.to_lal
+      ~OmegaSpectrum.to_pycbc
+      ~OmegaSpectrum.to_string
+      ~OmegaSpectrum.to_value
+      ~OmegaSpectrum.tobytes
+      ~OmegaSpectrum.tofile
+      ~OmegaSpectrum.tolist
+      ~OmegaSpectrum.tostring
+      ~OmegaSpectrum.trace
+      ~OmegaSpectrum.transpose
+      ~OmegaSpectrum.update
+      ~OmegaSpectrum.value_at
+      ~OmegaSpectrum.var
+      ~OmegaSpectrum.view
+      ~OmegaSpectrum.write
+      ~OmegaSpectrum.zip
+      ~OmegaSpectrum.zpk
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~OmegaSpectrum.T
+      ~OmegaSpectrum.alpha
+      ~OmegaSpectrum.base
+      ~OmegaSpectrum.cgs
+      ~OmegaSpectrum.channel
+      ~OmegaSpectrum.ctypes
+      ~OmegaSpectrum.data
+      ~OmegaSpectrum.df
+      ~OmegaSpectrum.dtype
+      ~OmegaSpectrum.dx
+      ~OmegaSpectrum.epoch
+      ~OmegaSpectrum.equivalencies
+      ~OmegaSpectrum.f0
+      ~OmegaSpectrum.flags
+      ~OmegaSpectrum.flat
+      ~OmegaSpectrum.fref
+      ~OmegaSpectrum.frequencies
+      ~OmegaSpectrum.h0
+      ~OmegaSpectrum.imag
+      ~OmegaSpectrum.info
+      ~OmegaSpectrum.isscalar
+      ~OmegaSpectrum.itemsize
+      ~OmegaSpectrum.name
+      ~OmegaSpectrum.nbytes
+      ~OmegaSpectrum.ndim
+      ~OmegaSpectrum.real
+      ~OmegaSpectrum.shape
+      ~OmegaSpectrum.si
+      ~OmegaSpectrum.size
+      ~OmegaSpectrum.strides
+      ~OmegaSpectrum.unit
+      ~OmegaSpectrum.value
+      ~OmegaSpectrum.x0
+      ~OmegaSpectrum.xindex
+      ~OmegaSpectrum.xspan
+      ~OmegaSpectrum.xunit
+   
+   

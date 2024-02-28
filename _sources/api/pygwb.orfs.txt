@@ -1,0 +1,41 @@
+﻿pygwb.orfs
+==========
+
+.. currentmodule:: pygwb.orfs
+
+.. automodule:: pygwb.orfs
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      Sminus
+      Splus
+      T_right_left
+      Tminus
+      Tplus
+      Vminus
+      Vplus
+      calc_orf
+      omega_tangent_bisector
+      tangent_vector
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

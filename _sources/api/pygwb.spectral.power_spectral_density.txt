@@ -1,0 +1,6 @@
+pygwb.spectral.power\_spectral\_density
+=======================================
+
+.. currentmodule:: pygwb.spectral
+
+.. autofunction:: power_spectral_density

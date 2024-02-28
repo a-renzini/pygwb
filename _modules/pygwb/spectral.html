@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pygwb.spectral &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=0264ad83"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+        <script src="../../_static/tabs.js?v=3030b3cb"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../../about.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../demos.html">Demos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pygwb.spectral</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pygwb.spectral</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;The spectral module contains all functions in the ``pygwb`` package that are related to the computation of</span>
+<span class="sd">the power spectral density (PSD) and the cross spectral density (CSD).</span>
+
+<span class="sd">The functions in this module compute an fftgram from a timeseries in the form of a</span>
+<span class="sd">``gwpy.spectrogram.Spectrogram``, a Welch-averaged PSD and coarse-grain any data.</span>
+<span class="sd">An additional functionality of the module is to compute PSDs and CSDs, which is implemented in</span>
+<span class="sd">the ``power_spectral_density`` and ``cross_spectral_density`` methods.</span>
+
+<span class="sd">Examples</span>
+<span class="sd">--------</span>
+
+<span class="sd">To illustrate some of the main features of the this module, we compute the CSD and PSD of two timeseries </span>
+<span class="sd">representing data from two interferometers.</span>
+
+<span class="sd">The data are read in for two interferometers using methods from the :doc:`pygwb.preprocessing` module.</span>
+
+<span class="sd">&gt;&gt;&gt; import pygwb.preprocessing as ppp</span>
+<span class="sd">&gt;&gt;&gt; import pygwb.spectral as psp</span>
+
+<span class="sd">&gt;&gt;&gt; data_timeseries = ppp.read_data(</span>
+<span class="sd">        &quot;H1&quot;,                      # IFO</span>
+<span class="sd">        &quot;public&quot;,                  # data_type</span>
+<span class="sd">        &quot;H1:GWOSC-4KHZ_R1_STRAIN&quot;, # channel</span>
+<span class="sd">        1247644138,                # t0</span>
+<span class="sd">        1247648138,                # tf</span>
+<span class="sd">        &quot;&quot;,                        # local_data_path</span>
+<span class="sd">        16384                      # input_sample_rate</span>
+<span class="sd">    )</span>
+<span class="sd">    </span>
+<span class="sd">&gt;&gt;&gt; data_timeseries_L = ppp.read_data(</span>
+<span class="sd">        &quot;L1&quot;,                      # IFO</span>
+<span class="sd">        &quot;public&quot;,                  # data_type</span>
+<span class="sd">        &quot;L1:GWOSC-4KHZ_R1_STRAIN&quot;, # channel</span>
+<span class="sd">        1247644138,                # t0</span>
+<span class="sd">        1247648138,                # tf</span>
+<span class="sd">        &quot;&quot;,                        # local_data_path</span>
+<span class="sd">        16384                      # input_sample_rate</span>
+<span class="sd">    )</span>
+
+<span class="sd">The PSD can be computed by calling the appropriate method:</span>
+
+<span class="sd">&gt;&gt;&gt; PSD_H1 = psp.power_spectral_density(</span>
+<span class="sd">        data_timeseries,</span>
+<span class="sd">        segment_duration=192,</span>
+<span class="sd">        frequency_resolution=1/32.,</span>
+<span class="sd">        overlap_factor=0.5,</span>
+<span class="sd">        window_fftgram_dict_welch_psd={&quot;window_fftgram&quot;: &quot;hann&quot;},</span>
+<span class="sd">        overlap_factor_welch_psd=0.5,</span>
+<span class="sd">    )</span>
+<span class="sd">    </span>
+<span class="sd">&gt;&gt;&gt; PSD_L1 = psp.power_spectral_density(</span>
+<span class="sd">        data_timeseries_L,</span>
+<span class="sd">        segment_duration=192,</span>
+<span class="sd">        frequency_resolution=1/32.,</span>
+<span class="sd">        overlap_factor=0.5,</span>
+<span class="sd">        window_fftgram_dict_welch_psd={&quot;window_fftgram&quot;: &quot;hann&quot;},</span>
+<span class="sd">        overlap_factor_welch_psd=0.5,</span>
+<span class="sd">    )</span>
+
+<span class="sd">The CSD is calculated by invoking the following lines of codes.</span>
+
+<span class="sd">&gt;&gt;&gt; CSD_baseline = psp.cross_spectral_density(</span>
+<span class="sd">        data_timeseries,</span>
+<span class="sd">        data_timeseries_L,</span>
+<span class="sd">        segment_duration=192,</span>
+<span class="sd">        frequency_resolution=1/32.,</span>
+<span class="sd">        overlap_factor=0.5,</span>
+<span class="sd">        zeropad=True,</span>
+<span class="sd">        window_fftgram_dict={&quot;window_fftgram&quot;: &quot;hann&quot;},</span>
+<span class="sd">    )</span>
+<span class="sd">    </span>
+<span class="sd">For any additional information on the parameters that enter the methods described here,</span>
+<span class="sd">we refer the reader to the more detailed API documentation of the module.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">gwpy.frequencyseries</span> <span class="kn">import</span> <span class="n">FrequencySeries</span>
+<span class="kn">from</span> <span class="nn">gwpy.spectrogram</span> <span class="kn">import</span> <span class="n">Spectrogram</span>
+<span class="kn">from</span> <span class="nn">gwpy.timeseries</span> <span class="kn">import</span> <span class="n">TimeSeries</span>
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">get_window</span><span class="p">,</span> <span class="n">spectrogram</span>
+
+<span class="kn">from</span> <span class="nn">pygwb.util</span> <span class="kn">import</span> <span class="n">get_window_tuple</span><span class="p">,</span> <span class="n">parse_window_dict</span>
+
+
+<div class="viewcode-block" id="fftgram"><a class="viewcode-back" href="../../api/pygwb.spectral.fftgram.html#pygwb.spectral.fftgram">[docs]</a><span class="k">def</span> <span class="nf">fftgram</span><span class="p">(</span>
+    <span class="n">time_series_data</span><span class="p">:</span> <span class="n">TimeSeries</span><span class="p">,</span>
+    <span class="n">fftlength</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">overlap_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">zeropad</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">window_fftgram_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;window_fftgram&quot;</span><span class="p">:</span> <span class="s2">&quot;hann&quot;</span><span class="p">},</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a fftgram from a timeseries.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    time_series_data: ``gwpy.timeseries.TimeSeries``</span>
+<span class="sd">        Timeseries from which to compute the fftgram.</span>
+<span class="sd">    fftlength: ``int``</span>
+<span class="sd">        Length of each segment (in seconds) for computing FFT.</span>
+<span class="sd">    overlap_factor: ``float``, optional</span>
+<span class="sd">        Factor of overlap between adjacent FFT segments (values range from 0 </span>
+<span class="sd">        to 1). Users should provide proper combination of overlap_factor and</span>
+<span class="sd">        window_fftgram_dict. For \&quot;hann\&quot; window use 0.5 overlap_factor and</span>
+<span class="sd">        for \&quot;boxcar\&quot; window use 0 overlap_factor. Default 0.5 (50% overlap).</span>
+<span class="sd">    zeropad: ``bool``, optional</span>
+<span class="sd">        Before doing FFT whether to zero pad the data equal to the length of </span>
+<span class="sd">        FFT or not. Default is False.</span>
+<span class="sd">    window_fftgram_dict: ``dictionary``, optional</span>
+<span class="sd">        Dictionary containing name and parameters describing which window to </span>
+<span class="sd">        use for producing FFTs. Default is \&quot;hann\&quot;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    data_fftgram: ``gwpy.spectrogram.Spectrogram``</span>
+<span class="sd">        fftgram containing several FFTs in a matrix format. Note this is a complex quantity.</span>
+
+<span class="sd">    See also</span>
+<span class="sd">    --------</span>
+<span class="sd">    pygwb.util.get_window_tuple</span>
+
+<span class="sd">    pygwb.util.parse_window_dict</span>
+<span class="sd">    </span>
+<span class="sd">    scipy.signal.get_window</span>
+<span class="sd">        More information `here &lt;https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.get_window.html&gt;`_.</span>
+
+<span class="sd">    gwpy.frequencyseries.FrequencySeries</span>
+<span class="sd">        More information `here &lt;https://gwpy.github.io/docs/latest/api/gwpy.frequencyseries.FrequencySeries/#gwpy.frequencyseries.FrequencySeries&gt;`_.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sample_rate</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">time_series_data</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="c1"># get the window function</span>
+    <span class="n">window_tuple</span> <span class="o">=</span> <span class="n">get_window_tuple</span><span class="p">(</span><span class="n">parse_window_dict</span><span class="p">(</span><span class="n">window_fftgram_dict</span><span class="p">))</span>
+    <span class="n">window_fftgram</span> <span class="o">=</span> <span class="n">get_window</span><span class="p">(</span><span class="n">window_tuple</span><span class="p">,</span> <span class="n">fftlength</span> <span class="o">*</span> <span class="n">sample_rate</span><span class="p">,</span> <span class="n">fftbins</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># calculate the spectrogram using scipy.signal.spectrogram</span>
+    <span class="k">if</span> <span class="n">zeropad</span><span class="p">:</span>
+        <span class="n">nfft</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">fftlength</span> <span class="o">*</span> <span class="n">sample_rate</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">nfft</span> <span class="o">=</span> <span class="n">fftlength</span> <span class="o">*</span> <span class="n">sample_rate</span>
+
+    <span class="n">f</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">Sxx</span> <span class="o">=</span> <span class="n">spectrogram</span><span class="p">(</span>
+        <span class="n">time_series_data</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+        <span class="n">fs</span><span class="o">=</span><span class="n">sample_rate</span><span class="p">,</span>
+        <span class="n">window</span><span class="o">=</span><span class="n">window_fftgram</span><span class="p">,</span>
+        <span class="n">nperseg</span><span class="o">=</span><span class="n">fftlength</span> <span class="o">*</span> <span class="n">sample_rate</span><span class="p">,</span>
+        <span class="n">noverlap</span><span class="o">=</span><span class="n">overlap_factor</span> <span class="o">*</span> <span class="n">fftlength</span> <span class="o">*</span> <span class="n">sample_rate</span><span class="p">,</span>
+        <span class="n">nfft</span><span class="o">=</span><span class="n">nfft</span><span class="p">,</span>
+        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;complex&quot;</span><span class="p">,</span>
+        <span class="n">detrend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># convert the above spectrogram into gwpy spectrogram object</span>
+    <span class="n">ffts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)):</span>
+        <span class="n">ffts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FrequencySeries</span><span class="p">(</span><span class="n">Sxx</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">ii</span><span class="p">],</span> <span class="n">f0</span><span class="o">=</span><span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">df</span><span class="o">=</span><span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+    <span class="n">data_fftgram</span> <span class="o">=</span> <span class="n">Spectrogram</span><span class="o">.</span><span class="n">from_spectra</span><span class="p">(</span>
+        <span class="o">*</span><span class="n">ffts</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="n">time_series_data</span><span class="o">.</span><span class="n">t0</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">data_fftgram</span></div>
+
+<div class="viewcode-block" id="pwelch_psd"><a class="viewcode-back" href="../../api/pygwb.spectral.pwelch_psd.html#pygwb.spectral.pwelch_psd">[docs]</a><span class="k">def</span> <span class="nf">pwelch_psd</span><span class="p">(</span>
+    <span class="n">psdgram</span><span class="p">:</span> <span class="n">Spectrogram</span><span class="p">,</span> <span class="n">segment_duration</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">overlap_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Estimate PSD using Welch&#39; method.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    psdgram: ``gwpy.spectrogram.Spectrogram`` (PSD)</span>
+<span class="sd">       PSD gram data to be averaged.</span>
+<span class="sd">    segment_duration: ``int``</span>
+<span class="sd">        Data duration (in seconds) over which PSDs need to be averaged. Should be greater </span>
+<span class="sd">        than or equal to the duration used for FFT. </span>
+<span class="sd">    overlap_factor: ``float``, optional</span>
+<span class="sd">        Amount of overlap between adjacent average PSDs, can vary between 0 </span>
+<span class="sd">        and 1. </span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    avg_psdgram: PSD ``gwpy.spectrogram.Spectrogram``</span>
+<span class="sd">        Averaged over segments within the ``segment_duration``.</span>
+
+<span class="sd">    See also</span>
+<span class="sd">    --------</span>
+<span class="sd">    gwpy.spectrogram.Spectrogram</span>
+<span class="sd">        More information `here &lt;https://gwpy.github.io/docs/stable/spectrogram/&gt;`_.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">averaging_factor</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">segment_duration</span> <span class="o">*</span> <span class="n">psdgram</span><span class="o">.</span><span class="n">dy</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">averaging_factor</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Segment_duration should be greater than the FFT</span>
+<span class="sd">                        duration used for PSD calculation&quot;&quot;&quot;</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">averaging_factor</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># nothing to average in this case</span>
+        <span class="n">avg_psdgram</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">psdgram</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># total duration of the original time series</span>
+        <span class="n">job_duration</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">psdgram</span><span class="o">.</span><span class="n">xindex</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">psdgram</span><span class="o">.</span><span class="n">dy</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="n">psdgram</span><span class="o">.</span><span class="n">xindex</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="c1"># possible number of (overlapping) segments</span>
+        <span class="n">stride</span> <span class="o">=</span> <span class="n">segment_duration</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">overlap_factor</span><span class="p">)</span>
+        <span class="n">n_segments</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">job_duration</span> <span class="o">-</span> <span class="n">overlap_factor</span> <span class="o">*</span> <span class="n">segment_duration</span><span class="p">)</span> <span class="o">/</span> <span class="n">stride</span><span class="p">)</span>
+        <span class="n">avg_psds</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">segments_start_times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_segments</span><span class="p">)</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">psdgram</span><span class="o">.</span><span class="n">xindex</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">n_segments</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">avg_psds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">psdgram</span><span class="p">[</span><span class="kc">True</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_segments</span><span class="p">):</span>
+            <span class="n">seg_indices</span> <span class="o">=</span> <span class="p">(</span><span class="n">psdgram</span><span class="o">.</span><span class="n">xindex</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;=</span> <span class="n">start_time</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span>
+                <span class="n">psdgram</span><span class="o">.</span><span class="n">xindex</span><span class="o">.</span><span class="n">value</span>
+                <span class="o">&lt;=</span> <span class="p">(</span><span class="n">start_time</span> <span class="o">+</span> <span class="n">segment_duration</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">psdgram</span><span class="o">.</span><span class="n">dy</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">avg_psds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">psdgram</span><span class="p">[</span><span class="n">seg_indices</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+            <span class="n">segments_start_times</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">start_time</span>
+            <span class="c1"># move to next (overlapping) segment</span>
+            <span class="n">start_time</span> <span class="o">=</span> <span class="n">start_time</span> <span class="o">+</span> <span class="n">stride</span>
+
+        <span class="n">avg_psdgram</span> <span class="o">=</span> <span class="n">Spectrogram</span><span class="o">.</span><span class="n">from_spectra</span><span class="p">(</span>
+            <span class="o">*</span><span class="n">avg_psds</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="n">psdgram</span><span class="o">.</span><span class="n">xindex</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dt</span><span class="o">=</span><span class="n">stride</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">avg_psdgram</span></div>
+
+<div class="viewcode-block" id="before_after_average"><a class="viewcode-back" href="../../api/pygwb.spectral.before_after_average.html#pygwb.spectral.before_after_average">[docs]</a><span class="k">def</span> <span class="nf">before_after_average</span><span class="p">(</span><span class="n">psdgram</span><span class="p">:</span> <span class="n">Spectrogram</span><span class="p">,</span> <span class="n">segment_duration</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">N_avg_segs</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Average the requested number of PSDs from segments adjacent to the segment </span>
+<span class="sd">    of interest (for which CSD is calculated).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    psdgram: ``gwpy.spectrogram.Spectrogram`` (PSD)</span>
+<span class="sd">        PSD spectrogram.</span>
+<span class="sd">    segment_duration: ``int``</span>
+<span class="sd">        Duration (in seconds) of data used for each PSD calculation.</span>
+<span class="sd">    N_avg_segs: ``int``</span>
+<span class="sd">        Number of segments to be used for PSD averaging (from both sides of </span>
+<span class="sd">        the segment of interest). N_avg_segs should be even and &gt;= 2.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    avg_psdgram: ``gwpy.spectrogram.Spectrogram``</span>
+<span class="sd">        Averaged psd gram.</span>
+
+<span class="sd">    See also</span>
+<span class="sd">    --------</span>
+<span class="sd">    gwpy.spectrogram.Spectrogram</span>
+<span class="sd">        More information `here &lt;https://gwpy.github.io/docs/stable/spectrogram/&gt;`_.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">N_avg_segs</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;N_avg_segs should be &gt;=2&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">N_avg_segs</span> <span class="o">%</span> <span class="mi">2</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;N_avg_segs should be even&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">psdgram</span><span class="o">.</span><span class="n">xindex</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">psdgram</span><span class="o">.</span><span class="n">xindex</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&lt;</span> <span class="p">(</span>
+        <span class="n">N_avg_segs</span> <span class="o">*</span> <span class="n">segment_duration</span>
+    <span class="p">):</span>
+        <span class="n">max_N_avg_segs</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">psdgram</span><span class="o">.</span><span class="n">xindex</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">psdgram</span><span class="o">.</span><span class="n">xindex</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">segment_duration</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot; Input (PSD) spectrogram does not have enough </span>
+<span class="s2">                           segments to be used with given N_avg_segs. Here </span>
+<span class="s2">                           N_avg_segs should be less than or equal to</span>
+<span class="s2">                           </span><span class="si">{</span><span class="n">max_N_avg_segs</span><span class="si">}</span><span class="s2">.&quot;&quot;&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># segments for which average PSDs need to be calculated</span>
+    <span class="n">seg_times</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">value</span>
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">psdgram</span><span class="o">.</span><span class="n">xindex</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="p">((</span><span class="n">value</span> <span class="o">-</span> <span class="n">psdgram</span><span class="o">.</span><span class="n">xindex</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="n">N_avg_segs</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">segment_duration</span><span class="p">))</span>
+            <span class="o">&amp;</span> <span class="p">(</span>
+                <span class="p">(</span><span class="n">psdgram</span><span class="o">.</span><span class="n">xindex</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">value</span><span class="p">)</span>
+                <span class="o">&gt;=</span> <span class="p">(</span><span class="n">N_avg_segs</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">segment_duration</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="n">avg_psds</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">seg_times</span><span class="p">:</span>
+        <span class="n">seg_diffs</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">psdgram</span><span class="o">.</span><span class="n">xindex</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="n">ii</span><span class="p">)</span> <span class="o">/</span> <span class="n">segment_duration</span>
+        <span class="n">seg_indices</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">seg_diffs</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">N_avg_segs</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="o">&amp;</span> <span class="p">((</span><span class="n">seg_diffs</span> <span class="o">%</span> <span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">((</span><span class="n">psdgram</span><span class="o">.</span><span class="n">xindex</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="n">ii</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="c1"># Below we only average non-overlapping segments (this is a choice)</span>
+        <span class="n">avg_psds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">psdgram</span><span class="p">[</span><span class="n">seg_indices</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+
+    <span class="n">avg_psdgram</span> <span class="o">=</span> <span class="n">Spectrogram</span><span class="o">.</span><span class="n">from_spectra</span><span class="p">(</span>
+        <span class="o">*</span><span class="n">avg_psds</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="n">seg_times</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dt</span><span class="o">=</span><span class="n">psdgram</span><span class="o">.</span><span class="n">dx</span><span class="o">.</span><span class="n">value</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">avg_psdgram</span></div>
+
+<div class="viewcode-block" id="coarse_grain"><a class="viewcode-back" href="../../api/pygwb.spectral.coarse_grain.html#pygwb.spectral.coarse_grain">[docs]</a><span class="k">def</span> <span class="nf">coarse_grain</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">coarsening_factor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Coarse grain a frequency series by an integer factor.</span>
+
+<span class="sd">    If the coarsening factor is even, there are coarsening_factor + 1 entries</span>
+<span class="sd">    in the input data that contribute to each coarse frequency bin, however,</span>
+<span class="sd">    the first and last contribute only a half to the frequency below and half</span>
+<span class="sd">    to the frequency above.</span>
+
+<span class="sd">    If the coarsening factor is odd, there are no edge effects that have to be</span>
+<span class="sd">    considered.</span>
+
+<span class="sd">    The length of the output is len(data) // coarsening_factor - 1.</span>
+
+<span class="sd">    If the coarsening factor is not an integer, :func:``pygwb.spectral.coarse_grain_exact`` is</span>
+<span class="sd">    used.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    data: ``array-like``</span>
+<span class="sd">        The data to coarse grain.</span>
+<span class="sd">    coarsening_factor: ``float``</span>
+<span class="sd">        The factor by which to coarsen the data.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    coarsened: ``array-like``</span>
+<span class="sd">        The coarse-grained data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">coarsening_factor</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">data</span>
+    <span class="k">elif</span> <span class="n">coarsening_factor</span> <span class="o">%</span> <span class="mi">1</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">coarse_grain_exact</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">coarsening_factor</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">coarsening_factor</span> <span class="o">%</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">coarsening_factor</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">coarsening_factor</span><span class="p">)</span>
+    <span class="n">coarsened</span> <span class="o">=</span> <span class="n">coarse_grain_naive</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">coarsening_factor</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span> <span class="o">-</span><span class="p">(</span><span class="n">coarsening_factor</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)],</span>
+        <span class="n">coarsening_factor</span><span class="o">=</span><span class="n">coarsening_factor</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">coarsening_factor</span> <span class="o">%</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">left_edges</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">coarsening_factor</span> <span class="o">//</span> <span class="mi">2</span><span class="p">::</span> <span class="n">coarsening_factor</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">right_edges</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">coarsening_factor</span> <span class="o">*</span> <span class="mf">1.5</span><span class="p">)::</span> <span class="n">coarsening_factor</span><span class="p">]</span>
+        <span class="n">coarsened</span> <span class="o">+=</span> <span class="p">(</span><span class="n">left_edges</span> <span class="o">-</span> <span class="n">right_edges</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">coarsening_factor</span>
+    <span class="k">return</span> <span class="n">coarsened</span></div>
+
+<div class="viewcode-block" id="coarse_grain_exact"><a class="viewcode-back" href="../../api/pygwb.spectral.coarse_grain_exact.html#pygwb.spectral.coarse_grain_exact">[docs]</a><span class="k">def</span> <span class="nf">coarse_grain_exact</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">coarsening_factor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Coarse grain an array using any coarsening factor.</span>
+
+<span class="sd">    Each bin will contain the integral of the input array covering</span>
+<span class="sd">    ``coarsening_factor`` bins.</span>
+
+<span class="sd">    This is done by evaluating the difference between the cumulative integral</span>
+<span class="sd">    of the data at the beginning and end of each bin.</span>
+
+<span class="sd">    The i&#39;th bin covers</span>
+<span class="sd">    ``[coarsening_factor * (ii - 0.5), coarsening_factor * (ii + 0.5)]``</span>
+<span class="sd">    indexed for ``1 &lt;= ii &lt; len(data) / coarsening_factor``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    data: ``array-like``</span>
+<span class="sd">        The data to coarse grain.</span>
+<span class="sd">    coarsening_factor: ``float``</span>
+<span class="sd">        The factor by which to coarsen the data.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    output: ``array-like``</span>
+<span class="sd">        The coarse-grained data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">cumtrapz</span>
+
+    <span class="n">n_input</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">first_full_bin_start</span> <span class="o">=</span> <span class="n">coarsening_factor</span> <span class="o">/</span> <span class="mi">2</span>
+
+    <span class="n">x_inputs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_input</span><span class="p">)</span>
+    <span class="n">x_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">first_full_bin_start</span><span class="p">,</span> <span class="n">n_input</span><span class="p">,</span> <span class="n">coarsening_factor</span><span class="p">)</span>
+
+    <span class="n">cumulative_y</span> <span class="o">=</span> <span class="n">cumtrapz</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">x_inputs</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">y_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">x_values</span><span class="p">,</span> <span class="n">x_inputs</span><span class="p">,</span> <span class="n">cumulative_y</span><span class="p">)</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">y_values</span><span class="p">)</span> <span class="o">/</span> <span class="n">coarsening_factor</span>
+
+    <span class="k">return</span> <span class="n">output</span></div>
+
+<div class="viewcode-block" id="coarse_grain_naive"><a class="viewcode-back" href="../../api/pygwb.spectral.coarse_grain_naive.html#pygwb.spectral.coarse_grain_naive">[docs]</a><span class="k">def</span> <span class="nf">coarse_grain_naive</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">coarsening_factor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Naive implementation of a coarse graining factor that ignores edge effects.</span>
+
+<span class="sd">    This is equivalent to the process performed for a Welch average.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    data: ``array-like``</span>
+<span class="sd">        The data to coarse grain.</span>
+<span class="sd">    coarsening_factor: ``int``</span>
+<span class="sd">        The factor by which to coarsen the data.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    coarsened: ``array-like``</span>
+<span class="sd">        The coarse-grained data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">coarsening_factor</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">coarsening_factor</span><span class="p">)</span>
+    <span class="n">n_remove</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">%</span> <span class="n">coarsening_factor</span>
+    <span class="k">if</span> <span class="n">n_remove</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:</span><span class="o">-</span><span class="n">n_remove</span><span class="p">]</span>
+    <span class="n">coarsened</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">coarsening_factor</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">coarsened</span></div>
+
+<div class="viewcode-block" id="coarse_grain_spectrogram"><a class="viewcode-back" href="../../api/pygwb.spectral.coarse_grain_spectrogram.html#pygwb.spectral.coarse_grain_spectrogram">[docs]</a><span class="k">def</span> <span class="nf">coarse_grain_spectrogram</span><span class="p">(</span>
+    <span class="n">spectrogram</span><span class="p">,</span>
+    <span class="n">delta_t</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">delta_f</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">time_method</span><span class="o">=</span><span class="s2">&quot;naive&quot;</span><span class="p">,</span>
+    <span class="n">frequency_method</span><span class="o">=</span><span class="s2">&quot;full&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Coarsen a spectrogram in time and/or frequency, e.g., Welch averaging /</span>
+<span class="sd">    coarse-graining.</span>
+
+<span class="sd">    The coarsening methods are either:</span>
+<span class="sd">      - naive: this is equivalent to a Welch average</span>
+<span class="sd">      - full: the full coarse-grain method</span>
+<span class="sd">      - running_mean: computing the running mean of the array.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    spectrogram: ``gwpy.spectrogram.Spectrogram``</span>
+<span class="sd">        Spectrogram object to be coarsened.</span>
+<span class="sd">    delta_t: ``float``, optional.</span>
+<span class="sd">        Output time spacing. Default is None.</span>
+<span class="sd">    delta_f: ``float``, optional</span>
+<span class="sd">        Output frequency spacing. Default is None. </span>
+<span class="sd">    time_method: ``str``, optional</span>
+<span class="sd">        Should be one of the coarsening methods listed above. Default is &quot;naive&quot;.</span>
+<span class="sd">    frequency_method: ``str``, optional.</span>
+<span class="sd">        Should be one of the coarsening methods listed above. Default is &quot;full&quot;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    output: ``gwpy.spectrogram.Spectrogram``</span>
+<span class="sd">        The coarse-grained spectrogram.</span>
+
+<span class="sd">    See also</span>
+<span class="sd">    --------</span>
+<span class="sd">    gwpy.frequencyseries.FrequencySeries</span>
+<span class="sd">        More information `here &lt;https://gwpy.github.io/docs/stable/api/gwpy.frequencyseries.FrequencySeries/#gwpy.frequencyseries.FrequencySeries&gt;`_.</span>
+<span class="sd">    </span>
+<span class="sd">    gwpy.spectrogram.Spectrogram</span>
+<span class="sd">        More information `here &lt;https://gwpy.github.io/docs/stable/spectrogram/&gt;`_.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">gwpy.spectrogram</span> <span class="kn">import</span> <span class="n">Spectrogram</span>
+
+    <span class="n">methods</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">naive</span><span class="o">=</span><span class="n">coarse_grain_naive</span><span class="p">,</span>
+        <span class="n">full</span><span class="o">=</span><span class="n">coarse_grain</span><span class="p">,</span>
+        <span class="n">running_mean</span><span class="o">=</span><span class="n">running_mean</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">value</span> <span class="o">=</span> <span class="n">spectrogram</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="k">if</span> <span class="n">delta_t</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">factor</span> <span class="o">=</span> <span class="n">delta_t</span> <span class="o">/</span> <span class="n">spectrogram</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="n">methods</span><span class="p">[</span><span class="n">time_method</span><span class="p">]</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">apply_along_axis</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">arr</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">coarsening_factor</span><span class="o">=</span><span class="n">factor</span><span class="p">)</span>
+        <span class="n">coarse_times</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">spectrogram</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">coarsening_factor</span><span class="o">=</span><span class="n">factor</span><span class="p">)</span>
+        <span class="n">coarse_times</span> <span class="o">+=</span> <span class="n">spectrogram</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">coarse_times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">coarse_times</span> <span class="o">=</span> <span class="n">spectrogram</span><span class="o">.</span><span class="n">times</span>
+
+    <span class="k">if</span> <span class="n">delta_f</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">factor</span> <span class="o">=</span> <span class="n">delta_f</span> <span class="o">/</span> <span class="n">spectrogram</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="n">methods</span><span class="p">[</span><span class="n">frequency_method</span><span class="p">]</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">apply_along_axis</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">arr</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">coarsening_factor</span><span class="o">=</span><span class="n">factor</span><span class="p">)</span>
+        <span class="n">coarse_frequencies</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span>
+            <span class="n">spectrogram</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">coarsening_factor</span><span class="o">=</span><span class="n">factor</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">coarse_frequencies</span> <span class="o">=</span> <span class="n">spectrogram</span><span class="o">.</span><span class="n">frequencies</span>
+
+    <span class="c1"># create gwpy spectrogram object</span>
+    <span class="n">specgrams</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># To avoid precision issues rounding the frequency values at ~1% level;</span>
+    <span class="c1"># ideally we expect the ratio coarse_frequencies[0]/spectrogram.dy.value/factor to be an integer</span>
+    <span class="n">f0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">coarse_frequencies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">spectrogram</span><span class="o">.</span><span class="n">dy</span><span class="o">.</span><span class="n">value</span><span class="o">/</span><span class="n">factor</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">spectrogram</span><span class="o">.</span><span class="n">dy</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="n">factor</span>
+    <span class="n">deltaF</span> <span class="o">=</span> <span class="n">f0</span>
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+        <span class="n">specgrams</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FrequencySeries</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">f0</span><span class="o">=</span><span class="n">f0</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="n">deltaF</span><span class="p">))</span>
+
+    <span class="n">output</span> <span class="o">=</span> <span class="n">Spectrogram</span><span class="o">.</span><span class="n">from_spectra</span><span class="p">(</span>
+        <span class="o">*</span><span class="n">specgrams</span><span class="p">,</span>
+        <span class="n">epoch</span><span class="o">=</span><span class="n">coarse_times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+        <span class="n">dt</span><span class="o">=</span><span class="n">coarse_times</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="n">coarse_times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">output</span></div>
+
+<div class="viewcode-block" id="cross_spectral_density"><a class="viewcode-back" href="../../api/pygwb.spectral.cross_spectral_density.html#pygwb.spectral.cross_spectral_density">[docs]</a><span class="k">def</span> <span class="nf">cross_spectral_density</span><span class="p">(</span>
+    <span class="n">time_series_data1</span><span class="p">:</span> <span class="n">TimeSeries</span><span class="p">,</span>
+    <span class="n">time_series_data2</span><span class="p">:</span> <span class="n">TimeSeries</span><span class="p">,</span>
+    <span class="n">segment_duration</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">frequency_resolution</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">coarse_grain</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">overlap_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">overlap_factor_welch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">zeropad</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">window_fftgram_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;window_fftgram&quot;</span><span class="p">:</span> <span class="s2">&quot;hann&quot;</span><span class="p">},</span>
+    <span class="n">is_psd</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the cross spectral density from two time series inputs.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    time_series_data1: :code:``gwpy.timeseries.TimeSeries``</span>
+<span class="sd">        Timeseries data of detector1.</span>
+<span class="sd">    time_series_data2: ``gwpy.timeseries.TimeSeries``</span>
+<span class="sd">        Timeseries data of detector2.</span>
+<span class="sd">    segment_duration: ``int``</span>
+<span class="sd">        Data duration (in seconds) over which CSDs need to be calculated.</span>
+<span class="sd">    frequency_resolution: ``float``</span>
+<span class="sd">        Frequency resolution (in Hz) of the final CSDs. This is achieved by averaging in</span>
+<span class="sd">        frequency domain.</span>
+<span class="sd">    coarse_grain: ``bool``, optional</span>
+<span class="sd">        Whether to coarsegrain the CSD or not. If True, it will be coarsegrained, otherwise</span>
+<span class="sd">        the CSD will be Welch-averaged. Default is True.</span>
+<span class="sd">    overlap_factor: ``float``, optional</span>
+<span class="sd">        Amount of overlap between adjacent segments (range between 0 and 1)</span>
+<span class="sd">        Users should provide proper combination of overlap_factor and</span>
+<span class="sd">        window_fftgram_dict. For \&quot;hann\&quot; window use 0.5 overlap_factor and for \&quot;boxcar\&quot;</span>
+<span class="sd">        window use 0 overlap_factor. Default is 0.5 (50% overlap).</span>
+<span class="sd">    overlap_factor_welch: ``float``</span>
+<span class="sd">        Overlap factor to use when using Welch&#39;s method (NOT coarsegraining).</span>
+<span class="sd">        Users should provide proper combination of overlap_factor and window_fftgram_dict.</span>
+<span class="sd">        For \&quot;hann\&quot; window use 0.5 overlap_factor and for \&quot;boxcar\&quot; window use 0 overlap_factor.</span>
+<span class="sd">        Default is 0.5 (50% overlap), which is optimal when using Welch&#39;s method with a \&quot;hann\&quot; window.</span>
+<span class="sd">    zeropad: ``bool``, optional</span>
+<span class="sd">        Before doing FFT whether to zero pad the data equal to the length of </span>
+<span class="sd">        FFT or not. Default is False.</span>
+<span class="sd">    window_fftgram_dict: ``dictionary``, optional</span>
+<span class="sd">        Dictionary containing name and parameters describing which window to </span>
+<span class="sd">        use for producing FFTs. Default is \&quot;hann\&quot;.</span>
+<span class="sd">    is_psd: ``bool``, optional</span>
+<span class="sd">        Whether the provided data is a PSD or not. Default is False.</span>
+<span class="sd">        The code will treat a PSD slightly different than a CSD.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    csd_spectrogram: ``gwpy.spectrogram.Spectrogram``</span>
+<span class="sd">       Cross spectral density of the two timeseries.</span>
+
+<span class="sd">    See also</span>
+<span class="sd">    --------</span>
+<span class="sd">    gwpy.timeseries.TimeSeries</span>
+<span class="sd">        More information `here &lt;https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeries/#gwpy.timeseries.TimeSeries&gt;`_.</span>
+
+<span class="sd">    gwpy.spectrogram.Spectrogram</span>
+<span class="sd">        More information `here &lt;https://gwpy.github.io/docs/stable/spectrogram/&gt;`_.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">segment_duration</span> <span class="o">*</span> <span class="n">frequency_resolution</span><span class="p">)</span> <span class="o">%</span> <span class="mi">1</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Multiplying the parameters segment_duration and frequency_resolution gives a non-integer. &quot;</span>
+            <span class="s2">&quot;This could lead to possible issues while computing CSDs and PSDs. </span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;It will also lead to data loss when computing the PSD. &quot;</span>
+            <span class="s2">&quot;To avoid this, make sure this multiplication is an integer.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">coarse_grain</span><span class="p">:</span>
+        <span class="n">fftlength</span> <span class="o">=</span> <span class="n">segment_duration</span>
+        <span class="n">overlap_factor_fftgram</span> <span class="o">=</span> <span class="n">overlap_factor</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Length of data blocks to be used in pwelch</span>
+        <span class="n">fftlength</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">frequency_resolution</span><span class="p">)</span>
+        <span class="n">overlap_factor_fftgram</span> <span class="o">=</span> <span class="n">overlap_factor_welch</span>
+
+    <span class="n">fft_gram_1</span> <span class="o">=</span> <span class="n">fftgram</span><span class="p">(</span>
+        <span class="n">time_series_data1</span><span class="p">,</span>
+        <span class="n">fftlength</span><span class="p">,</span>
+        <span class="n">overlap_factor</span><span class="o">=</span><span class="n">overlap_factor_fftgram</span><span class="p">,</span>
+        <span class="n">zeropad</span><span class="o">=</span><span class="n">zeropad</span><span class="p">,</span>
+        <span class="n">window_fftgram_dict</span><span class="o">=</span><span class="n">window_fftgram_dict</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">is_psd</span><span class="p">:</span>
+        <span class="n">fft_gram_2</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">fft_gram_1</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Check if the lengths of two time-series are equal</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_series_data1</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_series_data2</span><span class="o">.</span><span class="n">data</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Lengths of two input time series are not equal&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Check if the sample rates of two input time-series are equal</span>
+        <span class="k">if</span> <span class="n">time_series_data1</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">value</span> <span class="o">!=</span> <span class="n">time_series_data2</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Sample rates of two input time series are not equal&quot;</span><span class="p">)</span>
+
+        <span class="n">fft_gram_2</span> <span class="o">=</span> <span class="n">fftgram</span><span class="p">(</span>
+            <span class="n">time_series_data2</span><span class="p">,</span>
+            <span class="n">fftlength</span><span class="p">,</span>
+            <span class="n">overlap_factor</span><span class="o">=</span><span class="n">overlap_factor_fftgram</span><span class="p">,</span>
+            <span class="n">zeropad</span><span class="o">=</span><span class="n">zeropad</span><span class="p">,</span>
+            <span class="n">window_fftgram_dict</span><span class="o">=</span><span class="n">window_fftgram_dict</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">coarse_grain</span><span class="p">:</span>
+        <span class="n">csd_spectrogram</span> <span class="o">=</span> <span class="n">pwelch_psd</span><span class="p">(</span>
+            <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">fft_gram_1</span><span class="p">)</span> <span class="o">*</span> <span class="n">fft_gram_2</span><span class="p">,</span>
+            <span class="n">segment_duration</span><span class="p">,</span>
+            <span class="n">overlap_factor</span><span class="o">=</span><span class="n">overlap_factor</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">csd_spectrogram</span> <span class="o">=</span> <span class="n">coarse_grain_spectrogram</span><span class="p">(</span>
+            <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">fft_gram_1</span><span class="p">)</span> <span class="o">*</span> <span class="n">fft_gram_2</span><span class="p">,</span> <span class="n">delta_f</span><span class="o">=</span><span class="n">frequency_resolution</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Correct the scaling of DC and nyquist frequency components in agreement</span>
+    <span class="c1"># with scipy.signal.welch (and pwelch in matlab)</span>
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">csd_spectrogram</span><span class="p">)):</span>
+        <span class="n">csd_spectrogram</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">csd_spectrogram</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">csd_spectrogram</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">csd_spectrogram</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>
+
+    <span class="k">if</span> <span class="n">is_psd</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">csd_spectrogram</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">csd_spectrogram</span></div>
+
+<div class="viewcode-block" id="power_spectral_density"><a class="viewcode-back" href="../../api/pygwb.spectral.power_spectral_density.html#pygwb.spectral.power_spectral_density">[docs]</a><span class="k">def</span> <span class="nf">power_spectral_density</span><span class="p">(</span>
+    <span class="n">time_series_data</span><span class="p">:</span>  <span class="n">TimeSeries</span><span class="p">,</span>
+    <span class="n">segment_duration</span><span class="p">:</span>  <span class="nb">int</span><span class="p">,</span>
+    <span class="n">frequency_resolution</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">coarse_grain</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">zeropad</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">overlap_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">window_fftgram_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;window_fftgram&quot;</span><span class="p">:</span> <span class="s2">&quot;hann&quot;</span><span class="p">},</span>
+    <span class="n">overlap_factor_welch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the PSDs of every segment (defined by the segment duration)</span>
+<span class="sd">    in the time series using pwelch method.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    time_series_data: ``gwpy.timeseries.TimeSeries``</span>
+<span class="sd">        Timeseries from which to compute PSDs.</span>
+<span class="sd">    segment_duration: ``int``</span>
+<span class="sd">        Data duration over which PSDs need to be calculated.</span>
+<span class="sd">    segment duration: ``int``</span>
+<span class="sd">        Data duration (in seconds) over which each PSDs need to be calculated.</span>
+<span class="sd">    frequency_resolution: ``float``</span>
+<span class="sd">        Frequency resolution (in Hz) of the final PSDs. This sets the time duration</span>
+<span class="sd">        over which FFTs are calculated in the pwelch method.</span>
+<span class="sd">    coarse_grain: ``bool``, optional</span>
+<span class="sd">        Coarse-graining flag; if True, PSD will be estimated via coarse-graining</span>
+<span class="sd">        as opposed to Welch-averaging. Default is False.</span>
+<span class="sd">    zeropad: ``bool``, optional</span>
+<span class="sd">        Before doing FFT whether to zero pad the data equal to the length of</span>
+<span class="sd">        FFT or not. Default is False.</span>
+<span class="sd">    overlap_factor: ``float``, optional</span>
+<span class="sd">        Amount of overlap between adjacent segments (range between 0 and 1).</span>
+<span class="sd">        Users should provide proper combination of overlap_factor and</span>
+<span class="sd">        window_fftgram_dict. For \&quot;hann\&quot; window use 0.5 overlap_factor and </span>
+<span class="sd">        for \&quot;boxcar\&quot; window use 0 overlap_factor. Default is 0.5 (50% overlap)</span>
+<span class="sd">    window_fftgram_dict: ``dictionary``, optional</span>
+<span class="sd">        Dictionary containing name and parameters describing which window to </span>
+<span class="sd">        use for producing FFTs. Default is \&quot;hann\&quot;.</span>
+<span class="sd">    overlap_factor_welch: ``float``, optional</span>
+<span class="sd">        Overlap factor to use when using Welch&#39;s method (NOT coarsegraining).</span>
+<span class="sd">        Users should provide proper combination of overlap_factor and window_fftgram_dict.</span>
+<span class="sd">        For \&quot;hann\&quot; window use 0.5 overlap_factor and for \&quot;boxcar\&quot; window use 0 overlap_factor.</span>
+<span class="sd">        Default is 0.5 (50% overlap), which is optimal when using Welch&#39;s method with a \&quot;hann\&quot; window.</span>
+<span class="sd">     </span>
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    psd_spectrogram: ``gwpy.spectrogram.Spectrogram``</span>
+<span class="sd">        PSD spectrogram with each PSD duration equal to segment duration.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">psd_spectrogram</span> <span class="o">=</span> <span class="n">cross_spectral_density</span><span class="p">(</span>
+        <span class="n">time_series_data1</span><span class="o">=</span><span class="n">time_series_data</span><span class="p">,</span>
+        <span class="n">time_series_data2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">segment_duration</span><span class="o">=</span><span class="n">segment_duration</span><span class="p">,</span>
+        <span class="n">frequency_resolution</span><span class="o">=</span><span class="n">frequency_resolution</span><span class="p">,</span>
+        <span class="n">coarse_grain</span><span class="o">=</span><span class="n">coarse_grain</span><span class="p">,</span>
+        <span class="n">overlap_factor</span><span class="o">=</span><span class="n">overlap_factor</span><span class="p">,</span>
+        <span class="n">overlap_factor_welch</span><span class="o">=</span><span class="n">overlap_factor_welch</span><span class="p">,</span>
+        <span class="n">zeropad</span><span class="o">=</span><span class="n">zeropad</span><span class="p">,</span>
+        <span class="n">window_fftgram_dict</span><span class="o">=</span><span class="n">window_fftgram_dict</span><span class="p">,</span>
+        <span class="n">is_psd</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">psd_spectrogram</span></div>
+
+<div class="viewcode-block" id="running_mean"><a class="viewcode-back" href="../../api/pygwb.spectral.running_mean.html#pygwb.spectral.running_mean">[docs]</a><span class="k">def</span> <span class="nf">running_mean</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">coarsening_factor</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the running mean of an array, this uses the default axis of numpy</span>
+<span class="sd">    cumsum.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    data: ``array-like``</span>
+<span class="sd">        Array of size M to be averaged.</span>
+<span class="sd">    coarsening_factor: ``int``, optional</span>
+<span class="sd">        Number of segments to average, default=1.</span>
+<span class="sd">    axis: ``int``, optional</span>
+<span class="sd">        Axis to apply the mean over, default=-1.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    running_mean_array: ``array-like``</span>
+<span class="sd">        The averaged array of size M - coarsening factor.</span>
+
+<span class="sd">    See also</span>
+<span class="sd">    --------</span>
+<span class="sd">    numpy.cumsum</span>
+<span class="sd">        More information `here &lt;https://numpy.org/doc/stable/reference/generated/numpy.cumsum.html&gt;`_.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">coarsening_factor</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">coarsening_factor</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">axis</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">cumsum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">cumsum</span><span class="p">[</span><span class="n">coarsening_factor</span><span class="p">:]</span> <span class="o">-</span> <span class="n">cumsum</span><span class="p">[:</span><span class="o">-</span><span class="n">coarsening_factor</span><span class="p">],</span> <span class="n">axis</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="o">/</span> <span class="n">coarsening_factor</span>
+    <span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

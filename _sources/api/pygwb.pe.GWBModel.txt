@@ -1,0 +1,39 @@
+pygwb.pe.GWBModel
+=================
+
+.. currentmodule:: pygwb.pe
+
+.. autoclass:: GWBModel
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+   .. automethod:: __call__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GWBModel.__init__
+      ~GWBModel.log_likelihood
+      ~GWBModel.log_likelihood_IJ
+      ~GWBModel.log_likelihood_ratio
+      ~GWBModel.model_function
+      ~GWBModel.noise_log_likelihood
+      ~GWBModel.parameters
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GWBModel.marginalized_parameters
+      ~GWBModel.meta_data
+   
+   

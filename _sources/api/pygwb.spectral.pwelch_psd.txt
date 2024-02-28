@@ -1,0 +1,6 @@
+pygwb.spectral.pwelch\_psd
+==========================
+
+.. currentmodule:: pygwb.spectral
+
+.. autofunction:: pwelch_psd

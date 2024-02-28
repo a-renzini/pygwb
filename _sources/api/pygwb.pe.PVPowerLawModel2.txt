@@ -1,0 +1,39 @@
+pygwb.pe.PVPowerLawModel2
+=========================
+
+.. currentmodule:: pygwb.pe
+
+.. autoclass:: PVPowerLawModel2
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+   .. automethod:: __call__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PVPowerLawModel2.__init__
+      ~PVPowerLawModel2.log_likelihood
+      ~PVPowerLawModel2.log_likelihood_IJ
+      ~PVPowerLawModel2.log_likelihood_ratio
+      ~PVPowerLawModel2.model_function
+      ~PVPowerLawModel2.noise_log_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PVPowerLawModel2.marginalized_parameters
+      ~PVPowerLawModel2.meta_data
+      ~PVPowerLawModel2.parameters
+   
+   

@@ -1,0 +1,6 @@
+pygwb.util.window\_factors
+==========================
+
+.. currentmodule:: pygwb.util
+
+.. autofunction:: window_factors

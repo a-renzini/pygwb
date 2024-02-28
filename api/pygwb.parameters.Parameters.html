@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pygwb.parameters.Parameters &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=a5c4661c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=0264ad83"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pygwb.parameters.ParametersHelp" href="pygwb.parameters.ParametersHelp.html" />
+    <link rel="prev" title="pygwb.parameters" href="pygwb.parameters.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demos.html">Demos</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pygwb.detector.html">pygwb.detector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.baseline.html">pygwb.baseline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.network.html">pygwb.network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.preprocessing.html">pygwb.preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.spectral.html">pygwb.spectral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.coherence.html">pygwb.coherence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.postprocessing.html">pygwb.postprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.omega_spectra.html">pygwb.omega_spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.pe.html">pygwb.pe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.statistical_checks.html">pygwb.statistical_checks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.simulator.html">pygwb.simulator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.delta_sigma_cut.html">pygwb.delta_sigma_cut</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.notch.html">pygwb.notch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.constants.html">pygwb.constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.orfs.html">pygwb.orfs</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pygwb.parameters.html">pygwb.parameters</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pygwb.parameters.Parameters</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pygwb.parameters.Parameters"><code class="docutils literal notranslate"><span class="pre">Parameters</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.parameters.ParametersHelp.html">pygwb.parameters.ParametersHelp</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.util.html">pygwb.util</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API</a></li>
+          <li class="breadcrumb-item"><a href="pygwb.parameters.html">pygwb.parameters</a></li>
+      <li class="breadcrumb-item active">pygwb.parameters.Parameters</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/pygwb.parameters.Parameters.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pygwb-parameters-parameters">
+<h1>pygwb.parameters.Parameters<a class="headerlink" href="#pygwb-parameters-parameters" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pygwb.parameters.</span></span><span class="sig-name descname"><span class="pre">Parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t0:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tf:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometer_list:</span> <span class="pre">~typing.List</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_type:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'public'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'GWOSC-16KHZ_R1_STRAIN'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frametype:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_sample_rate:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">4096</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_sample_rate:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">16384</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff_frequency:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">11</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_duration:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">192</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_cropped_seconds:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_downsampling:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'hamming'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ftype:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'fir'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency_resolution:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.03125</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polarization:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'tensor'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fref:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fhigh:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">1726</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_data_path:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">notch_list_path:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coarse_grain_psd:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coarse_grain_csd:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap_factor_welch:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N_average_segments_psd:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_fft_dict:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_fft_dict_welch:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calibration_epsilon:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap_factor:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_sigma_cut:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alphas_delta_sigma_cut:</span> <span class="pre">~typing.List</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_data_type:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'npz'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_shift:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_gate_data:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_data:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_tzero:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_tpad:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_threshold:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">50.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_window:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_whiten:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_naive_and_averaged_sigmas:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/parameters.html#Parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.parameters.Parameters" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A dataclass which contains all parameters required for initialising a pygwb <code class="docutils literal notranslate"><span class="pre">Interferometer</span></code>,
+a pygwb <code class="docutils literal notranslate"><span class="pre">Baseline</span></code>, and run <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.t0">
+<span class="sig-name descname"><span class="pre">t0</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.t0" title="Permalink to this definition"></a></dt>
+<dd><p>Initial time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.tf">
+<span class="sig-name descname"><span class="pre">tf</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.tf" title="Permalink to this definition"></a></dt>
+<dd><p>Final time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.data_type">
+<span class="sig-name descname"><span class="pre">data_type</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.data_type" title="Permalink to this definition"></a></dt>
+<dd><p>Type of data to access/download; options are private, public, local. Default is public.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.channel">
+<span class="sig-name descname"><span class="pre">channel</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.channel" title="Permalink to this definition"></a></dt>
+<dd><p>Channel name; needs to match an existing channel. Default is “GWOSC-16KHZ_R1_STRAIN”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.frametype">
+<span class="sig-name descname"><span class="pre">frametype</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.frametype" title="Permalink to this definition"></a></dt>
+<dd><p>Frame type; Optional, desired channel needs to be found in listed frametype. Only used when data_type=private.
+Default is empty.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.new_sample_rate">
+<span class="sig-name descname"><span class="pre">new_sample_rate</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.new_sample_rate" title="Permalink to this definition"></a></dt>
+<dd><p>Sample rate to use when downsampling the data (Hz). Default is 4096 Hz.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.input_sample_rate">
+<span class="sig-name descname"><span class="pre">input_sample_rate</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.input_sample_rate" title="Permalink to this definition"></a></dt>
+<dd><p>Sample rate of the read data (Hz). Default is 16384 Hz.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.cutoff_frequency">
+<span class="sig-name descname"><span class="pre">cutoff_frequency</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.cutoff_frequency" title="Permalink to this definition"></a></dt>
+<dd><p>Lower frequency cutoff; applied in filtering in preprocessing (Hz). Default is 11 Hz.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.segment_duration">
+<span class="sig-name descname"><span class="pre">segment_duration</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.segment_duration" title="Permalink to this definition"></a></dt>
+<dd><p>Duration of the individual segments to analyse (seconds). Default is 192 seconds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.number_cropped_seconds">
+<span class="sig-name descname"><span class="pre">number_cropped_seconds</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.number_cropped_seconds" title="Permalink to this definition"></a></dt>
+<dd><p>Number of seconds to crop at the start and end of the analysed data (seconds). Default is 2 seconds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.window_downsampling">
+<span class="sig-name descname"><span class="pre">window_downsampling</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.window_downsampling" title="Permalink to this definition"></a></dt>
+<dd><p>Type of window to use in preprocessing. Default is “hamming”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.ftype">
+<span class="sig-name descname"><span class="pre">ftype</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.ftype" title="Permalink to this definition"></a></dt>
+<dd><p>Type of filter to use in downsampling. Default is “fir”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.frequency_resolution">
+<span class="sig-name descname"><span class="pre">frequency_resolution</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.frequency_resolution" title="Permalink to this definition"></a></dt>
+<dd><p>Frequency resolution of the final output spectrum (Hz). Default is 1/32 Hz.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.polarization">
+<span class="sig-name descname"><span class="pre">polarization</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.polarization" title="Permalink to this definition"></a></dt>
+<dd><p>Polarization type for the overlap reduction function calculation; options are scalar, vector, tensor.
+Default is tensor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.alpha">
+<span class="sig-name descname"><span class="pre">alpha</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.alpha" title="Permalink to this definition"></a></dt>
+<dd><p>Spectral index to filter the data for. Default is 0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.fref">
+<span class="sig-name descname"><span class="pre">fref</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.fref" title="Permalink to this definition"></a></dt>
+<dd><p>Reference frequency to filter the data at (Hz). Default is 25 Hz.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.flow">
+<span class="sig-name descname"><span class="pre">flow</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.flow" title="Permalink to this definition"></a></dt>
+<dd><p>Lower frequency to include in the analysis (Hz). Default is 20 Hz.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.fhigh">
+<span class="sig-name descname"><span class="pre">fhigh</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.fhigh" title="Permalink to this definition"></a></dt>
+<dd><p>Higher frequency to include in the analysis (Hz). Default is 1726 Hz.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.interferometer_list">
+<span class="sig-name descname"><span class="pre">interferometer_list</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.interferometer_list" title="Permalink to this definition"></a></dt>
+<dd><p>List of interferometers to run the analysis with. Default is [“H1”, “L1”].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.local_data_path">
+<span class="sig-name descname"><span class="pre">local_data_path</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.local_data_path" title="Permalink to this definition"></a></dt>
+<dd><p>Path(s) to local data, if the local data option is chosen. Default is empty.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.notch_list_path">
+<span class="sig-name descname"><span class="pre">notch_list_path</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.notch_list_path" title="Permalink to this definition"></a></dt>
+<dd><p>Path to the notch list file. Default is empty.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.coarse_grain_psd">
+<span class="sig-name descname"><span class="pre">coarse_grain_psd</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.coarse_grain_psd" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to apply coarse graining to obtain PSD spectra. Default is False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.coarse_grain_csd">
+<span class="sig-name descname"><span class="pre">coarse_grain_csd</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.coarse_grain_csd" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to apply coarse graining to obtain CSD spectra. Default is True.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.overlap_factor_welch">
+<span class="sig-name descname"><span class="pre">overlap_factor_welch</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.overlap_factor_welch" title="Permalink to this definition"></a></dt>
+<dd><p>Overlap factor to use when if using Welch’s method to estimate spectra (NOT coarsegraining).
+For “hann” window use 0.5 overlap_factor and for “boxcar” window use 0 overlap_factor.
+Default is 0.5 (50% overlap), which is optimal when using Welch’s method with a “hann” window.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.N_average_segments_psd">
+<span class="sig-name descname"><span class="pre">N_average_segments_psd</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.N_average_segments_psd" title="Permalink to this definition"></a></dt>
+<dd><p>Number of segments to average over when calculating the psd with Welch method. Default is 2.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.window_fft_dict">
+<span class="sig-name descname"><span class="pre">window_fft_dict</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.window_fft_dict" title="Permalink to this definition"></a></dt>
+<dd><p>Dictionary containing name and parameters describing which window to use when producing fftgrams
+for psds and csds. Default is “hann”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.window_fft_dict_welch">
+<span class="sig-name descname"><span class="pre">window_fft_dict_welch</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.window_fft_dict_welch" title="Permalink to this definition"></a></dt>
+<dd><p>Dictionary containing name and parameters relative to which window to use when producing fftgrams
+for pwelch calculation. Default is “hann”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.calibration_epsilon">
+<span class="sig-name descname"><span class="pre">calibration_epsilon</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.calibration_epsilon" title="Permalink to this definition"></a></dt>
+<dd><p>Calibration coefficient. Default is 0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.overlap_factor">
+<span class="sig-name descname"><span class="pre">overlap_factor</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.overlap_factor" title="Permalink to this definition"></a></dt>
+<dd><p>Factor by which to overlap consecutive segments for analysis. Default is 0.5 (50%% overlap).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.delta_sigma_cut">
+<span class="sig-name descname"><span class="pre">delta_sigma_cut</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.delta_sigma_cut" title="Permalink to this definition"></a></dt>
+<dd><p>Cutoff value for the delta sigma cut. Default is 0.2.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.alphas_delta_sigma_cut">
+<span class="sig-name descname"><span class="pre">alphas_delta_sigma_cut</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.alphas_delta_sigma_cut" title="Permalink to this definition"></a></dt>
+<dd><p>List of spectral indexes to use in delta sigma cut calculation. Default is [-5, 0, 3].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.save_data_type">
+<span class="sig-name descname"><span class="pre">save_data_type</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.save_data_type" title="Permalink to this definition"></a></dt>
+<dd><p>Suffix for the output data file. Options are hdf5, npz, json, pickle. Default is json.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.time_shift">
+<span class="sig-name descname"><span class="pre">time_shift</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.time_shift" title="Permalink to this definition"></a></dt>
+<dd><p>Seconds to timeshift the data by in preprocessing. Default is 0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.gate_data">
+<span class="sig-name descname"><span class="pre">gate_data</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.gate_data" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to apply self-gating to the data in preprocessing. Default is False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.gate_tzero">
+<span class="sig-name descname"><span class="pre">gate_tzero</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.gate_tzero" title="Permalink to this definition"></a></dt>
+<dd><p>Half-width time duration (seconds) in which the timeseries is set to zero. Default is 1.0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.gate_tpad">
+<span class="sig-name descname"><span class="pre">gate_tpad</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.gate_tpad" title="Permalink to this definition"></a></dt>
+<dd><p>Half-width time duration (seconds) in which the Planck window is tapered. Default is 0.5.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.gate_threshold">
+<span class="sig-name descname"><span class="pre">gate_threshold</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.gate_threshold" title="Permalink to this definition"></a></dt>
+<dd><p>Amplitude threshold, if the data exceeds this value a gating window will be placed. Default is 50.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.cluster_window">
+<span class="sig-name descname"><span class="pre">cluster_window</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.cluster_window" title="Permalink to this definition"></a></dt>
+<dd><p>Time duration (seconds) over which gating points will be clustered. Default is 0.5.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.gate_whiten">
+<span class="sig-name descname"><span class="pre">gate_whiten</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.gate_whiten" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to whiten when gating. Default is True.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.tag">
+<span class="sig-name descname"><span class="pre">tag</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.tag" title="Permalink to this definition"></a></dt>
+<dd><p>Hint for the read_data function to retrieve one specific type of data, e.g.: C00, C01.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.return_naive_and_averaged_sigmas">
+<span class="sig-name descname"><span class="pre">return_naive_and_averaged_sigmas</span></span><a class="headerlink" href="#pygwb.parameters.Parameters.return_naive_and_averaged_sigmas" title="Permalink to this definition"></a></dt>
+<dd><p>Option to return naive and sliding sigmas from delta sigma cut.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t0:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tf:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometer_list:</span> <span class="pre">~typing.List</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_type:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'public'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'GWOSC-16KHZ_R1_STRAIN'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frametype:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_sample_rate:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">4096</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_sample_rate:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">16384</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff_frequency:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">11</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_duration:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">192</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_cropped_seconds:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_downsampling:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'hamming'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ftype:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'fir'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency_resolution:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.03125</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polarization:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'tensor'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fref:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fhigh:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">1726</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_data_path:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">notch_list_path:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coarse_grain_psd:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coarse_grain_csd:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap_factor_welch:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N_average_segments_psd:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_fft_dict:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_fft_dict_welch:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calibration_epsilon:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap_factor:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_sigma_cut:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alphas_delta_sigma_cut:</span> <span class="pre">~typing.List</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_data_type:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'npz'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_shift:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_gate_data:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_data:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_tzero:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_tpad:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_threshold:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">50.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_window:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_whiten:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_naive_and_averaged_sigmas:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pygwb.parameters.Parameters.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pygwb.parameters.Parameters.__call__" title="Permalink to this definition"></a></dt>
+<dd><p>Call self as a function.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.__init__" title="pygwb.parameters.Parameters.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([t0, tf, interferometer_list, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.parse_ifo_parameters" title="pygwb.parameters.Parameters.parse_ifo_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_ifo_parameters</span></code></a>()</p></td>
+<td><p>Parse the parameters of the analysis pipeline into a dictionary with arguments per interferometer of the pipeline.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.save_paramfile" title="pygwb.parameters.Parameters.save_paramfile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_paramfile</span></code></a>(output_path)</p></td>
+<td><p>Save parameters to a parameters ini file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.update_from_arguments" title="pygwb.parameters.Parameters.update_from_arguments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_from_arguments</span></code></a>(args)</p></td>
+<td><p>Update parameters from a set of arguments.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.update_from_dictionary" title="pygwb.parameters.Parameters.update_from_dictionary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_from_dictionary</span></code></a>(kwargs)</p></td>
+<td><p>Update parameters from a dictionary.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.update_from_file" title="pygwb.parameters.Parameters.update_from_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_from_file</span></code></a>(path)</p></td>
+<td><p>Update parameters from an ini file.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.N_average_segments_psd" title="pygwb.parameters.Parameters.N_average_segments_psd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">N_average_segments_psd</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.alpha" title="pygwb.parameters.Parameters.alpha"><code class="xref py py-obj docutils literal notranslate"><span class="pre">alpha</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.calibration_epsilon" title="pygwb.parameters.Parameters.calibration_epsilon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibration_epsilon</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.channel" title="pygwb.parameters.Parameters.channel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">channel</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.cluster_window" title="pygwb.parameters.Parameters.cluster_window"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cluster_window</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.coarse_grain_csd" title="pygwb.parameters.Parameters.coarse_grain_csd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">coarse_grain_csd</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.coarse_grain_psd" title="pygwb.parameters.Parameters.coarse_grain_psd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">coarse_grain_psd</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.cutoff_frequency" title="pygwb.parameters.Parameters.cutoff_frequency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cutoff_frequency</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.data_type" title="pygwb.parameters.Parameters.data_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">data_type</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.delta_sigma_cut" title="pygwb.parameters.Parameters.delta_sigma_cut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delta_sigma_cut</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.fhigh" title="pygwb.parameters.Parameters.fhigh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fhigh</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.flow" title="pygwb.parameters.Parameters.flow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flow</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.frametype" title="pygwb.parameters.Parameters.frametype"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frametype</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.fref" title="pygwb.parameters.Parameters.fref"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fref</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.frequency_resolution" title="pygwb.parameters.Parameters.frequency_resolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frequency_resolution</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.ftype" title="pygwb.parameters.Parameters.ftype"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ftype</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.gate_data" title="pygwb.parameters.Parameters.gate_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gate_data</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.gate_threshold" title="pygwb.parameters.Parameters.gate_threshold"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gate_threshold</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.gate_tpad" title="pygwb.parameters.Parameters.gate_tpad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gate_tpad</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.gate_tzero" title="pygwb.parameters.Parameters.gate_tzero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gate_tzero</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.gate_whiten" title="pygwb.parameters.Parameters.gate_whiten"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gate_whiten</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.input_sample_rate" title="pygwb.parameters.Parameters.input_sample_rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">input_sample_rate</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.local_data_path" title="pygwb.parameters.Parameters.local_data_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">local_data_path</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.new_sample_rate" title="pygwb.parameters.Parameters.new_sample_rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">new_sample_rate</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.notch_list_path" title="pygwb.parameters.Parameters.notch_list_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">notch_list_path</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.number_cropped_seconds" title="pygwb.parameters.Parameters.number_cropped_seconds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">number_cropped_seconds</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.overlap_factor" title="pygwb.parameters.Parameters.overlap_factor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">overlap_factor</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.overlap_factor_welch" title="pygwb.parameters.Parameters.overlap_factor_welch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">overlap_factor_welch</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">path_gate_data</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.polarization" title="pygwb.parameters.Parameters.polarization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">polarization</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.return_naive_and_averaged_sigmas" title="pygwb.parameters.Parameters.return_naive_and_averaged_sigmas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">return_naive_and_averaged_sigmas</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.save_data_type" title="pygwb.parameters.Parameters.save_data_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_data_type</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.segment_duration" title="pygwb.parameters.Parameters.segment_duration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">segment_duration</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.t0" title="pygwb.parameters.Parameters.t0"><code class="xref py py-obj docutils literal notranslate"><span class="pre">t0</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.tag" title="pygwb.parameters.Parameters.tag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tag</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.tf" title="pygwb.parameters.Parameters.tf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tf</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.time_shift" title="pygwb.parameters.Parameters.time_shift"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_shift</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.window_downsampling" title="pygwb.parameters.Parameters.window_downsampling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">window_downsampling</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.interferometer_list" title="pygwb.parameters.Parameters.interferometer_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interferometer_list</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.window_fft_dict" title="pygwb.parameters.Parameters.window_fft_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">window_fft_dict</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.window_fft_dict_welch" title="pygwb.parameters.Parameters.window_fft_dict_welch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">window_fft_dict_welch</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.parameters.Parameters.alphas_delta_sigma_cut" title="pygwb.parameters.Parameters.alphas_delta_sigma_cut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">alphas_delta_sigma_cut</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.parse_ifo_parameters">
+<span class="sig-name descname"><span class="pre">parse_ifo_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/parameters.html#Parameters.parse_ifo_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.parameters.Parameters.parse_ifo_parameters" title="Permalink to this definition"></a></dt>
+<dd><p>Parse the parameters of the analysis pipeline into a dictionary
+with arguments per interferometer of the pipeline.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>param_dict: <code class="docutils literal notranslate"><span class="pre">dict</span></code></dt><dd><p>A dictionary containing the parameters of the analysis per interferometer used in the analysis.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.save_paramfile">
+<span class="sig-name descname"><span class="pre">save_paramfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/parameters.html#Parameters.save_paramfile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.parameters.Parameters.save_paramfile" title="Permalink to this definition"></a></dt>
+<dd><p>Save parameters to a parameters ini file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>output_path</strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>) – Full path for output parameters ini file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.update_from_arguments">
+<span class="sig-name descname"><span class="pre">update_from_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pygwb/parameters.html#Parameters.update_from_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.parameters.Parameters.update_from_arguments" title="Permalink to this definition"></a></dt>
+<dd><p>Update parameters from a set of arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> (<code class="docutils literal notranslate"><span class="pre">list</span></code>) – List of arguments to update in the class. Format must coincide to argparse formatting, e.g.,
+[’–t0’, ‘0’, ‘–tf’, ‘100’].</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Not all possible options are available through argument updating. The two exceptions are the dictionary
+attributes which can not be parsed easily by argparse. These are
+* window_fft_dict: this is composed by the single argument</p>
+<blockquote>
+<div><p>– window_fftgram</p>
+</div></blockquote>
+<p>This is the only option currently supported. To use windows that require extra parameters, pass these as part
+of an .ini file, in the relevant section [window_fft_specs].
+* window_fft_dict_welch: this is composed by the single argument</p>
+<blockquote>
+<div><p>– window_fftgram_welch</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.update_from_dictionary">
+<span class="sig-name descname"><span class="pre">update_from_dictionary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/parameters.html#Parameters.update_from_dictionary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.parameters.Parameters.update_from_dictionary" title="Permalink to this definition"></a></dt>
+<dd><p>Update parameters from a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>kwargs</strong> (<code class="docutils literal notranslate"><span class="pre">dict</span></code>) – Dictionary of parameters to update.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.parameters.Parameters.update_from_file">
+<span class="sig-name descname"><span class="pre">update_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pygwb/parameters.html#Parameters.update_from_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.parameters.Parameters.update_from_file" title="Permalink to this definition"></a></dt>
+<dd><p>Update parameters from an ini file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>) – Path to parameters ini file to use to update class.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pygwb.parameters.html" class="btn btn-neutral float-left" title="pygwb.parameters" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pygwb.parameters.ParametersHelp.html" class="btn btn-neutral float-right" title="pygwb.parameters.ParametersHelp" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

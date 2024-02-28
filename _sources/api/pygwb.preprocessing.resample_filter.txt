@@ -1,0 +1,6 @@
+pygwb.preprocessing.resample\_filter
+====================================
+
+.. currentmodule:: pygwb.preprocessing
+
+.. autofunction:: resample_filter

@@ -1,0 +1,6 @@
+pygwb.spectral.coarse\_grain\_exact
+===================================
+
+.. currentmodule:: pygwb.spectral
+
+.. autofunction:: coarse_grain_exact

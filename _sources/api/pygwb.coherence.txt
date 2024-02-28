@@ -1,0 +1,32 @@
+﻿pygwb.coherence
+===============
+
+.. currentmodule:: pygwb.coherence
+
+.. automodule:: pygwb.coherence
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      calculate_coherence
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

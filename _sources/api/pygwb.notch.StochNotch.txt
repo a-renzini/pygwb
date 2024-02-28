@@ -1,0 +1,30 @@
+pygwb.notch.StochNotch
+======================
+
+.. currentmodule:: pygwb.notch
+
+.. autoclass:: StochNotch
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+   .. automethod:: __call__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~StochNotch.__init__
+      ~StochNotch.check_frequency
+      ~StochNotch.get_idxs
+      ~StochNotch.get_notch_mask
+      ~StochNotch.print_notch
+   
+   
+
+   
+   
+   

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pygwb.parameters &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=a5c4661c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=0264ad83"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pygwb.parameters.Parameters" href="pygwb.parameters.Parameters.html" />
+    <link rel="prev" title="pygwb.orfs.tangent_vector" href="pygwb.orfs.tangent_vector.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demos.html">Demos</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pygwb.detector.html">pygwb.detector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.baseline.html">pygwb.baseline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.network.html">pygwb.network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.preprocessing.html">pygwb.preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.spectral.html">pygwb.spectral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.coherence.html">pygwb.coherence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.postprocessing.html">pygwb.postprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.omega_spectra.html">pygwb.omega_spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.pe.html">pygwb.pe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.statistical_checks.html">pygwb.statistical_checks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.simulator.html">pygwb.simulator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.delta_sigma_cut.html">pygwb.delta_sigma_cut</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.notch.html">pygwb.notch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.constants.html">pygwb.constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.orfs.html">pygwb.orfs</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">pygwb.parameters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.parameters.Parameters.html">pygwb.parameters.Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.parameters.ParametersHelp.html">pygwb.parameters.ParametersHelp</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.util.html">pygwb.util</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API</a></li>
+      <li class="breadcrumb-item active">pygwb.parameters</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/pygwb.parameters.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-pygwb.parameters">
+<span id="pygwb-parameters"></span><h1>pygwb.parameters<a class="headerlink" href="#module-pygwb.parameters" title="Permalink to this heading"></a></h1>
+<p>Many parameters enter in a full gravitational-wave background analysis. The <code class="docutils literal notranslate"><span class="pre">parameters</span></code> module is meant to facilitate
+the handling of this large amount of parameters. It contains the <code class="docutils literal notranslate"><span class="pre">Parameters</span></code> class which is used to store and handle
+all parameters of <code class="docutils literal notranslate"><span class="pre">pygwb</span></code>.</p>
+<p>This module contains only one class, the <code class="docutils literal notranslate"><span class="pre">Parameters</span></code> class and its accompanying helper class <code class="docutils literal notranslate"><span class="pre">ParametersHelp</span></code>.
+An object of the <code class="docutils literal notranslate"><span class="pre">Parameters</span></code> class is used as the storage object of all parameters in the <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> analysis.
+It is a container for all the required ingredients to perform a stochastic gravitational-wave background analysis.</p>
+<p class="rubric">Examples</p>
+<p>When using a packaged script, parameters passed to the script directly will be stored in a <code class="docutils literal notranslate"><span class="pre">Parameters</span></code> object.
+To pass these, the standard <code class="docutils literal notranslate"><span class="pre">argparse</span></code> usage applies; for example, when using <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pygwb_pipe</span> <span class="o">--</span><span class="n">parameter_to_pass</span> <span class="p">[</span><span class="n">my</span><span class="o">-</span><span class="n">parameter</span><span class="o">-</span><span class="n">value</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>A parameter class may also be instantiated from a parameter file using the appropriate method, <code class="docutils literal notranslate"><span class="pre">Parameters.update_from_file</span></code>.
+A parameter file must be structured specifically to be read by the <code class="docutils literal notranslate"><span class="pre">Parameters</span></code> class. The following structure should be followed:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">data_specs</span><span class="p">]</span>
+<span class="n">interferometer_list</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;IFO1&quot;</span><span class="p">,</span> <span class="s2">&quot;IFO2&quot;</span><span class="p">]</span>
+<span class="n">t0</span><span class="p">:</span>
+<span class="n">tf</span><span class="p">:</span>
+<span class="n">data_type</span><span class="p">:</span>
+<span class="n">channel</span><span class="p">:</span>
+<span class="n">frametype</span><span class="p">:</span>
+<span class="n">time_shift</span><span class="p">:</span>
+<span class="p">[</span><span class="n">preprocessing</span><span class="p">]</span>
+<span class="n">new_sample_rate</span><span class="p">:</span>
+<span class="n">input_sample_rate</span><span class="p">:</span>
+<span class="n">cutoff_frequency</span><span class="p">:</span>
+<span class="n">segment_duration</span><span class="p">:</span>
+<span class="n">number_cropped_seconds</span><span class="p">:</span>
+<span class="n">window_downsampling</span><span class="p">:</span>
+<span class="n">ftype</span><span class="p">:</span>
+<span class="p">[</span><span class="n">gating</span><span class="p">]</span>
+<span class="n">gate_data</span><span class="p">:</span>
+<span class="n">gate_whiten</span><span class="p">:</span>
+<span class="n">gate_tzero</span><span class="p">:</span>
+<span class="n">gate_tpad</span><span class="p">:</span>
+<span class="n">gate_threshold</span><span class="p">:</span>
+<span class="n">cluster_window</span><span class="p">:</span>
+<span class="p">[</span><span class="n">window_fft_specs</span><span class="p">]</span>
+<span class="n">window_fftgram</span><span class="p">:</span>
+<span class="n">alpha</span><span class="p">:</span>
+<span class="p">[</span><span class="n">window_fft_welch_specs</span><span class="p">]</span>
+<span class="n">window_fftgram</span><span class="p">:</span>
+<span class="n">alpha</span><span class="p">:</span>
+<span class="p">[</span><span class="n">density_estimation</span><span class="p">]</span>
+<span class="n">frequency_resolution</span><span class="p">:</span>
+<span class="n">N_average_segments_psd</span><span class="p">:</span>
+<span class="n">coarse_grain_psd</span><span class="p">:</span>
+<span class="n">coarse_grain_csd</span><span class="p">:</span>
+<span class="n">overlap_factor_welch</span><span class="p">:</span>
+<span class="n">overlap_factor</span><span class="p">:</span>
+<span class="p">[</span><span class="n">postprocessing</span><span class="p">]</span>
+<span class="n">polarization</span><span class="p">:</span>
+<span class="n">alpha</span><span class="p">:</span>
+<span class="n">fref</span><span class="p">:</span>
+<span class="n">flow</span><span class="p">:</span>
+<span class="n">fhigh</span><span class="p">:</span>
+<span class="p">[</span><span class="n">data_quality</span><span class="p">]</span>
+<span class="n">notch_list_path</span><span class="p">:</span>
+<span class="n">calibration_epsilon</span><span class="p">:</span>
+<span class="n">alphas_delta_sigma_cut</span><span class="p">:</span>
+<span class="n">delta_sigma_cut</span><span class="p">:</span>
+<span class="n">return_naive_and_averaged_sigmas</span><span class="p">:</span>
+<span class="p">[</span><span class="n">output</span><span class="p">]</span>
+<span class="n">save_data_type</span><span class="p">:</span>
+<span class="p">[</span><span class="n">local_data</span><span class="p">]</span>
+<span class="n">local_data_path</span><span class="p">:</span>
+</pre></div>
+</div>
+<p>All values of parameters have a default value and need not be passed when the user doesn’t want to specify a different value.
+An example parameters file may be found in <code class="docutils literal notranslate"><span class="pre">pygwb/pygwb_pipe/parameters.ini</span></code>.
+Details on the usage may be found in the class descriptions and by calling the help function of the <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> script.</p>
+<p>In a very small subset of cases, some parameters are passed differently through the parameter file compared to the command line, and not all combinations are possible through the command line.
+These are specifically the cases where sections of the parameter file are parsed as dictionaries, to allow for multiple parameters to be passed without having been specified in the <code class="docutils literal notranslate"><span class="pre">Parameters</span></code> class.
+These are the <code class="docutils literal notranslate"><span class="pre">window_fft_specs</span></code> and <code class="docutils literal notranslate"><span class="pre">window_fft_welch_specs</span></code> sections which are parsed as dictionaries and passed directly to <code class="docutils literal notranslate"><span class="pre">scipy</span></code> which expects all the parameters relevant to the specific window employed (e.g., <code class="docutils literal notranslate"><span class="pre">alpha</span></code> for a Tukey window, etc.).
+When passing arguments relative to these sections from the command line directly, these should be passed as, e.g.:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pygwb_pipe</span> <span class="o">--</span><span class="n">window_fftgram</span> <span class="n">my</span><span class="o">-</span><span class="n">window</span><span class="o">-</span><span class="mi">1</span> <span class="o">--</span><span class="n">window_fftgram_welch</span> <span class="n">my</span><span class="o">-</span><span class="n">window</span><span class="o">-</span><span class="mi">2</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<p><strong>Special Parameters</strong></p>
+<p>For the most part, the usage of the <code class="docutils literal notranslate"><span class="pre">Parameters</span></code> object is self evident and clarified by the descriptions provided by the class itself and <code class="docutils literal notranslate"><span class="pre">ParametersHelp</span></code>. However, certain parameters, which are <cite>interferometer-specific</cite>, need to be passed with specific formatting to be properly parsed.
+These are: <code class="docutils literal notranslate"><span class="pre">channel</span></code> <code class="docutils literal notranslate"><span class="pre">frametype</span></code> <code class="docutils literal notranslate"><span class="pre">input_sample_rate</span></code> <code class="docutils literal notranslate"><span class="pre">local_data_path</span></code> <code class="docutils literal notranslate"><span class="pre">time_shift</span></code>.
+When passing in the same value of one of these parameters for both interferometers, this only needs to be passed once; for example, to pass in the same frame type for both interferometers, one simply adds to the parameter file (in the appropriate section):</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">data_specs</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">interferometer_list</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;IFO1&quot;</span><span class="p">,</span> <span class="s2">&quot;IFO2&quot;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frametype</span><span class="p">:</span> <span class="n">MY_FRAME</span>
+</pre></div>
+</div>
+<p>However, when passing in different frame types for different interferometers, this needs to be specified as</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">data_specs</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">interferometer_list</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;IFO1&quot;</span><span class="p">,</span> <span class="s2">&quot;IFO2&quot;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frametype</span><span class="p">:</span> <span class="n">IFO1</span><span class="p">:</span><span class="n">MY_FRAME_1</span><span class="p">,</span><span class="n">IFO2</span><span class="p">:</span><span class="n">MY_FRAME_2</span>
+</pre></div>
+</div>
+<p>where IFO1 and IFO2 match the names provided for the interferometers in the <code class="docutils literal notranslate"><span class="pre">interferometer_list</span></code> parameter.</p>
+<p>Users should not interact with the <code class="docutils literal notranslate"><span class="pre">ParametersHelp</span></code> class.</p>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="pygwb.parameters.Parameters.html#pygwb.parameters.Parameters" title="pygwb.parameters.Parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Parameters</span></code></a>(t0, tf, interferometer_list, ...)</p></td>
+<td><p>A dataclass which contains all parameters required for initialising a pygwb <code class="docutils literal notranslate"><span class="pre">Interferometer</span></code>, a pygwb <code class="docutils literal notranslate"><span class="pre">Baseline</span></code>, and run <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pygwb.parameters.ParametersHelp.html#pygwb.parameters.ParametersHelp" title="pygwb.parameters.ParametersHelp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ParametersHelp</span></code></a>(value)</p></td>
+<td><p>Description of the arguments in the Parameters class.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pygwb.orfs.tangent_vector.html" class="btn btn-neutral float-left" title="pygwb.orfs.tangent_vector" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pygwb.parameters.Parameters.html" class="btn btn-neutral float-right" title="pygwb.parameters.Parameters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

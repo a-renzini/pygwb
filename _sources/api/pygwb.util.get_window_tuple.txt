@@ -1,0 +1,6 @@
+pygwb.util.get\_window\_tuple
+=============================
+
+.. currentmodule:: pygwb.util
+
+.. autofunction:: get_window_tuple

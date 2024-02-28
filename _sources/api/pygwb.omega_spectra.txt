@@ -1,0 +1,41 @@
+﻿pygwb.omega\_spectra
+====================
+
+.. currentmodule:: pygwb.omega_spectra
+
+.. automodule:: pygwb.omega_spectra
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      reweight_spectral_object
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      OmegaSpectrogram
+      OmegaSpectrum
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,6 @@
+pygwb.omega\_spectra.reweight\_spectral\_object
+===============================================
+
+.. currentmodule:: pygwb.omega_spectra
+
+.. autofunction:: reweight_spectral_object

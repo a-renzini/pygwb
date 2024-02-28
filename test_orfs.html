@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculate overlap reduction functions &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/tabs.css?v=a5c4661c" />
+      <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=0264ad83"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Interpret the output of the statistical_checks module" href="run_statistical_checks.html" />
+    <link rel="prev" title="Generate a notch list" href="make_notchlist.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="demos.html">Demos</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="run_pe.html">Parameter estimation demo: customizing runs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="make_notchlist.html">Generate a notch list</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Calculate overlap reduction functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Overlap-reduction-function-calculation-for-arbitrary-baselines">Overlap reduction function calculation for arbitrary baselines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Check-normalization-for-ET">Check normalization for ET</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Plot-non-GR-polarizations">Plot non-GR polarizations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="run_statistical_checks.html">Interpret the output of the <code class="docutils literal notranslate"><span class="pre">statistical_checks</span></code> module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="demos.html">Demos</a></li>
+      <li class="breadcrumb-item active">Calculate overlap reduction functions</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/test_orfs.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Calculate-overlap-reduction-functions">
+<h1>Calculate overlap reduction functions<a class="headerlink" href="#Calculate-overlap-reduction-functions" title="Permalink to this heading"></a></h1>
+<section id="Overlap-reduction-function-calculation-for-arbitrary-baselines">
+<h2>Overlap reduction function calculation for arbitrary baselines<a class="headerlink" href="#Overlap-reduction-function-calculation-for-arbitrary-baselines" title="Permalink to this heading"></a></h2>
+<p>In this tutorial we will demonstrate how to calculate the overlap reduction function (ORF) for arbitrary baselines, which encodes the geometric sensitivity of a given detector pair as a function of the relative positions and orientations of the two interferometers.</p>
+<p>First we import the necessary modules. We will use the <code class="docutils literal notranslate"><span class="pre">Baseline</span></code> module of <code class="docutils literal notranslate"><span class="pre">pygwb</span></code>. For more information on the <code class="docutils literal notranslate"><span class="pre">Baseline</span></code> module, we refer the user to the <a class="reference external" href="api/pygwb.baseline.html">documentation page</a>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">bilby</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">pygwb.baseline</span> <span class="kn">import</span> <span class="n">Baseline</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="n">my_palette</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s2">&quot;colorblind&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Next we initialize empty <code class="docutils literal notranslate"><span class="pre">Interferometer</span></code> objects for LIGO Livingston, LIGO India, Virgo, Kagra, and Einstein Telescope. The latter is a <code class="docutils literal notranslate"><span class="pre">TringularInterferometer</span></code> object, which consists of three separate <code class="docutils literal notranslate"><span class="pre">Interferometer</span></code> objects at the vertices of an equilateral triangle. The <code class="docutils literal notranslate"><span class="pre">Interferometer</span></code> objects store the location information for each detector, like the latitude and longitude of the vertex and angle of the arms.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">L1</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">gw</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">get_empty_interferometer</span><span class="p">(</span><span class="s1">&#39;L1&#39;</span><span class="p">)</span>
+<span class="n">A1</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">gw</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">get_empty_interferometer</span><span class="p">(</span><span class="s1">&#39;A1&#39;</span><span class="p">)</span>
+<span class="n">V1</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">gw</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">get_empty_interferometer</span><span class="p">(</span><span class="s1">&#39;V1&#39;</span><span class="p">)</span>
+<span class="n">K1</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">gw</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">get_empty_interferometer</span><span class="p">(</span><span class="s1">&#39;K1&#39;</span><span class="p">)</span>
+<span class="n">ET</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">gw</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">get_empty_interferometer</span><span class="p">(</span><span class="s1">&#39;ET&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>More information about the <code class="docutils literal notranslate"><span class="pre">Interferometer</span></code> object can be found <a class="reference external" href="api/pygwb.detector.Interferometer.html">here</a>. For additional information on the <code class="docutils literal notranslate"><span class="pre">bilby.gw.detector</span></code> object, we refer the user to the <a class="reference external" href="https://lscsoft.docs.ligo.org/bilby/api/bilby.gw.detector.html">documentation</a>.</p>
+<p>Next, we set the frequencies in each interferometer. We use a maximum frequency of 2048 Hz sampled with a spacing of <span class="math notranslate nohighlight">\(\delta f = 1/T = 0.25~\mathrm{Hz}\)</span>, where <span class="math notranslate nohighlight">\(T\)</span> is the analysis segment duration:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">duration</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">freqs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2048</span><span class="p">,</span><span class="mf">1.</span><span class="o">/</span><span class="n">duration</span><span class="p">)</span>
+<span class="n">masks</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">ifo</span> <span class="ow">in</span> <span class="p">[</span><span class="n">L1</span><span class="p">,</span> <span class="n">A1</span><span class="p">,</span> <span class="n">V1</span><span class="p">,</span> <span class="n">K1</span><span class="p">,</span> <span class="n">ET</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">ifo</span><span class="o">.</span><span class="n">name</span><span class="o">==</span><span class="s1">&#39;ET&#39;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="n">ifo</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_array</span> <span class="o">=</span> <span class="n">freqs</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ifo</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">frequency_array</span> <span class="o">=</span> <span class="n">freqs</span>
+</pre></div>
+</div>
+</div>
+<p>Now let’s define some baselines with the interferometers initialized above. This constitutes a pair of detectors. We define a few different baselines with the ET interferometers to demonstrate the ORF normalization for detectors with non-90-degree arms.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">L1V1</span> <span class="o">=</span> <span class="n">Baseline</span><span class="p">(</span><span class="s1">&#39;L-V&#39;</span><span class="p">,</span> <span class="n">L1</span><span class="p">,</span> <span class="n">V1</span><span class="p">,</span> <span class="n">frequencies</span><span class="o">=</span><span class="n">freqs</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="n">duration</span><span class="p">)</span>
+<span class="n">L1A1</span> <span class="o">=</span> <span class="n">Baseline</span><span class="p">(</span><span class="s1">&#39;L-A&#39;</span><span class="p">,</span> <span class="n">A1</span><span class="p">,</span> <span class="n">L1</span><span class="p">,</span> <span class="n">frequencies</span><span class="o">=</span><span class="n">freqs</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="n">duration</span><span class="p">)</span>
+<span class="n">V1K1</span> <span class="o">=</span> <span class="n">Baseline</span><span class="p">(</span><span class="s1">&#39;V-K&#39;</span><span class="p">,</span> <span class="n">V1</span><span class="p">,</span> <span class="n">K1</span><span class="p">,</span> <span class="n">frequencies</span><span class="o">=</span><span class="n">freqs</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="n">duration</span><span class="p">)</span>
+<span class="n">A1ET</span> <span class="o">=</span> <span class="n">Baseline</span><span class="p">(</span><span class="s1">&#39;A-ET&#39;</span><span class="p">,</span> <span class="n">A1</span><span class="p">,</span> <span class="n">ET</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">frequencies</span><span class="o">=</span><span class="n">freqs</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="n">duration</span><span class="p">)</span>
+<span class="n">ET01</span> <span class="o">=</span> <span class="n">Baseline</span><span class="p">(</span><span class="s1">&#39;ET 01&#39;</span><span class="p">,</span> <span class="n">ET</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ET</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">frequencies</span><span class="o">=</span><span class="n">freqs</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="n">duration</span><span class="p">)</span>
+<span class="n">ET02</span> <span class="o">=</span> <span class="n">Baseline</span><span class="p">(</span><span class="s1">&#39;ET 02&#39;</span><span class="p">,</span> <span class="n">ET</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ET</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">frequencies</span><span class="o">=</span><span class="n">freqs</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="n">duration</span><span class="p">)</span>
+<span class="n">ET00</span> <span class="o">=</span> <span class="n">Baseline</span><span class="p">(</span><span class="s1">&#39;ET 00&#39;</span><span class="p">,</span> <span class="n">ET</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ET</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">frequencies</span><span class="o">=</span><span class="n">freqs</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="n">duration</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We need to tell the code for what polarization we are interested in calculating the overlap reduction function. For now, we assume that General Relativity is correct and look at the <code class="docutils literal notranslate"><span class="pre">tensor</span></code> polarization.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">ii</span><span class="p">,</span><span class="n">baseline</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="n">L1V1</span><span class="p">,</span> <span class="n">L1A1</span><span class="p">,</span> <span class="n">V1K1</span><span class="p">,</span> <span class="n">A1ET</span><span class="p">,</span> <span class="n">ET00</span><span class="p">,</span> <span class="n">ET01</span><span class="p">,</span> <span class="n">ET02</span><span class="p">]):</span>
+    <span class="n">baseline</span><span class="o">.</span><span class="n">orf_polarization</span> <span class="o">=</span> <span class="s1">&#39;tensor&#39;</span>
+    <span class="k">if</span> <span class="n">baseline</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;ET 02&#39;</span><span class="p">:</span>
+        <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;-&#39;</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">baseline</span><span class="o">.</span><span class="n">overlap_reduction_function</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">baseline</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="n">ls</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">my_palette</span><span class="p">[</span><span class="n">ii</span><span class="p">])</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper right&#39;</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;size&#39;</span><span class="p">:</span><span class="mi">18</span><span class="p">})</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">300</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$f~[\mathrm</span><span class="si">{Hz}</span><span class="s1">]$&#39;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">18</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\gamma(f)$&#39;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">18</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0, 0.5, &#39;$\\gamma(f)$&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/test_orfs_11_1.png" src="_images/test_orfs_11_1.png" />
+</div>
+</div>
+<p>This plot shows us that the ORFs are normalized to be 1 for coincident and coaligned detectors irrespective of the opening angle between their arms. For additional information on the computation of the ORF, we refer the user to the <a class="reference external" href="api/pygwb.orfs.html">documentation page</a> of the module, as well as to the <code class="docutils literal notranslate"><span class="pre">Baseline</span></code> <a class="reference external" href="api/pygwb.baseline.html">module</a> to see how the two modules interact with one another.</p>
+</section>
+<section id="Check-normalization-for-ET">
+<h2>Check normalization for ET<a class="headerlink" href="#Check-normalization-for-ET" title="Permalink to this heading"></a></h2>
+<p>What about for coincident detectors that are rotated with respect to each other? This is the case for the <code class="docutils literal notranslate"><span class="pre">ET01</span></code> and <code class="docutils literal notranslate"><span class="pre">ET02</span></code> baselines, which are basically equivalent to two coincident ET detectors rotated by 120 degrees. Let’s verify this. First we make a copy of the <code class="docutils literal notranslate"><span class="pre">ET[0]</span></code> detector and rotate its x and y arm positions by 120 degrees. Then we create a baseline between the original <code class="docutils literal notranslate"><span class="pre">ET[0]</span></code> and this rotated copy.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ET_rot120</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">ET</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">ET_rot120</span><span class="o">.</span><span class="n">xarm_azimuth</span> <span class="o">+=</span> <span class="mi">120</span>
+<span class="n">ET_rot120</span><span class="o">.</span><span class="n">yarm_azimuth</span> <span class="o">+=</span> <span class="mi">120</span>
+<span class="n">ET_test120</span> <span class="o">=</span> <span class="n">Baseline</span><span class="p">(</span><span class="s1">&#39;ET rot&#39;</span><span class="p">,</span> <span class="n">ET</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ET_rot120</span><span class="p">,</span> <span class="n">frequencies</span><span class="o">=</span><span class="n">freqs</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="n">duration</span><span class="p">)</span>
+<span class="n">ET_test120</span><span class="o">.</span><span class="n">orf_polarization</span> <span class="o">=</span> <span class="s1">&#39;tensor&#39;</span>
+</pre></div>
+</div>
+</div>
+<p>Now we plot for comparison with the <code class="docutils literal notranslate"><span class="pre">ET01</span></code> and <code class="docutils literal notranslate"><span class="pre">ET02</span></code> baselines above.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">ii</span><span class="p">,</span><span class="n">baseline</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="n">L1V1</span><span class="p">,</span> <span class="n">L1A1</span><span class="p">,</span> <span class="n">V1K1</span><span class="p">,</span> <span class="n">A1ET</span><span class="p">,</span> <span class="n">ET01</span><span class="p">,</span> <span class="n">ET02</span><span class="p">,</span> <span class="n">ET_test120</span><span class="p">]):</span>
+    <span class="k">if</span> <span class="n">baseline</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;ET 02&#39;</span><span class="p">:</span>
+        <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span>
+    <span class="k">elif</span> <span class="n">baseline</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;ET rot&#39;</span><span class="p">:</span>
+        <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;:&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;-&#39;</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">baseline</span><span class="o">.</span><span class="n">overlap_reduction_function</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">baseline</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="n">ls</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">my_palette</span><span class="p">[</span><span class="n">ii</span><span class="p">])</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper right&#39;</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;size&#39;</span><span class="p">:</span><span class="mi">18</span><span class="p">})</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">300</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$f~[\mathrm</span><span class="si">{Hz}</span><span class="s1">]$&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\gamma(f)$&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0, 0.5, &#39;$\\gamma(f)$&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/test_orfs_16_1.png" src="_images/test_orfs_16_1.png" />
+</div>
+</div>
+<p>You can see that the three ET baselines lie nearly on top of each other, as expected. This tells us that the ORF normalization is such that <span class="math notranslate nohighlight">\(\gamma(f=0) = \cos{\beta}\)</span>, for arm opening angles of <span class="math notranslate nohighlight">\(\beta\)</span>.</p>
+</section>
+<section id="Plot-non-GR-polarizations">
+<h2>Plot non-GR polarizations<a class="headerlink" href="#Plot-non-GR-polarizations" title="Permalink to this heading"></a></h2>
+<p>In addition, the <code class="docutils literal notranslate"><span class="pre">orfs</span></code> module also allows non-GR polarizations. This is illustrated below for scalar polarizations, but it can also be calculated for vector polarizations.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">ii</span><span class="p">,</span><span class="n">baseline</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="n">L1V1</span><span class="p">,</span> <span class="n">L1A1</span><span class="p">,</span> <span class="n">V1K1</span><span class="p">,</span> <span class="n">A1ET</span><span class="p">,</span> <span class="n">ET02</span><span class="p">]):</span>
+    <span class="n">baseline</span><span class="o">.</span><span class="n">orf_polarization</span> <span class="o">=</span> <span class="s1">&#39;scalar&#39;</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">baseline</span><span class="o">.</span><span class="n">overlap_reduction_function</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">baseline</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="n">lw</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">my_palette</span><span class="p">[</span><span class="n">ii</span><span class="p">])</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper right&#39;</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;size&#39;</span><span class="p">:</span><span class="mi">18</span><span class="p">})</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">300</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$f~[\mathrm</span><span class="si">{Hz}</span><span class="s1">]$&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\gamma(f)$&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0, 0.5, &#39;$\\gamma(f)$&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/test_orfs_19_1.png" src="_images/test_orfs_19_1.png" />
+</div>
+</div>
+<p>More information about how the ORFs are computed can be found in the <a class="reference external" href="api/pygwb.orfs.html">documentation</a> of the <code class="docutils literal notranslate"><span class="pre">orfs</span></code> module.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="make_notchlist.html" class="btn btn-neutral float-left" title="Generate a notch list" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="run_statistical_checks.html" class="btn btn-neutral float-right" title="Interpret the output of the statistical_checks module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

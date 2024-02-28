@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pygwb.parameters &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=0264ad83"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+        <script src="../../_static/tabs.js?v=3030b3cb"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../../about.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../demos.html">Demos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pygwb.parameters</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pygwb.parameters</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Many parameters enter in a full gravitational-wave background analysis. The ``parameters`` module is meant to facilitate</span>
+<span class="sd">the handling of this large amount of parameters. It contains the ``Parameters`` class which is used to store and handle </span>
+<span class="sd">all parameters of ``pygwb``.</span>
+
+<span class="sd">This module contains only one class, the ``Parameters`` class and its accompanying helper class ``ParametersHelp``.</span>
+<span class="sd">An object of the ``Parameters`` class is used as the storage object of all parameters in the ``pygwb`` analysis.</span>
+<span class="sd">It is a container for all the required ingredients to perform a stochastic gravitational-wave background analysis.</span>
+
+<span class="sd">Examples</span>
+<span class="sd">--------</span>
+
+<span class="sd">When using a packaged script, parameters passed to the script directly will be stored in a ``Parameters`` object. </span>
+<span class="sd">To pass these, the standard ``argparse`` usage applies; for example, when using ``pygwb_pipe``.</span>
+
+<span class="sd">&gt;&gt;&gt; pygwb_pipe --parameter_to_pass [my-parameter-value]</span>
+
+<span class="sd">A parameter class may also be instantiated from a parameter file using the appropriate method, ``Parameters.update_from_file``.</span>
+<span class="sd">A parameter file must be structured specifically to be read by the ``Parameters`` class. The following structure should be followed::</span>
+
+<span class="sd">    [data_specs]</span>
+<span class="sd">    interferometer_list: [&quot;IFO1&quot;, &quot;IFO2&quot;]</span>
+<span class="sd">    t0:</span>
+<span class="sd">    tf:</span>
+<span class="sd">    data_type:</span>
+<span class="sd">    channel:</span>
+<span class="sd">    frametype:</span>
+<span class="sd">    time_shift:</span>
+<span class="sd">    [preprocessing]</span>
+<span class="sd">    new_sample_rate: </span>
+<span class="sd">    input_sample_rate: </span>
+<span class="sd">    cutoff_frequency: </span>
+<span class="sd">    segment_duration: </span>
+<span class="sd">    number_cropped_seconds: </span>
+<span class="sd">    window_downsampling: </span>
+<span class="sd">    ftype: </span>
+<span class="sd">    [gating]</span>
+<span class="sd">    gate_data: </span>
+<span class="sd">    gate_whiten: </span>
+<span class="sd">    gate_tzero: </span>
+<span class="sd">    gate_tpad: </span>
+<span class="sd">    gate_threshold: </span>
+<span class="sd">    cluster_window: </span>
+<span class="sd">    [window_fft_specs]</span>
+<span class="sd">    window_fftgram: </span>
+<span class="sd">    alpha:</span>
+<span class="sd">    [window_fft_welch_specs]</span>
+<span class="sd">    window_fftgram: </span>
+<span class="sd">    alpha:</span>
+<span class="sd">    [density_estimation]</span>
+<span class="sd">    frequency_resolution: </span>
+<span class="sd">    N_average_segments_psd: </span>
+<span class="sd">    coarse_grain_psd: </span>
+<span class="sd">    coarse_grain_csd: </span>
+<span class="sd">    overlap_factor_welch: </span>
+<span class="sd">    overlap_factor: </span>
+<span class="sd">    [postprocessing]</span>
+<span class="sd">    polarization:  </span>
+<span class="sd">    alpha: </span>
+<span class="sd">    fref: </span>
+<span class="sd">    flow: </span>
+<span class="sd">    fhigh: </span>
+<span class="sd">    [data_quality]</span>
+<span class="sd">    notch_list_path: </span>
+<span class="sd">    calibration_epsilon: </span>
+<span class="sd">    alphas_delta_sigma_cut:</span>
+<span class="sd">    delta_sigma_cut: </span>
+<span class="sd">    return_naive_and_averaged_sigmas: </span>
+<span class="sd">    [output]</span>
+<span class="sd">    save_data_type:</span>
+<span class="sd">    [local_data]</span>
+<span class="sd">    local_data_path:</span>
+
+<span class="sd">All values of parameters have a default value and need not be passed when the user doesn&#39;t want to specify a different value. </span>
+<span class="sd">An example parameters file may be found in ``pygwb/pygwb_pipe/parameters.ini``.</span>
+<span class="sd">Details on the usage may be found in the class descriptions and by calling the help function of the ``pygwb_pipe`` script. </span>
+
+<span class="sd">In a very small subset of cases, some parameters are passed differently through the parameter file compared to the command line, and not all combinations are possible through the command line. </span>
+<span class="sd">These are specifically the cases where sections of the parameter file are parsed as dictionaries, to allow for multiple parameters to be passed without having been specified in the ``Parameters`` class.</span>
+<span class="sd">These are the ``window_fft_specs`` and ``window_fft_welch_specs`` sections which are parsed as dictionaries and passed directly to ``scipy`` which expects all the parameters relevant to the specific window employed (e.g., ``alpha`` for a Tukey window, etc.).</span>
+<span class="sd">When passing arguments relative to these sections from the command line directly, these should be passed as, e.g.:</span>
+
+<span class="sd">&gt;&gt;&gt; pygwb_pipe --window_fftgram my-window-1 --window_fftgram_welch my-window-2</span>
+
+<span class="sd">Notes</span>
+<span class="sd">-----</span>
+
+<span class="sd">**Special Parameters**</span>
+
+<span class="sd">For the most part, the usage of the ``Parameters`` object is self evident and clarified by the descriptions provided by the class itself and ``ParametersHelp``. However, certain parameters, which are `interferometer-specific`, need to be passed with specific formatting to be properly parsed. </span>
+<span class="sd">These are: ``channel`` ``frametype`` ``input_sample_rate`` ``local_data_path`` ``time_shift``.</span>
+<span class="sd">When passing in the same value of one of these parameters for both interferometers, this only needs to be passed once; for example, to pass in the same frame type for both interferometers, one simply adds to the parameter file (in the appropriate section):</span>
+
+<span class="sd">&gt;&gt;&gt; [data_specs]</span>
+<span class="sd">&gt;&gt;&gt; interferometer_list: [&quot;IFO1&quot;, &quot;IFO2&quot;]</span>
+<span class="sd">&gt;&gt;&gt; frametype: MY_FRAME</span>
+
+<span class="sd">However, when passing in different frame types for different interferometers, this needs to be specified as</span>
+
+<span class="sd">&gt;&gt;&gt; [data_specs]</span>
+<span class="sd">&gt;&gt;&gt; interferometer_list: [&quot;IFO1&quot;, &quot;IFO2&quot;]</span>
+<span class="sd">&gt;&gt;&gt; frametype: IFO1:MY_FRAME_1,IFO2:MY_FRAME_2</span>
+
+<span class="sd">where IFO1 and IFO2 match the names provided for the interferometers in the ``interferometer_list`` parameter.</span>
+
+<span class="sd">Users should not interact with the ``ParametersHelp`` class.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">configparser</span>
+<span class="kn">import</span> <span class="nn">enum</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+
+<span class="kn">import</span> <span class="nn">json5</span>
+
+
+<div class="viewcode-block" id="Parameters"><a class="viewcode-back" href="../../api/pygwb.parameters.Parameters.html#pygwb.parameters.Parameters">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">Parameters</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A dataclass which contains all parameters required for initialising a pygwb ``Interferometer``,</span>
+<span class="sd">    a pygwb ``Baseline``, and run ``pygwb_pipe``.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    =======</span>
+<span class="sd">    t0 : ``float``</span>
+<span class="sd">        Initial time.</span>
+<span class="sd">    tf: ``float``</span>
+<span class="sd">        Final time.</span>
+<span class="sd">    data_type: ``str``</span>
+<span class="sd">        Type of data to access/download; options are private, public, local. Default is public.</span>
+<span class="sd">    channel: ``str``</span>
+<span class="sd">        Channel name; needs to match an existing channel. Default is \&quot;GWOSC-16KHZ_R1_STRAIN\&quot;.</span>
+<span class="sd">    frametype: ``str``</span>
+<span class="sd">        Frame type; Optional, desired channel needs to be found in listed frametype. Only used when data_type=private.</span>
+<span class="sd">        Default is empty.</span>
+<span class="sd">    new_sample_rate: ``int``</span>
+<span class="sd">        Sample rate to use when downsampling the data (Hz). Default is 4096 Hz.</span>
+<span class="sd">    input_sample_rate: ``int``</span>
+<span class="sd">        Sample rate of the read data (Hz). Default is 16384 Hz.</span>
+<span class="sd">    cutoff_frequency: ``int``</span>
+<span class="sd">        Lower frequency cutoff; applied in filtering in preprocessing (Hz). Default is 11 Hz.</span>
+<span class="sd">    segment_duration: ``int``</span>
+<span class="sd">        Duration of the individual segments to analyse (seconds). Default is 192 seconds.</span>
+<span class="sd">    number_cropped_seconds: ``int``</span>
+<span class="sd">        Number of seconds to crop at the start and end of the analysed data (seconds). Default is 2 seconds.</span>
+<span class="sd">    window_downsampling: ``str``</span>
+<span class="sd">        Type of window to use in preprocessing. Default is \&quot;hamming\&quot;.</span>
+<span class="sd">    ftype: ``str``</span>
+<span class="sd">        Type of filter to use in downsampling. Default is \&quot;fir\&quot;.</span>
+<span class="sd">    frequency_resolution: ``float``</span>
+<span class="sd">        Frequency resolution of the final output spectrum (Hz). Default is 1\/32 Hz.</span>
+<span class="sd">    polarization: ``str``</span>
+<span class="sd">        Polarization type for the overlap reduction function calculation; options are scalar, vector, tensor.</span>
+<span class="sd">        Default is tensor.</span>
+<span class="sd">    alpha: ``float``</span>
+<span class="sd">        Spectral index to filter the data for. Default is 0.</span>
+<span class="sd">    fref: ``int``</span>
+<span class="sd">        Reference frequency to filter the data at (Hz). Default is 25 Hz.</span>
+<span class="sd">    flow: ``int``</span>
+<span class="sd">        Lower frequency to include in the analysis (Hz). Default is 20 Hz.</span>
+<span class="sd">    fhigh: ``int``</span>
+<span class="sd">        Higher frequency to include in the analysis (Hz). Default is 1726 Hz.</span>
+<span class="sd">    interferometer_list: ``list``</span>
+<span class="sd">        List of interferometers to run the analysis with. Default is [\&quot;H1\&quot;, \&quot;L1\&quot;].</span>
+<span class="sd">    local_data_path: ``str``</span>
+<span class="sd">        Path(s) to local data, if the local data option is chosen. Default is empty.</span>
+<span class="sd">    notch_list_path: ``str``</span>
+<span class="sd">        Path to the notch list file. Default is empty.</span>
+<span class="sd">    coarse_grain_psd: ``bool``</span>
+<span class="sd">        Whether to apply coarse graining to obtain PSD spectra. Default is False.</span>
+<span class="sd">    coarse_grain_csd: ``bool``</span>
+<span class="sd">        Whether to apply coarse graining to obtain CSD spectra. Default is True.</span>
+<span class="sd">    overlap_factor_welch: ``float``</span>
+<span class="sd">        Overlap factor to use when if using Welch&#39;s method to estimate spectra (NOT coarsegraining).</span>
+<span class="sd">        For \&quot;hann\&quot; window use 0.5 overlap_factor and for \&quot;boxcar\&quot; window use 0 overlap_factor.</span>
+<span class="sd">        Default is 0.5 (50% overlap), which is optimal when using Welch&#39;s method with a \&quot;hann\&quot; window.</span>
+<span class="sd">    N_average_segments_psd: ``int``</span>
+<span class="sd">        Number of segments to average over when calculating the psd with Welch method. Default is 2.</span>
+<span class="sd">    window_fft_dict: ``dict``</span>
+<span class="sd">        Dictionary containing name and parameters describing which window to use when producing fftgrams</span>
+<span class="sd">        for psds and csds. Default is \&quot;hann\&quot;.</span>
+<span class="sd">    window_fft_dict_welch: ``dict``</span>
+<span class="sd">        Dictionary containing name and parameters relative to which window to use when producing fftgrams</span>
+<span class="sd">        for pwelch calculation. Default is \&quot;hann\&quot;.</span>
+<span class="sd">    calibration_epsilon: ``float``</span>
+<span class="sd">        Calibration coefficient. Default is 0.</span>
+<span class="sd">    overlap_factor: ``float``</span>
+<span class="sd">        Factor by which to overlap consecutive segments for analysis. Default is 0.5 (50%% overlap).</span>
+<span class="sd">    delta_sigma_cut: ``float``</span>
+<span class="sd">        Cutoff value for the delta sigma cut. Default is 0.2.</span>
+<span class="sd">    alphas_delta_sigma_cut: ``list``</span>
+<span class="sd">        List of spectral indexes to use in delta sigma cut calculation. Default is [-5, 0, 3].</span>
+<span class="sd">    save_data_type: ``str``</span>
+<span class="sd">        Suffix for the output data file. Options are hdf5, npz, json, pickle. Default is json.</span>
+<span class="sd">    time_shift: ``int``</span>
+<span class="sd">        Seconds to timeshift the data by in preprocessing. Default is 0.</span>
+<span class="sd">    gate_data: ``bool``</span>
+<span class="sd">        Whether to apply self-gating to the data in preprocessing. Default is False.</span>
+<span class="sd">    gate_tzero: ``float``</span>
+<span class="sd">        Half-width time duration (seconds) in which the timeseries is set to zero. Default is 1.0.</span>
+<span class="sd">    gate_tpad: ``float``</span>
+<span class="sd">        Half-width time duration (seconds) in which the Planck window is tapered. Default is 0.5.</span>
+<span class="sd">    gate_threshold: ``float``</span>
+<span class="sd">        Amplitude threshold, if the data exceeds this value a gating window will be placed. Default is 50.</span>
+<span class="sd">    cluster_window: ``float``</span>
+<span class="sd">        Time duration (seconds) over which gating points will be clustered. Default is 0.5.</span>
+<span class="sd">    gate_whiten: ``bool``</span>
+<span class="sd">        Whether to whiten when gating. Default is True.</span>
+<span class="sd">    tag: ``str``</span>
+<span class="sd">        Hint for the read_data function to retrieve one specific type of data, e.g.: C00, C01.</span>
+<span class="sd">    return_naive_and_averaged_sigmas: ``bool``</span>
+<span class="sd">        Option to return naive and sliding sigmas from delta sigma cut.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">t0</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">tf</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">interferometer_list</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;H1&quot;</span><span class="p">,</span> <span class="s2">&quot;L1&quot;</span><span class="p">])</span>
+    <span class="n">data_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;public&quot;</span>
+    <span class="n">channel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;GWOSC-16KHZ_R1_STRAIN&quot;</span>
+    <span class="n">frametype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">new_sample_rate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4096</span>
+    <span class="n">input_sample_rate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16384</span>
+    <span class="n">cutoff_frequency</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">11</span>
+    <span class="n">segment_duration</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">192</span>
+    <span class="n">number_cropped_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">window_downsampling</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;hamming&quot;</span>
+    <span class="n">ftype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;fir&quot;</span>
+    <span class="n">frequency_resolution</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.03125</span>
+    <span class="n">polarization</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;tensor&quot;</span>
+    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">fref</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">25</span>
+    <span class="n">flow</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">20</span>
+    <span class="n">fhigh</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1726</span>
+    <span class="n">local_data_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">notch_list_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">coarse_grain_psd</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">coarse_grain_csd</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">overlap_factor_welch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">N_average_segments_psd</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">window_fft_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;window_fftgram&quot;</span><span class="p">:</span> <span class="s2">&quot;hann&quot;</span><span class="p">})</span>
+    <span class="n">window_fft_dict_welch</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;window_fftgram&quot;</span><span class="p">:</span> <span class="s2">&quot;hann&quot;</span><span class="p">})</span>
+    <span class="n">calibration_epsilon</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">overlap_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">delta_sigma_cut</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span>
+    <span class="n">alphas_delta_sigma_cut</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+    <span class="n">save_data_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;npz&quot;</span>
+    <span class="n">time_shift</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">path_gate_data</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">gate_data</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">gate_tzero</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">gate_tpad</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">gate_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">50.0</span>
+    <span class="n">cluster_window</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">gate_whiten</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">tag</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">return_naive_and_averaged_sigmas</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="Parameters.update_from_dictionary"><a class="viewcode-back" href="../../api/pygwb.parameters.Parameters.html#pygwb.parameters.Parameters.update_from_dictionary">[docs]</a>    <span class="k">def</span> <span class="nf">update_from_dictionary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update parameters from a dictionary.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        kwargs: ``dict``</span>
+<span class="sd">            Dictionary of parameters to update.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ann</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__annotations__&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">dtype</span> <span class="ow">in</span> <span class="n">ann</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;^.+:.+,.+:.+$&quot;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">name</span><span class="p">])):</span> 
+                        <span class="n">kwargs</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">dtype</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="n">name</span><span class="p">])</span> <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;False&#39;</span> <span class="k">else</span> <span class="kc">False</span>
+                <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                    <span class="k">pass</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ann</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not an expected parameter and will be ignored.&quot;</span>
+                <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Parameters.update_from_file"><a class="viewcode-back" href="../../api/pygwb.parameters.Parameters.html#pygwb.parameters.Parameters.update_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">update_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update parameters from an ini file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        path: ``str``</span>
+<span class="sd">            Path to parameters ini file to use to update class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">optionxform</span> <span class="o">=</span> <span class="nb">str</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">mega_list</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="s2">&quot;data_specs&quot;</span><span class="p">)</span>
+        <span class="n">mega_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="s2">&quot;preprocessing&quot;</span><span class="p">))</span>
+        <span class="n">mega_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="s2">&quot;density_estimation&quot;</span><span class="p">))</span>
+        <span class="n">mega_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="s2">&quot;postprocessing&quot;</span><span class="p">))</span>
+        <span class="n">mega_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="s2">&quot;gating&quot;</span><span class="p">))</span>
+        <span class="n">mega_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="s2">&quot;data_quality&quot;</span><span class="p">))</span>
+        <span class="n">mega_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="s2">&quot;output&quot;</span><span class="p">))</span>
+        <span class="n">mega_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="s2">&quot;local_data&quot;</span><span class="p">))</span>
+        <span class="n">dictionary</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">mega_list</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dictionary</span><span class="p">[</span><span class="s2">&quot;alphas_delta_sigma_cut&quot;</span><span class="p">]:</span>
+            <span class="n">dictionary</span><span class="p">[</span><span class="s2">&quot;alphas_delta_sigma_cut&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">json5</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span>
+                <span class="n">dictionary</span><span class="p">[</span><span class="s2">&quot;alphas_delta_sigma_cut&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">dictionary</span><span class="p">[</span><span class="s2">&quot;interferometer_list&quot;</span><span class="p">]:</span>
+            <span class="n">dictionary</span><span class="p">[</span><span class="s2">&quot;interferometer_list&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">json5</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span>
+                <span class="n">dictionary</span><span class="p">[</span><span class="s2">&quot;interferometer_list&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="n">dictionary</span><span class="p">[</span><span class="s2">&quot;window_fft_dict&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="s2">&quot;window_fft_specs&quot;</span><span class="p">))</span>
+        <span class="n">dictionary</span><span class="p">[</span><span class="s2">&quot;window_fft_dict_welch&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="s2">&quot;window_fft_welch_specs&quot;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">copy</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">dictionary</span><span class="p">[</span><span class="n">item</span><span class="p">]:</span>
+                <span class="n">dictionary</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_from_dictionary</span><span class="p">(</span><span class="n">dictionary</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Parameters.update_from_arguments"><a class="viewcode-back" href="../../api/pygwb.parameters.Parameters.html#pygwb.parameters.Parameters.update_from_arguments">[docs]</a>    <span class="k">def</span> <span class="nf">update_from_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update parameters from a set of arguments.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        args: ``list``</span>
+<span class="sd">            List of arguments to update in the class. Format must coincide to argparse formatting, e.g.,</span>
+<span class="sd">            [&#39;--t0&#39;, &#39;0&#39;, &#39;--tf&#39;, &#39;100&#39;].</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Not all possible options are available through argument updating. The two exceptions are the dictionary</span>
+<span class="sd">        attributes which can not be parsed easily by argparse. These are</span>
+<span class="sd">        * window_fft_dict: this is composed by the single argument</span>
+<span class="sd">            -- window_fftgram</span>
+<span class="sd">        This is the only option currently supported. To use windows that require extra parameters, pass these as part</span>
+<span class="sd">        of an .ini file, in the relevant section [window_fft_specs].</span>
+<span class="sd">        * window_fft_dict_welch: this is composed by the single argument</span>
+<span class="sd">            -- window_fftgram_welch</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">ann</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__annotations__&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">dtype</span> <span class="ow">in</span> <span class="n">ann</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">dtype</span> <span class="o">==</span> <span class="n">List</span><span class="p">:</span>
+                <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--window_fftgram&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--window_fftgram_welch&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">parsed</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_known_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">dictionary</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">parsed</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">copy</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">dictionary</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">dictionary</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;window_fftgram&quot;</span> <span class="ow">in</span> <span class="n">dictionary</span><span class="p">:</span>
+            <span class="n">window_fft_dict</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">wfgram_name</span><span class="p">,</span> <span class="o">*</span><span class="n">wfgram</span> <span class="o">=</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;window_fftgram&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+            <span class="n">window_fft_dict</span><span class="p">[</span><span class="s2">&quot;window_fftgram&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">wfgram_name</span>
+            <span class="k">if</span> <span class="n">wfgram_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;tukey&#39;</span><span class="p">:</span>
+                <span class="n">window_fft_dict</span><span class="p">[</span><span class="s2">&quot;alpha&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">wfgram</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">wfgram_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;hann&#39;</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span> 
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Window </span><span class="si">{</span><span class="n">wfgram_name</span><span class="si">}</span><span class="s2"> not supported from command line! &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Please try submitting through a full parameter ini file.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">dictionary</span><span class="p">[</span><span class="s2">&quot;window_fft_dict&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">window_fft_dict</span>
+        <span class="k">if</span> <span class="s2">&quot;window_fftgram_welch&quot;</span> <span class="ow">in</span> <span class="n">dictionary</span><span class="p">:</span>
+            <span class="n">window_fft_dict_welch</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">wfgram_name_welch</span><span class="p">,</span> <span class="o">*</span><span class="n">wfgram_welch</span> <span class="o">=</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;window_fftgram_welch&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+            <span class="n">window_fft_dict_welch</span><span class="p">[</span><span class="s2">&quot;window_fftgram&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">wfgram_name_welch</span>
+            <span class="k">if</span> <span class="n">wfgram_name_welch</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;tukey&#39;</span><span class="p">:</span>
+                <span class="n">window_fft_dict_welch</span><span class="p">[</span><span class="s2">&quot;alpha&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">wfgram</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">wfgram_name_welch</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;hann&#39;</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span> 
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Window </span><span class="si">{</span><span class="n">wfgram_name_welch</span><span class="si">}</span><span class="s2"> not supported from command line! &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Please try submitting through a full parameter ini file.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">dictionary</span><span class="p">[</span><span class="s2">&quot;window_fft_dict_welch&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">window_fft_dict_welch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_from_dictionary</span><span class="p">(</span><span class="n">dictionary</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Parameters.save_paramfile"><a class="viewcode-back" href="../../api/pygwb.parameters.Parameters.html#pygwb.parameters.Parameters.save_paramfile">[docs]</a>    <span class="k">def</span> <span class="nf">save_paramfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save parameters to a parameters ini file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        output_path: ``str``</span>
+<span class="sd">            Full path for output parameters ini file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
+        <span class="n">param</span><span class="o">.</span><span class="n">optionxform</span> <span class="o">=</span> <span class="nb">str</span>
+        <span class="n">param_dict</span> <span class="o">=</span> <span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="c1"># for key, value in param_dict.items():</span>
+        <span class="c1">#    param_dict[key] = str(value)</span>
+        <span class="n">data_specs_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">data_specs_dict</span><span class="p">[</span><span class="s2">&quot;t0&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;t0&quot;</span><span class="p">]</span>
+        <span class="n">data_specs_dict</span><span class="p">[</span><span class="s2">&quot;tf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;tf&quot;</span><span class="p">]</span>
+        <span class="n">data_specs_dict</span><span class="p">[</span><span class="s2">&quot;interferometer_list&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;interferometer_list&quot;</span><span class="p">]</span>
+        <span class="n">data_specs_dict</span><span class="p">[</span><span class="s2">&quot;data_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;data_type&quot;</span><span class="p">]</span>
+        <span class="n">data_specs_dict</span><span class="p">[</span><span class="s2">&quot;channel&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;channel&quot;</span><span class="p">]</span>
+        <span class="n">data_specs_dict</span><span class="p">[</span><span class="s2">&quot;frametype&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;frametype&quot;</span><span class="p">]</span>
+        <span class="n">data_specs_dict</span><span class="p">[</span><span class="s2">&quot;time_shift&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;time_shift&quot;</span><span class="p">]</span>
+        <span class="n">param</span><span class="p">[</span><span class="s2">&quot;data_specs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_specs_dict</span>
+
+        <span class="n">preprocessing_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">preprocessing_dict</span><span class="p">[</span><span class="s2">&quot;new_sample_rate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;new_sample_rate&quot;</span><span class="p">]</span>
+        <span class="n">preprocessing_dict</span><span class="p">[</span><span class="s2">&quot;cutoff_frequency&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;cutoff_frequency&quot;</span><span class="p">]</span>
+        <span class="n">preprocessing_dict</span><span class="p">[</span><span class="s2">&quot;segment_duration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;segment_duration&quot;</span><span class="p">]</span>
+        <span class="n">preprocessing_dict</span><span class="p">[</span><span class="s2">&quot;number_cropped_seconds&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span>
+            <span class="s2">&quot;number_cropped_seconds&quot;</span>
+        <span class="p">]</span>
+        <span class="n">preprocessing_dict</span><span class="p">[</span><span class="s2">&quot;window_downsampling&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;window_downsampling&quot;</span><span class="p">]</span>
+        <span class="n">preprocessing_dict</span><span class="p">[</span><span class="s2">&quot;ftype&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;ftype&quot;</span><span class="p">]</span>
+        <span class="n">param</span><span class="p">[</span><span class="s2">&quot;preprocessing&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">preprocessing_dict</span>
+        
+        <span class="n">gating_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">gating_dict</span><span class="p">[</span><span class="s2">&quot;path_gate_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;path_gate_data&quot;</span><span class="p">]</span>
+        <span class="n">gating_dict</span><span class="p">[</span><span class="s2">&quot;gate_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;gate_data&quot;</span><span class="p">]</span>
+        <span class="n">gating_dict</span><span class="p">[</span><span class="s2">&quot;gate_whiten&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;gate_whiten&quot;</span><span class="p">]</span>
+        <span class="n">gating_dict</span><span class="p">[</span><span class="s2">&quot;gate_tzero&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;gate_tzero&quot;</span><span class="p">]</span>
+        <span class="n">gating_dict</span><span class="p">[</span><span class="s2">&quot;gate_tpad&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;gate_tpad&quot;</span><span class="p">]</span>
+        <span class="n">gating_dict</span><span class="p">[</span><span class="s2">&quot;gate_threshold&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;gate_threshold&quot;</span><span class="p">]</span>
+        <span class="n">gating_dict</span><span class="p">[</span><span class="s2">&quot;cluster_window&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;cluster_window&quot;</span><span class="p">]</span>
+        <span class="n">param</span><span class="p">[</span><span class="s2">&quot;gating&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gating_dict</span>
+
+        <span class="n">param</span><span class="p">[</span><span class="s2">&quot;window_fft_specs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_fft_dict</span>
+        <span class="n">param</span><span class="p">[</span><span class="s2">&quot;window_fft_welch_specs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_fft_dict_welch</span>
+
+        <span class="n">density_estimation_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">density_estimation_dict</span><span class="p">[</span><span class="s2">&quot;frequency_resolution&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span>
+            <span class="s2">&quot;frequency_resolution&quot;</span>
+        <span class="p">]</span>
+        <span class="n">density_estimation_dict</span><span class="p">[</span><span class="s2">&quot;N_average_segments_psd&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span>
+            <span class="s2">&quot;N_average_segments_psd&quot;</span>
+        <span class="p">]</span>
+        <span class="n">density_estimation_dict</span><span class="p">[</span><span class="s2">&quot;coarse_grain_psd&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;coarse_grain_psd&quot;</span><span class="p">]</span>
+        <span class="n">density_estimation_dict</span><span class="p">[</span><span class="s2">&quot;coarse_grain_csd&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;coarse_grain_csd&quot;</span><span class="p">]</span>
+        <span class="n">density_estimation_dict</span><span class="p">[</span><span class="s2">&quot;overlap_factor_welch&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;overlap_factor_welch&quot;</span><span class="p">]</span>
+        <span class="n">density_estimation_dict</span><span class="p">[</span><span class="s2">&quot;overlap_factor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;overlap_factor&quot;</span><span class="p">]</span>
+        <span class="n">param</span><span class="p">[</span><span class="s2">&quot;density_estimation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">density_estimation_dict</span>
+
+        <span class="n">postprocessing_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">postprocessing_dict</span><span class="p">[</span><span class="s2">&quot;polarization&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;polarization&quot;</span><span class="p">]</span>
+        <span class="n">postprocessing_dict</span><span class="p">[</span><span class="s2">&quot;alpha&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;alpha&quot;</span><span class="p">]</span>
+        <span class="n">postprocessing_dict</span><span class="p">[</span><span class="s2">&quot;fref&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;fref&quot;</span><span class="p">]</span>
+        <span class="n">postprocessing_dict</span><span class="p">[</span><span class="s2">&quot;flow&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;flow&quot;</span><span class="p">]</span>
+        <span class="n">postprocessing_dict</span><span class="p">[</span><span class="s2">&quot;fhigh&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;fhigh&quot;</span><span class="p">]</span>
+        <span class="n">param</span><span class="p">[</span><span class="s2">&quot;postprocessing&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">postprocessing_dict</span>
+
+        <span class="n">data_quality_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">data_quality_dict</span><span class="p">[</span><span class="s2">&quot;notch_list_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;notch_list_path&quot;</span><span class="p">]</span>
+        <span class="n">data_quality_dict</span><span class="p">[</span><span class="s2">&quot;calibration_epsilon&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;calibration_epsilon&quot;</span><span class="p">]</span>
+        <span class="n">data_quality_dict</span><span class="p">[</span><span class="s2">&quot;alphas_delta_sigma_cut&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span>
+            <span class="s2">&quot;alphas_delta_sigma_cut&quot;</span>
+        <span class="p">]</span>
+        <span class="n">data_quality_dict</span><span class="p">[</span><span class="s2">&quot;delta_sigma_cut&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;delta_sigma_cut&quot;</span><span class="p">]</span>
+        <span class="n">data_quality_dict</span><span class="p">[</span><span class="s2">&quot;return_naive_and_averaged_sigmas&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span>
+            <span class="s2">&quot;return_naive_and_averaged_sigmas&quot;</span>
+        <span class="p">]</span>
+        <span class="n">param</span><span class="p">[</span><span class="s2">&quot;data_quality&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_quality_dict</span>
+
+        <span class="n">local_data_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">local_data_dict</span><span class="p">[</span><span class="s2">&quot;local_data_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;local_data_path&quot;</span><span class="p">]</span>
+        <span class="n">param</span><span class="p">[</span><span class="s2">&quot;local_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">local_data_dict</span>
+
+        <span class="n">output_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">output_dict</span><span class="p">[</span><span class="s2">&quot;save_data_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;save_data_type&quot;</span><span class="p">]</span>
+        <span class="n">param</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_dict</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">configfile</span><span class="p">:</span>
+            <span class="n">param</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">configfile</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Parameters.parse_ifo_parameters"><a class="viewcode-back" href="../../api/pygwb.parameters.Parameters.html#pygwb.parameters.Parameters.parse_ifo_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">parse_ifo_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse the parameters of the analysis pipeline into a dictionary </span>
+<span class="sd">        with arguments per interferometer of the pipeline.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        param_dict: ``dict``</span>
+<span class="sd">            A dictionary containing the parameters of the analysis per interferometer used in the analysis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ifo_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;channel&#39;</span><span class="p">,</span> <span class="s1">&#39;frametype&#39;</span><span class="p">,</span> <span class="s1">&#39;input_sample_rate&#39;</span><span class="p">,</span> <span class="s1">&#39;local_data_path&#39;</span><span class="p">,</span> <span class="s1">&#39;time_shift&#39;</span><span class="p">]</span>
+        <span class="n">ifo_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interferometer_list</span>
+        <span class="n">param_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">ifo</span> <span class="ow">in</span> <span class="n">ifo_list</span><span class="p">:</span>
+            <span class="n">param_dict</span><span class="p">[</span><span class="n">ifo</span><span class="p">]</span> <span class="o">=</span> <span class="n">Parameters</span><span class="p">()</span>
+        <span class="n">current_param_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">current_param_dict</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">ifo_parameters</span><span class="p">:</span>
+                <span class="n">attr_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">current_param_dict</span><span class="p">[</span><span class="n">attr</span><span class="p">])</span>
+                <span class="n">attr_split</span> <span class="o">=</span> <span class="n">attr_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">attr_split</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">attr_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="n">pair</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">attr_split</span><span class="p">)}</span> 
+                    <span class="k">for</span> <span class="n">ifo</span> <span class="ow">in</span> <span class="n">ifo_list</span><span class="p">:</span>
+                        <span class="n">param_dict</span><span class="p">[</span><span class="n">ifo</span><span class="p">]</span><span class="o">.</span><span class="n">update_from_dictionary</span><span class="p">({</span><span class="n">attr</span><span class="p">:</span> <span class="n">attr_dict</span><span class="p">[</span><span class="n">ifo</span><span class="p">]})</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">ifo</span> <span class="ow">in</span> <span class="n">ifo_list</span><span class="p">:</span>
+                        <span class="n">param_dict</span><span class="p">[</span><span class="n">ifo</span><span class="p">]</span><span class="o">.</span><span class="n">update_from_dictionary</span><span class="p">({</span><span class="n">attr</span><span class="p">:</span> <span class="n">current_param_dict</span><span class="p">[</span><span class="n">attr</span><span class="p">]})</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">ifo</span> <span class="ow">in</span> <span class="n">ifo_list</span><span class="p">:</span>
+                    <span class="n">param_dict</span><span class="p">[</span><span class="n">ifo</span><span class="p">]</span><span class="o">.</span><span class="n">update_from_dictionary</span><span class="p">({</span><span class="n">attr</span><span class="p">:</span> <span class="n">current_param_dict</span><span class="p">[</span><span class="n">attr</span><span class="p">]})</span>
+
+        <span class="k">return</span> <span class="n">param_dict</span></div></div>
+
+<div class="viewcode-block" id="ParametersHelp"><a class="viewcode-back" href="../../api/pygwb.parameters.ParametersHelp.html#pygwb.parameters.ParametersHelp">[docs]</a><span class="k">class</span> <span class="nc">ParametersHelp</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Description of the arguments in the Parameters class. </span>
+<span class="sd">    </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This is an enumeration class and is not meant for user interaction.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">t0</span> <span class="o">=</span> <span class="s2">&quot;Initial time.&quot;</span>
+    <span class="n">tf</span> <span class="o">=</span> <span class="s2">&quot;Final time.&quot;</span>
+    <span class="n">interferometer_list</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">&#39;List of interferometers to run the analysis with. Default is [&quot;H1&quot;, &quot;L1&quot;]&#39;</span>
+    <span class="p">)</span>
+    <span class="n">data_type</span> <span class="o">=</span> <span class="s2">&quot;Type of data to access/download; options are private, public, local. Default is public.&quot;</span>
+    <span class="n">channel</span> <span class="o">=</span> <span class="s1">&#39;Channel name; needs to match an existing channel. Default is &quot;GWOSC-16KHZ_R1_STRAIN&quot; &#39;</span>
+    <span class="n">frametype</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">&#39;Frame type; Optional, desired channel needs to be found in listed frametype. Only used when data_type=private.&#39;</span>
+        <span class="s1">&#39; Default is empty. &#39;</span>
+    <span class="p">)</span>
+    <span class="n">new_sample_rate</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Sample rate to use when downsampling the data (Hz). Default is 4096 Hz.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">input_sample_rate</span> <span class="o">=</span> <span class="s2">&quot;Sample rate of the read data (Hz). Default is 16384 Hz.&quot;</span>
+    <span class="n">cutoff_frequency</span> <span class="o">=</span> <span class="s2">&quot;Lower frequency cutoff; applied in filtering in preprocessing (Hz). Default is 11 Hz.&quot;</span>
+    <span class="n">segment_duration</span> <span class="o">=</span> <span class="s2">&quot;Duration of the individual segments to analyse (seconds). Default is 192 seconds.&quot;</span>
+    <span class="n">number_cropped_seconds</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Number of seconds to crop at the start and end of the analysed data (seconds). Default is 2 seconds.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">window_downsampling</span> <span class="o">=</span> <span class="s1">&#39;Type of window to use in preprocessing. Default is &quot;hamming&quot;&#39;</span>
+    <span class="n">ftype</span> <span class="o">=</span> <span class="s1">&#39;Type of filter to use in downsampling. Default is &quot;fir&quot;&#39;</span>
+    <span class="n">frequency_resolution</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Frequency resolution of the final output spectrum (Hz). Default is 1\/32 Hz.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">polarization</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Polarization type for the overlap reduction function calculation; options are scalar, vector, tensor.&quot;</span>
+        <span class="s2">&quot; Default is tensor.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="s2">&quot;Spectral index to filter the data for. Default is 0.&quot;</span>
+    <span class="n">fref</span> <span class="o">=</span> <span class="s2">&quot;Reference frequency to filter the data at (Hz). Default is 25 Hz.&quot;</span>
+    <span class="n">flow</span> <span class="o">=</span> <span class="s2">&quot;Lower frequency to include in the analysis (Hz). Default is 20 Hz.&quot;</span>
+    <span class="n">fhigh</span> <span class="o">=</span> <span class="s2">&quot;Higher frequency to include in the analysis (Hz). Default is 1726 Hz.&quot;</span>
+    <span class="n">local_data_path</span> <span class="o">=</span> <span class="s2">&quot;Path(s) to local data, if the local data option is chosen. Default is empty.&quot;</span>
+    <span class="n">notch_list_path</span> <span class="o">=</span> <span class="s2">&quot;Path to the notch list file. Default is empty.&quot;</span>
+    <span class="n">coarse_grain_psd</span> <span class="o">=</span> <span class="s2">&quot;Whether to apply coarse graining to obtain PSD spectra. Default is False.&quot;</span>
+    <span class="n">coarse_grain_csd</span> <span class="o">=</span> <span class="s2">&quot;Whether to apply coarse graining to obtain CSD spectra. Default is True.&quot;</span>
+    <span class="n">overlap_factor_welch</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Overlap factor to use when if using Welch&#39;s method to estimate spectra (NOT coarsegraining). &quot;</span>
+        <span class="s2">&quot;For </span><span class="se">\&quot;</span><span class="s2">hann</span><span class="se">\&quot;</span><span class="s2"> window use 0.5 overlap_factor and for </span><span class="se">\&quot;</span><span class="s2">boxcar</span><span class="se">\&quot;</span><span class="s2"> window use 0 overlap_factor. &quot;</span>
+        <span class="s2">&quot;Default is 0.5 (50</span><span class="si">%%</span><span class="s2"> overlap), which is optimal when using Welch&#39;s method with a </span><span class="se">\&quot;</span><span class="s2">hann</span><span class="se">\&quot;</span><span class="s2"> window.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">N_average_segments_psd</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Number of segments to average over when calculating the psd with Welch&#39;s method. Default is 2.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">window_fft_dict</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Dictionary containing name and parameters relative to which window to use when producing fftgrams&quot;</span>
+        <span class="s2">&quot; for psds and csds. Default is </span><span class="se">\&quot;</span><span class="s2">hann</span><span class="se">\&quot;</span><span class="s2">.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">window_fft_dict_welch</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Dictionary containing name and parameters relative to which window to use when producing fftgrams&quot;</span>
+        <span class="s2">&quot; for pwelch calculation. Default is </span><span class="se">\&quot;</span><span class="s2">hann</span><span class="se">\&quot;</span><span class="s2">.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">calibration_epsilon</span> <span class="o">=</span> <span class="s2">&quot;Calibration coefficient. Default is 0.&quot;</span>
+    <span class="n">overlap_factor</span> <span class="o">=</span> <span class="s2">&quot;Factor by which to overlap consecutive segments for analysis. Default is 0.5 (50</span><span class="si">%%</span><span class="s2"> overlap)&quot;</span>
+    <span class="n">delta_sigma_cut</span> <span class="o">=</span> <span class="s2">&quot;Cutoff value for the delta sigma cut. Default is 0.2.&quot;</span>
+    <span class="n">alphas_delta_sigma_cut</span> <span class="o">=</span> <span class="s2">&quot;List of spectral indexes to use in delta sigma cut calculation. Default is [-5, 0, 3].&quot;</span>
+    <span class="n">save_data_type</span> <span class="o">=</span> <span class="s2">&quot;Suffix for the output data file. Options are hdf5, npz, json, pickle. Default is json.&quot;</span>
+    <span class="n">time_shift</span> <span class="o">=</span> <span class="s2">&quot;Seconds to timeshift the data by in preprocessing. Default is 0.&quot;</span>
+    <span class="n">path_gate_data</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Path to the pygwb output containing information about gates. &quot;</span>
+        <span class="s2">&quot;If loading a single file, it has to be an .npzfile &quot;</span>
+        <span class="s2">&quot;with the same structure as a pygwb output file. Default is an empty string.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">gate_data</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Whether to apply self-gating to the data in preprocessing. Default is False.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">gate_tzero</span> <span class="o">=</span> <span class="s2">&quot;Gate tzero. Default is 1.0.&quot;</span>
+    <span class="n">gate_tpad</span> <span class="o">=</span> <span class="s2">&quot;Gate tpad. Default is 0.5.&quot;</span>
+    <span class="n">gate_threshold</span> <span class="o">=</span> <span class="s2">&quot;Gate threshold. Default is 50.&quot;</span>
+    <span class="n">cluster_window</span> <span class="o">=</span> <span class="s2">&quot;Cluster window. Default is 0.5.&quot;</span>
+    <span class="n">gate_whiten</span> <span class="o">=</span> <span class="s2">&quot;Whether to whiten when gating. Default is True.&quot;</span>
+    <span class="n">tag</span> <span class="o">=</span> <span class="s2">&quot;Hint for the read_data function to retrieve one specific type of data, e.g.: C00, C01&quot;</span>
+    <span class="n">return_naive_and_averaged_sigmas</span> <span class="o">=</span> <span class="s2">&quot;option to return naive and sliding sigmas from delta sigma cut. Default value: False&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">help</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">argument</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

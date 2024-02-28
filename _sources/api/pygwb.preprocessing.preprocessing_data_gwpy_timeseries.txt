@@ -1,0 +1,6 @@
+pygwb.preprocessing.preprocessing\_data\_gwpy\_timeseries
+=========================================================
+
+.. currentmodule:: pygwb.preprocessing
+
+.. autofunction:: preprocessing_data_gwpy_timeseries

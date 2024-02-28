@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The pygwb workflow &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/tabs.css?v=a5c4661c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=0264ad83"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Parameter estimation using pygwb_pe" href="pe.html" />
+    <link rel="prev" title="Running statistical checks with pygwb_stats" href="stat_checks.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pipeline.html">Using <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code>: a quickstart manual</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiple_jobs.html">Running multiple <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> jobs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stat_checks.html">Running statistical checks with <code class="docutils literal notranslate"><span class="pre">pygwb_stats</span></code></a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">The <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#script-parameters"><strong>1. Script parameters</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#running-the-script"><strong>2. Running the script</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#output-of-the-script"><strong>3. Output of the script</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pe.html">Parameter estimation using <code class="docutils literal notranslate"><span class="pre">pygwb_pe</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulator.html">Simulating data with <code class="docutils literal notranslate"><span class="pre">pygwb.simulator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="demos.html">Demos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tutorials.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">The <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> workflow</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/workflow.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="the-pygwb-workflow">
+<h1>The <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> workflow<a class="headerlink" href="#the-pygwb-workflow" title="Permalink to this heading"></a></h1>
+<p>In practice, one will likely run the <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> script on multiple jobs through the <code class="docutils literal notranslate"><span class="pre">pygwb_dag</span></code> script, and combine the output with
+<code class="docutils literal notranslate"><span class="pre">pygwb_combine</span></code>. After this, <code class="docutils literal notranslate"><span class="pre">pygwb_stats</span></code> can be run to obtain the statistical checks diagnostic plots. To facilitate the usage
+of the different scripts and increase the user-friendliness, <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> comes with an additional script that combines the scipts above into a worklfow,
+executing one script after the other.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> workflow is tailored to the LIGO-Virgo-KAGRA data stream. Therefore, it is possible that not all
+data outside the standard LIGO-Virgo-KAGRA format are supported by the current version of the workflow.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Still want to run <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> on your data without relying on the workflow? Use the <a class="reference external" href="pipeline.html">tutorial</a> about <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> to
+get started.</p>
+</div>
+<section id="script-parameters">
+<h2><strong>1. Script parameters</strong><a class="headerlink" href="#script-parameters" title="Permalink to this heading"></a></h2>
+<p>To show the optional arguments of the script, one can run:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pygwb_create_isotropic_workflow<span class="w"> </span>--help
+</pre></div>
+</div>
+<p>This will display the following arguments of the script, with a brief description of the parameters:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>-h, --help            show this help message and exit
+-v, --verbose         increase verbose output
+--debug               increase verbose output to debug
+-V, --version         show program&#39;s version number and exit
+--basedir BASEDIR     Build directory for condor logging
+--configfile CONFIGFILE
+                    config file with workflow parameters
+--config-overrides CONFIG_OVERRIDES [CONFIG_OVERRIDES ...]
+                    config overrides listed in the form SECTION:KEY:VALUE
+--submit              Submit workflow automatically
+--run_locally         Run job on local universe
+</pre></div>
+</div>
+</section>
+<section id="running-the-script">
+<h2><strong>2. Running the script</strong><a class="headerlink" href="#running-the-script" title="Permalink to this heading"></a></h2>
+<p>To run the workflow, one executes the command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pygwb_create_isotropic_workflow<span class="w"> </span>--debug<span class="w"> </span>--basedir<span class="w"> </span>./<span class="w"> </span>--configfile<span class="w"> </span>./my_config_file.ini<span class="w"> </span>--submit
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">--debug</span></code> argument increases the amount of verbose printed out by the script, whereas the <code class="docutils literal notranslate"><span class="pre">--submit</span></code> tells the script to automatically submit the different jobs to Condor.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Need a reminder about multiple jobs being submitted to the cluster through Condor? Check out the tutorial on multiple jobs <a class="reference external" href="multiple_jobs.html">here</a>.</p>
+</div>
+<p>In addition, a configuration file needs to be passed to the script through the <code class="docutils literal notranslate"><span class="pre">--configfile</span></code> argument. An example of a possible configuration file for the workflow is
+provided in the <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> repo <a class="reference external" href="https://github.com/a-renzini/pygwb/blob/master/pygwb_pipe/workflow_config.ini">here</a>. The configuration file is divided into different
+categories, which we discuss step by step below.</p>
+<p>A first part of the file contains general information to initialize the workflow, such as the interferometers for which to retrieve data, the duration of the jobs, as well as
+the start and end time for which to analyze data.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>general<span class="o">]</span>
+<span class="nv">accounting_group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>ligo.dev.o4.sgwb.isotropic.stochastic
+<span class="nv">ifos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>H1<span class="w"> </span>L1
+<span class="nv">plot_segment_results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>False
+<span class="nv">max_job_dur</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">5000</span>
+<span class="nv">min_job_dur</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">900</span>
+<span class="nv">t0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1368921618</span>
+<span class="nv">tf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1374883218</span>
+</pre></div>
+</div>
+<p>As mentioned earlier, the workflow combines different scripts of the <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> package. These are passed through the <code class="docutils literal notranslate"><span class="pre">[executables]</span></code> section of the configuration file:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>executables<span class="o">]</span>
+<span class="nv">pygwb_pipe</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>pygwb_pipe
+<span class="nv">pygwb_combine</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>pygwb_combine
+<span class="nv">pygwb_stats</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>pygwb_stats
+<span class="nv">pygwb_html</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>pygwb_html
+</pre></div>
+</div>
+<p>When dealing with real detector data, some tags can be used to define which level of “cleanliness” is required in the data. This is specified in the <code class="docutils literal notranslate"><span class="pre">[data_quality]</span></code>
+section of the file:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>data_quality<span class="o">]</span>
+<span class="nv">science_segment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>DMT-ANALYSIS_READY
+<span class="nv">veto_definer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>/home/arianna.renzini/public_html/ER15_pygwb_run/old_setup/H1L1-HOFT_C00_O4_CBC.xml
+</pre></div>
+</div>
+<p>An additional section, <code class="docutils literal notranslate"><span class="pre">[pygwb_pipe]</span></code>, contains all the parameters needed to run the <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> script. We refrain from giving a detailed overview of all these parameters, and
+refer the user to the dedicated tutorial <a class="reference external" href="pipeline.html">here</a>, as well as the <code class="docutils literal notranslate"><span class="pre">pygwb.parameters</span></code> API <a class="reference external" href="api/pygwb.parameters.html">page</a> for further information about these parameters.</p>
+<p>The last part of the workflow takes care of combining the output of all the jobs, and runs statistical checks on the combined output. The results are then displayed on an <code class="docutils literal notranslate"><span class="pre">html</span></code> webpage.
+Parameters related to the last part of the workflow are passed through the following lines in the configuration file:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>pygwb_combine<span class="o">]</span>
+<span class="nv">alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="si">${</span><span class="nv">pygwb_pipe</span><span class="p">:</span><span class="nv">alpha</span><span class="si">}</span>
+<span class="nv">fref</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="si">${</span><span class="nv">pygwb_pipe</span><span class="p">:</span><span class="nv">fref</span><span class="si">}</span>
+<span class="nv">combine_coherence</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>True
+
+<span class="o">[</span>pygwb_stats<span class="o">]</span>
+
+<span class="o">[</span>pygwb_html<span class="o">]</span>
+</pre></div>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>For more information about the <code class="docutils literal notranslate"><span class="pre">pygwb_combine</span></code> script, see the tutorial <a class="reference external" href="multiple_jobs.html">here</a>. Additional details about the <code class="docutils literal notranslate"><span class="pre">pygwb_stats</span></code> script can be found in
+the dedicated <a class="reference external" href="stat_checks.html">tutorial</a>, with a plot by plot discussion <a class="reference external" href="run_statistical_checks.html">here</a>.</p>
+</div>
+</section>
+<section id="output-of-the-script">
+<h2><strong>3. Output of the script</strong><a class="headerlink" href="#output-of-the-script" title="Permalink to this heading"></a></h2>
+<p>As mentioned in the introduction of this tutorial, the workflow combines the different <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> scripts. Therefore, the output of the
+workflow will be similar to that of the
+individual scripts. We refrain from going over the different outputs again, but refer the user to the dedicated tutorials for more
+information (e.g. <a class="reference external" href="pipeline.html#output-of-the-script">pygwb_pipe</a>,
+<a class="reference external" href="multiple_jobs.html#id8">pygwb_combine</a>, <a class="reference external" href="stat_checks.html#output-of-the-script">pygwb_stats</a>).</p>
+<p>Futhermore, we note the additional feature of the workflow which displays all
+results of the run in an <code class="docutils literal notranslate"><span class="pre">html</span></code> page. The workflow script creates several directories for the output of the workflow
+and generates the files that will be used for the submission of the <code class="docutils literal notranslate"><span class="pre">dag</span></code> file on a cluster.
+In the designated directory, given by <code class="docutils literal notranslate"><span class="pre">--basedir</span> <span class="pre">BASEDIR</span></code> parameter, the following files and directories can be found:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>about<span class="w">  </span>condor<span class="w">  </span>config.ini<span class="w">  </span>index.html<span class="w">  </span>output<span class="w">  </span>pygwb_cache.txt
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">about</span></code> directory contains information about the analysis run, as well as the input passed to the workflow and is mainly used to set up the <code class="docutils literal notranslate"><span class="pre">html</span></code> pages.
+The <code class="docutils literal notranslate"><span class="pre">condor</span></code> directory stores all relevant files needed for the <code class="docutils literal notranslate"><span class="pre">dag</span></code> submission to the cluster. Every individual job
+will have an <code class="docutils literal notranslate"><span class="pre">output</span></code>, <code class="docutils literal notranslate"><span class="pre">submit</span></code>, <code class="docutils literal notranslate"><span class="pre">error</span></code> and a <code class="docutils literal notranslate"><span class="pre">log</span></code> file starting with <code class="docutils literal notranslate"><span class="pre">pygwb_pipe_{t0}_{length}</span></code>.
+The dag file itself is labeled <code class="docutils literal notranslate"><span class="pre">pygwb_dagman.submit</span></code>, and can be submitted through <code class="docutils literal notranslate"><span class="pre">condor_submit_dag</span> <span class="pre">pygwb_dagman.submit</span></code>. The <code class="docutils literal notranslate"><span class="pre">error</span></code> and <code class="docutils literal notranslate"><span class="pre">log</span></code> files can help finding
+errors when running the <code class="docutils literal notranslate"><span class="pre">dag</span></code> file. See the Condor documentation <a class="reference external" href="https://htcondor.org/documentation/htcondor.html">here</a>
+for more information. The submit files for the <code class="docutils literal notranslate"><span class="pre">pygwb_combine</span></code>, <code class="docutils literal notranslate"><span class="pre">pygwb_stats</span></code> and <code class="docutils literal notranslate"><span class="pre">pygwb_html</span></code> scripts are also present in this folder.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">config.ini</span></code> is a copy of the configuration file given to the workflow script through <code class="docutils literal notranslate"><span class="pre">--configfile</span> <span class="pre">CONFIGFILE</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">output</span></code> directory contains a subdirectory for every individual job. In each subdirectory, the output files mentioned
+<a class="reference external" href="pipeline.html#output-of-the-script">here</a> can be found.
+In addition, there is also the subdirectory <code class="docutils literal notranslate"><span class="pre">combined_results</span></code> which contains the output of the <code class="docutils literal notranslate"><span class="pre">pygwb_combine</span></code> script,
+see <a class="reference external" href="multiple_jobs.html#id8">here</a> for more information. The last subdirectory <code class="docutils literal notranslate"><span class="pre">segment_lists</span></code> contains a data file with
+the start times, end times, and lengths of the jobs analyzed by the workflow.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="stat_checks.html" class="btn btn-neutral float-left" title="Running statistical checks with pygwb_stats" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pe.html" class="btn btn-neutral float-right" title="Parameter estimation using pygwb_pe" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,39 @@
+pygwb.pe.BrokenPowerLawModel
+============================
+
+.. currentmodule:: pygwb.pe
+
+.. autoclass:: BrokenPowerLawModel
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+   .. automethod:: __call__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BrokenPowerLawModel.__init__
+      ~BrokenPowerLawModel.log_likelihood
+      ~BrokenPowerLawModel.log_likelihood_IJ
+      ~BrokenPowerLawModel.log_likelihood_ratio
+      ~BrokenPowerLawModel.model_function
+      ~BrokenPowerLawModel.noise_log_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BrokenPowerLawModel.marginalized_parameters
+      ~BrokenPowerLawModel.meta_data
+      ~BrokenPowerLawModel.parameters
+   
+   

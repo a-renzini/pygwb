@@ -1,0 +1,6 @@
+pygwb.statistical\_checks.sortingFunction
+=========================================
+
+.. currentmodule:: pygwb.statistical_checks
+
+.. autofunction:: sortingFunction

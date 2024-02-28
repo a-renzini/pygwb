@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pygwb.spectral.cross_spectral_density &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=a5c4661c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=0264ad83"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pygwb.spectral.fftgram" href="pygwb.spectral.fftgram.html" />
+    <link rel="prev" title="pygwb.spectral.coarse_grain_spectrogram" href="pygwb.spectral.coarse_grain_spectrogram.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demos.html">Demos</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pygwb.detector.html">pygwb.detector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.baseline.html">pygwb.baseline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.network.html">pygwb.network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.preprocessing.html">pygwb.preprocessing</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pygwb.spectral.html">pygwb.spectral</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="pygwb.spectral.before_after_average.html">pygwb.spectral.before_after_average</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.spectral.coarse_grain.html">pygwb.spectral.coarse_grain</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.spectral.coarse_grain_exact.html">pygwb.spectral.coarse_grain_exact</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.spectral.coarse_grain_naive.html">pygwb.spectral.coarse_grain_naive</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.spectral.coarse_grain_spectrogram.html">pygwb.spectral.coarse_grain_spectrogram</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pygwb.spectral.cross_spectral_density</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pygwb.spectral.cross_spectral_density"><code class="docutils literal notranslate"><span class="pre">cross_spectral_density()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.spectral.fftgram.html">pygwb.spectral.fftgram</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.spectral.power_spectral_density.html">pygwb.spectral.power_spectral_density</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.spectral.pwelch_psd.html">pygwb.spectral.pwelch_psd</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.spectral.running_mean.html">pygwb.spectral.running_mean</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.coherence.html">pygwb.coherence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.postprocessing.html">pygwb.postprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.omega_spectra.html">pygwb.omega_spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.pe.html">pygwb.pe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.statistical_checks.html">pygwb.statistical_checks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.simulator.html">pygwb.simulator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.delta_sigma_cut.html">pygwb.delta_sigma_cut</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.notch.html">pygwb.notch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.constants.html">pygwb.constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.orfs.html">pygwb.orfs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.parameters.html">pygwb.parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.util.html">pygwb.util</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API</a></li>
+          <li class="breadcrumb-item"><a href="pygwb.spectral.html">pygwb.spectral</a></li>
+      <li class="breadcrumb-item active">pygwb.spectral.cross_spectral_density</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/pygwb.spectral.cross_spectral_density.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pygwb-spectral-cross-spectral-density">
+<h1>pygwb.spectral.cross_spectral_density<a class="headerlink" href="#pygwb-spectral-cross-spectral-density" title="Permalink to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="pygwb.spectral.cross_spectral_density">
+<span class="sig-prename descclassname"><span class="pre">pygwb.spectral.</span></span><span class="sig-name descname"><span class="pre">cross_spectral_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_series_data1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TimeSeries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_series_data2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TimeSeries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency_resolution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coarse_grain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap_factor_welch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zeropad</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_fftgram_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{'window_fftgram':</span> <span class="pre">'hann'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_psd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/spectral.html#cross_spectral_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.spectral.cross_spectral_density" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the cross spectral density from two time series inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_series_data1</strong> (:code:<code class="docutils literal notranslate"><span class="pre">gwpy.timeseries.TimeSeries</span></code>) – Timeseries data of detector1.</p></li>
+<li><p><strong>time_series_data2</strong> (<code class="docutils literal notranslate"><span class="pre">gwpy.timeseries.TimeSeries</span></code>) – Timeseries data of detector2.</p></li>
+<li><p><strong>segment_duration</strong> (<code class="docutils literal notranslate"><span class="pre">int</span></code>) – Data duration (in seconds) over which CSDs need to be calculated.</p></li>
+<li><p><strong>frequency_resolution</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>) – Frequency resolution (in Hz) of the final CSDs. This is achieved by averaging in
+frequency domain.</p></li>
+<li><p><strong>coarse_grain</strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Whether to coarsegrain the CSD or not. If True, it will be coarsegrained, otherwise
+the CSD will be Welch-averaged. Default is True.</p></li>
+<li><p><strong>overlap_factor</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>, optional) – Amount of overlap between adjacent segments (range between 0 and 1)
+Users should provide proper combination of overlap_factor and
+window_fftgram_dict. For “hann” window use 0.5 overlap_factor and for “boxcar”
+window use 0 overlap_factor. Default is 0.5 (50% overlap).</p></li>
+<li><p><strong>overlap_factor_welch</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>) – Overlap factor to use when using Welch’s method (NOT coarsegraining).
+Users should provide proper combination of overlap_factor and window_fftgram_dict.
+For “hann” window use 0.5 overlap_factor and for “boxcar” window use 0 overlap_factor.
+Default is 0.5 (50% overlap), which is optimal when using Welch’s method with a “hann” window.</p></li>
+<li><p><strong>zeropad</strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Before doing FFT whether to zero pad the data equal to the length of
+FFT or not. Default is False.</p></li>
+<li><p><strong>window_fftgram_dict</strong> (<code class="docutils literal notranslate"><span class="pre">dictionary</span></code>, optional) – Dictionary containing name and parameters describing which window to
+use for producing FFTs. Default is “hann”.</p></li>
+<li><p><strong>is_psd</strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Whether the provided data is a PSD or not. Default is False.
+The code will treat a PSD slightly different than a CSD.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>csd_spectrogram: <code class="docutils literal notranslate"><span class="pre">gwpy.spectrogram.Spectrogram</span></code></dt><dd><p>Cross spectral density of the two timeseries.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">gwpy.timeseries.TimeSeries</span></code></dt><dd><p>More information <a class="reference external" href="https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeries/#gwpy.timeseries.TimeSeries">here</a>.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">gwpy.spectrogram.Spectrogram</span></code></dt><dd><p>More information <a class="reference external" href="https://gwpy.github.io/docs/stable/spectrogram/">here</a>.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pygwb.spectral.coarse_grain_spectrogram.html" class="btn btn-neutral float-left" title="pygwb.spectral.coarse_grain_spectrogram" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pygwb.spectral.fftgram.html" class="btn btn-neutral float-right" title="pygwb.spectral.fftgram" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,39 @@
+pygwb.pe.SmoothBrokenPowerLawModel
+==================================
+
+.. currentmodule:: pygwb.pe
+
+.. autoclass:: SmoothBrokenPowerLawModel
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+   .. automethod:: __call__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SmoothBrokenPowerLawModel.__init__
+      ~SmoothBrokenPowerLawModel.log_likelihood
+      ~SmoothBrokenPowerLawModel.log_likelihood_IJ
+      ~SmoothBrokenPowerLawModel.log_likelihood_ratio
+      ~SmoothBrokenPowerLawModel.model_function
+      ~SmoothBrokenPowerLawModel.noise_log_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SmoothBrokenPowerLawModel.marginalized_parameters
+      ~SmoothBrokenPowerLawModel.meta_data
+      ~SmoothBrokenPowerLawModel.parameters
+   
+   

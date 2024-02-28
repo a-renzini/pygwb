@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pygwb.detector.Interferometer &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=a5c4661c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=0264ad83"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pygwb.baseline" href="pygwb.baseline.html" />
+    <link rel="prev" title="pygwb.detector" href="pygwb.detector.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demos.html">Demos</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pygwb.detector.html">pygwb.detector</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pygwb.detector.Interferometer</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pygwb.detector.Interferometer"><code class="docutils literal notranslate"><span class="pre">Interferometer</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.baseline.html">pygwb.baseline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.network.html">pygwb.network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.preprocessing.html">pygwb.preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.spectral.html">pygwb.spectral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.coherence.html">pygwb.coherence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.postprocessing.html">pygwb.postprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.omega_spectra.html">pygwb.omega_spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.pe.html">pygwb.pe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.statistical_checks.html">pygwb.statistical_checks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.simulator.html">pygwb.simulator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.delta_sigma_cut.html">pygwb.delta_sigma_cut</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.notch.html">pygwb.notch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.constants.html">pygwb.constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.orfs.html">pygwb.orfs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.parameters.html">pygwb.parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.util.html">pygwb.util</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API</a></li>
+          <li class="breadcrumb-item"><a href="pygwb.detector.html">pygwb.detector</a></li>
+      <li class="breadcrumb-item active">pygwb.detector.Interferometer</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/pygwb.detector.Interferometer.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pygwb-detector-interferometer">
+<h1>pygwb.detector.Interferometer<a class="headerlink" href="#pygwb-detector-interferometer" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pygwb.detector.</span></span><span class="sig-name descname"><span class="pre">Interferometer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/detector.html#Interferometer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Interferometer</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/detector.html#Interferometer.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Instantiate an Interferometer class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*args</strong> (<em>arguments passed to the</em><em> (</em><em>parent</em><em>) </em><em>bilby's Interferometer class.</em>) – </p></li>
+<li><p><strong>**kwargs</strong> (<em>keyword arguments passed to the</em><em> (</em><em>parent</em><em>) </em><em>bilby's Interferometer class.</em>) – </p></li>
+<li><p><strong>name</strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>) – Interferometer name, e.g. H1 for LIGO Hanford.</p></li>
+<li><p><strong>power_spectral_density</strong> (<code class="docutils literal notranslate"><span class="pre">bilby.gw.detector.PowerSpectralDensity</span></code>) – Power spectral density determining the sensitivity of the detector.</p></li>
+<li><p><strong>minimum_frequency</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>) – Minimum frequency to analyse for detector.</p></li>
+<li><p><strong>maximum_frequency</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>) – Maximum frequency to analyse for detector.</p></li>
+<li><p><strong>length</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>) – Length of the interferometer in km.</p></li>
+<li><p><strong>latitude</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>) – Latitude North in degrees (South is negative).</p></li>
+<li><p><strong>longitude</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>) – Longitude East in degrees (West is negative).</p></li>
+<li><p><strong>elevation</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>) – Height above surface in metres.</p></li>
+<li><p><strong>xarm_azimuth</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>) – Orientation of the x arm in degrees North of East.</p></li>
+<li><p><strong>yarm_azimuth</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>) – Orientation of the y arm in degrees North of East.</p></li>
+<li><p><strong>xarm_tilt</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>, optional) – Tilt of the x arm in radians above the horizontal defined by
+ellipsoid earth model in LIGO-T980044-08.</p></li>
+<li><p><strong>yarm_tilt</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>, optional) – Tilt of the y arm in radians above the horizontal.</p></li>
+<li><p><strong>calibration_model</strong> (<em>Recalibration</em>) – Calibration model, this applies the calibration correction to the
+template, the default model applies no correction.</p></li>
+<li><p><strong>timeseries</strong> (<code class="docutils literal notranslate"><span class="pre">gwpy.timeseries.TimeSeries</span></code>) – TimeSeries object with resampling/high-pass filter applied. This is an additional attribute of the class.</p></li>
+<li><p><strong>psd_spectrogram</strong> (<code class="docutils literal notranslate"><span class="pre">gwpy.spectrogram.Spectrogram</span></code>) – gwpy Spectrogram of power spectral density. This is an additional attribute of the class.</p></li>
+<li><p><strong>gates</strong> (<code class="docutils literal notranslate"><span class="pre">gwpy.segments.SegmentList</span></code>) – List of segments that have been gated, not including any additional padding. This is an additional attribute of the class.</p></li>
+<li><p><strong>gate_pad</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>) – Duration of padding used when applying gates. This is an additional attribute of the class.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">bilby.gw.detector.Interferometer</span></code></dt><dd><p>Test</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">gwpy.segments.SegmentList</span></code></dt><dd><p>More information <a class="reference external" href="https://gwpy.github.io/docs/stable/api/gwpy.segments.SegmentList/">here</a>.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pygwb.detector.Interferometer.__call__" title="Permalink to this definition"></a></dt>
+<dd><p>Call self as a function.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.__init__" title="pygwb.detector.Interferometer.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Instantiate an Interferometer class</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.antenna_response" title="pygwb.detector.Interferometer.antenna_response"><code class="xref py py-obj docutils literal notranslate"><span class="pre">antenna_response</span></code></a>(ra, dec, time, psi, mode)</p></td>
+<td><p>Calculate the antenna response function for a given sky location</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.apply_gates_from_file" title="pygwb.detector.Interferometer.apply_gates_from_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_gates_from_file</span></code></a>(loaded_object, index, ...)</p></td>
+<td><p>Load gates from a pygwb output file and apply them to the Interferometer object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.check_signal_duration" title="pygwb.detector.Interferometer.check_signal_duration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_signal_duration</span></code></a>(parameters[, raise_error])</p></td>
+<td><p>Check that the signal with the given parameters fits in the data</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.from_parameters" title="pygwb.detector.Interferometer.from_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_parameters</span></code></a>(name, parameters)</p></td>
+<td><p>A class method to get an Interferometer class from a given argparser object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.from_pickle" title="pygwb.detector.Interferometer.from_pickle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_pickle</span></code></a>([filename])</p></td>
+<td><p>Loads in an Interferometer object from a pickle file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.gate_data_apply" title="pygwb.detector.Interferometer.gate_data_apply"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gate_data_apply</span></code></a>(**kwargs)</p></td>
+<td><p>Self-gate the gwpy.timeseries associated with this timeseries.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.get_detector_response" title="pygwb.detector.Interferometer.get_detector_response"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_detector_response</span></code></a>(...[, frequencies])</p></td>
+<td><p>Get the detector response for a particular waveform</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.get_empty_interferometer" title="pygwb.detector.Interferometer.get_empty_interferometer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_empty_interferometer</span></code></a>(name)</p></td>
+<td><p>A class method to get an Interferometer class object from a given ifo name.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.inject_signal" title="pygwb.detector.Interferometer.inject_signal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inject_signal</span></code></a>(parameters[, ...])</p></td>
+<td><p>General signal injection method.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.inject_signal_from_waveform_generator" title="pygwb.detector.Interferometer.inject_signal_from_waveform_generator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inject_signal_from_waveform_generator</span></code></a>(...)</p></td>
+<td><p>Inject a signal using a waveform generator and a set of parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.inject_signal_from_waveform_polarizations" title="pygwb.detector.Interferometer.inject_signal_from_waveform_polarizations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inject_signal_from_waveform_polarizations</span></code></a>(...)</p></td>
+<td><p>Inject a signal into the detector from a dict of waveform polarizations.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.inner_product" title="pygwb.detector.Interferometer.inner_product"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inner_product</span></code></a>(signal)</p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.matched_filter_snr" title="pygwb.detector.Interferometer.matched_filter_snr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">matched_filter_snr</span></code></a>(signal)</p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.optimal_snr_squared" title="pygwb.detector.Interferometer.optimal_snr_squared"><code class="xref py py-obj docutils literal notranslate"><span class="pre">optimal_snr_squared</span></code></a>(signal)</p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_data</span></code>([signal, outdir, label])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.plot_time_domain_data" title="pygwb.detector.Interferometer.plot_time_domain_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_time_domain_data</span></code></a>([outdir, label, ...])</p></td>
+<td><p>Plots the strain data in the time domain</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.save_data" title="pygwb.detector.Interferometer.save_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_data</span></code></a>(outdir[, label])</p></td>
+<td><p>Creates save files for interferometer data in plain text format.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.set_average_psd" title="pygwb.detector.Interferometer.set_average_psd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_average_psd</span></code></a>([N_average_segments])</p></td>
+<td><p>Set average_psd attribute from the existing raw PSD.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.set_psd_spectrogram" title="pygwb.detector.Interferometer.set_psd_spectrogram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_psd_spectrogram</span></code></a>(frequency_resolution[, ...])</p></td>
+<td><p>Set psd_spectrogram attribute from given spectrum-related information.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.set_strain_data_from_channel_name" title="pygwb.detector.Interferometer.set_strain_data_from_channel_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_strain_data_from_channel_name</span></code></a>(channel, ...)</p></td>
+<td><p>Set the <cite>Interferometer.strain_data</cite> by fetching from given channel using strain_data.set_from_channel_name()</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.set_strain_data_from_csv" title="pygwb.detector.Interferometer.set_strain_data_from_csv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_strain_data_from_csv</span></code></a>(filename)</p></td>
+<td><p>Set the <cite>Interferometer.strain_data</cite> from a csv file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.set_strain_data_from_frame_file" title="pygwb.detector.Interferometer.set_strain_data_from_frame_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_strain_data_from_frame_file</span></code></a>(frame_file, ...)</p></td>
+<td><p>Set the <cite>Interferometer.strain_data</cite> from a frame file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.set_strain_data_from_frequency_domain_strain" title="pygwb.detector.Interferometer.set_strain_data_from_frequency_domain_strain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_strain_data_from_frequency_domain_strain</span></code></a>(...)</p></td>
+<td><p>Set the <cite>Interferometer.strain_data</cite> from a numpy array</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.set_strain_data_from_gwpy_timeseries" title="pygwb.detector.Interferometer.set_strain_data_from_gwpy_timeseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_strain_data_from_gwpy_timeseries</span></code></a>(time_series)</p></td>
+<td><p>Set the <cite>Interferometer.strain_data</cite> from a gwpy TimeSeries</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.set_strain_data_from_power_spectral_density" title="pygwb.detector.Interferometer.set_strain_data_from_power_spectral_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_strain_data_from_power_spectral_density</span></code></a>(...)</p></td>
+<td><p>Set the <cite>Interferometer.strain_data</cite> from a power spectal density</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.set_strain_data_from_zero_noise" title="pygwb.detector.Interferometer.set_strain_data_from_zero_noise"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_strain_data_from_zero_noise</span></code></a>(...[, ...])</p></td>
+<td><p>Set the <cite>Interferometer.strain_data</cite> to zero noise</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.set_timeseries_from_channel_name" title="pygwb.detector.Interferometer.set_timeseries_from_channel_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_timeseries_from_channel_name</span></code></a>(channel, ...)</p></td>
+<td><p>Set a timeseries attribute from a given channel name.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.set_timeseries_from_gwpy_timeseries" title="pygwb.detector.Interferometer.set_timeseries_from_gwpy_timeseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_timeseries_from_gwpy_timeseries</span></code></a>(...)</p></td>
+<td><p>Set a timeseries attribute from a given <code class="docutils literal notranslate"><span class="pre">gwpy.timeseries</span></code> object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.set_timeseries_from_timeseries_array" title="pygwb.detector.Interferometer.set_timeseries_from_timeseries_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_timeseries_from_timeseries_array</span></code></a>(...)</p></td>
+<td><p>Set a timeseries attribute from a given numpy array.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.time_delay_from_geocenter" title="pygwb.detector.Interferometer.time_delay_from_geocenter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_delay_from_geocenter</span></code></a>(ra, dec, time)</p></td>
+<td><p>Calculate the time delay from the geocenter for the interferometer.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.to_pickle" title="pygwb.detector.Interferometer.to_pickle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_pickle</span></code></a>([outdir, label])</p></td>
+<td><p>Save the object to a pickle file</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">unit_vector_along_arm</span></code>(arm)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.vertex_position_geocentric" title="pygwb.detector.Interferometer.vertex_position_geocentric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_position_geocentric</span></code></a>()</p></td>
+<td><p>Calculate the position of the IFO vertex in geocentric coordinates in meters.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.amplitude_spectral_density_array" title="pygwb.detector.Interferometer.amplitude_spectral_density_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">amplitude_spectral_density_array</span></code></a></p></td>
+<td><p>Returns the amplitude spectral density (ASD) given we know a power spectral density (PSD)</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.power_spectral_density_array" title="pygwb.detector.Interferometer.power_spectral_density_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">power_spectral_density_array</span></code></a></p></td>
+<td><p>Returns the power spectral density (PSD)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.detector.Interferometer.whitened_frequency_domain_strain" title="pygwb.detector.Interferometer.whitened_frequency_domain_strain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">whitened_frequency_domain_strain</span></code></a></p></td>
+<td><p>Calculates the whitened data by dividing the frequency domain data by ((amplitude spectral density) * (duration / 4) ** 0.5).</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py property">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.amplitude_spectral_density_array">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">amplitude_spectral_density_array</span></span><a class="headerlink" href="#pygwb.detector.Interferometer.amplitude_spectral_density_array" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the amplitude spectral density (ASD) given we know a power spectral density (PSD)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>array_like: An array representation of the ASD</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.antenna_response">
+<span class="sig-name descname"><span class="pre">antenna_response</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bilby/gw/detector/interferometer.html#Interferometer.antenna_response"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.antenna_response" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate the antenna response function for a given sky location</p>
+<p>See Nishizawa et al. (2009) arXiv:0903.0528 for definitions of the polarisation tensors.
+[u, v, w] represent the Earth-frame
+[m, n, omega] represent the wave-frame
+Note: there is a typo in the definition of the wave-frame in Nishizawa et al.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>ra: float</strong></dt><dd><p>right ascension in radians</p>
+</dd>
+<dt><strong>dec: float</strong></dt><dd><p>declination in radians</p>
+</dd>
+<dt><strong>time: float</strong></dt><dd><p>geocentric GPS time</p>
+</dd>
+<dt><strong>psi: float</strong></dt><dd><p>binary polarisation angle counter-clockwise about the direction of propagation</p>
+</dd>
+<dt><strong>mode: str</strong></dt><dd><p>polarisation mode (e.g. ‘plus’, ‘cross’) or the name of a specific detector.
+If mode == self.name, return 1</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float: The antenna response for the specified mode and time/location</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.apply_gates_from_file">
+<span class="sig-name descname"><span class="pre">apply_gates_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loaded_object</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/detector.html#Interferometer.apply_gates_from_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.apply_gates_from_file" title="Permalink to this definition"></a></dt>
+<dd><p>Load gates from a pygwb output file and apply them to the Interferometer object.
+The gated times are stored as a property of the object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>loaded_object</strong> – Object that represents the data in the output file, e.g. a loaded npz-object.</p></li>
+<li><p><strong>index</strong> (<code class="docutils literal notranslate"><span class="pre">int</span></code>) – Integer representing the correct Interferometer object in the baseline.</p></li>
+<li><p><strong>gate_tpad</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>) – Half-width time duration (in seconds) in which the Planck window
+is tapered.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="pygwb.preprocessing.self_gate_data.html#pygwb.preprocessing.self_gate_data" title="pygwb.preprocessing.self_gate_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pygwb.preprocessing.self_gate_data</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.check_signal_duration">
+<span class="sig-name descname"><span class="pre">check_signal_duration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bilby/gw/detector/interferometer.html#Interferometer.check_signal_duration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.check_signal_duration" title="Permalink to this definition"></a></dt>
+<dd><p>Check that the signal with the given parameters fits in the data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>parameters: dict</strong></dt><dd><p>A dictionary of the injection parameters</p>
+</dd>
+<dt><strong>raise_error: bool</strong></dt><dd><p>If True, raise an error in the signal does not fit. Otherwise, print
+a warning message.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.from_parameters">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/detector.html#Interferometer.from_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.from_parameters" title="Permalink to this definition"></a></dt>
+<dd><p>A class method to get an Interferometer class from a given argparser object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>) – Interferometer name, e.g. H1 for LIGO Hanford.</p></li>
+<li><p><strong>parameters</strong> (<em>argparser object</em>) – This contains attributes defined for command line options.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>interferometer: <code class="docutils literal notranslate"><span class="pre">pygwb.Interferometer</span></code></dt><dd><p>Instance of the pygwb interferometer object.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.from_pickle">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_pickle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bilby/gw/detector/interferometer.html#Interferometer.from_pickle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.from_pickle" title="Permalink to this definition"></a></dt>
+<dd><p>Loads in an Interferometer object from a pickle file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>filename: str</strong></dt><dd><p>If given, try to load from this filename</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.gate_data_apply">
+<span class="sig-name descname"><span class="pre">gate_data_apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/detector.html#Interferometer.gate_data_apply"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.gate_data_apply" title="Permalink to this definition"></a></dt>
+<dd><p>Self-gate the gwpy.timeseries associated with this timeseries. The list
+of times gated and the padding applied are stored as properties of the Interferometer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gate_tzero</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>) – Half-width time duration (seconds) in which the timeseries is
+set to zero.</p></li>
+<li><p><strong>gate_tpad</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>) – Half-width time duration (seconds) in which the Planck window
+is tapered.</p></li>
+<li><p><strong>gate_threshold</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>) – Amplitude threshold, if the data exceeds this value a gating window
+will be placed.</p></li>
+<li><p><strong>cluster_window</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>) – Time duration (seconds) over which gating points will be clustered.</p></li>
+<li><p><strong>gate_whiten</strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>) – If True, data will be whitened before gating points are discovered,
+use of this option is highly recommended.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="pygwb.preprocessing.self_gate_data.html#pygwb.preprocessing.self_gate_data" title="pygwb.preprocessing.self_gate_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pygwb.preprocessing.self_gate_data</span></code></a></dt><dd></dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">gwpy.timeseries.TimeSeries.gate</span></code></dt><dd><p>the function used for the gating of the data itself.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.get_detector_response">
+<span class="sig-name descname"><span class="pre">get_detector_response</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">waveform_polarizations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bilby/gw/detector/interferometer.html#Interferometer.get_detector_response"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.get_detector_response" title="Permalink to this definition"></a></dt>
+<dd><p>Get the detector response for a particular waveform</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>waveform_polarizations: dict</strong></dt><dd><p>polarizations of the waveform</p>
+</dd>
+<dt><strong>parameters: dict</strong></dt><dd><p>parameters describing position and time of arrival of the signal</p>
+</dd>
+<dt><strong>frequencies: array-like, optional</strong></dt><dd></dd>
+<dt><strong>The frequency values to evaluate the response at. If</strong></dt><dd></dd>
+<dt><strong>not provided, the response is computed using</strong></dt><dd></dd>
+<dt><strong>:code:`self.frequency_array`. If the frequencies are</strong></dt><dd></dd>
+<dt><strong>specified, no frequency masking is performed.</strong></dt><dd></dd>
+<dt><strong>Returns</strong></dt><dd></dd>
+<dt><strong>=======</strong></dt><dd></dd>
+<dt><strong>array_like: A 3x3 array representation of the detector response (signal observed in the interferometer)</strong></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.get_empty_interferometer">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_empty_interferometer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/detector.html#Interferometer.get_empty_interferometer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.get_empty_interferometer" title="Permalink to this definition"></a></dt>
+<dd><p>A class method to get an Interferometer class object from a given ifo name.
+Empty means no data has been read into this object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>) – Interferometer name, e.g. H1 for LIGO Hanford.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>interferometer: <code class="docutils literal notranslate"><span class="pre">pygwb.Interferometer</span></code></dt><dd><p>Interferometer instance of pygwb.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.inject_signal">
+<span class="sig-name descname"><span class="pre">inject_signal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">injection_polarizations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waveform_generator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bilby/gw/detector/interferometer.html#Interferometer.inject_signal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.inject_signal" title="Permalink to this definition"></a></dt>
+<dd><p>General signal injection method.
+Provide the injection parameters and either the injection polarizations
+or the waveform generator to inject a signal into the detector.
+Defaults to the injection polarizations is both are given.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>parameters: dict</strong></dt><dd><p>Parameters of the injection.</p>
+</dd>
+<dt><strong>injection_polarizations: dict, optional</strong></dt><dd><p>Polarizations of waveform to inject, output of
+<cite>waveform_generator.frequency_domain_strain()</cite>. If
+<cite>waveform_generator</cite> is also given, the injection_polarizations will
+be calculated directly and this argument can be ignored.</p>
+</dd>
+<dt><strong>waveform_generator: bilby.gw.waveform_generator.WaveformGenerator, optional</strong></dt><dd><p>A WaveformGenerator instance using the source model to inject. If
+<cite>injection_polarizations</cite> is given, this will be ignored.</p>
+</dd>
+<dt><strong>raise_error: bool</strong></dt><dd><p>If true, raise an error if the injected signal has a duration
+longer than the data duration. If False, a warning will be printed
+instead.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>injection_polarizations: dict</dt><dd><p>The injected polarizations. This is the same as the injection_polarizations parameters
+if it was passed in. Otherwise it is the return value of waveform_generator.frequency_domain_strain().</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>if your signal takes a substantial amount of time to generate, or
+you experience buggy behaviour. It is preferable to provide the
+injection_polarizations directly.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.inject_signal_from_waveform_generator">
+<span class="sig-name descname"><span class="pre">inject_signal_from_waveform_generator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waveform_generator</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bilby/gw/detector/interferometer.html#Interferometer.inject_signal_from_waveform_generator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.inject_signal_from_waveform_generator" title="Permalink to this definition"></a></dt>
+<dd><p>Inject a signal using a waveform generator and a set of parameters.
+Alternative to <cite>inject_signal</cite> and <cite>inject_signal_from_waveform_polarizations</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>parameters: dict</strong></dt><dd><p>Parameters of the injection.</p>
+</dd>
+<dt><strong>waveform_generator: bilby.gw.waveform_generator.WaveformGenerator</strong></dt><dd><p>A WaveformGenerator instance using the source model to inject.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>injection_polarizations: dict</dt><dd><p>The internally generated injection parameters</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>if your signal takes a substantial amount of time to generate, or
+you experience buggy behaviour. It is preferable to use the
+inject_signal_from_waveform_polarizations() method.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.inject_signal_from_waveform_polarizations">
+<span class="sig-name descname"><span class="pre">inject_signal_from_waveform_polarizations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">injection_polarizations</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bilby/gw/detector/interferometer.html#Interferometer.inject_signal_from_waveform_polarizations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.inject_signal_from_waveform_polarizations" title="Permalink to this definition"></a></dt>
+<dd><p>Inject a signal into the detector from a dict of waveform polarizations.
+Alternative to <cite>inject_signal</cite> and <cite>inject_signal_from_waveform_generator</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>parameters: dict</strong></dt><dd><p>Parameters of the injection.</p>
+</dd>
+<dt><strong>injection_polarizations: dict</strong></dt><dd><p>Polarizations of waveform to inject, output of
+<cite>waveform_generator.frequency_domain_strain()</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.inner_product">
+<span class="sig-name descname"><span class="pre">inner_product</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bilby/gw/detector/interferometer.html#Interferometer.inner_product"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.inner_product" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>signal: array_like</strong></dt><dd><p>Array containing the signal</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float: The optimal signal to noise ratio possible squared</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.matched_filter_snr">
+<span class="sig-name descname"><span class="pre">matched_filter_snr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bilby/gw/detector/interferometer.html#Interferometer.matched_filter_snr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.matched_filter_snr" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>signal: array_like</strong></dt><dd><p>Array containing the signal</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float: The matched filter signal to noise ratio squared</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.optimal_snr_squared">
+<span class="sig-name descname"><span class="pre">optimal_snr_squared</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bilby/gw/detector/interferometer.html#Interferometer.optimal_snr_squared"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.optimal_snr_squared" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>signal: array_like</strong></dt><dd><p>Array containing the signal</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float: The optimal signal to noise ratio possible squared</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.plot_time_domain_data">
+<span class="sig-name descname"><span class="pre">plot_time_domain_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bandpass_frequencies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(50,</span> <span class="pre">250)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">notches</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bilby/gw/detector/interferometer.html#Interferometer.plot_time_domain_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.plot_time_domain_data" title="Permalink to this definition"></a></dt>
+<dd><p>Plots the strain data in the time domain</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>outdir, label: str</strong></dt><dd><p>Used in setting the saved filename.</p>
+</dd>
+<dt><strong>bandpass: tuple, optional</strong></dt><dd><p>A tuple of the (low, high) frequencies to use when bandpassing the
+data, if None no bandpass is applied.</p>
+</dd>
+<dt><strong>notches: list, optional</strong></dt><dd><p>A list of frequencies specifying any lines to notch</p>
+</dd>
+<dt><strong>start_end: tuple</strong></dt><dd><p>A tuple of the (start, end) range of GPS times to plot</p>
+</dd>
+<dt><strong>t0: float</strong></dt><dd><p>If given, the reference time to subtract from the time series before
+plotting.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.power_spectral_density_array">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">power_spectral_density_array</span></span><a class="headerlink" href="#pygwb.detector.Interferometer.power_spectral_density_array" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the power spectral density (PSD)</p>
+<p>This accounts for whether the data in the interferometer has been windowed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>array_like: An array representation of the PSD</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.save_data">
+<span class="sig-name descname"><span class="pre">save_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bilby/gw/detector/interferometer.html#Interferometer.save_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.save_data" title="Permalink to this definition"></a></dt>
+<dd><p>Creates save files for interferometer data in plain text format.</p>
+<p>Saves two files: the frequency domain strain data with three columns [f, real part of h(f),
+imaginary part of h(f)], and the amplitude spectral density with two columns [f, ASD(f)].</p>
+<p>Note that in v1.3.0 and below, the ASD was saved in a file called <a href="#id1"><span class="problematic" id="id2">*</span></a>_psd.dat.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>outdir: str</strong></dt><dd><p>The output directory in which the data is supposed to be saved</p>
+</dd>
+<dt><strong>label: str</strong></dt><dd><p>The name of the output files</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.set_average_psd">
+<span class="sig-name descname"><span class="pre">set_average_psd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N_average_segments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/detector.html#Interferometer.set_average_psd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.set_average_psd" title="Permalink to this definition"></a></dt>
+<dd><p>Set average_psd attribute from the existing raw PSD.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>N_average_segments</strong> (<code class="docutils literal notranslate"><span class="pre">int</span></code>, optional) – Number of segments used for PSD averaging (from both sides of the segment of interest).
+N_avg_segs should be even and &gt;= 2.</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="pygwb.spectral.before_after_average.html#pygwb.spectral.before_after_average" title="pygwb.spectral.before_after_average"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pygwb.spectral.before_after_average</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.set_psd_spectrogram">
+<span class="sig-name descname"><span class="pre">set_psd_spectrogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency_resolution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coarse_grain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_fftgram_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'window_fftgram':</span> <span class="pre">'hann'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap_factor_welch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/detector.html#Interferometer.set_psd_spectrogram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.set_psd_spectrogram" title="Permalink to this definition"></a></dt>
+<dd><p>Set psd_spectrogram attribute from given spectrum-related information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frequency_resolution</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>) – Frequency resolution of the final PSDs. This sets the time duration
+over which FFTs are calculated in the pwelch method.</p></li>
+<li><p><strong>coarse_grain</strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>) – Coarse-graining flag. If True, PSD will be estimated via coarse-graining,
+as opposed to Welch-averaging. Default is False.</p></li>
+<li><p><strong>overlap_factor</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>, optional) – Amount of overlap between adjacent segments (ranges between 0 and 1).
+This factor should be same as the one used for cross_spectral_density
+(default 0, no overlap).</p></li>
+<li><p><strong>window_fftgram_dict</strong> (<code class="docutils literal notranslate"><span class="pre">dictionary</span></code>, optional) – Dictionary containing name and parameters describing which window to use when producing fftgrams
+for psd estimation. Default is “hann”.</p></li>
+<li><p><strong>overlap_factor_welch</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>, optional) – Overlap factor to use when using Welch’s method to estimate the PSD (NOT coarsegraining).
+For “hann” window use 0.5 overlap_factor and for “boxcar” window use 0 overlap_factor.
+Default is 0.5 (50% overlap), which is optimal when using Welch’s method with a “hann” window.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="pygwb.spectral.power_spectral_density.html#pygwb.spectral.power_spectral_density" title="pygwb.spectral.power_spectral_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pygwb.spectral.power_spectral_density</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.set_strain_data_from_channel_name">
+<span class="sig-name descname"><span class="pre">set_strain_data_from_channel_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bilby/gw/detector/interferometer.html#Interferometer.set_strain_data_from_channel_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.set_strain_data_from_channel_name" title="Permalink to this definition"></a></dt>
+<dd><p>Set the <cite>Interferometer.strain_data</cite> by fetching from given channel
+using strain_data.set_from_channel_name()</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>channel: str</strong></dt><dd><p>Channel to look for using gwpy in the format <cite>IFO:Channel</cite></p>
+</dd>
+<dt><strong>sampling_frequency: float</strong></dt><dd><p>The sampling frequency (in Hz)</p>
+</dd>
+<dt><strong>duration: float</strong></dt><dd><p>The data duration (in s)</p>
+</dd>
+<dt><strong>start_time: float</strong></dt><dd><p>The GPS start-time of the data</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.set_strain_data_from_csv">
+<span class="sig-name descname"><span class="pre">set_strain_data_from_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bilby/gw/detector/interferometer.html#Interferometer.set_strain_data_from_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.set_strain_data_from_csv" title="Permalink to this definition"></a></dt>
+<dd><p>Set the <cite>Interferometer.strain_data</cite> from a csv file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>filename: str</strong></dt><dd><p>The path to the file to read in</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.set_strain_data_from_frame_file">
+<span class="sig-name descname"><span class="pre">set_strain_data_from_frame_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bilby/gw/detector/interferometer.html#Interferometer.set_strain_data_from_frame_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.set_strain_data_from_frame_file" title="Permalink to this definition"></a></dt>
+<dd><p>Set the <cite>Interferometer.strain_data</cite> from a frame file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frame_file: str</strong></dt><dd><p>File from which to load data.</p>
+</dd>
+<dt><strong>channel: str</strong></dt><dd><p>Channel to read from frame.</p>
+</dd>
+<dt><strong>sampling_frequency: float</strong></dt><dd><p>The sampling frequency (in Hz)</p>
+</dd>
+<dt><strong>duration: float</strong></dt><dd><p>The data duration (in s)</p>
+</dd>
+<dt><strong>start_time: float</strong></dt><dd><p>The GPS start-time of the data</p>
+</dd>
+<dt><strong>buffer_time: float</strong></dt><dd><p>Read in data with <cite>start_time-buffer_time</cite> and
+<cite>start_time+duration+buffer_time</cite></p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.set_strain_data_from_frequency_domain_strain">
+<span class="sig-name descname"><span class="pre">set_strain_data_from_frequency_domain_strain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency_domain_strain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bilby/gw/detector/interferometer.html#Interferometer.set_strain_data_from_frequency_domain_strain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.set_strain_data_from_frequency_domain_strain" title="Permalink to this definition"></a></dt>
+<dd><p>Set the <cite>Interferometer.strain_data</cite> from a numpy array</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frequency_domain_strain: array_like</strong></dt><dd><p>The data to set.</p>
+</dd>
+<dt><strong>sampling_frequency: float</strong></dt><dd><p>The sampling frequency (in Hz).</p>
+</dd>
+<dt><strong>duration: float</strong></dt><dd><p>The data duration (in s).</p>
+</dd>
+<dt><strong>start_time: float</strong></dt><dd><p>The GPS start-time of the data.</p>
+</dd>
+<dt><strong>frequency_array: array_like</strong></dt><dd><p>The array of frequencies, if sampling_frequency and duration not
+given.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.set_strain_data_from_gwpy_timeseries">
+<span class="sig-name descname"><span class="pre">set_strain_data_from_gwpy_timeseries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_series</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bilby/gw/detector/interferometer.html#Interferometer.set_strain_data_from_gwpy_timeseries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.set_strain_data_from_gwpy_timeseries" title="Permalink to this definition"></a></dt>
+<dd><p>Set the <cite>Interferometer.strain_data</cite> from a gwpy TimeSeries</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>time_series: gwpy.timeseries.timeseries.TimeSeries</strong></dt><dd><p>The data to set.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.set_strain_data_from_power_spectral_density">
+<span class="sig-name descname"><span class="pre">set_strain_data_from_power_spectral_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bilby/gw/detector/interferometer.html#Interferometer.set_strain_data_from_power_spectral_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.set_strain_data_from_power_spectral_density" title="Permalink to this definition"></a></dt>
+<dd><p>Set the <cite>Interferometer.strain_data</cite> from a power spectal density</p>
+<p>This uses the <cite>interferometer.power_spectral_density</cite> object to set
+the <cite>strain_data</cite> to a noise realization. See
+<cite>bilby.gw.detector.InterferometerStrainData</cite> for further information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>sampling_frequency: float</strong></dt><dd><p>The sampling frequency (in Hz)</p>
+</dd>
+<dt><strong>duration: float</strong></dt><dd><p>The data duration (in s)</p>
+</dd>
+<dt><strong>start_time: float</strong></dt><dd><p>The GPS start-time of the data</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.set_strain_data_from_zero_noise">
+<span class="sig-name descname"><span class="pre">set_strain_data_from_zero_noise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bilby/gw/detector/interferometer.html#Interferometer.set_strain_data_from_zero_noise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.set_strain_data_from_zero_noise" title="Permalink to this definition"></a></dt>
+<dd><p>Set the <cite>Interferometer.strain_data</cite> to zero noise</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>sampling_frequency: float</strong></dt><dd><p>The sampling frequency (in Hz)</p>
+</dd>
+<dt><strong>duration: float</strong></dt><dd><p>The data duration (in s)</p>
+</dd>
+<dt><strong>start_time: float</strong></dt><dd><p>The GPS start-time of the data</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.set_timeseries_from_channel_name">
+<span class="sig-name descname"><span class="pre">set_timeseries_from_channel_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/detector.html#Interferometer.set_timeseries_from_channel_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.set_timeseries_from_channel_name" title="Permalink to this definition"></a></dt>
+<dd><p>Set a timeseries attribute from a given channel name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>channel</strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>) – Name of the channel (e.g.: “L1:GWOSC-4KHZ_R1_STRAIN”) from which to load the data.</p></li>
+<li><p><strong>**kwargs</strong> (<em>keyword arguments passed to preprocess module.</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="pygwb.preprocessing.preprocessing_data_channel_name.html#pygwb.preprocessing.preprocessing_data_channel_name" title="pygwb.preprocessing.preprocessing_data_channel_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pygwb.preprocessing.preprocessing_data_channel_name</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.set_timeseries_from_gwpy_timeseries">
+<span class="sig-name descname"><span class="pre">set_timeseries_from_gwpy_timeseries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gwpy_timeseries</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/detector.html#Interferometer.set_timeseries_from_gwpy_timeseries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.set_timeseries_from_gwpy_timeseries" title="Permalink to this definition"></a></dt>
+<dd><p>Set a timeseries attribute from a given <code class="docutils literal notranslate"><span class="pre">gwpy.timeseries</span></code> object. More information
+on the gwpy.timeseries object can be found <a class="reference external" href="https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeries/#gwpy.timeseries.TimeSeries">here</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gwpy_timeseries</strong> (<code class="docutils literal notranslate"><span class="pre">gwpy.timeseries.TimeSeries</span></code>) – Timeseries strain data as <code class="docutils literal notranslate"><span class="pre">gwpy.timeseries</span></code> object.</p></li>
+<li><p><strong>**kwargs</strong> (<em>keyword arguments passed to preprocess module.</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="pygwb.preprocessing.preprocessing_data_gwpy_timeseries.html#pygwb.preprocessing.preprocessing_data_gwpy_timeseries" title="pygwb.preprocessing.preprocessing_data_gwpy_timeseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pygwb.preprocessing.preprocessing_data_gwpy_timeseries</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.set_timeseries_from_timeseries_array">
+<span class="sig-name descname"><span class="pre">set_timeseries_from_timeseries_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeseries_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/detector.html#Interferometer.set_timeseries_from_timeseries_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.set_timeseries_from_timeseries_array" title="Permalink to this definition"></a></dt>
+<dd><p>Set a timeseries attribute from a given numpy array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>timeseries_array</strong> (<code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code>) – Timeseries strain data as numpy array object</p></li>
+<li><p><strong>sample_rate</strong> (<code class="docutils literal notranslate"><span class="pre">int</span></code>) – Sample rate of the timeseries in the array (in Hz)</p></li>
+<li><p><strong>**kwargs</strong> (<em>keyword arguments passed to preprocess module.</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="pygwb.preprocessing.preprocessing_data_timeseries_array.html#pygwb.preprocessing.preprocessing_data_timeseries_array" title="pygwb.preprocessing.preprocessing_data_timeseries_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pygwb.preprocessing.preprocessing_data_timeseries_array</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.time_delay_from_geocenter">
+<span class="sig-name descname"><span class="pre">time_delay_from_geocenter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bilby/gw/detector/interferometer.html#Interferometer.time_delay_from_geocenter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.time_delay_from_geocenter" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate the time delay from the geocenter for the interferometer.</p>
+<p>Use the time delay function from utils.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>ra: float</strong></dt><dd><p>right ascension of source in radians</p>
+</dd>
+<dt><strong>dec: float</strong></dt><dd><p>declination of source in radians</p>
+</dd>
+<dt><strong>time: float</strong></dt><dd><p>GPS time</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float: The time delay from geocenter in seconds</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.to_pickle">
+<span class="sig-name descname"><span class="pre">to_pickle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'outdir'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bilby/gw/detector/interferometer.html#Interferometer.to_pickle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.to_pickle" title="Permalink to this definition"></a></dt>
+<dd><p>Save the object to a pickle file</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.1.0.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>outdir: str, optional</strong></dt><dd><p>Output directory name of the file, defaults to ‘outdir’.</p>
+</dd>
+<dt><strong>label: str, optional</strong></dt><dd><p>Output file name, is self.name if not given otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.vertex_position_geocentric">
+<span class="sig-name descname"><span class="pre">vertex_position_geocentric</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bilby/gw/detector/interferometer.html#Interferometer.vertex_position_geocentric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.detector.Interferometer.vertex_position_geocentric" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate the position of the IFO vertex in geocentric coordinates in meters.</p>
+<p>Based on arXiv:gr-qc/0008066 Eqs. B11-B13 except for the typo in the definition of the local radius.
+See Section 2.1 of LIGO-T980044-10 for the correct expression</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>array_like: A 3D array representation of the vertex</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pygwb.detector.Interferometer.whitened_frequency_domain_strain">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">whitened_frequency_domain_strain</span></span><a class="headerlink" href="#pygwb.detector.Interferometer.whitened_frequency_domain_strain" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates the whitened data by dividing the frequency domain data by
+((amplitude spectral density) * (duration / 4) ** 0.5). The resulting
+data will have unit variance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>array_like: The whitened data</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pygwb.detector.html" class="btn btn-neutral float-left" title="pygwb.detector" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pygwb.baseline.html" class="btn btn-neutral float-right" title="pygwb.baseline" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

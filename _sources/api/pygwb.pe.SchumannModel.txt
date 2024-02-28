@@ -1,0 +1,39 @@
+pygwb.pe.SchumannModel
+======================
+
+.. currentmodule:: pygwb.pe
+
+.. autoclass:: SchumannModel
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+   .. automethod:: __call__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SchumannModel.__init__
+      ~SchumannModel.log_likelihood
+      ~SchumannModel.log_likelihood_IJ
+      ~SchumannModel.log_likelihood_ratio
+      ~SchumannModel.model_function
+      ~SchumannModel.noise_log_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SchumannModel.marginalized_parameters
+      ~SchumannModel.meta_data
+      ~SchumannModel.parameters
+   
+   

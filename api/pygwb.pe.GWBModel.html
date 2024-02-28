@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pygwb.pe.GWBModel &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=a5c4661c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=0264ad83"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pygwb.pe.PVPowerLawModel" href="pygwb.pe.PVPowerLawModel.html" />
+    <link rel="prev" title="pygwb.pe.BrokenPowerLawModel" href="pygwb.pe.BrokenPowerLawModel.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demos.html">Demos</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pygwb.detector.html">pygwb.detector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.baseline.html">pygwb.baseline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.network.html">pygwb.network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.preprocessing.html">pygwb.preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.spectral.html">pygwb.spectral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.coherence.html">pygwb.coherence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.postprocessing.html">pygwb.postprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.omega_spectra.html">pygwb.omega_spectra</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pygwb.pe.html">pygwb.pe</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="pygwb.pe.BrokenPowerLawModel.html">pygwb.pe.BrokenPowerLawModel</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pygwb.pe.GWBModel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pygwb.pe.GWBModel"><code class="docutils literal notranslate"><span class="pre">GWBModel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.pe.PVPowerLawModel.html">pygwb.pe.PVPowerLawModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.pe.PVPowerLawModel2.html">pygwb.pe.PVPowerLawModel2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.pe.PowerLawModel.html">pygwb.pe.PowerLawModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.pe.SchumannModel.html">pygwb.pe.SchumannModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.pe.SmoothBrokenPowerLawModel.html">pygwb.pe.SmoothBrokenPowerLawModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.pe.TVSPowerLawModel.html">pygwb.pe.TVSPowerLawModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pygwb.pe.TripleBrokenPowerLawModel.html">pygwb.pe.TripleBrokenPowerLawModel</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.statistical_checks.html">pygwb.statistical_checks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.simulator.html">pygwb.simulator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.delta_sigma_cut.html">pygwb.delta_sigma_cut</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.notch.html">pygwb.notch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.constants.html">pygwb.constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.orfs.html">pygwb.orfs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.parameters.html">pygwb.parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.util.html">pygwb.util</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API</a></li>
+          <li class="breadcrumb-item"><a href="pygwb.pe.html">pygwb.pe</a></li>
+      <li class="breadcrumb-item active">pygwb.pe.GWBModel</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/pygwb.pe.GWBModel.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pygwb-pe-gwbmodel">
+<h1>pygwb.pe.GWBModel<a class="headerlink" href="#pygwb-pe-gwbmodel" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pygwb.pe.GWBModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pygwb.pe.</span></span><span class="sig-name descname"><span class="pre">GWBModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">baselines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polarizations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/pe.html#GWBModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.pe.GWBModel" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Likelihood</span></code></p>
+<p>Generic model, contains the definition of likelihood:</p>
+<div class="math notranslate nohighlight">
+\[p(\hat{C}^{IJ}(f_k) | \mathbf{\Theta}) \propto\exp\left[  -\frac{1}{2} \sum_{IJ}^N \sum_k \left(\frac{\hat{C}^{IJ}(f_k) - \Omega_{\rm M}(f_k|\mathbf{\Theta})}{\sigma_{IJ}(f_k)}\right)^2  \right],\]</div>
+<p>where <span class="math notranslate nohighlight">\(\Omega_{\rm M}(f_k|\mathbf{\Theta})\)</span> is the model being fit to data, and <span class="math notranslate nohighlight">\(\mathbf{\Theta}\)</span> are the model’s parameters.</p>
+<p>The noise likelihood is given by setting <span class="math notranslate nohighlight">\(\Omega_{\rm M}(f_k|\mathbf{\Theta})=0\)</span>.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.pe.GWBModel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">baselines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polarizations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/pe.html#GWBModel.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.pe.GWBModel.__init__" title="Permalink to this definition"></a></dt>
+<dd><div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">bilby.Likelihood</span></code></dt><dd><p>More information <a class="reference external" href="https://lscsoft.docs.ligo.org/bilby/likelihood.html">here</a>.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.pe.GWBModel.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pygwb.pe.GWBModel.__call__" title="Permalink to this definition"></a></dt>
+<dd><p>Call self as a function.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.pe.GWBModel.__init__" title="pygwb.pe.GWBModel.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([baselines, model_name, polarizations])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.pe.GWBModel.log_likelihood" title="pygwb.pe.GWBModel.log_likelihood"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_likelihood</span></code></a>()</p></td>
+<td><p>Function for evaluating log likelihood of detector network.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.pe.GWBModel.log_likelihood_IJ" title="pygwb.pe.GWBModel.log_likelihood_IJ"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_likelihood_IJ</span></code></a>(baseline, freq_mask[, noise])</p></td>
+<td><p>Function for evaluating log likelihood of IJ baseline pair.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.pe.GWBModel.log_likelihood_ratio" title="pygwb.pe.GWBModel.log_likelihood_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_likelihood_ratio</span></code></a>()</p></td>
+<td><p>Difference between log likelihood and noise log likelihood</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.pe.GWBModel.model_function" title="pygwb.pe.GWBModel.model_function"><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_function</span></code></a>()</p></td>
+<td><p>Function for evaluating model.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.pe.GWBModel.noise_log_likelihood" title="pygwb.pe.GWBModel.noise_log_likelihood"><code class="xref py py-obj docutils literal notranslate"><span class="pre">noise_log_likelihood</span></code></a>()</p></td>
+<td><p>Function for evaluating noise log likelihood of detector network.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.pe.GWBModel.parameters" title="pygwb.pe.GWBModel.parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parameters</span></code></a>()</p></td>
+<td><p>Parameters to be inferred from the data.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">marginalized_parameters</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">meta_data</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.pe.GWBModel.log_likelihood">
+<span class="sig-name descname"><span class="pre">log_likelihood</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/pe.html#GWBModel.log_likelihood"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.pe.GWBModel.log_likelihood" title="Permalink to this definition"></a></dt>
+<dd><p>Function for evaluating log likelihood of detector network.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.pe.GWBModel.log_likelihood_IJ">
+<span class="sig-name descname"><span class="pre">log_likelihood_IJ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">baseline</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/pe.html#GWBModel.log_likelihood_IJ"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.pe.GWBModel.log_likelihood_IJ" title="Permalink to this definition"></a></dt>
+<dd><p>Function for evaluating log likelihood of IJ baseline pair.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>baseline</strong> (<code class="docutils literal notranslate"><span class="pre">pygwb.Baseline</span></code>) – Baseline for which to run parameter estimation on.</p></li>
+<li><p><strong>noise</strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Parameter to indicate whether the likelihood should be evaluated assuming
+the signal model, or assuming only noise is present in the data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>logL_IJ: <code class="docutils literal notranslate"><span class="pre">float</span></code></dt><dd><p>Log likelihood value for the IJ baseline pair.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.pe.GWBModel.log_likelihood_ratio">
+<span class="sig-name descname"><span class="pre">log_likelihood_ratio</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pygwb.pe.GWBModel.log_likelihood_ratio" title="Permalink to this definition"></a></dt>
+<dd><p>Difference between log likelihood and noise log likelihood</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>float</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.pe.GWBModel.model_function">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model_function</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/pe.html#GWBModel.model_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.pe.GWBModel.model_function" title="Permalink to this definition"></a></dt>
+<dd><p>Function for evaluating model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.pe.GWBModel.noise_log_likelihood">
+<span class="sig-name descname"><span class="pre">noise_log_likelihood</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/pe.html#GWBModel.noise_log_likelihood"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.pe.GWBModel.noise_log_likelihood" title="Permalink to this definition"></a></dt>
+<dd><p>Function for evaluating noise log likelihood of detector network.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.pe.GWBModel.parameters">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/pe.html#GWBModel.parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.pe.GWBModel.parameters" title="Permalink to this definition"></a></dt>
+<dd><p>Parameters to be inferred from the data. Should return a dictionary.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pygwb.pe.BrokenPowerLawModel.html" class="btn btn-neutral float-left" title="pygwb.pe.BrokenPowerLawModel" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pygwb.pe.PVPowerLawModel.html" class="btn btn-neutral float-right" title="pygwb.pe.PVPowerLawModel" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

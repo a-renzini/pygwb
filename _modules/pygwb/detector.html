@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pygwb.detector &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=0264ad83"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+        <script src="../../_static/tabs.js?v=3030b3cb"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../../about.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../demos.html">Demos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pygwb.detector</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pygwb.detector</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The ``detector`` module is a subclass of bilby&#39;s Interferometer class (more details `here &lt;https://lscsoft.docs.ligo.org/bilby/api/bilby.gw.detector.interferometer.Interferometer.html#bilby.gw.detector.interferometer.Interferometer&gt;`_) which is charged with handling, storing and</span>
+<span class="sd">saving all relevant interferometer data. </span>
+<span class="sd">It handles all data analysis parts relating to the individual detectors in a baseline of a network.</span>
+<span class="sd">For example, it loads the data from a certain channel and computes the power spectral density (PSD) of the detector.</span>
+<span class="sd">    </span>
+<span class="sd">Examples</span>
+<span class="sd">--------</span>
+<span class="sd">    </span>
+<span class="sd">In this example, we load in data from the publicly available `GWOSC &lt;https://gwosc.org/&gt;`_ servers using the ``detector`` module.</span>
+<span class="sd">We gate the data, compute the PSD and the average PSD of the ``detector`` object.</span>
+<span class="sd">This example gives a brief overview of the most important features of the ``pygwb.detector`` module.</span>
+<span class="sd">We start by importing the Interferometer class from ``pygwb``.</span>
+<span class="sd">    </span>
+<span class="sd">&gt;&gt;&gt; from pygwb.detector import Interferometer</span>
+
+<span class="sd">To load in the data, an empty ``detector`` object is first created, for which,</span>
+<span class="sd">based on the name of the object, the module will make an Interferometer object without data.</span>
+<span class="sd">The name can be any one of the detectors supported in ``bilby.gw.detector``,</span>
+<span class="sd">the parent class of our Interferometer class (more details `here &lt;https://lscsoft.docs.ligo.org/bilby/api/bilby.gw.detector.interferometer.Interferometer.html#bilby.gw.detector.interferometer.Interferometer&gt;`_).</span>
+<span class="sd">    </span>
+<span class="sd">&gt;&gt;&gt; ifo_1 = Interferometer.get_empty_interferometer(&quot;H1&quot;)</span>
+<span class="sd">    </span>
+<span class="sd">Then, we load the data using the ``set_timeseries_from`` methods, and pass a start and end time, ``t0`` and ``tf``, respectively.</span>
+<span class="sd">We are obtaining data from the `GWOSC &lt;https://gwosc.org/&gt;`_ servers, i.e., public data, and indicate this by marking the ``data_type`` tag to public. We use </span>
+<span class="sd">the channel &quot;H1:GWOSC-4KHZ_R1_STRAIN&quot;, for illustrative purposes. All the other parameters are set to their</span>
+<span class="sd">default value.</span>
+
+<span class="sd">&gt;&gt;&gt; ifo_1.set_timeseries_from_channel_name(</span>
+<span class="sd">    &quot;H1:GWOSC-4KHZ_R1_STRAIN&quot;,</span>
+<span class="sd">    t0=1247644138,</span>
+<span class="sd">    tf=1247648138,</span>
+<span class="sd">    data_type=&quot;public&quot;,</span>
+<span class="sd">    local_data_path = &quot;&quot;,</span>
+<span class="sd">    new_sample_rate=4096,</span>
+<span class="sd">    input_sample_rate=4096,</span>
+<span class="sd">    cutoff_frequency=11,</span>
+<span class="sd">    segment_duration=192,</span>
+<span class="sd">    number_cropped_seconds=2,</span>
+<span class="sd">    window_downsampling=&quot;hamming&quot;,</span>
+<span class="sd">    ftype=&quot;fir&quot;,</span>
+<span class="sd">    time_shift=0,</span>
+<span class="sd">    )</span>
+<span class="sd">    </span>
+<span class="sd">To illustrate one of the features of the module, we gate the detector data. This procedure applies a window to stretches of data to get rid of</span>
+<span class="sd">glitches and other artefacts. More information on the gating procedure can be found in `this technical note &lt;https://dcc.ligo.org/public/0172/P2000546/002/gating-mdc.pdf&gt;`_.  </span>
+
+<span class="sd">&gt;&gt;&gt; ifo_1.gate_data_apply(</span>
+<span class="sd">    gate_tzero=1.0,</span>
+<span class="sd">    gate_tpad=0.5,</span>
+<span class="sd">    gate_threshold=50.0,</span>
+<span class="sd">    cluster_window=0.5,</span>
+<span class="sd">    gate_whiten=True,</span>
+<span class="sd">    )</span>
+
+<span class="sd">The module also allows to compute the PSD spectrogram of the detector. A spectrogram</span>
+<span class="sd">shows the PSD both per time and per frequency. After specifying the desired frequency resolution, one can call the</span>
+<span class="sd">``set_psd_spectrogram`` method.</span>
+<span class="sd">    </span>
+<span class="sd">&gt;&gt;&gt; frequency_resolution = 1/32.</span>
+<span class="sd">&gt;&gt;&gt; ifo_1.set_psd_spectrogram(</span>
+<span class="sd">        frequency_resolution,</span>
+<span class="sd">        overlap_factor=0.5,</span>
+<span class="sd">        window_fftgram_dict_welch_psd={&quot;window_fftgram&quot;: &quot;hann&quot;},</span>
+<span class="sd">        overlap_factor_welch_psd=0.5,</span>
+<span class="sd">        )</span>
+<span class="sd">        </span>
+<span class="sd">Finally, the average PSD of the detector can also be computed, by invoking ``set_average_psd``.</span>
+<span class="sd">    </span>
+<span class="sd">&gt;&gt;&gt; ifo_1.set_average_psd(N_average_segments_welch_psd=2)</span>
+
+<span class="sd">This highlights some of the features of the ``detector`` module. For more details, we refer the reader </span>
+<span class="sd">to the remainder of the ``detector`` API documentation.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">bilby.gw.detector</span>
+<span class="kn">from</span> <span class="nn">bilby.gw.detector</span> <span class="kn">import</span> <span class="n">PowerSpectralDensity</span>
+<span class="kn">from</span> <span class="nn">gwpy.segments</span> <span class="kn">import</span> <span class="n">SegmentList</span>
+
+<span class="kn">from</span> <span class="nn">.preprocessing</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">preprocessing_data_channel_name</span><span class="p">,</span>
+    <span class="n">preprocessing_data_gwpy_timeseries</span><span class="p">,</span>
+    <span class="n">preprocessing_data_timeseries_array</span><span class="p">,</span>
+    <span class="n">self_gate_data</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.spectral</span> <span class="kn">import</span> <span class="n">before_after_average</span><span class="p">,</span> <span class="n">power_spectral_density</span>
+
+
+<div class="viewcode-block" id="Interferometer"><a class="viewcode-back" href="../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer">[docs]</a><span class="k">class</span> <span class="nc">Interferometer</span><span class="p">(</span><span class="n">bilby</span><span class="o">.</span><span class="n">gw</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">Interferometer</span><span class="p">):</span>
+<div class="viewcode-block" id="Interferometer.__init__"><a class="viewcode-back" href="../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Instantiate an Interferometer class</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        </span>
+<span class="sd">        *args : arguments passed to the (parent) bilby&#39;s Interferometer class.</span>
+<span class="sd">        **kwargs : keyword arguments passed to the (parent) bilby&#39;s Interferometer class.</span>
+
+<span class="sd">        name: ``str``</span>
+<span class="sd">            Interferometer name, e.g. H1 for LIGO Hanford.</span>
+<span class="sd">        power_spectral_density: ``bilby.gw.detector.PowerSpectralDensity``</span>
+<span class="sd">            Power spectral density determining the sensitivity of the detector.</span>
+<span class="sd">        minimum_frequency: ``float``</span>
+<span class="sd">            Minimum frequency to analyse for detector.</span>
+<span class="sd">        maximum_frequency: ``float``</span>
+<span class="sd">            Maximum frequency to analyse for detector.</span>
+<span class="sd">        length: ``float``</span>
+<span class="sd">            Length of the interferometer in km.</span>
+<span class="sd">        latitude: ``float``</span>
+<span class="sd">            Latitude North in degrees (South is negative).</span>
+<span class="sd">        longitude: ``float``</span>
+<span class="sd">            Longitude East in degrees (West is negative).</span>
+<span class="sd">        elevation: ``float``</span>
+<span class="sd">            Height above surface in metres.</span>
+<span class="sd">        xarm_azimuth: ``float``</span>
+<span class="sd">            Orientation of the x arm in degrees North of East.</span>
+<span class="sd">        yarm_azimuth: ``float``</span>
+<span class="sd">            Orientation of the y arm in degrees North of East.</span>
+<span class="sd">        xarm_tilt: ``float``, optional</span>
+<span class="sd">            Tilt of the x arm in radians above the horizontal defined by</span>
+<span class="sd">            ellipsoid earth model in LIGO-T980044-08.</span>
+<span class="sd">        yarm_tilt: ``float``, optional</span>
+<span class="sd">            Tilt of the y arm in radians above the horizontal.</span>
+<span class="sd">        calibration_model: Recalibration</span>
+<span class="sd">            Calibration model, this applies the calibration correction to the</span>
+<span class="sd">            template, the default model applies no correction.</span>
+<span class="sd">        timeseries : ``gwpy.timeseries.TimeSeries``</span>
+<span class="sd">            TimeSeries object with resampling/high-pass filter applied. This is an additional attribute of the class.</span>
+<span class="sd">        psd_spectrogram : ``gwpy.spectrogram.Spectrogram``</span>
+<span class="sd">            gwpy Spectrogram of power spectral density. This is an additional attribute of the class.</span>
+<span class="sd">        gates: ``gwpy.segments.SegmentList``</span>
+<span class="sd">            List of segments that have been gated, not including any additional padding. This is an additional attribute of the class.</span>
+<span class="sd">        gate_pad: ``float``</span>
+<span class="sd">            Duration of padding used when applying gates. This is an additional attribute of the class.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        bilby.gw.detector.Interferometer</span>
+<span class="sd">            Test</span>
+<span class="sd">            </span>
+<span class="sd">        gwpy.segments.SegmentList</span>
+<span class="sd">            More information `here &lt;https://gwpy.github.io/docs/stable/api/gwpy.segments.SegmentList/&gt;`_.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gates</span> <span class="o">=</span> <span class="n">SegmentList</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gate_pad</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Interferometer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interferometer.get_empty_interferometer"><a class="viewcode-back" href="../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.get_empty_interferometer">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_empty_interferometer</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A class method to get an Interferometer class object from a given ifo name.</span>
+<span class="sd">        Empty means no data has been read into this object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        name : ``str``</span>
+<span class="sd">            Interferometer name, e.g. H1 for LIGO Hanford.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        interferometer: ``pygwb.Interferometer``</span>
+<span class="sd">            Interferometer instance of pygwb.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">bilby</span><span class="o">.</span><span class="n">gw</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="vm">__file__</span><span class="p">),</span>
+            <span class="s2">&quot;detectors&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.interferometer&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">parameters</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">parameter_file</span><span class="p">:</span>
+                <span class="n">lines</span> <span class="o">=</span> <span class="n">parameter_file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;#&quot;</span> <span class="ow">or</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">split_line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span>
+                    <span class="n">key</span> <span class="o">=</span> <span class="n">split_line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span>
+                        <span class="s2">&quot;=&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">1</span><span class="p">:]),</span>
+                        <span class="nb">dict</span><span class="p">(</span><span class="n">__builtins__</span><span class="o">=</span><span class="nb">dict</span><span class="p">()),</span>
+                        <span class="nb">dict</span><span class="p">(</span><span class="n">PowerSpectralDensity</span><span class="o">=</span><span class="n">PowerSpectralDensity</span><span class="p">),</span>
+                    <span class="p">)</span>
+                    <span class="n">parameters</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">if</span> <span class="s2">&quot;shape&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Assuming L shape for name&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;shape&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;l&quot;</span><span class="p">,</span> <span class="s2">&quot;ligo&quot;</span><span class="p">]:</span>
+                <span class="n">parameters</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;shape&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;shape&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;triangular&quot;</span><span class="p">,</span> <span class="s2">&quot;triangle&quot;</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Triangular detectors are not implemented yet.&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> could not be loaded. Invalid parameter &#39;shape&#39;.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">ifo_cls</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">parameters</span><span class="p">)</span>
+            <span class="n">ifo_cls</span><span class="o">.</span><span class="n">_check_ifo_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">ifo_cls</span>
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Interferometer </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> not implemented&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interferometer.from_parameters"><a class="viewcode-back" href="../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.from_parameters">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_parameters</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">parameters</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A class method to get an Interferometer class from a given argparser object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        name : ``str``</span>
+<span class="sd">            Interferometer name, e.g. H1 for LIGO Hanford.</span>
+<span class="sd">        parameters : argparser object</span>
+<span class="sd">            This contains attributes defined for command line options.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        interferometer: ``pygwb.Interferometer``</span>
+<span class="sd">            Instance of the pygwb interferometer object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ifo</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">get_empty_interferometer</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">channel</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">ifo</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">parameters</span><span class="o">.</span><span class="n">channel</span><span class="p">)</span>
+
+        <span class="n">ifo</span><span class="o">.</span><span class="n">set_timeseries_from_channel_name</span><span class="p">(</span>
+            <span class="n">channel</span><span class="p">,</span>
+            <span class="n">t0</span><span class="o">=</span><span class="n">parameters</span><span class="o">.</span><span class="n">t0</span><span class="p">,</span>
+            <span class="n">tf</span><span class="o">=</span><span class="n">parameters</span><span class="o">.</span><span class="n">tf</span><span class="p">,</span>
+            <span class="n">data_type</span><span class="o">=</span><span class="n">parameters</span><span class="o">.</span><span class="n">data_type</span><span class="p">,</span>
+            <span class="n">frametype</span><span class="o">=</span><span class="n">parameters</span><span class="o">.</span><span class="n">frametype</span><span class="p">,</span>
+            <span class="n">local_data_path</span><span class="o">=</span><span class="n">parameters</span><span class="o">.</span><span class="n">local_data_path</span><span class="p">,</span>
+            <span class="n">new_sample_rate</span><span class="o">=</span><span class="n">parameters</span><span class="o">.</span><span class="n">new_sample_rate</span><span class="p">,</span>
+            <span class="n">cutoff_frequency</span><span class="o">=</span><span class="n">parameters</span><span class="o">.</span><span class="n">cutoff_frequency</span><span class="p">,</span>
+            <span class="n">segment_duration</span><span class="o">=</span><span class="n">parameters</span><span class="o">.</span><span class="n">segment_duration</span><span class="p">,</span>
+            <span class="n">number_cropped_seconds</span><span class="o">=</span><span class="n">parameters</span><span class="o">.</span><span class="n">number_cropped_seconds</span><span class="p">,</span>
+            <span class="n">window_downsampling</span><span class="o">=</span><span class="n">parameters</span><span class="o">.</span><span class="n">window_downsampling</span><span class="p">,</span>
+            <span class="n">ftype</span><span class="o">=</span><span class="n">parameters</span><span class="o">.</span><span class="n">ftype</span><span class="p">,</span>
+            <span class="n">time_shift</span><span class="o">=</span><span class="n">parameters</span><span class="o">.</span><span class="n">time_shift</span><span class="p">,</span>
+            <span class="n">input_sample_rate</span><span class="o">=</span><span class="n">parameters</span><span class="o">.</span><span class="n">input_sample_rate</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">ifo</span></div>
+
+<div class="viewcode-block" id="Interferometer.set_timeseries_from_channel_name"><a class="viewcode-back" href="../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.set_timeseries_from_channel_name">[docs]</a>    <span class="k">def</span> <span class="nf">set_timeseries_from_channel_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set a timeseries attribute from a given channel name.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        channel: ``str``</span>
+<span class="sd">            Name of the channel (e.g.: &quot;L1:GWOSC-4KHZ_R1_STRAIN&quot;) from which to load the data.</span>
+
+<span class="sd">        **kwargs : keyword arguments passed to preprocess module.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        pygwb.preprocessing.preprocessing_data_channel_name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">t0</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;t0&quot;</span><span class="p">)</span>
+        <span class="n">tf</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;tf&quot;</span><span class="p">)</span>
+        <span class="n">data_type</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;data_type&quot;</span><span class="p">)</span>
+        <span class="n">frametype</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;frametype&quot;</span><span class="p">)</span>
+        <span class="n">local_data_path</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;local_data_path&quot;</span><span class="p">)</span>
+        <span class="n">new_sample_rate</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;new_sample_rate&quot;</span><span class="p">)</span>
+        <span class="n">input_sample_rate</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;input_sample_rate&quot;</span><span class="p">)</span>
+        <span class="n">cutoff_frequency</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;cutoff_frequency&quot;</span><span class="p">)</span>
+        <span class="n">segment_duration</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;segment_duration&quot;</span><span class="p">)</span>
+        <span class="n">number_cropped_seconds</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;number_cropped_seconds&quot;</span><span class="p">)</span>
+        <span class="n">window_downsampling</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;window_downsampling&quot;</span><span class="p">)</span>
+        <span class="n">ftype</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;ftype&quot;</span><span class="p">)</span>
+        <span class="n">time_shift</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;time_shift&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="n">segment_duration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeseries</span> <span class="o">=</span> <span class="n">preprocessing_data_channel_name</span><span class="p">(</span>
+            <span class="n">IFO</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">channel</span><span class="o">=</span><span class="n">channel</span><span class="p">,</span>
+            <span class="n">t0</span><span class="o">=</span><span class="n">t0</span><span class="p">,</span>
+            <span class="n">tf</span><span class="o">=</span><span class="n">tf</span><span class="p">,</span>
+            <span class="n">data_type</span><span class="o">=</span><span class="n">data_type</span><span class="p">,</span>
+            <span class="n">frametype</span><span class="o">=</span><span class="n">frametype</span><span class="p">,</span>
+            <span class="n">local_data_path</span><span class="o">=</span><span class="n">local_data_path</span><span class="p">,</span>
+            <span class="n">new_sample_rate</span><span class="o">=</span><span class="n">new_sample_rate</span><span class="p">,</span>
+            <span class="n">cutoff_frequency</span><span class="o">=</span><span class="n">cutoff_frequency</span><span class="p">,</span>
+            <span class="n">segment_duration</span><span class="o">=</span><span class="n">segment_duration</span><span class="p">,</span>
+            <span class="n">number_cropped_seconds</span><span class="o">=</span><span class="n">number_cropped_seconds</span><span class="p">,</span>
+            <span class="n">window_downsampling</span><span class="o">=</span><span class="n">window_downsampling</span><span class="p">,</span>
+            <span class="n">ftype</span><span class="o">=</span><span class="n">ftype</span><span class="p">,</span>
+            <span class="n">time_shift</span><span class="o">=</span><span class="n">time_shift</span><span class="p">,</span>
+            <span class="n">input_sample_rate</span><span class="o">=</span><span class="n">input_sample_rate</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_timeseries_channel_name</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">new_sample_rate</span></div>
+
+<div class="viewcode-block" id="Interferometer.set_timeseries_from_timeseries_array"><a class="viewcode-back" href="../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.set_timeseries_from_timeseries_array">[docs]</a>    <span class="k">def</span> <span class="nf">set_timeseries_from_timeseries_array</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">timeseries_array</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set a timeseries attribute from a given numpy array.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        timeseries_array: ``np.ndarray``</span>
+<span class="sd">            Timeseries strain data as numpy array object</span>
+<span class="sd">        sample_rate: ``int``</span>
+<span class="sd">            Sample rate of the timeseries in the array (in Hz)</span>
+<span class="sd">        **kwargs : keyword arguments passed to preprocess module.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        pygwb.preprocessing.preprocessing_data_timeseries_array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">t0</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;t0&quot;</span><span class="p">)</span>
+        <span class="n">tf</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;tf&quot;</span><span class="p">)</span>
+        <span class="n">data_type</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;data_type&quot;</span><span class="p">)</span>
+        <span class="n">new_sample_rate</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;new_sample_rate&quot;</span><span class="p">)</span>
+        <span class="n">cutoff_frequency</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;cutoff_frequency&quot;</span><span class="p">)</span>
+        <span class="n">segment_duration</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;segment_duration&quot;</span><span class="p">)</span>
+        <span class="n">number_cropped_seconds</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;number_cropped_seconds&quot;</span><span class="p">)</span>
+        <span class="n">window_downsampling</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;window_downsampling&quot;</span><span class="p">)</span>
+        <span class="n">ftype</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;ftype&quot;</span><span class="p">)</span>
+        <span class="n">time_shift</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;time_shift&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="n">segment_duration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeseries</span> <span class="o">=</span> <span class="n">preprocessing_data_timeseries_array</span><span class="p">(</span>
+            <span class="n">array</span><span class="o">=</span><span class="n">timeseries_array</span><span class="p">,</span>
+            <span class="n">t0</span><span class="o">=</span><span class="n">t0</span><span class="p">,</span>
+            <span class="n">tf</span><span class="o">=</span><span class="n">tf</span><span class="p">,</span>
+            <span class="n">new_sample_rate</span><span class="o">=</span><span class="n">new_sample_rate</span><span class="p">,</span>
+            <span class="n">cutoff_frequency</span><span class="o">=</span><span class="n">cutoff_frequency</span><span class="p">,</span>
+            <span class="n">segment_duration</span><span class="o">=</span><span class="n">segment_duration</span><span class="p">,</span>
+            <span class="n">sample_rate</span><span class="o">=</span><span class="n">sample_rate</span><span class="p">,</span>
+            <span class="n">number_cropped_seconds</span><span class="o">=</span><span class="n">number_cropped_seconds</span><span class="p">,</span>
+            <span class="n">window_downsampling</span><span class="o">=</span><span class="n">window_downsampling</span><span class="p">,</span>
+            <span class="n">ftype</span><span class="o">=</span><span class="n">ftype</span><span class="p">,</span>
+            <span class="n">time_shift</span><span class="o">=</span><span class="n">time_shift</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeseries</span><span class="o">.</span><span class="n">channel</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;channel&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_timeseries_sample_rate</span><span class="p">(</span><span class="n">new_sample_rate</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">sample_rate</span></div>
+
+<div class="viewcode-block" id="Interferometer.set_timeseries_from_gwpy_timeseries"><a class="viewcode-back" href="../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.set_timeseries_from_gwpy_timeseries">[docs]</a>    <span class="k">def</span> <span class="nf">set_timeseries_from_gwpy_timeseries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gwpy_timeseries</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set a timeseries attribute from a given ``gwpy.timeseries`` object. More information </span>
+<span class="sd">        on the gwpy.timeseries object can be found `here &lt;https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeries/#gwpy.timeseries.TimeSeries&gt;`_.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        gwpy_timeseries: ``gwpy.timeseries.TimeSeries``</span>
+<span class="sd">            Timeseries strain data as ``gwpy.timeseries`` object.</span>
+
+<span class="sd">        **kwargs : keyword arguments passed to preprocess module.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        pygwb.preprocessing.preprocessing_data_gwpy_timeseries</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_sample_rate</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;new_sample_rate&quot;</span><span class="p">)</span>
+        <span class="n">segment_duration</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;segment_duration&quot;</span><span class="p">)</span>
+        <span class="n">cutoff_frequency</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;cutoff_frequency&quot;</span><span class="p">)</span>
+        <span class="n">number_cropped_seconds</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;number_cropped_seconds&quot;</span><span class="p">)</span>
+        <span class="n">window_downsampling</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;window_downsampling&quot;</span><span class="p">)</span>
+        <span class="n">ftype</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;ftype&quot;</span><span class="p">)</span>
+        <span class="n">time_shift</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;time_shift&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="n">segment_duration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeseries</span> <span class="o">=</span> <span class="n">preprocessing_data_gwpy_timeseries</span><span class="p">(</span>
+            <span class="n">gwpy_timeseries</span><span class="o">=</span><span class="n">gwpy_timeseries</span><span class="p">,</span>
+            <span class="n">new_sample_rate</span><span class="o">=</span><span class="n">new_sample_rate</span><span class="p">,</span>
+            <span class="n">cutoff_frequency</span><span class="o">=</span><span class="n">cutoff_frequency</span><span class="p">,</span>
+            <span class="n">number_cropped_seconds</span><span class="o">=</span><span class="n">number_cropped_seconds</span><span class="p">,</span>
+            <span class="n">window_downsampling</span><span class="o">=</span><span class="n">window_downsampling</span><span class="p">,</span>
+            <span class="n">ftype</span><span class="o">=</span><span class="n">ftype</span><span class="p">,</span>
+            <span class="n">time_shift</span><span class="o">=</span><span class="n">time_shift</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeseries</span><span class="o">.</span><span class="n">channel</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;channel&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_timeseries_sample_rate</span><span class="p">(</span><span class="n">new_sample_rate</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">new_sample_rate</span></div>
+
+<div class="viewcode-block" id="Interferometer.set_psd_spectrogram"><a class="viewcode-back" href="../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.set_psd_spectrogram">[docs]</a>    <span class="k">def</span> <span class="nf">set_psd_spectrogram</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">frequency_resolution</span><span class="p">,</span>
+        <span class="n">coarse_grain</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">overlap_factor</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">window_fftgram_dict</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;window_fftgram&quot;</span><span class="p">:</span> <span class="s2">&quot;hann&quot;</span><span class="p">},</span>
+        <span class="n">overlap_factor_welch</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set psd_spectrogram attribute from given spectrum-related information.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        frequency_resolution: ``float``</span>
+<span class="sd">            Frequency resolution of the final PSDs. This sets the time duration</span>
+<span class="sd">            over which FFTs are calculated in the pwelch method.</span>
+<span class="sd">        coarse_grain: ``bool``</span>
+<span class="sd">            Coarse-graining flag. If True, PSD will be estimated via coarse-graining,</span>
+<span class="sd">            as opposed to Welch-averaging. Default is False.</span>
+<span class="sd">        overlap_factor: ``float``, optional</span>
+<span class="sd">            Amount of overlap between adjacent segments (ranges between 0 and 1).</span>
+<span class="sd">            This factor should be same as the one used for cross_spectral_density</span>
+<span class="sd">            (default 0, no overlap).</span>
+<span class="sd">        window_fftgram_dict: ``dictionary``, optional</span>
+<span class="sd">            Dictionary containing name and parameters describing which window to use when producing fftgrams</span>
+<span class="sd">            for psd estimation. Default is \&quot;hann\&quot;.</span>
+<span class="sd">        overlap_factor_welch: ``float``, optional</span>
+<span class="sd">            Overlap factor to use when using Welch&#39;s method to estimate the PSD (NOT coarsegraining).</span>
+<span class="sd">            For \&quot;hann\&quot; window use 0.5 overlap_factor and for \&quot;boxcar\&quot; window use 0 overlap_factor.</span>
+<span class="sd">            Default is 0.5 (50% overlap), which is optimal when using Welch&#39;s method with a \&quot;hann\&quot; window.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        pygwb.spectral.power_spectral_density</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># PSD estimation needs zeropadding when using coarse-graining</span>
+        <span class="n">zeropad_psd</span> <span class="o">=</span> <span class="n">coarse_grain</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">psd_spectrogram</span> <span class="o">=</span> <span class="n">power_spectral_density</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timeseries</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">duration</span><span class="p">,</span>
+            <span class="n">frequency_resolution</span><span class="p">,</span>
+            <span class="n">coarse_grain</span><span class="o">=</span><span class="n">coarse_grain</span><span class="p">,</span>
+            <span class="n">zeropad</span><span class="o">=</span><span class="n">zeropad_psd</span><span class="p">,</span>
+            <span class="n">overlap_factor</span><span class="o">=</span><span class="n">overlap_factor</span><span class="p">,</span>
+            <span class="n">window_fftgram_dict</span><span class="o">=</span><span class="n">window_fftgram_dict</span><span class="p">,</span>
+            <span class="n">overlap_factor_welch</span><span class="o">=</span><span class="n">overlap_factor_welch</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">psd_spectrogram</span><span class="o">.</span><span class="n">channel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeseries</span><span class="o">.</span><span class="n">channel</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_spectrogram_channel_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timeseries</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_spectrogram_frequency_resolution</span><span class="p">(</span><span class="n">frequency_resolution</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interferometer.set_average_psd"><a class="viewcode-back" href="../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.set_average_psd">[docs]</a>    <span class="k">def</span> <span class="nf">set_average_psd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N_average_segments</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set average_psd attribute from the existing raw PSD.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        N_average_segments: ``int``, optional</span>
+<span class="sd">            Number of segments used for PSD averaging (from both sides of the segment of interest).</span>
+<span class="sd">            N_avg_segs should be even and &gt;= 2.</span>
+<span class="sd">        </span>
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        pygwb.spectral.before_after_average</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">average_psd</span> <span class="o">=</span> <span class="n">before_after_average</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">psd_spectrogram</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration</span><span class="p">,</span> <span class="n">N_average_segments</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;PSDs have not been calculated yet! Need to set_psd_spectrogram first.&quot;</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interferometer.gate_data_apply"><a class="viewcode-back" href="../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.gate_data_apply">[docs]</a>    <span class="k">def</span> <span class="nf">gate_data_apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Self-gate the gwpy.timeseries associated with this timeseries. The list</span>
+<span class="sd">        of times gated and the padding applied are stored as properties of the Interferometer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        gate_tzero : ``float``</span>
+<span class="sd">            Half-width time duration (seconds) in which the timeseries is</span>
+<span class="sd">            set to zero.</span>
+<span class="sd">        gate_tpad : ``float``</span>
+<span class="sd">            Half-width time duration (seconds) in which the Planck window</span>
+<span class="sd">            is tapered.</span>
+<span class="sd">        gate_threshold : ``float``</span>
+<span class="sd">            Amplitude threshold, if the data exceeds this value a gating window</span>
+<span class="sd">            will be placed.</span>
+<span class="sd">        cluster_window : ``float``</span>
+<span class="sd">            Time duration (seconds) over which gating points will be clustered.</span>
+<span class="sd">        gate_whiten : ``bool``</span>
+<span class="sd">            If True, data will be whitened before gating points are discovered,</span>
+<span class="sd">            use of this option is highly recommended.</span>
+<span class="sd">            </span>
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        pygwb.preprocessing.self_gate_data</span>
+
+<span class="sd">        gwpy.timeseries.TimeSeries.gate : the function used for the gating of the data itself.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">gate_tzero</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;gate_tzero&quot;</span><span class="p">)</span>
+        <span class="n">gate_tpad</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;gate_tpad&quot;</span><span class="p">)</span>
+        <span class="n">gate_threshold</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;gate_threshold&quot;</span><span class="p">)</span>
+        <span class="n">cluster_window</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;cluster_window&quot;</span><span class="p">)</span>
+        <span class="n">gate_whiten</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;gate_whiten&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeseries</span><span class="p">,</span> <span class="n">new_gates</span> <span class="o">=</span> <span class="n">self_gate_data</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timeseries</span><span class="p">,</span>
+            <span class="n">tzero</span><span class="o">=</span><span class="n">gate_tzero</span><span class="p">,</span>
+            <span class="n">tpad</span><span class="o">=</span><span class="n">gate_tpad</span><span class="p">,</span>
+            <span class="n">gate_threshold</span><span class="o">=</span><span class="n">gate_threshold</span><span class="p">,</span>
+            <span class="n">cluster_window</span><span class="o">=</span><span class="n">cluster_window</span><span class="p">,</span>
+            <span class="n">whiten</span><span class="o">=</span><span class="n">gate_whiten</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gates</span> <span class="o">|</span> <span class="n">new_gates</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gate_pad</span> <span class="o">=</span> <span class="n">gate_tpad</span></div>
+
+<div class="viewcode-block" id="Interferometer.apply_gates_from_file"><a class="viewcode-back" href="../../api/pygwb.detector.Interferometer.html#pygwb.detector.Interferometer.apply_gates_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">apply_gates_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loaded_object</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load gates from a pygwb output file and apply them to the Interferometer object. </span>
+<span class="sd">        The gated times are stored as a property of the object.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        loaded_object : </span>
+<span class="sd">            Object that represents the data in the output file, e.g. a loaded npz-object.</span>
+<span class="sd">        index : ``int``</span>
+<span class="sd">            Integer representing the correct Interferometer object in the baseline.</span>
+<span class="sd">        gate_tpad : ``float``</span>
+<span class="sd">            Half-width time duration (in seconds) in which the Planck window</span>
+<span class="sd">            is tapered.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        pygwb.preprocessing.self_gate_data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">gates</span> <span class="o">=</span> <span class="n">loaded_object</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;ifo_</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">_gates&quot;</span><span class="p">]</span>
+        <span class="n">gate_tpad</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;gate_tpad&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeseries</span><span class="p">,</span> <span class="n">new_gates</span> <span class="o">=</span> <span class="n">self_gate_data</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timeseries</span><span class="p">,</span>
+            <span class="n">tpad</span><span class="o">=</span><span class="n">gate_tpad</span><span class="p">,</span>
+            <span class="n">gates</span><span class="o">=</span><span class="n">gates</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">gates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gates</span> <span class="o">|</span> <span class="n">new_gates</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gate_pad</span> <span class="o">=</span> <span class="n">gate_tpad</span></div>
+
+    <span class="k">def</span> <span class="nf">_check_ifo_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+                <span class="s2">&quot;The ifo name in Interferometer class does not match given name!&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_check_timeseries_channel_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel_name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeseries</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">channel_name</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+                <span class="s2">&quot;Channel name in timeseries does not match given channel!&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_check_timeseries_sample_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeseries</span><span class="o">.</span><span class="n">sample_rate</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">sample_rate</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+                <span class="s2">&quot;Sampling rate in timeseries does not match given sampling rate!&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_check_spectrogram_channel_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel_name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">psd_spectrogram</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">channel_name</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+                <span class="s2">&quot;Channel name in psd_spectrogram does not match given channel!&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_check_spectrogram_frequency_resolution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frequency_resolution</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">psd_spectrogram</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">frequency_resolution</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+                <span class="s2">&quot;Frequency resolution in psd_spectrogram does not match given frequency resolution!&quot;</span>
+            <span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

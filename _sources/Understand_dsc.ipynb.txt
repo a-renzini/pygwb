@@ -1,0 +1,369 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%matplotlib inline\n",
+    "\n",
+    "import matplotlib\n",
+    "import numpy as np\n",
+    "import pickle\n",
+    "import matplotlib.pyplot as plt\n",
+    "from pathlib import Path\n",
+    "from loguru import logger\n",
+    "from gwpy import signal, timeseries\n",
+    "\n",
+    "\n",
+    "from pygwb.notch import StochNotch, StochNotchList\n",
+    "from pygwb.util import calc_bias\n",
+    "from pygwb import baseline, parameters\n",
+    "from pygwb.delta_sigma_cut import run_dsc"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Produce a $\\Delta\\sigma$ cut"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def dsc_cut(\n",
+    "    naive_sigma: np.ndarray,\n",
+    "    slide_sigma: np.ndarray,\n",
+    "    dsc: float = 0.2,\n",
+    "    bf_ss: float = 1,\n",
+    "    bf_ns: float = 1,\n",
+    "):\n",
+    "    dsigma = np.abs(slide_sigma * bf_ss - naive_sigma * bf_ns) / slide_sigma * bf_ss\n",
+    "\n",
+    "    return dsigma >= dsc, dsigma"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def calc_Hf(freqs: np.ndarray, alpha: float = 0, fref: int = 20):\n",
+    "    Hf = (freqs / fref) ** alpha\n",
+    "    return Hf  # do for different power laws , take all badgps times from all alphas, multiple calls in main func"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def calc_sigma_alpha(sensitivity_integrand_with_Hf: np.ndarray):\n",
+    "    sigma_alpha = np.sqrt(1 / np.sum(sensitivity_integrand_with_Hf))\n",
+    "    return sigma_alpha"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def WindowFactors(window1: np.ndarray, window2: np.ndarray):\n",
+    "    N1 = len(window1)\n",
+    "    N2 = len(window2)\n",
+    "    Nred = np.gcd(N1, N2).astype(int)\n",
+    "    indices1 = (np.array(range(0, Nred, 1)) * N1 / Nred).astype(int)\n",
+    "    indices2 = (np.array(range(0, Nred, 1)) * N2 / Nred).astype(int)\n",
+    "    window1red = window1[indices1]\n",
+    "    window2red = window2[indices2]\n",
+    "\n",
+    "    # extract 1st and 2nd half of windows\n",
+    "\n",
+    "    cut = int(np.floor(Nred / 2))\n",
+    "\n",
+    "    firsthalf1 = window1red[0:cut]\n",
+    "    secondhalf1 = window1red[cut:Nred]\n",
+    "\n",
+    "    firsthalf2 = window2red[0:cut]\n",
+    "    secondhalf2 = window2red[cut:Nred]\n",
+    "\n",
+    "    # calculate window factors\n",
+    "    w1w2bar = np.mean(window1red * window2red)\n",
+    "    w1w2squaredbar = np.mean((window1red**2) * (window2red**2))\n",
+    "    w1w2ovlsquaredbar = np.mean((firsthalf1 * secondhalf1) * (firsthalf2 * secondhalf2))\n",
+    "\n",
+    "    return w1w2bar, w1w2squaredbar, w1w2ovlsquaredbar"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def calc_sens_integrand(\n",
+    "    freq: np.ndarray,\n",
+    "    P1: np.ndarray,\n",
+    "    P2: np.ndarray,\n",
+    "    window1: np.ndarray,\n",
+    "    window2: np.ndarray,\n",
+    "    delta_f: float,\n",
+    "    orf: np.array,\n",
+    "    T: int = 32,\n",
+    "    H0: float = 67.9e3 / 3.086e22,\n",
+    "):\n",
+    "    w1w2bar, w1w2squaredbar, oo = WindowFactors(window1 = window1, window2 = window2)\n",
+    "    S_alpha = 3 * H0**2 / (10 * np.pi**2) * 1.0 / freq**3\n",
+    "    sigma_square_avg = (\n",
+    "        (w1w2squaredbar / w1w2bar**2)\n",
+    "        * 1\n",
+    "        / (2 * T * delta_f)\n",
+    "        * P1\n",
+    "        * P2\n",
+    "        / (orf**2.0 * S_alpha**2)\n",
+    "    )\n",
+    "\n",
+    "    return sigma_square_avg"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def veto_lines(freqs: np.ndarray, lines: np.ndarray, df: float = 0):\n",
+    "    nbins = len(freqs)\n",
+    "    veto = np.zeros((nbins, 1), dtype=\"bool\")\n",
+    "\n",
+    "    if not len(lines):\n",
+    "        return veto\n",
+    "\n",
+    "    fmins = lines[:, 0]\n",
+    "    fmaxs = lines[:, 1]\n",
+    "    for fbin in range(len(freqs)):\n",
+    "        freq = freqs[fbin]\n",
+    "        index = np.argwhere((freq >= (fmins - df)) & (freq <= fmaxs + df))\n",
+    "        if index.size != 0:\n",
+    "            veto[fbin] = True\n",
+    "    return veto\n",
+    "    "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def run_dsc(\n",
+    "    dsc: float,\n",
+    "    segment_duration: int,\n",
+    "    sampling_frequency: int,\n",
+    "    psd1_naive: np.ndarray,\n",
+    "    psd2_naive: np.ndarray,\n",
+    "    psd1_slide: np.ndarray,\n",
+    "    psd2_slide: np.ndarray,\n",
+    "    alphas: np.ndarray,\n",
+    "    orf: np.array,\n",
+    "    notch_list_path: str = \"\",\n",
+    "):\n",
+    "    if notch_list_path:\n",
+    "        lines_stochnotch = StochNotchList.load_from_file(f\"{notch_list_path}\")\n",
+    "        lines = np.zeros((len(lines_stochnotch), 2))\n",
+    "\n",
+    "        for index, notch in enumerate(lines_stochnotch):\n",
+    "            lines[index, 0] = lines_stochnotch[index].minimum_frequency\n",
+    "            lines[index, 1] = lines_stochnotch[index].maximum_frequency\n",
+    "    else:\n",
+    "        lines = np.zeros((0, 2))\n",
+    "\n",
+    "    logger.info(\"Running delta sigma cut\")\n",
+    "    nalphas = len(alphas)\n",
+    "    times = np.array(psd1_naive.times)\n",
+    "    ntimes = len(times)\n",
+    "    df = psd1_naive.df.value\n",
+    "    dt = psd1_naive.df.value ** (-1)\n",
+    "    bf_ns = calc_bias(segmentDuration = segment_duration, deltaF = df, deltaT = dt, N_avg_segs=1)  # Naive estimate\n",
+    "    bf_ss = calc_bias(segmentDuration = segment_duration, deltaF = df, deltaT = dt, N_avg_segs=2)  # Sliding estimate\n",
+    "    freqs = np.array(psd1_naive.frequencies)\n",
+    "    overall_cut = np.zeros((ntimes, 1), dtype=\"bool\")\n",
+    "    cuts = np.zeros((nalphas, ntimes), dtype=\"bool\")\n",
+    "    dsigmas = np.zeros((nalphas, ntimes), dtype=\"bool\")\n",
+    "    veto = veto_lines(freqs = freqs, lines = lines)\n",
+    "    keep = np.squeeze(~veto)\n",
+    "\n",
+    "    window1 = np.hanning(segment_duration * sampling_frequency)\n",
+    "    window2 = window1\n",
+    "    for alpha in range(nalphas):\n",
+    "        Hf = calc_Hf(freqs = freqs, alpha = alphas[alpha])\n",
+    "        cut = np.zeros((ntimes, 1), dtype=\"bool\")\n",
+    "        dsigma = np.zeros((ntimes, 1), dtype=\"bool\")\n",
+    "        for time in range(len(times)):\n",
+    "            psd1_naive_time = psd1_naive[time, :]\n",
+    "            psd1_slide_time = psd1_slide[time, :]\n",
+    "            psd2_naive_time = psd2_naive[time, :]\n",
+    "            psd2_slide_time = psd2_slide[time, :]\n",
+    "\n",
+    "            naive_sensitivity_integrand_with_Hf = (\n",
+    "                calc_sens_integrand(\n",
+    "                    freq = freqs, P1 = psd1_naive_time, P2 = psd2_naive_time, window1 = window1, window2 = window2, delta_f = df, orf = orf, T = dt\n",
+    "                )\n",
+    "                / Hf**2\n",
+    "            )\n",
+    "\n",
+    "            slide_sensitivity_integrand_with_Hf = (\n",
+    "                calc_sens_integrand(\n",
+    "                    freq = freqs, P1 = psd1_slide_time, P2 = psd2_slide_time, window1 = window1, window2 = window2, delta_f = df, orf = orf, T = dt\n",
+    "                )\n",
+    "                / Hf**2\n",
+    "            )\n",
+    "            naive_sigma_alpha = calc_sigma_alpha(\n",
+    "                sensitivity_integrand_with_Hf = naive_sensitivity_integrand_with_Hf[keep]\n",
+    "            )\n",
+    "            slide_sigma_alpha = calc_sigma_alpha(\n",
+    "                sensitivity_integrand_with_Hf = slide_sensitivity_integrand_with_Hf[keep]\n",
+    "            )\n",
+    "\n",
+    "            cut[time], dsigma [time] = dsc_cut(naive_sigma = naive_sigma_alpha, slide_sigma = slide_sigma_alpha, dsc = dsc, bf_ss = bf_ss, bf_ns = bf_ns)\n",
+    "\n",
+    "        cuts[alpha, :] = np.squeeze(cut)\n",
+    "        dsigmas[alpha, :] = np.squeeze(dsigma)\n",
+    "\n",
+    "    for time in range(len(times)):\n",
+    "        overall_cut[time] = any(cuts[:, time])\n",
+    "\n",
+    "    BadGPStimes = times[np.squeeze(overall_cut)]\n",
+    "\n",
+    "    return BadGPStimes, dsigmas"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pickle_path = \"../test/test_data/naive_and_sliding_psds.pickle\"\n",
+    "\n",
+    "with open(pickle_path, \"rb\") as handle:\n",
+    "    pickle_loaded = pickle.load(handle)\n",
+    "\n",
+    "naive_psd_1 = pickle_loaded[\"naive_psd_1\"]\n",
+    "naive_psd_2 = pickle_loaded[\"naive_psd_2\"]\n",
+    "avg_psd_1 = pickle_loaded[\"avg_psd_1\"]\n",
+    "avg_psd_2 = pickle_loaded[\"avg_psd_2\"]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "run_dsc(\n",
+    "    dsc = 0.2,\n",
+    "    segment_duration = 192,\n",
+    "    sampling_frequency = 4096,\n",
+    "    psd1_naive = naive_psd_1,\n",
+    "    psd2_naive = naive_psd_2,\n",
+    "    psd1_slide = avg_psd_1,\n",
+    "    psd2_slide = avg_psd_2,\n",
+    "    alphas = [-5, 0, 3],\n",
+    "    orf = np.array([1]),\n",
+    "    notch_list_path = \"../test/test_data/Official_O3_HL_notchlist.txt\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "shift = 1\n",
+    "a = np.array([1,2,3,4,5])\n",
+    "np.roll(a,shift)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from numpy.random import random\n",
+    "def shift_timeseries(time_series_data: timeseries.TimeSeries, time_shift: int=0):\n",
+    "    if time_shift > 0:\n",
+    "        shifted_data = np.roll(time_series_data, shift)\n",
+    "    return shifted_data\n",
+    "\n",
+    "t = timeseries.TimeSeries(random(10))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "t"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "shift_timeseries(t, 1)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pickle_path='../test/test_data/H1L1_1247644138-1247645038.pickle'\n",
+    "with open(pickle_path, \"rb\") as handle:\n",
+    "            pickle_loaded = pickle.load(handle)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pickled_base = baseline.Baseline.load_from_pickle(\"../test/test_data/H1L1_1247644138-1247645038.pickle\"\n",
+    "        )\n",
+    "pickled_ifo_1 = pickled_base.interferometer_1\n",
+    "pickled_ifo_2 = pickled_base.interferometer_2\n",
+    "naive_psd_1 = pickled_ifo_1.psd_spectrogram\n",
+    "naive_psd_2 = pickled_ifo_2.psd_spectrogram\n",
+    "avg_psd_1 = pickled_ifo_1.average_psd\n",
+    "avg_psd_2 = pickled_ifo_2.average_psd"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "",
+   "name": ""
+  },
+  "language_info": {
+   "name": ""
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}

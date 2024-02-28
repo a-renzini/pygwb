@@ -1,0 +1,6 @@
+pygwb.util.effective\_welch\_averages
+=====================================
+
+.. currentmodule:: pygwb.util
+
+.. autofunction:: effective_welch_averages

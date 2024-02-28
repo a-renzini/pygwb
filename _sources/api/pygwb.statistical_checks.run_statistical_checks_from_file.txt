@@ -1,0 +1,6 @@
+pygwb.statistical\_checks.run\_statistical\_checks\_from\_file
+==============================================================
+
+.. currentmodule:: pygwb.statistical_checks
+
+.. autofunction:: run_statistical_checks_from_file

@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pygwb.notch &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=0264ad83"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+        <script src="../../_static/tabs.js?v=3030b3cb"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../../about.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../demos.html">Demos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pygwb.notch</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pygwb.notch</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Realistic detector data will have noise lines and various other artefacts, which should not be included in the analysis (more information</span>
+<span class="sd">`here &lt;https://arxiv.org/pdf/2210.00761.pdf&gt;`_). These frequencies</span>
+<span class="sd">need to be notched, i.e. removed, from the analysis. The notch module handles all things related to frequency notches. </span>
+<span class="sd">It has two main classes and a few methods that create a notchlist</span>
+<span class="sd">that can be used in the ``pygwb`` analysis to get rid of badly behaving frequencies.</span>
+<span class="sd">The code relies on the base class ``StochNotch``, which in turn is based on the ``Notch`` class from ``bilby.gw.detector.strain_data`` </span>
+<span class="sd">(more information `here &lt;https://lscsoft.docs.ligo.org/bilby/api/bilby.gw.detector.strain_data.Notch.html&gt;`_).</span>
+<span class="sd">It stores a single ``Notch`` object containing a small description of the notch and</span>
+<span class="sd">the corresponding minimum and maximum frequency.</span>
+<span class="sd">Next, ``StochNotchList`` is the combination of multiple ``StochNotch`` objects, and contains information about multiple notches.</span>
+
+<span class="sd">Three additional functions are defined in this module to create a ``StochNotchList`` object for three of the most prevalent types of notches.</span>
+<span class="sd">The first function is ``comb`` which creates a ``StochNotchList`` for a certain set of lines in a comb structure.</span>
+<span class="sd">Secondly, we have ``power_lines`` which makes a ``StochNotchList`` object for the power line harmonic notches,</span>
+<span class="sd">e.g. 60 Hz harmonics in the USA and 50 Hz in Italy.</span>
+<span class="sd">The third and final function, ``pulsar_injection``, generates a ``StochNotchList`` object with notches</span>
+<span class="sd">which are contaminated by pulsar injections.</span>
+
+<span class="sd">More information on the various types of bad frequency lines that need to be notched can be found</span>
+<span class="sd">`here &lt;https://arxiv.org/pdf/2210.00761.pdf&gt;`_.</span>
+
+<span class="sd">Examples</span>
+<span class="sd">--------</span>
+
+<span class="sd">We will generate a ``StochNotchList`` from a ``.txt`` file containing multiple ``StochNotch`` objects and showcase some functions.</span>
+
+<span class="sd">First, we import the ``pygwb.notch`` module and load notches into a ``StochNotchList`` object from a .txt file.</span>
+
+<span class="sd">&gt;&gt;&gt; import pygwb.notch as pn</span>
+<span class="sd">&gt;&gt;&gt; notch_list = pn.StochNotchList.load_from_file(&quot;./test/test_data/Official_O3_HL_notchlist.txt&quot;)</span>
+
+<span class="sd">``notch_list`` now contains information about all notches in the .txt file.</span>
+<span class="sd">The ``StochNotchList`` object itself is a container object that collects all notches of the file</span>
+<span class="sd">in different ``StochNotch`` objects.</span>
+
+<span class="sd">For example, it is known that there is a power line notched around 60 Hz. To check this is indeed the case, </span>
+<span class="sd">one calls:</span>
+
+<span class="sd">&gt;&gt;&gt; is_60_in_notch_list = notch_list.check_frequency(60)</span>
+<span class="sd">True</span>
+
+<span class="sd">This allows to check if a certain frequency is present in the container object.</span>
+<span class="sd">If one wants to have information about all the notches in the ``StochNotchList``, one can run</span>
+
+<span class="sd">&gt;&gt;&gt; for notch in notch_list:</span>
+<span class="sd">&gt;&gt;&gt;    notch.print_notch()</span>
+
+<span class="sd">This will show the minimum and maximum frequency for all notches in ``StochNotchList``, and prints a small description of the notch itself.</span>
+
+<span class="sd">Another important functionality of the ``StochNotchList`` object is computing the frequency mask that will</span>
+<span class="sd">be ``False`` for frequencies in the ``StochNotchList`` object. </span>
+<span class="sd">That mask can then be used to &quot;mask&quot; a real ``pygwb`` analysis spectrum and notch out the contaminated frequencies.</span>
+
+<span class="sd">For illustrative purposes, we take a random frequency array and mask it using our ``StochNotchList`` object:</span>
+
+<span class="sd">&gt;&gt;&gt; frequency_array = np.arange(0, 1700,1/32.)</span>
+<span class="sd">&gt;&gt;&gt; notch_list.get_notch_mask(frequency_array, save_file_flag=False, filename=&quot;&quot;)</span>
+
+<span class="sd">The List function uses the ``get_notch_mask`` function from the ``StochNotch`` object, and combines the mask over all notches.</span>
+
+<span class="sd">One can also save the ``StochNotchList`` object to a ``.txt`` file using ``save_to_txt(filename)``.</span>
+<span class="sd">This will create a .txt file in the same structure as required to make a ``StochNotchList``</span>
+<span class="sd">object from a file, as done in this example. The mask itself can also be saved, using ``save_notch_mask(frequency_array, filename)``.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">bilby.gw.detector.strain_data</span> <span class="kn">import</span> <span class="n">Notch</span>
+
+
+<div class="viewcode-block" id="StochNotch"><a class="viewcode-back" href="../../api/pygwb.notch.StochNotch.html#pygwb.notch.StochNotch">[docs]</a><span class="k">class</span> <span class="nc">StochNotch</span><span class="p">(</span><span class="n">Notch</span><span class="p">):</span>
+<div class="viewcode-block" id="StochNotch.__init__"><a class="viewcode-back" href="../../api/pygwb.notch.StochNotch.html#pygwb.notch.StochNotch.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minimum_frequency</span><span class="p">,</span> <span class="n">maximum_frequency</span><span class="p">,</span> <span class="n">description</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A notch object storing the maximum and minimum frequency of the notch, as well as a description.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        minimum_frequency: ``float``</span>
+<span class="sd">            The minimum frequency of the notch (in Hz).</span>
+<span class="sd">        maximum_frequency: ``float``</span>
+<span class="sd">            The maximum frequency of the notch (in Hz).</span>
+<span class="sd">        description: ``str``</span>
+<span class="sd">            A description of the origin/reason of the notch.</span>
+<span class="sd">            </span>
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        bilby.gw.detector.strain_data.Notch</span>
+<span class="sd">            More information `here &lt;https://lscsoft.docs.ligo.org/bilby/api/bilby.gw.detector.strain_data.Notch.html&gt;`_.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">minimum_frequency</span><span class="p">,</span> <span class="n">maximum_frequency</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span></div>
+
+<div class="viewcode-block" id="StochNotch.print_notch"><a class="viewcode-back" href="../../api/pygwb.notch.StochNotch.html#pygwb.notch.StochNotch.print_notch">[docs]</a>    <span class="k">def</span> <span class="nf">print_notch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Small function that prints out the defining contents of the notch.</span>
+<span class="sd">        It will display the minimum and maximum frequency and the description of the notch.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minimum_frequency</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_frequency</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StochNotch.get_notch_mask"><a class="viewcode-back" href="../../api/pygwb.notch.StochNotch.html#pygwb.notch.StochNotch.get_notch_mask">[docs]</a>    <span class="k">def</span> <span class="nf">get_notch_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frequency_array</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a boolean mask for the frequencies in frequency_array in the notch.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        frequency_array: ``np.ndarray``</span>
+<span class="sd">            An array of frequencies (in Hz).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        notch_mask: ``np.ndarray``</span>
+<span class="sd">            An array of booleans that are False for frequencies in the notch.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This notches any frequency that may have overlapping frequency content with the notch.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">frequency_array</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">frequency_array</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">frequencies_below</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">frequency_array</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">,</span> <span class="n">frequency_array</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="p">)</span>
+        <span class="n">frequencies_above</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">frequency_array</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">frequency_array</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="n">df</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">lower</span> <span class="o">=</span> <span class="n">frequencies_below</span> <span class="o">+</span> <span class="n">df</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_frequency</span>
+        <span class="n">upper</span> <span class="o">=</span> <span class="n">frequencies_above</span> <span class="o">-</span> <span class="n">df</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimum_frequency</span>
+        <span class="n">notch_mask</span> <span class="o">=</span> <span class="p">[</span><span class="ow">not</span> <span class="n">elem</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="p">(</span><span class="n">lower</span> <span class="o">&amp;</span> <span class="n">upper</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">notch_mask</span></div></div>
+
+<div class="viewcode-block" id="StochNotchList"><a class="viewcode-back" href="../../api/pygwb.notch.StochNotchList.html#pygwb.notch.StochNotchList">[docs]</a><span class="k">class</span> <span class="nc">StochNotchList</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
+<div class="viewcode-block" id="StochNotchList.__init__"><a class="viewcode-back" href="../../api/pygwb.notch.StochNotchList.html#pygwb.notch.StochNotchList.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">notch_list</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A list of notches. All these notches are represented by an object of the ``StochNotch`` class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        notch_list: ``list``</span>
+<span class="sd">            A list of length-3 tuples of the (min, max) frequency (in Hz); description for the notches.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        :raises:</span>
+<span class="sd">            ValueError: If the list is malformed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">notch_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">notch</span> <span class="ow">in</span> <span class="n">notch_list</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">notch</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">notch</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">StochNotch</span><span class="p">(</span><span class="o">*</span><span class="n">notch</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;notch_list </span><span class="si">{</span><span class="n">notch_list</span><span class="si">}</span><span class="s2"> is malformed&quot;</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StochNotchList.check_frequency"><a class="viewcode-back" href="../../api/pygwb.notch.StochNotchList.html#pygwb.notch.StochNotchList.check_frequency">[docs]</a>    <span class="k">def</span> <span class="nf">check_frequency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">freq</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks whether a given frequency is inside the notch list.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        freq: ``float``</span>
+<span class="sd">            The frequency to check (in Hz).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        True/False:</span>
+<span class="sd">            If freq inside any of the notches, return True, else False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">notch</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">notch</span><span class="o">.</span><span class="n">check_frequency</span><span class="p">(</span><span class="n">freq</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="StochNotchList.get_notch_mask"><a class="viewcode-back" href="../../api/pygwb.notch.StochNotchList.html#pygwb.notch.StochNotchList.get_notch_mask">[docs]</a>    <span class="k">def</span> <span class="nf">get_notch_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frequency_array</span><span class="p">,</span> <span class="n">save_file_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a boolean mask for the frequencies in frequency_array in the notch list.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        frequency_array: ``np.ndarray``</span>
+<span class="sd">            An array of frequencies (in Hz).</span>
+<span class="sd">        save_file_flag: ``bool``</span>
+<span class="sd">            A boolean flag indicating whether to save the notch mask in a file or not.</span>
+<span class="sd">        filename: ``str``</span>
+<span class="sd">            The name of the file where to store the notch mask if save_file_flag is True.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        notch_mask: ``np.ndarray``</span>
+<span class="sd">            An array of booleans that are False for frequencies in the notch.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This notches any frequency that may have overlapping frequency content with the notch.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">notch_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">frequency_array</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">notch</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">notch_mask</span> <span class="o">=</span> <span class="n">notch_mask</span> <span class="o">&amp;</span> <span class="n">notch</span><span class="o">.</span><span class="n">get_notch_mask</span><span class="p">(</span><span class="n">frequency_array</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">save_file_flag</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;Notch_mask.txt&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save_notch_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frequency_array</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">notch_mask</span></div>
+
+<div class="viewcode-block" id="StochNotchList.save_notch_mask"><a class="viewcode-back" href="../../api/pygwb.notch.StochNotchList.html#pygwb.notch.StochNotchList.save_notch_mask">[docs]</a>    <span class="k">def</span> <span class="nf">save_notch_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frequency_array</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Saves a boolean mask for the frequencies in frequency_array in the notch list.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        frequency_array: ``np.ndarray``</span>
+<span class="sd">            An array of frequencies (in Hz).</span>
+
+<span class="sd">        filename: ``str``</span>
+<span class="sd">            Name of the target file.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This saves notch_mask in a .txt file.</span>
+<span class="sd">        Notch_mask is an array of booleans that are False for frequencies in the notch.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        :func:`pygwb.notch.StochNotch.get_notch_mask`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">notch_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_notch_mask</span><span class="p">(</span><span class="n">frequency_array</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span>
+            <span class="n">filename</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">([</span><span class="n">frequency_array</span><span class="p">,</span> <span class="n">notch_mask</span><span class="p">]),</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="StochNotchList.save_to_txt"><a class="viewcode-back" href="../../api/pygwb.notch.StochNotchList.html#pygwb.notch.StochNotchList.save_to_txt">[docs]</a>    <span class="k">def</span> <span class="nf">save_to_txt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Saves the notch list to a .txt file (after sorting).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        filename: ``str``</span>
+<span class="sd">            Name of the target file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">fmin</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">fmax</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">desc</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sort_list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">fmin</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">minimum_frequency</span><span class="p">)</span>
+            <span class="n">fmax</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">maximum_frequency</span><span class="p">)</span>
+            <span class="n">desc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>
+
+        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span>
+            <span class="n">filename</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">([</span><span class="n">fmin</span><span class="p">,</span> <span class="n">fmax</span><span class="p">,</span> <span class="n">desc</span><span class="p">]),</span>
+            <span class="n">fmt</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%-20s</span><span class="s2">  ,  </span><span class="si">%-20s</span><span class="s2">  ,  %-&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">desc</span><span class="p">))</span> <span class="o">+</span> <span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;s&quot;</span><span class="p">),</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="StochNotchList.sort_list"><a class="viewcode-back" href="../../api/pygwb.notch.StochNotchList.html#pygwb.notch.StochNotchList.sort_list">[docs]</a>    <span class="k">def</span> <span class="nf">sort_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sorts the notch list based on the minimum frequency of the notches.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">elem</span><span class="p">:</span> <span class="n">elem</span><span class="o">.</span><span class="n">minimum_frequency</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StochNotchList.load_from_file"><a class="viewcode-back" href="../../api/pygwb.notch.StochNotchList.html#pygwb.notch.StochNotchList.load_from_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">load_from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load an already existing notch list from a txt-file (with formatting as produced by this code).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        filename: ``str``</span>
+<span class="sd">            Filename of the file containing the notchlist to be read in.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fmin</span><span class="p">,</span> <span class="n">fmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">unpack</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">desc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span>
+            <span class="n">filename</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">unpack</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;str&quot;</span>
+        <span class="p">)</span>
+
+        <span class="bp">cls</span> <span class="o">=</span> <span class="n">StochNotchList</span><span class="p">([])</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">fmin</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">fmin</span><span class="p">)):</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">StochNotch</span><span class="p">(</span><span class="n">fmin</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">fmax</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">desc</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+        <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">fmin</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">StochNotch</span><span class="p">(</span><span class="n">fmin</span><span class="p">,</span> <span class="n">fmax</span><span class="p">,</span> <span class="n">desc</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Notch list from file has too many dimensions.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span></div></div>
+
+<div class="viewcode-block" id="power_lines"><a class="viewcode-back" href="../../api/pygwb.notch.power_lines.html#pygwb.notch.power_lines">[docs]</a><span class="k">def</span> <span class="nf">power_lines</span><span class="p">(</span><span class="n">fundamental</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">nharmonics</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="mf">0.2</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create list of power line harmonics (nharmonics*fundamental Hz) to remove.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    fundamental: ``float``, optional</span>
+<span class="sd">        Fundamental frequency of the power line.</span>
+<span class="sd">        Default value is 60 Hz.</span>
+<span class="sd">    nharmonics: ``float``, optional</span>
+<span class="sd">        Number of harmonics (should include all harmonics within studied frequency range of the study).</span>
+<span class="sd">        Default is 40.</span>
+<span class="sd">    df: ``float``, optional</span>
+<span class="sd">        Frequency width (in Hz) of considered power line. Default is 0.2 Hz.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    notches: ``StochNotchList``</span>
+<span class="sd">        StochNotchList object containing lines to be notched.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">freqs</span> <span class="o">=</span> <span class="n">fundamental</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nharmonics</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">notches</span> <span class="o">=</span> <span class="n">StochNotchList</span><span class="p">([])</span>
+    <span class="k">for</span> <span class="n">f0</span> <span class="ow">in</span> <span class="n">freqs</span><span class="p">:</span>
+        <span class="n">notch</span> <span class="o">=</span> <span class="n">StochNotch</span><span class="p">(</span><span class="n">f0</span> <span class="o">-</span> <span class="n">df</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">f0</span> <span class="o">+</span> <span class="n">df</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Power Lines&quot;</span><span class="p">)</span>
+        <span class="n">notches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">notch</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">notches</span></div>
+
+<div class="viewcode-block" id="comb"><a class="viewcode-back" href="../../api/pygwb.notch.comb.html#pygwb.notch.comb">[docs]</a><span class="k">def</span> <span class="nf">comb</span><span class="p">(</span><span class="n">f0</span><span class="p">,</span> <span class="n">f_spacing</span><span class="p">,</span> <span class="n">n_harmonics</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a list of comb lines to remove with the form &#39;f0+n*f_spacing, n=0,1,...,n_harmonics-1&#39;.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    f0: ``float``</span>
+<span class="sd">        Fundamental frequency of the comb.</span>
+<span class="sd">    f_spacing: ``float``</span>
+<span class="sd">        Spacing between two subsequent harmonics.</span>
+<span class="sd">    n_harmonics: ``float``</span>
+<span class="sd">        Number of harmonics (should include all harmonics within studied frequency range of the study).</span>
+<span class="sd">    df: ``float``</span>
+<span class="sd">        Width of the comb-lines.</span>
+<span class="sd">    description: ``str``, optional</span>
+<span class="sd">        Additional description, e.g. known source of the comb.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    notches: ``StochNotchList``</span>
+<span class="sd">        StochNotchList object of lines to be notched.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">notches</span> <span class="o">=</span> <span class="n">StochNotchList</span><span class="p">([])</span>
+    <span class="n">freqs</span> <span class="o">=</span> <span class="p">[</span><span class="n">f0</span> <span class="o">+</span> <span class="n">n</span> <span class="o">*</span> <span class="n">f_spacing</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_harmonics</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">freqs</span><span class="p">:</span>
+        <span class="n">TotalDescription</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Comb with fundamental freq </span><span class="si">{</span><span class="n">f0</span><span class="si">}</span><span class="s2"> and spacing </span><span class="si">{</span><span class="n">f_spacing</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">description</span><span class="p">:</span>
+            <span class="n">TotalDescription</span> <span class="o">+=</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">description</span>
+        <span class="n">notch</span> <span class="o">=</span> <span class="n">StochNotch</span><span class="p">(</span><span class="n">f</span> <span class="o">-</span> <span class="n">df</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">f</span> <span class="o">+</span> <span class="n">df</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">TotalDescription</span><span class="p">)</span>
+        <span class="n">notches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">notch</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">notches</span></div>
+
+<div class="viewcode-block" id="pulsar_injections"><a class="viewcode-back" href="../../api/pygwb.notch.pulsar_injections.html#pygwb.notch.pulsar_injections">[docs]</a><span class="k">def</span> <span class="nf">pulsar_injections</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">t_start</span><span class="p">,</span> <span class="n">t_end</span><span class="p">,</span> <span class="n">doppler</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create list of frequencies contaminated by pulsar injections.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    filename: ``str``</span>
+<span class="sd">        Filename of list containing information about pulsar injections, e.g. for O3 at</span>
+<span class="sd">        https://git.ligo.org/stochastic/stochasticdetchar/-/blob/master/O3/notchlists/make_notchlist/input/pulsars.dat.</span>
+<span class="sd">    t_start: ``int``</span>
+<span class="sd">        GPS start time of run/analysis.</span>
+<span class="sd">    t_end: ``int``</span>
+<span class="sd">        GPS end time of run/analysis.</span>
+<span class="sd">    doppler: ``float``, optional</span>
+<span class="sd">        Doppler shift; typical value of v/c for Earth motion in solar system = 1e-4 (default).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    notches: ``StochNotchList``</span>
+<span class="sd">        StochNotchList object of lines you want to be notched.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    f_start: pulsar freq at start of time period</span>
+<span class="sd">    f_end:   pulsar freq at end of time period</span>
+<span class="sd">    f1:      allow for doppler shifting</span>
+<span class="sd">    f2:      allow for doppler shifting</span>
+<span class="sd">    f0:      central freq over entire period</span>
+<span class="sd">    df:      width</span>
+<span class="sd">    binary:  pulsar binary system, yes or no. If yes the affected with is ~two times larger (by design).</span>
+<span class="sd">             We use a conservative factor of 3. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">t_refs</span><span class="p">,</span> <span class="n">f_refs</span><span class="p">,</span> <span class="n">f_dots</span><span class="p">,</span> <span class="n">binary</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span>
+        <span class="n">filename</span><span class="p">,</span>
+        <span class="n">unpack</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="p">[</span>
+            <span class="p">(</span><span class="s2">&quot;t_refs&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;f_refs&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;f_dots&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;binary&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+        <span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">notches</span> <span class="o">=</span> <span class="n">StochNotchList</span><span class="p">([])</span>
+
+    <span class="k">for</span> <span class="n">t_ref</span><span class="p">,</span> <span class="n">f_ref</span><span class="p">,</span> <span class="n">f_dot</span><span class="p">,</span> <span class="n">my_binary</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">t_refs</span><span class="p">,</span> <span class="n">f_refs</span><span class="p">,</span> <span class="n">f_dots</span><span class="p">,</span> <span class="n">binary</span><span class="p">):</span>
+        <span class="n">f_start</span> <span class="o">=</span> <span class="n">f_ref</span> <span class="o">+</span> <span class="n">f_dot</span> <span class="o">*</span> <span class="p">(</span><span class="n">t_start</span> <span class="o">-</span> <span class="n">t_ref</span><span class="p">)</span>
+        <span class="n">f_end</span> <span class="o">=</span> <span class="n">f_ref</span> <span class="o">+</span> <span class="n">f_dot</span> <span class="o">*</span> <span class="p">(</span><span class="n">t_end</span> <span class="o">-</span> <span class="n">t_ref</span><span class="p">)</span>
+        <span class="n">f1</span> <span class="o">=</span> <span class="n">f_start</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">doppler</span><span class="p">)</span>
+        <span class="n">f2</span> <span class="o">=</span> <span class="n">f_end</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">doppler</span><span class="p">)</span>
+        <span class="n">f0</span> <span class="o">=</span> <span class="p">(</span><span class="n">f1</span> <span class="o">+</span> <span class="n">f2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">f1</span> <span class="o">-</span> <span class="n">f2</span>
+        <span class="k">if</span> <span class="n">my_binary</span> <span class="o">==</span> <span class="s2">&quot;yes&quot;</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="mf">3.0</span> <span class="o">*</span> <span class="n">df</span>
+        <span class="n">notch</span> <span class="o">=</span> <span class="n">StochNotch</span><span class="p">(</span><span class="n">f0</span> <span class="o">-</span> <span class="n">df</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">f0</span> <span class="o">+</span> <span class="n">df</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Pulsar injection&quot;</span><span class="p">)</span>
+        <span class="n">notches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">notch</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">notches</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

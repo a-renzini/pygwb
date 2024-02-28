@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>An introduction to the simulator module &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/tabs.css?v=a5c4661c" />
+      <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=0264ad83"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demos.html">Demos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">An introduction to the simulator module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/CBC_simulator_tutorial.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="An-introduction-to-the-simulator-module">
+<h1>An introduction to the simulator module<a class="headerlink" href="#An-introduction-to-the-simulator-module" title="Permalink to this heading"></a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">gwpy</span>
+<span class="kn">import</span> <span class="nn">bilby</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">gwpy.timeseries</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">optimize</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+<span class="kn">from</span> <span class="nn">pygwb.detector</span> <span class="kn">import</span> <span class="n">Interferometer</span>
+<span class="kn">from</span> <span class="nn">pygwb.network</span> <span class="kn">import</span> <span class="n">Network</span>
+<span class="c1">#from pygwb.parameters import Parameters</span>
+<span class="kn">from</span> <span class="nn">pygwb.baseline</span> <span class="kn">import</span> <span class="n">Baseline</span>
+<span class="kn">from</span> <span class="nn">pygwb.simulator</span> <span class="kn">import</span> <span class="n">Simulator</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+</pre></div>
+</div>
+</div>
+<section id="Simulating-data-with-the-simulator-module-directly">
+<h2>Simulating data with the simulator module directly<a class="headerlink" href="#Simulating-data-with-the-simulator-module-directly" title="Permalink to this heading"></a></h2>
+<section id="Spectrum-to-inject">
+<h3>Spectrum to inject<a class="headerlink" href="#Spectrum-to-inject" title="Permalink to this heading"></a></h3>
+<p>Among the parameters the simulator module expects is the spectrum to be injected in the form of a gwpy.frequencyseries. This spectrum is the power spectral density (PSD) of the GW signal Below, we define such a spectrum for some injection value of <span class="math notranslate nohighlight">\(\Omega_{\rm ref}\)</span> at a reference frequency <span class="math notranslate nohighlight">\(f_{\rm ref}\)</span>. We will take a relatively large value for <span class="math notranslate nohighlight">\(\Omega_{\rm ref}\)</span> such that the signal is large enough to rise above the noise curve. Note that this function can be used to
+generate any power-law spectrum.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">frequencies_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+
+<span class="n">alpha1</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">alpha2</span> <span class="o">=</span> <span class="mi">2</span><span class="o">/</span><span class="mi">3</span>
+<span class="n">fref</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">omegaRef</span> <span class="o">=</span> <span class="mf">5.e-5</span>
+
+<span class="k">def</span> <span class="nf">IntensityGW</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">omegaRef</span><span class="p">,</span> <span class="n">alpha1</span><span class="p">,</span> <span class="n">fref</span><span class="p">,</span> <span class="n">alpha2</span> <span class="o">=</span> <span class="mi">2</span><span class="o">/</span><span class="mi">3</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39; GW Intensity function from broken power law in OmegaGW &#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">    PARAMETERS</span>
+<span class="sd">    freqs: np.array</span>
+<span class="sd">        frequency array</span>
+<span class="sd">    fref:</span>
+<span class="sd">        reference frequency</span>
+<span class="sd">    omegaRef:</span>
+<span class="sd">        Value of OmegaGW at reference frequency</span>
+<span class="sd">    alpha1:</span>
+<span class="sd">        first spectral index</span>
+<span class="sd">    alpha2:</span>
+<span class="sd">        second spectral index</span>
+
+<span class="sd">    RETURN</span>
+<span class="sd">    FrequencySeries</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="kn">from</span> <span class="nn">pygwb.constants</span> <span class="kn">import</span> <span class="n">H0</span>
+    <span class="n">H_theor</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">H0</span><span class="o">.</span><span class="n">si</span><span class="o">.</span><span class="n">value</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">fknee</span> <span class="o">=</span> <span class="n">fref</span>
+
+    <span class="n">power</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">freqs</span><span class="p">)</span>
+
+    <span class="n">power</span><span class="p">[</span><span class="n">freqs</span><span class="o">&lt;</span><span class="n">fknee</span><span class="p">]</span> <span class="o">=</span> <span class="n">H_theor</span> <span class="o">*</span> <span class="n">omegaRef</span> <span class="o">*</span> <span class="p">(</span><span class="n">freqs</span><span class="p">[</span><span class="n">freqs</span><span class="o">&lt;</span><span class="n">fknee</span><span class="p">])</span> <span class="o">**</span> <span class="p">(</span><span class="n">alpha1</span> <span class="o">-</span><span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">fref</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="n">alpha1</span><span class="p">)</span>
+    <span class="n">power</span><span class="p">[</span><span class="n">freqs</span><span class="o">&gt;</span><span class="n">fknee</span><span class="p">]</span> <span class="o">=</span> <span class="n">H_theor</span> <span class="o">*</span> <span class="n">omegaRef</span> <span class="o">*</span> <span class="p">(</span><span class="n">freqs</span><span class="p">[</span><span class="n">freqs</span><span class="o">&gt;</span><span class="n">fknee</span><span class="p">])</span> <span class="o">**</span> <span class="p">(</span><span class="n">alpha2</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">fref</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="n">alpha2</span><span class="p">)</span>
+    <span class="n">power</span><span class="p">[</span><span class="n">freqs</span><span class="o">==</span><span class="n">fknee</span><span class="p">]</span> <span class="o">=</span> <span class="n">H_theor</span> <span class="o">*</span> <span class="n">omegaRef</span> <span class="o">*</span> <span class="p">(</span><span class="n">fknee</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="n">alpha2</span> <span class="o">-</span><span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">fref</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="n">alpha2</span><span class="p">)</span>
+
+    <span class="n">power</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">power</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">gwpy</span><span class="o">.</span><span class="n">frequencyseries</span><span class="o">.</span><span class="n">FrequencySeries</span><span class="p">(</span><span class="n">power</span><span class="p">,</span> <span class="n">frequencies</span><span class="o">=</span><span class="n">freqs</span><span class="p">)</span>
+
+<span class="n">Intensity_GW_inject</span> <span class="o">=</span> <span class="n">IntensityGW</span><span class="p">(</span><span class="n">frequencies_x</span><span class="p">,</span> <span class="n">omegaRef</span><span class="p">,</span> <span class="n">alpha1</span><span class="p">,</span> <span class="n">fref</span><span class="p">,</span> <span class="n">alpha2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Parameters-for-the-simulation">
+<h3>Parameters for the simulation<a class="headerlink" href="#Parameters-for-the-simulation" title="Permalink to this heading"></a></h3>
+<p>For this tutorial, we will simulate 5 segments (N_segs) of duration 64 (duration) with a sampling frequency of 1024 Hz. This is specified below.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">duration</span> <span class="o">=</span> <span class="mi">64</span> <span class="c1"># duration of each segment of data (s)</span>
+<span class="n">N_segs</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># number of data segments to generate</span>
+<span class="n">sampling_frequency</span> <span class="o">=</span> <span class="mi">1024</span> <span class="c1"># Hz</span>
+</pre></div>
+</div>
+</div>
+<p>Furthermore, the simulator module expects a list of bilby interferometers for which the data needs to be simulated. For this tutorial, we decide to use H1 and L1 as an example. However, note that the data can be simulated for an arbitrary amount of detectors. One would simply add more detectors to the <em>ifo_list</em> below.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ifo_H1</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">gw</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">get_empty_interferometer</span><span class="p">(</span><span class="s1">&#39;H1&#39;</span><span class="p">)</span>
+<span class="n">ifo_L1</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">gw</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">get_empty_interferometer</span><span class="p">(</span><span class="s1">&#39;L1&#39;</span><span class="p">)</span>
+
+<span class="n">ifo_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">ifo_H1</span><span class="p">,</span> <span class="n">ifo_L1</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">ifo</span> <span class="ow">in</span> <span class="n">ifo_list</span><span class="p">:</span>
+    <span class="n">ifo</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="n">duration</span>
+    <span class="n">ifo</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">sampling_frequency</span>
+    <span class="n">ifo</span><span class="o">.</span><span class="n">power_spectral_density</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">gw</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">PowerSpectralDensity</span><span class="p">(</span><span class="n">ifo</span><span class="o">.</span><span class="n">frequency_array</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">ifo</span><span class="o">.</span><span class="n">power_spectral_density_array</span><span class="p">,</span> <span class="n">posinf</span><span class="o">=</span><span class="mf">1.e-41</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>We are now ready to simulate data. We consider two cases: one where only the signal is simulated and one where signal and noise are simulated. This can be controlled by the <em>no_noise</em> flag that can be passed to the simulator.</p>
+</section>
+<section id="CBC-background">
+<h3>CBC background<a class="headerlink" href="#CBC-background" title="Permalink to this heading"></a></h3>
+<p>We now will add simulate CBC signals and add them to our simulated data.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">priors</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">gw</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">BBHPriorDict</span><span class="p">(</span><span class="n">aligned_spin</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">priors</span><span class="p">[</span><span class="s1">&#39;chirp_mass&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">Uniform</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;chirp_mass&quot;</span><span class="p">)</span>
+<span class="n">priors</span><span class="p">[</span><span class="s1">&#39;mass_ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">priors</span><span class="p">[</span><span class="s1">&#39;chi_1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">priors</span><span class="p">[</span><span class="s1">&#39;chi_2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">priors</span><span class="p">[</span><span class="s1">&#39;luminosity_distance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">PowerLaw</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;luminosity_distance&#39;</span><span class="p">,</span>
+                                                          <span class="n">minimum</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">maximum</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                                                          <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;Mpc&#39;</span><span class="p">)</span>
+<span class="n">priors</span><span class="p">[</span><span class="s2">&quot;geocent_time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">Uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">duration</span><span class="o">*</span><span class="n">N_segs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;geocent_time&quot;</span><span class="p">)</span>
+
+<span class="c1"># create 20 injections</span>
+<span class="n">injections</span> <span class="o">=</span> <span class="n">priors</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+<br/><br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+15:24 bilby INFO    : Using aligned spin prior
+15:24 bilby INFO    : No prior given, using default BBH priors in /home/arianna.renzini/.conda/envs/AIRlab/lib/python3.8/site-packages/bilby/gw/prior_files/aligned_spins_bbh.prior.
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;bilby&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+
+<span class="n">simulator_cbc</span> <span class="o">=</span> <span class="n">Simulator</span><span class="p">(</span><span class="n">ifo_list</span><span class="p">,</span> <span class="n">N_segs</span><span class="p">,</span> <span class="n">duration</span> <span class="o">=</span> <span class="n">duration</span><span class="p">,</span> <span class="n">injection_dict</span><span class="o">=</span><span class="n">injections</span><span class="p">,</span>
+                                       <span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">sampling_frequency</span><span class="p">,</span> <span class="n">no_noise</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">data_cbc</span> <span class="o">=</span> <span class="n">simulator_cbc</span><span class="o">.</span><span class="n">generate_data</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+2023-01-31 15:24:37.626 | INFO     | pygwb.simulator:generate_data:281 - Adding data to channel H1:SIM-STOCH_INJ
+2023-01-31 15:24:37.663 | INFO     | pygwb.simulator:generate_data:281 - Adding data to channel L1:SIM-STOCH_INJ
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data_cbc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">whiten</span><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="_images/CBC_simulator_tutorial_16_0.png" src="_images/CBC_simulator_tutorial_16_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/CBC_simulator_tutorial_16_1.png" src="_images/CBC_simulator_tutorial_16_1.png" />
+</div>
+</div>
+</section>
+<section id="continuous-data">
+<h3>continuous data<a class="headerlink" href="#continuous-data" title="Permalink to this heading"></a></h3>
+<p>Let’s now test our ability to generate two segments of data that are continuous. This can be done by setting <code class="docutils literal notranslate"><span class="pre">continuous=True</span></code>.</p>
+<p>First, let’s check what happens when <code class="docutils literal notranslate"><span class="pre">continuous=False</span></code>:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">simulator_signal_and_noise0</span> <span class="o">=</span> <span class="n">Simulator</span><span class="p">(</span><span class="n">ifo_list</span><span class="p">,</span> <span class="n">N_segs</span><span class="p">,</span> <span class="n">duration</span> <span class="o">=</span> <span class="n">duration</span><span class="p">,</span> <span class="n">intensity_GW</span> <span class="o">=</span> <span class="n">Intensity_GW_inject</span><span class="p">,</span>
+                                       <span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">sampling_frequency</span><span class="p">,</span> <span class="n">no_noise</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">,</span> <span class="n">continuous</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">data_signal_and_noise0</span> <span class="o">=</span> <span class="n">simulator_signal_and_noise0</span><span class="o">.</span><span class="n">get_data_for_interferometers</span><span class="p">()</span>
+<span class="n">simulator_signal_and_noise1</span> <span class="o">=</span> <span class="n">Simulator</span><span class="p">(</span><span class="n">ifo_list</span><span class="p">,</span> <span class="n">N_segs</span><span class="p">,</span> <span class="n">duration</span> <span class="o">=</span> <span class="n">duration</span><span class="p">,</span> <span class="n">intensity_GW</span> <span class="o">=</span> <span class="n">Intensity_GW_inject</span><span class="p">,</span>
+                                       <span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">sampling_frequency</span><span class="p">,</span> <span class="n">no_noise</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="n">N_segs</span><span class="o">*</span><span class="n">duration</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">,</span> <span class="n">continuous</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">data_signal_and_noise1</span> <span class="o">=</span> <span class="n">simulator_signal_and_noise1</span><span class="o">.</span><span class="n">get_data_for_interferometers</span><span class="p">()</span>
+<span class="n">data_combined</span> <span class="o">=</span> <span class="n">data_signal_and_noise0</span><span class="p">[</span><span class="s1">&#39;H1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_signal_and_noise1</span><span class="p">[</span><span class="s1">&#39;H1&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot</span> <span class="o">=</span> <span class="n">data_combined</span><span class="o">.</span><span class="n">whiten</span><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
+Input <span class="ansi-green-fg">In [9]</span>, in <span class="ansi-cyan-fg">&lt;cell line: 1&gt;</span><span class="ansi-blue-fg">()</span>
+<span class="ansi-green-fg">----&gt; 1</span> plot <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">data_combined</span><span style="color: rgb(98,98,98)">.</span>whiten()<span style="color: rgb(98,98,98)">.</span>plot()
+
+<span class="ansi-red-fg">NameError</span>: name &#39;data_combined&#39; is not defined
+</pre></div></div>
+</div>
+<p>We can see that there is an impulse introduced at the point the two time series are joined due to the discontinuity!</p>
+<p>Now let’s try <code class="docutils literal notranslate"><span class="pre">continuous=True</span></code>:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">simulator_signal_and_noise0_cont</span> <span class="o">=</span> <span class="n">Simulator</span><span class="p">(</span><span class="n">ifo_list</span><span class="p">,</span> <span class="n">N_segs</span><span class="p">,</span> <span class="n">duration</span> <span class="o">=</span> <span class="n">duration</span><span class="p">,</span> <span class="n">intensity_GW</span> <span class="o">=</span> <span class="n">Intensity_GW_inject</span><span class="p">,</span>
+                                       <span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">sampling_frequency</span><span class="p">,</span> <span class="n">no_noise</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">,</span> <span class="n">continuous</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">data_signal_and_noise0_cont</span> <span class="o">=</span> <span class="n">simulator_signal_and_noise0_cont</span><span class="o">.</span><span class="n">get_data_for_interferometers</span><span class="p">()</span>
+<span class="n">simulator_signal_and_noise1_cont</span> <span class="o">=</span> <span class="n">Simulator</span><span class="p">(</span><span class="n">ifo_list</span><span class="p">,</span> <span class="n">N_segs</span><span class="p">,</span> <span class="n">duration</span> <span class="o">=</span> <span class="n">duration</span><span class="p">,</span> <span class="n">intensity_GW</span> <span class="o">=</span> <span class="n">Intensity_GW_inject</span><span class="p">,</span>
+                                       <span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">sampling_frequency</span><span class="p">,</span> <span class="n">no_noise</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="n">N_segs</span><span class="o">*</span><span class="n">duration</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">,</span> <span class="n">continuous</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">data_signal_and_noise1_cont</span> <span class="o">=</span> <span class="n">simulator_signal_and_noise1_cont</span><span class="o">.</span><span class="n">get_data_for_interferometers</span><span class="p">()</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING: AstropyDeprecationWarning: The truth value of a Quantity is ambiguous. In the future this will raise a ValueError. [astropy.units.quantity]
+2023-01-31 13:33:13.488 | INFO     | pygwb.simulator:generate_data:281 - Adding data to channel H1:SIM-STOCH_INJ
+2023-01-31 13:33:13.525 | INFO     | pygwb.simulator:generate_data:281 - Adding data to channel L1:SIM-STOCH_INJ
+2023-01-31 13:33:23.150 | INFO     | pygwb.simulator:generate_data:281 - Adding data to channel H1:SIM-STOCH_INJ
+2023-01-31 13:33:23.185 | INFO     | pygwb.simulator:generate_data:281 - Adding data to channel L1:SIM-STOCH_INJ
+2023-01-31 13:33:32.765 | INFO     | pygwb.simulator:generate_data:281 - Adding data to channel H1:SIM-STOCH_INJ
+2023-01-31 13:33:32.799 | INFO     | pygwb.simulator:generate_data:281 - Adding data to channel L1:SIM-STOCH_INJ
+2023-01-31 13:33:42.657 | INFO     | pygwb.simulator:generate_data:281 - Adding data to channel H1:SIM-STOCH_INJ
+2023-01-31 13:33:42.692 | INFO     | pygwb.simulator:generate_data:281 - Adding data to channel L1:SIM-STOCH_INJ
+2023-01-31 13:33:52.298 | INFO     | pygwb.simulator:generate_data:281 - Adding data to channel H1:SIM-STOCH_INJ
+2023-01-31 13:33:52.334 | INFO     | pygwb.simulator:generate_data:281 - Adding data to channel L1:SIM-STOCH_INJ
+2023-01-31 13:34:01.948 | INFO     | pygwb.simulator:generate_data:281 - Adding data to channel H1:SIM-STOCH_INJ
+2023-01-31 13:34:01.988 | INFO     | pygwb.simulator:generate_data:281 - Adding data to channel L1:SIM-STOCH_INJ
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data_combined_cont</span> <span class="o">=</span> <span class="n">data_signal_and_noise0_cont</span><span class="p">[</span><span class="s1">&#39;H1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_signal_and_noise1_cont</span><span class="p">[</span><span class="s1">&#39;H1&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data_combined_cont</span><span class="o">.</span><span class="n">whiten</span><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="_images/CBC_simulator_tutorial_24_0.png" src="_images/CBC_simulator_tutorial_24_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/CBC_simulator_tutorial_24_1.png" src="_images/CBC_simulator_tutorial_24_1.png" />
+</div>
+</div>
+<p>Everything now looks to be working just fine! Our data looks like one continuous segment of data even though we generated the data in two chunks.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

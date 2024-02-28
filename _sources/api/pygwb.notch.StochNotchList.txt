@@ -1,0 +1,43 @@
+pygwb.notch.StochNotchList
+==========================
+
+.. currentmodule:: pygwb.notch
+
+.. autoclass:: StochNotchList
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+   .. automethod:: __call__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~StochNotchList.__init__
+      ~StochNotchList.append
+      ~StochNotchList.check_frequency
+      ~StochNotchList.clear
+      ~StochNotchList.copy
+      ~StochNotchList.count
+      ~StochNotchList.extend
+      ~StochNotchList.get_notch_mask
+      ~StochNotchList.index
+      ~StochNotchList.insert
+      ~StochNotchList.load_from_file
+      ~StochNotchList.pop
+      ~StochNotchList.remove
+      ~StochNotchList.reverse
+      ~StochNotchList.save_notch_mask
+      ~StochNotchList.save_to_txt
+      ~StochNotchList.sort
+      ~StochNotchList.sort_list
+   
+   
+
+   
+   
+   

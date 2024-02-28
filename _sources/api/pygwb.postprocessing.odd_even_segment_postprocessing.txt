@@ -1,0 +1,6 @@
+pygwb.postprocessing.odd\_even\_segment\_postprocessing
+=======================================================
+
+.. currentmodule:: pygwb.postprocessing
+
+.. autofunction:: odd_even_segment_postprocessing

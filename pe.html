@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parameter estimation using pygwb_pe &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/tabs.css?v=a5c4661c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=0264ad83"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Simulating data with pygwb.simulator" href="simulator.html" />
+    <link rel="prev" title="The pygwb workflow" href="workflow.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pipeline.html">Using <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code>: a quickstart manual</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiple_jobs.html">Running multiple <code class="docutils literal notranslate"><span class="pre">pygwb_pipe</span></code> jobs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stat_checks.html">Running statistical checks with <code class="docutils literal notranslate"><span class="pre">pygwb_stats</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="workflow.html">The <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> workflow</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Parameter estimation using <code class="docutils literal notranslate"><span class="pre">pygwb_pe</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#script-parameters"><strong>1. Script parameters</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#running-the-script"><strong>2. Running the script</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#output-of-the-script"><strong>3. Output of the script</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="simulator.html">Simulating data with <code class="docutils literal notranslate"><span class="pre">pygwb.simulator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="demos.html">Demos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tutorials.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">Parameter estimation using <code class="docutils literal notranslate"><span class="pre">pygwb_pe</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/pe.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="parameter-estimation-using-pygwb-pe">
+<h1>Parameter estimation using <code class="docutils literal notranslate"><span class="pre">pygwb_pe</span></code><a class="headerlink" href="#parameter-estimation-using-pygwb-pe" title="Permalink to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">pygwb_pe</span></code> script performs parameter estimation (PE) as an integral part of the
+analysis, which naturally follows the computation of the optimal estimate of the gravitational-wave background (GWB) performed in <code class="docutils literal notranslate"><span class="pre">pygwb</span></code>.
+Parameter estimation consists of inferring parameters from the data, using Bayesian inference. Concretely, one uses the likelihood</p>
+<div class="math notranslate nohighlight">
+\[p(\hat{C}^{IJ}(f_k) | \mathbf{\Theta}) \propto\exp\left[  -\frac{1}{2} \sum_{IJ}^N \sum_k \left(\frac{\hat{C}^{IJ}(f_k) - \Omega_{\rm M}(f_k|\mathbf{\Theta})}{\sigma_{IJ}(f_k)}\right)^2  \right],\]</div>
+<p>where <span class="math notranslate nohighlight">\(\Omega_{\rm M}(f_k|\mathbf{\Theta})\)</span> is the model being fit to data, and <span class="math notranslate nohighlight">\(\mathbf{\Theta}\)</span> are the model’s parameters.
+This allows to infer, or put constraints on, some GWB model parameters <span class="math notranslate nohighlight">\(\mathbf{\Theta}\)</span>, given the optimal GWB estimator <span class="math notranslate nohighlight">\(\hat{C}^{IJ}(f_k)\)</span> computed
+by <code class="docutils literal notranslate"><span class="pre">pygwb</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> package comes with a script, <code class="docutils literal notranslate"><span class="pre">pygwb_pe</span></code>, which wraps the <code class="docutils literal notranslate"><span class="pre">pygwb.pe</span></code> module. In this tutorial, we show how to
+use this script and describe the basic functionalities. In addition, we show some advanced features of the module in one of the <a class="reference external" href="run_pe.html">demos</a>,
+to illustrate the customizability of the module.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Make sure to also have a look at the <code class="docutils literal notranslate"><span class="pre">pygwb.pe</span></code> <a class="reference external" href="api/pygwb.pe.html">module page</a> before going through the tutorial for additional information.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">pygwb.pe</span></code> module is based on the <code class="docutils literal notranslate"><span class="pre">bilby</span></code> package. For more information, we refer the reader to the documentation of the <code class="docutils literal notranslate"><span class="pre">bilby</span></code> package <a class="reference external" href="https://lscsoft.docs.ligo.org/bilby/index.html">here</a>.</p>
+</div>
+<section id="script-parameters">
+<h2><strong>1. Script parameters</strong><a class="headerlink" href="#script-parameters" title="Permalink to this heading"></a></h2>
+<p>The input paramaters of the <code class="docutils literal notranslate"><span class="pre">pygwb_pe</span></code> script  can be accessed by running</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pygwb_pe<span class="w"> </span>--help
+</pre></div>
+</div>
+<p>This will display the parameters of the script as follows:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pygwb_pe<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span>--input_file<span class="w"> </span>INPUT_FILE<span class="w"> </span><span class="o">[</span>--ifos<span class="w"> </span>IFOS<span class="o">]</span><span class="w"> </span><span class="o">[</span>--model<span class="w"> </span>MODEL<span class="o">][</span>--model_prior_file<span class="w"> </span>MODEL_PRIOR_FILE<span class="o">]</span>
+<span class="o">[</span>--non_prior_args<span class="w"> </span>NON_PRIOR_ARGS<span class="o">]</span><span class="w"> </span><span class="o">[</span>--outdir<span class="w"> </span>OUTDIR<span class="o">][</span>--apply_notching<span class="w"> </span>APPLY_NOTCHING<span class="o">]</span>
+<span class="o">[</span>--notch_list_path<span class="w"> </span>NOTCH_LIST_PATH<span class="o">][</span>--injection_parameters<span class="w"> </span>INJECTION_PARAMETERS<span class="o">]</span>
+<span class="o">[</span>--quantiles<span class="w"> </span>QUANTILES<span class="o">][</span>--calibration_epsilon<span class="w"> </span>CALIBRATION_EPSILON<span class="o">]</span>
+
+optional<span class="w"> </span>arguments:
+<span class="w">    </span>-h,<span class="w"> </span>--help<span class="w">      </span>show<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
+<span class="w">    </span>--input_file<span class="w"> </span>INPUT_FILE
+<span class="w">                    </span>Path<span class="w"> </span>to<span class="w"> </span>data<span class="w"> </span>file<span class="w"> </span><span class="o">(</span>or<span class="w"> </span>pickled<span class="w"> </span>baseline<span class="o">)</span><span class="w"> </span>to<span class="w"> </span>use<span class="w"> </span><span class="k">for</span><span class="w"> </span>analysis.
+<span class="w">    </span>--ifos<span class="w"> </span>IFOS<span class="w">     </span>List<span class="w"> </span>of<span class="w"> </span>names<span class="w"> </span>of<span class="w"> </span>two<span class="w"> </span>interferometers<span class="w"> </span><span class="k">for</span><span class="w"> </span>which<span class="w"> </span>you
+<span class="w">                    </span>want<span class="w"> </span>to<span class="w"> </span>run<span class="w"> </span>PE,<span class="w"> </span>default<span class="w"> </span>is<span class="w"> </span>H1<span class="w"> </span>and<span class="w"> </span>L1.<span class="w"> </span>Not<span class="w"> </span>needed<span class="w"> </span>when
+<span class="w">                    </span>running<span class="w"> </span>from<span class="w"> </span>a<span class="w"> </span>pickled<span class="w"> </span>baseline.
+<span class="w">    </span>--model<span class="w"> </span>MODEL<span class="w">   </span>Model<span class="w"> </span><span class="k">for</span><span class="w"> </span>which<span class="w"> </span>to<span class="w"> </span>run<span class="w"> </span>the<span class="w"> </span>PE.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="s2">&quot;Power-law&quot;</span>.
+<span class="w">    </span>--model_prior_file<span class="w"> </span>MODEL_PRIOR_FILE
+<span class="w">                    </span>Points<span class="w"> </span>to<span class="w"> </span>a<span class="w"> </span>file<span class="w"> </span>with<span class="w"> </span>the<span class="w"> </span>required<span class="w"> </span>parameters<span class="w"> </span><span class="k">for</span><span class="w"> </span>the
+<span class="w">                    </span>model<span class="w"> </span>and<span class="w"> </span>their<span class="w"> </span>priors.<span class="w"> </span>Default<span class="w"> </span>value<span class="w"> </span>is<span class="w"> </span>power-law
+<span class="w">                    </span>parameters<span class="w"> </span>omega_ref<span class="w"> </span>with<span class="w"> </span>LogUniform<span class="w"> </span>bilby<span class="w"> </span>prior<span class="w"> </span>from
+<span class="w">                    </span>1e-11<span class="w"> </span>to<span class="w"> </span>1e-8<span class="w"> </span>and<span class="w"> </span>alpha<span class="w"> </span>with<span class="w"> </span>Uniform<span class="w"> </span>bilby<span class="w"> </span>prior<span class="w"> </span>from
+<span class="w">                    </span>-4<span class="w"> </span>to<span class="w"> </span><span class="m">4</span>.
+<span class="w">    </span>--non_prior_args<span class="w"> </span>NON_PRIOR_ARGS
+<span class="w">                    </span>A<span class="w"> </span>dictionary<span class="w"> </span>with<span class="w"> </span>the<span class="w"> </span>parameters<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>model<span class="w"> </span>that<span class="w"> </span>are
+<span class="w">                    </span>not<span class="w"> </span>associated<span class="w"> </span>with<span class="w"> </span>a<span class="w"> </span>prior,<span class="w"> </span>such<span class="w"> </span>as<span class="w"> </span>the<span class="w"> </span>reference
+<span class="w">                    </span>frequency<span class="w"> </span><span class="k">for</span><span class="w"> </span>Power-Law.<span class="w"> </span>Default<span class="w"> </span>value<span class="w"> </span>is<span class="w"> </span>reference
+<span class="w">                    </span>frequency<span class="w"> </span>at<span class="w"> </span><span class="m">25</span><span class="w"> </span>Hz<span class="w"> </span><span class="k">for</span><span class="w"> </span>the<span class="w"> </span>power-law<span class="w"> </span>model.
+<span class="w">    </span>--outdir<span class="w"> </span>OUTDIR
+<span class="w">                    </span>Output<span class="w"> </span>directory<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>PE<span class="w"> </span><span class="o">(</span>sampler<span class="o">)</span>.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="s2">&quot;./pe_output&quot;</span>.
+<span class="w">    </span>--apply_notching<span class="w"> </span>APPLY_NOTCHING
+<span class="w">                    </span>Apply<span class="w"> </span>notching<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>data.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span>True.
+<span class="w">    </span>--notch_list_path<span class="w"> </span>NOTCH_LIST_PATH
+<span class="w">                    </span>Absolute<span class="w"> </span>path<span class="w"> </span>from<span class="w"> </span>where<span class="w"> </span>you<span class="w"> </span>can<span class="w"> </span>load<span class="w"> </span><span class="k">in</span><span class="w"> </span>notch<span class="w"> </span>list
+<span class="w">                    </span>file.
+<span class="w">    </span>--injection_parameters<span class="w"> </span>INJECTION_PARAMETERS
+<span class="w">                    </span>The<span class="w"> </span>injected<span class="w"> </span>parameters.
+<span class="w">    </span>--quantiles<span class="w"> </span>QUANTILES
+<span class="w">                    </span>The<span class="w"> </span>quantiles<span class="w"> </span>used<span class="w"> </span><span class="k">for</span><span class="w"> </span>plotting<span class="w"> </span><span class="k">in</span><span class="w"> </span>plot<span class="w"> </span>corner.
+<span class="w">                    </span>Default<span class="w"> </span>is<span class="w"> </span><span class="o">[</span><span class="m">0</span>.05,<span class="w"> </span><span class="m">0</span>.95<span class="o">]</span>.
+<span class="w">    </span>--calibration_epsilon<span class="w"> </span>CALIBRATION_EPSILON
+<span class="w">                    </span>Calibration<span class="w"> </span>uncertainty.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="m">0</span>.
+</pre></div>
+</div>
+</section>
+<section id="running-the-script">
+<h2><strong>2. Running the script</strong><a class="headerlink" href="#running-the-script" title="Permalink to this heading"></a></h2>
+<p>The only required argument is the <code class="docutils literal notranslate"><span class="pre">input_file</span></code>, which should point to the output file of a <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> run containing the point estimate spectrum and its variance.
+The script can then simply be run with</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pygwb_pe<span class="w"> </span>--input_file<span class="w"> </span><span class="o">{</span>path_to_pygwb_output_file<span class="o">}</span>
+</pre></div>
+</div>
+<p>The above command would run <code class="docutils literal notranslate"><span class="pre">pygwb_pe</span></code> with all script parameter values set to their default values. However, the various script parameters of <code class="docutils literal notranslate"><span class="pre">pygwb_pe</span></code>,
+as shown above, allow for a certain level of customization. In particular, the <code class="docutils literal notranslate"><span class="pre">pygwb_pe</span></code> script accommodates all the models present in the <code class="docutils literal notranslate"><span class="pre">pygwb.pe</span></code> module through the
+<code class="docutils literal notranslate"><span class="pre">--model</span></code> argument (more information on available models <a class="reference external" href="api/pygwb.pe.html">here</a>). These include:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;Power-Law&quot;</span><span class="p">:</span> <span class="n">pe</span><span class="o">.</span><span class="n">PowerLawModel</span>
+<span class="s2">&quot;Broken-Power-Law&quot;</span><span class="p">:</span> <span class="n">pe</span><span class="o">.</span><span class="n">BrokenPowerLawModel</span>
+<span class="s2">&quot;Triple-Broken-Power-Law&quot;</span><span class="p">:</span> <span class="n">pe</span><span class="o">.</span><span class="n">TripleBrokenPowerLawModel</span>
+<span class="s2">&quot;Smooth-Broken-Power-Law&quot;</span><span class="p">:</span> <span class="n">pe</span><span class="o">.</span><span class="n">SmoothBrokenPowerLawModel</span>
+<span class="s2">&quot;Schumann&quot;</span><span class="p">:</span> <span class="n">pe</span><span class="o">.</span><span class="n">SchumannModel</span>
+<span class="s2">&quot;Parity-Violation&quot;</span><span class="p">:</span> <span class="n">pe</span><span class="o">.</span><span class="n">PVPowerLawModel</span>
+<span class="s2">&quot;Parity-Violation-2&quot;</span><span class="p">:</span> <span class="n">pe</span><span class="o">.</span><span class="n">PVPowerLawModel2</span>
+</pre></div>
+</div>
+<p>Depending on the model choice above, the prior on the model parameters will have to be modified as well. This is handled by a prior file (<code class="docutils literal notranslate"><span class="pre">json</span></code> file format),
+which contains the priors in a dictionary format used for PE (as expected by <a class="reference external" href="https://lscsoft.docs.ligo.org/bilby/prior.html">bilby</a> to run PE). To create such a file,
+one can run the following lines of code (here for a power-law model):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">bilby</span>
+
+<span class="n">priors</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">PriorDict</span><span class="p">()</span>
+
+<span class="n">priors</span><span class="p">[</span><span class="s1">&#39;omega_ref&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">LogUniform</span><span class="p">(</span><span class="mf">1e-13</span><span class="p">,</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="s1">&#39;$</span><span class="se">\\</span><span class="s1">Omega_{</span><span class="se">\\</span><span class="s1">rm ref}$&#39;</span><span class="p">)</span>
+<span class="n">priors</span><span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">Gaussian</span><span class="p">(</span><span class="n">mu</span> <span class="o">=</span> <span class="mi">2</span><span class="o">/</span><span class="mi">3</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> <span class="mf">1.5</span><span class="p">,</span> <span class="n">latex_label</span> <span class="o">=</span> <span class="s1">&#39;$</span><span class="se">\\</span><span class="s1">alpha$&#39;</span><span class="p">)</span>
+
+<span class="n">priors</span><span class="o">.</span><span class="n">to_json</span><span class="p">({</span><span class="n">path_to_where_you_want_to_save_json</span><span class="p">},</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;pe&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This file can then be passed to the script through the <code class="docutils literal notranslate"><span class="pre">--model_prior_file</span></code> argument:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pygwb_pe</span> <span class="o">--</span><span class="n">path_to_file</span> <span class="p">{</span><span class="n">path_to_pygwb_output_file</span><span class="p">}</span> <span class="o">--</span><span class="n">model_prior_file</span> <span class="p">{</span><span class="n">path_to_json_file</span><span class="p">}</span> <span class="o">--</span><span class="n">model</span> <span class="p">{</span><span class="n">chosenn_model</span><span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Make sure to specify all the model parameters of the chosen model in the code above to avoid errors when running the script.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>For more information about the model parameters, see the relevant API PE documentation <a class="reference external" href="api/pygwb.pe.html">pages</a>. Additional information about <code class="docutils literal notranslate"><span class="pre">bilby</span></code> priors can be found
+<a class="reference external" href="https://lscsoft.docs.ligo.org/bilby/prior.html">here</a>.</p>
+</div>
+<p>Other script arguments allow for further customization of the PE run. For example, a notch list can be passed through the <code class="docutils literal notranslate"><span class="pre">--notch_list_path</span></code> to exclude specific
+frequency bins from the analysis. For more information on notching, we refer the reader to the <a class="reference external" href="api/pygwb.notch.html">notch module</a> API page.</p>
+</section>
+<section id="output-of-the-script">
+<h2><strong>3. Output of the script</strong><a class="headerlink" href="#output-of-the-script" title="Permalink to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">pygwb_pe</span></code> script produces the usual output files of a <code class="docutils literal notranslate"><span class="pre">bilby</span></code> PE run and is saved in the <code class="docutils literal notranslate"><span class="pre">--output_dir</span></code> passed when running the script from
+the command line (defaults to <code class="docutils literal notranslate"><span class="pre">./pe_output</span></code>). This directory should contain a <code class="docutils literal notranslate"><span class="pre">result.json</span></code> file and a so-called corner plot (or posterior plot),
+in <code class="docutils literal notranslate"><span class="pre">png</span></code> format, summarizing the results of the PE run. For examples of these corner plots and additional information on the output, we refer the
+reader to the <a class="reference external" href="https://lscsoft.docs.ligo.org/bilby/bilby-output.html">bilby documentation</a>.</p>
+<p>Note that the output of the <code class="docutils literal notranslate"><span class="pre">pygwb_pe</span></code> script can be read in with dedicated <code class="docutils literal notranslate"><span class="pre">bilby</span></code> methods. For example, one can load a PE result as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">Result</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="s2">&quot;my_file.json&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For additional information about the <code class="docutils literal notranslate"><span class="pre">bilby.core.result</span></code> object and its functionalities, we refer the reader to the
+<a class="reference external" href="https://lscsoft.docs.ligo.org/bilby/api/bilby.core.result.Result.html#bilby.core.result.Result">documentation of the class</a>.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Feeling overwhelmed by this tutorial? Make sure to have a look at the <code class="docutils literal notranslate"><span class="pre">pygwb.pe</span></code> <a class="reference external" href="api/pygwb.pe.html">module page</a> for additional information
+about the methods of the module.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>For more information about how to customize your PE runs, make sure to check out the <a class="reference external" href="run_pe.html">PE demo</a>.</p>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="workflow.html" class="btn btn-neutral float-left" title="The pygwb workflow" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="simulator.html" class="btn btn-neutral float-right" title="Simulating data with pygwb.simulator" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pygwb.preprocessing &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=0264ad83"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+        <script src="../../_static/tabs.js?v=3030b3cb"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../../about.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../demos.html">Demos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pygwb.preprocessing</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pygwb.preprocessing</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;The ``preprocessing`` module combines all the functions that handle the preprocessing of the data used in the analysis.</span>
+<span class="sd">This is anything related to the preparation of the data for the ``pygwb`` analysis run.</span>
+<span class="sd">It can read data from frame files, locally or publicly (for additional information on frame files, see `here &lt;https://gwpy.github.io/docs/v0.1/timeseries/gwf.html&gt;`_).</span>
+<span class="sd">Other functionalities include resampling the data, applying a high-pass filter to data or applying a timeshift.</span>
+<span class="sd">These functionalities come together in the triplet of ``preprocessing_data`` functions</span>
+<span class="sd">which read in data and resample and/or high-passe the data on the fly.</span>
+<span class="sd">The triplet can work for a ``gwpy.timeseries.TimeSeries``, a normal array or using a gravitational-wave channel</span>
+<span class="sd">that will read data from that channel using the provided local or public frame files. Another functionality of the module is to </span>
+<span class="sd">gate data based on the gating function in ``gwpy``, ``gwpy.timeseries.TimeSeries.gate``.</span>
+<span class="sd">More information can be found `here &lt;https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeries/#gwpy.timeseries.TimeSeries.gate&gt;`_.</span>
+
+<span class="sd">Examples</span>
+<span class="sd">--------</span>
+
+<span class="sd">As an example, we read in some data from a certain channel and then resample, high-pass and apply gating to the data.</span>
+<span class="sd">First, we have to import the module.</span>
+
+<span class="sd">&gt;&gt;&gt; import pygwb.preprocessing as ppp</span>
+
+<span class="sd">Then, we read in some data using the ``read_data`` method.</span>
+<span class="sd">For concreteness, we read in public data from the LIGO Hanford &quot;H1&quot; detector. This can be done as shown below. </span>
+<span class="sd">The &quot;public&quot; tag indicates we are obtaining public data from the `GWOSC &lt;https://gwosc.org/&gt;`_ servers.</span>
+
+<span class="sd">&gt;&gt;&gt; IFO = &quot;H1&quot;</span>
+<span class="sd">&gt;&gt;&gt; data_timeseries = ppp.read_data(</span>
+<span class="sd">        IFO,</span>
+<span class="sd">        &quot;public&quot;,                   # data_type</span>
+<span class="sd">        &quot;H1:GWOSC-16KHZ_R1_STRAIN&quot;, # channel</span>
+<span class="sd">        1247644138,                 # t0</span>
+<span class="sd">        1247648138,                 # tf</span>
+<span class="sd">        &quot;&quot;,                         # local_data_path</span>
+<span class="sd">        16384                       # input_sample_rate</span>
+<span class="sd">    )</span>
+<span class="sd">&gt;&gt;&gt; print(data_timeseries.sample_rate)</span>
+<span class="sd">16384.0 Hz</span>
+
+<span class="sd">The sample rate is shown for illustrative purposes. Now, we preprocess the data, </span>
+<span class="sd">meaning it is resampled and a high-pass</span>
+<span class="sd">filter is applied to the data. As an example, the data is resampled to 4 kHz.</span>
+
+<span class="sd">&gt;&gt;&gt; new_sample_rate = 4096</span>
+<span class="sd">&gt;&gt;&gt; preprocessed_timeseries = ppp.preprocessing_data_gwpy_timeseries(</span>
+<span class="sd">        IFO,</span>
+<span class="sd">        data_timeseries,</span>
+<span class="sd">        new_sample_rate,</span>
+<span class="sd">        11,        # cutoff_frequency</span>
+<span class="sd">        2,         # number_cropped_seconds</span>
+<span class="sd">        &quot;hamming&quot;, # window_downsampling</span>
+<span class="sd">        &quot;fir&quot;,     # ftype</span>
+<span class="sd">        0          # timeshift</span>
+<span class="sd">    )</span>
+<span class="sd">&gt;&gt;&gt; print(preprocessed_timeseries.sample_rate)</span>
+<span class="sd">4096.0 Hz</span>
+
+<span class="sd">One can see that the sample rate was indeed modified. </span>
+<span class="sd">Another important part of preprocessing is gating the data.</span>
+<span class="sd">In that case, using again default values for parameters, one can run the following lines:</span>
+
+<span class="sd">&gt;&gt;&gt; gated_timeseries, deadtime = ppp.self_gate_data(</span>
+<span class="sd">        preprocessed_timeseries,</span>
+<span class="sd">        1.0,  # gate_tzero</span>
+<span class="sd">        0.5,  # gate_tpad</span>
+<span class="sd">        50.0, # gate_threshold</span>
+<span class="sd">        0.5,  # cluster_window</span>
+<span class="sd">        True  # gate_whiten</span>
+<span class="sd">    )</span>
+
+<span class="sd">More information on the gating procedure can be found `here &lt;https://dcc.ligo.org/public/0172/P2000546/002/gating-mdc.pdf&gt;`_.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">import</span> <span class="nn">lal</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy</span>
+<span class="kn">from</span> <span class="nn">gwpy</span> <span class="kn">import</span> <span class="n">timeseries</span>
+<span class="kn">from</span> <span class="nn">gwpy.segments</span> <span class="kn">import</span> <span class="n">Segment</span><span class="p">,</span> <span class="n">SegmentList</span>
+<span class="kn">from</span> <span class="nn">gwsumm.data.timeseries</span> <span class="kn">import</span> <span class="n">get_timeseries</span>
+
+
+<div class="viewcode-block" id="set_start_time"><a class="viewcode-back" href="../../api/pygwb.preprocessing.set_start_time.html#pygwb.preprocessing.set_start_time">[docs]</a><span class="k">def</span> <span class="nf">set_start_time</span><span class="p">(</span>
+    <span class="n">job_start_GPS</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">job_end_GPS</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">buffer_secs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">segment_duration</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">do_sidereal</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to identify segment start times either with or without sidereal option.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    job_start_GPS: ``int``</span>
+<span class="sd">        Integer indicating the start time (in GPS)</span>
+<span class="sd">        of the data.</span>
+
+<span class="sd">    job_end_GPS: ``int``</span>
+<span class="sd">        Integer indicating the end time (in GPS)</span>
+<span class="sd">        of the data.</span>
+
+<span class="sd">    buffer_secs: ``int``</span>
+<span class="sd">        Number of cropped seconds.</span>
+
+<span class="sd">    segment_duration: ``int``</span>
+<span class="sd">        Duration of each segment.</span>
+
+<span class="sd">    do_sidereal: ``bool``, optional</span>
+<span class="sd">        When this option is turned on, the code </span>
+<span class="sd">        considers sidereal days instead of terrestrial days.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    centered_start_time: ``int``</span>
+<span class="sd">        Integer with the initial time of the segment to be pre-processed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">do_sidereal</span><span class="p">:</span>
+        <span class="n">job_duration</span> <span class="o">=</span> <span class="n">job_end_GPS</span> <span class="o">-</span> <span class="n">job_start_GPS</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="n">job_duration</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">buffer_secs</span><span class="p">)</span> <span class="o">/</span> <span class="n">segment_duration</span><span class="p">)</span>
+        <span class="n">centered_start_time</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">job_start_GPS</span>
+            <span class="o">+</span> <span class="n">buffer_secs</span>
+            <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="n">job_duration</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">buffer_secs</span> <span class="o">-</span> <span class="n">M</span> <span class="o">*</span> <span class="n">segment_duration</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">srfac</span> <span class="o">=</span> <span class="mf">23.9344696</span> <span class="o">/</span> <span class="mi">24</span>
+        <span class="c1"># sidereal time conversion factor</span>
+        <span class="n">srtime</span> <span class="o">=</span> <span class="p">(</span><span class="n">lal</span><span class="o">.</span><span class="n">GreenwichMeanSiderealTime</span><span class="p">(</span><span class="n">job_end_GPS</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span> <span class="o">*</span> <span class="mi">3600</span>
+        <span class="n">md</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">srtime</span><span class="p">,</span> <span class="n">segment_duration</span> <span class="o">/</span> <span class="n">srfac</span><span class="p">)</span>
+        <span class="n">centered_start_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">job_end_GPS</span> <span class="o">+</span> <span class="n">segment_duration</span> <span class="o">-</span> <span class="n">md</span> <span class="o">*</span> <span class="n">srfac</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">centered_start_time</span> <span class="o">-</span> <span class="n">job_end_GPS</span> <span class="o">&lt;</span> <span class="n">buffer_secs</span><span class="p">:</span>
+            <span class="n">centered_start_time</span> <span class="o">=</span> <span class="n">centered_start_time</span> <span class="o">+</span> <span class="n">segment_duration</span>
+    <span class="k">return</span> <span class="n">centered_start_time</span></div>
+
+<div class="viewcode-block" id="read_data"><a class="viewcode-back" href="../../api/pygwb.preprocessing.read_data.html#pygwb.preprocessing.read_data">[docs]</a><span class="k">def</span> <span class="nf">read_data</span><span class="p">(</span>
+    <span class="n">IFO</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">data_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">channel</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">t0</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">tf</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">local_data_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">frametype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">input_sample_rate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16384</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function that read in the data to be used in the</span>
+<span class="sd">    rest of the code.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    IFO: ``str``</span>
+<span class="sd">        Interferometer name for which to retrieve the data.</span>
+
+<span class="sd">    data_type: ``str``</span>
+<span class="sd">        String indicating the type of data to be read,</span>
+<span class="sd">        either:</span>
+<span class="sd">        - &#39;public&#39; : data from GWOSC (https://www.gw-openscience.org/)</span>
+<span class="sd">        - &#39;private&#39; : data from the LIGO-Virgo servers restricted to members of the LIGO-Virgo-KAGRA collaboration</span>
+<span class="sd">        - &#39;local&#39; (if &#39;local_data_path&#39;): locally saved data</span>
+
+<span class="sd">    channel: ``str``</span>
+<span class="sd">        Name of the channel (e.g.: &quot;L1:GWOSC-4KHZ_R1_STRAIN&quot;).</span>
+
+<span class="sd">    t0: ``int``</span>
+<span class="sd">        GPS time of the start of the data taking.</span>
+
+<span class="sd">    tf: ``int``</span>
+<span class="sd">        GPS time of the end of the data taking.</span>
+
+<span class="sd">    frametype: ``str``</span>
+<span class="sd">        Frame type that contains the channel, only used if data_type=private (e.g.: &quot;L1_HOFT_C00&quot;).</span>
+
+<span class="sd">    local_data_path: ``str``, optional</span>
+<span class="sd">        Path where local data (gwf format) is stored.</span>
+
+<span class="sd">    input_sample_rate: ``int``, optional</span>
+<span class="sd">        Sampling rate of the timeseries to be read in Hz. Default is 16384 Hz.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    data: ``gwpy.timeseries.TimeSeries``</span>
+<span class="sd">        Time series containing the requested data.</span>
+
+<span class="sd">    See also</span>
+<span class="sd">    --------</span>
+<span class="sd">    gwpy.timeseries.TimeSeries</span>
+<span class="sd">        More information `here &lt;https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeries/#gwpy.timeseries.TimeSeries&gt;`_.</span>
+<span class="sd">    gwsumm.data.timeseries.get_timeseries</span>
+<span class="sd">        More information `here &lt;https://github.com/gwpy/gwsumm/blob/master/gwsumm/data/timeseries.py&gt;`_.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;public&quot;</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">timeseries</span><span class="o">.</span><span class="n">TimeSeries</span><span class="o">.</span><span class="n">fetch_open_data</span><span class="p">(</span>
+            <span class="n">IFO</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">tf</span><span class="p">,</span> <span class="n">sample_rate</span><span class="o">=</span><span class="n">input_sample_rate</span>
+        <span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">channel</span> <span class="o">=</span> <span class="n">channel</span>
+    <span class="k">elif</span> <span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;private&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">frametype</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="n">frametype</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">get_timeseries</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">segments</span><span class="o">=</span><span class="p">[[</span><span class="n">t0</span><span class="p">,</span> <span class="n">tf</span><span class="p">]],</span> <span class="n">frametype</span><span class="o">=</span><span class="n">frametype</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Something went wrong while getting the data!&quot;</span>
+                             <span class="s2">&quot;There was more than one data stretch returned.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">channel</span> <span class="o">=</span> <span class="n">channel</span>
+    <span class="k">elif</span> <span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;local&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">local_data_path</span><span class="p">):</span>
+            <span class="n">local_data</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">local_data_path</span><span class="p">):</span>
+                <span class="n">local_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">local_data_path</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">local_data</span> <span class="o">=</span> <span class="n">local_data_path</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">timeseries</span><span class="o">.</span><span class="n">TimeSeries</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
+            <span class="n">source</span><span class="o">=</span><span class="n">local_data</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="n">channel</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">t0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">tf</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">channel</span> <span class="o">=</span> <span class="n">channel</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">IFO</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wrong data type. Choose between: public, private and local&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="apply_high_pass_filter"><a class="viewcode-back" href="../../api/pygwb.preprocessing.apply_high_pass_filter.html#pygwb.preprocessing.apply_high_pass_filter">[docs]</a><span class="k">def</span> <span class="nf">apply_high_pass_filter</span><span class="p">(</span>
+    <span class="n">timeseries</span><span class="p">:</span> <span class="n">timeseries</span><span class="o">.</span><span class="n">TimeSeries</span><span class="p">,</span>
+    <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">cutoff_frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">number_cropped_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to apply a high pass filter to a timeseries.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    timeseries: ``gwpy.timeseries.TimeSeries``</span>
+<span class="sd">        Timeseries to which to apply the high pass filter.</span>
+
+<span class="sd">    sample_rate: ``int``</span>
+<span class="sd">        Sampling rate of the timeseries in Hz.</span>
+
+<span class="sd">    cutoff_frequency: ``float``</span>
+<span class="sd">        Frequency (in Hz) from which to start applying the</span>
+<span class="sd">        high pass filter.</span>
+
+<span class="sd">    number_cropped_seconds: ``int``, optional</span>
+<span class="sd">        Number of seconds to remove at the beginning and end</span>
+<span class="sd">        of the high-passed data; default is 2.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    filtered: ``gwpy.timeseries.TimeSeries``</span>
+<span class="sd">        High-pass filtered timeseries.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">zpk</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">butter</span><span class="p">(</span>
+        <span class="mi">16</span><span class="p">,</span> <span class="n">cutoff_frequency</span><span class="p">,</span> <span class="s2">&quot;high&quot;</span><span class="p">,</span> <span class="n">analog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;zpk&quot;</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">sample_rate</span>
+    <span class="p">)</span>
+    <span class="n">filtered</span> <span class="o">=</span> <span class="n">timeseries</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">zpk</span><span class="p">,</span> <span class="n">filtfilt</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">filtered</span> <span class="o">=</span> <span class="n">filtered</span><span class="o">.</span><span class="n">crop</span><span class="p">(</span><span class="o">*</span><span class="n">filtered</span><span class="o">.</span><span class="n">span</span><span class="o">.</span><span class="n">contract</span><span class="p">(</span><span class="n">number_cropped_seconds</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">filtered</span></div>
+
+<div class="viewcode-block" id="resample_filter"><a class="viewcode-back" href="../../api/pygwb.preprocessing.resample_filter.html#pygwb.preprocessing.resample_filter">[docs]</a><span class="k">def</span> <span class="nf">resample_filter</span><span class="p">(</span>
+    <span class="n">time_series_data</span><span class="p">:</span> <span class="n">timeseries</span><span class="o">.</span><span class="n">TimeSeries</span><span class="p">,</span>
+    <span class="n">new_sample_rate</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">cutoff_frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">number_cropped_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">window_downsampling</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;hamming&quot;</span><span class="p">,</span>
+    <span class="n">ftype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;fir&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function doing part of the pre-processing (resampling and filtering)</span>
+<span class="sd">    of the data to be used in the remainder of the code.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    time_series_data: ``gwpy.timeseries.TimeSeries``</span>
+<span class="sd">        Timeseries data to be analysed.</span>
+
+<span class="sd">    new_sample_rate: ``int``</span>
+<span class="sd">        Sampling rate of the downsampled timeseries in Hz.</span>
+
+<span class="sd">    cutoff_frequency: ``float``</span>
+<span class="sd">        Frequency (in Hz) from which to start applying the</span>
+<span class="sd">        high pass filter.</span>
+
+<span class="sd">    number_cropped_seconds: ``int``, optional</span>
+<span class="sd">        Number of seconds to remove at the beginning and end</span>
+<span class="sd">        of the high-passed data. Default is 2.</span>
+
+<span class="sd">    window_downsampling: ``str``, optional</span>
+<span class="sd">        Type of window used to downsample. Default window is hamming.</span>
+
+<span class="sd">    ftype: ``str``</span>
+<span class="sd">        Type of filter to use in the downsampling. Default filter is fir.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    filtered: ``gwpy.timeseries.TimeSeries``</span>
+<span class="sd">        Timeseries containing the filtered and high-passed data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">new_sample_rate</span> <span class="o">*</span> <span class="n">number_cropped_seconds</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">18</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Number of cropped seconds requested </span><span class="si">{</span><span class="n">number_cropped_seconds</span><span class="si">}</span><span class="s2">s is low compared to the sampling rate &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">new_sample_rate</span><span class="si">}</span><span class="s2">: cropped-seconds x sampling-rate = </span><span class="si">{</span><span class="n">number_cropped_seconds</span><span class="o">*</span><span class="n">new_sample_rate</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">data_to_resample</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">time_series_data</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="n">original_times</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">time_series_data</span><span class="o">.</span><span class="n">times</span><span class="p">)</span>
+    <span class="n">nan_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">time_series_data</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>  <span class="c1"># .flatten()</span>
+
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">nan_mask</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">data_nansafe</span> <span class="o">=</span> <span class="n">data_to_resample</span><span class="p">[</span><span class="o">~</span><span class="n">nan_mask</span><span class="p">]</span>
+        <span class="n">times_nansafe</span> <span class="o">=</span> <span class="n">original_times</span><span class="p">[</span><span class="o">~</span><span class="n">nan_mask</span><span class="p">]</span>
+        <span class="n">interped_data</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">CubicSpline</span><span class="p">(</span><span class="n">times_nansafe</span><span class="p">,</span> <span class="n">data_nansafe</span><span class="p">)</span>
+        <span class="n">new</span> <span class="o">=</span> <span class="n">interped_data</span><span class="p">(</span><span class="n">original_times</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">time_series_data</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span>
+        <span class="n">new</span><span class="o">.</span><span class="n">__metadata_finalize__</span><span class="p">(</span><span class="n">time_series_data</span><span class="p">)</span>
+        <span class="n">new</span><span class="o">.</span><span class="n">_unit</span> <span class="o">=</span> <span class="n">time_series_data</span><span class="o">.</span><span class="n">unit</span>
+        <span class="n">resampled</span> <span class="o">=</span> <span class="n">new</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">new_sample_rate</span><span class="p">,</span> <span class="n">window_downsampling</span><span class="p">,</span> <span class="n">ftype</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;There are </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">nan_mask</span><span class="p">)</span><span class="si">}</span><span class="s2"> NaNs in the timestream (</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">nan_mask</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">time_series_data</span><span class="p">)</span><span class="si">}</span><span class="s2">%&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot; of the data). These will be ignored in pre-processing.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">resampled</span> <span class="o">=</span> <span class="n">time_series_data</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span>
+            <span class="n">new_sample_rate</span><span class="p">,</span> <span class="n">window_downsampling</span><span class="p">,</span> <span class="n">ftype</span>
+        <span class="p">)</span>
+
+    <span class="n">sample_rate</span> <span class="o">=</span> <span class="n">resampled</span><span class="o">.</span><span class="n">sample_rate</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">filtered</span> <span class="o">=</span> <span class="n">apply_high_pass_filter</span><span class="p">(</span>
+        <span class="n">timeseries</span><span class="o">=</span><span class="n">resampled</span><span class="p">,</span>
+        <span class="n">sample_rate</span><span class="o">=</span><span class="n">sample_rate</span><span class="p">,</span>
+        <span class="n">cutoff_frequency</span><span class="o">=</span><span class="n">cutoff_frequency</span><span class="p">,</span>
+        <span class="n">number_cropped_seconds</span><span class="o">=</span><span class="n">number_cropped_seconds</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">filtered</span></div>
+
+<div class="viewcode-block" id="self_gate_data"><a class="viewcode-back" href="../../api/pygwb.preprocessing.self_gate_data.html#pygwb.preprocessing.self_gate_data">[docs]</a><span class="k">def</span> <span class="nf">self_gate_data</span><span class="p">(</span>
+    <span class="n">time_series_data</span><span class="p">:</span> <span class="n">timeseries</span><span class="o">.</span><span class="n">TimeSeries</span><span class="p">,</span>
+    <span class="n">tzero</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">tpad</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">gate_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">50.0</span><span class="p">,</span>
+    <span class="n">cluster_window</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">whiten</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">gates</span><span class="p">:</span> <span class="n">SegmentList</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to self-gate</span>
+<span class="sd">    data to be used in the stochastic pipeline.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    time_series_data: ``gwpy.timeseries.TimeSeries``</span>
+<span class="sd">        Timeseries data to be analysed in the pipeline.</span>
+
+<span class="sd">    tzero : ``int``, optional</span>
+<span class="sd">        Half-width time duration (seconds) in which the timeseries is</span>
+<span class="sd">        set to zero. Default is 1.0.</span>
+
+<span class="sd">    tpad : ``int``, optional</span>
+<span class="sd">        Half-width time duration (seconds) in which the Planck window</span>
+<span class="sd">        is tapered. Default is 0.5.</span>
+
+<span class="sd">    whiten : ``bool``, optional</span>
+<span class="sd">        If True, data will be whitened before gating points are discovered,</span>
+<span class="sd">        use of this option is highly recommended. Default is True.</span>
+
+<span class="sd">    gate_threshold : ``float``, optional</span>
+<span class="sd">        Amplitude threshold, if the data exceeds this value a gating window</span>
+<span class="sd">        will be placed. Default is 50.0.</span>
+
+<span class="sd">    cluster_window : ``float``, optional</span>
+<span class="sd">        Time duration (seconds) over which gating points will be clustered.</span>
+<span class="sd">        Default is 0.5.</span>
+
+<span class="sd">    gates: ``gwpy.segments.SegmentList``, optional</span>
+<span class="sd">        Argument where gates can be explicitly given to this function.</span>
+<span class="sd">        Those gates would then be applied to the timeseries data. If not applied, equal to None.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    gated: ``gwpy.timeseries.TimeSeries``</span>
+<span class="sd">        TimeSeries containing the gated data.</span>
+
+<span class="sd">    deadtime: ``gwpy.segments.SegmentList``</span>
+<span class="sd">        SegmentList containing the times that were gated, not including</span>
+<span class="sd">        any padding applied.</span>
+
+<span class="sd">    See also</span>
+<span class="sd">    --------</span>
+<span class="sd">    gwpy.timeseries.TimeSeries.gate</span>
+<span class="sd">        More information `here &lt;https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeries/#gwpy.timeseries.TimeSeries.gate&gt;`_.</span>
+<span class="sd">    gwpy.segments.SegmentList</span>
+<span class="sd">        More information `here &lt;https://gwpy.github.io/docs/stable/api/gwpy.segments.SegmentList/&gt;`_.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">find_peaks</span>
+
+    <span class="c1"># Find points to gate based on a threshold</span>
+    <span class="n">sample</span> <span class="o">=</span> <span class="n">time_series_data</span><span class="o">.</span><span class="n">sample_rate</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;Hz&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+    <span class="k">if</span> <span class="n">gates</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">time_series_data</span><span class="o">.</span><span class="n">whiten</span><span class="p">()</span> <span class="k">if</span> <span class="n">whiten</span> <span class="k">else</span> <span class="n">time_series_data</span>
+        <span class="n">window_samples</span> <span class="o">=</span> <span class="n">cluster_window</span> <span class="o">*</span> <span class="n">sample</span>
+        <span class="n">gates</span> <span class="o">=</span> <span class="n">find_peaks</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">value</span><span class="p">),</span> <span class="n">height</span><span class="o">=</span><span class="n">gate_threshold</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">window_samples</span><span class="p">)[</span>
+            <span class="mi">0</span>
+        <span class="p">]</span>
+    <span class="c1"># represent gates as time segments</span>
+        <span class="n">deadtime</span> <span class="o">=</span> <span class="n">SegmentList</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">Segment</span><span class="p">(</span>
+                    <span class="n">time_series_data</span><span class="o">.</span><span class="n">t0</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="p">(</span><span class="n">k</span> <span class="o">/</span> <span class="n">sample</span><span class="p">)</span> <span class="o">-</span> <span class="n">tzero</span><span class="p">,</span>
+                    <span class="n">time_series_data</span><span class="o">.</span><span class="n">t0</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="p">(</span><span class="n">k</span> <span class="o">/</span> <span class="n">sample</span><span class="p">)</span> <span class="o">+</span> <span class="n">tzero</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">gates</span>
+            <span class="p">]</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">coalesce</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">deadtime</span> <span class="o">=</span> <span class="n">SegmentList</span><span class="p">([</span><span class="n">Segment</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">k</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">gates</span><span class="p">])</span><span class="o">.</span><span class="n">coalesce</span><span class="p">()</span>
+
+    <span class="c1"># return the self-gated timeseries</span>
+    <span class="n">gated</span> <span class="o">=</span> <span class="n">time_series_data</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">deadtime</span><span class="o">=</span><span class="n">deadtime</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">tpad</span><span class="o">=</span><span class="n">tpad</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">gated</span><span class="p">,</span> <span class="n">deadtime</span></div>
+
+<div class="viewcode-block" id="shift_timeseries"><a class="viewcode-back" href="../../api/pygwb.preprocessing.shift_timeseries.html#pygwb.preprocessing.shift_timeseries">[docs]</a><span class="k">def</span> <span class="nf">shift_timeseries</span><span class="p">(</span><span class="n">time_series_data</span><span class="p">:</span> <span class="n">timeseries</span><span class="o">.</span><span class="n">TimeSeries</span><span class="p">,</span> <span class="n">time_shift</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function that shifts a timeseries by an amount ``time_shift``</span>
+<span class="sd">    in order to perform the timeshifted analysis.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    time_series_data: ``gwpy.timeseries.TimeSeries``</span>
+<span class="sd">        Timeseries data to be analysed in the pipeline.</span>
+
+<span class="sd">    time_shift: ``int``, optional</span>
+<span class="sd">        Value of the time shift (in seconds).</span>
+<span class="sd">        Default value is 0.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    shifted_data: ``gwpy.timeseries.TimeSeries``</span>
+<span class="sd">        TimeSeries containing the shifted_data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">time_shift</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">shifted_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span>
+            <span class="n">time_series_data</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">time_shift</span> <span class="o">/</span> <span class="n">time_series_data</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">shifted_data</span> <span class="o">=</span> <span class="n">time_series_data</span>
+    <span class="k">return</span> <span class="n">shifted_data</span></div>
+
+<div class="viewcode-block" id="preprocessing_data_gwpy_timeseries"><a class="viewcode-back" href="../../api/pygwb.preprocessing.preprocessing_data_gwpy_timeseries.html#pygwb.preprocessing.preprocessing_data_gwpy_timeseries">[docs]</a><span class="k">def</span> <span class="nf">preprocessing_data_gwpy_timeseries</span><span class="p">(</span>
+    <span class="n">gwpy_timeseries</span><span class="p">:</span> <span class="n">timeseries</span><span class="o">.</span><span class="n">TimeSeries</span><span class="p">,</span>
+    <span class="n">new_sample_rate</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">cutoff_frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">number_cropped_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">window_downsampling</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;hamming&quot;</span><span class="p">,</span>
+    <span class="n">ftype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;fir&quot;</span><span class="p">,</span>
+    <span class="n">time_shift</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function doing the pre-processing of a gwpy timeseries to be used in the remainder of the code.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+
+<span class="sd">    gwpy_timeseries: ``gwpy.timeseries.TimeSeries``</span>
+<span class="sd">        Timeseries from gwpy.</span>
+
+<span class="sd">    new_sample_rate: ``int``</span>
+<span class="sd">        Sampling rate of the downsampled-timeseries in Hz.</span>
+
+<span class="sd">    cutoff_frequency: ``float``</span>
+<span class="sd">        Frequency (in Hz) from which to start applying the</span>
+<span class="sd">        high pass filter.</span>
+
+<span class="sd">    number_cropped_seconds: ``int``, optional</span>
+<span class="sd">        Number of seconds to remove at the beginning and end</span>
+<span class="sd">        of the high-passed data. Default is 2.</span>
+
+<span class="sd">    window_downsampling: ``str``, optional</span>
+<span class="sd">        Type of window used to downsample.Default value is &quot;hamming&quot;.</span>
+
+<span class="sd">    ftype: ``str``, optional</span>
+<span class="sd">        Type of filter to use in the downsampling. Default is &quot;fir&quot;.</span>
+
+<span class="sd">    time_shift: ``int``, optional</span>
+<span class="sd">        Value of the time shift (in seconds). Default is 0.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    pre_processed_data: ``gwpy.timeseries.TimeSeries``</span>
+<span class="sd">        Timeseries containing the filtered and high passed data (shifted if time_shift&gt;0).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">time_series_data</span> <span class="o">=</span> <span class="n">gwpy_timeseries</span>
+    <span class="n">filtered</span> <span class="o">=</span> <span class="n">resample_filter</span><span class="p">(</span>
+        <span class="n">time_series_data</span><span class="o">=</span><span class="n">time_series_data</span><span class="p">,</span>
+        <span class="n">new_sample_rate</span><span class="o">=</span><span class="n">new_sample_rate</span><span class="p">,</span>
+        <span class="n">cutoff_frequency</span><span class="o">=</span><span class="n">cutoff_frequency</span><span class="p">,</span>
+        <span class="n">number_cropped_seconds</span><span class="o">=</span><span class="n">number_cropped_seconds</span><span class="p">,</span>
+        <span class="n">window_downsampling</span><span class="o">=</span><span class="n">window_downsampling</span><span class="p">,</span>
+        <span class="n">ftype</span><span class="o">=</span><span class="n">ftype</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">time_shift</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">shift_timeseries</span><span class="p">(</span><span class="n">time_series_data</span><span class="o">=</span><span class="n">filtered</span><span class="p">,</span> <span class="n">time_shift</span><span class="o">=</span><span class="n">time_shift</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">filtered</span></div>
+
+<div class="viewcode-block" id="preprocessing_data_channel_name"><a class="viewcode-back" href="../../api/pygwb.preprocessing.preprocessing_data_channel_name.html#pygwb.preprocessing.preprocessing_data_channel_name">[docs]</a><span class="k">def</span> <span class="nf">preprocessing_data_channel_name</span><span class="p">(</span>
+    <span class="n">IFO</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">t0</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">tf</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">data_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">channel</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">new_sample_rate</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">cutoff_frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">segment_duration</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">number_cropped_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">window_downsampling</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;hamming&quot;</span><span class="p">,</span>
+    <span class="n">ftype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;fir&quot;</span><span class="p">,</span>
+    <span class="n">time_shift</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">local_data_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">frametype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">input_sample_rate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16384</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function doing the pre-processing of the data to be used in the</span>
+<span class="sd">    remainder of the code.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    IFO: ``str``</span>
+<span class="sd">        Interferometer name for which to retrieve the data.</span>
+
+<span class="sd">    t0: ``int``</span>
+<span class="sd">        GPS time of the start of the data taking.</span>
+
+<span class="sd">    tf: ``int``</span>
+<span class="sd">        GPS time of the end of the data taking.</span>
+
+<span class="sd">    data_type: ``str``</span>
+<span class="sd">        String indicating the type of data to be read,</span>
+<span class="sd">        either &#39;public&#39;, &#39;private&#39; or &#39;local&#39;.</span>
+
+<span class="sd">    channel: ``str``</span>
+<span class="sd">        Name of the channel (e.g.: &quot;L1:GWOSC-4KHZ_R1_STRAIN&quot;).</span>
+
+<span class="sd">    frametype: ``str``</span>
+<span class="sd">        Frame type that contains the channel, only used if data_type=private (e.g.: &quot;L1_HOFT_C00&quot;).</span>
+
+<span class="sd">    new_sample_rate: ``int``</span>
+<span class="sd">        Sampling rate of the downsampled-timeseries in Hz.</span>
+
+<span class="sd">    cutoff_frequency: ``float``</span>
+<span class="sd">        Frequency (in Hz) from which to start applying the</span>
+<span class="sd">        high pass filter.</span>
+
+<span class="sd">    segment_duration: ``int``</span>
+<span class="sd">        Duration (in seconds) of each segment (argument of set_start_time).</span>
+
+<span class="sd">    number_cropped_seconds: ``int``, optional</span>
+<span class="sd">        Number of seconds to remove at the beginning and end of the high-passed data. Default is 2.</span>
+
+<span class="sd">    window_downsampling: ``str``, optional</span>
+<span class="sd">        Type of window used to downsample. Default is &quot;hamming&quot;.</span>
+
+<span class="sd">    ftype: ``str``, optional</span>
+<span class="sd">        Type of filter to use in the downsampling. Default is &quot;fir&quot;.</span>
+
+<span class="sd">    time_shift: ``int``, optional</span>
+<span class="sd">        Value of the time shift (in seconds). Default is 0.</span>
+<span class="sd">        </span>
+<span class="sd">    local_data_path: ``str``, optional</span>
+<span class="sd">        Path where local gwf frame file is stored. Default is an empty string.</span>
+
+<span class="sd">    input_sample_rate: ``int``, optional.</span>
+<span class="sd">        Sampling rate of the timeseries to be read in Hz. Default is 16384 Hz.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    pre_processed_data: ``gwpy.timeseries.TimeSeries``</span>
+<span class="sd">        Timeseries containing the filtered and high passed data (shifted if time_shift&gt;0).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data_start_time</span> <span class="o">=</span> <span class="n">set_start_time</span><span class="p">(</span>
+        <span class="n">job_start_GPS</span><span class="o">=</span><span class="n">t0</span><span class="p">,</span>
+        <span class="n">job_end_GPS</span><span class="o">=</span><span class="n">tf</span><span class="p">,</span>
+        <span class="n">buffer_secs</span><span class="o">=</span><span class="n">number_cropped_seconds</span><span class="p">,</span>
+        <span class="n">segment_duration</span><span class="o">=</span><span class="n">segment_duration</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">time_series_data</span> <span class="o">=</span> <span class="n">read_data</span><span class="p">(</span>
+        <span class="n">IFO</span><span class="o">=</span><span class="n">IFO</span><span class="p">,</span>
+        <span class="n">data_type</span><span class="o">=</span><span class="n">data_type</span><span class="p">,</span>
+        <span class="n">channel</span><span class="o">=</span><span class="n">channel</span><span class="p">,</span>
+        <span class="n">frametype</span><span class="o">=</span><span class="n">frametype</span><span class="p">,</span>
+        <span class="n">t0</span><span class="o">=</span><span class="n">data_start_time</span> <span class="o">-</span> <span class="n">number_cropped_seconds</span><span class="p">,</span>
+        <span class="n">tf</span><span class="o">=</span><span class="n">tf</span><span class="p">,</span>
+        <span class="n">local_data_path</span><span class="o">=</span><span class="n">local_data_path</span><span class="p">,</span>
+        <span class="n">input_sample_rate</span><span class="o">=</span><span class="n">input_sample_rate</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">preprocessing_data_gwpy_timeseries</span><span class="p">(</span>
+        <span class="n">gwpy_timeseries</span><span class="o">=</span><span class="n">time_series_data</span><span class="p">,</span>
+        <span class="n">new_sample_rate</span><span class="o">=</span><span class="n">new_sample_rate</span><span class="p">,</span>
+        <span class="n">cutoff_frequency</span><span class="o">=</span><span class="n">cutoff_frequency</span><span class="p">,</span>
+        <span class="n">number_cropped_seconds</span><span class="o">=</span><span class="n">number_cropped_seconds</span><span class="p">,</span>
+        <span class="n">window_downsampling</span><span class="o">=</span><span class="n">window_downsampling</span><span class="p">,</span>
+        <span class="n">ftype</span><span class="o">=</span><span class="n">ftype</span><span class="p">,</span>
+        <span class="n">time_shift</span><span class="o">=</span><span class="n">time_shift</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+<div class="viewcode-block" id="preprocessing_data_timeseries_array"><a class="viewcode-back" href="../../api/pygwb.preprocessing.preprocessing_data_timeseries_array.html#pygwb.preprocessing.preprocessing_data_timeseries_array">[docs]</a><span class="k">def</span> <span class="nf">preprocessing_data_timeseries_array</span><span class="p">(</span>
+    <span class="n">t0</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">tf</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">new_sample_rate</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">cutoff_frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">segment_duration</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4096</span><span class="p">,</span>
+    <span class="n">number_cropped_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">window_downsampling</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;hamming&quot;</span><span class="p">,</span>
+    <span class="n">ftype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;fir&quot;</span><span class="p">,</span>
+    <span class="n">time_shift</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function performing the pre-processing of a time-series array to be used in the remainder of the code.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    =======</span>
+<span class="sd">    t0: ``int``</span>
+<span class="sd">        GPS time of the start of the data taking.</span>
+
+<span class="sd">    tf: ``int``</span>
+<span class="sd">        GPS time of the end of the data taking.</span>
+
+<span class="sd">    array: ``np.ndarray``</span>
+<span class="sd">        Array containing a timeseries.</span>
+
+<span class="sd">    new_sample_rate: ``int``</span>
+<span class="sd">        Sampling rate of the downsampled-timeseries in Hz.</span>
+
+<span class="sd">    cutoff_frequency: ``float``</span>
+<span class="sd">        Frequency (in Hz) from which to start applying the</span>
+<span class="sd">        high pass filter.</span>
+
+<span class="sd">    segment_duration: ``int``</span>
+<span class="sd">        Duration (in seconds) of each segment (argument of set_start_time).</span>
+
+<span class="sd">    sample_rate: ``int``, optional</span>
+<span class="sd">        Sampling rate of the original timeseries. Default is 4096 Hz.</span>
+
+<span class="sd">    number_cropped_seconds: ``int``, optional</span>
+<span class="sd">        Number of seconds to remove at the beginning and end</span>
+<span class="sd">        of the high-passed data. Default is 2.</span>
+
+<span class="sd">    window_downsampling: ``str``, optional</span>
+<span class="sd">        Type of window used to downsample. Default is &quot;hamming&quot;.</span>
+
+<span class="sd">    ftype: ``str``, optional</span>
+<span class="sd">        Type of filter to use in the downsampling. Default is &quot;fir&quot;.</span>
+
+<span class="sd">    time_shift: ``int``, optional</span>
+<span class="sd">        Value of the time shift (in seconds). Default is no time shift.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    pre_processed_data: ``gwpy.timeseries.TimeSeries``</span>
+<span class="sd">        Timeseries containing the filtered and high passed data (shifted if time_shift&gt;0).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data_start_time</span> <span class="o">=</span> <span class="n">set_start_time</span><span class="p">(</span>
+        <span class="n">job_start_GPS</span><span class="o">=</span><span class="n">t0</span><span class="p">,</span>
+        <span class="n">job_end_GPS</span><span class="o">=</span><span class="n">tf</span><span class="p">,</span>
+        <span class="n">buffer_secs</span><span class="o">=</span><span class="n">number_cropped_seconds</span><span class="p">,</span>
+        <span class="n">segment_duration</span><span class="o">=</span><span class="n">segment_duration</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">time_series_data</span> <span class="o">=</span> <span class="n">timeseries</span><span class="o">.</span><span class="n">TimeSeries</span><span class="p">(</span>
+        <span class="n">array</span><span class="p">,</span> <span class="n">t0</span><span class="o">=</span><span class="n">data_start_time</span><span class="p">,</span> <span class="n">sample_rate</span><span class="o">=</span><span class="n">sample_rate</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">preprocessing_data_gwpy_timeseries</span><span class="p">(</span>
+        <span class="n">gwpy_timeseries</span><span class="o">=</span><span class="n">time_series_data</span><span class="p">,</span>
+        <span class="n">new_sample_rate</span><span class="o">=</span><span class="n">new_sample_rate</span><span class="p">,</span>
+        <span class="n">cutoff_frequency</span><span class="o">=</span><span class="n">cutoff_frequency</span><span class="p">,</span>
+        <span class="n">number_cropped_seconds</span><span class="o">=</span><span class="n">number_cropped_seconds</span><span class="p">,</span>
+        <span class="n">window_downsampling</span><span class="o">=</span><span class="n">window_downsampling</span><span class="p">,</span>
+        <span class="n">ftype</span><span class="o">=</span><span class="n">ftype</span><span class="p">,</span>
+        <span class="n">time_shift</span><span class="o">=</span><span class="n">time_shift</span><span class="p">,</span>
+    <span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

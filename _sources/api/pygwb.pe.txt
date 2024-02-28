@@ -1,0 +1,41 @@
+﻿pygwb.pe
+========
+
+.. currentmodule:: pygwb.pe
+
+.. automodule:: pygwb.pe
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      BrokenPowerLawModel
+      GWBModel
+      PVPowerLawModel
+      PVPowerLawModel2
+      PowerLawModel
+      SchumannModel
+      SmoothBrokenPowerLawModel
+      TVSPowerLawModel
+      TripleBrokenPowerLawModel
+   
+   
+
+   
+   
+   
+
+
+

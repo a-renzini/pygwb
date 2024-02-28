@@ -1,0 +1,6 @@
+pygwb.postprocessing.combine\_spectra\_with\_sigma\_weights
+===========================================================
+
+.. currentmodule:: pygwb.postprocessing
+
+.. autofunction:: combine_spectra_with_sigma_weights

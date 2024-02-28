@@ -1,0 +1,6 @@
+pygwb.coherence.calculate\_coherence
+====================================
+
+.. currentmodule:: pygwb.coherence
+
+.. autofunction:: calculate_coherence

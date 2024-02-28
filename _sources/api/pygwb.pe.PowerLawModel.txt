@@ -1,0 +1,39 @@
+pygwb.pe.PowerLawModel
+======================
+
+.. currentmodule:: pygwb.pe
+
+.. autoclass:: PowerLawModel
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+   .. automethod:: __call__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PowerLawModel.__init__
+      ~PowerLawModel.log_likelihood
+      ~PowerLawModel.log_likelihood_IJ
+      ~PowerLawModel.log_likelihood_ratio
+      ~PowerLawModel.model_function
+      ~PowerLawModel.noise_log_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PowerLawModel.marginalized_parameters
+      ~PowerLawModel.meta_data
+      ~PowerLawModel.parameters
+   
+   

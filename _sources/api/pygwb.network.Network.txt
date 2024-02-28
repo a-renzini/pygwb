@@ -1,0 +1,33 @@
+pygwb.network.Network
+=====================
+
+.. currentmodule:: pygwb.network
+
+.. autoclass:: Network
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+   .. automethod:: __call__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Network.__init__
+      ~Network.combine_point_estimate_sigma_spectra
+      ~Network.from_baselines
+      ~Network.save_interferometer_data_to_file
+      ~Network.set_duration
+      ~Network.set_frequency_mask
+      ~Network.set_interferometer_data_from_simulator
+      ~Network.set_point_estimate_sigma
+   
+   
+
+   
+   
+   

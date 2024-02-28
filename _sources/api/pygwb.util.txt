@@ -1,0 +1,41 @@
+﻿pygwb.util
+==========
+
+.. currentmodule:: pygwb.util
+
+.. automodule:: pygwb.util
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      StatKS
+      calc_bias
+      calc_rho
+      calc_rho1
+      effective_welch_averages
+      get_window_tuple
+      interpolate_frequency_series
+      omega_to_power
+      parse_window_dict
+      window_factors
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

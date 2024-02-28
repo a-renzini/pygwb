@@ -1,0 +1,6 @@
+pygwb.preprocessing.set\_start\_time
+====================================
+
+.. currentmodule:: pygwb.preprocessing
+
+.. autofunction:: set_start_time

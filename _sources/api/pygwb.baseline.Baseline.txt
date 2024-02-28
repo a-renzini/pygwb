@@ -1,0 +1,70 @@
+pygwb.baseline.Baseline
+=======================
+
+.. currentmodule:: pygwb.baseline
+
+.. autoclass:: Baseline
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+   .. automethod:: __call__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Baseline.__init__
+      ~Baseline.calc_baseline_orf
+      ~Baseline.calculate_delta_sigma_cut
+      ~Baseline.check_sampling_frequencies_match_baseline_ifos
+      ~Baseline.crop_frequencies_average_psd_csd
+      ~Baseline.from_interferometers
+      ~Baseline.from_parameters
+      ~Baseline.load_from_pickle
+      ~Baseline.reweight
+      ~Baseline.save_point_estimate_spectra
+      ~Baseline.save_psds_csds
+      ~Baseline.save_to_pickle
+      ~Baseline.set_average_cross_spectral_density
+      ~Baseline.set_average_power_spectral_densities
+      ~Baseline.set_coherence_spectrum
+      ~Baseline.set_cross_and_power_spectral_density
+      ~Baseline.set_frequency_mask
+      ~Baseline.set_point_estimate_sigma
+      ~Baseline.set_point_estimate_sigma_spectrogram
+      ~Baseline.set_point_estimate_sigma_spectrum
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Baseline.badGPStimes
+      ~Baseline.coherence_dict
+      ~Baseline.coherence_spectrum
+      ~Baseline.csd_segment_offset
+      ~Baseline.delta_sigmas
+      ~Baseline.duration
+      ~Baseline.frequencies
+      ~Baseline.gamma_v
+      ~Baseline.orf_polarization
+      ~Baseline.overlap_reduction_function
+      ~Baseline.point_estimate
+      ~Baseline.point_estimate_spectrogram
+      ~Baseline.point_estimate_spectrum
+      ~Baseline.sampling_frequency
+      ~Baseline.scalar_overlap_reduction_function
+      ~Baseline.sigma
+      ~Baseline.sigma_spectrogram
+      ~Baseline.sigma_spectrum
+      ~Baseline.tensor_overlap_reduction_function
+      ~Baseline.vector_overlap_reduction_function
+   
+   

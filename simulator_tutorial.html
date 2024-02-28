@@ -1,0 +1,1671 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>An introduction to the simulator module &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/tabs.css?v=a5c4661c" />
+      <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=0264ad83"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demos.html">Demos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">An introduction to the simulator module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/simulator_tutorial.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="An-introduction-to-the-simulator-module">
+<h1>An introduction to the simulator module<a class="headerlink" href="#An-introduction-to-the-simulator-module" title="Permalink to this heading"></a></h1>
+<p>The pyGWB simulator module allows for the generation of an isotropic power-law stochastic GW background (GWB) for an arbitrary number of interferometers. In this tutorial, various ways to generate data will be covered, both directly through the simulator module, as well as through the network module (which calls the simulator module).</p>
+<p>Note: for this tutorial, one should have a ‘custom made’ environment where pyGWB is installed and all dependencies are satisfied.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">gwpy</span>
+<span class="kn">import</span> <span class="nn">bilby</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">gwpy.timeseries</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pygwb.detector</span> <span class="kn">import</span> <span class="n">Interferometer</span>
+<span class="kn">from</span> <span class="nn">pygwb.network</span> <span class="kn">import</span> <span class="n">Network</span>
+<span class="c1">#from pygwb.parameters import Parameters</span>
+<span class="kn">from</span> <span class="nn">pygwb.baseline</span> <span class="kn">import</span> <span class="n">Baseline</span>
+<span class="kn">from</span> <span class="nn">pygwb.simulator</span> <span class="kn">import</span> <span class="n">Simulator</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+</pre></div>
+</div>
+</div>
+<section id="Simulating-data-with-the-simulator-module-directly">
+<h2>Simulating data with the simulator module directly<a class="headerlink" href="#Simulating-data-with-the-simulator-module-directly" title="Permalink to this heading"></a></h2>
+<section id="Spectrum-to-inject">
+<h3>Spectrum to inject<a class="headerlink" href="#Spectrum-to-inject" title="Permalink to this heading"></a></h3>
+<p>Among the parameters the simulator module expects is the spectrum to be injected in the form of a gwpy.frequencyseries. This spectrum is the power spectral density (PSD) of the GW signal Below, we define such a spectrum for some injection value of <span class="math notranslate nohighlight">\(\Omega_{\rm ref}\)</span> at a reference frequency <span class="math notranslate nohighlight">\(f_{\rm ref}\)</span>. We will take a relatively large value for <span class="math notranslate nohighlight">\(\Omega_{\rm ref}\)</span> such that the signal is large enough to rise above the noise curve. Note that this function can be used to
+generate any power-law spectrum.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[51]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">frequencies_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+
+<span class="n">alpha1</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">alpha2</span> <span class="o">=</span> <span class="mi">2</span><span class="o">/</span><span class="mi">3</span>
+<span class="n">fref</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">omegaRef</span> <span class="o">=</span> <span class="mf">5.e-5</span>
+
+<span class="k">def</span> <span class="nf">IntensityGW</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">omegaRef</span><span class="p">,</span> <span class="n">alpha1</span><span class="p">,</span> <span class="n">fref</span><span class="p">,</span> <span class="n">alpha2</span> <span class="o">=</span> <span class="mi">2</span><span class="o">/</span><span class="mi">3</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39; GW Intensity function from broken power law in OmegaGW &#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">    PARAMETERS</span>
+<span class="sd">    freqs: np.array</span>
+<span class="sd">        frequency array</span>
+<span class="sd">    fref:</span>
+<span class="sd">        reference frequency</span>
+<span class="sd">    omegaRef:</span>
+<span class="sd">        Value of OmegaGW at reference frequency</span>
+<span class="sd">    alpha1:</span>
+<span class="sd">        first spectral index</span>
+<span class="sd">    alpha2:</span>
+<span class="sd">        second spectral index</span>
+
+<span class="sd">    RETURN</span>
+<span class="sd">    FrequencySeries</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="kn">from</span> <span class="nn">pygwb.constants</span> <span class="kn">import</span> <span class="n">H0</span>
+    <span class="n">H_theor</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">H0</span><span class="o">.</span><span class="n">si</span><span class="o">.</span><span class="n">value</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">fknee</span> <span class="o">=</span> <span class="n">fref</span>
+
+    <span class="n">power</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">freqs</span><span class="p">)</span>
+
+    <span class="n">power</span><span class="p">[</span><span class="n">freqs</span><span class="o">&lt;</span><span class="n">fknee</span><span class="p">]</span> <span class="o">=</span> <span class="n">H_theor</span> <span class="o">*</span> <span class="n">omegaRef</span> <span class="o">*</span> <span class="p">(</span><span class="n">freqs</span><span class="p">[</span><span class="n">freqs</span><span class="o">&lt;</span><span class="n">fknee</span><span class="p">])</span> <span class="o">**</span> <span class="p">(</span><span class="n">alpha1</span> <span class="o">-</span><span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">fref</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="n">alpha1</span><span class="p">)</span>
+    <span class="n">power</span><span class="p">[</span><span class="n">freqs</span><span class="o">&gt;</span><span class="n">fknee</span><span class="p">]</span> <span class="o">=</span> <span class="n">H_theor</span> <span class="o">*</span> <span class="n">omegaRef</span> <span class="o">*</span> <span class="p">(</span><span class="n">freqs</span><span class="p">[</span><span class="n">freqs</span><span class="o">&gt;</span><span class="n">fknee</span><span class="p">])</span> <span class="o">**</span> <span class="p">(</span><span class="n">alpha2</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">fref</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="n">alpha2</span><span class="p">)</span>
+    <span class="n">power</span><span class="p">[</span><span class="n">freqs</span><span class="o">==</span><span class="n">fknee</span><span class="p">]</span> <span class="o">=</span> <span class="n">H_theor</span> <span class="o">*</span> <span class="n">omegaRef</span> <span class="o">*</span> <span class="p">(</span><span class="n">fknee</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="n">alpha2</span> <span class="o">-</span><span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">fref</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="n">alpha2</span><span class="p">)</span>
+
+    <span class="n">power</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">power</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">gwpy</span><span class="o">.</span><span class="n">frequencyseries</span><span class="o">.</span><span class="n">FrequencySeries</span><span class="p">(</span><span class="n">power</span><span class="p">,</span> <span class="n">frequencies</span><span class="o">=</span><span class="n">freqs</span><span class="p">)</span>
+
+<span class="n">Intensity_GW_inject</span> <span class="o">=</span> <span class="n">IntensityGW</span><span class="p">(</span><span class="n">frequencies_x</span><span class="p">,</span> <span class="n">omegaRef</span><span class="p">,</span> <span class="n">alpha1</span><span class="p">,</span> <span class="n">fref</span><span class="p">,</span> <span class="n">alpha2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[52]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">Intensity_GW_inject</span><span class="o">.</span><span class="n">frequencies</span><span class="p">,</span><span class="n">Intensity_GW_inject</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;f [Hz]&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;PSD&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[52]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0, 0.5, &#39;PSD&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/simulator_tutorial_8_1.png" src="_images/simulator_tutorial_8_1.png" />
+</div>
+</div>
+</section>
+<section id="Parameters-for-the-simulation">
+<h3>Parameters for the simulation<a class="headerlink" href="#Parameters-for-the-simulation" title="Permalink to this heading"></a></h3>
+<p>For this tutorial, we will simulate 5 segments (N_segs) of duration 64 (duration) with a sampling frequency of 1024 Hz. This is specified below.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[53]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">duration</span> <span class="o">=</span> <span class="mi">64</span> <span class="c1"># duration of each segment of data (s)</span>
+<span class="n">N_segs</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># number of data segments to generate</span>
+<span class="n">sampling_frequency</span> <span class="o">=</span> <span class="mi">1024</span> <span class="c1"># Hz</span>
+</pre></div>
+</div>
+</div>
+<p>Furthermore, the simulator module expects a list of bilby interferometers for which the data needs to be simulated. For this tutorial, we decide to use H1 and L1 as an example. However, note that the data can be simulated for an arbitrary amount of detectors. One would simply add more detectors to the <em>ifo_list</em> below.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[54]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ifo_H1</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">gw</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">get_empty_interferometer</span><span class="p">(</span><span class="s1">&#39;H1&#39;</span><span class="p">)</span>
+<span class="n">ifo_L1</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">gw</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">get_empty_interferometer</span><span class="p">(</span><span class="s1">&#39;L1&#39;</span><span class="p">)</span>
+
+<span class="n">ifo_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">ifo_H1</span><span class="p">,</span> <span class="n">ifo_L1</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">ifo</span> <span class="ow">in</span> <span class="n">ifo_list</span><span class="p">:</span>
+    <span class="n">ifo</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="n">duration</span>
+    <span class="n">ifo</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">sampling_frequency</span>
+    <span class="n">ifo</span><span class="o">.</span><span class="n">power_spectral_density</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">gw</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">PowerSpectralDensity</span><span class="p">(</span><span class="n">ifo</span><span class="o">.</span><span class="n">frequency_array</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">ifo</span><span class="o">.</span><span class="n">power_spectral_density_array</span><span class="p">,</span> <span class="n">posinf</span><span class="o">=</span><span class="mf">1.e-41</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>We are now ready to simulate data. We consider two cases: one where only the signal is simulated and one where signal and noise are simulated. This can be controlled by the <em>no_noise</em> flag that can be passed to the simulator.</p>
+<section id="Signal-only-(no-noise)">
+<h4>Signal only (no noise)<a class="headerlink" href="#Signal-only-(no-noise)" title="Permalink to this heading"></a></h4>
+<p>Note, since we did not pass the start time of the data, it will default to 0. We now initialize a simulator object and call <em>generate_data()</em> to generate the data.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[55]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">simulator_signal</span> <span class="o">=</span> <span class="n">Simulator</span><span class="p">(</span><span class="n">ifo_list</span><span class="p">,</span> <span class="n">Intensity_GW_inject</span><span class="p">,</span> <span class="n">N_segs</span><span class="p">,</span> <span class="n">duration</span> <span class="o">=</span> <span class="n">duration</span><span class="p">,</span> <span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">sampling_frequency</span><span class="p">,</span> <span class="n">no_noise</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">data_signal</span> <span class="o">=</span> <span class="n">simulator_signal</span><span class="o">.</span><span class="n">generate_data</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+2022-07-07 01:59:17.567 | INFO     | pygwb.simulator:generate_data:222 - Adding data to channel H1:SIM-STOCH_INJ
+2022-07-07 01:59:17.594 | INFO     | pygwb.simulator:generate_data:222 - Adding data to channel L1:SIM-STOCH_INJ
+</pre></div></div>
+</div>
+<p>For illustrative purposes, we plot the time domain strain and the psd of the simulated data below. As shown by the PSD, the simulated data nicely follows the desired spectrum (red line).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[56]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data_signal</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[56]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="_images/simulator_tutorial_19_0.png" src="_images/simulator_tutorial_19_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/simulator_tutorial_19_1.png" src="_images/simulator_tutorial_19_1.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[57]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psd_signal</span> <span class="o">=</span> <span class="n">data_signal</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">psd</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
+<span class="n">frequencies</span> <span class="o">=</span> <span class="n">data_signal</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">psd</span><span class="p">()</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">value</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span><span class="n">psd_signal</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">Intensity_GW_inject</span><span class="o">.</span><span class="n">frequencies</span><span class="p">,</span><span class="n">Intensity_GW_inject</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">512</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;f [Hz]&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;PSD&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[57]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0, 0.5, &#39;PSD&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/simulator_tutorial_20_1.png" src="_images/simulator_tutorial_20_1.png" />
+</div>
+</div>
+<p>As one can see, no noise was added on top of the signal. We now proceed by generating new data, with noise that follows the noise PSD specified in the interferometers passed to the simulator.</p>
+</section>
+<section id="Signal-and-noise">
+<h4>Signal and noise<a class="headerlink" href="#Signal-and-noise" title="Permalink to this heading"></a></h4>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[58]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">simulator_signal_and_noise</span> <span class="o">=</span> <span class="n">Simulator</span><span class="p">(</span><span class="n">ifo_list</span><span class="p">,</span> <span class="n">Intensity_GW_inject</span><span class="p">,</span> <span class="n">N_segs</span><span class="p">,</span> <span class="n">duration</span> <span class="o">=</span> <span class="n">duration</span><span class="p">,</span> <span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">sampling_frequency</span><span class="p">,</span> <span class="n">no_noise</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">data_signal_and_noise</span> <span class="o">=</span> <span class="n">simulator_signal_and_noise</span><span class="o">.</span><span class="n">generate_data</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+2022-07-07 01:59:30.092 | INFO     | pygwb.simulator:generate_data:222 - Adding data to channel H1:SIM-STOCH_INJ
+2022-07-07 01:59:30.116 | INFO     | pygwb.simulator:generate_data:222 - Adding data to channel L1:SIM-STOCH_INJ
+</pre></div></div>
+</div>
+<p>For illustrative purposes, we plot the time domain strain and the psd of the simulated data below.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[59]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data_signal_and_noise</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[59]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="_images/simulator_tutorial_25_0.png" src="_images/simulator_tutorial_25_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/simulator_tutorial_25_1.png" src="_images/simulator_tutorial_25_1.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[60]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psd_signal_and_noise</span> <span class="o">=</span> <span class="n">data_signal_and_noise</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">psd</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
+<span class="n">frequencies</span> <span class="o">=</span> <span class="n">data_signal_and_noise</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">psd</span><span class="p">()</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">value</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span><span class="n">psd_signal_and_noise</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Data&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">Intensity_GW_inject</span><span class="o">.</span><span class="n">frequencies</span><span class="p">,</span><span class="n">Intensity_GW_inject</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Injected signal&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">ifo_H1</span><span class="o">.</span><span class="n">power_spectral_density</span><span class="o">.</span><span class="n">frequency_array</span><span class="p">,</span><span class="n">ifo_H1</span><span class="o">.</span><span class="n">power_spectral_density</span><span class="o">.</span><span class="n">psd_array</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Noise PSD&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">512</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;f [Hz]&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;PSD&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[60]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x7f727ebbe730&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/simulator_tutorial_26_1.png" src="_images/simulator_tutorial_26_1.png" />
+</div>
+</div>
+<p>From this, one sees the injection is visible, but only in regions where it rises above the noise PSD of the detector.</p>
+</section>
+</section>
+</section>
+<section id="Simulating-data-through-the-network-module">
+<h2>Simulating data through the network module<a class="headerlink" href="#Simulating-data-through-the-network-module" title="Permalink to this heading"></a></h2>
+<p>For the second part of this tutorial, we illustrate how simulated data can be generated using the network module. In this case, the <em>set_interferometer_data_from_simulator</em> of the network module is called. Note that this is also the method that one calls to inject simulated data into real detector data. However, we will not consider that case in this tutorial and refer the interested reader to the other tutorial in this directory. We start by creating two empty interferometers and combine them
+into an network object.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[61]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ifo_H1</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">gw</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">get_empty_interferometer</span><span class="p">(</span><span class="s1">&#39;H1&#39;</span><span class="p">)</span>
+<span class="n">ifo_L1</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">gw</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">get_empty_interferometer</span><span class="p">(</span><span class="s1">&#39;L1&#39;</span><span class="p">)</span>
+
+<span class="n">ifo_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">ifo_H1</span><span class="p">,</span> <span class="n">ifo_L1</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">ifo</span> <span class="ow">in</span> <span class="n">ifo_list</span><span class="p">:</span>
+    <span class="n">ifo</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="n">duration</span>
+    <span class="n">ifo</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">sampling_frequency</span>
+    <span class="n">ifo</span><span class="o">.</span><span class="n">power_spectral_density</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">gw</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">PowerSpectralDensity</span><span class="p">(</span><span class="n">ifo</span><span class="o">.</span><span class="n">frequency_array</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">ifo</span><span class="o">.</span><span class="n">power_spectral_density_array</span><span class="p">,</span> <span class="n">posinf</span><span class="o">=</span><span class="mf">1.e-41</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[62]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">HL_network</span> <span class="o">=</span> <span class="n">Network</span><span class="p">(</span><span class="s2">&quot;HL_network&quot;</span><span class="p">,</span><span class="n">ifo_list</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Given a network object, one can call the <em>set_interferometer_data_from_simulator</em> to inject data in the interferometers of the network. This is illustrated below.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[63]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">HL_network</span><span class="o">.</span><span class="n">set_interferometer_data_from_simulator</span><span class="p">(</span><span class="n">Intensity_GW_inject</span><span class="p">,</span> <span class="n">N_segs</span><span class="p">,</span> <span class="n">sampling_frequency</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">inject_into_data_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+2022-07-07 01:59:46.442 | INFO     | pygwb.simulator:generate_data:222 - Adding data to channel H1:SIM-STOCH_INJ
+2022-07-07 01:59:46.466 | INFO     | pygwb.simulator:generate_data:222 - Adding data to channel L1:SIM-STOCH_INJ
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[64]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data_H1</span><span class="o">=</span><span class="n">ifo_H1</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">to_gwpy_timeseries</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>We now plot both the time domain strain and the PSD of the data in the H1 interferometer. Similar plots can be made for L1.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[65]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data_H1</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[65]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="_images/simulator_tutorial_36_0.png" src="_images/simulator_tutorial_36_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/simulator_tutorial_36_1.png" src="_images/simulator_tutorial_36_1.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[66]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psd_signal_and_noise</span> <span class="o">=</span> <span class="n">data_H1</span><span class="o">.</span><span class="n">psd</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
+<span class="n">frequencies</span> <span class="o">=</span> <span class="n">data_H1</span><span class="o">.</span><span class="n">psd</span><span class="p">()</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">value</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span><span class="n">psd_signal_and_noise</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Data&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">Intensity_GW_inject</span><span class="o">.</span><span class="n">frequencies</span><span class="p">,</span><span class="n">Intensity_GW_inject</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Injected signal&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">ifo_H1</span><span class="o">.</span><span class="n">power_spectral_density</span><span class="o">.</span><span class="n">frequency_array</span><span class="p">,</span><span class="n">ifo_H1</span><span class="o">.</span><span class="n">power_spectral_density</span><span class="o">.</span><span class="n">psd_array</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Noise PSD&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">512</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;f [Hz]&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;PSD&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[66]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x7f72886a2ac0&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/simulator_tutorial_37_1.png" src="_images/simulator_tutorial_37_1.png" />
+</div>
+</div>
+<p>This illustrates how one can use a network object to simulate data for the interferometers of the network. As mentioned earlier, the way to inject simulated data into real detector data is completely analogous to this case and is discussed in the other tutorial in this tutorial directory.</p>
+</section>
+<section id="Recovery-test:-averaged-PSD">
+<h2>Recovery test: averaged PSD<a class="headerlink" href="#Recovery-test:-averaged-PSD" title="Permalink to this heading"></a></h2>
+<p>The above tests provide a first indication that the simulator works. We now proceed by performing 200 injections and looking at the average PSD of those 200 injections. We first define our signal to inject.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[67]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">frequencies_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+
+<span class="n">alpha1</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">alpha2</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">fref</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">omegaRef</span> <span class="o">=</span> <span class="mf">5.e-5</span>
+
+<span class="k">def</span> <span class="nf">IntensityGW</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">omegaRef</span><span class="p">,</span> <span class="n">alpha1</span><span class="p">,</span> <span class="n">fref</span><span class="p">,</span> <span class="n">alpha2</span> <span class="o">=</span> <span class="mi">2</span><span class="o">/</span><span class="mi">3</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39; GW Intensity function from broken power law in OmegaGW &#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">    PARAMETERS</span>
+<span class="sd">    freqs: np.array</span>
+<span class="sd">        frequency array</span>
+<span class="sd">    fref:</span>
+<span class="sd">        reference frequency</span>
+<span class="sd">    omegaRef:</span>
+<span class="sd">        Value of OmegaGW at reference frequency</span>
+<span class="sd">    alpha1:</span>
+<span class="sd">        first spectral index</span>
+<span class="sd">    alpha2:</span>
+<span class="sd">        second spectral index</span>
+
+<span class="sd">    RETURN</span>
+<span class="sd">    FrequencySeries</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="kn">from</span> <span class="nn">pygwb.constants</span> <span class="kn">import</span> <span class="n">H0</span>
+    <span class="n">H_theor</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">H0</span><span class="o">.</span><span class="n">si</span><span class="o">.</span><span class="n">value</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">fknee</span> <span class="o">=</span> <span class="n">fref</span>
+
+    <span class="n">power</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">freqs</span><span class="p">)</span>
+
+    <span class="n">power</span><span class="p">[</span><span class="n">freqs</span><span class="o">&lt;</span><span class="n">fknee</span><span class="p">]</span> <span class="o">=</span> <span class="n">H_theor</span> <span class="o">*</span> <span class="n">omegaRef</span> <span class="o">*</span> <span class="p">(</span><span class="n">freqs</span><span class="p">[</span><span class="n">freqs</span><span class="o">&lt;</span><span class="n">fknee</span><span class="p">])</span> <span class="o">**</span> <span class="p">(</span><span class="n">alpha1</span> <span class="o">-</span><span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">fref</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="n">alpha1</span><span class="p">)</span>
+    <span class="n">power</span><span class="p">[</span><span class="n">freqs</span><span class="o">&gt;</span><span class="n">fknee</span><span class="p">]</span> <span class="o">=</span> <span class="n">H_theor</span> <span class="o">*</span> <span class="n">omegaRef</span> <span class="o">*</span> <span class="p">(</span><span class="n">freqs</span><span class="p">[</span><span class="n">freqs</span><span class="o">&gt;</span><span class="n">fknee</span><span class="p">])</span> <span class="o">**</span> <span class="p">(</span><span class="n">alpha2</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">fref</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="n">alpha2</span><span class="p">)</span>
+    <span class="n">power</span><span class="p">[</span><span class="n">freqs</span><span class="o">==</span><span class="n">fknee</span><span class="p">]</span> <span class="o">=</span> <span class="n">H_theor</span> <span class="o">*</span> <span class="n">omegaRef</span> <span class="o">*</span> <span class="p">(</span><span class="n">fknee</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="n">alpha2</span> <span class="o">-</span><span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">fref</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="n">alpha2</span><span class="p">)</span>
+
+    <span class="c1">#power[freqs&lt;10.]= omegaRef * (10. / fref) ** alpha1</span>
+    <span class="n">power</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">power</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">gwpy</span><span class="o">.</span><span class="n">frequencyseries</span><span class="o">.</span><span class="n">FrequencySeries</span><span class="p">(</span><span class="n">power</span><span class="p">,</span> <span class="n">frequencies</span><span class="o">=</span><span class="n">freqs</span><span class="p">)</span>
+
+<span class="n">Intensity_GW_inject</span> <span class="o">=</span> <span class="n">IntensityGW</span><span class="p">(</span><span class="n">frequencies_x</span><span class="p">,</span> <span class="n">omegaRef</span> <span class="o">=</span> <span class="n">omegaRef</span><span class="p">,</span> <span class="n">alpha1</span> <span class="o">=</span> <span class="n">alpha1</span><span class="p">,</span> <span class="n">fref</span> <span class="o">=</span> <span class="n">fref</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The parameters used for the injection are the following.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">duration</span> <span class="o">=</span> <span class="mi">64</span>
+<span class="c1"># duration of each segment of data (s)</span>
+<span class="n">N_segs</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="c1"># number of data segments to generate</span>
+<span class="n">sampling_frequency</span> <span class="o">=</span> <span class="mi">1024</span>
+<span class="c1"># Hz</span>
+</pre></div>
+</div>
+</div>
+<p>We can now set up the two interferometers used in this simulation study (H and L)</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ifo_H1</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">gw</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">get_empty_interferometer</span><span class="p">(</span><span class="s1">&#39;H1&#39;</span><span class="p">)</span>
+<span class="n">ifo_L1</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">gw</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">get_empty_interferometer</span><span class="p">(</span><span class="s1">&#39;L1&#39;</span><span class="p">)</span>
+
+<span class="n">ifo_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">ifo_H1</span><span class="p">,</span> <span class="n">ifo_L1</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">ifo</span> <span class="ow">in</span> <span class="n">ifo_list</span><span class="p">:</span>
+    <span class="n">ifo</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="n">duration</span>
+    <span class="n">ifo</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">sampling_frequency</span>
+    <span class="n">ifo</span><span class="o">.</span><span class="n">power_spectral_density</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">gw</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">PowerSpectralDensity</span><span class="p">(</span><span class="n">ifo</span><span class="o">.</span><span class="n">frequency_array</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">ifo</span><span class="o">.</span><span class="n">power_spectral_density_array</span><span class="p">,</span> <span class="n">posinf</span><span class="o">=</span><span class="mf">1.e-41</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>The PSD will be fit to a straight line (on a log-log plot) to recover the injected Omega value. This function is defined in the cell below.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">a</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">+</span><span class="n">b</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="id1">
+<h3>Signal and noise<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
+<p>We first simulate the data 200 times with signal and noise. We then proceed by taking the PSD of the data and look at the average PSD over the 200 realizations.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">Ntests</span><span class="o">=</span><span class="mi">200</span>
+
+<span class="n">psd_array_H1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Ntests</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">gwpy</span><span class="o">.</span><span class="n">frequencyseries</span><span class="o">.</span><span class="n">FrequencySeries</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ntests</span><span class="p">):</span>
+    <span class="n">simulator_1</span> <span class="o">=</span> <span class="n">Simulator</span><span class="p">(</span><span class="n">ifo_list</span><span class="p">,</span> <span class="n">Intensity_GW_inject</span><span class="p">,</span> <span class="n">N_segments</span> <span class="o">=</span> <span class="n">N_segs</span><span class="p">,</span> <span class="n">duration</span> <span class="o">=</span> <span class="n">duration</span><span class="p">,</span> <span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">sampling_frequency</span><span class="p">)</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">simulator_1</span><span class="o">.</span><span class="n">generate_data</span><span class="p">()</span>
+    <span class="n">data_H1</span><span class="p">,</span> <span class="n">data_L1</span> <span class="o">=</span> <span class="n">dataset</span>
+
+    <span class="n">psd_array_H1</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">=</span><span class="n">data_H1</span><span class="o">.</span><span class="n">psd</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+2022-05-23 00:10:54.539 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:10:54.551 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:10:57.238 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:10:57.251 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:10:59.977 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:10:59.988 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:11:02.689 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:11:02.704 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:11:05.427 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:11:05.439 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:11:08.093 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:11:08.104 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:11:10.849 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:11:10.861 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:11:13.558 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:11:13.569 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:11:16.307 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:11:16.318 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:11:19.039 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:11:19.050 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:11:21.766 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:11:21.777 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:11:24.472 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:11:24.483 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:11:27.233 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:11:27.244 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:11:29.954 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:11:29.965 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:11:32.685 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:11:32.698 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:11:35.426 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:11:35.437 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:11:38.146 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:11:38.158 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:11:40.926 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:11:40.938 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:11:43.645 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:11:43.656 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:11:46.431 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:11:46.446 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:11:49.213 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:11:49.223 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:11:51.938 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:11:51.950 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:11:54.634 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:11:54.645 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:11:57.346 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:11:57.357 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:12:00.048 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:12:00.059 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:12:02.806 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:12:02.820 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:12:05.557 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:12:05.569 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:12:08.303 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:12:08.314 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:12:11.040 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:12:11.050 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:12:13.781 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:12:13.791 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:12:16.505 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:12:16.516 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:12:19.228 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:12:19.239 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:12:21.935 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:12:21.947 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:12:24.659 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:12:24.670 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:12:27.434 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:12:27.445 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:12:30.165 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:12:30.176 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:12:32.900 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:12:32.912 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:12:35.607 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:12:35.618 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:12:38.333 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:12:38.343 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:12:41.084 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:12:41.095 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:12:43.868 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:12:43.880 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:12:46.611 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:12:46.621 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:12:49.383 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:12:49.393 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:12:52.091 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:12:52.102 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:12:54.833 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:12:54.845 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:12:57.557 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:12:57.568 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:13:00.327 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:13:00.338 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:13:03.031 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:13:03.048 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:13:05.798 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:13:05.810 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:13:08.534 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:13:08.545 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:13:11.268 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:13:11.280 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:13:14.000 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:13:14.010 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:13:16.702 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:13:16.713 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:13:19.412 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:13:19.422 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:13:22.152 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:13:22.164 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:13:24.870 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:13:24.882 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:13:27.570 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:13:27.581 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:13:30.307 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:13:30.318 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:13:33.059 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:13:33.071 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:13:35.804 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:13:35.816 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:13:38.596 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:13:38.608 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:13:41.354 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:13:41.365 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:13:44.051 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:13:44.062 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:13:46.741 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:13:46.751 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:13:49.485 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:13:49.495 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:13:52.178 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:13:52.189 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:13:54.938 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:13:54.949 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:13:57.655 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:13:57.666 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:14:00.419 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:14:00.431 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:14:03.216 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:14:03.230 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:14:05.959 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:14:05.970 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:14:08.669 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:14:08.680 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:14:11.386 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:14:11.397 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:14:14.094 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:14:14.105 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:14:16.841 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:14:16.851 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:14:19.586 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:14:19.601 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:14:22.360 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:14:22.370 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:14:25.076 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:14:25.088 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:14:27.774 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:14:27.785 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:14:30.462 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:14:30.472 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:14:33.173 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:14:33.185 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:14:35.893 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:14:35.904 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:14:38.565 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:14:38.576 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:14:41.272 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:14:41.282 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:14:43.952 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:14:43.962 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:14:46.693 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:14:46.705 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:14:49.383 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:14:49.394 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:14:52.075 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:14:52.087 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:14:54.764 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:14:54.775 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:14:57.469 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:14:57.480 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:15:00.154 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:15:00.165 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:15:02.869 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:15:02.884 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:15:05.614 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:15:05.625 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:15:08.310 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:15:08.321 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:15:11.029 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:15:11.040 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:15:13.756 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:15:13.767 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:15:16.524 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:15:16.534 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:15:19.239 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:15:19.250 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:15:21.987 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:15:21.998 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:15:24.633 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:15:24.648 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:15:27.406 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:15:27.417 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:15:30.204 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:15:30.215 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:15:33.002 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:15:33.014 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:15:35.741 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:15:35.754 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:15:38.487 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:15:38.499 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:15:41.294 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:15:41.306 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:15:44.040 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:15:44.052 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:15:46.768 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:15:46.780 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:15:49.499 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:15:49.510 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:15:52.190 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:15:52.201 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:15:54.949 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:15:54.959 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:15:57.709 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:15:57.721 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:16:00.421 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:16:00.432 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:16:03.122 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:16:03.138 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:16:05.865 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:16:05.875 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:16:08.606 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:16:08.617 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:16:11.303 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:16:11.313 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:16:14.029 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:16:14.040 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:16:16.784 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:16:16.795 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:16:19.506 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:16:19.516 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:16:22.230 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:16:22.240 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:16:24.930 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:16:24.944 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:16:27.630 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:16:27.645 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:16:30.399 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:16:30.410 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:16:33.142 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:16:33.153 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:16:35.895 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:16:35.906 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:16:38.635 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:16:38.647 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:16:41.349 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:16:41.360 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:16:44.047 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:16:44.059 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:16:46.798 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:16:46.809 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:16:49.525 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:16:49.537 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:16:52.268 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:16:52.284 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:16:55.029 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:16:55.040 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:16:57.755 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:16:57.766 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:17:00.485 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:17:00.500 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:17:03.241 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:17:03.252 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:17:05.975 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:17:05.986 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:17:08.723 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:17:08.733 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:17:11.437 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:17:11.448 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:17:14.163 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:17:14.174 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:17:16.884 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:17:16.894 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:17:19.621 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:17:19.632 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:17:22.348 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:17:22.359 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:17:25.110 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:17:25.121 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:17:27.885 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:17:27.896 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:17:30.613 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:17:30.624 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:17:33.366 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:17:33.377 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:17:36.061 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:17:36.072 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:17:38.751 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:17:38.761 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:17:41.454 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:17:41.465 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:17:44.175 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:17:44.186 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:17:46.891 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:17:46.902 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:17:49.641 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:17:49.652 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:17:52.367 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:17:52.377 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:17:55.051 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:17:55.062 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:17:57.769 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:17:57.780 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:18:00.474 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:18:00.485 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:18:03.197 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:18:03.209 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:18:05.899 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:18:05.910 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:18:08.620 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:18:08.631 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:18:11.311 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:18:11.321 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:18:14.039 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:18:14.050 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:18:16.753 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:18:16.764 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:18:19.474 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:18:19.485 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:18:22.151 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:18:22.161 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:18:24.865 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:18:24.876 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:18:27.586 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:18:27.597 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:18:30.268 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:18:30.279 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:18:32.968 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:18:32.980 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:18:35.672 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:18:35.684 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:18:38.404 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:18:38.416 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:18:41.131 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:18:41.142 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:18:43.849 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:18:43.860 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:18:46.566 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:18:46.578 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:18:49.283 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:18:49.294 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:18:51.979 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:18:51.990 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:18:54.651 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:18:54.662 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:18:57.329 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:18:57.340 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:19:00.025 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:19:00.036 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:19:02.770 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:19:02.783 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:19:05.464 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:19:05.475 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:19:08.168 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:19:08.179 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:19:10.863 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:19:10.873 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:19:13.551 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:19:13.562 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:19:16.240 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:19:16.250 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:19:18.911 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:19:18.922 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:19:21.670 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:19:21.685 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:19:24.406 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:19:24.416 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:19:27.185 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:19:27.196 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:19:29.900 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:19:29.910 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:19:32.615 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:19:32.626 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:19:35.350 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:19:35.361 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:19:38.073 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:19:38.083 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:19:40.777 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:19:40.787 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:19:43.457 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:19:43.468 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:19:46.155 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:19:46.164 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:19:48.896 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:19:48.907 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:19:51.647 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:19:51.658 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:19:54.377 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:19:54.388 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:19:57.151 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:19:57.161 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">freqs_1</span><span class="o">=</span><span class="n">psd_array_H1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">value</span>
+<span class="n">mask_1</span><span class="o">=</span><span class="p">(</span><span class="n">freqs_1</span><span class="o">&gt;</span><span class="mi">25</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">freqs_1</span><span class="o">&lt;</span><span class="mi">100</span><span class="p">)</span>
+
+<span class="n">psd_average</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">psd_array_H1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="c1"># psd_array_L1=np.zeros(Ntests)</span>
+
+<span class="c1"># spectral_array=np.zeros(Ntests)</span>
+<span class="c1"># intercept_array=np.zeros(Ntests)</span>
+<span class="c1"># mask1=(frequencies&gt;20)&amp;(frequencies&lt;200)</span>
+
+<span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ntests</span><span class="p">):</span>
+    <span class="n">psd_average</span><span class="o">+=</span><span class="mi">1</span><span class="o">/</span><span class="n">Ntests</span><span class="o">*</span><span class="n">psd_array_H1</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+
+<span class="n">popt</span><span class="p">,</span><span class="n">pcov</span><span class="o">=</span><span class="n">optimize</span><span class="o">.</span><span class="n">curve_fit</span><span class="p">(</span><span class="n">func</span><span class="p">,</span><span class="n">freqs_1</span><span class="p">[</span><span class="n">mask_1</span><span class="p">],</span><span class="n">psd_average</span><span class="p">[</span><span class="n">mask_1</span><span class="p">])</span>
+
+<span class="n">spectral_avg</span><span class="o">=</span><span class="n">popt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">intercept_avg</span><span class="o">=</span><span class="n">popt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>The numbers below report the values from the fit and look at the difference between injected and fitted parameters (spectral index and Omega). The somewhat large difference in Omega recovery is attributed to the noise. We therefore consider the signal only case below.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pygwb.constants</span> <span class="kn">import</span> <span class="n">H0</span>
+<span class="n">H_theor</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">H0</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="n">omegaRef_avg</span><span class="o">=</span><span class="n">func</span><span class="p">(</span><span class="n">fref</span><span class="p">,</span><span class="n">spectral_avg</span><span class="p">,</span><span class="n">intercept_avg</span><span class="p">)</span><span class="o">/</span><span class="n">H_theor</span><span class="o">*</span><span class="n">fref</span><span class="o">**</span><span class="mi">3</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fit spectral index from PSD average: </span><span class="si">{</span><span class="n">spectral_avg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fit Omega(fref) from PSD average: </span><span class="si">{</span><span class="n">omegaRef_avg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;% difference between spectral indices: </span><span class="si">{</span><span class="mi">100</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">spectral_avg</span><span class="o">-</span><span class="p">(</span><span class="mi">2</span><span class="o">/</span><span class="mi">3</span><span class="o">-</span><span class="mi">3</span><span class="p">))</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">/</span><span class="mi">3</span><span class="o">-</span><span class="mi">3</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;% difference between Omega(fref): </span><span class="si">{</span><span class="mi">100</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">omegaRef</span><span class="o">-</span><span class="n">omegaRef_avg</span><span class="p">)</span><span class="o">/</span><span class="n">omegaRef</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+fit spectral index from PSD average: -2.311242553049733
+fit Omega(fref) from PSD average: 5.290843104709632e-05
+% difference between spectral indices: 0.9467477264400146
+% difference between Omega(fref): 5.816862094192637
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mask_2</span> <span class="o">=</span> <span class="p">(</span><span class="n">freqs_1</span><span class="o">&gt;</span><span class="mi">10</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">freqs_1</span><span class="o">&lt;</span><span class="n">freqs_1</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">mask_3</span> <span class="o">=</span> <span class="p">(</span><span class="n">Intensity_GW_inject</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">value</span><span class="o">&gt;</span><span class="mi">10</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">Intensity_GW_inject</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">value</span><span class="o">&lt;</span><span class="n">freqs_1</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">mask_4</span> <span class="o">=</span> <span class="p">(</span><span class="n">ifo_H1</span><span class="o">.</span><span class="n">power_spectral_density</span><span class="o">.</span><span class="n">frequency_array</span><span class="o">&gt;</span><span class="mi">10</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">ifo_H1</span><span class="o">.</span><span class="n">power_spectral_density</span><span class="o">.</span><span class="n">frequency_array</span><span class="o">&lt;</span><span class="n">freqs_1</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;font.size&#39;</span><span class="p">:</span> <span class="mi">22</span><span class="p">})</span>
+<span class="n">ax</span><span class="p">,</span> <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">ifo_H1</span><span class="o">.</span><span class="n">power_spectral_density</span><span class="o">.</span><span class="n">frequency_array</span><span class="p">[</span><span class="n">mask_4</span><span class="p">],</span> <span class="n">ifo_H1</span><span class="o">.</span><span class="n">power_spectral_density</span><span class="o">.</span><span class="n">psd_array</span><span class="p">[</span><span class="n">mask_4</span><span class="p">],</span> <span class="n">linewidth</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;noise PSD&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">freqs_1</span><span class="p">[</span><span class="n">mask_2</span><span class="p">],</span> <span class="n">psd_average</span><span class="p">[</span><span class="n">mask_2</span><span class="p">],</span> <span class="n">linewidth</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;average PSD&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">Intensity_GW_inject</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="n">mask_3</span><span class="p">],</span> <span class="n">Intensity_GW_inject</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="n">mask_3</span><span class="p">],</span> <span class="n">linewidth</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;injected power&#39;</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">freqs_1</span><span class="p">[</span><span class="n">mask_1</span><span class="p">],</span> <span class="n">func</span><span class="p">(</span><span class="n">freqs_1</span><span class="p">[</span><span class="n">mask_1</span><span class="p">],</span><span class="n">spectral_avg</span><span class="p">,</span><span class="n">intercept_avg</span><span class="p">),</span> <span class="n">linewidth</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;magenta&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;average fit&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;frequencies (Hz)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;PSD&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0, 0.5, &#39;PSD&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/simulator_tutorial_54_1.png" src="_images/simulator_tutorial_54_1.png" />
+</div>
+</div>
+</section>
+<section id="Signal-only">
+<h3>Signal only<a class="headerlink" href="#Signal-only" title="Permalink to this heading"></a></h3>
+<p>We repeat the above test, but now for signal only in the data.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">Ntests</span><span class="o">=</span><span class="mi">200</span>
+
+<span class="n">psd_array_H1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Ntests</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">gwpy</span><span class="o">.</span><span class="n">frequencyseries</span><span class="o">.</span><span class="n">FrequencySeries</span><span class="p">)</span>
+<span class="c1"># psd_array_L1=np.zeros(Ntests)</span>
+
+<span class="c1"># spectral_array=np.zeros(Ntests)</span>
+<span class="c1"># intercept_array=np.zeros(Ntests)</span>
+<span class="c1"># mask1=(frequencies&gt;20)&amp;(frequencies&lt;200)</span>
+
+<span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ntests</span><span class="p">):</span>
+    <span class="n">simulator_1</span> <span class="o">=</span> <span class="n">Simulator</span><span class="p">(</span><span class="n">ifo_list</span><span class="p">,</span> <span class="n">Intensity_GW_inject</span><span class="p">,</span> <span class="n">N_segments</span> <span class="o">=</span> <span class="n">N_segs</span><span class="p">,</span> <span class="n">duration</span> <span class="o">=</span> <span class="n">duration</span><span class="p">,</span> <span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">sampling_frequency</span><span class="p">,</span> <span class="n">no_noise</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">simulator_1</span><span class="o">.</span><span class="n">generate_data</span><span class="p">()</span>
+    <span class="n">data_H1</span><span class="p">,</span> <span class="n">data_L1</span> <span class="o">=</span> <span class="n">dataset</span>
+
+    <span class="n">psd_array_H1</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">=</span><span class="n">data_H1</span><span class="o">.</span><span class="n">psd</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+2022-05-23 00:29:41.276 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:29:41.289 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:29:42.684 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:29:42.697 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:29:44.078 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:29:44.090 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:29:45.468 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:29:45.480 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:29:46.860 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:29:46.872 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:29:48.231 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:29:48.242 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:29:49.651 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:29:49.663 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:29:51.047 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:29:51.059 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:29:52.433 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:29:52.445 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:29:53.882 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:29:53.897 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:29:55.312 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:29:55.324 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:29:56.704 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:29:56.716 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:29:58.087 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:29:58.099 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:29:59.478 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:29:59.489 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:00.849 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:00.861 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:02.249 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:02.261 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:03.628 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:03.640 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:05.005 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:05.016 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:06.405 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:06.417 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:07.787 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:07.799 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:09.180 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:09.191 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:10.570 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:10.582 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:11.999 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:12.012 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:13.388 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:13.402 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:14.791 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:14.803 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:16.190 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:16.201 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:17.590 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:17.602 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:18.981 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:18.992 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:20.355 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:20.366 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:21.744 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:21.756 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:23.139 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:23.152 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:24.541 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:24.553 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:25.911 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:25.922 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:27.297 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:27.309 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:28.712 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:28.723 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:30.100 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:30.112 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:31.510 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:31.522 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:32.971 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:32.982 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:34.402 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:34.413 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:35.790 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:35.801 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:37.199 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:37.212 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:38.588 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:38.600 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:39.974 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:39.986 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:41.366 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:41.378 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:42.796 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:42.812 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:44.210 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:44.221 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:45.621 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:45.632 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:47.049 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:47.062 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:48.451 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:48.463 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:49.839 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:49.853 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:51.232 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:51.244 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:52.634 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:52.646 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:54.021 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:54.032 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:55.429 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:55.442 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:56.837 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:56.848 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:58.249 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:58.261 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:30:59.666 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:30:59.678 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:01.067 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:01.080 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:02.475 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:02.487 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:03.863 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:03.876 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:05.255 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:05.266 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:06.662 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:06.674 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:08.051 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:08.063 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:09.458 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:09.471 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:10.859 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:10.872 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:12.273 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:12.285 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:13.689 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:13.703 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:15.094 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:15.105 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:16.490 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:16.502 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:17.883 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:17.895 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:19.270 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:19.282 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:20.649 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:20.662 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:22.045 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:22.058 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:23.450 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:23.461 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:24.843 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:24.854 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:26.235 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:26.247 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:27.629 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:27.641 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:29.013 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:29.024 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:30.403 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:30.413 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:31.807 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:31.819 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:33.189 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:33.201 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:34.577 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:34.589 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:35.976 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:35.989 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:37.371 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:37.382 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:38.767 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:38.780 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:40.180 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:40.192 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:41.571 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:41.587 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:43.010 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:43.022 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:44.426 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:44.439 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:45.857 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:45.869 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:47.267 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:47.279 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:48.682 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:48.695 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:50.093 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:50.104 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:51.496 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:51.509 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:52.905 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:52.917 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:54.323 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:54.335 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:55.722 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:55.734 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:57.162 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:57.177 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:58.586 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:58.599 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:31:59.986 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:31:59.997 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:01.385 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:01.397 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:02.801 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:02.812 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:04.243 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:04.255 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:05.645 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:05.656 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:07.049 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:07.062 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:08.446 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:08.458 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:09.833 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:09.845 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:11.237 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:11.249 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:12.615 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:12.626 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:14.015 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:14.029 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:15.433 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:15.445 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:16.870 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:16.881 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:18.249 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:18.262 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:19.629 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:19.642 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:20.999 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:21.011 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:22.373 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:22.385 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:23.757 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:23.769 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:25.164 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:25.176 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:26.552 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:26.563 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:27.938 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:27.950 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:29.332 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:29.344 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:30.724 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:30.737 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:32.128 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:32.140 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:33.567 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:33.579 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:34.963 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:34.979 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:36.418 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:36.431 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:37.832 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:37.844 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:39.250 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:39.262 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:40.674 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:40.691 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:42.091 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:42.103 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:43.517 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:43.530 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:44.942 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:44.954 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:46.366 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:46.378 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:47.795 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:47.808 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:49.185 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:49.197 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:50.565 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:50.577 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:51.928 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:51.941 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:53.311 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:53.322 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:54.707 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:54.720 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:56.102 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:56.114 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:57.491 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:57.503 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:32:58.901 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:32:58.912 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:00.307 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:00.319 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:01.724 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:01.736 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:03.105 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:03.118 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:04.496 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:04.507 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:05.876 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:05.887 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:07.267 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:07.279 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:08.700 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:08.711 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:10.146 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:10.159 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:11.568 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:11.580 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:12.948 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:12.960 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:14.404 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:14.419 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:15.839 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:15.853 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:17.237 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:17.249 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:18.653 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:18.667 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:20.042 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:20.054 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:21.446 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:21.459 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:22.836 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:22.852 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:24.249 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:24.261 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:25.642 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:25.654 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:27.029 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:27.041 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:28.432 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:28.443 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:29.839 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:29.852 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:31.224 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:31.235 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:32.616 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:32.628 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:34.017 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:34.031 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:35.421 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:35.433 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:36.818 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:36.831 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:38.226 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:38.238 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:39.613 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:39.625 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:40.990 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:41.007 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:42.436 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:42.449 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:43.824 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:43.836 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:45.212 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:45.225 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:46.594 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:46.606 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:47.978 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:47.991 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:49.352 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:49.364 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:50.715 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:50.727 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:52.112 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:52.123 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:53.491 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:53.503 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:54.849 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:54.862 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:56.199 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:56.211 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:57.586 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:57.598 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:33:58.965 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:33:58.977 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:34:00.369 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:34:00.381 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:34:01.771 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:34:01.782 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:34:03.146 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:34:03.157 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:34:04.527 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:34:04.539 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:34:05.963 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:34:05.976 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:34:07.379 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:34:07.391 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:34:08.779 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:34:08.792 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:34:10.182 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:34:10.195 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:34:11.577 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:34:11.590 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:34:12.987 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:34:13.004 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:34:14.446 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:34:14.458 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:34:15.852 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:34:15.864 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:34:17.271 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:34:17.283 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:34:18.682 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:34:18.694 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+2022-05-23 00:34:20.096 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel H1:SIM-STOCH_INJ
+2022-05-23 00:34:20.108 | INFO     | pygwb.simulator:generate_data:214 - Adding data to channel L1:SIM-STOCH_INJ
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">freqs_1</span><span class="o">=</span><span class="n">psd_array_H1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">value</span>
+<span class="n">mask_1</span><span class="o">=</span><span class="p">(</span><span class="n">freqs_1</span><span class="o">&gt;</span><span class="mi">10</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">freqs_1</span><span class="o">&lt;</span><span class="mi">512</span><span class="p">)</span>
+
+<span class="n">psd_average</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">psd_array_H1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="c1"># psd_array_L1=np.zeros(Ntests)</span>
+
+<span class="c1"># spectral_array=np.zeros(Ntests)</span>
+<span class="c1"># intercept_array=np.zeros(Ntests)</span>
+<span class="c1"># mask1=(frequencies&gt;20)&amp;(frequencies&lt;200)</span>
+
+<span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ntests</span><span class="p">):</span>
+    <span class="n">psd_average</span><span class="o">+=</span><span class="mi">1</span><span class="o">/</span><span class="n">Ntests</span><span class="o">*</span><span class="n">psd_array_H1</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+
+<span class="n">popt</span><span class="p">,</span><span class="n">pcov</span><span class="o">=</span><span class="n">optimize</span><span class="o">.</span><span class="n">curve_fit</span><span class="p">(</span><span class="n">func</span><span class="p">,</span><span class="n">freqs_1</span><span class="p">[</span><span class="n">mask_1</span><span class="p">],</span><span class="n">psd_average</span><span class="p">[</span><span class="n">mask_1</span><span class="p">])</span>
+
+<span class="n">spectral_avg</span><span class="o">=</span><span class="n">popt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">intercept_avg</span><span class="o">=</span><span class="n">popt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pygwb.constants</span> <span class="kn">import</span> <span class="n">H0</span>
+<span class="n">H_theor</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">H0</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="n">omegaRef_avg</span><span class="o">=</span><span class="n">func</span><span class="p">(</span><span class="n">fref</span><span class="p">,</span><span class="n">spectral_avg</span><span class="p">,</span><span class="n">intercept_avg</span><span class="p">)</span><span class="o">/</span><span class="n">H_theor</span><span class="o">*</span><span class="n">fref</span><span class="o">**</span><span class="mi">3</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fit spectral index from PSD average: </span><span class="si">{</span><span class="n">spectral_avg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fit Omega(fref) from PSD average: </span><span class="si">{</span><span class="n">omegaRef_avg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;% difference between spectral indices: </span><span class="si">{</span><span class="mi">100</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">spectral_avg</span><span class="o">-</span><span class="p">(</span><span class="mi">2</span><span class="o">/</span><span class="mi">3</span><span class="o">-</span><span class="mi">3</span><span class="p">))</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">/</span><span class="mi">3</span><span class="o">-</span><span class="mi">3</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;% difference between Omega(fref): </span><span class="si">{</span><span class="mi">100</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">omegaRef</span><span class="o">-</span><span class="n">omegaRef_avg</span><span class="p">)</span><span class="o">/</span><span class="n">omegaRef</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+fit spectral index from PSD average: -2.3422843687995503
+fit Omega(fref) from PSD average: 5.030512956769551e-05
+% difference between spectral indices: 0.383615805695005
+% difference between Omega(fref): 0.6102591353910112
+</pre></div></div>
+</div>
+<p>As expected, the difference between injected and recovered is less when only the signal is injected without the noise.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mask_2</span> <span class="o">=</span> <span class="p">(</span><span class="n">freqs_1</span><span class="o">&gt;</span><span class="mi">10</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">freqs_1</span><span class="o">&lt;</span><span class="n">freqs_1</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">mask_3</span> <span class="o">=</span> <span class="p">(</span><span class="n">Intensity_GW_inject</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">value</span><span class="o">&gt;</span><span class="mi">10</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">Intensity_GW_inject</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">value</span><span class="o">&lt;</span><span class="n">freqs_1</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">mask_4</span> <span class="o">=</span> <span class="p">(</span><span class="n">ifo_H1</span><span class="o">.</span><span class="n">power_spectral_density</span><span class="o">.</span><span class="n">frequency_array</span><span class="o">&gt;</span><span class="mi">10</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">ifo_H1</span><span class="o">.</span><span class="n">power_spectral_density</span><span class="o">.</span><span class="n">frequency_array</span><span class="o">&lt;</span><span class="n">freqs_1</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;font.size&#39;</span><span class="p">:</span> <span class="mi">22</span><span class="p">})</span>
+<span class="n">ax</span><span class="p">,</span> <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">freqs_1</span><span class="p">[</span><span class="n">mask_2</span><span class="p">],</span> <span class="n">psd_average</span><span class="p">[</span><span class="n">mask_2</span><span class="p">],</span> <span class="n">linewidth</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;average PSD&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">Intensity_GW_inject</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="n">mask_3</span><span class="p">],</span> <span class="n">Intensity_GW_inject</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="n">mask_3</span><span class="p">],</span> <span class="n">linewidth</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;injected power&#39;</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">freqs_1</span><span class="p">[</span><span class="n">mask_1</span><span class="p">],</span> <span class="n">func</span><span class="p">(</span><span class="n">freqs_1</span><span class="p">[</span><span class="n">mask_1</span><span class="p">],</span><span class="n">spectral_avg</span><span class="p">,</span><span class="n">intercept_avg</span><span class="p">),</span> <span class="n">linewidth</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;magenta&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;average fit&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;frequencies (Hz)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;PSD&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0, 0.5, &#39;PSD&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/simulator_tutorial_61_1.png" src="_images/simulator_tutorial_61_1.png" />
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

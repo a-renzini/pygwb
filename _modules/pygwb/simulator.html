@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pygwb.simulator &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=0264ad83"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+        <script src="../../_static/tabs.js?v=3030b3cb"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../../about.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../demos.html">Demos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pygwb.simulator</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pygwb.simulator</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides an easy-to-use tool to simulate data, both a stochastic gravitational-wave </span>
+<span class="sd">background, as well as individual compact binary coalescence waveforms.</span>
+<span class="sd">    </span>
+<span class="sd">Examples</span>
+<span class="sd">--------</span>
+<span class="sd">    </span>
+<span class="sd">To illustrate how to create a ``simulator`` object, we start by </span>
+<span class="sd">importing the relevant packages:</span>
+<span class="sd">    </span>
+<span class="sd">&gt;&gt;&gt; import numpy as np</span>
+<span class="sd">&gt;&gt;&gt; from pygwb.simulator import Simulator</span>
+<span class="sd">&gt;&gt;&gt; import bilby.gw.detector as bilbydet</span>
+<span class="sd">    </span>
+<span class="sd">For concreteness, we will simulate a signal for the LIGO Hanford-Livingston</span>
+<span class="sd">baseline. We create the two detectors as follows:</span>
+<span class="sd">    </span>
+<span class="sd">&gt;&gt;&gt; H1 = bilbydet.get_empty_interferometer(&#39;H1&#39;)</span>
+<span class="sd">&gt;&gt;&gt; L1 = bilbydet.get_empty_interferometer(&#39;L1&#39;)</span>
+<span class="sd">    </span>
+<span class="sd">As an example, we consider a flat signal PSD:</span>
+<span class="sd">    </span>
+<span class="sd">&gt;&gt;&gt; freqs = np.linspace(0, 1000, 10000)</span>
+<span class="sd">&gt;&gt;&gt; signal = gwpy.frequencyseries.FrequencySeries(1e-42*np.ones(10000), frequencies=freqs)</span>
+<span class="sd">    </span>
+<span class="sd">The simulator object is then created as follows:</span>
+<span class="sd">    </span>
+<span class="sd">&gt;&gt;&gt; simulator_object = Simulator(interferometers = [H1,L1], N_segments = 1, duration = 64, </span>
+<span class="sd">    sampling_frequency = 1024, intensity_GW = signal)</span>
+<span class="sd">        </span>
+<span class="sd">The actual data is then simulated by calling the ``generate_data`` method:</span>
+<span class="sd">    </span>
+<span class="sd">&gt;&gt;&gt; data = simulator_object.generate_data()</span>
+<span class="sd">    </span>
+<span class="sd">For more information, we refer the reader to the ``simulator`` tutorials.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">bilby</span>
+<span class="kn">import</span> <span class="nn">gwpy</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">bilby.core.utils</span> <span class="kn">import</span> <span class="n">create_frequency_series</span>
+<span class="kn">from</span> <span class="nn">gwpy.timeseries</span> <span class="kn">import</span> <span class="n">TimeSeries</span>
+<span class="kn">from</span> <span class="nn">loguru</span> <span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="kn">from</span> <span class="nn">pygwb.baseline</span> <span class="kn">import</span> <span class="n">Baseline</span><span class="p">,</span> <span class="n">get_baselines</span>
+<span class="kn">from</span> <span class="nn">pygwb.util</span> <span class="kn">import</span> <span class="n">interpolate_frequency_series</span>
+
+
+<div class="viewcode-block" id="Simulator"><a class="viewcode-back" href="../../api/pygwb.simulator.Simulator.html#pygwb.simulator.Simulator">[docs]</a><span class="k">class</span> <span class="nc">Simulator</span><span class="p">:</span>
+<div class="viewcode-block" id="Simulator.__init__"><a class="viewcode-back" href="../../api/pygwb.simulator.Simulator.html#pygwb.simulator.Simulator.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">interferometers</span><span class="p">,</span>
+        <span class="n">N_segments</span><span class="p">,</span>
+        <span class="n">duration</span><span class="p">,</span>
+        <span class="n">sampling_frequency</span><span class="p">,</span>
+        <span class="n">intensity_GW</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">injection_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">start_time</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">no_noise</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">orf_polarization</span><span class="o">=</span><span class="s2">&quot;tensor&quot;</span><span class="p">,</span>
+        <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">continuous</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create an instance of the the ``simulator`` class. </span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        interferometers: ``list``</span>
+<span class="sd">            List of bilby interferometer objects.</span>
+
+<span class="sd">        intensity_GW: ``gwpy.frequencyseries.FrequencySeries``, optional</span>
+<span class="sd">            A gwpy.frequencyseries.FrequencySeries containing the desired strain power spectrum</span>
+<span class="sd">            which needs to be simulated. Defaults to None (then ``injection_dict`` should be passed).</span>
+<span class="sd">        </span>
+<span class="sd">        injection_dict: ``dict``, optional</span>
+<span class="sd">            Dictionary containing the parameters of CBC injections. Defaults to None (then </span>
+<span class="sd">            ``intensity_GW`` should be passed). </span>
+
+<span class="sd">        N_segments: ``int``</span>
+<span class="sd">            Number of segments that needs to be generated for the simulation.</span>
+
+<span class="sd">        duration: ``float``</span>
+<span class="sd">            Duration of a simulated data segment in seconds.</span>
+
+<span class="sd">        sampling_frequency: ``float``</span>
+<span class="sd">            Sampling frequency in Hz.</span>
+
+<span class="sd">        start_time: ``float``, optional</span>
+<span class="sd">            Start time (in seconds) of the simulation. Defaults to 0.</span>
+
+<span class="sd">        no_noise: ``boolean``, optional</span>
+<span class="sd">            Flag that sets the noise_PSDs to 0. Defaults to False.</span>
+
+<span class="sd">        seed: ``int``, optional</span>
+<span class="sd">            Seed to use for random data generation. Defaults to None.</span>
+
+<span class="sd">        continuous: ``boolean``, optional</span>
+<span class="sd">            Flag to generate continuous segments. If True, a seed must also be provided. Defaults to False. </span>
+<span class="sd">        </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+
+<span class="sd">        A range of spectral indices (from -3 to 3) was tested. However, one should be </span>
+<span class="sd">        careful for spectral indices outside of this range, as the splicing procedure </span>
+<span class="sd">        implemented in this module is known to introduce a bias for some values of the </span>
+<span class="sd">        spectral index (usually large negative numbers).</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        pygwb.baseline.get_baselines</span>
+
+<span class="sd">        pygwb.util.interpolate_frequency_series</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">interferometers</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Number of interferometers should be at least 2&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span> <span class="o">=</span> <span class="n">interferometers</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Nd</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">sampling_frequency</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="n">duration</span>
+
+            <span class="k">for</span> <span class="n">ifo</span> <span class="ow">in</span> <span class="n">interferometers</span><span class="p">:</span>
+                <span class="n">ifo</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span>
+                <span class="n">ifo</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">N_segments</span> <span class="o">=</span> <span class="n">N_segments</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_frequencies</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">Nf</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">t0</span> <span class="o">=</span> <span class="n">start_time</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">N_samples_per_segment</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">deltaT</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">noise_PSD_array</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_noise_PSD_array</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">no_noise</span> <span class="o">=</span> <span class="n">no_noise</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">continuous</span> <span class="o">=</span> <span class="n">continuous</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">continuous</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must provide a seed to generate continuous segments&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">no_noise</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">noise_PSD_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">noise_PSD_array</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">baselines</span> <span class="o">=</span> <span class="n">get_baselines</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span><span class="p">,</span> <span class="n">frequencies</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">baseline</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">baselines</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">baseline</span><span class="o">.</span><span class="n">_orf_polarization_set</span><span class="p">:</span>
+                    <span class="n">baseline</span><span class="o">.</span><span class="n">orf_polarization</span> <span class="o">=</span> <span class="s2">&quot;tensor&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">orf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_orf</span><span class="p">(</span><span class="n">polarization</span><span class="o">=</span><span class="n">orf_polarization</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">intensity_GW</span> <span class="o">=</span> <span class="n">intensity_GW</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">intensity_GW</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">intensity_GW</span> <span class="o">=</span> <span class="n">interpolate_frequency_series</span><span class="p">(</span>
+                    <span class="n">intensity_GW</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">injection_dict</span> <span class="o">=</span> <span class="n">injection_dict</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">intensity_GW</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">injection_dict</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Must provide at least one of intensity_GW or self.injection_dict&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Simulator.get_frequencies"><a class="viewcode-back" href="../../api/pygwb.simulator.Simulator.html#pygwb.simulator.Simulator.get_frequencies">[docs]</a>    <span class="k">def</span> <span class="nf">get_frequencies</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes an array of frequencies given sampling frequency and duration of the simulator object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        </span>
+<span class="sd">        frequencies: ``array_like``</span>
+<span class="sd">            Array containing the computed frequencies.</span>
+<span class="sd">            </span>
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        bilby.core.utils.create_frequency_series</span>
+<span class="sd">            More information `here &lt;https://lscsoft.docs.ligo.org/bilby/api/bilby.core.utils.series.create_frequency_series.html&gt;`_.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">frequencies</span> <span class="o">=</span> <span class="n">create_frequency_series</span><span class="p">(</span>
+            <span class="n">sampling_frequency</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">duration</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">frequencies</span></div>
+
+<div class="viewcode-block" id="Simulator.get_noise_PSD_array"><a class="viewcode-back" href="../../api/pygwb.simulator.Simulator.html#pygwb.simulator.Simulator.get_noise_PSD_array">[docs]</a>    <span class="k">def</span> <span class="nf">get_noise_PSD_array</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function that gets the noise PSD array of all the interferometers.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        </span>
+<span class="sd">        noise_PSDs_array: ``array_like``</span>
+<span class="sd">            Array containing the noise PSD arrays for all interferometers in</span>
+<span class="sd">            self.interferometers.</span>
+<span class="sd">            </span>
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        pygwb.util.interpolate_frequency_series</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">noise_PSDs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ifo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span><span class="p">:</span>
+                <span class="n">psd_temp</span> <span class="o">=</span> <span class="n">ifo</span><span class="o">.</span><span class="n">power_spectral_density</span><span class="o">.</span><span class="n">psd_array</span>
+                <span class="n">freqs_temp</span> <span class="o">=</span> <span class="n">ifo</span><span class="o">.</span><span class="n">power_spectral_density</span><span class="o">.</span><span class="n">frequency_array</span>
+
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">psd_temp</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;The noisePSD of interferometer </span><span class="si">{</span><span class="n">ifo</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> contains infs!&quot;</span>
+                    <span class="p">)</span>
+                <span class="n">psd</span> <span class="o">=</span> <span class="n">gwpy</span><span class="o">.</span><span class="n">frequencyseries</span><span class="o">.</span><span class="n">FrequencySeries</span><span class="p">(</span>
+                    <span class="n">psd_temp</span><span class="p">,</span> <span class="n">frequencies</span><span class="o">=</span><span class="n">freqs_temp</span>
+                <span class="p">)</span>
+                <span class="n">psd_interpolated</span> <span class="o">=</span> <span class="n">interpolate_frequency_series</span><span class="p">(</span><span class="n">psd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">)</span>
+
+                <span class="n">noise_PSDs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">psd_interpolated</span><span class="o">.</span><span class="n">value</span><span class="p">[:])</span>
+
+                <span class="n">noise_PSDs_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">noise_PSDs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">noise_PSDs_array</span>
+
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                <span class="s2">&quot;The noisePSD of all the detectors needs to be specified!&quot;</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Simulator.get_orf"><a class="viewcode-back" href="../../api/pygwb.simulator.Simulator.html#pygwb.simulator.Simulator.get_orf">[docs]</a>    <span class="k">def</span> <span class="nf">get_orf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">polarization</span><span class="o">=</span><span class="s2">&quot;tensor&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function that returns a list containing the overlap reduction functions</span>
+<span class="sd">        for all the baselines in self.baselines.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        polarization: ``str``, optional</span>
+<span class="sd">            Polarization for which to generate the overlap reduction function. Defaults to tensor.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+
+<span class="sd">        orf_list: ``list``</span>
+<span class="sd">            List containing the overlap reduction functions for all the baselines</span>
+<span class="sd">            in self.baselines.</span>
+<span class="sd">            </span>
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        pygwb.baseline.overlap_reduction_function</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">orf_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">baselines</span><span class="p">:</span>
+            <span class="n">base</span><span class="o">.</span><span class="n">orf_polarization</span> <span class="o">=</span> <span class="n">polarization</span>
+        <span class="n">orfs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">baseline</span><span class="o">.</span><span class="n">overlap_reduction_function</span> <span class="k">for</span> <span class="n">baseline</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">baselines</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">orf</span> <span class="ow">in</span> <span class="n">orfs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">orf</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="n">orf</span> <span class="o">=</span> <span class="n">orf</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">orf_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">orf</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">orf_list</span></div>
+
+<div class="viewcode-block" id="Simulator.get_data_for_interferometers"><a class="viewcode-back" href="../../api/pygwb.simulator.Simulator.html#pygwb.simulator.Simulator.get_data_for_interferometers">[docs]</a>    <span class="k">def</span> <span class="nf">get_data_for_interferometers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a data dictionary for interferometers.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        </span>
+<span class="sd">        interferometer_data: ``dict``</span>
+<span class="sd">            A dictionary with the simulated data for the interferometers.</span>
+<span class="sd">            </span>
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        pygwb.simulator.generate_data</span>
+
+<span class="sd">        gwpy.timeseries.TimeSeries</span>
+<span class="sd">            More information `here &lt;https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeries/#gwpy.timeseries.TimeSeries&gt;`_.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_data</span><span class="p">(</span><span class="n">data_start</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">t0</span><span class="p">)</span>
+        <span class="n">interferometer_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">ifo</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span><span class="p">):</span>
+            <span class="n">interferometer_data</span><span class="p">[</span><span class="n">ifo</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">continuous</span><span class="p">:</span>
+            <span class="n">pad_len</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N_segments</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_samples_per_segment</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">total_dur</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_segments</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">duration</span>
+            <span class="n">early_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_data</span><span class="p">(</span><span class="n">data_start</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">t0</span><span class="o">-</span><span class="n">total_dur</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">late_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_data</span><span class="p">(</span><span class="n">data_start</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">t0</span><span class="o">+</span><span class="n">total_dur</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">ifo</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span><span class="p">):</span>
+                <span class="n">ed</span> <span class="o">=</span> <span class="n">early_data</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">*</span> <span class="n">TimeSeries</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">((</span><span class="n">early_data</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">value</span><span class="o">-</span><span class="n">early_data</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">t0</span><span class="o">.</span><span class="n">value</span>
+                                                   <span class="p">)</span><span class="o">/</span><span class="n">total_dur</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span> <span class="n">times</span><span class="o">=</span><span class="n">early_data</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">times</span><span class="p">)</span>
+                <span class="n">ld</span> <span class="o">=</span> <span class="n">late_data</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">*</span> <span class="n">TimeSeries</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">((</span><span class="n">late_data</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">value</span><span class="o">-</span><span class="n">late_data</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">t0</span><span class="o">.</span><span class="n">value</span>
+                                                  <span class="p">)</span><span class="o">/</span><span class="n">total_dur</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span> <span class="n">times</span><span class="o">=</span><span class="n">late_data</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">times</span><span class="p">)</span>
+                <span class="n">cd</span> <span class="o">=</span> <span class="n">interferometer_data</span><span class="p">[</span><span class="n">ifo</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">*</span> <span class="n">TimeSeries</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">((</span><span class="n">interferometer_data</span><span class="p">[</span><span class="n">ifo</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">value</span><span class="o">-</span><span class="n">interferometer_data</span><span class="p">[</span><span class="n">ifo</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">t0</span><span class="o">.</span><span class="n">value</span>
+                                                            <span class="p">)</span><span class="o">/</span><span class="n">total_dur</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span> <span class="n">times</span><span class="o">=</span><span class="n">interferometer_data</span><span class="p">[</span><span class="n">ifo</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">times</span><span class="p">)</span>
+                <span class="n">interferometer_data</span><span class="p">[</span><span class="n">ifo</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> \
+                               <span class="n">ed</span><span class="o">.</span><span class="n">pad</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">pad_len</span><span class="p">))</span> <span class="o">+</span> \
+                               <span class="n">cd</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">pad_len</span><span class="p">)</span> <span class="o">+</span> \
+                               <span class="n">ld</span><span class="o">.</span><span class="n">pad</span><span class="p">((</span><span class="mi">2</span><span class="o">*</span><span class="n">pad_len</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+                <span class="n">interferometer_data</span><span class="p">[</span><span class="n">ifo</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> \
+                    <span class="n">interferometer_data</span><span class="p">[</span><span class="n">ifo</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">crop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t0</span><span class="p">,</span>
+                                              <span class="bp">self</span><span class="o">.</span><span class="n">t0</span><span class="o">+</span><span class="n">total_dur</span><span class="p">)</span>
+                <span class="n">interferometer_data</span><span class="p">[</span><span class="n">ifo</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">TimeSeries</span><span class="p">(</span><span class="n">interferometer_data</span><span class="p">[</span><span class="n">ifo</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> 
+                                                           <span class="n">t0</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">t0</span><span class="p">,</span> <span class="n">sample_rate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">interferometer_data</span></div>
+
+<div class="viewcode-block" id="Simulator.generate_data"><a class="viewcode-back" href="../../api/pygwb.simulator.Simulator.html#pygwb.simulator.Simulator.generate_data">[docs]</a>    <span class="k">def</span> <span class="nf">generate_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_start</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function that simulates an isotropic stochastic background given the</span>
+<span class="sd">        input parameters. The data is simulated and spliced together to prevent</span>
+<span class="sd">        periodicity artifacts related to IFFTs.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        </span>
+<span class="sd">        data_start: ``float``, optional</span>
+<span class="sd">            Start time of the data that is being generated. Defaults to None.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        </span>
+<span class="sd">        data: ``array_like``</span>
+<span class="sd">            An array of size Nd (number of detectors) with gwpy TimeSeries with the</span>
+<span class="sd">            data containing the simulated isotropic stochastic background.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        gwpy.timeseries.TimeSeries</span>
+<span class="sd">            More information `here &lt;https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeries/#gwpy.timeseries.TimeSeries&gt;`_.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">data_start</span><span class="p">:</span>
+            <span class="n">data_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">t0</span>
+        <span class="n">data_signal_temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_samples_per_segment</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_segments</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">intensity_GW</span><span class="p">:</span>
+            <span class="n">y_signal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="s2">&quot;signal&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">:</span>
+                <span class="c1"># seed is based on start time of segment</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="o">+</span><span class="p">(</span><span class="n">data_start</span><span class="o">%</span><span class="mi">1000</span><span class="p">)))</span>
+            <span class="n">data_spliced</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">splice_segments</span><span class="p">(</span><span class="n">y_signal</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nd</span><span class="p">):</span>
+                <span class="n">data_signal_temp</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_signal_temp</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">+</span> <span class="n">data_spliced</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">injection_dict</span><span class="p">:</span>
+            <span class="n">data_cbc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inject_CBC</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nd</span><span class="p">):</span>
+                <span class="n">data_signal_temp</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_signal_temp</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">+</span> <span class="n">data_cbc</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_noise</span><span class="p">:</span>
+            <span class="n">y_noise</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="s2">&quot;noise&quot;</span><span class="p">)</span>
+            <span class="n">data_noise_temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">splice_segments</span><span class="p">(</span><span class="n">y_noise</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data_noise_temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">data_signal_temp</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nd</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">gwpy</span><span class="o">.</span><span class="n">timeseries</span><span class="o">.</span><span class="n">TimeSeries</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nd</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Adding data to channel </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">:SIM-STOCH_INJ&quot;</span>
+            <span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">gwpy</span><span class="o">.</span><span class="n">timeseries</span><span class="o">.</span><span class="n">TimeSeries</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">data_signal_temp</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">+</span> <span class="n">data_noise_temp</span><span class="p">[</span><span class="n">ii</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float64&quot;</span><span class="p">),</span>
+                <span class="n">t0</span><span class="o">=</span><span class="n">data_start</span><span class="p">,</span>
+                <span class="n">dt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">deltaT</span><span class="p">,</span>
+                <span class="n">channel</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">:SIM-STOCH_INJ&quot;</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">:SIM-STOCH_INJ&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="Simulator.orf_to_array"><a class="viewcode-back" href="../../api/pygwb.simulator.Simulator.html#pygwb.simulator.Simulator.orf_to_array">[docs]</a>    <span class="k">def</span> <span class="nf">orf_to_array</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function that converts the list of overlap reduction functions (ORFs) into an array</span>
+<span class="sd">        to facilitate the correct implementation when computing the covariance matrix.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        </span>
+<span class="sd">        orf_array: ``array_like``</span>
+<span class="sd">            Array of shape Nd x Nd containing the orfs, where Nd is the number of</span>
+<span class="sd">            detectors. The convention used for consistency with the remainder of the</span>
+<span class="sd">            simulation is as follows. ORFs are only present in the off-diagonal slots</span>
+<span class="sd">            in the array. Only the part below the diagonal is filled, after which this</span>
+<span class="sd">            is copied to the upper part by transposing and summing. The array is filled</span>
+<span class="sd">            by starting from the first free slot below the diagonal, from left to right,</span>
+<span class="sd">            until the diagonal is reached, after which the line below in the array is</span>
+<span class="sd">            filled analogously and so on.</span>
+<span class="sd">            </span>
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        pygwb.baseline.overlap_reduction_function</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">orf_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nd</span><span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">gwpy</span><span class="o">.</span><span class="n">frequencyseries</span><span class="o">.</span><span class="n">FrequencySeries</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nd</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ii</span><span class="p">):</span>
+                <span class="n">orf_array</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">orf</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+                <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">orf_array</span> <span class="o">=</span> <span class="n">orf_array</span> <span class="o">+</span> <span class="n">orf_array</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nd</span><span class="p">):</span>
+            <span class="n">baseline_name</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="n">baseline_temp</span> <span class="o">=</span> <span class="n">Baseline</span><span class="p">(</span>
+                <span class="n">baseline_name</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span><span class="p">[</span><span class="n">ii</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span><span class="p">[</span><span class="n">ii</span><span class="p">],</span>
+                <span class="n">frequencies</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">baseline_temp</span><span class="o">.</span><span class="n">_orf_polarization_set</span><span class="p">:</span>
+                <span class="n">baseline_temp</span><span class="o">.</span><span class="n">orf_polarization</span> <span class="o">=</span> <span class="s2">&quot;tensor&quot;</span>
+            <span class="n">orf_temp</span> <span class="o">=</span> <span class="n">baseline_temp</span><span class="o">.</span><span class="n">overlap_reduction_function</span>
+
+            <span class="k">if</span> <span class="n">orf_temp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="n">orf_temp</span> <span class="o">=</span> <span class="n">orf_temp</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">orf_array</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">orf_temp</span>
+
+        <span class="k">return</span> <span class="n">orf_array</span></div>
+
+<div class="viewcode-block" id="Simulator.covariance_matrix"><a class="viewcode-back" href="../../api/pygwb.simulator.Simulator.html#pygwb.simulator.Simulator.covariance_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">covariance_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function to compute the covariance matrix corresponding to a stochastic</span>
+<span class="sd">        background in the various detectors.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        </span>
+<span class="sd">        flag: ``str``</span>
+<span class="sd">            Either flagged as &quot;noise&quot; or &quot;signal&quot;, to allow for different generation of</span>
+<span class="sd">            covariance matrix in both cases.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        </span>
+<span class="sd">        C: ``array_like``</span>
+<span class="sd">            Covariance matrix corresponding to a stochastic background in the</span>
+<span class="sd">            various detectors. Dimensions are Nd x Nd x Nf, where Nd is the</span>
+<span class="sd">            number of detectors and Nf is the number of frequencies.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">orf_array</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">orf_to_array</span><span class="p">()</span>
+
+        <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">Nd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nf</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="s2">&quot;noise&quot;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nd</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nd</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">ii</span> <span class="o">==</span> <span class="n">jj</span><span class="p">:</span>
+                        <span class="n">C</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_PSD_array</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="s2">&quot;signal&quot;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nd</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nd</span><span class="p">):</span>
+                    <span class="n">C</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">orf_array</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">intensity_GW</span><span class="o">.</span><span class="n">value</span><span class="p">[:]</span>
+
+        <span class="n">C</span><span class="p">[</span><span class="n">C</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0e-60</span>
+
+        <span class="n">C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_samples_per_segment</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deltaT</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span> <span class="o">*</span> <span class="n">C</span>
+        <span class="k">return</span> <span class="n">C</span></div>
+
+<div class="viewcode-block" id="Simulator.compute_eigval_eigvec"><a class="viewcode-back" href="../../api/pygwb.simulator.Simulator.html#pygwb.simulator.Simulator.compute_eigval_eigvec">[docs]</a>    <span class="k">def</span> <span class="nf">compute_eigval_eigvec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">C</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function to compute the eigenvalues and eigenvectors of the covariance</span>
+<span class="sd">        matrix corresponding to a stochastic background in the various detectors.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        </span>
+<span class="sd">        C: ``array_like``</span>
+<span class="sd">            Covariance matrix corresponding to a stochastic background in the</span>
+<span class="sd">            various detectors. Dimensions are Nd x Nd x Nf, where Nd is the</span>
+<span class="sd">            number of detectors and Nf is the number of frequencies.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        </span>
+<span class="sd">        eigval: ``array_like``</span>
+<span class="sd">            Array of diagonal matrices containing the eigenvalues of the</span>
+<span class="sd">            covariance matrix C.</span>
+
+<span class="sd">        eigvec: ``array_like``</span>
+<span class="sd">            Array of matrices containing the eigenvectors of the covariance</span>
+<span class="sd">            matrix C.</span>
+<span class="sd">            </span>
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        numpy.linalg.eig</span>
+<span class="sd">            More information `here &lt;https://numpy.org/doc/stable/reference/generated/numpy.linalg.eig.html&gt;`_.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">eigval</span><span class="p">,</span> <span class="n">eigvec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span>
+        <span class="n">eigval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">eigval</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">eigval</span><span class="p">,</span> <span class="n">eigvec</span></div>
+
+<div class="viewcode-block" id="Simulator.generate_freq_domain_data"><a class="viewcode-back" href="../../api/pygwb.simulator.Simulator.html#pygwb.simulator.Simulator.generate_freq_domain_data">[docs]</a>    <span class="k">def</span> <span class="nf">generate_freq_domain_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function that generates the uncorrelated frequency domain data with</span>
+<span class="sd">        random phases for the stochastic background.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        </span>
+<span class="sd">        z: ``array_like``</span>
+<span class="sd">            Array of size Nf x Nd containing uncorrelated frequency domain data.</span>
+<span class="sd">            </span>
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        numpy.random.randn </span>
+<span class="sd">            More information `here &lt;https://numpy.org/doc/stable/reference/random/generated/numpy.random.randn.html&gt;`_.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">Nf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nd</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;complex_&quot;</span><span class="p">)</span>
+        <span class="n">re</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nd</span><span class="p">)</span>
+        <span class="n">im</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nd</span><span class="p">)</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">re</span> <span class="o">+</span> <span class="n">im</span> <span class="o">*</span> <span class="mi">1</span><span class="n">j</span>
+        <span class="k">return</span> <span class="n">z</span></div>
+
+<div class="viewcode-block" id="Simulator.transform_to_correlated_data"><a class="viewcode-back" href="../../api/pygwb.simulator.Simulator.html#pygwb.simulator.Simulator.transform_to_correlated_data">[docs]</a>    <span class="k">def</span> <span class="nf">transform_to_correlated_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">C</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function that transforms the uncorrelated stochastic background</span>
+<span class="sd">        simulated data, to correlated data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        </span>
+<span class="sd">        z: ``array_like``</span>
+<span class="sd">            Array containing the uncorrelated data with random phase.</span>
+
+<span class="sd">        C: ``array_like``</span>
+<span class="sd">            Array of size Nd x Nd x Nf representing the covariance matrices</span>
+<span class="sd">            between detectors for a desired stochastic background, where Nd</span>
+<span class="sd">            is the number of detectors and Nf is the number of frequencies.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        </span>
+<span class="sd">        x: ``array_like``</span>
+<span class="sd">            Array of size Nf x Nd, containing the correlated stochastic</span>
+<span class="sd">            background data.</span>
+<span class="sd">        </span>
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        numpy.einsum : Used for efficient summation over specific indices.</span>
+<span class="sd">            More information `here &lt;https://numpy.org/doc/stable/reference/generated/numpy.einsum.html&gt;`_.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">eigval</span><span class="p">,</span> <span class="n">eigvec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_eigval_eigvec</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
+
+        <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;...ij,jk...&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">eigval</span> <span class="o">+</span> <span class="mi">0</span><span class="n">j</span><span class="p">),</span> <span class="n">eigvec</span><span class="o">.</span><span class="n">transpose</span><span class="p">())</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;...j,...jk&quot;</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">A</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span></div>
+
+<div class="viewcode-block" id="Simulator.simulate"><a class="viewcode-back" href="../../api/pygwb.simulator.Simulator.html#pygwb.simulator.Simulator.simulate">[docs]</a>    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function that simulates the data corresponding to an isotropic stochastic</span>
+<span class="sd">        background.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        </span>
+<span class="sd">        flag: ``str``</span>
+<span class="sd">            Either flagged as &quot;noise&quot; or &quot;signal&quot;, to allow for different generation of</span>
+<span class="sd">            covariance matrix in both cases.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        </span>
+<span class="sd">        y: ``array_like``</span>
+<span class="sd">            Array of size Nd x 2*(N_segments+1) x N_samples_per_segment containing the</span>
+<span class="sd">            various segments with the simulated data.</span>
+<span class="sd">            </span>
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        numpy.fft.ifft</span>
+<span class="sd">            More information `here &lt;https://numpy.org/doc/stable/reference/generated/numpy.fft.ifft.html&gt;`_.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">covariance_matrix</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span>
+
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nd</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_segments</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_samples_per_segment</span><span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">kk</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_segments</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_freq_domain_data</span><span class="p">()</span>
+
+            <span class="n">xtemp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform_to_correlated_data</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">C</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nd</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_samples_per_segment</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">xtilde</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                        <span class="p">(</span>
+                            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">]),</span>
+                            <span class="n">xtemp</span><span class="p">[:,</span> <span class="n">ii</span><span class="p">],</span>
+                            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">]),</span>
+                            <span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(</span><span class="n">xtemp</span><span class="p">[:,</span> <span class="n">ii</span><span class="p">])),</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">xtilde</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                        <span class="p">(</span>
+                            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">]),</span>
+                            <span class="n">xtemp</span><span class="p">[:,</span> <span class="n">ii</span><span class="p">],</span>
+                            <span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(</span><span class="n">xtemp</span><span class="p">[:,</span> <span class="n">ii</span><span class="p">])),</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="n">y</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">kk</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="n">xtilde</span><span class="p">))[</span>
+                    <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_samples_per_segment</span>
+                <span class="p">]</span>
+        <span class="k">return</span> <span class="n">y</span></div>
+
+<div class="viewcode-block" id="Simulator.splice_segments"><a class="viewcode-back" href="../../api/pygwb.simulator.Simulator.html#pygwb.simulator.Simulator.splice_segments">[docs]</a>    <span class="k">def</span> <span class="nf">splice_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">segments</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function splices together the various segments to prevent</span>
+<span class="sd">        artifacts related to the periodicity that can arise from inverse</span>
+<span class="sd">        Fourier transforms.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        =======</span>
+<span class="sd">        </span>
+<span class="sd">        segments: ``array_like``</span>
+<span class="sd">            Array of size Nd x (2*N_segments+1) x N_samples_per_segment containing the</span>
+<span class="sd">            various segments with the simulated data that need to be spliced</span>
+<span class="sd">            together, where Nd is the number of detectors.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        </span>
+<span class="sd">        data: ``array_like``</span>
+<span class="sd">            Array of size Nd x (N_segments*N_samples_per_segment) containing the simulated</span>
+<span class="sd">            data corresponding to an isotropic stochastic background for each of the</span>
+<span class="sd">            detectors, where Nd is the number of detectors.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        A range of spectral indices (from -3 to 3) was</span>
+<span class="sd">        tested for the GW power spectrum to inject. However, one should be careful</span>
+<span class="sd">        for spectral indices outside of this range, as the splicing procedure</span>
+<span class="sd">        implemented here is known to introduce a bias for some values of the spectral</span>
+<span class="sd">        index (usually large negative numbers).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N_samples_per_segment</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N_samples_per_segment</span><span class="p">):</span>
+            <span class="n">w</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">ii</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_samples_per_segment</span><span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_samples_per_segment</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_segments</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nd</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N_segments</span><span class="p">):</span>
+                <span class="n">y0</span> <span class="o">=</span> <span class="n">w</span> <span class="o">*</span> <span class="n">segments</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="mi">2</span> <span class="o">*</span> <span class="n">jj</span><span class="p">][:]</span>
+                <span class="n">y1</span> <span class="o">=</span> <span class="n">w</span> <span class="o">*</span> <span class="n">segments</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="mi">2</span> <span class="o">*</span> <span class="n">jj</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][:]</span>
+                <span class="n">y2</span> <span class="o">=</span> <span class="n">w</span> <span class="o">*</span> <span class="n">segments</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="mi">2</span> <span class="o">*</span> <span class="n">jj</span> <span class="o">+</span> <span class="mi">2</span><span class="p">][:]</span>
+
+                <span class="n">z0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                    <span class="p">(</span>
+                        <span class="n">y0</span><span class="p">[</span>
+                            <span class="nb">int</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">N_samples_per_segment</span> <span class="o">/</span> <span class="mi">2</span>
+                            <span class="p">)</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_samples_per_segment</span>
+                        <span class="p">],</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N_samples_per_segment</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)),</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">z1</span> <span class="o">=</span> <span class="n">y1</span><span class="p">[:]</span>
+                <span class="n">z2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                    <span class="p">(</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N_samples_per_segment</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)),</span>
+                        <span class="n">y2</span><span class="p">[</span><span class="mi">0</span> <span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N_samples_per_segment</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)],</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+                <span class="n">data</span><span class="p">[</span>
+                    <span class="n">ii</span><span class="p">,</span>
+                    <span class="n">jj</span>
+                    <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_samples_per_segment</span> <span class="p">:</span> <span class="p">(</span><span class="n">jj</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_samples_per_segment</span><span class="p">,</span>
+                <span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">z0</span> <span class="o">+</span> <span class="n">z1</span> <span class="o">+</span> <span class="n">z2</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="Simulator.inject_CBC"><a class="viewcode-back" href="../../api/pygwb.simulator.Simulator.html#pygwb.simulator.Simulator.inject_CBC">[docs]</a>    <span class="k">def</span> <span class="nf">inject_CBC</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function uses the provided dictionary of injection parameters to </span>
+<span class="sd">        simulate a background of CBC sources.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        </span>
+<span class="sd">        data: ``array_like``</span>
+<span class="sd">            Array of size Nd x (N_segments*N_samples_per_segment) containing the simulated</span>
+<span class="sd">            data corresponding to a background of CBC sources for each of the</span>
+<span class="sd">            detectors, where Nd is the number of detectors.</span>
+<span class="sd">            </span>
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        bilby.gw.WaveformGenerator</span>
+<span class="sd">            More information `here &lt;https://lscsoft.docs.ligo.org/bilby/api/bilby.gw.waveform_generator.WaveformGenerator.html&gt;`_.</span>
+
+<span class="sd">        gwpy.timeseries.TimeSeries</span>
+<span class="sd">            More information `here &lt;https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeries/#gwpy.timeseries.TimeSeries&gt;`_.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_samples_per_segment</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_segments</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+        <span class="p">)</span>
+        <span class="n">empty_ts</span> <span class="o">=</span> <span class="n">gwpy</span><span class="o">.</span><span class="n">timeseries</span><span class="o">.</span><span class="n">TimeSeries</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N_samples_per_segment</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_segments</span><span class="p">),</span>
+                                              <span class="n">t0</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">t0</span><span class="p">,</span> <span class="n">sample_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">)</span>
+        <span class="n">waveform_generator</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">gw</span><span class="o">.</span><span class="n">WaveformGenerator</span><span class="p">(</span>
+            <span class="n">duration</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">N_segments</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">duration</span><span class="p">,</span> <span class="n">sampling_frequency</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="p">,</span>
+            <span class="n">frequency_domain_source_model</span><span class="o">=</span><span class="n">bilby</span><span class="o">.</span><span class="n">gw</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">lal_binary_black_hole</span><span class="p">,</span>
+            <span class="n">parameter_conversion</span><span class="o">=</span><span class="n">bilby</span><span class="o">.</span><span class="n">gw</span><span class="o">.</span><span class="n">conversion</span><span class="o">.</span><span class="n">convert_to_lal_binary_black_hole_parameters</span><span class="p">,</span>
+            <span class="n">waveform_arguments</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;waveform_approximant&quot;</span><span class="p">:</span> <span class="s2">&quot;IMRPhenomPv2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;reference_frequency&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nd</span><span class="p">):</span>
+            <span class="n">det</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">gw</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">get_empty_interferometer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interferometers</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> 
+            <span class="n">det</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">set_from_gwpy_timeseries</span><span class="p">(</span><span class="n">empty_ts</span><span class="p">)</span> 
+            <span class="n">det</span><span class="o">.</span><span class="n">minimum_frequency</span><span class="o">=</span><span class="mf">10.</span>
+
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">injection_dict</span><span class="p">[</span><span class="s1">&#39;geocent_time&#39;</span><span class="p">]))):</span>
+                <span class="n">inj_params</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">injection_dict</span><span class="p">:</span>
+                    <span class="n">inj_params</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">injection_dict</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">n</span><span class="p">]</span>
+            
+                <span class="n">det</span><span class="o">.</span><span class="n">inject_signal</span><span class="p">(</span>
+                    <span class="n">waveform_generator</span><span class="o">=</span><span class="n">waveform_generator</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">inj_params</span>
+                <span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">det</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">to_gwpy_timeseries</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
+
+        <span class="k">return</span> <span class="n">data</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

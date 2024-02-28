@@ -1,0 +1,6 @@
+pygwb.postprocessing.calculate\_point\_estimate\_sigma\_spectra
+===============================================================
+
+.. currentmodule:: pygwb.postprocessing
+
+.. autofunction:: calculate_point_estimate_sigma_spectra

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pygwb.network.Network &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=a5c4661c" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=0264ad83"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pygwb.preprocessing" href="pygwb.preprocessing.html" />
+    <link rel="prev" title="pygwb.network" href="pygwb.network.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demos.html">Demos</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pygwb.detector.html">pygwb.detector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.baseline.html">pygwb.baseline</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pygwb.network.html">pygwb.network</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pygwb.network.Network</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pygwb.network.Network"><code class="docutils literal notranslate"><span class="pre">Network</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.preprocessing.html">pygwb.preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.spectral.html">pygwb.spectral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.coherence.html">pygwb.coherence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.postprocessing.html">pygwb.postprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.omega_spectra.html">pygwb.omega_spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.pe.html">pygwb.pe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.statistical_checks.html">pygwb.statistical_checks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.simulator.html">pygwb.simulator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.delta_sigma_cut.html">pygwb.delta_sigma_cut</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.notch.html">pygwb.notch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.constants.html">pygwb.constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.orfs.html">pygwb.orfs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.parameters.html">pygwb.parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pygwb.util.html">pygwb.util</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API</a></li>
+          <li class="breadcrumb-item"><a href="pygwb.network.html">pygwb.network</a></li>
+      <li class="breadcrumb-item active">pygwb.network.Network</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/pygwb.network.Network.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pygwb-network-network">
+<h1>pygwb.network.Network<a class="headerlink" href="#pygwb-network-network" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pygwb.network.Network">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pygwb.network.</span></span><span class="sig-name descname"><span class="pre">Network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calibration_epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">notch_list_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coarse_grain_psd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coarse_grain_csd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap_factor_welch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_fftgram_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'window_fftgram':</span> <span class="pre">'hann'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_fftgram_dict_welch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'window_fftgram':</span> <span class="pre">'hann'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N_average_segments_psd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/network.html#Network"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.network.Network" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.network.Network.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calibration_epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">notch_list_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coarse_grain_psd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coarse_grain_csd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap_factor_welch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_fftgram_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'window_fftgram':</span> <span class="pre">'hann'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_fftgram_dict_welch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'window_fftgram':</span> <span class="pre">'hann'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N_average_segments_psd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/network.html#Network.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.network.Network.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Instantiate a Network object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>) – Name for the network, e.g H1H2.</p></li>
+<li><p><strong>interferometers</strong> (<code class="docutils literal notranslate"><span class="pre">list</span></code>) – List of intereferometer objects.</p></li>
+<li><p><strong>duration</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>, optional) – The duration in seconds of each data segment in the interferometers. None by default, in which case duration is inherited from the interferometers.</p></li>
+<li><p><strong>frequencies</strong> (<code class="docutils literal notranslate"><span class="pre">array_like</span></code>, optional) – The frequency array for the Baseline and interferometers.</p></li>
+<li><p><strong>calibration_epsilon</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>, optional) – Calibration uncertainty for this baseline – currently only supports a single notch list for all baselines. Defaults to 0.</p></li>
+<li><p><strong>notch_list_path</strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>, optional) – File path of the baseline notch list – currently only supports a single notch list for all baselines. Defaults to empty path.</p></li>
+<li><p><strong>coarse_grain_psd</strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Indicates whether PSD should be coarse-grained or not. Defaults to False, in which case the PSD will be Welch averaged.</p></li>
+<li><p><strong>coarse_grain_csd</strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Indicates whether CSD should be coarse-grained or not. Defaults to True. If False, the CSD will be Welch averaged.</p></li>
+<li><p><strong>overlap_factor_welch</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>, optional) – Factor by which to overlap the segments in the psd and csd estimation. Default is 1/2, if set to 0, no overlap is performed.</p></li>
+<li><p><strong>overlap_factor</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>, optional) – Factor by which to overlap the segments in the psd and csd estimation. Default is 1/2, if set to 0, no overlap is performed.</p></li>
+<li><p><strong>window_fftgram_dict</strong> (<code class="docutils literal notranslate"><span class="pre">dictionary</span></code>, optional) – Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds. Default is “hann”.</p></li>
+<li><p><strong>window_fftgram_dict_welch</strong> (<code class="docutils literal notranslate"><span class="pre">dictionary</span></code>, optional) – Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds using the Welch average method. Default is “hann”.</p></li>
+<li><p><strong>N_average_segments_psd</strong> (<code class="docutils literal notranslate"><span class="pre">int</span></code>, optional) – Number of segments used for PSD averaging (from both sides of the segment of interest).
+N_avg_segs should be even and &gt;= 2.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="pygwb.baseline.Baseline.html#pygwb.baseline.Baseline" title="pygwb.baseline.Baseline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pygwb.baseline.Baseline</span></code></a></dt><dd><p>Used to create the various baselines corresponding to the detectors in the network.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.network.Network.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pygwb.network.Network.__call__" title="Permalink to this definition"></a></dt>
+<dd><p>Call self as a function.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.network.Network.__init__" title="pygwb.network.Network.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(name, interferometers[, duration, ...])</p></td>
+<td><p>Instantiate a Network object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.network.Network.combine_point_estimate_sigma_spectra" title="pygwb.network.Network.combine_point_estimate_sigma_spectra"><code class="xref py py-obj docutils literal notranslate"><span class="pre">combine_point_estimate_sigma_spectra</span></code></a>()</p></td>
+<td><p>Combines the point estimate and sigma spectra from different baselines in the Network and stores them as attributes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.network.Network.from_baselines" title="pygwb.network.Network.from_baselines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_baselines</span></code></a>(name, baselines)</p></td>
+<td><p>Initialise a network from a set of baselines.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.network.Network.save_interferometer_data_to_file" title="pygwb.network.Network.save_interferometer_data_to_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_interferometer_data_to_file</span></code></a>([save_dir, ...])</p></td>
+<td><p>Save interferometer strain data to a file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.network.Network.set_duration" title="pygwb.network.Network.set_duration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_duration</span></code></a>(duration)</p></td>
+<td><p>Sets the duration for the Network and Interferometers.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.network.Network.set_frequency_mask" title="pygwb.network.Network.set_frequency_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_frequency_mask</span></code></a>([notch_list_path, flow, ...])</p></td>
+<td><p>Set frequency mask to frequencies attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pygwb.network.Network.set_interferometer_data_from_simulator" title="pygwb.network.Network.set_interferometer_data_from_simulator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_interferometer_data_from_simulator</span></code></a>(...)</p></td>
+<td><p>Fill interferometers with data from simulation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pygwb.network.Network.set_point_estimate_sigma" title="pygwb.network.Network.set_point_estimate_sigma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_point_estimate_sigma</span></code></a>([notch_list_path, ...])</p></td>
+<td><p>Set point estimate sigma based the combined spectra from each Baseline.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.network.Network.combine_point_estimate_sigma_spectra">
+<span class="sig-name descname"><span class="pre">combine_point_estimate_sigma_spectra</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/network.html#Network.combine_point_estimate_sigma_spectra"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.network.Network.combine_point_estimate_sigma_spectra" title="Permalink to this definition"></a></dt>
+<dd><p>Combines the point estimate and sigma spectra from different baselines in the Network and stores them as attributes.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="pygwb.postprocessing.combine_spectra_with_sigma_weights.html#pygwb.postprocessing.combine_spectra_with_sigma_weights" title="pygwb.postprocessing.combine_spectra_with_sigma_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pygwb.postprocessing.combine_spectra_with_sigma_weights</span></code></a></dt><dd></dd>
+<dt><a class="reference internal" href="pygwb.omega_spectra.OmegaSpectrum.html#pygwb.omega_spectra.OmegaSpectrum" title="pygwb.omega_spectra.OmegaSpectrum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pygwb.omega_spectra.OmegaSpectrum</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.network.Network.from_baselines">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_baselines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baselines</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/network.html#Network.from_baselines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.network.Network.from_baselines" title="Permalink to this definition"></a></dt>
+<dd><p>Initialise a network from a set of baselines. Takes care to unpack the interferometers from each baseline and sets them in the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>) – Name of the network.</p></li>
+<li><p><strong>baselines</strong> (<code class="docutils literal notranslate"><span class="pre">list</span></code>) – List of <code class="docutils literal notranslate"><span class="pre">pygwb.baseline</span></code> objects.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>network: <code class="docutils literal notranslate"><span class="pre">pygwb.network</span></code></dt><dd><p>Network object</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="pygwb.baseline.Baseline.html#pygwb.baseline.Baseline" title="pygwb.baseline.Baseline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pygwb.baseline.Baseline</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.network.Network.save_interferometer_data_to_file">
+<span class="sig-name descname"><span class="pre">save_interferometer_data_to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hdf5'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/network.html#Network.save_interferometer_data_to_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.network.Network.save_interferometer_data_to_file" title="Permalink to this definition"></a></dt>
+<dd><p>Save interferometer strain data to a file. This method relies on the gwpy  TimeSeries.write method. Typically used when simulating a signal for a whole network of interferometers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>save_dir</strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>, optional) – The path of the output folder. Defaults to the local folder.</p></li>
+<li><p><strong>file_format</strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>, optional) – The format of the output file. Defaults to hdf5 file. Acceptable formats are standard gwpy TimeSeries.write formats.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">gwpy.timeseries.TimeSeriesDict</span></code></dt><dd><p>More information <a class="reference external" href="https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeriesDict/">here</a>.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>This will save a single frame file with a set of interferometer data; each strain channel is labelled by its interferometer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.network.Network.set_duration">
+<span class="sig-name descname"><span class="pre">set_duration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">duration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/network.html#Network.set_duration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.network.Network.set_duration" title="Permalink to this definition"></a></dt>
+<dd><p>Sets the duration for the Network and Interferometers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>duration</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>, optional) – The duration to set for the Network and interferometers.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The cross-checks that durations match in all the interferometers are done by each baseline.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.network.Network.set_frequency_mask">
+<span class="sig-name descname"><span class="pre">set_frequency_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">notch_list_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fhigh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1726</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/network.html#Network.set_frequency_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.network.Network.set_frequency_mask" title="Permalink to this definition"></a></dt>
+<dd><p>Set frequency mask to frequencies attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>notch_list_path</strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>) – Path to notch list to apply to frequency array.</p></li>
+<li><p><strong>flow</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>, optional) – Lowest frequency to consider. Defaults to 20 Hz.</p></li>
+<li><p><strong>fhigh</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>, optional) – Highest frequency to consider. Defaults to 1726 Hz.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="pygwb.notch.StochNotchList.html#pygwb.notch.StochNotchList" title="pygwb.notch.StochNotchList"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pygwb.notch.StochNotchList</span></code></a></dt><dd><p>Used to read in the frequency notches.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.network.Network.set_interferometer_data_from_simulator">
+<span class="sig-name descname"><span class="pre">set_interferometer_data_from_simulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N_segments</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">GWB_intensity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">CBC_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inject_into_data_flag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/network.html#Network.set_interferometer_data_from_simulator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.network.Network.set_interferometer_data_from_simulator" title="Permalink to this definition"></a></dt>
+<dd><p>Fill interferometers with data from simulation. Data can already be present in the intereferometers of the network,
+in which case the simulated data will be injected on top of the data already present.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>N_segments</strong> (<code class="docutils literal notranslate"><span class="pre">int</span></code>) – Number of segments to simulate.</p></li>
+<li><p><strong>GWB_intensity</strong> (<code class="docutils literal notranslate"><span class="pre">gwpy.frequencyseries.FrequencySeries</span></code>, optional) – A gwpy.frequencyseries.FrequencySeries containing the desired strain power spectrum. Defaults to None,
+in which case CBC_dict should be passed.</p></li>
+<li><p><strong>CBC_dict</strong> (<code class="docutils literal notranslate"><span class="pre">dict</span></code>, optional) – Dictionary containing the parameters of CBC injections. Default to None,
+in which case GWB_intensity should be passed.</p></li>
+<li><p><strong>sampling_frequency</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>, optional) – Sampling frequency at which the data needs to be simulated. If not specified (None), will check for interferometer’s
+sampling frequency.</p></li>
+<li><p><strong>start_time</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>, optional) – Start time of the simulated data. If not passed (None), will check for interferometer’s timeseries start time.
+If not specified either, start time will default to 0.</p></li>
+<li><p><strong>inject_into_data_flag</strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Flag that specifies whether or not the simulated data needs to be injected into data, i.e. if there is already
+data present in the interferometers of the network. If so, only data will be simulated and no extra noise will
+be added on top of the simulated data. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="pygwb.simulator.Simulator.html#pygwb.simulator.Simulator" title="pygwb.simulator.Simulator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pygwb.simulator.Simulator</span></code></a></dt><dd><p>Used to simulate data.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygwb.network.Network.set_point_estimate_sigma">
+<span class="sig-name descname"><span class="pre">set_point_estimate_sigma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">notch_list_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fhigh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1726</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygwb/network.html#Network.set_point_estimate_sigma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygwb.network.Network.set_point_estimate_sigma" title="Permalink to this definition"></a></dt>
+<dd><p>Set point estimate sigma based the combined spectra from each Baseline. This is the estimate of omega_gw in each frequency bin.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>notch_list_path</strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>, optional) – Path to the notch list to use in the spectrum; if the notch_list isn’t set in the baseline,
+user can pass it directly here. If it is not set and if none is passed no notches will be applied.</p></li>
+<li><p><strong>flow</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>, optional) – Low frequency. Default is 20 Hz.</p></li>
+<li><p><strong>fhigh</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>, optional) – High frequency. Default is 1726 Hz.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="pygwb.postprocessing.calc_Y_sigma_from_Yf_sigmaf.html#pygwb.postprocessing.calc_Y_sigma_from_Yf_sigmaf" title="pygwb.postprocessing.calc_Y_sigma_from_Yf_sigmaf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pygwb.postprocessing.calc_Y_sigma_from_Yf_sigmaf</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pygwb.network.html" class="btn btn-neutral float-left" title="pygwb.network" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pygwb.preprocessing.html" class="btn btn-neutral float-right" title="pygwb.preprocessing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

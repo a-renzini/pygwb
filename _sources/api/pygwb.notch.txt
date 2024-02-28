@@ -1,0 +1,43 @@
+﻿pygwb.notch
+===========
+
+.. currentmodule:: pygwb.notch
+
+.. automodule:: pygwb.notch
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      comb
+      power_lines
+      pulsar_injections
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      StochNotch
+      StochNotchList
+   
+   
+
+   
+   
+   
+
+
+

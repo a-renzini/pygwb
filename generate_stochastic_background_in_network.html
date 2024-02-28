@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inject a power spectrum in random LIGO noise &mdash; pygwb 1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/tabs.css?v=a5c4661c" />
+      <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=0264ad83"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/pygwb_logo_plasma_cropped.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="about.html">About <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demos.html">Demos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://arxiv.org/pdf/2303.15696.pdf">pygwb paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing <code class="docutils literal notranslate"><span class="pre">pygwb</span></code></a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/a-renzini/pygwb/issues/new">Submit an issue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pygwb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Inject a power spectrum in random LIGO noise</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/generate_stochastic_background_in_network.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Inject-a-power-spectrum-in-random-LIGO-noise">
+<h1>Inject a power spectrum in random LIGO noise<a class="headerlink" href="#Inject-a-power-spectrum-in-random-LIGO-noise" title="Permalink to this heading"></a></h1>
+<p>This notebook is meant as a tutorial on how to use the <code class="docutils literal notranslate"><span class="pre">simulator</span></code> module within <code class="docutils literal notranslate"><span class="pre">pygwb</span></code> to generate a stochastic gravitational-wave background (SGWB), with the option of adding random Gaussian colored noise. More information about the <code class="docutils literal notranslate"><span class="pre">simulator</span></code> can be found on the documentation page <a class="reference external" href="./_build/html/api/pygwb.simulator.html">here</a>.</p>
+<p>We start by importing some packages needed for the execution of the tutorial:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">gwpy</span>
+<span class="kn">import</span> <span class="nn">bilby</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">pygwb.detector</span> <span class="kn">import</span> <span class="n">Interferometer</span>
+<span class="kn">from</span> <span class="nn">pygwb.network</span> <span class="kn">import</span> <span class="n">Network</span>
+</pre></div>
+</div>
+</div>
+<p><em>Note: make sure to run this notebook within an environment that has all the above packages installed.</em></p>
+<section id="Injection-of-a-broken-power-law">
+<h2>Injection of a broken power-law<a class="headerlink" href="#Injection-of-a-broken-power-law" title="Permalink to this heading"></a></h2>
+<p>For this tutorial, we consider a broken power-law signal power spectral density (PSD) to be injected in random LIGO Gaussian noise. The various steps to get to the simulated data are outlined below.</p>
+<section id="Simulation-parameters">
+<h3>Simulation parameters<a class="headerlink" href="#Simulation-parameters" title="Permalink to this heading"></a></h3>
+<p>We start by specifying the parameters that will serve as input to the simulator. Concretely, we specify the duration of each simulated segment, the number of segments, and the sampling frequency.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">duration</span> <span class="o">=</span> <span class="mi">60</span> <span class="c1"># duration of each segment of data (s)</span>
+<span class="n">N_segs</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># number of data segments to generate</span>
+<span class="n">sampling_frequency</span> <span class="o">=</span> <span class="mi">1024</span> <span class="c1"># Hz</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="The-signal-to-inject">
+<h3>The signal to inject<a class="headerlink" href="#The-signal-to-inject" title="Permalink to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">simulator</span></code> module takes a <code class="docutils literal notranslate"><span class="pre">gwpy</span></code> FrequencySeries as input for the signal PSD to be injected. We start by building a custom input signal by defining an <code class="docutils literal notranslate"><span class="pre">IntensityGW</span></code> function, which outputs the desired signal PSD in the form of a <code class="docutils literal notranslate"><span class="pre">gwpy</span></code> FrequencySeries.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">frequencies_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+
+<span class="n">alpha1</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">alpha2</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">fref</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">omegaRef</span> <span class="o">=</span> <span class="mf">5.e-5</span>
+
+<span class="k">def</span> <span class="nf">IntensityGW</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">omegaRef</span><span class="p">,</span> <span class="n">alpha1</span><span class="p">,</span> <span class="n">fref</span><span class="p">,</span> <span class="n">alpha2</span> <span class="o">=</span> <span class="mi">2</span><span class="o">/</span><span class="mi">3</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39; GW Intensity function from broken power law in OmegaGW &#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">    PARAMETERS</span>
+<span class="sd">    freqs: np.array</span>
+<span class="sd">        frequency array</span>
+<span class="sd">    fref:</span>
+<span class="sd">        reference frequency</span>
+<span class="sd">    omegaRef:</span>
+<span class="sd">        Value of OmegaGW at reference frequency</span>
+<span class="sd">    alpha1:</span>
+<span class="sd">        first spectral index</span>
+<span class="sd">    alpha2:</span>
+<span class="sd">        second spectral index</span>
+
+<span class="sd">    RETURN</span>
+<span class="sd">    FrequencySeries</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="kn">from</span> <span class="nn">pygwb.constants</span> <span class="kn">import</span> <span class="n">H0</span>
+    <span class="n">H_theor</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">H0</span><span class="o">.</span><span class="n">si</span><span class="o">.</span><span class="n">value</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">fknee</span> <span class="o">=</span> <span class="n">fref</span>
+
+    <span class="n">power</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">freqs</span><span class="p">)</span>
+
+    <span class="n">power</span><span class="p">[</span><span class="n">freqs</span><span class="o">&lt;</span><span class="n">fknee</span><span class="p">]</span> <span class="o">=</span> <span class="n">H_theor</span> <span class="o">*</span> <span class="n">omegaRef</span> <span class="o">*</span> <span class="p">(</span><span class="n">freqs</span><span class="p">[</span><span class="n">freqs</span><span class="o">&lt;</span><span class="n">fknee</span><span class="p">])</span> <span class="o">**</span> <span class="p">(</span><span class="n">alpha1</span> <span class="o">-</span><span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">fref</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="n">alpha1</span><span class="p">)</span>
+    <span class="n">power</span><span class="p">[</span><span class="n">freqs</span><span class="o">&gt;</span><span class="n">fknee</span><span class="p">]</span> <span class="o">=</span> <span class="n">H_theor</span> <span class="o">*</span> <span class="n">omegaRef</span> <span class="o">*</span> <span class="p">(</span><span class="n">freqs</span><span class="p">[</span><span class="n">freqs</span><span class="o">&gt;</span><span class="n">fknee</span><span class="p">])</span> <span class="o">**</span> <span class="p">(</span><span class="n">alpha2</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">fref</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="n">alpha2</span><span class="p">)</span>
+    <span class="n">power</span><span class="p">[</span><span class="n">freqs</span><span class="o">==</span><span class="n">fknee</span><span class="p">]</span> <span class="o">=</span> <span class="n">H_theor</span> <span class="o">*</span> <span class="n">omegaRef</span> <span class="o">*</span> <span class="p">(</span><span class="n">fknee</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="n">alpha2</span> <span class="o">-</span><span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">fref</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="n">alpha2</span><span class="p">)</span>
+
+    <span class="n">power</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">power</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">gwpy</span><span class="o">.</span><span class="n">frequencyseries</span><span class="o">.</span><span class="n">FrequencySeries</span><span class="p">(</span><span class="n">power</span><span class="p">,</span> <span class="n">frequencies</span><span class="o">=</span><span class="n">freqs</span><span class="p">)</span>
+
+<span class="n">Intensity_GW_inject</span> <span class="o">=</span> <span class="n">IntensityGW</span><span class="p">(</span><span class="n">frequencies_x</span><span class="p">,</span> <span class="n">omegaRef</span> <span class="o">=</span> <span class="n">omegaRef</span><span class="p">,</span> <span class="n">alpha1</span> <span class="o">=</span> <span class="n">alpha1</span><span class="p">,</span> <span class="n">fref</span> <span class="o">=</span> <span class="n">fref</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Below, we show the signal PSD to be injected, corresponding to the parameter choice above.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">Intensity_GW_inject</span><span class="o">.</span><span class="n">frequencies</span><span class="p">,</span><span class="n">Intensity_GW_inject</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Frequencies [Hz]&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Signal PSD&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0, 0.5, &#39;Signal PSD&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/generate_stochastic_background_in_network_13_1.png" src="_images/generate_stochastic_background_in_network_13_1.png" />
+</div>
+</div>
+<p>Note that the above signal PSD was chosen for illustrative purposes. However, in practice, any signal PSD can be chosen to be injected, and one does not need to restrict themselves to a broken power-law.</p>
+</section>
+<section id="Initialize-empty-interferometers-and-set-a-noise-PSD-to-use-in-the-simulation">
+<h3>Initialize empty interferometers and set a noise PSD to use in the simulation<a class="headerlink" href="#Initialize-empty-interferometers-and-set-a-noise-PSD-to-use-in-the-simulation" title="Permalink to this heading"></a></h3>
+<p>The detectors for which data with the above signal PSD need to be simulated, have to be passed to the <code class="docutils literal notranslate"><span class="pre">simulator</span></code> module. By relying on the <code class="docutils literal notranslate"><span class="pre">detector</span></code> module, we instantiate various detectors below.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">H1</span> <span class="o">=</span> <span class="n">Interferometer</span><span class="o">.</span><span class="n">get_empty_interferometer</span><span class="p">(</span><span class="s2">&quot;H1&quot;</span><span class="p">)</span> <span class="c1">#LIGO Hanford detector</span>
+<span class="n">L1</span> <span class="o">=</span> <span class="n">Interferometer</span><span class="o">.</span><span class="n">get_empty_interferometer</span><span class="p">(</span><span class="s2">&quot;L1&quot;</span><span class="p">)</span> <span class="c1">#LIGO Livingston detector</span>
+<span class="n">V1</span> <span class="o">=</span> <span class="n">Interferometer</span><span class="o">.</span><span class="n">get_empty_interferometer</span><span class="p">(</span><span class="s2">&quot;V1&quot;</span><span class="p">)</span> <span class="c1">#Virgo detector</span>
+<span class="n">K</span> <span class="o">=</span> <span class="n">Interferometer</span><span class="o">.</span><span class="n">get_empty_interferometer</span><span class="p">(</span><span class="s2">&quot;K1&quot;</span><span class="p">)</span> <span class="c1">#KAGRA detector</span>
+<span class="n">G</span> <span class="o">=</span> <span class="n">Interferometer</span><span class="o">.</span><span class="n">get_empty_interferometer</span><span class="p">(</span><span class="s2">&quot;GEO600&quot;</span><span class="p">)</span> <span class="c1"># GEO600 detector</span>
+
+<span class="n">ifo_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">H1</span><span class="p">,</span> <span class="n">L1</span><span class="p">,</span> <span class="n">V1</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">G</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>The above detectors are <code class="docutils literal notranslate"><span class="pre">Interferometer</span></code> objects, but are based on <code class="docutils literal notranslate"><span class="pre">bilby</span></code> detectors, which have default noise PSDs saved in them, in the <code class="docutils literal notranslate"><span class="pre">power_spectral_density</span></code> attribute of the <code class="docutils literal notranslate"><span class="pre">bilby</span></code> detector. Below, we load in this noise PSD and make sure the duration and sampling frequency of the detector is set to the desired value of these parameters chosen at the start of the notebook.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">ifo</span> <span class="ow">in</span> <span class="n">ifo_list</span><span class="p">:</span>
+    <span class="n">ifo</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="n">duration</span>
+    <span class="n">ifo</span><span class="o">.</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="n">sampling_frequency</span>
+    <span class="n">ifo</span><span class="o">.</span><span class="n">power_spectral_density</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">gw</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">PowerSpectralDensity</span><span class="p">(</span><span class="n">ifo</span><span class="o">.</span><span class="n">frequency_array</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">ifo</span><span class="o">.</span><span class="n">power_spectral_density_array</span><span class="p">,</span> <span class="n">posinf</span><span class="o">=</span><span class="mf">1.e-41</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>To illustrate the last few steps, we plot the PSD for the H1 detector.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">H1</span><span class="o">.</span><span class="n">power_spectral_density</span><span class="o">.</span><span class="n">psd_array</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&lt;matplotlib.lines.Line2D at 0x7f7284bf3040&gt;]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/generate_stochastic_background_in_network_21_1.png" src="_images/generate_stochastic_background_in_network_21_1.png" />
+</div>
+</div>
+</section>
+<section id="Initialize-a-network-with-the-interferometer-list">
+<h3>Initialize a network with the interferometer list<a class="headerlink" href="#Initialize-a-network-with-the-interferometer-list" title="Permalink to this heading"></a></h3>
+<p>Although the <code class="docutils literal notranslate"><span class="pre">simulator</span></code> module can be called directly, it is useful to rely on the <code class="docutils literal notranslate"><span class="pre">network</span></code> module and call the dedicated methods of that module (which calls the <code class="docutils literal notranslate"><span class="pre">simulator</span></code> behind the screens). We therefore create a network of detectors, by calling:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">net_HLVKG</span> <span class="o">=</span> <span class="n">Network</span><span class="p">(</span><span class="s1">&#39;HLVKG&#39;</span><span class="p">,</span> <span class="n">ifo_list</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Simulate-the-data-in-each-interferometer">
+<h3>Simulate the data in each interferometer<a class="headerlink" href="#Simulate-the-data-in-each-interferometer" title="Permalink to this heading"></a></h3>
+<p>We are now ready to simulate the data, consisting of a signal and Gaussian noise, colored by the noise PSD saved in each of the detectors. We rely on the <code class="docutils literal notranslate"><span class="pre">network</span></code> module to simulate the data by calling the <code class="docutils literal notranslate"><span class="pre">set_interferometer_data_from_simulator</span></code> method (which uses the <code class="docutils literal notranslate"><span class="pre">simulator</span></code> module).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">net_HLVKG</span><span class="o">.</span><span class="n">set_interferometer_data_from_simulator</span><span class="p">(</span><span class="n">N_segments</span><span class="o">=</span><span class="n">N_segs</span><span class="p">,</span> <span class="n">GWB_intensity</span><span class="o">=</span><span class="n">Intensity_GW_inject</span><span class="p">,</span> <span class="n">sampling_frequency</span><span class="o">=</span><span class="n">sampling_frequency</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/kevin.turbang/.conda/envs/pygwb_maintenance/lib/python3.9/site-packages/pygwb/network.py:220: UserWarning: User did not specify a start time. Setting start time to zero.
+  warnings.warn(
+WARNING: AstropyDeprecationWarning: The truth value of a Quantity is ambiguous. In the future this will raise a ValueError. [astropy.units.quantity]
+WARNING:astropy:AstropyDeprecationWarning: The truth value of a Quantity is ambiguous. In the future this will raise a ValueError.
+2023-05-23 03:20:41.981 | INFO     | pygwb.simulator:generate_data:272 - Adding data to channel H1:SIM-STOCH_INJ
+2023-05-23 03:20:42.026 | INFO     | pygwb.simulator:generate_data:272 - Adding data to channel L1:SIM-STOCH_INJ
+2023-05-23 03:20:42.073 | INFO     | pygwb.simulator:generate_data:272 - Adding data to channel V1:SIM-STOCH_INJ
+2023-05-23 03:20:42.119 | INFO     | pygwb.simulator:generate_data:272 - Adding data to channel K1:SIM-STOCH_INJ
+2023-05-23 03:20:42.165 | INFO     | pygwb.simulator:generate_data:272 - Adding data to channel GEO600:SIM-STOCH_INJ
+</pre></div></div>
+</div>
+<p>In order to visualize part of the simulated data, we show the first minute of data for the H1 detector.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">crop_start_time</span> <span class="o">=</span> <span class="n">net_HLVKG</span><span class="o">.</span><span class="n">interferometers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">start_time</span>
+<span class="n">crop_duration</span>   <span class="o">=</span> <span class="mi">60</span>
+
+<span class="c1"># Note: we need to grab the TimeSeries from the bilby interferometer, which requires converting it to a TimeSeries</span>
+<span class="n">data_H_1min</span> <span class="o">=</span> <span class="n">net_HLVKG</span><span class="o">.</span><span class="n">interferometers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">to_gwpy_timeseries</span><span class="p">()</span><span class="o">.</span><span class="n">crop</span><span class="p">(</span><span class="n">start</span> <span class="o">=</span> <span class="n">crop_start_time</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">crop_start_time</span> <span class="o">+</span> <span class="n">crop_duration</span><span class="p">)</span>
+<span class="n">data_H_1min</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="_images/generate_stochastic_background_in_network_29_0.png" src="_images/generate_stochastic_background_in_network_29_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/generate_stochastic_background_in_network_29_1.png" src="_images/generate_stochastic_background_in_network_29_1.png" />
+</div>
+</div>
+<p>One could also plot the whole simulated data stream as follows.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">net_HLVKG</span><span class="o">.</span><span class="n">interferometers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strain_data</span><span class="o">.</span><span class="n">to_gwpy_timeseries</span><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="_images/generate_stochastic_background_in_network_31_0.png" src="_images/generate_stochastic_background_in_network_31_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/generate_stochastic_background_in_network_31_1.png" src="_images/generate_stochastic_background_in_network_31_1.png" />
+</div>
+</div>
+<p><em>Optional</em>: Note that one may save the data by calling <code class="docutils literal notranslate"><span class="pre">save_interferometer_data_to_file</span></code> and specifying the file format as an argument. This wraps <code class="docutils literal notranslate"><span class="pre">gwpy.TimeSeries.write()</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># net_HLVKG.save_interferometer_data_to_file()</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Visualize-the-data-PSD">
+<h3>Visualize the data PSD<a class="headerlink" href="#Visualize-the-data-PSD" title="Permalink to this heading"></a></h3>
+<p>To conclude this tutorial, we look at the PSD of the data (instead of the time domain data shown above). For concreteness, we look at the one minute of H1 data plotted above.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+
+<span class="n">frequencies</span> <span class="o">=</span> <span class="n">data_H_1min</span><span class="o">.</span><span class="n">psd</span><span class="p">()</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">value</span>
+
+<span class="n">mask</span> <span class="o">=</span> <span class="n">frequencies</span><span class="o">&gt;</span><span class="mf">5.</span>
+
+<span class="n">ax</span><span class="p">,</span> <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">frequencies</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">data_H_1min</span><span class="o">.</span><span class="n">psd</span><span class="p">()</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;data PSD&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">frequencies</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">IntensityGW</span><span class="p">(</span><span class="n">frequencies</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span><span class="n">omegaRef</span> <span class="o">=</span> <span class="n">omegaRef</span><span class="p">,</span> <span class="n">alpha1</span> <span class="o">=</span> <span class="n">alpha1</span><span class="p">,</span> <span class="n">fref</span> <span class="o">=</span> <span class="n">fref</span><span class="p">),</span> <span class="n">linewidth</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;injected power&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">H1</span><span class="o">.</span><span class="n">power_spectral_density</span><span class="o">.</span><span class="n">frequency_array</span><span class="p">[</span><span class="n">H1</span><span class="o">.</span><span class="n">power_spectral_density</span><span class="o">.</span><span class="n">frequency_array</span><span class="o">&gt;</span><span class="mi">10</span><span class="p">],</span> <span class="n">H1</span><span class="o">.</span><span class="n">power_spectral_density</span><span class="o">.</span><span class="n">psd_array</span><span class="p">[</span><span class="n">H1</span><span class="o">.</span><span class="n">power_spectral_density</span><span class="o">.</span><span class="n">frequency_array</span><span class="o">&gt;</span><span class="mi">10</span><span class="p">],</span> <span class="n">linewidth</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;noise PSD&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Frequencies [Hz]&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;PSD&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0, 0.5, &#39;PSD&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/generate_stochastic_background_in_network_36_1.png" src="_images/generate_stochastic_background_in_network_36_1.png" />
+</div>
+</div>
+<p>Note that because the signal PSD amplitude was chosen fairly large, it rises above the noise PSD for a certain frequency range. This behavior is clearly also present in the data PSD (blue), illustrating the injection was performed correctly, and the signal is actually present in the data.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Arianna Renzini, Sylvia Biscoveanu, Shivaraj Khandasamy, Kamiel Janssens, Max Lalleman, Katarina Martinovic, Andrew Matas, Patrick Meyers, Alba Romero, Colm Talbot, Leo Tsukada, Kevin Turbang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

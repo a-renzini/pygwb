@@ -1,0 +1,36 @@
+﻿pygwb.postprocessing
+====================
+
+.. currentmodule:: pygwb.postprocessing
+
+.. automodule:: pygwb.postprocessing
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      calc_Y_sigma_from_Yf_sigmaf
+      calculate_point_estimate_sigma_spectra
+      combine_spectra_with_sigma_weights
+      odd_even_segment_postprocessing
+      postprocess_Y_sigma
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

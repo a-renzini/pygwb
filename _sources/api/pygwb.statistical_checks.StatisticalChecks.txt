@@ -1,0 +1,55 @@
+pygwb.statistical\_checks.StatisticalChecks
+===========================================
+
+.. currentmodule:: pygwb.statistical_checks
+
+.. autoclass:: StatisticalChecks
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+   .. automethod:: __call__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~StatisticalChecks.__init__
+      ~StatisticalChecks.coherence_pdf
+      ~StatisticalChecks.coherence_pvalue
+      ~StatisticalChecks.coherence_threshold
+      ~StatisticalChecks.compute_ifft_integrand
+      ~StatisticalChecks.compute_running_quantities
+      ~StatisticalChecks.generate_all_plots
+      ~StatisticalChecks.get_data_after_dsc
+      ~StatisticalChecks.plot_IFFT_point_estimate_integrand
+      ~StatisticalChecks.plot_KS_test
+      ~StatisticalChecks.plot_SNR_spectrum
+      ~StatisticalChecks.plot_coherence_spectrum
+      ~StatisticalChecks.plot_cumulative_SNR_spectrum
+      ~StatisticalChecks.plot_cumulative_sensitivity
+      ~StatisticalChecks.plot_gates_in_time
+      ~StatisticalChecks.plot_hist_coherence
+      ~StatisticalChecks.plot_hist_omega_pre_post_dsc
+      ~StatisticalChecks.plot_hist_sigma_dsc
+      ~StatisticalChecks.plot_hist_sigma_squared
+      ~StatisticalChecks.plot_imag_SNR_spectrum
+      ~StatisticalChecks.plot_omega_sigma_in_time
+      ~StatisticalChecks.plot_omega_time_fit
+      ~StatisticalChecks.plot_real_SNR_spectrum
+      ~StatisticalChecks.plot_running_point_estimate
+      ~StatisticalChecks.plot_running_sigma
+      ~StatisticalChecks.plot_scatter_omega_sigma_dsc
+      ~StatisticalChecks.plot_scatter_sigma_dsc
+      ~StatisticalChecks.plot_sigma_spectrum
+      ~StatisticalChecks.plot_sigma_time_fit
+      ~StatisticalChecks.save_all_statements
+   
+   
+
+   
+   
+   

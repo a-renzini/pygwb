@@ -1,0 +1,6 @@
+pygwb.preprocessing.self\_gate\_data
+====================================
+
+.. currentmodule:: pygwb.preprocessing
+
+.. autofunction:: self_gate_data

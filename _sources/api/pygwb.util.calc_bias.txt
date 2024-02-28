@@ -1,0 +1,6 @@
+pygwb.util.calc\_bias
+=====================
+
+.. currentmodule:: pygwb.util
+
+.. autofunction:: calc_bias

@@ -1,0 +1,39 @@
+pygwb.pe.TripleBrokenPowerLawModel
+==================================
+
+.. currentmodule:: pygwb.pe
+
+.. autoclass:: TripleBrokenPowerLawModel
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+   .. automethod:: __call__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TripleBrokenPowerLawModel.__init__
+      ~TripleBrokenPowerLawModel.log_likelihood
+      ~TripleBrokenPowerLawModel.log_likelihood_IJ
+      ~TripleBrokenPowerLawModel.log_likelihood_ratio
+      ~TripleBrokenPowerLawModel.model_function
+      ~TripleBrokenPowerLawModel.noise_log_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TripleBrokenPowerLawModel.marginalized_parameters
+      ~TripleBrokenPowerLawModel.meta_data
+      ~TripleBrokenPowerLawModel.parameters
+   
+   

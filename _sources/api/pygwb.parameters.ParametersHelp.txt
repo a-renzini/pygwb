@@ -1,0 +1,69 @@
+pygwb.parameters.ParametersHelp
+===============================
+
+.. currentmodule:: pygwb.parameters
+
+.. autoclass:: ParametersHelp
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+   .. automethod:: __call__
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ParametersHelp.t0
+      ~ParametersHelp.tf
+      ~ParametersHelp.interferometer_list
+      ~ParametersHelp.data_type
+      ~ParametersHelp.channel
+      ~ParametersHelp.frametype
+      ~ParametersHelp.new_sample_rate
+      ~ParametersHelp.input_sample_rate
+      ~ParametersHelp.cutoff_frequency
+      ~ParametersHelp.segment_duration
+      ~ParametersHelp.number_cropped_seconds
+      ~ParametersHelp.window_downsampling
+      ~ParametersHelp.ftype
+      ~ParametersHelp.frequency_resolution
+      ~ParametersHelp.polarization
+      ~ParametersHelp.alpha
+      ~ParametersHelp.fref
+      ~ParametersHelp.flow
+      ~ParametersHelp.fhigh
+      ~ParametersHelp.local_data_path
+      ~ParametersHelp.notch_list_path
+      ~ParametersHelp.coarse_grain_psd
+      ~ParametersHelp.coarse_grain_csd
+      ~ParametersHelp.overlap_factor_welch
+      ~ParametersHelp.N_average_segments_psd
+      ~ParametersHelp.window_fft_dict
+      ~ParametersHelp.window_fft_dict_welch
+      ~ParametersHelp.calibration_epsilon
+      ~ParametersHelp.overlap_factor
+      ~ParametersHelp.delta_sigma_cut
+      ~ParametersHelp.alphas_delta_sigma_cut
+      ~ParametersHelp.save_data_type
+      ~ParametersHelp.time_shift
+      ~ParametersHelp.path_gate_data
+      ~ParametersHelp.gate_data
+      ~ParametersHelp.gate_tzero
+      ~ParametersHelp.gate_tpad
+      ~ParametersHelp.gate_threshold
+      ~ParametersHelp.cluster_window
+      ~ParametersHelp.gate_whiten
+      ~ParametersHelp.tag
+      ~ParametersHelp.return_naive_and_averaged_sigmas
+      ~ParametersHelp.help
+      ~ParametersHelp.argument
+   
+   

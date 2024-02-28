@@ -1,0 +1,6 @@
+pygwb.preprocessing.read\_data
+==============================
+
+.. currentmodule:: pygwb.preprocessing
+
+.. autofunction:: read_data

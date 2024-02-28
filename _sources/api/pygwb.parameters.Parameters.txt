@@ -1,0 +1,78 @@
+pygwb.parameters.Parameters
+===========================
+
+.. currentmodule:: pygwb.parameters
+
+.. autoclass:: Parameters
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+   .. automethod:: __call__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Parameters.__init__
+      ~Parameters.parse_ifo_parameters
+      ~Parameters.save_paramfile
+      ~Parameters.update_from_arguments
+      ~Parameters.update_from_dictionary
+      ~Parameters.update_from_file
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Parameters.N_average_segments_psd
+      ~Parameters.alpha
+      ~Parameters.calibration_epsilon
+      ~Parameters.channel
+      ~Parameters.cluster_window
+      ~Parameters.coarse_grain_csd
+      ~Parameters.coarse_grain_psd
+      ~Parameters.cutoff_frequency
+      ~Parameters.data_type
+      ~Parameters.delta_sigma_cut
+      ~Parameters.fhigh
+      ~Parameters.flow
+      ~Parameters.frametype
+      ~Parameters.fref
+      ~Parameters.frequency_resolution
+      ~Parameters.ftype
+      ~Parameters.gate_data
+      ~Parameters.gate_threshold
+      ~Parameters.gate_tpad
+      ~Parameters.gate_tzero
+      ~Parameters.gate_whiten
+      ~Parameters.input_sample_rate
+      ~Parameters.local_data_path
+      ~Parameters.new_sample_rate
+      ~Parameters.notch_list_path
+      ~Parameters.number_cropped_seconds
+      ~Parameters.overlap_factor
+      ~Parameters.overlap_factor_welch
+      ~Parameters.path_gate_data
+      ~Parameters.polarization
+      ~Parameters.return_naive_and_averaged_sigmas
+      ~Parameters.save_data_type
+      ~Parameters.segment_duration
+      ~Parameters.t0
+      ~Parameters.tag
+      ~Parameters.tf
+      ~Parameters.time_shift
+      ~Parameters.window_downsampling
+      ~Parameters.interferometer_list
+      ~Parameters.window_fft_dict
+      ~Parameters.window_fft_dict_welch
+      ~Parameters.alphas_delta_sigma_cut
+   
+   

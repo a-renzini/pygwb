@@ -1,0 +1,39 @@
+pygwb.simulator.Simulator
+=========================
+
+.. currentmodule:: pygwb.simulator
+
+.. autoclass:: Simulator
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+   .. automethod:: __call__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Simulator.__init__
+      ~Simulator.compute_eigval_eigvec
+      ~Simulator.covariance_matrix
+      ~Simulator.generate_data
+      ~Simulator.generate_freq_domain_data
+      ~Simulator.get_data_for_interferometers
+      ~Simulator.get_frequencies
+      ~Simulator.get_noise_PSD_array
+      ~Simulator.get_orf
+      ~Simulator.inject_CBC
+      ~Simulator.orf_to_array
+      ~Simulator.simulate
+      ~Simulator.splice_segments
+      ~Simulator.transform_to_correlated_data
+   
+   
+
+   
+   
+   
