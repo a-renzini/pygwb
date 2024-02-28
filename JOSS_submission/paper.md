@@ -79,7 +79,7 @@ affiliations:
    index: 11
  - name: Université Côte d’Azur, Observatoire Côte d’Azur, ARTEMIS, Nice, France
    index: 12
- - name: Max Planck Institute for Gravitational Physics (Albert Einstein Institute), D-14476 Potsdam, Germany
+ - name: Max Planck Institute for Gravitational Physics (Albert Einstein Institute), D-14476 Potsdam, Geany
    index: 13
  - name: OzGrav, Charles Sturt University, Wagga Wagga, New South Wales 2678, Australia
    index: 14
@@ -97,13 +97,13 @@ aas-journal: Astrophysical Journal
 
 # Introduction
 
-A gravitational-wave background (GWB) is expected from the superposition of all gravitational waves (GWs) too faint to be detected individually, or by the incoherent overlap of a large number of signals in the same band [@AIReview]. A GWB is primarily characterized by its spectral emission, usually parameterized by the GW fractional energy density spectrum $\Omega_{\rm GW}(f)$, which is the target for stochastic GW searches [@AllenRomano],
+A gravitational-wave background (GWB) is expected from the superposition of all gravitational waves (GWs) too faint to be detected individually, or by the incoherent overlap of a large number of signals in the same band [@AIReview]. A GWB is primarily characterized by its spectral emission, usually parameterized by the GW fractional energy density spectrum $\Omega_{\mathrm {GW}}(f)$, which is the target for stochastic GW searches [@AllenRomano],
 
 $$
-\Omega_{\rm GW}(f) = \frac{1}{\rho_c}\frac{d\rho_{\rm GW}(f)}{d\ln f},
+\Omega_{\mathrm{GW}}(f) = \frac{1}{\rho_c}\frac{d\rho_{\mathrm{GW}}(f)}{d\ln f},
 $$
 
-where $d\rho_{\rm GW}$ is the energy density of GWs in the frequency band $f$ to $f + df$, and $\rho_c$ is the critical energy density of the Universe. Different categories of GW sources may be identified by the unique spectral shape of their background emission; hence, the detection of a GWB will provide invaluable information about the evolution of the Universe and the population of GW sources within it.
+where $d\rho_{\mathrm{GW}}$ is the energy density of GWs in the frequency band $f$ to $f + df$, and $\rho_c$ is the critical energy density of the Universe. Different categories of GW sources may be identified by the unique spectral shape of their background emission; hence, the detection of a GWB will provide invaluable information about the evolution of the Universe and the population of GW sources within it.
 
 # Statement of need
 
@@ -114,13 +114,13 @@ Due to the considerable amount of data to analyze, and the vast panorama of GWB 
 The GWB spectrum estimation implemented in `pygwb` is based on the unbiased minimum variance cross-correlation estimator [@RomanoRev],
 
 $$
-\hat{\Omega}_{{\rm GW}, f} = \frac{{\rm Re}[C_{IJ, f}]}{\gamma_{IJ}(f) S_0(f)}.
+\hat{\Omega}_{{\mathrm{GW}}, f} = \frac{{\mathrm{Re}}[C_{IJ, f}]}{\gamma_{IJ}(f) S_0(f)}.
 $$
 
 Here, $C_{IJ, f}$ is the cross-correlation spectral density between two detectors $I$ and $J$, $\gamma_{IJ}$ is the overlap reduction function [@AllenRomano], and $S_0(f)$ = $\frac{3H_0^2}{10\pi^2}\frac{1}{f^3}$, where $H_0$ is the Hubble constant today [@Planck2018]. The variance of the estimator is given by
 
 $$
-\sigma^2_{{\rm GW,} f} = \frac{1}{2 T \Delta f} \frac{P_{I, f} P_{J, f}}{\gamma^2_{IJ}(f) S^2_0(f)},
+\sigma^2_{{\mathrm{GW},} f} = \frac{1}{2 T \Delta f} \frac{P_{I, f} P_{J, f}}{\gamma^2_{IJ}(f) S^2_0(f)},
 $$
 
 where $P_{I,f}$ is the power spectral density from detector $I$ and $T$ is the duration of data used to produce the above spectral densities. This estimator is optimal and unbiased under the assumption that the signal is Gaussian, isotropic, and continuous. Details on how the estimation is carried out, as well as the implementation of the estimator on large datasets and with many potentially overlapping data segments can be found in our companion methods paper [@pygwb_paper].
@@ -128,10 +128,10 @@ where $P_{I,f}$ is the power spectral density from detector $I$ and $T$ is the d
 Model testing in `pygwb` is performed through Bayesian inference on a select set of parameters, given a parametric GWB model and a likelihood $p$ of observing the data given the model. Concretely, the above cross-correlation estimator is input data to a Gaussian residual likelihood,
 
 $$
-p\left(\hat{\Omega}^{IJ}_{{\rm GW}, f} | \lambda\right) \propto\exp\left[  -\frac{1}{2} \sum_{IJ}^B \sum_f \left(\frac{\hat{\Omega}^{IJ}_{{\rm GW}, f}  - \Omega_{\rm M}(f|\lambda)}{\hat{\sigma}^{IJ}_{{\rm GW}, f}}\right)^2  \right],
+p\left(\hat{\Omega}^{IJ}_{{\mathrm{GW}}, f} | \lambda\right) \propto\exp\left[  -\frac{1}{2} \sum_{IJ}^B \sum_f \left(\frac{\hat{\Omega}^{IJ}_{{\mathrm{GW}}, f}  - \Omega_{\mathrm{M}}(f|\lambda)}{\hat{\sigma}^{IJ}_{{\mathrm{GW}}, f}}\right)^2  \right],
 $$
 
-where $\Omega_{\rm M}(f|\lambda)$ is the GWB model and $\lambda$ are its parameters. `pygwb` currently admits a variety of GWB models, compatible with the Gaussian likelihood above. More information about the parameter estimation and the implemented models can be found in our companion methods paper [@pygwb_paper].
+where $\Omega_{\mathrm{M}}(f|\lambda)$ is the GWB model and $\lambda$ are its parameters. `pygwb` currently admits a variety of GWB models, compatible with the Gaussian likelihood above. More information about the parameter estimation and the implemented models can be found in our companion methods paper [@pygwb_paper].
 
 # `pygwb`
 
