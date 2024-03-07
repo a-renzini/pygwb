@@ -40,7 +40,7 @@ def main():
         "--outdir", "-od", help="Output path.", action="store", type=Path, required=False
     )
     simulate_parser.add_argument(
-        "--waveform_duration", "-wd",  help="Duration to use for waveform generation.", action="store", type=int, required=False, default=None)
+        "--waveform_duration", "-wd",  help="Duration to use for waveform generation.", action="store", type=float, required=False, default=None)
     simulate_parser.add_argument(
         "--waveform_approximant", "-wa",  help="Waveform approximation to use for waveform generation.", action="store", type=str, required=False, default=None)
     simulate_parser.add_argument(
@@ -54,11 +54,11 @@ def main():
 
     waveform_generator_arguments = default_waveform_generator_arguments # load waveform parameters
     if simulate_args.waveform_duration is not None:
-        waveform_generator_arguments['waveform_duration']= simulate_args.waveform_duration
+        waveform_generator_arguments['duration']= simulate_args.waveform_duration
     if simulate_args.waveform_approximant is not None:
         waveform_generator_arguments['waveform_arguments']['waveform_approximant']= simulate_args.waveform_approximant
     if simulate_args.waveform_reference_frequency is not None:
-        waveform_generator_arguments['waveform_arguments']['waveform_reference_frequency']= simulate_args.waveform_reference_frequency
+        waveform_generator_arguments['waveform_arguments']['reference_frequency']= simulate_args.waveform_reference_frequency
 
     with open(simulate_args.injection_file, "r") as file:
         injections = json.load(file)['injections']['content'] #, cls=bilby.core.result.BilbyJsonEncoder)
