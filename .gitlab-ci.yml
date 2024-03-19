@@ -44,9 +44,9 @@ stages:
           ${script} --help;
       done
 
-basic-3.8:
-  <<: *basic-python
-  image: python:3.8
+# basic-3.8:
+#   <<: *basic-python
+#   image: python:3.8
 
 basic-3.9:
   <<: *basic-python
