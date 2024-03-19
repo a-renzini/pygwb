@@ -51,7 +51,8 @@ stages:
     - pip install --upgrade pip
   script:
     - pip install --ignore-installed .
-    - pip install gwsumm==2.0.1 # have to fix this to continue using py38 due to backwards-incompatible changes in gwsumm/gwpy; should deprecate py38 soon.
+    - pip install gwsumm==2.0.1 # have to fix these to continue using py38 due to backwards-incompatible changes in gwsumm/gwpy; should deprecate py38 soon.
+    - pip install lscsoft-glue==3.0.1
     - cd ..
     - python -c "import pygwb"
     - python -c "import pygwb.baseline"
