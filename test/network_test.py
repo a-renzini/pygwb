@@ -99,7 +99,8 @@ class TestNetwork(unittest.TestCase):
             np.isnan(net.interferometers[0].strain_data.time_domain_strain).any()
         )
         net.save_interferometer_data_to_file()
-        os.remove('test_net_STRAIN-0-40.hdf5')
+        os.remove(f"{self.interferometer_1.name[0]}-{self.interferometer_1.name}_STRAIN-0-40.hdf5")
+        os.remove(f"{self.interferometer_2.name[0]}-{self.interferometer_2.name}_STRAIN-0-40.hdf5")
 
     #    def test_save_interferometer_data_to_file(self):
 
