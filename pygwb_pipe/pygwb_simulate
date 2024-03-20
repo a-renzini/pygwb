@@ -48,7 +48,7 @@ def main():
     simulate_parser.add_argument(
         "--channel_name", "-cn",  help="Channel name with which data are saved.", action="store", type=str, required=False, default=None)
     simulate_parser.add_argument(
-        "--save_file_format", "-sff",  help="File format used to save the data.", action="store", type=str, required=False, default="gwf")
+        "--save_file_format", "-sff",  help="File format in which to save the data.", action="store", type=str, required=False, default="gwf")
     
     simulate_args = simulate_parser.parse_args()
     if not simulate_args.outdir:
