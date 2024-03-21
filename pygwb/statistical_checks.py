@@ -1320,7 +1320,57 @@ class StatisticalChecks:
             f"{self.plot_dir / self.baseline_name}-{self.file_tag}-histogram_omega_dsc.png", bbox_inches = 'tight'
         )
         plt.close()
+    
+    def compute_KS_test_quantities(self, bias_factor):
+        """
+        Method to compute the quantities relevant to the KS test
+        
+        Parameters
+        =======
+        
+        bias_factor: ``float``
+            Bias factor to consider in the KS calculation.
+            
+        Returns
+        =======
+        
+        dks_x: ``float``
+            Value of the KS test statistic.
+        pval_KS: ``float``
+            p-value associated with the KS test.
+        bins_count: ``array_like`
+            Bins associated with the SNR differences used in the KS test.
+        normal_cdf: ``array_like`
+            Normal CDF for comparison purposes in the KS test.
+        cdf: ``array_like`
+            CDF of the SNR differences used in the KS test.
+        """
+        if self.delta_sigmas_cut.size==0:
+            return
 
+        dof_scale_factor = 1.0 / (1.0 + 3.0 / 35.0)
+        lx = len(self.sliding_deviate_cut)
+
+        sorted_deviates = np.sort(self.sliding_deviate_KS / bias_factor)
+
+        nanmask = ~np.isnan(sorted_deviates)
+        sorted_deviates_nansafe = sorted_deviates[nanmask]
+        count, bins_count = np.histogram(sorted_deviates_nansafe, bins=500)
+        pdf = count / sum(count)
+        cdf = np.cumsum(pdf)
+
+        normal = stats.norm(0, 1)
+        normal_cdf = normal.cdf(bins_count[1:])
+
+        dks_x = max(abs(cdf - normal_cdf))
+        lx_eff = lx * dof_scale_factor
+
+        lam = (np.sqrt(lx_eff) + 0.12 + 0.11 / np.sqrt(lx_eff)) * dks_x
+        pval_KS = StatKS(lam)
+        
+        return dks_x, pval_KS, bins_count, normal_cdf, cdf
+        
+        
     def plot_KS_test(self, bias_factor=None):
         """
         Generates and saves a panel plot with results of the Kolmogorov-Smirnov test for Gaussianity. 
@@ -1343,61 +1393,63 @@ class StatisticalChecks:
         pygwb.util.StatKS
 
         """
-        if self.delta_sigmas_cut.size==0:
-            return
-
+        
         if bias_factor is None:
             bias_factor = calc_bias(self.segment_duration, self.deltaF, self.deltaT)
-        dof_scale_factor = 1.0 / (1.0 + 3.0 / 35.0)
-        lx = len(self.sliding_deviate_cut)
+        
+        dks_x_theoretical, pval_KS_theoretical, bins_count_theoretical, normal_cdf_theoretical, cdf_theoretical = self.compute_KS_test_quantities(bias_factor)
 
-        sorted_deviates = np.sort(self.sliding_deviate_KS / bias_factor)
+        biases_array = np.linspace(0.95, 1.2, 100)
+        dks_x_empirical_array = np.zeros(len(biases_array))
+        
+        for ii,bias in enumerate(biases_array):
+            dks_x_empirical_array[ii], _, _, _, _ = self.compute_KS_test_quantities(bias)
 
-        nanmask = ~np.isnan(sorted_deviates)
-        sorted_deviates_nansafe = sorted_deviates[nanmask]
-        count, bins_count = np.histogram(sorted_deviates_nansafe, bins=500)
-        pdf = count / sum(count)
-        cdf = np.cumsum(pdf)
-
-        normal = stats.norm(0, 1)
-        normal_cdf = normal.cdf(bins_count[1:])
-
-        dks_x = max(abs(cdf - normal_cdf))
-        lx_eff = lx * dof_scale_factor
-
-        lam = (np.sqrt(lx_eff) + 0.12 + 0.11 / np.sqrt(lx_eff)) * dks_x
-        pval_KS = StatKS(lam)
-
+        bias_factor_empirical = biases_array[dks_x_empirical_array.argmin()]
+        dks_x_empirical, pval_KS_empirical, bins_count_empirical, normal_cdf_empirical, cdf_empirical = self.compute_KS_test_quantities(bias_factor_empirical)
+        
         fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(10, 8), constrained_layout=True)
         fig.suptitle(f"Kolmogorov-Smirnov test in {self.time_tag}", fontsize=self.title_fontsize)
 
-        axs[0].plot(bins_count[1:], cdf, "k", label="Data")
+        axs[0].plot(bins_count_theoretical[1:], cdf_theoretical, "k", label="Data with $\it{theoretical}$ bias = " + str(round(bias_factor, 2)))
+        axs[0].plot(bins_count_empirical[1:], cdf_empirical, c=self.sea[0], label="Data with $\it{empirical}$ bias = " + str(round(bias_factor_empirical, 2)))
         axs[0].plot(
-            bins_count[1:],
-            normal_cdf,
+            bins_count_theoretical[1:],
+            normal_cdf_theoretical,
             color=self.sea[3],
-            label=r"Erf with $\sigma$=" + str(round(bias_factor, 2)),
+            ls="dashed",
+            label=r"Normal CDF",
         )
         axs[0].text(
-            bins_count[1],
-            0.8,
-            "KS-statistic: "
-            + str(round(dks_x, 3))
+            bins_count_theoretical[1],
+            0.6,
+            "KS-statistic using $\it{theoretical}$ bias: "
+            + str(round(dks_x_theoretical, 3))
             + "\n"
-            + "p-value: "
-            + str(round(pval_KS, 3)),
+            + "p-value using $\it{theoretical}$ bias: "
+            + str(round(pval_KS_theoretical, 3))
+            + "\n\n"
+            +"KS-statistic using $\it{empirical}$ bias: "
+            + str(round(dks_x_empirical, 3))
+            + "\n"
+            + "p-value using $\it{empirical}$ bias: "
+            + str(round(pval_KS_empirical, 3)),
         )
         axs[0].legend(loc="lower right", fontsize=self.legend_fontsize)
         axs[0].tick_params(axis="x", labelsize=self.legend_fontsize)
         axs[0].tick_params(axis="y", labelsize=self.legend_fontsize)
 
         axs[1].plot(
-            bins_count[1:],
-            cdf - normal_cdf,
+            bins_count_theoretical[1:],
+            cdf_theoretical - normal_cdf_theoretical,c="k"
+        )
+        axs[1].plot(
+            bins_count_empirical[1:],
+            cdf_empirical - normal_cdf_empirical, c=self.sea[0]
         )
         axs[1].annotate(
-            "Maximum absolute difference: " + str(round(dks_x, 3)),
-            xy=(0.025, 0.9),
+            "Maximum absolute difference \nusing $\it{theoretical}$ bias: " + str(round(dks_x_theoretical, 3))+"\n\nMaximum absolute difference \nusing $\it{empricial}$ bias: " + str(round(dks_x_empirical, 3)),
+            xy=(0.025, 0.65),
             xycoords="axes fraction",
             size = self.annotate_fontsize
         )
@@ -1496,7 +1548,7 @@ class StatisticalChecks:
         axs.set_ylabel(r"$\Omega_i$", size=self.axes_labelsize)
         axs.set_xlim(self.days_cut[0], self.days_cut[-1])
         axs.annotate(
-            r"Linear trend analysis: $\Omega(t) = C_1 (t-T_{\rm obs}/2) T_{\rm obs} + C_2 C_1 = $"
+            r"Linear trend analysis: $\Omega(t) = C_1 (t-T_{\rm obs}/2) T_{\rm obs} + C_2$"+"\n"+"C$_1 = $"
             + str(f"{c1:.3e}")
             + "\nC$_2$ = "
             + str(f"{c2:.3e}"),
@@ -1549,7 +1601,7 @@ class StatisticalChecks:
         axs.set_xlim(self.days_cut[0], self.days_cut[-1])
         axs.set_ylim(mean_sigma - 1.2 * mean_sigma, mean_sigma + 2.2 * mean_sigma)
         axs.annotate(
-            r"Linear trend analysis: $\sigma(t) = C_1 (t-T_{\rm obs}/2) T_{\rm obs} + C_2 C_1 = $"
+            r"Linear trend analysis: $\sigma(t) = C_1 (t-T_{\rm obs}/2) T_{\rm obs} + C_2$"+"\n"+"C$_1 = $"
             + str(f"{c1:.3e}")
             + "\nC$_2$ = "
             + str(f"{c2:.3e}"),
