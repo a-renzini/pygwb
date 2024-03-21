@@ -36,14 +36,14 @@ def calculate_num_injections(T_obs, zs, p_dz):
     
 def compute_Omega_from_CBC_dictionary(injection_dict, sampling_frequency, T_obs, return_spectrum=True, f_ref=25, waveform_duration=10, waveform_approximant="IMRPhenomD", waveform_reference_frequency=25, waveform_minimum_frequency=20):
     """
-    Compute the total :math:`Omega_{\text{GW}}` injected in the data when injecting individual CBCs.
+    Compute the total :math:`\Omega_{\\text{GW}}` injected in the data when injecting individual CBCs.
     
     Parameters
     =======
 
     injection_dict: ``dict``
         Dictionary of injection samples (set of waveform parameters) to calculate
-        :math:`Omega_{\text{GW}}` from.
+        :math:`\Omega_{\\text{GW}}` from.
     sampling_frequency: ``int``
         Sampling frequency of the final output spectrum.
     T_obs: ``float``
@@ -67,12 +67,12 @@ def compute_Omega_from_CBC_dictionary(injection_dict, sampling_frequency, T_obs,
     freqs_psd : ``array_like``
 	Frequency array.
     Omega_GW_freq: ``array_like``
-	:math:`Omega_{\text{GW}}` spectrum array.
+	:math:`\Omega_{\\text{GW}}` spectrum array.
     
     OR if return_spectrum is False:
     
     Omega_ref: ``float``
-        :math:`Omega_{\text{GW}}` at :math:`f=f_{\text{ref}}`.
+        :math:`\Omega_{\\text{GW}}` at :math:`f=f_{\\text{ref}}`.
     """
     
     waveform_generator = bilby.gw.WaveformGenerator(

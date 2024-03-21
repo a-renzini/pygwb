@@ -283,7 +283,33 @@ It can be very useful to save these injections to file for later use. This is do
             injections, file, indent=2, cls=bilby.core.result.BilbyJsonEncoder
         )
 
-**2.3 Simulating CBCs and Gaussian noise**
+**2.3 Computing the expected CBC background**
+---------------------------------------------
+
+Given the above list of injections, one can compute the expected resulting CBC gravitational-wave background. To do so, we use the method 
+``pygwb.background.compute_Omega_from_CBC_dictionary()`` (see `here <api/pygwb.background.compute_Omega_from_CBC_dictionary.html#pygwb.background.compute_Omega_from_CBC_dictionary>`_).
+
+.. code-block:: python
+    
+    from pygwb.background import *
+
+    T_obs = 31536000 # 1 year in s
+    sampling_frequency = 1024 # Hz
+
+    compute_Omega_from_CBC_dictionary(injections, sampling_frequency, T_obs, return_spectrum=True, f_ref=25, waveform_duration=10, waveform_approximant="IMRPhenomD", waveform_reference_frequency=25, waveform_minimum_frequency=20)
+    
+The first parameter is the injection dictionary which was previously generated above and contains the parameters used to generate the CBC waveforms.
+One then specifies the sampling frequency of the final output spectrum. The total obsevration time in seconds should also be passed to the method. 
+Depending on whether one is interested in the point estimate or the full spectrum, one can set ``return_spectrum`` accordingly. The reference
+frequency of this spectrum (or associated point estimate) defaults to 25 Hz, but can be changed by the user. The next few optional parameters
+pertain to the CBC waveform generation: the duration, the approximant to use, the reference frequency and the minimum frequency. The output of this method
+is either a point estimate at previously chosen reference frequency, or two arrays containing the frequencies and associated point estimate spectrum.
+
+.. seealso::
+    Additional information about the parameters ``waveform_duration``, ``waveform_approximant``, ``waveform_reference_frequency``, and ``waveform_minimum_frequency`` can be found `here <https://lscsoft.docs.ligo.org/bilby/api/bilby.gw.waveform_generator.WaveformGenerator.html>`_, as these are then passed to the ``bilby.gw.WaveformGenerator`` method.
+
+
+**2.4 Simulating CBCs and Gaussian noise**
 ------------------------------------------
 
 We are now ready to simulate the data, consisting of CBCs and Gaussian noise, colored by the noise PSD saved in each of the detectors. 
@@ -299,10 +325,4 @@ More information on the method can be found `here <api/pygwb.network.Network.htm
     One may save the data by calling ``pygwb.network.save_interferometer_data_to_file()`` (see `here <api/pygwb.network.Network.html#pygwb.network.Network.save_interferometer_data_to_file>`_) 
     and specifying the file format as an argument. This wraps the ``gwpy.TimeSeries.write()`` method (more details can be found 
     `here <https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeries/#gwpy.timeseries.TimeSeries.write>`_).
-
-
-
-
-
-
 
