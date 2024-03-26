@@ -345,12 +345,13 @@ class Workflow():
         else:
             self.max_dur = 1000000
 
-        ifos = self.config['general']['ifos'].split(' ')
+        self.ifos = self.config['general']['ifos'].split(' ')
 
         logging.info('Downloading science flags...')
+        self.get_science_flags()
         if self.config.has_option('data_quality', 'science_segment'):
             sci_flag = DataQualityDict.query_dqsegdb(
-                [i+':'+self.config['data_quality']['science_segment'] for i in ifos],
+                [self.science_flags[i] for i in self.ifos],
                 self.t0, self.tf
                 ).intersection().active
         else:
@@ -382,7 +383,7 @@ class Workflow():
                                 'or not correctly authenticating when the veto definer '
                                 'is provided as a url.'
                                )
-            cat1_vetoes = DataQualityDict({v: vetoes[v] for v in vetoes if (vetoes[v].category ==1) and (v[:2] in ifos)})
+            cat1_vetoes = DataQualityDict({v: vetoes[v] for v in vetoes if (vetoes[v].category ==1) and (v[:2] in self.ifos)})
             cat1_vetoes.populate()
 
             cat1_vetoes = cat1_vetoes.union().active
@@ -614,3 +615,21 @@ class IsotropicWorkflow(Workflow):
         for parent in parents:
             job.add_parent(parent)
         return job
+
+    def get_science_flags(self):
+        scfl = (
+            self.config["data_quality"]["science_segment"]
+            .replace(",", " ")
+            .replace(":", " ")
+            .split(" ")
+        )
+        if len(scfl) == 1: #make bkwards compatible
+            base_flag = scfl[0]
+            scfl = []
+            for i in self.ifos:
+                scfl.append(i)
+                scfl.append(base_flag)
+        science_flags = {
+                scfl[2 * i]: f"{scfl[2 * i]}:{scfl[(2 * i + 1)]}" for i in range(len(scfl) // 2)
+        }
+        self.science_flags = science_flags
