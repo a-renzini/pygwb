@@ -33,6 +33,7 @@ This API section contains information about each of the modules, as well as a de
    statistical_checks
 
    simulator
+   background
 
    delta_sigma_cut
    notch
