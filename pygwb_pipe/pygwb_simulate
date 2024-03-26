@@ -40,12 +40,16 @@ def main():
         "--outdir", "-od", help="Output path.", action="store", type=Path, required=False
     )
     simulate_parser.add_argument(
-        "--waveform_duration", "-wd",  help="Duration to use for waveform generation.", action="store", type=float, required=False, default=None)
+        "--waveform_duration", "-wd",  help="Duration to use for waveform generation.", action="store", type=int, required=False, default=None)
     simulate_parser.add_argument(
         "--waveform_approximant", "-wa",  help="Waveform approximation to use for waveform generation.", action="store", type=str, required=False, default=None)
     simulate_parser.add_argument(
-        "--waveform_reference_frequency", "-wrf",  help="Waveform reference_frequency to use for waveform generation.", action="store", type=str, required=False, default=None)
-
+        "--waveform_reference_frequency", "-wrf",  help="Waveform reference_frequency to use for waveform generation.", action="store", type=float, required=False, default=None)
+    simulate_parser.add_argument(
+        "--channel_name", "-cn",  help="Channel name with which data are saved.", action="store", type=str, required=False, default=None)
+    simulate_parser.add_argument(
+        "--save_file_format", "-sff",  help="File format in which to save the data.", action="store", type=str, required=False, default="gwf")
+    
     simulate_args = simulate_parser.parse_args()
     if not simulate_args.outdir:
         simulate_args.outdir = Path("./")
@@ -110,7 +114,7 @@ def main():
 
     net_sim.set_interferometer_data_from_simulator(N_segs, CBC_dict=injections, sampling_frequency = simulate_args.sampling_frequency, start_time=simulate_args.start_time, waveform_generator_arguments=waveform_generator_arguments)
 
-    net_sim.save_interferometer_data_to_file(save_dir=simulate_args.outdir)
+    net_sim.save_interferometer_data_to_file(channel_name=simulate_args.channel_name, save_dir=simulate_args.outdir, file_format=simulate_args.save_file_format)
     exit()
 
 if __name__ == "__main__":

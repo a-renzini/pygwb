@@ -306,6 +306,7 @@ pertain to the CBC waveform generation: the duration, the approximant to use, th
 is either a point estimate at previously chosen reference frequency, or two arrays containing the frequencies and associated point estimate spectrum.
 
 .. seealso::
+
     Additional information about the parameters ``waveform_duration``, ``waveform_approximant``, ``waveform_reference_frequency``, and ``waveform_minimum_frequency`` can be found `here <https://lscsoft.docs.ligo.org/bilby/api/bilby.gw.waveform_generator.WaveformGenerator.html>`_, as these are then passed to the ``bilby.gw.WaveformGenerator`` method.
 
 
@@ -326,3 +327,114 @@ More information on the method can be found `here <api/pygwb.network.Network.htm
     and specifying the file format as an argument. This wraps the ``gwpy.TimeSeries.write()`` method (more details can be found 
     `here <https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeries/#gwpy.timeseries.TimeSeries.write>`_).
 
+**3. Using the pygwb_simulate script**
+======================================
+
+The ``pygwb_simulate`` script facilitates the generation of a CBC background by using the ``pygwb.network`` and ``pygwb.simulator``
+modules behind the screens. The script easily takes the user from several simulation parameters to saved data files containing the 
+simulated CBC background data.
+
+**3.1 Script parameteres**
+--------------------------
+
+As a first step, if one is unsure which parameters should be passed to the ``pygwb_simulate`` script, one can
+call :
+
+.. code-block:: shell
+
+    pygwb_simulate --help
+
+This displays the required parameters, together with a small description of each of them:
+
+.. code-block:: shell
+
+    --duration DURATION, -d DURATION
+                        Duration of each data segment simulated in seconds.
+    --start_time START_TIME, -ts START_TIME
+                        Start time of the observation in seconds.
+    --observing_time OBSERVING_TIME, -Tobs OBSERVING_TIME
+                        Duration of the observation in seconds.
+    --sampling_frequency SAMPLING_FREQUENCY, -fs SAMPLING_FREQUENCY
+                        Sampling frequency of the data in Hz.
+    --injection_file INJECTION_FILE, -if INJECTION_FILE
+                        Bilby injection json dictionary.
+    --detectors DETECTORS [DETECTORS ...], -det DETECTORS [DETECTORS ...]
+                        Detectors to simulate data for.
+    --sensitivity SENSITIVITY [SENSITIVITY ...], -sn SENSITIVITY [SENSITIVITY ...]
+                        Sensitivity of the detectors. You can find all
+                        possible sensitivities at
+                        https://pycbc.org/pycbc/latest/html/pycbc.psd.html .
+    --outdir OUTDIR, -od OUTDIR
+                        Output path.
+    --waveform_duration WAVEFORM_DURATION, -wd WAVEFORM_DURATION
+                        Duration to use for waveform generation.
+    --waveform_approximant WAVEFORM_APPROXIMANT, -wa WAVEFORM_APPROXIMANT
+                        Waveform approximation to use for waveform generation.
+    --waveform_reference_frequency WAVEFORM_REFERENCE_FREQUENCY, -wrf WAVEFORM_REFERENCE_FREQUENCY
+                        Waveform reference_frequency to use for waveform
+                        generation.
+    --channel_name CHANNEL_NAME, -cn CHANNEL_NAME
+                        Channel name with which data are saved.
+    --save_file_format SAVE_FILE_FORMAT, -sff SAVE_FILE_FORMAT
+                        File format in which to save the data.
+
+The duration of each data segment as simulated by the ``pygwb.simulator`` module is passed
+through the ``duration`` parameter. One can also specify the start and observing times through
+``start_time`` and ``observing_time``, respectively. The sampling frequency of the generated data 
+is given by the ``sampling_frequency`` argument.
+
+The ``injection_file`` parameter takes in the path to an injection dictionary containing the CBC 
+parameters that will enter in the waveform (as produced above in this tutorial). Each of the detectors
+for which to simulate data can be passed through ``detectors``, with the sensitivity passed via the
+``sensitivity`` argument as a string denoting a specific ``pycbc`` sensitivity.
+
+.. seealso::
+
+    Additional information about the available ``pycbc`` sensitivities can be found `here <https://pycbc.org/pycbc/latest/html/pycbc.psd.html>`_.
+
+The ``waveform_duration``, ``waveform_approximant``, and ``waveform_reference_frequency`` pertain to the 
+generation of the waveforms using ``bilby.gw.waveform_generator.WaveformGenerator``. 
+
+.. seealso::
+
+    Additional information about the parameters ``waveform_duration``, ``waveform_approximant``, ``waveform_reference_frequency``, and ``waveform_minimum_frequency`` can be found `here <https://lscsoft.docs.ligo.org/bilby/api/bilby.gw.waveform_generator.WaveformGenerator.html>`_, as these are then passed to the ``bilby.gw.WaveformGenerator`` method.
+
+
+The parameters ``channel_name`` and ``save_file_format`` allow for extra customization by specifying
+a different channel name than the default one of the simulator (``{ifo.name}:SIM-STOCH_INJ``), as well
+as a different format for the data to be saved in (defaults to ``gwf`` file format).
+
+**3.2 Running the script**
+--------------------------
+
+The script can then easily by passing the arguments as follows:
+
+.. code-block:: shell
+
+    pygwb_simulate --duration 64 --start_time 0 --observing_time 40960 --sampling_frequency 1024 --injection_file {path_to_injection_file} --detectors H1 L1 --sensitivity aLIGOAdVO4T1800545 --outdir ./ --waveform_duration 4 --waveform_approximant IMRPhenomPv2 --waveform_reference_frequency 25 --save_file_format gwf
+
+
+**3.3 Output of the script**
+----------------------------
+
+As mentioned in the introduction of this section, the ``pygwb_simulate`` script relies on the ``pygwb.network`` to simulate a CBC background.
+More particularly, it calls the ``pygwb.network.set_interferometer_data_from_simulator`` and  ``pygwb.network.save_interferometer_data_to_file``
+methods to generate and save the data to file, respectively. The output of the script is therefore a set of files containing
+the simulated CBC background data. Note that these are saved in the format specified by the user through the ``save_file_format`` argument, inside 
+the output directory passed through ``outdir``.
+
+.. seealso::
+
+    Additional information about the data generation and saving through the ``pygwb.network`` can be found on the dedicated API
+    page `here <api/pygwb.network.Network.html#pygwb.network.Network>`_ or towards the start of this tutorial.
+
+
+**3.4 Scaling up the amount of simulated data**
+-----------------------------------------------
+
+With the ``pygwb_simulate`` script at hand, one can easily draw a parallel with the ``pygwb_pipe`` script and the
+submission of jobs to Condor through the usage of the ``pygwb_dag`` script. Recall that one can create a ``dag`` file
+which contains multiple jobs, eventually running all in parallel on a cluster. One can create a similar file
+containing different ``pygwb_simulate`` jobs and therefore resulting in the simultaneous simulation of CBC data.
+For additional information on the ``pygwb_dag`` script and the submission of different jobs to a cluster, we refer
+the interested reader to `this page <multiple_jobs.html>`_, where this was done in the case of multiple ``pygwb_pipe`` jobs.
