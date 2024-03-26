@@ -284,6 +284,7 @@ class Network:
         sampling_frequency=None,
         start_time=None,
         inject_into_data_flag=False,
+        waveform_generator_arguments=None,
     ):
         """
         Fill interferometers with data from simulation. Data can already be present in the intereferometers of the network,
@@ -316,6 +317,8 @@ class Network:
             data present in the interferometers of the network. If so, only data will be simulated and no extra noise will
             be added on top of the simulated data. Defaults to False.
 
+        waveform_generator_arguments: ``dict``, optional
+            Dictionary with arguments referring to waveform generation. Defaults to values set in the ``simulator`` module.
         See also
         --------
         pygwb.simulator.Simulator : Used to simulate data.
@@ -347,6 +350,7 @@ class Network:
             start_time=start_time,
             sampling_frequency=sampling_frequency,
             no_noise=no_noise,
+            waveform_generator_arguments=waveform_generator_arguments,
         )
         data = data_simulator.get_data_for_interferometers()
 
@@ -359,7 +363,7 @@ class Network:
             for ifo in self.interferometers:
                 ifo.set_strain_data_from_gwpy_timeseries(data[ifo.name])
 
-    def save_interferometer_data_to_file(self, save_dir="./", file_format="hdf5"):
+    def save_interferometer_data_to_file(self, channel_name=None, save_dir="./", file_format="hdf5"):
         """
         Save interferometer strain data to a file. This method relies on the gwpy  TimeSeries.write method. Typically used when simulating a signal for a whole network of interferometers.
 
@@ -368,6 +372,9 @@ class Network:
         
         save_dir: ``str``, optional
             The path of the output folder. Defaults to the local folder.
+        
+        channel_name: ``str``, optional
+            The name of the channel under which to save the data. Defaults to the channel name already present in the interferometers of the network.
 
         file_format: ``str``, optional
             The format of the output file. Defaults to hdf5 file. Acceptable formats are standard gwpy TimeSeries.write formats.
@@ -375,20 +382,28 @@ class Network:
         Notes
         -----
 
-        This will save a single frame file with a set of interferometer data; each strain channel is labelled by its interferometer.
+        This will save a single frame file for each interferometer.
 
         See also
         --------
-        gwpy.timeseries.TimeSeriesDict
-            More information `here <https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeriesDict/>`_.
+        gwpy.timeseries.TimeSeries.write
+            More information `here <https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeries/#gwpy.timeseries.TimeSeries.write>`_.
         """
-        file_name = f"{self.name}_STRAIN-{int(self.interferometers[0].strain_data.start_time)}-{int(self.interferometers[0].strain_data.duration)}.{file_format}"
-        file_path = os.path.join(save_dir, file_name)
-        data_dict = gwpy.timeseries.TimeSeriesDict()
         for ifo in self.interferometers:
-            channel = f"STRAIN_{ifo.name}"
-            data_dict[channel] = ifo.strain_data.to_gwpy_timeseries()
-        data_dict.write(file_path, format=file_format)
+            file_name = f"{ifo.name[0]}-{ifo.name}_STRAIN-{int(self.interferometers[0].strain_data.start_time)}-{int(self.interferometers[0].strain_data.duration)}.{file_format}"
+            file_path = os.path.join(save_dir, file_name)
+            gwpy_tmp = ifo.strain_data.to_gwpy_timeseries()
+            if channel_name:
+                new_channel_name = f"{ifo.name}_"+channel_name
+                gwpy_tmp.channel = new_channel_name
+            gwpy_tmp.name = gwpy_tmp.channel
+            try:
+                gwpy_tmp.write(file_path, format=file_format)
+            except OSError:
+                warnings.warn(
+                "The file already existed and has been overwritten with the new data."
+                )
+                gwpy_tmp.write(file_path, format=file_format, overwrite=True)
 
     def combine_point_estimate_sigma_spectra(self):
         """
