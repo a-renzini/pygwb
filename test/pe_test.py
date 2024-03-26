@@ -259,7 +259,7 @@ class Test(unittest.TestCase):
         test_comparison.parameters = {"omega_ref": 8.9, "alpha": 3}
         
         np.testing.assert_allclose(
-            test_model.model_function(HL), test_comparison.model_function(HL), rtol=1e-4, atol=0
+            test_model.model_function(HL), test_comparison.model_function(HL), rtol=1e-4, atol=0)
 
     def test_combined(self):
         
