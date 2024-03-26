@@ -361,9 +361,9 @@ class Workflow():
 
         self.ifos = self.config['general']['ifos'].split(' ')
 
-        logging.info('Downloading science flags...')
-        self.get_science_flags()
         if self.config.has_option('data_quality', 'science_segment'):
+            logging.info('Downloading science flags...')
+            self.get_science_flags()
             sci_flag = DataQualityDict.query_dqsegdb(
                 [self.science_flags[i] for i in self.ifos],
                 self.t0, self.tf
