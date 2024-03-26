@@ -1090,9 +1090,12 @@ class Geodesy(GWBModel):
             raise ValueError(f"unexpected type for parameters {type(parameters)}")
 
     def model_function(self, bline):
+        delta_x = np.subtract(bline.interferometer_1.vertex, bline.interferometer_2.vertex)
+        alpha_orf = 2 * np.pi * bline.frequencies * np.linalg.norm(delta_x) / speed_of_light
+        
         omega_plus = (self.parameters["omega_det1"] + self.parameters["omega_det2"]) / 2.
         omega_minus = (self.parameters["omega_det1"] - self.parameters["omega_det2"]) / 2.
-        new_orf = calc_orf_from_beta_omegas(bline.frequencies, self.parameters["beta"], omega_minus, omega_plus)
+        new_orf = calc_orf_from_beta_omegas(bline.frequencies, alpha_orf, self.parameters["beta"], omega_minus, omega_plus)
         old_orf = getattr(bline, "tensor_overlap_reduction_function")
         return new_orf/old_orf * self.parameters["omega_ref"] * (bline.frequencies / self.fref) ** self.parameters["alpha"]
 

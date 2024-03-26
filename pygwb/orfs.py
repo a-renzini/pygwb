@@ -356,6 +356,7 @@ def omega_tangent_bisector(bisector, tangent_vector, perp):
 
 def calc_orf_from_beta_omegas(
     frequencies,
+    alpha,
     beta,
     omega_minus,
     omega_plus,
@@ -373,12 +374,14 @@ def calc_orf_from_beta_omegas(
     
     frequencies: ``array_like``
         Frequencies at which to evaluate the ORFs
+    alpha: ``array_like``
+        Argument of Bessel functions used in ORF computation
     beta: ``float``
-        Angle between detectors from center of Earth:.
+        Angle between detectors from center of Earth
     omega_minus: ``float``
-        Half of the difference of the angle between bisector and tangent vector at det1 and det2.
+        Half of the difference of the angle between bisector and tangent vector at det1 and det2
     omega_plus: ``float``
-        Half of the sum of the angle between bisector and tangent vector at det1 and det2.
+        Half of the sum of the angle between bisector and tangent vector at det1 and det2
 
     Returns
     =======
@@ -386,12 +389,6 @@ def calc_orf_from_beta_omegas(
     overlap_reduction_function: ``array_like``
         Overlap reduction function at given frequencies for specified polarization.
     """
-    earth_radius = 6371*10**3 # m
-    
-    delta_x = 2*earth_radius*np.sin(beta/2.)
-    
-    alpha = 2 * np.pi * frequencies * delta_x / speed_of_light
-
     if polarization.lower() == "tensor":
         overlap_reduction_function = Tplus(alpha, beta) * np.cos(
             4 * omega_plus
@@ -519,6 +516,6 @@ def calc_orf(
             omega_tangent_bisector(bisector_det1, bisector_det2, perp_det1) / 2
         )
         
-    overlap_reduction_function = calc_orf_from_beta_omegas(frequencies, beta, omega_minus, omega_plus, polarization)
+    overlap_reduction_function = calc_orf_from_beta_omegas(frequencies, alpha, beta, omega_minus, omega_plus, polarization)
     
     return overlap_reduction_function

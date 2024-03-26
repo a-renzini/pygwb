@@ -6,6 +6,7 @@ import numpy as np
 
 import pygwb.orfs as orfs
 from pygwb.baseline import Baseline
+from pygwb.constants import speed_of_light
 
 
 class OverlapReductionFunctionTest(unittest.TestCase):
@@ -101,15 +102,17 @@ class OverlapReductionFunctionTest(unittest.TestCase):
         HL = Baseline("HL", H1, L1)
         HL.orf_polarization = 'tensor'
         HL.frequencies = freqs
-        
+
         beta = 0.4757189334754699
+        delta_x = np.subtract(H1.vertex, L1.vertex)
+        alpha = 2 * np.pi * HL.frequencies * np.linalg.norm(delta_x) / speed_of_light
         omega_det1 = 3.4296676473913137
         omega_det2 = -1.2848910022634024
         omega_plus = (omega_det1 + omega_det2) / 2.
         omega_minus = (omega_det1 - omega_det2) / 2.
 
         np.testing.assert_allclose(
-            orfs.calc_orf_from_beta_omegas(freqs, beta, omega_minus, omega_plus, 'tensor'), HL.tensor_overlap_reduction_function, rtol=1e-4, atol=0
+            orfs.calc_orf_from_beta_omegas(freqs, alpha, beta, omega_minus, omega_plus, 'tensor'), HL.tensor_overlap_reduction_function, rtol=1e-4, atol=0
         )
         
 if __name__ == "__main__":
