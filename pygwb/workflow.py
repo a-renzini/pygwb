@@ -299,6 +299,20 @@ def _collect_job_arguments(config, job_type):
         args_list.append(val)
     return args_list
 
+def _collect_condor_arguments(config, job_type):
+    args_list = list()
+    for cfg_sec in ['condor', f'condor-{job_type}']:
+        if config.has_section(cfg_sec):
+            config_sec = config[cfg_sec]
+            for key in config_sec:
+                val = str(config_sec[key])
+                if val[0] == '$':
+                    val_source = val.replace('${', '').replace('}', '')
+                    val_source = val_source.split(':')
+                    val = config[val_source[0]][val_source[1]]
+                args_list.append(f"{str(key)} = {val}")
+    return args_list
+
 class Workflow():
     def __init__(self, name, config_file, basedir='./workflow', 
                  config_overrides=[]):
@@ -345,12 +359,13 @@ class Workflow():
         else:
             self.max_dur = 1000000
 
-        ifos = self.config['general']['ifos'].split(' ')
+        self.ifos = self.config['general']['ifos'].split(' ')
 
-        logging.info('Downloading science flags...')
         if self.config.has_option('data_quality', 'science_segment'):
+            logging.info('Downloading science flags...')
+            self.get_science_flags()
             sci_flag = DataQualityDict.query_dqsegdb(
-                [i+':'+self.config['data_quality']['science_segment'] for i in ifos],
+                [self.science_flags[i] for i in self.ifos],
                 self.t0, self.tf
                 ).intersection().active
         else:
@@ -382,7 +397,7 @@ class Workflow():
                                 'or not correctly authenticating when the veto definer '
                                 'is provided as a url.'
                                )
-            cat1_vetoes = DataQualityDict({v: vetoes[v] for v in vetoes if (vetoes[v].category ==1) and (v[:2] in ifos)})
+            cat1_vetoes = DataQualityDict({v: vetoes[v] for v in vetoes if (vetoes[v].category ==1) and (v[:2] in self.ifos)})
             cat1_vetoes.populate()
 
             cat1_vetoes = cat1_vetoes.union().active
@@ -438,6 +453,7 @@ class IsotropicWorkflow(Workflow):
             '--tf', str(tf),
             '--file_tag', file_tag
             ]
+        condor_args = _collect_condor_arguments(self.config, 'pygwb_pipe')
         output_file = [os.path.join(output_path, f'parameters_{file_tag}_final.ini'),
                        os.path.join(output_path, f'psds_csds_{file_tag}.npz'),
                        os.path.join(output_path, f'point_estimate_sigma_{file_tag}.npz')]
@@ -452,6 +468,7 @@ class IsotropicWorkflow(Workflow):
                   request_disk='128MB',
                   request_memory='2048MB',
                   output_file=output_file,
+                  extra_lines=condor_args,
                   dag=self.dagman)
         for parent in parents:
             job.add_parent(parent)
@@ -487,6 +504,8 @@ class IsotropicWorkflow(Workflow):
             '--file_tag', file_tag
             ]
 
+        condor_args = _collect_condor_arguments(self.config, 'pygwb_combine')
+
         if dsc_path:
             # only provided for the "combine combine" jobs
             if isinstance(dsc_path, str):
@@ -513,6 +532,7 @@ class IsotropicWorkflow(Workflow):
                   final_result=True,
                   input_file=input_file,
                   output_file=output_file,
+                  extra_lines=condor_args,
                   dag=self.dagman)
         for parent in parents:
             job.add_parent(parent)
@@ -530,6 +550,7 @@ class IsotropicWorkflow(Workflow):
             '-dsc', dsc_file,
             '-fcoh', coh_file
             ]
+        condor_args = _collect_condor_arguments(self.config, 'pygwb_stats')
         input_file = [param_file, csd_file, dsc_file, coh_file]
         # FIXME - figure out all the plots this job makes
         output_file = None
@@ -547,6 +568,7 @@ class IsotropicWorkflow(Workflow):
                   input_file=input_file,
                   output_file=output_file,
                   required_job=True,
+                  extra_lines=condor_args,
                   dag=self.dagman)
         for parent in parents:
             job.add_parent(parent)
@@ -596,6 +618,7 @@ class IsotropicWorkflow(Workflow):
             '-p', plot_path,
             '-o', output_path,
             ]
+        condor_args = _collect_condor_arguments(self.config, 'pygwb_html')
         if segment_results:
             args = args + ['--plot-segment-results']
         job = Job(name=name,
@@ -610,7 +633,26 @@ class IsotropicWorkflow(Workflow):
                   request_memory='1024MB',
                   final_result=True,
                   required_job=True,
+                  extra_lines=condor_args,
                   dag=self.dagman)
         for parent in parents:
             job.add_parent(parent)
         return job
+
+    def get_science_flags(self):
+        scfl = (
+            self.config["data_quality"]["science_segment"]
+            .replace(",", " ")
+            .replace(":", " ")
+            .split(" ")
+        )
+        if len(scfl) == 1: #make bkwards compatible
+            base_flag = scfl[0]
+            scfl = []
+            for i in self.ifos:
+                scfl.append(i)
+                scfl.append(base_flag)
+        science_flags = {
+                scfl[2 * i]: f"{scfl[2 * i]}:{scfl[(2 * i + 1)]}" for i in range(len(scfl) // 2)
+        }
+        self.science_flags = science_flags
