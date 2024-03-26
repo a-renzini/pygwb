@@ -5,6 +5,7 @@ import distutils
 import json
 import os
 import sys
+import warnings
 from pathlib import Path
 from typing import List
 
@@ -48,7 +49,7 @@ def main():
         "--apply_dsc", help="Apply delta sigma cut when calculating final output.", action="store", type=str, required=False
     )
     pipe_parser.add_argument(
-        "--pickle_out", help="Pickle output Baseline of the analysis.", action="store", type=str, required=False
+        "--pickle_out", help="Pickle output Baseline of the analysis. Default is False.", action="store", type=str, required=False
     )
     pipe_parser.add_argument(
         "--wipe_ifo", help="Wipe interferometer data to reduce size of pickled Baseline.", action="store", type=str, required=False
@@ -64,7 +65,19 @@ def main():
 
     if script_args.param_file:
         params.update_from_file(script_args.param_file)
+    else: 
+        warnings.warn("No parameter file was passed - script runinng on script arguments and defaults. Friendly reminder: the parameter file argument is \"param_file\".")
+
     params.update_from_arguments(parameters_args)
+
+    if params.notch_list_path:
+    	notch_list_path = Path(params.notch_list_path)
+    	if not notch_list_path.exists():
+    		raise ValueError(
+    		f"Your path to the notch list {params.notch_list_path} does not exist or cannot be reached."
+    		" Please enter a valid path instead or leave it blank to use no notches at all."
+    		)
+
     logger.info(f"Successfully imported parameters from paramfile and input.")
 
     if script_args.output_path:
@@ -92,7 +105,7 @@ def main():
     if script_args.pickle_out:
         pipe_pickle_baseline = bool(distutils.util.strtobool(script_args.pickle_out))
     else:
-        pipe_pickle_baseline = True
+        pipe_pickle_baseline = False
 
     if script_args.wipe_ifo:
         wipe_ifo = bool(distutils.util.strtobool(script_args.wipe_ifo))
@@ -181,7 +194,8 @@ def main():
     if pipe_calculate_coherence:
         logger.info(f"calculating the coherence...")
 
-        base_12.set_coherence_spectrum(apply_dsc=pipe_apply_dsc)
+        base_12.set_coherence_spectrum(apply_dsc=pipe_apply_dsc, 
+            flow=params.flow, fhigh=params.fhigh)
 
     if pipe_calculate_point_estimate:
         logger.info(f"calculating the point estimate and sigma...")

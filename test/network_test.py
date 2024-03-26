@@ -1,5 +1,6 @@
 import os
 import unittest
+from test.conftest import testdir
 
 import bilby
 import gwpy
@@ -15,7 +16,7 @@ class TestNetwork(unittest.TestCase):
         self.interferometer_2.name = "H2"
         self.interferometer_3 = bilby.gw.detector.get_empty_interferometer("L1")
         self.duration = 4.0
-        self.sampling_frequency = 2048.0
+        self.sampling_frequency = 512.0
         self.frequencies = np.arange(100)
         self.test_from_baselines()
         self.test_network_initialisation()
@@ -34,15 +35,15 @@ class TestNetwork(unittest.TestCase):
 
     def test_from_baselines(self):
         pickled_base_1 = baseline.Baseline.load_from_pickle(
-            "test/test_data/H1L1_1247644138-1247645038.pickle"
+            f"{testdir}/test_data/H1L1_1247644138-1247644158.pickle"
         )
         pickled_base_2 = baseline.Baseline.load_from_pickle(
-            "test/test_data/H1L1_1247644138-1247645038.pickle"
+            f"{testdir}/test_data/H1L1_1247644138-1247644158.pickle"
         )
         bases = [pickled_base_1, pickled_base_2]
         self.net_load = network.Network.from_baselines("test_net", bases)
         pickled_base_3 = baseline.Baseline.load_from_pickle(
-            "test/test_data/H1L1_1247644138-1247645038.pickle"
+            f"{testdir}/test_data/H1L1_1247644138-1247644158.pickle"
         )
         ifo_1 = bilby.gw.detector.get_empty_interferometer("H1")
         ifo_2 = bilby.gw.detector.get_empty_interferometer("H1")
@@ -98,7 +99,8 @@ class TestNetwork(unittest.TestCase):
             np.isnan(net.interferometers[0].strain_data.time_domain_strain).any()
         )
         net.save_interferometer_data_to_file()
-        os.remove('test_net_STRAIN-0-40.hdf5')
+        os.remove(f"{self.interferometer_1.name[0]}-{self.interferometer_1.name}_STRAIN-0-40.hdf5")
+        os.remove(f"{self.interferometer_2.name[0]}-{self.interferometer_2.name}_STRAIN-0-40.hdf5")
 
     #    def test_save_interferometer_data_to_file(self):
 
@@ -111,10 +113,10 @@ class TestNetwork(unittest.TestCase):
         with self.assertRaises(AttributeError):
             self.net_ifos.combine_point_estimate_sigma_spectra()
         pickled_base_1 = baseline.Baseline.load_from_pickle(
-            "test/test_data/H1L1_1247644138-1247645038.pickle"
+            f"{testdir}/test_data/H1L1_1247644138-1247644158.pickle"
         )
         pickled_base_2 = baseline.Baseline.load_from_pickle(
-            "test/test_data/H1L1_1247644138-1247645038.pickle"
+            f"{testdir}/test_data/H1L1_1247644138-1247644158.pickle"
         )
         pickled_base_1.point_estimate_spectrum = omega_spectra.OmegaSpectrum(pickled_base_1.point_estimate_spectrum.value, alpha=5, fref=100, h0=1)
         bases = [pickled_base_1, pickled_base_2]
@@ -124,11 +126,11 @@ class TestNetwork(unittest.TestCase):
 
     def test_set_point_estimate_sigma(self):
         self.net_load.set_point_estimate_sigma()
-        self.assertAlmostEqual(self.net_load.point_estimate, -8.14914072880234e-06)
-        self.assertAlmostEqual(self.net_load.sigma, 1.8021806968181304e-06)
-        self.net_load.set_point_estimate_sigma(notch_list_path='./test/test_data/Official_O3_HL_notchlist.txt')
-        self.assertAlmostEqual(self.net_load.point_estimate, -6.496990628706798e-06 )
-        self.assertAlmostEqual(self.net_load.sigma,  1.901252342906683e-06)
+        self.assertAlmostEqual(self.net_load.point_estimate, -8.051693930603888e-06)
+        self.assertAlmostEqual(self.net_load.sigma, 7.893987472116006e-06)
+        self.net_load.set_point_estimate_sigma(notch_list_path=f'{testdir}/test_data/Official_O3_HL_notchlist.txt')
+        self.assertAlmostEqual(self.net_load.point_estimate, -2.25653774940599e-05)
+        self.assertAlmostEqual(self.net_load.sigma,  1.0513230811901939e-05)
 
 if __name__ == "__main__":
     unittest.main()

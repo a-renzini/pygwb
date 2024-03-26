@@ -26,6 +26,10 @@ ACCOUNTING_GROUP_USER = os.getenv(
     getuser(),
 )
 
+def _split(orig_list, N):
+    k, m = divmod(len(orig_list), N)
+    return list(orig_list[i*k+min(i, m):(i+1)*k+min(i+1, m)] for i in range(N))
+
 def makedir(dir_path):
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
@@ -127,7 +131,7 @@ class Job(pyJob):
                                  **kwargs)
 
     def check_required(self):
-        if not self.output_exits:
+        if not self.output_exits or self.final_result:
             self.required_job = True
             for p in self.parents:
                 if not p.required_job:
@@ -285,7 +289,7 @@ class Dagman(pyDagman):
 def _collect_job_arguments(config, job_type):
     config_sec = config[job_type]
     args_list = list()
-    for key in config_sec.keys():
+    for key in config_sec:
         args_list.append('--' + str(key))
         val = str(config_sec[key])
         if val[0] == '$':
@@ -344,22 +348,46 @@ class Workflow():
         ifos = self.config['general']['ifos'].split(' ')
 
         logging.info('Downloading science flags...')
-        sci_flag = DataQualityDict.query_dqsegdb(
-            [i+':'+self.config['data_quality']['science_segment'] for i in ifos],
-            self.t0, self.tf
-            ).intersection().active
+        if self.config.has_option('data_quality', 'science_segment'):
+            sci_flag = DataQualityDict.query_dqsegdb(
+                [i+':'+self.config['data_quality']['science_segment'] for i in ifos],
+                self.t0, self.tf
+                ).intersection().active
+        else:
+            # just use provided start and end time
+            sci_flag = SegmentList([[self.t0, self.tf]])
 
         if self.config.has_option('data_quality', 'veto_definer'):
+            veto_definer_path = self.config['data_quality']['veto_definer']
+            local_veto_definer_path = os.path.join(self.dagman.base_dir, 'vetoes.xml')
+            if 'http' in veto_definer_path: # download vdf first
+                import ciecplib
+                with ciecplib.Session() as s:
+                    s.get("https://git.ligo.org/users/auth/shibboleth/callback")
+                    r = s.get(veto_definer_path, allow_redirects=True)
+                    r.raise_for_status()
+                output_fp = open(local_veto_definer_path, "wb")
+                output_fp.write(r.content)
+                output_fp.close()
+                veto_definer_path = local_veto_definer_path
+
             logging.info('Downloading vetoes...')
-            vetoes = DataQualityDict.from_veto_definer_file(
-                self.config['data_quality']['veto_definer']
-                )
+            try:
+                vetoes = DataQualityDict.from_veto_definer_file(
+                    veto_definer_path
+                    )
+            except:
+                raise TypeError('Unable to read veto definer! '
+                                'This may be to an improperly formatted file '
+                                'or not correctly authenticating when the veto definer '
+                                'is provided as a url.'
+                               )
             cat1_vetoes = DataQualityDict({v: vetoes[v] for v in vetoes if (vetoes[v].category ==1) and (v[:2] in ifos)})
             cat1_vetoes.populate()
 
-            cat1_vetoes = cat1_vetoes.intersection().active
-
+            cat1_vetoes = cat1_vetoes.union().active
             seglist = sci_flag - cat1_vetoes
+
         else:
             seglist = sci_flag
 
@@ -431,12 +459,15 @@ class IsotropicWorkflow(Workflow):
     
     # FIX THE JOB LIST
     def create_pygwb_combine_job(self, t0=None, tf=None, parents=[], input_file=None, output_path=None,
-        data_path=None, coherence_path=None, param_file=None,
-        alpha=0., fref=30, h0=0.7):
+        data_path=None, coherence_path=None, dsc_path=None, param_file=None,
+        alpha=0., fref=30, h0=0.7, file_tag_extra=None):
     #pygwb_combine --data_path output/ --param_file output/parameters_final.ini --alpha 0 --fref 30 --h0 0.7 --out_path ./output/
         dur = int(tf-t0)
         file_tag = f'{int(t0)}-{dur}'
         name = f'pygwb_combine_{int(t0)}_{dur}'
+        if file_tag_extra:
+            file_tag = f'{file_tag}-{file_tag_extra}'
+            name = f'{name}_{file_tag_extra}'
         args = _collect_job_arguments(self.config, 'pygwb_combine')
         if isinstance(data_path, str):
             data_path = [data_path]
@@ -444,7 +475,7 @@ class IsotropicWorkflow(Workflow):
             coherence_path = [coherence_path]
     
         input_file = data_path + coherence_path + [param_file]
-    
+
         data_path = ' '.join(data_path)
         coherence_path = ' '.join(coherence_path)
     
@@ -455,6 +486,17 @@ class IsotropicWorkflow(Workflow):
             '--coherence_path', coherence_path,
             '--file_tag', file_tag
             ]
+
+        if dsc_path:
+            # only provided for the "combine combine" jobs
+            if isinstance(dsc_path, str):
+                dsc_path = [dsc_path]
+            input_file = input_file + dsc_path
+            dsc_path = ' '.join(dsc_path)
+            args = args + [
+                '--delta_sigma_path', dsc_path,
+                ]
+
         output_file = [os.path.join(output_path, f'point_estimate_sigma_spectra_alpha_{alpha:.1f}_fref_{int(fref)}_{file_tag}.npz'),
                        os.path.join(output_path, f'coherence_spectrum_{file_tag}.npz'),
                        os.path.join(output_path, f'delta_sigma_cut_{file_tag}.npz')]
@@ -509,6 +551,43 @@ class IsotropicWorkflow(Workflow):
         for parent in parents:
             job.add_parent(parent)
         return job
+
+    def create_pygwb_multi_stage_combine(self, t0=None, tf=None, parents=[], input_file=None, output_path=None,
+        data_path=None, coherence_path=None, dsc_path=None, param_file=None,
+        alpha=0., fref=30, h0=0.7, combine_factor=1):
+
+        # set up individual combines
+        assert len(data_path) == len(coherence_path)
+        data_path_lists = _split(data_path, int(combine_factor))
+        coherence_path_lists = _split(coherence_path, int(combine_factor))
+
+        combined_data_path = []
+        combined_coherence_path = []
+        combined_dsc_path = []
+        combined_jobs = []
+
+        for i in range(int(combine_factor)):
+            extra_tag = f'PART{int(i)}'
+            combine_job, combine_output = self.create_pygwb_combine_job(
+                t0=self.t0, tf=self.tf,
+                parents=parents, output_path=output_path,
+                data_path=data_path_lists[i], coherence_path=coherence_path_lists[i], param_file=param_file,
+                alpha=self.alpha, fref=self.fref, file_tag_extra=extra_tag)
+            combined_data_path.append(combine_output[0])
+            combined_coherence_path.append(combine_output[1])
+            combined_dsc_path.append(combine_output[2])
+            combined_jobs.append(combine_job)
+
+        #now the big combine
+        final_job, output_file = self.create_pygwb_combine_job(
+            t0=self.t0, tf=self.tf,
+            parents=combined_jobs+[parents[-1]], output_path=output_path,
+            data_path=combined_data_path, coherence_path=combined_coherence_path, param_file=param_file,
+            dsc_path=combined_dsc_path,
+            alpha=self.alpha, fref=self.fref)
+        combined_jobs.append(final_job)
+
+        return combined_jobs, final_job, output_file
     
     def create_pygwb_html_job(self, t0=None, tf=None, segment_results=False, parents=[], output_path=None, plot_path=None):
         name = f'pygwb_html'
@@ -535,4 +614,3 @@ class IsotropicWorkflow(Workflow):
         for parent in parents:
             job.add_parent(parent)
         return job
-    

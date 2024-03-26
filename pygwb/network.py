@@ -23,9 +23,10 @@ instantiate through:
 >>> ifo_list = [H1,L1]
 
 The above detectors are ``Interferometer`` objects, but are based on ``bilby`` detectors, which have 
-default noise PSDs saved in them, in the `power_spectral_density` attribute of the ``bilby`` detector. 
+default noise PSDs saved in them, in the ``power_spectral_density`` attribute of the ``bilby`` detector (more information can be
+found `here <https://lscsoft.docs.ligo.org/bilby/api/bilby.gw.detector.psd.PowerSpectralDensity.html>`_). 
 Below, we load in this noise PSD and make sure the duration and sampling frequency of the detector 
-is set to the desired value of these parameters chosen at the start of the notebook.
+are set to the desired value of these parameters chosen at the start of the notebook.
 
 >>> for ifo in ifo_list:
 >>>     ifo.duration = duration
@@ -39,10 +40,6 @@ A network can then be created by using:
 It is also possible to initialize the class by passing a list of ``Baselines``:
 
 >>> HL_network = Network.from_baselines(’HL’, [HL_baseline])
-
-For additional information and functionalities of the ``Network``, we refer the reader to the dedicated 
-tutorial section of the documentation.
-
 """
 
 import os
@@ -62,7 +59,7 @@ from .postprocessing import (
 from .simulator import Simulator
 
 
-class Network(object):
+class Network:
     def __init__(
         self,
         name,
@@ -83,34 +80,50 @@ class Network(object):
         Instantiate a Network object.
 
         Parameters
-        ----------
+        =======
         name: ``str``
-            Name for the network, e.g H1H2
-        interferometers: ``list ``
-            List of intereferometer objects
+            Name for the network, e.g H1H2.
+
+        interferometers: ``list``
+            List of intereferometer objects.
+
         duration: ``float``, optional
             The duration in seconds of each data segment in the interferometers. None by default, in which case duration is inherited from the interferometers.
+
         frequencies: ``array_like``, optional
-            The frequency array for the Baseline and interferometers
+            The frequency array for the Baseline and interferometers.
+
         calibration_epsilon: ``float``, optional
-            Calibration uncertainty for this baseline -- currently only supports a single notch list for all baselines
+            Calibration uncertainty for this baseline -- currently only supports a single notch list for all baselines. Defaults to 0.
+
         notch_list_path: ``str``, optional
-            File path of the baseline notch list -- currently only supports a single notch list for all baselines
+            File path of the baseline notch list -- currently only supports a single notch list for all baselines. Defaults to empty path.
+
+        coarse_grain_psd: ``bool``, optional
+            Indicates whether PSD should be coarse-grained or not. Defaults to False, in which case the PSD will be Welch averaged.
+
+        coarse_grain_csd: ``bool``, optional
+            Indicates whether CSD should be coarse-grained or not. Defaults to True. If False, the CSD will be Welch averaged.
+
+        overlap_factor_welch: ``float``, optional
+            Factor by which to overlap the segments in the psd and csd estimation. Default is 1/2, if set to 0, no overlap is performed.
+
         overlap_factor: ``float``, optional
-            Factor by which to overlap the segments in the psd and csd estimation. Default is 1/2, if set to 0 no overlap is performed.
-        zeropad_csd: ``bool``, optional
-            If True, applies zeropadding in the csd estimation. True by default.
+            Factor by which to overlap the segments in the psd and csd estimation. Default is 1/2, if set to 0, no overlap is performed.
+
         window_fftgram_dict: ``dictionary``, optional
             Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds. Default is \"hann\".
+
+        window_fftgram_dict_welch: ``dictionary``, optional
+            Dictionary containing name and parameters describing which window to use when producing fftgrams for psds and csds using the Welch average method. Default is \"hann\".
+
         N_average_segments_psd: ``int``, optional
-            Number of segments used for PSD averaging (from both sides of the segment of interest)
-            N_avg_segs should be even and >= 2
+            Number of segments used for PSD averaging (from both sides of the segment of interest).
+            N_avg_segs should be even and >= 2.
 
         See also
         --------
-
         pygwb.baseline.Baseline : Used to create the various baselines corresponding to the detectors in the network.
-
         """
         self.name = name
         self.interferometers = interferometers
@@ -154,12 +167,13 @@ class Network(object):
         Initialise a network from a set of baselines. Takes care to unpack the interferometers from each baseline and sets them in the network.
 
         Parameters
-        ==========
+        =======
 
         name: ``str``
-            Name of the network
+            Name of the network.
+
         baselines: ``list``
-            List of ``pygwb.baseline`` objects
+            List of ``pygwb.baseline`` objects.
 
         Returns
         =======
@@ -167,6 +181,9 @@ class Network(object):
         network: ``pygwb.network``
             Network object
 
+        See also
+        --------
+        pygwb.baseline.Baseline
         """
         if not all(baselines[0].duration == base.duration for base in baselines[1:]):
             raise AssertionError(
@@ -192,15 +209,17 @@ class Network(object):
         return network
 
     def set_duration(self, duration):
-        r"""Sets the duration for the Network and Interferometers
-
-        Note: the cross-checks that durations match in all the interferometers are done by each Baseline.
+        r"""Sets the duration for the Network and Interferometers.
 
         Parameters
-        ==========
+        =======
 
-        duration: :code:`float`, optional
-            The duration to set for the Network and interferometers
+        duration: ``float``, optional
+            The duration to set for the Network and interferometers.
+
+        Notes
+        -----
+        The cross-checks that durations match in all the interferometers are done by each baseline.
         """
         if duration is not None:
             self.duration = duration
@@ -235,21 +254,20 @@ class Network(object):
         Set frequency mask to frequencies attribute.
 
         Parameters
-        ==========
+        =======
 
         notch_list_path: ``str``
             Path to notch list to apply to frequency array.
         
         flow: ``float``, optional
-            Lowest frequency to consider. Defaults to 20.
+            Lowest frequency to consider. Defaults to 20 Hz.
+
         fhigh: ``float``, optional
-            Highest frequency to consider. Defaults to 1726.
+            Highest frequency to consider. Defaults to 1726 Hz.
 
         See also
         --------
-
         pygwb.notch.StochNotchList : Used to read in the frequency notches.
-
         """
         mask = (self.frequencies >= flow) & (self.frequencies <= fhigh)
         if notch_list_path:
@@ -266,38 +284,44 @@ class Network(object):
         sampling_frequency=None,
         start_time=None,
         inject_into_data_flag=False,
+        waveform_generator_arguments=None,
     ):
         """
         Fill interferometers with data from simulation. Data can already be present in the intereferometers of the network,
         in which case the simulated data will be injected on top of the data already present.
 
         Parameters
-        ==========
+        =======
 
         N_segments: ``int``
-            Number of segments to simulate
+            Number of segments to simulate.
+
         GWB_intensity: ``gwpy.frequencyseries.FrequencySeries``, optional
             A gwpy.frequencyseries.FrequencySeries containing the desired strain power spectrum. Defaults to None, 
             in which case CBC_dict should be passed.
+
         CBC_dict: ``dict``, optional
             Dictionary containing the parameters of CBC injections. Default to None, 
             in which case GWB_intensity should be passed.
+
         sampling_frequency: ``float``, optional
             Sampling frequency at which the data needs to be simulated. If not specified (None), will check for interferometer's
             sampling frequency.
+
         start_time: ``float``, optional
             Start time of the simulated data. If not passed (None), will check for interferometer's timeseries start time.
             If not specified either, start time will default to 0.
-        inject_into_data_flag: ``boolean``, optional
+
+        inject_into_data_flag: ``bool``, optional
             Flag that specifies whether or not the simulated data needs to be injected into data, i.e. if there is already
             data present in the interferometers of the network. If so, only data will be simulated and no extra noise will
             be added on top of the simulated data. Defaults to False.
 
+        waveform_generator_arguments: ``dict``, optional
+            Dictionary with arguments referring to waveform generation. Defaults to values set in the ``simulator`` module.
         See also
         --------
-
         pygwb.simulator.Simulator : Used to simulate data.
-
         """
         no_noise = inject_into_data_flag
         if start_time == None:
@@ -326,6 +350,7 @@ class Network(object):
             start_time=start_time,
             sampling_frequency=sampling_frequency,
             no_noise=no_noise,
+            waveform_generator_arguments=waveform_generator_arguments,
         )
         data = data_simulator.get_data_for_interferometers()
 
@@ -338,36 +363,57 @@ class Network(object):
             for ifo in self.interferometers:
                 ifo.set_strain_data_from_gwpy_timeseries(data[ifo.name])
 
-    def save_interferometer_data_to_file(self, save_dir="./", file_format="hdf5"):
+    def save_interferometer_data_to_file(self, channel_name=None, save_dir="./", file_format="hdf5"):
         """
         Save interferometer strain data to a file. This method relies on the gwpy  TimeSeries.write method. Typically used when simulating a signal for a whole network of interferometers.
-        Note: this will save a single frame file with a set of interferometer data; each strain channel is labelled by its interferometer.
 
         Parameters
-        ==========
+        =======
         
-        save dir: ``str``, optional
+        save_dir: ``str``, optional
             The path of the output folder. Defaults to the local folder.
-        file format: ``str``, optional
+        
+        channel_name: ``str``, optional
+            The name of the channel under which to save the data. Defaults to the channel name already present in the interferometers of the network.
+
+        file_format: ``str``, optional
             The format of the output file. Defaults to hdf5 file. Acceptable formats are standard gwpy TimeSeries.write formats.
+
+        Notes
+        -----
+
+        This will save a single frame file for each interferometer.
 
         See also
         --------
-
-        gwpy.timeseries.TimeSeriesDict : Write method used to save data to file.
-
+        gwpy.timeseries.TimeSeries.write
+            More information `here <https://gwpy.github.io/docs/stable/api/gwpy.timeseries.TimeSeries/#gwpy.timeseries.TimeSeries.write>`_.
         """
-        file_name = f"{self.name}_STRAIN-{int(self.interferometers[0].strain_data.start_time)}-{int(self.interferometers[0].strain_data.duration)}.{file_format}"
-        file_path = os.path.join(save_dir, file_name)
-        data_dict = gwpy.timeseries.TimeSeriesDict()
         for ifo in self.interferometers:
-            channel = f"STRAIN_{ifo.name}"
-            data_dict[channel] = ifo.strain_data.to_gwpy_timeseries()
-        data_dict.write(file_path, format=file_format)
+            file_name = f"{ifo.name[0]}-{ifo.name}_STRAIN-{int(self.interferometers[0].strain_data.start_time)}-{int(self.interferometers[0].strain_data.duration)}.{file_format}"
+            file_path = os.path.join(save_dir, file_name)
+            gwpy_tmp = ifo.strain_data.to_gwpy_timeseries()
+            if channel_name:
+                new_channel_name = f"{ifo.name}_"+channel_name
+                gwpy_tmp.channel = new_channel_name
+            gwpy_tmp.name = gwpy_tmp.channel
+            try:
+                gwpy_tmp.write(file_path, format=file_format)
+            except OSError:
+                warnings.warn(
+                "The file already existed and has been overwritten with the new data."
+                )
+                gwpy_tmp.write(file_path, format=file_format, overwrite=True)
 
     def combine_point_estimate_sigma_spectra(self):
         """
         Combines the point estimate and sigma spectra from different baselines in the Network and stores them as attributes.
+
+        See also
+        --------
+        pygwb.postprocessing.combine_spectra_with_sigma_weights
+
+        pygwb.omega_spectra.OmegaSpectrum
         """
         try:
             point_estimate_spectra = [
@@ -427,15 +473,21 @@ class Network(object):
         Set point estimate sigma based the combined spectra from each Baseline. This is the estimate of omega_gw in each frequency bin.
 
         Parameters
-        ==========
+        =======
 
         notch_list_path: ``str``, optional
             Path to the notch list to use in the spectrum; if the notch_list isn't set in the baseline,
             user can pass it directly here. If it is not set and if none is passed no notches will be applied.
+
         flow: ``float``, optional
             Low frequency. Default is 20 Hz.
+            
         fhigh: ``float``, optional
             High frequency. Default is 1726 Hz.
+
+        See also
+        --------
+        pygwb.postprocessing.calc_Y_sigma_from_Yf_sigmaf
         """
         if not hasattr(self, "point_estimate_spectrum"):
             logger.info(

@@ -1,5 +1,6 @@
 import pickle
 import unittest
+from test.conftest import testdir
 
 import numpy as np
 from gwpy.segments import Segment, SegmentList
@@ -10,7 +11,7 @@ from pygwb import detector, parameters
 class TestInterferometer(unittest.TestCase):
     def setUp(self):
         self.ifo = "H1"
-        param_file = "./test/test_data/parameters_detector_test.ini"
+        param_file = f"{testdir}/test_data/parameters_detector_test.ini"
         self.parameters = parameters.Parameters()
         self.parameters.update_from_file(param_file)
         self.kwargs = {
@@ -32,10 +33,11 @@ class TestInterferometer(unittest.TestCase):
                 "overlap_factor",
                 "N_average_segments_psd",
                 "time_shift",
+                "random_time_shift",
             ]
         }
         self.kwargs["local_data_path"] = ""
-        with open("./test/test_data/detector_testdata_H1.pickle", "rb") as pkl:
+        with open(f"{testdir}/test_data/detector_testdata_H1.pickle", "rb") as pkl:
             self.testdata = pickle.load(pkl)
 
     def tearDown(self):
@@ -117,7 +119,7 @@ class TestInterferometer(unittest.TestCase):
         )
 
     def test_gwpy_timeseries_gating(self):
-        gwpy_timeseries = self.testdata["original_timeseries"]
+        gwpy_timeseries = self.testdata["gating_timeseries"]
         ifo = detector.Interferometer.get_empty_interferometer(self.ifo)
         ifo.set_timeseries_from_gwpy_timeseries(
             gwpy_timeseries=gwpy_timeseries, **self.kwargs
@@ -133,14 +135,15 @@ class TestInterferometer(unittest.TestCase):
             gate_threshold = gate_threshold, cluster_window = cluster_window,
             gate_whiten = gate_whiten,
         )
+        print(ifo.gates)
         self.assertTrue(max(ifo.timeseries.whiten().value) < gate_threshold, True)
         self.assertTrue((_known_gate in ifo.gates), True)
         self.assertTrue(abs(ifo.gates), 2*gate_tzero)
         self.assertTrue(ifo.gate_pad, gate_tpad)
         
     def test_gated_times_from_file(self):
-        gwpy_timeseries = self.testdata["original_timeseries"]
-        npzobject = np.load("./test/test_data/point_estimate_sigma_1247644138-1247645038.npz")
+        gwpy_timeseries = self.testdata["gating_timeseries"]
+        npzobject = np.load(f"{testdir}/test_data/point_estimate_sigma_1247644138-1247645038.npz")
         gate_tpad = 0.5
         ifo_for_loading = detector.Interferometer.get_empty_interferometer(self.ifo)
         ifo_for_loading.set_timeseries_from_gwpy_timeseries(

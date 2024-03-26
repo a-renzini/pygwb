@@ -3,6 +3,7 @@ import os
 import tempfile
 import unittest
 from pathlib import Path
+from test.conftest import testdir
 
 import gwpy.testing.utils
 import numpy as np
@@ -152,7 +153,7 @@ class TestOmegaSpectrum(unittest.TestCase):
 
     def test_load_from_pickle(self):
         omega_sgram = OmegaSpectrum.load_from_pickle(
-            "test/test_data/omega_spectrum_test.pickle"
+            f"{testdir}/test_data/omega_spectrum_test.pickle"
         )
 
 
@@ -217,7 +218,7 @@ class TestOmegaSpectrogram(unittest.TestCase):
 
     def test_load_from_pickle(self):
         omega_sgram = OmegaSpectrogram.load_from_pickle(
-            "test/test_data/omega_spectrogram_test.pickle"
+            f"{testdir}/test_data/omega_spectrogram_test.pickle"
         )
 
 

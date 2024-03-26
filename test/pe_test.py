@@ -260,6 +260,59 @@ class Test(unittest.TestCase):
         
         np.testing.assert_allclose(
             test_model.model_function(HL), test_comparison.model_function(HL), rtol=1e-4, atol=0
+
+    def test_combined(self):
+        
+        freqs = 11.0
+        M_psd = 1 / 3 + 5j
+        H1 = bilbydet.get_empty_interferometer("H1")
+        L1 = bilbydet.get_empty_interferometer("L1")
+        HL = Baseline("HL", H1, L1)
+        HL.orf_polarization = 'tensor'
+        HL.frequencies = freqs
+        HL.M_f = M_psd
+        
+        kwargs_model1 = {
+            "baselines": [HL],
+            "model_name": "PL",
+            "fref": 25
+        }
+        test_model1 = PowerLawModel(**kwargs_model1)
+        test_model1.parameters = {
+            "omega_ref": 8.9, 
+            "alpha": 3
+        }
+
+        value1 = test_model1.model_function(HL)
+                
+        kwargs_model2 = {"baselines": [HL], "model_name": "Schu"}
+        test_model2 = SchumannModel(**kwargs_model2)
+        test_model2.parameters = {
+            "kappa_H": 0.7,
+            "beta_H": 1.6,
+            "kappa_L": 0.9,
+            "beta_L": 2.3,
+        }
+        
+        value2 = test_model2.model_function(HL)
+
+        kwargs_combined = {"baselines": [HL], "model_name": "PL+Schu", "model1": test_model1, "model2": test_model2}
+        test_model_combined = CombinedModel(**kwargs_combined)
+
+        test_model_combined.parameters = {
+            "omega_ref": 8.9,
+            "alpha": 3,
+            "kappa_H": 0.7,
+            "beta_H": 1.6,
+            "kappa_L": 0.9,
+            "beta_L": 2.3,
+        }
+        
+        np.testing.assert_allclose(
+            test_model_combined.model_function(HL),
+            value1+value2,
+            rtol=1e-5,
+            atol=0,
         )
 
 if __name__ == "__main__":

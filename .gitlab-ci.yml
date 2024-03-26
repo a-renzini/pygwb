@@ -44,8 +44,38 @@ stages:
           ${script} --help;
       done
 
+.basic-python-38: &basic-python-38
+  stage: initial
+  image: python
+  before_script:
+    - pip install --upgrade pip
+  script:
+    - pip install --ignore-installed .
+    - pip install gwsumm==2.0.1 # have to fix these to continue using py38 due to backwards-incompatible changes in gwsumm/gwpy; should deprecate py38 soon.
+    - pip install lscsoft-glue==3.0.1
+    - cd ..
+    - python -c "import pygwb"
+    - python -c "import pygwb.baseline"
+    - python -c "import pygwb.constants"
+    - python -c "import pygwb.delta_sigma_cut"
+    - python -c "import pygwb.detector"
+    - python -c "import pygwb.network"
+    - python -c "import pygwb.notch"
+    - python -c "import pygwb.orfs"
+    - python -c "import pygwb.parameters"
+    - python -c "import pygwb.pe"
+    - python -c "import pygwb.postprocessing"
+    - python -c "import pygwb.preprocessing"
+    - python -c "import pygwb.simulator"
+    - python -c "import pygwb.spectral"
+    - python -c "import pygwb.statistical_checks"
+    - python -c "import pygwb.util"
+    - for script in $(pip show -f pygwb | grep "bin\/" | xargs -I {} basename {}); do
+          ${script} --help;
+      done
+
 basic-3.8:
-  <<: *basic-python
+  <<: *basic-python-38
   image: python:3.8
 
 basic-3.9:
@@ -110,6 +140,16 @@ python-3.9:
 python-3.10:
   <<: *test-python
   image: python:3.10
+
+workflow:
+  stage: test
+  image: python:3.10
+  before_script:
+    - pip install --upgrade pip setuptools
+  script:
+    - pip install .
+    - mkdir workflow_result
+    - pygwb_create_isotropic_workflow --configfile ./test/test_data/config_workflow_test.ini --basedir ./workflow_result/ --run_locally
 
 documentation:
   stage: documentation
