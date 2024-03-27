@@ -1,4 +1,5 @@
 import copy
+import json
 import os
 import unittest
 from test.conftest import testdir
@@ -10,6 +11,7 @@ from gwpy.timeseries import TimeSeries
 
 import pygwb
 from pygwb import simulator
+from pygwb.background import compute_Omega_from_CBC_dictionary
 
 
 class TestSimulator(unittest.TestCase):
@@ -156,6 +158,37 @@ class TestSimulator(unittest.TestCase):
         data = simulator_1.generate_data()
         self.assertTrue([isinstance(dat, TimeSeries) for dat in data])
 
+    def test_CBC_injection(self):
+        infile =  open("test/test_data/test_CBC_injection_dict.json", "r")
+        injection_dict = json.load(infile)
+        injection_dict_copy = copy.copy(injection_dict)
+        injection_dict_copy.pop('signal_type')
+        duration = 1000 
+        N_segs = 1  
+        fs = 512 
+        ifo_1 = bilby.gw.detector.get_empty_interferometer("H1")
+        ifo_2 = bilby.gw.detector.get_empty_interferometer("L1")
+        ifo_list = [ifo_1, ifo_2]
+        for ifo in ifo_list:
+            ifo.duration = duration
+            ifo.sampling_frequency = fs
+            ifo.power_spectral_density = bilby.gw.detector.PowerSpectralDensity(
+                ifo.frequency_array,
+                np.nan_to_num(ifo.power_spectral_density_array, posinf=1.0e-41),
+            )
+
+        simulator_1 = simulator.Simulator(
+            ifo_list,
+            N_segs,
+            duration,
+            fs,
+            injection_dict = injection_dict
+        )
+        data = simulator_1.generate_data()
+        self.assertTrue([isinstance(dat, TimeSeries) for dat in data])
+
+        omega_ref = compute_Omega_from_CBC_dictionary(injection_dict_copy, fs, duration, return_spectrum=False) 
+        self.assertAlmostEqual(omega_ref, 1.121613053687e-6)
 
 if __name__ == "__main__":
     unittest.main()

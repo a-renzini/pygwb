@@ -96,7 +96,7 @@ def compute_Omega_from_CBC_dictionary(injection_dict, sampling_frequency, T_obs,
     psd_evs = np.zeros(len(freqs_psd))
     logger.info('Compute the total injected Omega for ' + str(N_inj) + ' injections')
 
-    check_injection_dictionary(injection_dict)
+    check_injection_dictionary(injection_dict, N_inj)
 
     # Loop over injections
     for i in tqdm(range(N_inj)):
@@ -131,28 +131,28 @@ def compute_Omega_from_CBC_dictionary(injection_dict, sampling_frequency, T_obs,
     else:
         return Omega_ref
 
-def check_injection_dictionary(injection_dict):
+def check_injection_dictionary(injection_dict, N_inj):
     '''
     Check injection dict content
     '''
     # check for missing keys and set values to defaults
     if not 'phase' in injection_dict:
         warnings.warn("'phase' parameter not set in injection set; setting to random value.")
-        injection_dict['phase']=2*np.pi*np.random.rand()
+        injection_dict['phase']=2*np.pi*np.random.rand(N_inj)
     if not 'theta_jn' in injection_dict:
         warnings.warn("'theta_jn' parameter not set in injection set; setting to random value.")
-        cos_inc = np.random.rand()*2.-1.
+        cos_inc = np.random.rand(N_inj)*2.-1.
         injection_dict['theta_jn']=np.arccos(cos_inc)
     if not 'a_1' in injection_dict:
         warnings.warn("'a_1' spin parameter not set in injection set; setting to 0.")
-        injection_dict['a_1']=0
+        injection_dict['a_1']=np.zeros(N_inj)
     if not 'a_2' in injection_dict:
         warnings.warn("'a_2' spin parameter not set in injection set; setting to 0.")
-        injection_dict['a_2']=0
+        injection_dict['a_2']=np.zeros(N_inj)
     if not 'tilt_1' in injection_dict:
         warnings.warn("'tilt_1' spin parameter not set in injection set; setting to 0.")
-        injection_dict['tilt_1']=0
+        injection_dict['tilt_1']=np.zeros(N_inj)
     if not 'tilt_2' in injection_dict:
         warnings.warn("'tilt_2' spin parameter not set in injection set; setting to 0.")
-        injection_dict['tilt_2']=0
+        injection_dict['tilt_2']=np.zeros(N_inj)
     
