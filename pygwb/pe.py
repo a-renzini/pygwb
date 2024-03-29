@@ -1072,6 +1072,9 @@ class Geodesy(GWBModel):
             raise KeyError("fref must be supplied")
         super(Geodesy, self).__init__(**kwargs)
         self.fref = fref
+        
+        if len(self.baselines)>1:
+            raise ValueError('To infer the overlap reduction function parameters of a baseline, a Geodesy expects only one baseline.')
 
     @property
     def parameters(self):
