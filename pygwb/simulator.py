@@ -737,7 +737,10 @@ class Simulator:
             for n in tqdm(range(len(self.injection_dict['geocent_time']))):
                 inj_params = {}
                 for k in self.injection_dict:
-                    inj_params[k] = self.injection_dict[k][n]
+                    try:
+                        inj_params[k] = self.injection_dict[k]['content'][n]
+                    except:
+                        inj_params[k] = self.injection_dict[k][n]
                 inj_params['start_time'] = inj_params['geocent_time']-self.waveform_generator_arguments['duration']/2.
                 idx_end = int((- self.t0 + inj_params['geocent_time']+self.waveform_generator_arguments['duration']/2.) * self.sampling_frequency)
 
