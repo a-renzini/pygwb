@@ -348,7 +348,6 @@ class Workflow():
     def setup_segments(self):
         self.t0 = int(self.config['general']['t0'])
         self.tf = int(self.config['general']['tf'])
-        dur = int(self.tf-self.t0)
 
         if self.config.has_option('general', 'min_job_dur'):
             self.min_dur = int(self.config['general']['min_job_dur'])
@@ -361,7 +360,14 @@ class Workflow():
 
         self.ifos = self.config['general']['ifos'].split(' ')
 
-        if self.config.has_option('data_quality', 'science_segment'):
+        # Customized job file 
+        if self.config.has_option('data_quality', 'custom_job_file'):
+            logging.info('Loading custom job file...')
+            custom_job_file_path = self.config['data_quality']['custom_job_file']
+            st, et = np.loadtxt(custom_job_file_path, dtype='int', comments='#', delimiter=None, unpack=True, usecols=[1,2])
+            sci_flag = SegmentList(zip(st, et))
+        
+        elif self.config.has_option('data_quality', 'science_segment'):
             logging.info('Downloading science flags...')
             self.get_science_flags()
             sci_flag = DataQualityDict.query_dqsegdb(
@@ -375,6 +381,7 @@ class Workflow():
         if self.config.has_option('data_quality', 'veto_definer'):
             veto_definer_path = self.config['data_quality']['veto_definer']
             local_veto_definer_path = os.path.join(self.dagman.base_dir, 'vetoes.xml')
+
             if 'http' in veto_definer_path: # download vdf first
                 import ciecplib
                 with ciecplib.Session() as s:
@@ -396,7 +403,7 @@ class Workflow():
                                 'This may be to an improperly formatted file '
                                 'or not correctly authenticating when the veto definer '
                                 'is provided as a url.'
-                               )
+                            )
             cat1_vetoes = DataQualityDict({v: vetoes[v] for v in vetoes if (vetoes[v].category ==1) and (v[:2] in self.ifos)})
             cat1_vetoes.populate()
 
