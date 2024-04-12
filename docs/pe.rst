@@ -120,7 +120,7 @@ This file can then be passed to the script through the ``--model_prior_file`` ar
 
 .. code-block:: python
 
-    pygwb_pe --path_to_file {path_to_pygwb_output_file} --model_prior_file {path_to_json_file} --model {chosenn_model}
+    pygwb_pe --path_to_file {path_to_pygwb_output_file} --model_prior_file {path_to_json_file} --model {chosen_model}
 
 .. warning::
     Make sure to specify all the model parameters of the chosen model in the code above to avoid errors when running the script.
