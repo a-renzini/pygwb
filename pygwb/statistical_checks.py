@@ -838,7 +838,7 @@ class StatisticalChecks:
         axs.set_xlim(0, np.ceil(max_coh/coh_power)*coh_power)
         
         # Round up to the nearest power of 10 for the y-axis
-        axs.set_ylim(10**(np.floor(np.log10(0.5/(n_frequencies*delta_coherence)))), 10**(np.floor(np.log10(max(predicted_highres[0],bins[0]))) + 1))
+        axs.set_ylim(10**(np.floor(np.log10(1./(n_frequencies*delta_coherence)))), 10**(np.floor(np.log10(max(predicted_highres[0],bins[0]))) + 1))
         
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
@@ -898,7 +898,7 @@ class StatisticalChecks:
         axs.set_xlim(0, np.ceil(max_coh/coh_power)*coh_power)
         
         # Round up to the nearest power of 10 for the y-axis
-        axs.set_ylim(10**(np.floor(np.log10(0.5/(n_frequencies*delta_coherence)))), 10**(np.floor(np.log10(max(predicted_highres[0],bins[0]))) + 1))
+        axs.set_ylim(10**(np.floor(np.log10(1./(n_frequencies*delta_coherence)))), 10**(np.floor(np.log10(max(predicted_highres[0],bins[0]))) + 1))
         
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
