@@ -781,7 +781,7 @@ class StatisticalChecks:
         coherence_notched_clipped = coherence_clipped[self.frequency_mask]
 
         # Coherence values aligned with bin centres up to twice the max value of the coherence
-        coherence_highres = np.linspace(delta_coherence/2, 2*upper_edge + delta_coherence/2, num=2*total_bins, endpoint=True)
+        coherence_highres = np.linspace(0, 2*max(coherence),num = 2*total_bins)
 
         # Theoretical pdf of coherences assuming Gaussian noise
         predicted_highres = self.coherence_pdf(coherence_highres)
@@ -838,8 +838,8 @@ class StatisticalChecks:
         axs.set_xlim(0, np.ceil(max_coh/coh_power)*coh_power)
         
         # Round up to the nearest power of 10 for the y-axis
-        axs.set_ylim(10**np.floor(np.log10(100.0/n_frequencies)), 10**(np.floor(np.log10(predicted_highres[0])) + 1))
-
+        axs.set_ylim(10**(np.floor(np.log10(1./(n_frequencies*delta_coherence)))), 10**(np.floor(np.log10(max(predicted_highres[0],bins[0]))) + 1))
+        
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
 
@@ -898,8 +898,8 @@ class StatisticalChecks:
         axs.set_xlim(0, np.ceil(max_coh/coh_power)*coh_power)
         
         # Round up to the nearest power of 10 for the y-axis
-        axs.set_ylim(10**np.floor(np.log10(100.0/n_frequencies)), 10**(np.floor(np.log10(predicted_highres[0])) + 1))
-
+        axs.set_ylim(10**(np.floor(np.log10(1./(n_frequencies*delta_coherence)))), 10**(np.floor(np.log10(max(predicted_highres[0],bins[0]))) + 1))
+        
         axs.tick_params(axis="x", labelsize=self.legend_fontsize)
         axs.tick_params(axis="y", labelsize=self.legend_fontsize)
 
