@@ -210,6 +210,7 @@ class StatisticalChecks:
         tf_gps = Time(self.sliding_times_all[-1], format='gps')
         tf = Time(tf_gps, format='iso', scale='utc', precision=0, out_subfmt='date_hm')
         self.time_tag = f"{t0}"+" $-$ "+f"{tf}"
+        self.t0_offset = t0.ymdhms.hour + t0.ymdhms.minute/60
 
         if file_tag:
             self.file_tag = file_tag
@@ -222,10 +223,11 @@ class StatisticalChecks:
         self.annotate_fontsize = legend_fontsize - 4
 
         ## convention: stochmon
-        if convention == 'stochmon':
-            self.days_all = self.days_all*24 + t0.ymdhms.hour + t0.ymdhms.minute/60
-            self.days_cut = self.days_cut*24 + t0.ymdhms.hour + t0.ymdhms.minute/60
-            self.xaxis = f"Hours since {t0}"
+        self.convention = convention
+        if self.convention == 'stochmon':
+            self.days_all = self.days_all*24 + self.t0_offset
+            self.days_cut = self.days_cut*24 + self.t0_offset
+            self.xaxis = f"Hours since {t0.ymdhms[0]}-{t0.ymdhms[1]}-{t0.ymdhms[2]} 00:00"
         else:
             self.xaxis = f"Days since {t0}"
 
@@ -1630,7 +1632,11 @@ class StatisticalChecks:
         else:
             self.total_gated_time_ifo1 = np.sum(self.gates_ifo1[:,1]-self.gates_ifo1[:,0])
             self.total_gated_percent_ifo1 = self.total_gated_time_ifo1/(int(self.sliding_times_all[-1])- int(self.sliding_times_all[0]))*100
-            gate_times_in_days_ifo1 = (np.array(self.gates_ifo1[:,0]) - self.sliding_times_all[0]) / 86400.0
+            if self.convention == 'pygwb':
+                gate_times_in_days_ifo1 = (np.array(self.gates_ifo1[:,0]) - self.sliding_times_all[0]) / 86400.0 
+            else:
+                gate_times_in_days_ifo1 = (np.array(self.gates_ifo1[:,0]) - self.sliding_times_all[0]) / 3600.0 + self.t0_offset
+
             self.gates_ifo1_statement= f"Data gated out: {self.total_gated_time_ifo1} s\n" f"Percentage: {float(f'{self.total_gated_percent_ifo1:.2g}'):g}%"
             gatefig1 = ax.plot(gate_times_in_days_ifo1, self.gates_ifo1[:,1]-self.gates_ifo1[:,0], 's', color=self.sea[3], label="IFO1:\n" f"{self.gates_ifo1_statement}")
             first_legend = ax.legend(handles=gatefig1, loc=(0.05,0.75), fontsize = self.axes_labelsize)
@@ -1640,7 +1646,10 @@ class StatisticalChecks:
         else:
             self.total_gated_time_ifo2 = np.sum(self.gates_ifo2[:,1]-self.gates_ifo2[:,0])
             self.total_gated_percent_ifo2 = self.total_gated_time_ifo2/(int(self.sliding_times_all[-1])- int(self.sliding_times_all[0]))*100
-            gate_times_in_days_ifo2 = (np.array(self.gates_ifo2[:,0]) - self.sliding_times_all[0]) / 86400.0
+            if self.convention == 'pygwb':
+                gate_times_in_days_ifo2 = (np.array(self.gates_ifo2[:,0]) - self.sliding_times_all[0]) / 86400.0
+            else:
+                gate_times_in_days_ifo2 = (np.array(self.gates_ifo2[:,0]) - self.sliding_times_all[0]) / 3600.0 + self.t0_offset
             self.gates_ifo2_statement= f"Data gated out: {self.total_gated_time_ifo2} s\n" f"Percentage: {float(f'{self.total_gated_percent_ifo2:.2g}'):g}%"
             gatefig2 = ax.plot(gate_times_in_days_ifo2, self.gates_ifo2[:,1]-self.gates_ifo2[:,0], 's', color=self.sea[0], label="IFO2:\n" f"{self.gates_ifo2_statement}")
             ax.legend(handles=gatefig2, loc=(0.05, 0.1), fontsize = self.axes_labelsize)
