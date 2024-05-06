@@ -10,6 +10,7 @@ For additional information on how to run the statistical checks, and interpret t
 tutorials and demos, as well as the `pygwb paper <https://arxiv.org/pdf/2303.15696.pdf>`_.
 """
 import json
+import pickle
 import warnings
 from os import listdir
 from os.path import isfile, join
@@ -1704,6 +1705,16 @@ class StatisticalChecks:
             self.plot_coherence_spectrum()
             self.plot_hist_coherence()
         self.save_all_statements()
+
+    @classmethod
+    def load_from_pickle(cls, filename):
+        with open(filename, "rb") as f:
+            return pickle.load(f)
+
+    def save_to_pickle(self, filename, wipe=True):
+        with open(filename, "wb") as f:
+            pickle.dump(self, f)
+
 
 def sortingFunction(item):
     return float(item[5:].partition("-")[0])
