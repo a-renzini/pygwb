@@ -250,7 +250,7 @@ def calc_bias(
         # the std dev is not an unbiased estimator. The bias depends on the effective number of
         # averages used to calculate the Welch PSDs - see https://arxiv.org/abs/2012.00907 Eq. (B9) 
         Neff = N_avg_segs * Neff
-        bias = (1 + 2/Neff)**(-0.5)
+        bias = np.sqrt(1 + 2/Neff)
 
     return bias
 
