@@ -246,9 +246,11 @@ def calc_bias(
         bias = 1.0
 
     else:
-        # Correction for number of PSDs that will be averaged 
+        # Bias correction factor applied to the standard deviation, since the 1/(P_1*P_2) term in
+        # the std dev is not an unbiased estimator. The bias depends on the effective number of
+        # averages used to calculate the Welch PSDs - see https://arxiv.org/abs/2012.00907 Eq. (B9) 
         Neff = N_avg_segs * Neff
-        bias = Neff / (Neff - 1)
+        bias = np.sqrt(1 + 2/Neff)
 
     return bias
 
