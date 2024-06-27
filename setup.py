@@ -46,7 +46,7 @@ setup(
     install_requires=[
         "numpy",
         "matplotlib",
-        "scipy>=1.8.0",
+        "scipy>=1.8.0,<1.14.0",
         "bilby>=1.4",
         "gwpy>=3.0.4",
         "astropy>=5.2",
