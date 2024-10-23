@@ -367,7 +367,7 @@ class Workflow():
             st, et = np.loadtxt(custom_job_file_path, dtype='int', comments='#', delimiter=None, unpack=True, usecols=[1,2])
             sci_flag = SegmentList(zip(st, et))
         
-        elif self.config.has_option('data_quality', 'science_segment') and not self.config['pygwb_pipe']['data_type'] != "local":
+        elif self.config.has_option('data_quality', 'science_segment') and self.config['pygwb_pipe']['data_type'] != "local":
             logging.info('Downloading science flags...')
             self.get_science_flags()
             sci_flag = DataQualityDict.query_dqsegdb(
