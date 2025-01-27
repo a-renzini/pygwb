@@ -133,7 +133,7 @@ def main():
             logger.info("Loading gates from file.")
             params.path_gate_data = Path(params.path_gate_data)
             if not params.path_gate_data.is_file():
-                list_of_gatefiles = sorted(params.path_gate_data.glob("point_estimate*.npz"))
+                list_of_gatefiles = sorted(params.path_gate_data.rglob("point_estimate*.npz"))
                 npzobject_list = [path for path in list_of_gatefiles if path.match(f"*{int(params.t0)}-{int(params.tf - params.t0)}*")]
                 npzobject = np.load(params.path_gate_data / npzobject_list[0])
             else:
