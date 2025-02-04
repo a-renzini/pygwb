@@ -133,8 +133,8 @@ def main():
             logger.info("Loading gates from file.")
             params.path_gate_data = Path(params.path_gate_data)
             if not params.path_gate_data.is_file():
-                list_of_gatefiles = sorted(params.path_gate_data.glob("point_estimate*.npz"))
-                npzobject_list = [path for path in list_of_gatefiles if path.match(f"*{int(params.t0)}-{int(params.tf)}*")]
+                list_of_gatefiles = sorted(params.path_gate_data.rglob("point_estimate*.npz"))
+                npzobject_list = [path for path in list_of_gatefiles if path.match(f"*{int(params.t0)}-{int(params.tf - params.t0)}*")]
                 npzobject = np.load(params.path_gate_data / npzobject_list[0])
             else:
                 npzobject = np.load(params.path_gate_data)
@@ -239,12 +239,9 @@ def main():
 
         data_file_name = f"{output_path}/psds_csds_{script_args.file_tag}"
 
-        base_12.npz_save_psds_csds(
+        base_12.save_psds_csds(
+            params.save_data_type,
             data_file_name,
-            base_12.frequencies,
-            base_12.csd,
-            base_12.interferometer_1.average_psd,
-            base_12.interferometer_2.average_psd,
         )
 
 if __name__ == "__main__":

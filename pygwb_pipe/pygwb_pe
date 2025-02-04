@@ -219,7 +219,7 @@ def main():
     outdir=script_args.outdir,label= 'hlv', injection_parameters = injection_parameters)
 
     if script_args.quantiles == "None":
-        quantiles = [0.05, 0.95]
+        quantiles = [0.05, 0.5, 0.95]
     else:
         quantiles = json.loads(script_args.quantiles)
 
