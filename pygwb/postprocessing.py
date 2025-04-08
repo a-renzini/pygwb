@@ -142,9 +142,19 @@ def postprocess_Y_sigma(
     Y_fs_sliced = []
     var_fs_sliced = []
 
+    bias = calc_bias(
+        segment_duration,
+        deltaF,
+        1 / new_sample_rate,
+        N_avg_segs=N_avg_segs,
+        window_fftgram_dict=window_fftgram_dict_welch,
+        overlap_factor=overlap_factor_welch,
+    )
+    logger.debug(f"Bias factor: {bias}")
+
     for sli in ndi.find_objects(labels):
         Y = Y_fs[sli]
-        var = var_fs[sli]
+        var = var_fs[sli] * bias**2 # correct the bias factor before combining data
 
         if len(Y) == 1:
             Y_fs_sliced.append(Y[0])
@@ -169,17 +179,6 @@ def postprocess_Y_sigma(
     Y_f_new, sigma_f_new = combine_spectra_with_sigma_weights(
         Y_fs_sliced, np.sqrt(var_fs_sliced)
     )
-
-    bias = calc_bias(
-        segment_duration,
-        deltaF,
-        1 / new_sample_rate,
-        N_avg_segs=N_avg_segs,
-        window_fftgram_dict=window_fftgram_dict_welch,
-        overlap_factor=overlap_factor_welch,
-    )
-    logger.debug(f"Bias factor: {bias}")
-    sigma_f_new *= bias
 
     return Y_f_new, sigma_f_new
 
