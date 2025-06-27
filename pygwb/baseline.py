@@ -1286,7 +1286,7 @@ class Baseline:
             notch_list_path=notch_list_path, apply_notches=apply_notches
         )
 
-        if self.sigma_spectrum[0] == np.infty:
+        if self.sigma_spectrum[0] == np.inf:
                 self.sigma = np.inf
                 self.point_estimate = 0
                 return 
