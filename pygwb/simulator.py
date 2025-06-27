@@ -528,7 +528,7 @@ class Simulator:
         numpy.random.randn 
             More information `here <https://numpy.org/doc/stable/reference/random/generated/numpy.random.randn.html>`_.
         """
-        z = np.zeros((self.Nf, self.Nd), dtype="complex_")
+        z = np.zeros((self.Nf, self.Nd), dtype="complex")
         re = np.random.randn(self.Nf, self.Nd)
         im = np.random.randn(self.Nf, self.Nd)
         z = re + im * 1j
