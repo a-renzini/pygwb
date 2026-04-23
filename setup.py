@@ -48,7 +48,7 @@ setup(
         "matplotlib",
         "scipy>=1.8.0,<1.14.0",
         "bilby>=1.4",
-        "gwpy>=3.0.4",
+        "gwpy>=3.0.4,4.0.0",
         "astropy>=5.2",
         "gwdetchar<2.3.2",
         "gwsumm",
