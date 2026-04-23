@@ -50,7 +50,7 @@ setup(
         "bilby>=1.4",
         "gwpy>=3.0.4",
         "astropy>=5.2",
-        "gwdetchar",
+        "gwdetchar<2.3.2",
         "gwsumm",
         "pycondor",
         "lalsuite>=7.3",
