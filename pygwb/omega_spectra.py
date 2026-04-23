@@ -53,8 +53,8 @@ class OmegaSpectrogram(Spectrogram):
     gwpy.spectrogram.Spectrogram
         More information `here <https://gwpy.github.io/docs/stable/spectrogram/>`_.
     """
-    _metadata_slots = Spectrogram._metadata_slots + ("alpha", "fref", "h0")
-    # _print_slots = FrequencySeries._print_slots + ["alpha", "fref", "h0"]
+    _metadata_slots = (*Spectrogram._metadata_slots, "alpha", "fref", "h0")
+    # _print_slots = (*FrequencySeries._print_slots, "alpha", "fref", "h0")
 
     def __new__(cls, data, **kwargs):
         kwargs.pop("alpha", None)
@@ -211,8 +211,8 @@ class OmegaSpectrum(FrequencySeries):
     gwpy.frequencyseries.FrequencySeries
         More information `here <https://gwpy.github.io/docs/stable/api/gwpy.frequencyseries.FrequencySeries/#gwpy.frequencyseries.FrequencySeries>`_.
     """
-    _metadata_slots = FrequencySeries._metadata_slots + ("alpha", "fref", "h0")
-    _print_slots = FrequencySeries._print_slots + ["alpha", "fref", "h0"]
+    _metadata_slots = (*FrequencySeries._metadata_slots, "alpha", "fref", "h0")
+    _print_slots = (*FrequencySeries._print_slots, "alpha", "fref", "h0")
 
     def __new__(cls, data, **kwargs):
         kwargs.pop("alpha", None)
