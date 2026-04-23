@@ -213,6 +213,7 @@ class OmegaSpectrum(FrequencySeries):
     """
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     _metadata_slots = (*FrequencySeries._metadata_slots, "alpha", "fref", "h0")
     _print_slots = (*FrequencySeries._print_slots, "alpha", "fref", "h0")
 =======
@@ -221,6 +222,9 @@ class OmegaSpectrum(FrequencySeries):
 >>>>>>> f6c0b7a (Fix list vs tuple addition)
 =======
     _metadata_slots = FrequencySeries._metadata_slots + ["alpha", "fref", "h0"]
+=======
+    _metadata_slots = FrequencySeries._metadata_slots + ("alpha", "fref", "h0")
+>>>>>>> 8c487cc (Metadata and print slots are different types!?)
     _print_slots = FrequencySeries._print_slots + ["alpha", "fref", "h0"]
 >>>>>>> 5e263d7 (slots are lists in gwpy v3?)
 
