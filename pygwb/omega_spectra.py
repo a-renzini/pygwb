@@ -211,8 +211,13 @@ class OmegaSpectrum(FrequencySeries):
     gwpy.frequencyseries.FrequencySeries
         More information `here <https://gwpy.github.io/docs/stable/api/gwpy.frequencyseries.FrequencySeries/#gwpy.frequencyseries.FrequencySeries>`_.
     """
+<<<<<<< HEAD
     _metadata_slots = (*FrequencySeries._metadata_slots, "alpha", "fref", "h0")
     _print_slots = (*FrequencySeries._print_slots, "alpha", "fref", "h0")
+=======
+    _metadata_slots = FrequencySeries._metadata_slots + ("alpha", "fref", "h0")
+    _print_slots = FrequencySeries._print_slots + ("alpha", "fref", "h0")
+>>>>>>> f6c0b7a (Fix list vs tuple addition)
 
     def __new__(cls, data, **kwargs):
         kwargs.pop("alpha", None)
