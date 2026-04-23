@@ -44,48 +44,17 @@ stages:
           ${script} --help;
       done
 
-.basic-python-38: &basic-python-38
-  stage: initial
-  image: python
-  before_script:
-    - pip install --upgrade pip
-  script:
-    - pip install --ignore-installed .
-    - pip install gwsumm==2.0.1 # have to fix these to continue using py38 due to backwards-incompatible changes in gwsumm/gwpy; should deprecate py38 soon.
-    - pip install lscsoft-glue==3.0.1
-    - cd ..
-    - python -c "import pygwb"
-    - python -c "import pygwb.baseline"
-    - python -c "import pygwb.constants"
-    - python -c "import pygwb.delta_sigma_cut"
-    - python -c "import pygwb.detector"
-    - python -c "import pygwb.network"
-    - python -c "import pygwb.notch"
-    - python -c "import pygwb.orfs"
-    - python -c "import pygwb.parameters"
-    - python -c "import pygwb.pe"
-    - python -c "import pygwb.postprocessing"
-    - python -c "import pygwb.preprocessing"
-    - python -c "import pygwb.simulator"
-    - python -c "import pygwb.spectral"
-    - python -c "import pygwb.statistical_checks"
-    - python -c "import pygwb.util"
-    - for script in $(pip show -f pygwb | grep "bin\/" | xargs -I {} basename {}); do
-          ${script} --help;
-      done
-
-basic-3.8:
-  <<: *basic-python-38
-  image: python:3.8
-
-basic-3.9:
-  <<: *basic-python
-  image: python:3.9
-
 basic-3.10:
   <<: *basic-python
   image: python:3.10
 
+basic-3.11:
+  <<: *basic-python
+  image: python:3.11
+
+basic-3.12:
+  <<: *basic-python
+  image: python:3.12
 
 .precommits-python: &precommits-python
   stage: initial
@@ -117,9 +86,17 @@ precommits-py3.8:
     - pip install .
     - pytest --cov=pygwb --cov-config=.coveragerc
 
-python-3.8:
+python-3.10:
   <<: *test-python
-  image: python:3.8
+  image: python:3.10
+
+python-3.11:
+  <<: *test-python
+  image: python:3.11
+
+python-3.12:
+  <<: *test-python
+  image: python:3.12
   after_script:
     - coverage html
     - coverage xml
@@ -133,14 +110,6 @@ python-3.8:
       - htmlcov/
     expire_in: 30 days
 
-python-3.9:
-  <<: *test-python
-  image: python:3.9
-
-python-3.10:
-  <<: *test-python
-  image: python:3.10
-
 workflow:
   stage: test
   image: python:3.10
@@ -153,7 +122,7 @@ workflow:
 
 documentation:
   stage: documentation
-  image: python:3.8
+  image: python:3.12
   before_script:
     - apt-get -yqq update
     - apt-get -yqq install pandoc
@@ -178,7 +147,7 @@ documentation:
 pages:
   stage: deploy
   dependencies:
-    - python-3.8
+    - python-3.12
     - documentation
   script:
     - mkdir public/
