@@ -44,10 +44,6 @@ stages:
           ${script} --help;
       done
 
-basic-3.10:
-  <<: *basic-python
-  image: python:3.10
-
 basic-3.11:
   <<: *basic-python
   image: python:3.11
@@ -55,6 +51,10 @@ basic-3.11:
 basic-3.12:
   <<: *basic-python
   image: python:3.12
+
+basic-3.13:
+  <<: *basic-python
+  image: python:3.13
 
 .precommits-python: &precommits-python
   stage: initial
@@ -86,10 +86,6 @@ precommits-py3.12:
     - pip install .
     - pytest --cov=pygwb --cov-config=.coveragerc
 
-python-3.10:
-  <<: *test-python
-  image: python:3.10
-
 python-3.11:
   <<: *test-python
   image: python:3.11
@@ -109,6 +105,10 @@ python-3.12:
     paths:
       - htmlcov/
     expire_in: 30 days
+
+python-3.12:
+  <<: *test-python
+  image: python:3.12
 
 workflow:
   stage: test
