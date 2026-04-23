@@ -71,9 +71,9 @@ basic-3.12:
     - pre-commit run --files tutorials/*.py --verbose --show-diff-on-failure
     - pre-commit run --files *.py --verbose --show-diff-on-failure
 
-precommits-py3.8:
+precommits-py3.12:
   <<: *precommits-python
-  image: python:3.8
+  image: python:3.12
 
 
 .test-python: &test-python
