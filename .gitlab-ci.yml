@@ -112,7 +112,7 @@ python-3.12:
 
 workflow:
   stage: test
-  image: python:3.10
+  image: python:3.12
   before_script:
     - pip install --upgrade pip setuptools
   script:
