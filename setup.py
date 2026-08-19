@@ -51,7 +51,7 @@ setup(
         "gwpy>=3.0.4,<4.0.0",
         "astropy>=5.2",
         "gwdetchar<2.3.2",
-        "gwsumm",
+        "gwsumm==2.3.3",
         "pycondor",
         "lalsuite>=7.3",
         "loguru",
